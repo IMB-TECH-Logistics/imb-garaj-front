@@ -188,19 +188,19 @@ const AddTripOrders = () => {
             <FormCombobox
                 options={[
                     {
-                        id: 0,
+                        id: "0",
                         name: "Kutilmoqda",
                     },
                     {
-                        id: 1,
+                        id: "1",
                         name: "Boshlandi",
                     },
                     {
-                        id: 2,
+                        id: "2",
                         name: "Tugallandi",
                     },
                     {
-                        id: 3,
+                        id: "3",
                         name: "Bekor qilinid",
                     },
                 ]}
