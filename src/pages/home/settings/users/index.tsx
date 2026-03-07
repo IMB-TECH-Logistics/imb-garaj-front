@@ -5,18 +5,19 @@ import { SETTINGS_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
+import { useSearch } from "@tanstack/react-router"
 import TableHeader from "../table-header"
 import AddUserModal from "./add-users"
 import { useColumnsUsersTable } from "./users-cols"
-import { useSearch } from "@tanstack/react-router"
 
 const UsersPage = () => {
-    const search = useSearch({strict:false})
-    const { data, isLoading } = useGet<ListResponse<UserType>>(SETTINGS_USERS,{
-        params:{
-            search:search.first_name
-        }
-     
+    const search = useSearch({ strict: false })
+    const { data, isLoading } = useGet<ListResponse<UserType>>(SETTINGS_USERS, {
+        params: {
+            search: search.first_name,
+            page: search.page,
+            page_size: search.page_size,
+        },
     })
     const { getData, setData } = useGlobalStore()
     const item = getData<UserType>(SETTINGS_USERS)
@@ -44,15 +45,16 @@ const UsersPage = () => {
                 onEdit={({ original }) => handleEdit(original)}
                 paginationProps={{
                     totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
                 }}
                 head={
                     <TableHeader
                         fileName="Haydovchilar"
                         url="excel"
                         storeKey={SETTINGS_USERS}
-                         searchKey="first_name"
+                        searchKey="first_name"
                         pageKey="page"
-
                     />
                 }
             />

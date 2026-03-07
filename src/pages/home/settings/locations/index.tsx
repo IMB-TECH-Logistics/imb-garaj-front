@@ -20,7 +20,7 @@ const Locations = () => {
 
     return (
         <>
-            <Card className="h-full w-full flex flex-col">
+            <Card className="max-w-[3]">
                 <CardHeader className="pb-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <CardTitle className="text-xl font-semibold tracking-tight">
@@ -47,14 +47,14 @@ const Locations = () => {
                 </CardHeader>
                 <CardContent className="flex-1 min-h-0 pt-0">
                     <div className="h-full rounded-md overflow-hidden">
-                        <div className="h-full overflow-auto">
+                        <div className="h-full ">
                             <CountriesTable />
                         </div>
                     </div>
                 </CardContent>
             </Card>
             <Modal
-                size="max-w-2xl"
+                size="max-w-xl"
                 title="Davlat qo'shish"
                 modalKey="country-modal"
             >

@@ -7,17 +7,16 @@ interface CountriesDetailRow {
 }
 
 export const CountriesDetailRow = ({ country_id }: CountriesDetailRow) => {
-    const search = useSearch({strict:false})
-    const selectedRegionId = search.region  
-    
-    
+    const search = useSearch({ strict: false })
+    const selectedRegionId = search.region
+
     return (
-        <div className="py-3 px-2">
+        <div className="">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <RegionsTable country_id={country_id} />
-                <DistrictsTable 
+                <DistrictsTable
                     country_id={country_id}
-                    region_id={selectedRegionId}  
+                    region_id={selectedRegionId}
                 />
             </div>
         </div>

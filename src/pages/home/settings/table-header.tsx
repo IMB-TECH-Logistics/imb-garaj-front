@@ -33,7 +33,7 @@ const TableHeader = ({
         <div className="flex items-center justify-between gap-3 mb-3">
             <ParamInput fullWidth searchKey={searchKey} pageKey={pageKey} />
             <div className="flex items-center gap-3">
-                <DownloadAsExcel url={"settings_url"} name={`${fileName}`} />
+                {/* <DownloadAsExcel url={"settings_url"} name={`${fileName}`} /> */}
 
                 <Button
                     className="flex items-center gap-2"

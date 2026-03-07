@@ -22,6 +22,8 @@ const VehicleTrips = () => {
         params: {
             vehicle: params.id,
             ...search,
+            page: search.page,
+            page_size: search.page_size,
         },
     })
     const item = getData<TripRow>(TRIPS)
@@ -60,7 +62,9 @@ const VehicleTrips = () => {
                 onDelete={handleDelete}
                 head={<TruckTripsHeader />}
                 paginationProps={{
-                    totalPages: 3,
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
                 }}
             />
             <DeleteModal path={TRIPS} id={item?.id} />

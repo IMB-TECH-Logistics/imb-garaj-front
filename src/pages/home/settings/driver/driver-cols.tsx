@@ -86,15 +86,15 @@ export const useColumnsDriverTable = () => {
                 },
                 id: "license_expiry",
             },
-            {
-                accessorKey: "is_active",
-                header: "Aktiv",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const isActive = row.getValue("is_active")
-                    return isActive ? "Aktiv" : "Aktiv emas"
-                },
-            },
+            // {
+            //     accessorKey: "is_active",
+            //     header: "Aktiv",
+            //     enableSorting: true,
+            //     cell: ({ row }) => {
+            //         const isActive = row.getValue("is_active")
+            //         return isActive ? "Aktiv" : "Aktiv emas"
+            //     },
+            // },
         ],
         [],
     )

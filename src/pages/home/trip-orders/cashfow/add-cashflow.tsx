@@ -1,20 +1,24 @@
+import { FormCombobox } from "@/components/form/combobox"
+import FormInput from "@/components/form/input"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
+import {
+    ORDER_CASHFLOWS,
+    SETTINGS_SELECTABLE_EXPENSE_CATEGORY,
+    SETTINTS_PAYMENT_TYPE,
+} from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
+import { useQueryClient } from "@tanstack/react-query"
+import { useParams, useSearch } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { useQueryClient } from "@tanstack/react-query"
-import { ORDER_CASHFLOWS, SETTINGS_SELECTABLE_EXPENSE_CATEGORY } from "@/constants/api-endpoints"
-import { useSearch } from "@tanstack/react-router"
-import { FormCombobox } from "@/components/form/combobox"
-import { FormNumberInput } from "@/components/form/number-input"
-import { useGet } from "@/hooks/useGet"
-import FormInput from "@/components/form/input"
-
 
 interface CashflowForm {
+    payment_type: any
     action: number
     amount: number
     category: number
@@ -28,9 +32,17 @@ const AddCashflow = () => {
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("create-order-cashflow")
     const search = useSearch({ strict: false })
-    const orderId = Number(search.order)
-    const { data: categoryData } = useGet<ExpenseCategory[]>(SETTINGS_SELECTABLE_EXPENSE_CATEGORY)
-    const currentCashflow = getData<(CashflowForm & { id?: number })>(ORDER_CASHFLOWS)
+   const { parentId, childId } = useParams({ strict: false })
+
+    const { data: paymentTypes } = useGet<ListResponse<RolesType>>(
+        SETTINTS_PAYMENT_TYPE,
+    )
+    const { data: categoryData } = useGet<ExpenseCategory[]>(
+        SETTINGS_SELECTABLE_EXPENSE_CATEGORY,
+    )
+    const currentCashflow = getData<CashflowForm & { id?: number }>(
+        ORDER_CASHFLOWS,
+    )
 
     const form = useForm<CashflowForm>({
         defaultValues: {
@@ -39,20 +51,19 @@ const AddCashflow = () => {
             category: currentCashflow?.category,
             comment: currentCashflow?.comment,
             currency: currentCashflow?.currency,
-            currency_course: currentCashflow?.currency_course
-        }
-
+            currency_course: currentCashflow?.currency_course,
+            payment_type: currentCashflow?.payment_type,
+        },
     })
 
     const { handleSubmit, control, reset, watch } = form
     const selectedCurrency = watch("currency")
 
-
     const onSuccess = () => {
         toast.success(
-            currentCashflow?.id
-                ? "Cashflow tahrirlandi!"
-                : "Cashflow qo‘shildi!"
+            currentCashflow?.id ?
+                "Cashflow tahrirlandi!"
+            :   "Cashflow qo‘shildi!",
         )
         reset()
         clearKey(ORDER_CASHFLOWS)
@@ -66,16 +77,17 @@ const AddCashflow = () => {
     const { mutate: update, isPending: updating } = usePatch({ onSuccess })
 
     const onSubmit = (data: CashflowForm) => {
-        if (!orderId) return
+        if (!childId) return
 
         const payload = {
-            order: orderId,
+            order:childId,
             action: data.action,
             amount: Number(data.amount),
             category: data.category,
             comment: data.comment,
-            currency:data.currency,
-            currency_course:data.currency_course
+            currency: data.currency,
+            currency_course: data.currency_course,
+            payment_type: data.payment_type,
         }
 
         if (currentCashflow?.id) {
@@ -85,7 +97,7 @@ const AddCashflow = () => {
         }
     }
 
-    if (!orderId) {
+    if (!childId) {
         return (
             <div className="text-sm text-muted-foreground">
                 Xarajatlar mavjud emas
@@ -94,7 +106,10 @@ const AddCashflow = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-2 gap-4"
+        >
             <FormCombobox
                 required
                 label="Amal turi"
@@ -118,27 +133,15 @@ const AddCashflow = () => {
             />
             <FormCombobox
                 required
-                label="Valyuta"
-                name="currency"
+                label="To'lov turi"
+                name="payment_type"
                 control={control}
-                options={[
-                    { value: 1, label: "UZS - So‘m" },
-                    { value: 2, label: "USD - AQSh dollari" },
-                ]}
-                valueKey="value"
-                labelKey="label"
-                placeholder="Valyutani tanlang"
-
+                options={paymentTypes?.results}
+                valueKey="id"
+                labelKey="name"
+                placeholder="To'lov turini tanlang"
             />
-            {selectedCurrency === 2 && (
-                <FormNumberInput
-                    thousandSeparator=" "
-                    name="currency_course"
-                    label="Valyuta kursi"
-                    placeholder="12 206 UZS"
-                    control={control}
-                />
-            )}
+
             <FormNumberInput
                 required
                 name="amount"
@@ -147,9 +150,7 @@ const AddCashflow = () => {
                 control={control}
                 placeholder="0 UZS"
             />
-            <FormInput required name="comment" label="Xarajat uchun izoh" methods={form} placeholder="Misol: Yoqilg'i uchun" />
-
-
+            <FormInput required name="comment" label="Izoh" methods={form} />
 
             <div className="col-span-2 flex justify-end pt-4">
                 <Button

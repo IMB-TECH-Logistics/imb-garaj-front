@@ -1,7 +1,5 @@
-import ParamInput from "@/components/as-params/input"
 import ParamPagination from "@/components/as-params/pagination"
 import DeleteModal from "@/components/custom/delete-modal"
-import { Button } from "@/components/ui/button"
 import {
     Table,
     TableBody,
@@ -12,20 +10,19 @@ import {
 import { SETTINGS_COUNTRIES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useGlobalStore } from "@/store/global-store"
-import { Plus } from "lucide-react"
+import { useSearch } from "@tanstack/react-router"
 import { Key } from "react"
 import { useColumnsCountriesTable } from "./country-cols"
 import { CountryRowTable } from "./country-row"
-import { useSearch } from "@tanstack/react-router"
-
- 
 
 const CountriesTable = () => {
-    const search = useSearch({strict:false})
-    const { data } = useGet<ListResponse<RolesType>>(SETTINGS_COUNTRIES,{
-        params:{
-            search:search.country_search
-        }
+    const search = useSearch({ strict: false })
+    const { data } = useGet<ListResponse<RolesType>>(SETTINGS_COUNTRIES, {
+        params: {
+            search: search.country_search,
+            page: search.page,
+            page_size: search.page_size,
+        },
     })
     const { getData } = useGlobalStore()
     const selectedCountry = getData(SETTINGS_COUNTRIES) as RolesType | null
@@ -33,9 +30,7 @@ const CountriesTable = () => {
     const totalColumns = columns.length + 2
 
     return (
-        <div className="overflow-x-auto">
- 
-
+        <div className="">
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
@@ -74,7 +69,11 @@ const CountriesTable = () => {
                 <ParamPagination totalPages={data?.total_pages} />
             </div>
 
-            <DeleteModal modalKey="delete-country" path={SETTINGS_COUNTRIES} id={selectedCountry?.id} />
+            <DeleteModal
+                modalKey="delete-country"
+                path={SETTINGS_COUNTRIES}
+                id={selectedCountry?.id}
+            />
         </div>
     )
 }

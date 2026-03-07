@@ -19,10 +19,22 @@ export const useColumnsCashflowsTable = () => {
                 header: "Eslatmalar",
                 enableSorting: true,
             },
-            {
-                accessorKey: "amount",
+               {
                 header: "Miqdor",
-                enableSorting: true,
+                accessorKey: "amount",
+                cell: ({ getValue }) => {
+                    const value = getValue<string>()
+                    if (!value) return <span className="">—</span>
+
+                    const num = Number(value)
+                    if (isNaN(num)) return <span className="">{value}</span>
+
+                    return (
+                        <span className="">
+                            {num.toLocaleString("uz-UZ").replace(/,/g, " ")}
+                        </span>
+                    )
+                },
             },
         ],
         [],

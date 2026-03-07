@@ -11,14 +11,16 @@ import AddRolesModal from "./add-roles"
 import { useColumnsRolesTable } from "./roles-cols"
 
 const RolesPage = () => {
-    const search = useSearch({ strict:false })
+    const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<RolesType>>(
         SETTINGS_ROLES,
         {
-            params:{
-                search:search.roles_search
-            }
-        }
+            params: {
+                search: search.roles_search,
+                page: search.page,
+                page_size: search.page_size,
+            },
+        },
     )
     const { getData, setData } = useGlobalStore()
     const item = getData<RolesType>(SETTINGS_ROLES)
@@ -46,6 +48,8 @@ const RolesPage = () => {
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
                 }}
                 head={
                     <TableHeader

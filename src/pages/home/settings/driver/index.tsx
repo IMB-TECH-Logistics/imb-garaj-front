@@ -11,15 +11,16 @@ import AddDriverModal from "./add-driver"
 import { useColumnsDriverTable } from "./driver-cols"
 
 const Drivers = () => {
-    const search = useSearch({strict:false})
+    const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
         {
-            params:{
-                search:search.driver_search
-            }
-        }
-     
+            params: {
+                search: search.driver_search,
+                page: search.page,
+                page_size: search.page_size,
+            },
+        },
     )
     const { getData, setData } = useGlobalStore()
     const item = getData<DriversType>(SETTINGS_DRIVERS)
@@ -53,6 +54,11 @@ const Drivers = () => {
                         searchKey="driver_search"
                     />
                 }
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                }}
             />
             <DeleteModal
                 path={SETTINGS_DRIVERS}

@@ -12,6 +12,15 @@ import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 import { useGet } from "@/hooks/useGet"
 
+//    const params = useParams({ strict: false })
+//     const id = params.id
+
+//     const { data: vehicleDetail } = useGet<VehicleDetailType>(
+//         `${VEHICLES}/${id}`,
+//         {
+//             enabled: !!id,
+//         },
+//     )
 
 
 const AddTransport = () => {
@@ -62,6 +71,8 @@ const AddTransport = () => {
         clearKey(VEHICLES)
         closeModal()
         queryClient.invalidateQueries({ queryKey: [VEHICLES] })
+        queryClient.invalidateQueries({queryKey:[`${VEHICLES}/${currentTruck?.id}`]})
+        
     }
 
     const { mutate: create, isPending: creating } = usePost({ onSuccess })

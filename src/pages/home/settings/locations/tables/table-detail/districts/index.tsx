@@ -20,11 +20,16 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
     const { data, isLoading } = useGet<ListResponse<SettingsDistrictType>>(
         SETTINGS_DISTRICTS,
         {
-            params: region_id ? {
-                region: region_id,
-                search: search.district_search,
-            } : {},
-            enabled: !!region_id, 
+            params:
+                region_id ?
+                    {
+                        region: region_id,
+                        search: search.district_search,
+                        page: 1,
+                        page_size: 1000,
+                    }
+                :   {},
+            enabled: !!region_id,
         },
     )
 
@@ -47,36 +52,49 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
 
     return (
         <>
-            <DataTable
-                loading={isLoading}
-                columns={columns}
-                wrapperClassName="bg-background"
-                data={region_id ? data?.results : []}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
-                numeration={true}
-                head={
-                    <TableHeaderLocation
-                        storeKey={SETTINGS_DISTRICTS}
-                        modalKey="create-districts"
-                        disabled={!region_id}
-                        pageKey="page"
-                        name="tumanlar"
-                        searchKey="district_search"
+            <div className="h-[500px]  flex flex-col overflow-hidden bg-background">
+                <div className="flex-1 overflow-y-auto no-scrollbar-0 no-scrollbar-x ">
+                    <DataTable
+                        loading={isLoading}
+                        columns={columns}
+                        wrapperClassName="bg-background"
+                        data={region_id ? data?.results : []}
+                        onDelete={handleDelete}
+                        onEdit={({ original }) => handleEdit(original)}
+                        numeration={true}
+                        viewAll={true}
+                        className="min-w-[400px]"
+                        paginationProps={{
+                            totalPages: 1,
+                        }}
+                        head={
+                            <TableHeaderLocation
+                                storeKey={SETTINGS_DISTRICTS}
+                                modalKey="create-districts"
+                                disabled={!region_id}
+                                pageKey="page"
+                                name="tumanlar"
+                                searchKey="district_search"
+                            />
+                        }
                     />
-                }
-            />
-            <DeleteModal modalKey="delete-districts" path={SETTINGS_DISTRICTS} id={item?.id} />
-            <Modal
-                size="max-w-2xl"
-                title={`Tuman ${item?.id ? "tahrirlash" : "qo'shish"}`}
-                modalKey={"create-districts"}
-            >
-                <AddDestrictsModal
-                    region_id={region_id}
-                    country_id={country_id}
+                </div>
+                <DeleteModal
+                    modalKey="delete-districts"
+                    path={SETTINGS_DISTRICTS}
+                    id={item?.id}
                 />
-            </Modal>
+                <Modal
+                    size="max-w-2xl"
+                    title={`Tuman ${item?.id ? "tahrirlash" : "qo'shish"}`}
+                    modalKey={"create-districts"}
+                >
+                    <AddDestrictsModal
+                        region_id={region_id}
+                        country_id={country_id}
+                    />
+                </Modal>
+            </div>
         </>
     )
 }

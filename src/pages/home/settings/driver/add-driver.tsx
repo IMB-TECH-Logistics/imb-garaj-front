@@ -48,7 +48,26 @@ const AddDriverModal = () => {
 
     const isPending = isPendingCreate || isPendingUpdate
 
-    const onSubmit = (values: DriversType) => {
+    const onSubmit = async (values: DriversType) => {
+        const isValid = await form.trigger()
+
+        if (!isValid) {
+            toast.error("Iltimos, barcha maydonlarni to'g'ri to'ldiring")
+            return
+        }
+
+        const phoneValue = values.driver.phone || ""
+        const digitsOnly = phoneValue.replace(/\D/g, "")
+
+        if (digitsOnly.length !== 9) {
+            form.setError("driver.phone", {
+                type: "manual",
+                message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+            })
+            toast.error("Telefon raqam to'liq emas")
+            return
+        }
+
         if (currentDriver?.id) {
             const { password, ...restValues } = values
 
@@ -169,13 +188,6 @@ const AddDriverModal = () => {
                     control={form.control}
                     placeholder="15/12/2025"
                 />
-
-                <FormCheckbox
-                    name="is_active"
-                    label="Aktiv"
-                    control={form.control}
-                />
-
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button
                         className="min-w-36 w-full md:w-max"

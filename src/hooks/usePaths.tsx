@@ -1,6 +1,6 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { ListOrdered, Settings, Truck } from "lucide-react"
+import { Settings, Truck, User, Wallet } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 
 export interface MenuItem {
@@ -97,20 +97,43 @@ export const usePaths = () => {
 export const useItems = () =>
     useMemo<MenuItem[]>(
         () => [
+            // {
+            //     label: "Bosh sahifa",
+            //     icon: <ListOrdered width={18} />,
+            //     path: "/dashboard",
+            // },
+
             {
-                label: "Bosh sahifa",
-                icon: <ListOrdered width={18} />,
-                path: "/dashboard",
+                label: "Meneger",
+                icon: <User size={18} />,
+                path: "/managers",
+                items: [
+                    { label: "Transportlar", path: "/managers" },
+                    {
+                        label: "Texnik ko'rik",
+                        path: "/technic-check",
+                    },
+                ],
             },
+            // {
+            //     label: "Aylanma",
+            //     icon: <Waypoints width={18} />,
+            //     path: "/trip",
+            // },
             {
-                label: "Transport",
+                label: "Biznes egasi",
                 icon: <Truck width={18} />,
                 path: "/truck",
             },
+            // {
+            //     label: "Texnik ko'rik",
+            //     icon: <HeartPulse width={18} />,
+            //     path: "/texnik-check",
+            // },
             {
-                label: "Reyslar",
-                icon: <Truck width={18} />,
-                path: "/trip",
+                label: "Buxgalteriya",
+                icon: <Wallet width={18} />,
+                path: "/kassa",
             },
             {
                 label: "Sozlamalar",

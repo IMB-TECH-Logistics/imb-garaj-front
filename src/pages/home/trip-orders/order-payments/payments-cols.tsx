@@ -64,7 +64,7 @@ export const useColumnsOrderPayment = () => {
                         typeof value === "string" ? parseFloat(value) : value
                     if (isNaN(num)) {
                         return (
-                            <span className="text-muted-foreground">
+                            <span className="">
                                 {String(value)}
                             </span>
                         )
@@ -76,7 +76,7 @@ export const useColumnsOrderPayment = () => {
                         })
                         .replace(/,/g, " ")
 
-                    return <span className="font-medium">{formatted}</span>
+                    return <span className="">{formatted}</span>
                 },
             },
         ],

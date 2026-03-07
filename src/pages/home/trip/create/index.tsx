@@ -8,7 +8,6 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -29,24 +28,7 @@ const AddTrip = () => {
         },
     })
 
-    const { handleSubmit, control, reset, watch, setValue } = form
-
-    const selectedVehicleId = watch("vehicle")
-
-    useEffect(() => {
-        if (!selectedVehicleId || !vehicleData?.results) return
-
-        const selectedVehicle = vehicleData.results.find(
-            (v) => v.id === selectedVehicleId,
-        )
-
-        if (selectedVehicle?.driver) {
-            setValue("driver", selectedVehicle.driver, {
-                shouldValidate: true,
-                shouldDirty: true,
-            })
-        }
-    }, [selectedVehicleId, vehicleData, setValue])
+    const { handleSubmit, control, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -67,7 +49,6 @@ const AddTrip = () => {
         const formattedData = {
             ...data,
         }
-
         if (currentShift?.id) {
             update(`${TRIPS}/${currentShift.id}`, formattedData)
         } else {
@@ -99,15 +80,24 @@ const AddTrip = () => {
                     labelKey="first_name"
                     placeholder="Haydovchi tanlang"
                 />
-
-                <FormDatePicker
-                    required
-                    label="Reja qilingan yetkazib berish sanasi"
-                    control={control}
-                    name="start"
-                    placeholder="Sanani tanlang"
-                    className="w-full"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                    <FormDatePicker
+                        required
+                        label="Boshlangan sana"
+                        control={control}
+                        name="start"
+                        placeholder="Sanani tanlang"
+                        className="w-full"
+                    />
+                    <FormDatePicker
+                        required
+                        label="Tugash sana"
+                        control={control}
+                        name="end"
+                        placeholder="Sanani tanlang"
+                        className="w-full"
+                    />
+                </div>
             </div>
 
             <div className="col-span-2 flex justify-end gap-4 pt-4">

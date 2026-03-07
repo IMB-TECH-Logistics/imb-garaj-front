@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_auth")({
         const token = localStorage.getItem("token")
         if (token) {
             throw redirect({
-                to: "/dashboard",
+                to: "/",
             })
         }
     },

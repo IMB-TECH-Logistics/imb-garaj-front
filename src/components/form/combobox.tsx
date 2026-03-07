@@ -40,8 +40,8 @@ export function FormCombobox<
     options,
     control,
     hideError = true,
-    valueKey="id",
-    labelKey="name",
+    valueKey,
+    labelKey,
     onAdd,
     isLoading,
     skeletonCount,
@@ -53,6 +53,7 @@ export function FormCombobox<
     wrapperClassName,
 }: ComboboxProps<TForm, T>) {
     const error = getNestedValue(control._formState.errors, name)
+
     return (
         <fieldset className={cn("flex flex-col w-full", wrapperClassName)}>
             {label && (
@@ -70,22 +71,22 @@ export function FormCombobox<
                 rules={
                     required ? { required: `${label || name}ni kiriting` } : {}
                 }
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                     <ShadcnCombobox
                         options={options}
                         value={field.value || ""}
                         setValue={field.onChange}
                         label={placeholder || label || "Tanlang"}
-                        isError={!!error}
+                        isError={!!fieldState.error}
                         onAdd={onAdd}
                         valueKey={valueKey}
                         labelKey={labelKey}
                         isLoading={isLoading}
                         skeletonCount={skeletonCount}
                         onSearchChange={onSearchChange}
-                        className={className}
                         isSearch={isSearch}
                         isClearIcon={isClearIcon}
+                        className={className}
                         addButtonProps={{
                             disabled: control._formState.disabled,
                             ...addButtonProps,

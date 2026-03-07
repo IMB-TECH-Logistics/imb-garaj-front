@@ -30,6 +30,8 @@ const TruckTripOrderMain = () => {
         {
             params: {
                 order: params.id,
+                page:search.page,
+                page_size:search.page_size
             },
         },
     )

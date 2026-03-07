@@ -108,13 +108,7 @@ const AddUserModal = () => {
                     valueKey="id"
                     label="Foydalanuvchi roli"
                 />
-                <div className="flex items-center justify-start mt-2">
-                    <FormCheckbox
-                        name="is_active"
-                        label="Aktiv"
-                        control={form.control}
-                    />
-                </div>
+     
 
                 <div className="md:col-span-2 flex justify-end pt-2">
                     <Button

@@ -15,8 +15,10 @@ const Customers = () => {
     const { data, isLoading } = useGet<ListResponse<CustomersType>>(
         SETTINGS_CUSTOMERS,
         {
-            params:{
-                search:search.customer_search
+            params: {
+                search: search.customer_search,
+                page: search.page,
+                page_size: search.page_size,
             },
         },
     )
@@ -46,6 +48,8 @@ const Customers = () => {
                 numeration={true}
                 paginationProps={{
                     totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
                 }}
                 head={
                     <TableHeader

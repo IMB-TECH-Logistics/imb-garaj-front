@@ -9,7 +9,7 @@ export const useColumnsRegionsTable = () => {
                 header: "Viloyat nomi",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div className="min-w-[180px] w-[220px] truncate">
+                    <div className="">
                         {row.original.name || "-"}
                     </div>
                 ),

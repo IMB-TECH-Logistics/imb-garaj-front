@@ -1,5 +1,4 @@
 import { FormCombobox } from "@/components/form/combobox"
-import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,7 +12,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useSearch } from "@tanstack/react-router"
+import { useParams, useSearch } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -22,7 +21,7 @@ interface CashflowForm {
     currency_course: string
     amount: string
     currency_amount: string
-    order: number
+    order: number|string
     payment_type: number
 }
 
@@ -31,7 +30,7 @@ const AddPayment = () => {
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("create-order-payment")
     const search = useSearch({ strict: false })
-    const orderId = Number(search.order)
+     const { parentId, childId } = useParams({ strict: false })
     const { data: categoryData } = useGet<ExpenseCategory[]>(
         SETTINGS_SELECTABLE_EXPENSE_CATEGORY,
     )
@@ -46,7 +45,7 @@ const AddPayment = () => {
     const form = useForm<CashflowForm>({
         defaultValues: {
             ...currentCashflow,
-            order: orderId,
+            order:childId,
         },
     })
 
@@ -69,11 +68,11 @@ const AddPayment = () => {
     const { mutate: update, isPending: updating } = usePatch({ onSuccess })
 
     const onSubmit = (data: CashflowForm) => {
-        if (!orderId) return
+        if (!childId) return
 
         const payload = {
-            ...currentCashflow,
-            order: orderId,
+            ...data,
+            order:childId,
         }
 
         if (currentCashflow?.id) {
@@ -83,7 +82,7 @@ const AddPayment = () => {
         }
     }
 
-    if (!orderId) {
+    if (!childId) {
         return (
             <div className="text-sm text-muted-foreground">
                 Xarajatlar mavjud emas
@@ -112,6 +111,7 @@ const AddPayment = () => {
             />
             {selectedCurrency === 2 && (
                 <FormNumberInput
+                    required
                     thousandSeparator=" "
                     name="currency_course"
                     label="Valyuta kursi"
@@ -129,12 +129,12 @@ const AddPayment = () => {
                 control={control}
                 placeholder="0 UZS"
             />
-            <FormInput
+            <FormNumberInput
                 required
                 name="currency_amount"
-                label="To'lov uchun izoh"
-                methods={form}
-                placeholder="Misol: Yoqilg'i uchun"
+                label="Valyuta miqdori"
+                thousandSeparator=" "
+                control={control}
             />
 
             <FormCombobox

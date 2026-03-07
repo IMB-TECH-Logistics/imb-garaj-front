@@ -25,10 +25,12 @@ const TruckTripsHeader = () => {
     const { data: vehicleData } = useGet<ListResponse<VehicleType>>(
         COMMON_SELECTABLE_VEHICLE_TYPE,
     )
+    console.log("check",vehicleData);
+    
 
     const hasActiveFilters =
-        search.drivers ||
-        search.truck_type ||
+        search.driver ||
+        search.vehicle ||
         search.from_date ||
         search.to_date
 
@@ -37,8 +39,8 @@ const TruckTripsHeader = () => {
             to: location.pathname,
             search: {
                 ...search,
-                drivers: undefined,
-                truck_type: undefined,
+                driver: undefined,
+                vehicle: undefined,
                 from_date: undefined,
                 to_date: undefined,
             },
@@ -59,7 +61,7 @@ const TruckTripsHeader = () => {
                     </Button>
                 )}
                 <ParamCombobox
-                    paramName="drivers"
+                    paramName="driver"
                     options={driversData ?? []}
                     valueKey="id"
                     labelKey="first_name"
@@ -71,7 +73,7 @@ const TruckTripsHeader = () => {
                 />
 
                 <ParamCombobox
-                    paramName="truck_type"
+                    paramName="vehicle"
                     options={vehicleData?.results ?? []}
                     valueKey="id"
                     labelKey="type"

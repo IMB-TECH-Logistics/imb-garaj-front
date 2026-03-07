@@ -5,20 +5,22 @@ import { SETTINGS_EXPENSES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
+import { useSearch } from "@tanstack/react-router"
 import TableHeader from "../table-header"
 import AddExpensesModal from "./add-expenses"
 import { useColumnsExpensesTable } from "./expenses-cols"
-import { useSearch } from "@tanstack/react-router" 
 
 const ExpensesTypePage = () => {
-    const search = useSearch({strict:false})
+    const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
         SETTINGS_EXPENSES,
-       {
-        params:{
-            search:search.expense_type
-        }
-       }
+        {
+            params: {
+                search: search.expense_type,
+                page: search.page , 
+                page_size: search.page_size 
+            },
+        },
     )
     const { getData, setData } = useGlobalStore()
     const item = getData<VehicleRoleType>(SETTINGS_EXPENSES)
@@ -46,6 +48,9 @@ const ExpensesTypePage = () => {
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
+                    paramName: "page", 
+                    pageSizeParamName: "page_size"
+                    
                 }}
                 head={
                     <TableHeader

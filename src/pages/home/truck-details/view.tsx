@@ -5,20 +5,26 @@ import { ArrowLeft } from "lucide-react"
 import HrProfile from "./truck-profile"
 import VehicleCashflows from "./truck-profile/truck-cashflows"
 import VehicleTrips from "./truck-trips"
+import TruckCheck from "./truck-check"
 
 function ViewPage({ data }: { data: Human | undefined }) {
     const navigate = useNavigate()
     const options = [
         {
-            value: "0",
+            value: "1",
             label: "Reyslar",
             content: <VehicleTrips />,
         },
 
         {
-            value: "6",
+            value: "2",
             label: "Boshqa xarajatlar",
             content: <VehicleCashflows />,
+        },
+           {
+            value: "3",
+            label: "Texnik ko'rik",
+            content: <TruckCheck />,
         },
     ]
 

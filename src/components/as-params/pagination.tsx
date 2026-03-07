@@ -14,12 +14,12 @@ import Select from "../ui/select"
 
 const ParamPagination: React.FC<PaginationProps> = ({
     totalPages = 1,
-    page_sizes = [DEFAULT_PAGE_SIZE, 50, 100],
+    page_sizes = [25, 50, 100],
     paramName = "page",
     pageSizeParamName = "page_size",
     disabled = false,
     changePageSize = true,
-    PageSize = DEFAULT_PAGE_SIZE,
+    PageSize = 25,
 }) => {
     const navigate = useNavigate()
     const search: any = useSearch({ from: "/_main" }) as Record<

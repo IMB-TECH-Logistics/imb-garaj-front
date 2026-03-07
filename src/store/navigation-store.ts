@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type NavigationStore = {
+    
     paths: Record<string, string | undefined>;
     search: Record<string, string | undefined>;
     add: (pathKey: string) => void;

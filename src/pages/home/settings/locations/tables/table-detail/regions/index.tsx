@@ -13,6 +13,8 @@ import { useColumnsRegionsTable } from "./regions-cols"
 const RegionsTable = ({ country_id }: { country_id: number }) => {
     const navigate = useNavigate()
     const search = useSearch({ strict: false })
+    const selectedRegionId =
+        search.region != null ? Number(search.region) : undefined
 
     const { data, isLoading } = useGet<ListResponse<RegionsType>>(
         `${SETTINGS_REGIONS}`,
@@ -20,6 +22,8 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             params: {
                 country: country_id,
                 search: search.region_search,
+                page: 1,
+                page_size: 1000,
             },
         },
     )
@@ -70,33 +74,48 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
     }, [data, search.region, country_id, navigate])
 
     const simpleColumns = useColumnsRegionsTable()
-
     return (
-        <>
-            <DataTable
-                loading={isLoading}
-                columns={simpleColumns}
-                data={data?.results}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onRowClick={handleRowClick}
-                numeration={true}
-                wrapperClassName="bg-background"
-                head={
-                    <TableHeaderLocation
-                        disabled={!country_id}
-                        storeKey={SETTINGS_REGIONS}
-                        modalKey="create-region"
-                        name="Viloyatlar"
-                        searchKey="region_search"
-                        pageKey="page"
-                    />
-                }
-                rowColor={(row: any) =>
-                    search.region === row.id ? "bg-secondary" : ""
-                }
-            />
+        <div className="h-[500px] flex flex-col   overflow-hidden bg-background">
+            <div className="flex-1 overflow-y-auto no-scrollbar-x ">
+                <DataTable
+                    loading={isLoading}
+                    columns={simpleColumns}
+                    data={data?.results}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onRowClick={handleRowClick}
+                    className="min-w-[400px]"
+                    numeration={true}
+                    head={
+                        <TableHeaderLocation
+                            disabled={!country_id}
+                            storeKey={SETTINGS_REGIONS}
+                            modalKey="create-region"
+                            name="Viloyatlar"
+                            searchKey="region_search"
+                            pageKey="page"
+                        />
+                    }
 
+                    viewAll={true}
+                    paginationProps={{ totalPages: 1 }}
+                    wrapperClassName="!bg-transparent"
+                    rowColor={(r: any) => {
+                        const rowId = Number(r?.original?.id ?? r?.id)
+                        const isSelected = selectedRegionId === rowId
+
+                        return isSelected ?
+                                [
+                                    "[&>td]:!bg-primary/10",
+                                    "hover:[&>td]:!bg-primary/15",
+                                    "[&>td]:border-y-2 [&>td]:border-primary/60",
+                                    "[&>td:first-child]:border-l-2 [&>td:last-child]:border-r-2",
+                                    "[&>td]:!rounded-none",
+                                ].join(" ")
+                            :   ""
+                    }}
+                />
+            </div>
             <DeleteModal
                 modalKey="delete-region"
                 path={SETTINGS_REGIONS}
@@ -109,7 +128,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             >
                 <AddRegionsModal country_id={country_id} />
             </Modal>
-        </>
+        </div>
     )
 }
 

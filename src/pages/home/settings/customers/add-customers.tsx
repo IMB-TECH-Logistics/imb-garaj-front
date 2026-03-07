@@ -43,7 +43,26 @@ const AddCustomerModal = () => {
 
     const isPending = isPendingCreate || isPendingUpdate
 
-    const onSubmit = (values: CustomersType) => {
+    const onSubmit = async (values: CustomersType) => {
+        const isValid = await form.trigger()
+
+        if (!isValid) {
+            toast.error("Iltimos, barcha maydonlarni to'g'ri to'ldiring")
+            return
+        }
+
+        const phoneValue = values.phone_number || ""
+        const digitsOnly = phoneValue.replace(/\D/g, "")
+
+        if (digitsOnly.length !== 9) {
+            form.setError("phone_number", {
+                type: "manual",
+                message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+            })
+            toast.error("Telefon raqam to'liq emas")
+            return
+        }
+
         if (currentForwarder?.id) {
             updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, values)
         } else {
