@@ -1,6 +1,6 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { HeartPulse, ListOrdered, Settings, Truck, Wallet, Waypoints } from "lucide-react"
+import { Settings, Truck, User, Wallet } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 
 export interface MenuItem {
@@ -102,23 +102,36 @@ export const useItems = () =>
             //     icon: <ListOrdered width={18} />,
             //     path: "/dashboard",
             // },
-             {
-                label: "Aylanma",
-                icon: <Waypoints width={18} />,
-                path: "/trip",
-            },
+
             {
-                label: "Transport",
+                label: "Meneger",
+                icon: <User size={18} />,
+                path: "/managers",
+                items: [
+                    { label: "Transportlar", path: "/managers" },
+                    {
+                        label: "Texnik ko'rik",
+                        path: "/technic-check",
+                    },
+                ],
+            },
+            // {
+            //     label: "Aylanma",
+            //     icon: <Waypoints width={18} />,
+            //     path: "/trip",
+            // },
+            {
+                label: "Biznes egasi",
                 icon: <Truck width={18} />,
                 path: "/truck",
             },
-             {
-                label: "Texnik ko'rik",
-                icon: <HeartPulse width={18} />,
-                path: "/texnik-check",
-            },
-  {
-                label: "Kassa",
+            // {
+            //     label: "Texnik ko'rik",
+            //     icon: <HeartPulse width={18} />,
+            //     path: "/texnik-check",
+            // },
+            {
+                label: "Buxgalteriya",
                 icon: <Wallet width={18} />,
                 path: "/kassa",
             },

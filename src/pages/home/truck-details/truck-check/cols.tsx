@@ -2,22 +2,30 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
 
-export const useCostCols = () => {
-    return useMemo<ColumnDef<any>[]>(
+export const useTechnicInspect = () => {
+    return useMemo<ColumnDef<TechnicInspect>[]>(
         () => [
-         {
-                header: "Sana",
-                accessorKey: "created",
+            {
+                header: "Avtomobil",
+                accessorKey: "vehicle_name",
                 enableSorting: true,
-                cell: ({ getValue }) => (
-                    <span>
-                        {getValue<string>() ?
-                            format(
-                                new Date(getValue<string>()),
-                                "dd.MM.yyyy HH:mm",
-                            )
-                        :   "—"}
-                    </span>
+            },
+            {
+                header: "Kategoriya",
+                accessorKey: "category_name",
+                enableSorting: true,
+            },
+            {
+                header: "Davomiyligi",
+                accessorKey: "lifespan",
+                enableSorting: true,
+            },
+            {
+                header: "Sana",
+                accessorKey: "date",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span>{format(row.original.date, "yyyy-MM-dd")}</span>
                 ),
             },
             {
@@ -37,32 +45,12 @@ export const useCostCols = () => {
                     )
                 },
             },
-         
-
             {
-                header: "Texnika",
-                accessorKey: "technic",
-                cell: ({ getValue }) => <span>{getValue<number>()}</span>,
-            },
-      
-            {
-                header: "Qachongacha",
-                accessorKey: "end_time",
+                header: "Izoh",
+                accessorKey: "comment",
                 enableSorting: true,
-                cell: ({ getValue }) => (
-                    <span>
-                        {getValue<string>() ?
-                            format(
-                                new Date(getValue<string>()),
-                                "dd.MM.yyyy HH:mm",
-                            )
-                        :   "—"}
-                    </span>
-                ),
             },
         ],
         [],
     )
 }
-
-
