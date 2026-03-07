@@ -49,4 +49,5 @@ export const TECHNICAL_INSPECT ="vehicles/technical-inspection"
 export const MANAGERS_VEHICLES = "manager/vehicles"
 export const MANAGERS_TRIPS= "manager/trips"
 export const MANAGERS_ORDERS = "manager/orders"
+export const MANAGERS_EXPENSES = "manager/expense"
 // export const 

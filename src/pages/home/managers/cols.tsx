@@ -20,12 +20,6 @@ export const useColumnsManagersVehicles = () => {
                     <div className="">{row.original.type || "-"}</div>
                 ),
             },
-            // {
-            //     accessorKey: "driver_name",
-            //     header: "Haydovchi",
-            //     enableSorting: true,
-            //     cell: ({ row }) => <div>{row.original.driver_name || "-"}</div>,
-            // },
             {
                 accessorKey: "status",
                 header: "Aylanma statusi",
@@ -36,10 +30,10 @@ export const useColumnsManagersVehicles = () => {
                 },
             },
             {
-                accessorKey:'Kutilayotgan reyslar',
-                header:"Kutilayotgan reyslar",
-                enableSorting:true
-            }
+                accessorKey: "pending_orders",
+                header: "Kutilayotgan reyslar",
+                enableSorting: true,
+            },
         ],
         [],
     )

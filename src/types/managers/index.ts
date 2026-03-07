@@ -9,6 +9,8 @@ type ManagerVehicles = {
 }
 
 type ManagerTrips = {
+    income_uzs: string
+    income_usd: string
     id: number
     start: string
     end: string
@@ -19,8 +21,8 @@ type ManagerTrips = {
     unloading: string
     income: string
     cash_flow_sum: string
-    vehicle:number
-    driver:number
+    vehicle: number
+    driver: number
 }
 
 type ManagerOrdersPayments = {
@@ -45,4 +47,14 @@ type ManagerOrders = {
     type: number
     status: number
     payment_amount: number
+    payment_amount_uzs: string
+    payment_amount_usd: string
+}
+
+type ManagerExpenses = {
+    trip: number
+    amount: number
+    category: number
+    comment: string
+    payment_type: number
 }

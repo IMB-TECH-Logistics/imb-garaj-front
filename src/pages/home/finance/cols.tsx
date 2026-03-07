@@ -1,94 +1,146 @@
+import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 
 export const useCostCols = () => {
-    return useMemo<ColumnDef<Truck>[]>(
+    return useMemo<ColumnDef<TruckInfo>[]>(
         () => [
             {
-                header: "Avtoraqam",
-                accessorKey: "truck_number",
+                header: "Rusumi",
+                accessorKey: "vehicle_type",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="font-semibold uppercase">
-                        {row.original.truck_number}
+                        {row.original.vehicle_type}
                     </span>
                 ),
             },
 
             {
-                header: "Transport turi",
-                accessorKey: "truck_type",
+                header: "Avto raqam",
+                accessorKey: "primary_truck",
                 enableSorting: true,
                 cell: ({ row }) => {
                     return (
-                        <span>
-                            {row.original.truck_type_name || "Noma'lum"}
-                        </span>
+                        <span>{row.original.primary_truck || "Noma'lum"}</span>
                     )
                 },
+            },
+            {
+                header: "Kimniki",
+                accessorKey: "owner",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span className="capitalize">{row.original.owner}</span>
+                ),
+            },
+            {
+                header: "Reys soni",
+                accessorKey: "trip_count",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span className="text-sm">{row.original.trip_count}</span>
+                ),
+            },
+            {
+                header: "Probeg km",
+                accessorKey: "mileage",
+                enableSorting: true,
+                cell: ({ row }) => <span>{row.original.mileage || "—"}</span>,
             },
             {
                 header: "Yoqilg'i turi",
-                accessorKey: "fuel",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="capitalize">{row.original.fuel}</span>
-                ),
-            },
-            {
-                header: "Pasport raqami",
-                accessorKey: "truck_passport",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="text-sm">
-                        {row.original.truck_passport}
-                    </span>
-                ),
-            },
-            {
-                header: "Tirkama raqami",
-                accessorKey: "trailer_number",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span>
-                        {row.original.trailer_number || "—"}
-                    </span>
-                ),
-            },
-            {
-                header: "Haydovchi",
-                accessorKey: "driver_name",
+                accessorKey: "fuel_type",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="font-medium">
-                        {row.original.driver_name}
+                        {row.original.fuel_type}
                     </span>
                 ),
             },
             {
-                header: "Yaratilgan sana",
-                accessorKey: "created",
+                header: "Yoqilg'i sarfi",
+                accessorKey: "fuel_consumed",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const date = new Date(row.original.created)
-                    return <span>{date.toLocaleDateString("uz-UZ")}</span>
+                    return (
+                        <span>{formatMoney(row.original.fuel_consumed)}</span>
+                    )
                 },
             },
             {
-                header: "Transport statusi",
-                accessorKey: "status",
+                header: "Yoqilg'i sarfi",
+                accessorKey: "fuel_consumed",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const typeMap: Record<number, string> = {
-                        1: "Band",
-                        2: "Bo'sh",
-                        3: "Ta'mirlanmoqda",
-                    }
                     return (
-                        <span>
-                            {typeMap[row.original.status] || "Noma'lum"}
-                        </span>
+                        <span>{formatMoney(row.original.fuel_consumed)}</span>
                     )
+                },
+            },
+            {
+                header: "Litr /km",
+                accessorKey: "litr",
+                enableSorting: true,
+            },
+            {
+                header: "Yoqilg'i summa",
+                accessorKey: "fuel_cost",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <span>{formatMoney(row.original.fuel_cost)}</span>
+                },
+            },
+            {
+                header: "Oylik",
+                accessorKey: "revenue",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <span>{formatMoney(row.original.salary)}</span>
+                },
+            },
+            {
+                header: "Tamirlash",
+                accessorKey: "repair",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <span>{formatMoney(row.original.repair)}</span>
+                },
+            },
+            {
+                header: "Boshqa xarajatlar",
+                accessorKey: "other_expenses",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return (
+                        <span>{formatMoney(row.original.other_expense)}</span>
+                    )
+                },
+            },
+            {
+                header: "Jami xarajatlar",
+                accessorKey: "total_expenses",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return (
+                        <span>{formatMoney(row.original.total_expense)}</span>
+                    )
+                },
+            },
+            {
+                header: "Tushum",
+                accessorKey: "revenue",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <span>{formatMoney(row.original.revenue)}</span>
+                },
+            },
+            {
+                header: "Foyda",
+                accessorKey: "profit",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <span>{formatMoney(row.original.profit)}</span>
                 },
             },
         ],

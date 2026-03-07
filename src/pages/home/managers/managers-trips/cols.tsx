@@ -1,12 +1,25 @@
+import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
-export const STATUS_LABELS:any = {
+export const STATUS_LABELS: any = {
     1: "Band",
     2: "Bo'sh",
     3: "Ta'mirda",
 }
+
+export const STATUS_TRIP: any = {
+    0: "Kutilmoqda",
+    1: "Boshlandi",
+    2: "Tugallandi",
+    4: "Bekor qilindi",
+}
+
 export const useColumnsManagersTrips = () => {
+    const { openModal: openExpenses } = useModal("expenses")
+    const handleAddExpenses = () => {
+        openExpenses()
+    }
     return useMemo<ColumnDef<ManagerTrips>[]>(
         () => [
             {
@@ -39,26 +52,35 @@ export const useColumnsManagersTrips = () => {
                     <div>{row.original.pending_order_count || "-"}</div>
                 ),
             },
+            // {
+            //     accessorKey: "status",
+            //     header: "Aylanma statusi",
+            //     enableSorting: true,
+            //     cell: ({ row }) => {
+            //         const status = row.original?.status
+            //         return <div>{STATUS_LABELS[status] || "-"}</div>
+            //     },
+            // },
+
             {
-                accessorKey: "status",
-                header: "Aylanma statusi",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const status = row.original?.status
-                    return <div>{STATUS_LABELS[status] || "-"}</div>
-                },
-            },
-            {
-                accessorKey: "income",
-                header: "Tushum",
+                accessorKey: "income_uzs",
+                header: "Tushum (uzs)",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{formatMoney(row.original.income)}</div>
+                    <div>{formatMoney(row.original.income_uzs)}</div>
+                ),
+            },
+            {
+                accessorKey: "income_usd",
+                header: "Tushum (usd)",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div>{formatMoney(row.original.income_usd)}</div>
                 ),
             },
             {
                 accessorKey: "cash_flow_sum",
-                header: "Harajat",
+                header: "Xarajat",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.cash_flow_sum)}</div>

@@ -3,22 +3,26 @@ import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_EXPENSES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
-import { useNavigate, useParams } from "@tanstack/react-router"
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Plus } from "lucide-react"
 import { useColumnsManagersTrips } from "./cols"
 import CreateManagerTrips from "./create"
+import ExpensesModal from "./create-expenses"
 
 export default function ManagersTrips() {
-    const { setData, getData } = useGlobalStore()
+    const search = useSearch({ strict: false })
+    const { setData, getData, clearKey } = useGlobalStore()
     const { openModal: createTripModal } = useModal(MANAGERS_TRIPS)
+    const { openModal: createExpenses } = useModal(MANAGERS_EXPENSES)
     const { openModal: deleteTrip } = useModal(`${MANAGERS_TRIPS}-delete`)
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
+    const { name } = useSearch({ strict: false }) as any
     const { data, isLoading } = useGet<ListResponse<ManagerTrips>>(
         MANAGERS_TRIPS,
         {
@@ -27,8 +31,16 @@ export default function ManagersTrips() {
             },
         },
     )
+    const currentItem = getData("expense-id")
+    const { data: expenses } = useGet(MANAGERS_EXPENSES, {
+        params: {
+            trip: currentItem?.id,
+            page_size: search.page_size,
+            page:search.page
+        },
+    })
 
-    const item = getData(MANAGERS_VEHICLES)
+    const item = getData(MANAGERS_TRIPS)
     const handleBack = () => {
         navigate({ to: "/managers" })
     }
@@ -39,6 +51,9 @@ export default function ManagersTrips() {
         navigate({
             to: "/manager-trips/manager-reys/$id",
             params: { id: id.toString() },
+            search: {
+                name: item?.driver_name,
+            } as any,
         })
     }
     const cols = useColumnsManagersTrips()
@@ -52,7 +67,12 @@ export default function ManagersTrips() {
     }
 
     const handleAdd = () => {
+        clearKey(MANAGERS_TRIPS)
         createTripModal()
+    }
+    const handleUndo = (item: ManagerTrips) => {
+        setData("expense-id", item)
+        createExpenses()
     }
     return (
         <>
@@ -61,9 +81,15 @@ export default function ManagersTrips() {
                 numeration
                 data={data?.results}
                 columns={cols}
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                }}
                 onRowClick={handleRowClick}
                 onEdit={(row) => handleEdit(row.original)}
                 onDelete={(row) => handleDelete(row.original)}
+                onRedo={(row) => handleUndo(row.original)}
                 head={
                     <div className=" mb-4 space-y-3">
                         <div className="flex items-center justify-between">
@@ -75,7 +101,7 @@ export default function ManagersTrips() {
                                 <Badge>{formatMoney(data?.count)}</Badge>
                                 <span>/</span>
                                 <h1 className="text-[14px] text-primary">
-                                    {item?.truck_number || "nimadir"}
+                                    {name || "nimadir"}
                                 </h1>
                             </div>
                             <Button onClick={handleAdd}>
@@ -87,8 +113,15 @@ export default function ManagersTrips() {
                 }
             />
 
-            <Modal modalKey={MANAGERS_TRIPS} title>
+            <Modal
+                modalKey={MANAGERS_TRIPS}
+                title={item?.id ? "Aylanmani tahrirlash" : "Aylanma qo'shish"}
+            >
                 <CreateManagerTrips />
+            </Modal>
+
+            <Modal modalKey={MANAGERS_EXPENSES} title="Xarajat qo'shish">
+                <ExpensesModal expenses={expenses?.results} />
             </Modal>
             <DeleteModal
                 path={MANAGERS_TRIPS}

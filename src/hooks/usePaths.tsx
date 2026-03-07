@@ -108,7 +108,7 @@ export const useItems = () =>
                 icon: <User size={18} />,
                 path: "/managers",
                 items: [
-                    { label: "Transportlar", path: "" },
+                    { label: "Transportlar", path: "/managers" },
                     {
                         label: "Texnik ko'rik",
                         path: "/technic-check",

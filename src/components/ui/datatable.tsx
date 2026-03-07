@@ -76,6 +76,7 @@ interface DataTableProps<TData> {
     onDelete?: (data: Row<TData>) => void
     onUndo?: (data: Row<TData>) => void
     onView?: (data: Row<TData>) => void
+    onRedo?: (data: Row<TData>) => void
     tableWrapperClassName?: string
     skeletonRowCount?: number
     onSelectedRowsChange?: (rows: TData[]) => void
@@ -110,6 +111,7 @@ export function DataTable<TData>({
     onDelete,
     onUndo,
     onView,
+    onRedo,
     tableWrapperClassName,
     onSelectedRowsChange,
     skeletonRowCount = 15,
@@ -140,7 +142,7 @@ export function DataTable<TData>({
     const orderedColumns = React.useMemo(() => {
         if (hasActions) return columns
 
-        if (onDelete || onEdit || onUndo || onView) {
+        if (onDelete || onEdit || onUndo || onView || onRedo) {
             return [
                 ...columns,
                 {
@@ -156,6 +158,7 @@ export function DataTable<TData>({
                             onEdit={onEdit ? () => onEdit?.(row) : undefined}
                             onUndo={onUndo ? () => onUndo?.(row) : undefined}
                             onView={onView ? () => onView?.(row) : undefined}
+                            onRedo={onRedo ? () => onRedo?.(row) : undefined}
                         />
                     ),
                 },
@@ -417,7 +420,7 @@ export function DataTable<TData>({
                                                 "dark:bg-secondary/70 bg-zinc-200/70 rounded-xl ",
                                         )}
                                     >
-                                        {selecteds_row  && (
+                                        {selecteds_row && (
                                             <TableCell className="w-8 ">
                                                 <Checkbox
                                                     checked={row.getIsSelected()}

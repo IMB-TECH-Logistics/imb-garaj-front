@@ -11,7 +11,7 @@ import { PlusCircle } from "lucide-react"
 import ReportsFilter from "../truck-details/filter"
 import { useCostCols } from "./cols"
 import AddTransport from "./create"
-
+import { excelData } from "../texnik-check/data"
 const FinanceStatisticMain = () => {
     const search: any = useSearch({ strict: false })
     const navigate = useNavigate()
@@ -63,11 +63,11 @@ const FinanceStatisticMain = () => {
             <DataTable
                 columns={columns}
                 loading={isLoading}
-                data={vehiclesData?.results}
+                data={excelData || []}
                 numeration
-                onEdit={({ original }) => handleEdit(original)}
-                onDelete={handleDelete}
-                onRowClick={handleRowClick}
+                // onEdit={({ original }) => handleEdit(original)}
+                // onDelete={handleDelete}
+                // onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center justify-between gap-3 mb-3">
                         <h1 className="text-xl">{`Transportlar ro'yxati`}</h1>

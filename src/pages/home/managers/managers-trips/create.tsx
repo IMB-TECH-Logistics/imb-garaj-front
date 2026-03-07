@@ -8,21 +8,26 @@ import {
     VEHICLES,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { useParams } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 export default function CreateManagerTrips() {
+    const {id} = useParams({strict:false})
+    const { closeModal } = useModal(MANAGERS_TRIPS)
     const queryClient = useQueryClient()
     const { getData } = useGlobalStore()
-    const item = getData(MANAGERS_VEHICLES)
+    const item = getData(MANAGERS_TRIPS)
 
     const form = useForm<ManagerTrips>({
         defaultValues: {
             ...item,
+            vehicle:id
         },
     })
     const { handleSubmit, reset, control } = form
@@ -31,19 +36,14 @@ export default function CreateManagerTrips() {
             page_size: 10000,
         },
     })
-
-    const { data: vehicles } = useGet(VEHICLES, {
-        params: {
-            page_size: 10000,
-        },
-    })
     function onSuccess() {
-        queryClient.invalidateQueries({ queryKey: [MANAGERS_VEHICLES] })
+        queryClient.invalidateQueries({ queryKey: [MANAGERS_TRIPS] })
         toast.success(
             item?.id ?
                 "Muvaffaqiyatli tahrirlandi!"
             :   "Muvaffaqiyatli qo'shildi!",
         )
+        closeModal()
         reset()
     }
     const { mutate: createTrip } = usePost({
@@ -54,10 +54,10 @@ export default function CreateManagerTrips() {
     })
 
     function onSubmit(item: ManagerTrips) {
-        if(item?.id){
-            editTrip(`${MANAGERS_TRIPS}/${item?.id}`,item)
-        }else{
-            createTrip(MANAGERS_TRIPS,item)
+        if (item?.id) {
+            editTrip(`${MANAGERS_TRIPS}/${item?.id}`, item)
+        } else {
+            createTrip(MANAGERS_TRIPS, item)
         }
     }
     return (
@@ -86,16 +86,6 @@ export default function CreateManagerTrips() {
                     valueKey="id"
                     label="Haydovchi"
                 />
-                <FormCombobox
-                    labelKey=""
-                    valueKey="id"
-                    required
-                    control={control}
-                    name="vehicle"
-                    options={vehicles?.results}
-                    label="Tirkama raqami"
-                />
-
                 <div className="flex justify-end">
                     <Button>Saqlash</Button>
                 </div>

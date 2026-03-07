@@ -1,39 +1,63 @@
+import DeleteModal from "@/components/custom/delete-modal"
+import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { MANAGERS_ORDERS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
-import { useNavigate, useParams } from "@tanstack/react-router"
-import { ArrowLeft } from "lucide-react"
-import { useColumnsManagersVehicles } from "../cols"
+import { useParams, useSearch } from "@tanstack/react-router"
+import { ArrowLeft, Plus } from "lucide-react"
+import { useColumnsManagersOrders } from "./cols"
+import AddTripOrders from "./create-reys"
 
 export default function ManagerReys() {
-    const { setData, getData } = useGlobalStore()
+    const search = useSearch({ strict: false })
+    const { name } = search as any
+    const { openModal: openTripModal } = useModal(MANAGERS_ORDERS)
+    const { openModal: deleteModal } = useModal(`${MANAGERS_ORDERS}-delete`)
+    const { setData, getData, clearKey } = useGlobalStore()
     const item = getData(MANAGERS_VEHICLES)
     const { id } = useParams({ strict: false })
-    const currentSelected = getData("manager-trips")
-    const { data } = useGet(`${MANAGERS_ORDERS}`, {
+    const currentSelected = getData(MANAGERS_ORDERS)
+    const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
         params: {
             trip: id,
+            page_size: search.page_size,
+            page: search.page,
         },
     })
-    const navigate = useNavigate()
-    const cols = useColumnsManagersVehicles()
+    const cols = useColumnsManagersOrders()
     function handleBack() {
-        navigate({
-            to: "/manager-trips/$id",
-            params: {
-                id: item?.id.toString(),
-            },
-        })
+        window.history.back()
+    }
+    const handleEdit = (value: ManagerOrders) => {
+        setData(MANAGERS_ORDERS, value)
+        openTripModal()
+    }
+    const handleDelete = (value: ManagerOrders) => {
+        setData(MANAGERS_ORDERS, value)
+        deleteModal()
+    }
+
+    const handleAdd = () => {
+        clearKey(MANAGERS_ORDERS)
+        openTripModal()
     }
     return (
         <>
             <DataTable
                 columns={cols}
                 data={data?.results || []}
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                }}
+                onDelete={(row) => handleDelete(row.original)}
+                onEdit={(row) => handleEdit(row.original)}
                 head={
                     <div className=" mb-4 space-y-3">
                         <div className="flex items-center justify-between">
@@ -41,17 +65,35 @@ export default function ManagerReys() {
                                 <Button onClick={handleBack}>
                                     <ArrowLeft size={14} />
                                 </Button>
-                                <h1 className="text-xl">Aylanmalar</h1>
+                                <h1 className="text-xl">Reyslar</h1>
                                 <Badge>{formatMoney(data?.count)}</Badge>
                                 <span>/</span>
                                 <h1 className="text-[14px] text-primary">
-                                    {currentSelected?.driver_number || "nimadir"}
+                                    {name || "nimadir"}
                                 </h1>
                             </div>
-                            {/* <ParamSwtich label="Arxiv" paramName="archive" /> */}
+                            <Button onClick={handleAdd}>
+                                <Plus size={16} />
+                                Qo'shish
+                            </Button>
                         </div>
                     </div>
                 }
+            />
+
+            <Modal
+                modalKey={MANAGERS_ORDERS}
+                title={
+                    currentSelected?.id ? "Reys tahrirlash" : "Reys qo'shish"
+                }
+            >
+                <AddTripOrders />
+            </Modal>
+
+            <DeleteModal
+                path={MANAGERS_ORDERS}
+                modalKey={`${MANAGERS_ORDERS}-delete`}
+                id={currentSelected?.id}
             />
         </>
     )

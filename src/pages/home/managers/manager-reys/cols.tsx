@@ -1,28 +1,22 @@
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
-import { STATUS_LABELS } from "../managers-trips/cols"
-
+import { STATUS_LABELS, STATUS_TRIP } from "../managers-trips/cols"
 export const useColumnsManagersOrders = () => {
     return useMemo<ColumnDef<ManagerOrders>[]>(
         () => [
             {
-                accessorKey: "loading",
+                accessorKey: "loading_name",
                 header: "Yuklash joyi",
                 enableSorting: true,
             },
             {
-                accessorKey: "unloading",
+                accessorKey: "unloading_name",
                 header: "Tushirish joyi",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div className="">{row.original.type || "-"}</div>
+                    <div className="">{row.original.loading_name || "-"}</div>
                 ),
-            },
-            {
-                accessorKey: "created_at",
-                header: "Yaratilgan sana",
-                enableSorting: true,
             },
             {
                 accessorKey: "cargo_type_name",
@@ -35,24 +29,40 @@ export const useColumnsManagersOrders = () => {
                 enableSorting: true,
             },
             {
-                accessorKey: "payment_amount",
-                header: "Olingan pul",
+                accessorKey: "type",
+                header: "Holati",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    return (
-                        <span>
-                            {formatMoney(row.original.payment_amount || "-")}
-                        </span>
-                    )
+                    const status = row.original?.type
+                    return <div>{STATUS_LABELS[status] || "-"}</div>
+                },
+            },
+            {
+                accessorKey: "payment_amount_uzs",
+                header: "Tushum (uzs / usd)",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const moneyUzs = row.original?.payment_amount_uzs
+                    const moneyUsd = row.original?.payment_amount_usd
+
+                    if (moneyUsd) {
+                        return <div>{formatMoney(moneyUsd)} USD</div>
+                    }
+
+                    if (moneyUzs) {
+                        return <div>{formatMoney(moneyUzs)} UZS</div>
+                    }
+
+                    return "-"
                 },
             },
             {
                 accessorKey: "status",
-                header: "Aylanma statusi",
+                header: "Status",
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
-                    return <div>{STATUS_LABELS[status] || "-"}</div>
+                    return <div>{STATUS_TRIP[status] || "-"}</div>
                 },
             },
         ],
