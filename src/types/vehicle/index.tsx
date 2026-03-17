@@ -9,6 +9,7 @@ type VehicleRoleType = {
     id: number
     name: string
     type: string
+    owner:number
 }
 
 type VehicleCashflowsType = {

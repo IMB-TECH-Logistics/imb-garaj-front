@@ -1,7 +1,11 @@
 import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
-import { SETTINGS_VEHICLE_TYPE } from "@/constants/api-endpoints"
+import {
+    SETTINGS_SELECTABLE_USERS,
+    SETTINGS_VEHICLE_TYPE,
+} from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
@@ -21,6 +25,7 @@ const AddVehicleModal = () => {
     const { getData, clearKey } = useGlobalStore()
     const currentRole = getData<VehicleRoleType>(SETTINGS_VEHICLE_TYPE)
 
+    const { data: drivers } = useGet(SETTINGS_SELECTABLE_USERS)
     const form = useForm<VehicleRoleType>({
         defaultValues: currentRole,
     })
@@ -75,6 +80,15 @@ const AddVehicleModal = () => {
                     control={form.control}
                     labelKey="label"
                     valueKey="value"
+                />
+                <FormCombobox
+                    required
+                    name="owner"
+                    label="Egasi"
+                    options={drivers || []}
+                    control={form.control}
+                    labelKey="first_name"
+                    valueKey="id"
                 />
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">

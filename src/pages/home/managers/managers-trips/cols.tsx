@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button"
+import { MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
+import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 export const STATUS_LABELS: any = {
@@ -16,10 +19,13 @@ export const STATUS_TRIP: any = {
 }
 
 export const useColumnsManagersTrips = () => {
-    const { openModal: openExpenses } = useModal("expenses")
-    const handleAddExpenses = () => {
-        openExpenses()
+    const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
+    const { setData, getData } = useGlobalStore()
+    const handleFinished = (item: ManagerTrips) => {
+        setData("finished", item)
+        openFinished()
     }
+
     return useMemo<ColumnDef<ManagerTrips>[]>(
         () => [
             {
@@ -49,7 +55,7 @@ export const useColumnsManagersTrips = () => {
                 header: "Kutilayotgan reyslar",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{row.original.pending_order_count || "-"}</div>
+                    <div>{row.original.pending_order_count || "0"}</div>
                 ),
             },
             // {
@@ -79,11 +85,51 @@ export const useColumnsManagersTrips = () => {
                 ),
             },
             {
+                accessorKey: "start_mileage",
+                header: "Kirish probegi",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <div>{formatMoney(row.original.start_mileage)}</div>
+                },
+            },
+
+            {
+                accessorKey: "end_mileage",
+                header: "Chiqish probegi",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <div>{formatMoney(row.original.end_mileage)}</div>
+                },
+            },
+
+            {
                 accessorKey: "cash_flow_sum",
                 header: "Xarajat",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.cash_flow_sum)}</div>
+                ),
+            },
+            {
+                accessorKey: "fuel_consume",
+                header: "Yoqilg'i sarfi",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div>{formatMoney(row.original.fuel_consume)}</div>
+                ),
+            },
+
+            {
+                id: "action",
+                cell: ({ row }) => (
+                    <Button
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            handleFinished(row.original)
+                        }}
+                    >
+                        Tugatish
+                    </Button>
                 ),
             },
         ],

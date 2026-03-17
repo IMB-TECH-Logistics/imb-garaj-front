@@ -1,5 +1,6 @@
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
 import { useMemo } from "react"
 import { STATUS_LABELS, STATUS_TRIP } from "../managers-trips/cols"
 export const useColumnsManagersOrders = () => {
@@ -57,6 +58,46 @@ export const useColumnsManagersOrders = () => {
                 },
             },
             {
+                accessorKey: "pending_time",
+                header: "Pending vaqt",
+                cell: ({ row }) => formatDateSafe(row.original.pending_time),
+            },
+            {
+                accessorKey: "started_time",
+                header: "Boshlangan vaqt",
+                cell: ({ row }) => formatDateSafe(row.original.started_time),
+            },
+            {
+                accessorKey: "loading_time",
+                header: "Yuklash vaqti",
+                cell: ({ row }) => formatDateSafe(row.original.loading_time),
+            },
+            {
+                accessorKey: "in_transit_time",
+                header: "Yo‘lda",
+                cell: ({ row }) => formatDateSafe(row.original.in_transit_time),
+            },
+            {
+                accessorKey: "unloading_time",
+                header: "Tushirish vaqti",
+                cell: ({ row }) => formatDateSafe(row.original.unloading_time),
+            },
+            {
+                accessorKey: "completed_time",
+                header: "Yakunlangan",
+                cell: ({ row }) => formatDateSafe(row.original.completed_time),
+            },
+            {
+                accessorKey: "canceled_time",
+                header: "Bekor qilingan",
+                cell: ({ row }) => formatDateSafe(row.original.canceled_time),
+            },
+            {
+                accessorKey: "archived_time",
+                header: "Arxivlangan",
+                cell: ({ row }) => formatDateSafe(row.original.archived_time),
+            },
+            {
                 accessorKey: "status",
                 header: "Status",
                 enableSorting: true,
@@ -68,4 +109,14 @@ export const useColumnsManagersOrders = () => {
         ],
         [],
     )
+}
+
+const formatDateSafe = (value?: string) => {
+    if (!value) return "-"
+
+    const date = new Date(value)
+
+    if (isNaN(date.getTime())) return "-"
+
+    return format(date, "yyyy-MM-dd")
 }

@@ -195,13 +195,26 @@ const AddTripOrders = () => {
                         id: "1",
                         name: "Boshlandi",
                     },
+
                     {
-                        id: "2",
-                        name: "Tugallandi",
+                        id: "5",
+                        name: "Yuklash",
+                    },
+                    {
+                        id: "6",
+                        name: "Yo'lda",
+                    },
+                    {
+                        id: "7",
+                        name: "Tushirish",
                     },
                     {
                         id: "3",
                         name: "Bekor qilinid",
+                    },
+                    {
+                        id: "2",
+                        name: "Tugallandi",
                     },
                 ]}
                 labelKey="name"

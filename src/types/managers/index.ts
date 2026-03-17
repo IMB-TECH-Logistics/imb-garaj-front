@@ -8,21 +8,25 @@ type ManagerVehicles = {
     status: number
 }
 
-type ManagerTrips = {
-    income_uzs: string
-    income_usd: string
-    id: number
+type ImageField = File | string | null
+
+interface ManagerTrips {
+    income_uzs: number
+    pending_order_count: string
+    driver_name: any
+    id?: number
+    vehicle?: number | string
+    income_usd: number
+    cash_flow_sum: number
+    start_mileage: number
+    end_mileage: number
+    fuel: number
     start: string
     end: string
-    driver_name: string
-    pending_order_count: number
-    status: number
-    loading: string
-    unloading: string
-    income: string
-    cash_flow_sum: string
-    vehicle: number
+    fuel_consume: number
     driver: number
+    start_mileage_image: ImageField
+    end_mileage_image: ImageField
 }
 
 type ManagerOrdersPayments = {
@@ -49,6 +53,14 @@ type ManagerOrders = {
     payment_amount: number
     payment_amount_uzs: string
     payment_amount_usd: string
+    pending_time: string
+    started_time: string
+    loading_time: string
+    in_transit_time: string
+    unloading_time: string
+    completed_time: string
+    canceled_time: string
+    archived_time: string
 }
 
 type ManagerExpenses = {
