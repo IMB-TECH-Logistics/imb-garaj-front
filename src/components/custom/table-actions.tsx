@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import {
+    Check,
     Edit,
     EllipsisVertical,
     Eye,
@@ -23,6 +24,7 @@ type Props = {
     onUndo?: () => void
     onView?: () => void
     onRedo?: () => void
+    onFinished?: () => void
     className?: string
 }
 
@@ -33,6 +35,7 @@ export default function TableActions({
     onUndo,
     onView,
     onRedo,
+    onFinished,
     className,
 }: Props) {
     return menuMode ?
@@ -105,6 +108,17 @@ export default function TableActions({
                             {"Hisoblash"}
                         </DropdownMenuItem>
                     )}
+                    {onFinished && (
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onFinished()
+                            }}
+                            className="!text-muted-foreground"
+                        >
+                            <Check width={16} className="mr-1.5" /> {"Tugatmoq"}
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         :   <div
@@ -113,6 +127,18 @@ export default function TableActions({
                     className,
                 )}
             >
+                {onFinished && (
+                    <Button
+                        icon={<Check className="text-green-500" size={16} />}
+                        size="sm"
+                        className="p-0 h-3"
+                        variant="ghost"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onFinished()
+                        }}
+                    ></Button>
+                )}
                 {onView && (
                     <Button
                         icon={<Eye className="text-green-500" size={16} />}

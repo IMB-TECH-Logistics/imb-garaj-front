@@ -77,6 +77,7 @@ interface DataTableProps<TData> {
     onUndo?: (data: Row<TData>) => void
     onView?: (data: Row<TData>) => void
     onRedo?: (data: Row<TData>) => void
+    onFinished?: (data: Row<TData>) => void
     tableWrapperClassName?: string
     skeletonRowCount?: number
     onSelectedRowsChange?: (rows: TData[]) => void
@@ -111,6 +112,7 @@ export function DataTable<TData>({
     onDelete,
     onUndo,
     onView,
+    onFinished,
     onRedo,
     tableWrapperClassName,
     onSelectedRowsChange,
@@ -159,12 +161,15 @@ export function DataTable<TData>({
                             onUndo={onUndo ? () => onUndo?.(row) : undefined}
                             onView={onView ? () => onView?.(row) : undefined}
                             onRedo={onRedo ? () => onRedo?.(row) : undefined}
+                            onFinished={
+                                onFinished ? () => onFinished?.(row) : undefined
+                            }
                         />
                     ),
                 },
             ]
         } else return columns
-    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView, hasActions])
+    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView,onFinished, hasActions])
 
     React.useEffect(() => {
         if (

@@ -13,11 +13,13 @@ import { ArrowLeft, Plus } from "lucide-react"
 import { useColumnsManagersTrips } from "./cols"
 import CreateManagerTrips from "./create"
 import ExpensesModal from "./create-expenses"
+import FinishedManagerTrips from "./finished"
 
 export default function ManagersTrips() {
     const search = useSearch({ strict: false })
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal: createTripModal } = useModal(MANAGERS_TRIPS)
+    const { openModal: editTripModal } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { openModal: createExpenses } = useModal(MANAGERS_EXPENSES)
     const { openModal: deleteTrip } = useModal(`${MANAGERS_TRIPS}-delete`)
     const navigate = useNavigate()
@@ -36,7 +38,7 @@ export default function ManagersTrips() {
         params: {
             trip: currentItem?.id,
             page_size: search.page_size,
-            page:search.page
+            page: search.page,
         },
     })
 
@@ -74,6 +76,10 @@ export default function ManagersTrips() {
         setData("expense-id", item)
         createExpenses()
     }
+    const handleFinished = (item: ManagerTrips) => {
+        setData("finished", item)
+        editTripModal()
+    }
     return (
         <>
             <DataTable
@@ -106,7 +112,7 @@ export default function ManagersTrips() {
                             </div>
                             <Button onClick={handleAdd}>
                                 <Plus size={16} />
-                                Qo'shish
+                                Boshlash
                             </Button>
                         </div>
                     </div>
@@ -122,6 +128,9 @@ export default function ManagersTrips() {
 
             <Modal modalKey={MANAGERS_EXPENSES} title="Xarajat qo'shish">
                 <ExpensesModal expenses={expenses?.results} />
+            </Modal>
+            <Modal modalKey={`${MANAGERS_TRIPS}-finished`} title="Tugatish">
+                <FinishedManagerTrips />
             </Modal>
             <DeleteModal
                 path={MANAGERS_TRIPS}
