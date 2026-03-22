@@ -2,16 +2,16 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { VEHICLES } from "@/constants/api-endpoints"
+import { OWNER_MAIN_STATISTIC, VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
-import ReportsFilter from "../truck-details/filter"
-import { useCostCols } from "./cols"
+import ParamDateRange from "@/components/as-params/date-picker-range"
+import { useCostCols, OwnerStatistic } from "./cols"
 import AddTransport from "./create"
-import { excelData } from "../texnik-check/data"
+
 const FinanceStatisticMain = () => {
     const search: any = useSearch({ strict: false })
     const navigate = useNavigate()
@@ -22,13 +22,20 @@ const FinanceStatisticMain = () => {
     const { openModal: openDeleteModal } = useModal("delete")
     const currentTrip = getData<TripRow>(VEHICLES)
 
-    const { data: vehiclesData, isLoading } = useGet<ListResponse<Truck>>(
-        VEHICLES,
+    const currentDate = new Date()
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+    const defaultDateRange = (!search?.from_date && !search?.to_date) 
+        ? { from: startOfMonth, to: endOfMonth } 
+        : undefined;
+
+    const { data: statisticsData, isLoading } = useGet<OwnerStatistic[]>(
+        OWNER_MAIN_STATISTIC,
         {
             params: {
-                search: search,
-                page: search.page,
-                page_size: search.page_size,
+                search: search?.search,
+                from_date: search?.from_date,
+                to_date: search?.to_date,
             },
         },
     )
@@ -54,6 +61,12 @@ const FinanceStatisticMain = () => {
         navigate({
             to: "/truck-detail/$id",
             params: { id: id.toString() },
+            search: {
+                from_date: search?.from_date,
+                to_date: search?.to_date,
+                truck_number: item.truck_number,
+                truck_type_name: item.truck_type_name,
+            } as any
         })
     }
 
@@ -63,29 +76,27 @@ const FinanceStatisticMain = () => {
             <DataTable
                 columns={columns}
                 loading={isLoading}
-                data={excelData || []}
+                data={statisticsData || []}
                 numeration
+                viewAll
+                onRowClick={handleRowClick}
                 // onEdit={({ original }) => handleEdit(original)}
                 // onDelete={handleDelete}
-                // onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center justify-between gap-3 mb-3">
-                        <h1 className="text-xl">{`Transportlar ro'yxati`}</h1>
+                        <h1 className="text-xl">Biznes Egasi Ma'lumotlari</h1>
                         <div className="flex justify-between mb-3  gap-4">
-                            <ReportsFilter />
-                            <Button onClick={handleCreate}>
-                                {" "}
-                                <PlusCircle size={18} />
-                                Qo'shish{" "}
-                            </Button>
+                            <ParamDateRange 
+                                from="from_date" 
+                                to="to_date" 
+                                defaultValue={defaultDateRange} 
+                                addButtonProps={{
+                                    className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
+                                }}
+                            />
                         </div>
                     </div>
                 }
-                paginationProps={{
-                    totalPages: vehiclesData?.total_pages,
-                    paramName: "page",
-                    pageSizeParamName: "page_size",
-                }}
             />
 
             <Modal

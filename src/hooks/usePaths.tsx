@@ -1,6 +1,6 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { Settings, Truck, User, Wallet } from "lucide-react"
+import { Settings, Truck, User, Wallet, Coins, Activity } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 
 export interface MenuItem {
@@ -8,13 +8,7 @@ export interface MenuItem {
     icon?: ReactNode
     path: string
     items?: MenuItem[]
-}
-
-export interface MenuItem {
-    label: string
-    icon?: ReactNode
-    path: string
-    items?: MenuItem[]
+    pending?: boolean
 }
 
 const filterMenuItems = (
@@ -30,14 +24,6 @@ const filterMenuItems = (
                 filteredItem.path = filteredItem.items[0].path
             }
         }
-
-        // const isAllowed =
-        //     (item.allowKey &&
-        //         allowedModules.includes(item.allowKey as Action)) ||
-        //     (filteredItem.items && filteredItem.items.length > 0)
-
-        // if (isAllowed) {
-        // }
 
         acc.push(filteredItem)
         return acc
@@ -97,12 +83,6 @@ export const usePaths = () => {
 export const useItems = () =>
     useMemo<MenuItem[]>(
         () => [
-            // {
-            //     label: "Bosh sahifa",
-            //     icon: <ListOrdered width={18} />,
-            //     path: "/dashboard",
-            // },
-
             {
                 label: "Meneger",
                 icon: <User size={18} />,
@@ -115,25 +95,28 @@ export const useItems = () =>
                     },
                 ],
             },
-            // {
-            //     label: "Aylanma",
-            //     icon: <Waypoints width={18} />,
-            //     path: "/trip",
-            // },
             {
                 label: "Biznes egasi",
                 icon: <Truck width={18} />,
                 path: "/truck",
             },
-            // {
-            //     label: "Texnik ko'rik",
-            //     icon: <HeartPulse width={18} />,
-            //     path: "/texnik-check",
-            // },
+            {
+                label: "Moliya",
+                icon: <Coins width={18} />,
+                path: "/moliya",
+                pending: true,
+            },
+            {
+                label: "Monitoring",
+                icon: <Activity width={18} />,
+                path: "/monitoring",
+                pending: true,
+            },
             {
                 label: "Buxgalteriya",
                 icon: <Wallet width={18} />,
                 path: "/kassa",
+                pending: true,
             },
             {
                 label: "Sozlamalar",
