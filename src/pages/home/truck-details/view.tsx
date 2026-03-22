@@ -1,51 +1,43 @@
-import ParamTabs from "@/components/as-params/tabs"
 import { Button } from "@/components/ui/button"
-import { useNavigate } from "@tanstack/react-router"
-import { ArrowLeft } from "lucide-react"
-import HrProfile from "./truck-profile"
-import VehicleCashflows from "./truck-profile/truck-cashflows"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { ArrowLeft, Truck } from "lucide-react"
 import VehicleTrips from "./truck-trips"
-import TruckCheck from "./truck-check"
 
-function ViewPage({ data }: { data: Human | undefined }) {
+function ViewPage() {
     const navigate = useNavigate()
-    const options = [
-        {
-            value: "1",
-            label: "Reyslar",
-            content: <VehicleTrips />,
-        },
-
-        {
-            value: "2",
-            label: "Boshqa xarajatlar",
-            content: <VehicleCashflows />,
-        },
-           {
-            value: "3",
-            label: "Texnik ko'rik",
-            content: <TruckCheck />,
-        },
-    ]
+    const search: any = useSearch({ strict: false })
 
     return (
         <div className="pb-4">
             <div
-                className="flex items-center gap-3 mb-4 cursor-pointer"
-                onClick={() => navigate({ to: "/truck" })}
+                className="flex flex-wrap items-center gap-3 mb-4 cursor-pointer"
+                onClick={() => navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })}
             >
                 <Button
-                    onClick={() => navigate({ to: "/truck" })}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })
+                    }}
                     className="shrink-0"
                 >
                     <ArrowLeft className="h-4" />
                 </Button>
 
-                <h1 className="font-bold">Transport ma'lumotlari</h1>
+                <h1 className="font-bold whitespace-nowrap text-lg sm:text-xl flex items-center gap-2">
+                    {search?.truck_type_name || search?.truck_number ? (
+                        <>
+                            <Truck size={20} className="text-primary hidden sm:block" />
+                            {search?.truck_type_name} 
+                            {search?.truck_number && <span className="text-muted-foreground font-medium">({search?.truck_number})</span>}
+                            <span className="hidden sm:inline font-normal"> - Reyslar ma'lumoti</span>
+                        </>
+                    ) : (
+                        "Reyslar ma'lumoti"
+                    )}
+                </h1>
             </div>
 
-            <HrProfile data={data} />
-            <ParamTabs options={options} className="gap-1 mt-2" />
+            <VehicleTrips />
         </div>
     )
 }
