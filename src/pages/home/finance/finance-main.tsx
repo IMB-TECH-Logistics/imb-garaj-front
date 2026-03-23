@@ -66,6 +66,8 @@ const FinanceStatisticMain = () => {
                 to_date: search?.to_date,
                 truck_number: item.truck_number,
                 truck_type_name: item.truck_type_name,
+                order_count_busy: item.order_count_busy,
+                order_count_empty: item.order_count_empty,
             } as any
         })
     }

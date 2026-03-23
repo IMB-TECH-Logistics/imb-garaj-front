@@ -5,6 +5,7 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { CheckCircle } from "lucide-react"
 export const STATUS_LABELS: any = {
     1: "Band",
     2: "Bo'sh",
@@ -121,16 +122,22 @@ export const useColumnsManagersTrips = () => {
 
             {
                 id: "action",
-                cell: ({ row }) => (
-                    <Button
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            handleFinished(row.original)
-                        }}
-                    >
-                        Tugatish
-                    </Button>
-                ),
+                cell: ({ row }) => {
+                    if (row.original.end) return null
+                    return (
+                        <Button
+                            variant="outline"
+                            className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 h-8 px-3"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                handleFinished(row.original)
+                            }}
+                        >
+                            <CheckCircle size={14} />
+                            Tugatish
+                        </Button>
+                    )
+                },
             },
         ],
         [],

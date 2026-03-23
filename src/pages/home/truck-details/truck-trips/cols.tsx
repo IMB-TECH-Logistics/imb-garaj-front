@@ -67,13 +67,15 @@ export const useCostCols = () => {
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original as any;
-                    if (data.is_summary) return null;
                     
                     if (data.type === 2) {
                         return <Badge variant="secondary">Bo'sh</Badge>
                     }
                     if (data.type === 1 && !data.cargo_type_name) {
                         return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">Band</Badge>
+                    }
+                    if (data.is_summary) {
+                        return <span className="font-bold text-black">{data.cargo_type_name || "—"}</span>
                     }
                     return <span>{data.cargo_type_name || "—"}</span>
                 },
@@ -89,7 +91,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Daromad (UZS)",
+                header: "Tushum (UZS)",
                 accessorKey: "income_uzs",
                 enableSorting: false,
                 cell: ({ row }) => {
@@ -98,6 +100,18 @@ export const useCostCols = () => {
                         return <span className="font-bold text-black">{data.income_uzs ? formatMoney(data.income_uzs) : ""}</span>
                     }
                     return <span className="font-medium text-green-600">{formatMoney(data.income_uzs)}</span>
+                },
+            },
+            {
+                header: "Tushum (USD)",
+                accessorKey: "income_usd",
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const data = row.original as any;
+                    if (data.is_summary) {
+                        return <span className="font-bold text-black">{data.income_usd ? `$${formatMoney(data.income_usd)}` : ""}</span>
+                    }
+                    return <span className="font-medium text-green-600">{data.income_usd ? `$${formatMoney(data.income_usd)}` : "—"}</span>
                 },
             },
             {

@@ -42,7 +42,9 @@ const VehicleTrips = () => {
             total_expense: trip.total_expense,
             total_mileage: trip.total_mileage,
             fuel_consume: trip.fuel_consume,
-            income_uzs: trip.orders_trip?.reduce((acc: number, val: any) => acc + (val.income_uzs || 0), 0)
+            income_uzs: trip.orders_trip?.reduce((acc: number, val: any) => acc + (val.income_uzs || 0), 0),
+            income_usd: trip.orders_trip?.reduce((acc: number, val: any) => acc + (val.income_usd || 0), 0),
+            cargo_type_name: Array.from(new Set(trip.orders_trip?.map(o => o.cargo_type_name).filter(Boolean))).join(", ")
         })
     })
 

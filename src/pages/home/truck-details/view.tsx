@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { ArrowLeft, Truck } from "lucide-react"
+import { ArrowLeft, Calendar, Truck } from "lucide-react"
 import VehicleTrips from "./truck-trips"
 
 function ViewPage() {
@@ -27,6 +27,11 @@ function ViewPage() {
                     {search?.truck_type_name || search?.truck_number ? (
                         <>
                             <Truck size={20} className="text-primary hidden sm:block" />
+                            {search?.order_count_busy !== undefined && (
+                                <span className="text-xs sm:text-sm border py-0.5 px-2 rounded bg-muted font-medium">
+                                    {search.order_count_busy} / {search.order_count_empty || 0}
+                                </span>
+                            )}
                             {search?.truck_type_name} 
                             {search?.truck_number && <span className="text-muted-foreground font-medium">({search?.truck_number})</span>}
                             <span className="hidden sm:inline font-normal"> - Reyslar ma'lumoti</span>
@@ -35,6 +40,17 @@ function ViewPage() {
                         "Reyslar ma'lumoti"
                     )}
                 </h1>
+
+                <div className="flex-1 flex justify-end items-center gap-2 text-muted-foreground text-xs sm:text-sm font-medium pr-2 sm:pr-4">
+                    {search?.from_date && search?.to_date && (
+                        <>
+                            <Calendar size={14} className="opacity-80" />
+                            <span className="tabular-nums">{search.from_date}</span>
+                            <span className="opacity-50">—</span>
+                            <span className="tabular-nums">{search.to_date}</span>
+                        </>
+                    )}
+                </div>
             </div>
 
             <VehicleTrips />

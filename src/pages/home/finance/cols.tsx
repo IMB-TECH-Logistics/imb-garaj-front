@@ -15,6 +15,8 @@ export interface OwnerStatistic {
     fuel_per_km: number
     income_uzs: number | null
     income_usd: number | null
+    total_expense: number | null
+    cargo_type_name: string | null
 }
 
 export const useCostCols = () => {
@@ -85,6 +87,14 @@ export const useCostCols = () => {
                 },
             },
             {
+                header: "Yuk turi",
+                accessorKey: "cargo_type_name",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span className="capitalize">{row.original.cargo_type_name || "—"}</span>
+                ),
+            },
+            {
                 header: "Litr / km",
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
@@ -95,7 +105,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Daromad (UZS)",
+                header: "Tushum (UZS)",
                 accessorKey: "income_uzs",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -103,11 +113,19 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Daromad (USD)",
+                header: "Tushum (USD)",
                 accessorKey: "income_usd",
                 enableSorting: true,
                 cell: ({ row }) => {
                     return <span className="text-green-600 font-medium">{row.original.income_usd !== null ? `$${formatMoney(row.original.income_usd)}` : "—"}</span>
+                },
+            },
+            {
+                header: "Jami xarajat",
+                accessorKey: "total_expense",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <span className="text-red-600 font-medium">{row.original.total_expense !== null ? formatMoney(row.original.total_expense) : "—"}</span>
                 },
             },
         ],
