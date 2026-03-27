@@ -6,6 +6,7 @@ import { NavUser } from "../sidebar/nav-user"
 import { SidebarTrigger, useSidebar } from "../ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ThemeColorToggle } from "./color-toggle"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 
 const Header = () => {
     const { open } = useSidebar()
@@ -61,6 +62,15 @@ const Header = () => {
             </div>
 
             <hgroup className="flex items-center gap-2 sm:gap-4">
+                {pathname.startsWith("/moliya") && (
+                    <ParamDateRange
+                        from="from_date"
+                        to="to_date"
+                        addButtonProps={{
+                            className: "!bg-muted/50 h-8 text-xs min-w-28 justify-start",
+                        }}
+                    />
+                )}
                 <div className="flex sm:gap-2">
                     <ThemeColorToggle />
                 </div>

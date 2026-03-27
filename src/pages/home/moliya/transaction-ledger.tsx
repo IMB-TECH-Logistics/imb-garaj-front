@@ -1,4 +1,6 @@
+import { useState, useMemo } from "react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/layouts/theme"
 
 type Transaction = {
     date: string
@@ -28,26 +30,77 @@ const TRANSACTIONS: Transaction[] = [
 
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
+const DESCRIPTIONS = [...new Set(TRANSACTIONS.map((t) => t.description))]
+
 export default function TransactionLedger() {
+    const { theme } = useTheme()
+    const scheme = theme === "dark" ? "dark" : "light"
+    const [descFilter, setDescFilter] = useState<string>("")
+    const [typeFilter, setTypeFilter] = useState<"" | "kirim" | "chiqim">("")
+
+    const filtered = useMemo(() => {
+        return TRANSACTIONS.filter((tx) => {
+            if (descFilter && tx.description !== descFilter) return false
+            if (typeFilter && tx.type !== typeFilter) return false
+            return true
+        })
+    }, [descFilter, typeFilter])
+
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <div className="px-4 pt-3 pb-2 shrink-0">
-                <h3 className="text-sm font-semibold">Kirim-Chiqim tarixi</h3>
+            <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
+                <h3 className="text-xs font-semibold">Kirim-Chiqim tarixi</h3>
+                <span className="text-[10px] text-muted-foreground">{filtered.length} ta</span>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0">
                 <table className="w-full text-xs">
                     <thead className="sticky top-0 bg-card z-10">
-                        <tr className="text-muted-foreground border-b">
-                            <th className="text-left font-medium px-4 py-2">Sana</th>
-                            <th className="text-left font-medium px-2 py-2">Tavsif</th>
-                            <th className="text-left font-medium px-2 py-2">Tur</th>
-                            <th className="text-right font-medium px-2 py-2">Miqdor</th>
-                            <th className="text-right font-medium px-2 py-2">Qoldiq</th>
-                            <th className="text-left font-medium px-4 py-2">Izoh</th>
+                        <tr className="border-b border-border">
+                            <th className="text-left font-medium text-muted-foreground px-4 py-2">Sana</th>
+                            <th className="text-left px-2 py-1.5">
+                                <select
+                                    value={descFilter}
+                                    onChange={(e) => setDescFilter(e.target.value)}
+                                    style={{ colorScheme: scheme }}
+                                    className={cn(
+                                        "h-7 rounded-lg px-2.5 pr-6 text-[11px] outline-none cursor-pointer transition-all",
+                                        "border shadow-sm",
+                                        descFilter
+                                            ? "border-primary/30 bg-primary/10 text-foreground font-semibold"
+                                            : "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
+                                    )}
+                                >
+                                    <option value="">Tavsif</option>
+                                    {DESCRIPTIONS.map((d) => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
+                            </th>
+                            <th className="text-left px-2 py-1.5">
+                                <select
+                                    value={typeFilter}
+                                    onChange={(e) => setTypeFilter(e.target.value as any)}
+                                    style={{ colorScheme: scheme }}
+                                    className={cn(
+                                        "h-7 rounded-lg px-2.5 pr-6 text-[11px] outline-none cursor-pointer transition-all",
+                                        "border shadow-sm",
+                                        typeFilter === "kirim" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold",
+                                        typeFilter === "chiqim" && "border-red-500/30 bg-red-500/10 text-red-500 font-semibold",
+                                        !typeFilter && "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
+                                    )}
+                                >
+                                    <option value="">Tur</option>
+                                    <option value="kirim">Kirim</option>
+                                    <option value="chiqim">Chiqim</option>
+                                </select>
+                            </th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Qoldiq</th>
+                            <th className="text-left font-medium text-muted-foreground px-4 py-2">Izoh</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {TRANSACTIONS.map((tx, i) => (
+                        {filtered.map((tx, i) => (
                             <tr
                                 key={i}
                                 className="border-b border-border/50 hover:bg-muted/30 transition-colors"

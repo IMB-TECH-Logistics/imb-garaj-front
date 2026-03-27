@@ -351,13 +351,13 @@ export default function CandlestickChart() {
       },
       rightPriceScale: {
         borderColor: tc.border,
-        scaleMargins: { top: 0.1, bottom: 0.15 },
+        scaleMargins: { top: 0.15, bottom: 0.12 },
         autoScale: true,
       },
       timeScale: {
         borderColor: tc.border,
         timeVisible: false,
-        rightOffset: 12,
+        rightOffset: 20,
         barSpacing: 8,
         minBarSpacing: 2,
       },
@@ -611,6 +611,10 @@ export default function CandlestickChart() {
 
   return (
     <div className="tv-layout">
+      {/* Title */}
+      <div style={{ padding: '10px 14px 0', fontSize: 12, fontWeight: 600, color: 'var(--tv-text-strong)', fontFamily: 'var(--sans)' }}>
+        Balans
+      </div>
       {/* OHLC overlay */}
       <div className="tv-ohlc-overlay">
         <span className="tv-ohlc-label">O</span>

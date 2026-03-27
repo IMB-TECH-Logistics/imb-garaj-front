@@ -21,7 +21,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
-import { MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 
@@ -788,40 +788,48 @@ function ReturnableBreakdown({
 
 // ──── T hisob tab ────
 
-function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void }) {
+function TAccountTab({ mode, onToggle, tripId, driverId }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number; driverId?: number }) {
     const { openModal: openAvansModal } = useModal("avans-berish")
 
-    const filtered = tAccountData.filter((row) =>
-        mode === "aylanma" ? row.visible_to_company : row.visible_to_driver,
+    // Trip statistic (aylanma mode)
+    const { data: tripStat } = useGet(
+        `${MANAGERS_CASHFLOW_TRIP_STAT}/${tripId}/statistic`,
+        { enabled: mode === "aylanma" && !!tripId },
     )
 
-    const income = filtered.filter((r) => r.type === "kirim")
-    const expense = filtered.filter((r) => r.type === "chiqim")
+    // Driver statistic (haydovchi mode)
+    const { data: driverStat } = useGet(
+        `${MANAGERS_CASHFLOW_DRIVER_STAT}/${driverId}/statistic`,
+        { enabled: mode === "haydovchi" && !!driverId },
+    )
 
-    const totalIncome = income.reduce((s, r) => s + r.amount, 0)
-    const totalExpense = expense.reduce((s, r) => s + r.amount, 0)
+    // Cashflow list for the two-column view
+    const { data: incomeData } = useGet<ListResponse<FinanceRow>>(
+        MANAGERS_CASHFLOW,
+        { params: { trip: tripId, action: 1, page_size: 100 } },
+    )
+    const { data: expenseData } = useGet<ListResponse<FinanceRow>>(
+        MANAGERS_CASHFLOW,
+        { params: { trip: tripId, action: -1, page_size: 100 } },
+    )
+
+    const incomeRows = incomeData?.results ?? []
+    const expenseRows = expenseData?.results ?? []
+
+    const stat = mode === "aylanma" ? tripStat : driverStat
+    const totalIncome = Number(stat?.income ?? 0)
+    const totalExpense = Number(stat?.expense ?? 0)
     const balance = totalIncome - totalExpense
 
-    // For driver mode: breakdown of returnable by payment method
     const returnableBreakdown = useMemo(() => {
-        if (mode !== "haydovchi") return []
-        const byMethod: Record<string, number> = {}
-        for (const row of income) {
-            const key = row.payment_method
-            byMethod[key] = (byMethod[key] || 0) + row.amount
-        }
-        // Subtract expenses by method
-        for (const row of expense) {
-            const key = row.payment_method
-            byMethod[key] = (byMethod[key] || 0) - row.amount
-        }
-        return Object.entries(byMethod)
-            .filter(([, amount]) => amount !== 0)
-            .map(([method, amount]) => ({
-                label: paymentMethodLabels[method as TAccountRow["payment_method"]] || method,
-                amount,
-            }))
-    }, [mode, income, expense])
+        if (mode !== "haydovchi" || !driverStat) return []
+        const items: { label: string; amount: number }[] = []
+        const returnCash = Number(driverStat.return_cash ?? 0)
+        const returnFuel = Number(driverStat.return_fuel ?? 0)
+        if (returnCash) items.push({ label: "Naqd", amount: returnCash })
+        if (returnFuel) items.push({ label: "Yoqilg'i", amount: returnFuel })
+        return items
+    }, [mode, driverStat])
 
     return (
         <div className="flex flex-col h-full overflow-hidden gap-4">
@@ -873,12 +881,12 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
                     <div className="px-4 py-3 flex items-center justify-center gap-2 border-r bg-green-500/10">
                         <span className="size-2 rounded-full bg-green-500" />
                         <h2 className="font-semibold text-sm text-green-600">Kirim</h2>
-                        <span className="text-[10px] font-semibold text-green-600 bg-green-500/15 rounded-full px-1.5 py-0.5 leading-none">{income.length}</span>
+                        <span className="text-[10px] font-semibold text-green-600 bg-green-500/15 rounded-full px-1.5 py-0.5 leading-none">{incomeRows.length}</span>
                     </div>
                     <div className="px-4 py-3 flex items-center justify-center gap-2 bg-red-600/10">
                         <span className="size-2 rounded-full bg-red-500" />
                         <h2 className="font-semibold text-sm text-red-600">Chiqim</h2>
-                        <span className="text-[10px] font-semibold text-red-600 bg-red-500/15 rounded-full px-1.5 py-0.5 leading-none">{expense.length}</span>
+                        <span className="text-[10px] font-semibold text-red-600 bg-red-500/15 rounded-full px-1.5 py-0.5 leading-none">{expenseRows.length}</span>
                     </div>
                 </div>
 
@@ -886,7 +894,7 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
                 <div className="grid grid-cols-2 h-[calc(100%-45px)]">
                     {/* Left: Kirim */}
                     <div className="border-r overflow-y-auto divide-y">
-                        {income.map((row, i) => (
+                        {incomeRows.map((row, i) => (
                             <div key={row.id} className="px-4 py-3 hover:bg-muted/30 transition-colors">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex gap-2 min-w-0">
@@ -894,11 +902,11 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
                                             {i + 1}
                                         </span>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate">{row.description}</p>
+                                            <p className="text-sm font-medium truncate">{row.category_name}</p>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-xs text-muted-foreground">{row.date}</span>
+                                                {row.comment && <span className="text-xs text-muted-foreground">{row.comment}</span>}
                                                 <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted">
-                                                    {paymentMethodLabels[row.payment_method]}
+                                                    {row.payment_type_name}
                                                 </span>
                                             </div>
                                         </div>
@@ -909,7 +917,7 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
                                 </div>
                             </div>
                         ))}
-                        {income.length === 0 && (
+                        {incomeRows.length === 0 && (
                             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
                                 Kirim yo'q
                             </div>
@@ -918,7 +926,7 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
 
                     {/* Right: Chiqim */}
                     <div className="overflow-y-auto divide-y">
-                        {expense.map((row, i) => (
+                        {expenseRows.map((row, i) => (
                             <div key={row.id} className="px-4 py-3 hover:bg-muted/30 transition-colors">
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex gap-2 min-w-0">
@@ -926,11 +934,11 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
                                             {i + 1}
                                         </span>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate">{row.description}</p>
+                                            <p className="text-sm font-medium truncate">{row.category_name}</p>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-xs text-muted-foreground">{row.date}</span>
+                                                {row.comment && <span className="text-xs text-muted-foreground">{row.comment}</span>}
                                                 <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted">
-                                                    {paymentMethodLabels[row.payment_method]}
+                                                    {row.payment_type_name}
                                                 </span>
                                             </div>
                                         </div>
@@ -941,7 +949,7 @@ function TAccountTab({ mode, onToggle }: { mode: "aylanma" | "haydovchi"; onTogg
                                 </div>
                             </div>
                         ))}
-                        {expense.length === 0 && (
+                        {expenseRows.length === 0 && (
                             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
                                 Chiqim yo'q
                             </div>
@@ -1004,7 +1012,7 @@ export default function KirimXarajatContent() {
                     {
                         value: "t_hisob",
                         label: "T hisob",
-                        content: <TAccountTab mode={tAccountMode} onToggle={setTAccountMode} />,
+                        content: <TAccountTab mode={tAccountMode} onToggle={setTAccountMode} tripId={tripId} driverId={tripItem?.driver} />,
                     },
                 ]}
             />

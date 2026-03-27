@@ -194,7 +194,7 @@
 /* ---- OHLC Overlay ---- */
 .tv-ohlc-overlay {
   position: absolute;
-  top: 6px;
+  top: 28px;
   left: 12px;
   display: flex;
   align-items: center;

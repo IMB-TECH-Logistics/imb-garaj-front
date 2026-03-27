@@ -53,6 +53,8 @@ export const MANAGERS_TRIPS= "manager/trips"
 export const MANAGERS_ORDERS = "manager/orders"
 export const MANAGERS_EXPENSES = "manager/expense"
 export const MANAGERS_CASHFLOW = "manager/cashflow"
+export const MANAGERS_CASHFLOW_TRIP_STAT = "manager/cashflow/trip"
+export const MANAGERS_CASHFLOW_DRIVER_STAT = "manager/cashflow/driver"
 export const MANAGERS_EXPENSE_CATEGORIES = "manager/expense/category"
 
 /** ===== CHECKOUT ===== */

@@ -80,6 +80,9 @@ export default function CreateManagerTrips() {
         if (values.start_fuel != null) {
             formData.append("start_fuel", String(values.start_fuel))
         }
+        if (values.advance != null) {
+            formData.append("advance", String(values.advance))
+        }
         if (values.end_mileage != null) {
             formData.append("end_mileage", String(values.end_mileage))
         }
@@ -155,12 +158,22 @@ export default function CreateManagerTrips() {
                 :   null}
 
                 {!item?.id && (
-                    <FormNumberInput
-                        name="start_fuel"
-                        label="Bakdagi yoqilg'i (litr)"
-                        control={control}
-                        decimalScale={2}
-                    />
+                    <>
+                        <FormNumberInput
+                            name="start_fuel"
+                            label="Bakdagi yoqilg'i (litr)"
+                            control={control}
+                            decimalScale={2}
+                        />
+                        <FormNumberInput
+                            name="advance"
+                            label="Avans"
+                            control={control}
+                            thousandSeparator=" "
+                            decimalScale={0}
+                            placeholder="Ex: 5 000 000"
+                        />
+                    </>
                 )}
 
                 {item?.id && (

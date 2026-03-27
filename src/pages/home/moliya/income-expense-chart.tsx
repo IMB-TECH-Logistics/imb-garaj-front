@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import {
     Bar,
-    Line,
     Area,
     ComposedChart,
     XAxis,
@@ -10,6 +9,7 @@ import {
     ResponsiveContainer,
     Tooltip,
 } from "recharts"
+import { useSearch } from "@tanstack/react-router"
 import { useGlobalStore } from "@/store/global-store"
 import { PALETTES, PALETTE_STORE_KEY } from "./palettes"
 
@@ -51,7 +51,11 @@ function generateDailyData(year: number, month: number) {
     return data
 }
 
-const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
+function isMonthRange(from?: string, to?: string) {
+    if (!from || !to) return false
+    const fd = new Date(from), td = new Date(to)
+    return fd.getFullYear() === td.getFullYear() && fd.getMonth() === td.getMonth()
+}
 
 function CustomTooltip({ active, payload, label }: any) {
     if (!active || !payload?.length) return null
@@ -70,16 +74,17 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function IncomeExpenseChart() {
-    const [selectedYear, setSelectedYear] = useState<number | null>(null)
-    const [selectedMonth, setSelectedMonth] = useState<number | null>(null)
+    const search: any = useSearch({ strict: false })
     const { getData } = useGlobalStore()
     const paletteIdx = getData<number>(PALETTE_STORE_KEY) ?? 0
     const p = PALETTES[paletteIdx] ?? PALETTES[0]
 
-    const isDaily = selectedYear !== null && selectedMonth !== null
+    const isDaily = isMonthRange(search?.from_date, search?.to_date)
+    const selectedMonth = isDaily ? new Date(search.from_date).getMonth() : null
+    const selectedYear = isDaily ? new Date(search.from_date).getFullYear() : null
 
     const chartData = useMemo(() => {
-        if (isDaily) return generateDailyData(selectedYear!, selectedMonth!)
+        if (isDaily && selectedYear != null && selectedMonth != null) return generateDailyData(selectedYear, selectedMonth)
         return generateMonthlyData()
     }, [isDaily, selectedYear, selectedMonth])
 
@@ -97,51 +102,15 @@ export default function IncomeExpenseChart() {
 
     return (
         <div className="flex flex-col h-full p-3 gap-2">
-            {/* Filter + mode label */}
+            {/* Title + Legend */}
             <div className="flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-1.5">
-                    <select
-                        value={selectedYear ?? ""}
-                        onChange={(e) => {
-                            const v = e.target.value
-                            setSelectedYear(v ? Number(v) : null)
-                            if (!v) setSelectedMonth(null)
-                        }}
-                        className="h-7 text-xs rounded-md border bg-muted/50 px-2 outline-none cursor-pointer text-foreground"
-                    >
-                        <option value="">Yil</option>
-                        {YEARS.map((y) => (
-                            <option key={y} value={y}>{y}</option>
-                        ))}
-                    </select>
-                    <select
-                        value={selectedMonth ?? ""}
-                        onChange={(e) => {
-                            const v = e.target.value
-                            setSelectedMonth(v !== "" ? Number(v) : null)
-                        }}
-                        disabled={selectedYear === null}
-                        className="h-7 text-xs rounded-md border bg-muted/50 px-2 outline-none cursor-pointer text-foreground disabled:opacity-40"
-                    >
-                        <option value="">Oy</option>
-                        {MONTHS_UZ.map((m, i) => (
-                            <option key={i} value={i}>{m}</option>
-                        ))}
-                    </select>
-                    {isDaily && (
-                        <button
-                            onClick={() => { setSelectedYear(null); setSelectedMonth(null) }}
-                            className="h-7 px-2 text-[10px] rounded-md border bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            Tozalash
-                        </button>
-                    )}
-                </div>
-                <span className="text-[10px] text-muted-foreground/60">
-                    {isDaily ? `${MONTHS_UZ[selectedMonth!]} ${selectedYear} — kunlik` : "Oylik"}
+                <span className="text-xs font-semibold">
+                    Tushum va Xarajat
+                    <span className="text-muted-foreground font-normal ml-1.5">
+                        {isDaily ? `${MONTHS_UZ[selectedMonth!]} ${selectedYear} — kunlik` : "oylik"}
+                    </span>
                 </span>
             </div>
-            {/* Legend */}
             <div className="flex items-center gap-4 text-xs shrink-0">
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.income }} />

@@ -1,3 +1,4 @@
+import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
@@ -19,7 +20,13 @@ const AddPaymentTypeModal = () => {
         defaultValues: currentPayment,
     })
 
-    const { handleSubmit, reset } = form
+    const { handleSubmit, reset, control } = form
+
+    const methodOptions = [
+        { id: 1, name: "Naqd" },
+        { id: 2, name: "Plastik" },
+        { id: 3, name: "Bank" },
+    ]
 
     const onSuccess = () => {
         toast.success(
@@ -53,15 +60,25 @@ const AddPaymentTypeModal = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <FormInput
                 required
                 name="name"
                 label="To'lov turi"
                 methods={form}
             />
+            <FormCombobox
+                required
+                name="method"
+                label="Usul"
+                control={control}
+                options={methodOptions}
+                valueKey="id"
+                labelKey="name"
+                placeholder="Usulni tanlang"
+            />
 
-            <div className="flex items-center justify-end  mt-3">
+            <div className="flex items-center justify-end">
                 <Button
                     className="min-w-36 w-full md:w-max"
                     type="submit"

@@ -4,6 +4,9 @@ import CandlestickChart from "./candlestick-chart"
 import IncomeExpenseChart from "./income-expense-chart"
 import FlowChart from "./flow-chart"
 import TransactionLedger from "./transaction-ledger"
+import { DebtorCard, CreditorCard } from "./debtor-creditor"
+import CashflowForecast from "./cashflow-forecast"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 
 function ExpandIcon({ expanded }: { expanded: boolean }) {
     if (expanded) {
@@ -137,18 +140,27 @@ function ChartPanel({
                 }}
             >
                 {children}
-                <button
-                    onClick={handleClick}
-                    className={cn(
-                        "absolute z-10 size-8 rounded-lg flex items-center justify-center",
-                        "bg-background/70 backdrop-blur-sm border shadow-sm",
-                        "text-muted-foreground hover:text-foreground hover:bg-background/90",
-                        "transition-all duration-200",
-                        phase === "expanded" || phase === "expanding" ? "top-3 right-3" : "top-2 right-2",
+                <div className={cn(
+                    "absolute z-10 flex items-center gap-2",
+                    "transition-all duration-200",
+                    phase === "expanded" || phase === "expanding" ? "top-3 right-3" : "top-2 right-2",
+                )}>
+                    {(phase === "expanded") && (
+                        <ParamDateRange
+                            from="from_date"
+                            to="to_date"
+                            addButtonProps={{
+                                className: "!bg-background/70 backdrop-blur-sm border shadow-sm h-8 text-xs min-w-28 justify-start",
+                            }}
+                        />
                     )}
-                >
-                    <ExpandIcon expanded={phase === "expanded" || phase === "expanding"} />
-                </button>
+                    <button
+                        onClick={handleClick}
+                        className="size-8 rounded-lg flex items-center justify-center bg-background/70 backdrop-blur-sm border shadow-sm text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all duration-200"
+                    >
+                        <ExpandIcon expanded={phase === "expanded" || phase === "expanding"} />
+                    </button>
+                </div>
             </div>
         </>
     )
@@ -170,7 +182,7 @@ export default function MoliyaPage() {
     }, [])
 
     return (
-        <>
+        <div ref={pageRef}>
             <div
                 className={cn(
                     "fixed inset-0 z-40 bg-background/60 backdrop-blur-sm transition-opacity duration-500",
@@ -178,8 +190,8 @@ export default function MoliyaPage() {
                 )}
                 onClick={() => setExpandedId(null)}
             />
+            {/* Main 2x2 grid */}
             <div
-                ref={pageRef}
                 className={cn(
                     "grid gap-3 h-[calc(100vh-80px)]",
                     "grid-cols-1 md:grid-cols-2 grid-rows-2",
@@ -201,6 +213,21 @@ export default function MoliyaPage() {
                     <TransactionLedger />
                 </ChartPanel>
             </div>
-        </>
+
+            {/* Bottom row - same height as grid rows */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pb-4 h-[calc((100vh-80px-12px)/2)]">
+                <div className="grid grid-cols-2 gap-3 h-full">
+                    <ChartPanel expandedId={expandedId} panelId="debtor" onToggle={setExpandedId}>
+                        <DebtorCard />
+                    </ChartPanel>
+                    <ChartPanel expandedId={expandedId} panelId="creditor" onToggle={setExpandedId}>
+                        <CreditorCard />
+                    </ChartPanel>
+                </div>
+                <ChartPanel expandedId={expandedId} panelId="forecast" onToggle={setExpandedId}>
+                    <CashflowForecast />
+                </ChartPanel>
+            </div>
+        </div>
     )
 }
