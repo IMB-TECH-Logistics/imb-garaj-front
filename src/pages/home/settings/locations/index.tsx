@@ -20,7 +20,7 @@ const Locations = () => {
 
     return (
         <>
-            <Card className="max-w-[3]">
+            <Card>
                 <CardHeader className="pb-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <CardTitle className="text-xl font-semibold tracking-tight">
