@@ -1,8 +1,19 @@
+import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
-import { STATUS_LABELS, STATUS_TRIP } from "../managers-trips/cols"
+import { STATUS_TRIP } from "../managers-trips/cols"
+
+const HOLAT_LABELS: Record<number, string> = {
+    1: "Yukli",
+    2: "Yuksiz",
+}
+
+const HOLAT_COLORS: Record<number, string> = {
+    1: "bg-green-500/10 text-green-600 border-transparent",
+    2: "bg-gray-500/10 text-gray-500 border-transparent",
+}
 export const useColumnsManagersOrders = () => {
     return useMemo<ColumnDef<ManagerOrders>[]>(
         () => [
@@ -34,8 +45,13 @@ export const useColumnsManagersOrders = () => {
                 header: "Holati",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const status = row.original?.type
-                    return <div>{STATUS_LABELS[status] || "-"}</div>
+                    const type = row.original?.type
+                    const colorClass = HOLAT_COLORS[type] || "bg-gray-500/10 text-gray-500 border-gray-200"
+                    return (
+                        <Badge variant="outline" className={colorClass}>
+                            {HOLAT_LABELS[type] || "-"}
+                        </Badge>
+                    )
                 },
             },
             {

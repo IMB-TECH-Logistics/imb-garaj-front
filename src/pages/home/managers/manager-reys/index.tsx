@@ -1,5 +1,6 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
+import { InlineBreadcrumb } from "@/components/header/breadcrumbs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
@@ -9,7 +10,7 @@ import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useParams, useSearch } from "@tanstack/react-router"
-import { ArrowLeft, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
 
@@ -30,9 +31,6 @@ export default function ManagerReys() {
         },
     })
     const cols = useColumnsManagersOrders()
-    function handleBack() {
-        window.history.back()
-    }
     const handleEdit = (value: ManagerOrders) => {
         setData(MANAGERS_ORDERS, value)
         openTripModal()
@@ -59,18 +57,18 @@ export default function ManagerReys() {
                 onDelete={(row) => handleDelete(row.original)}
                 onEdit={(row) => handleEdit(row.original)}
                 head={
-                    <div className=" mb-4 space-y-3">
+                    <div className="mb-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Button onClick={handleBack}>
-                                    <ArrowLeft size={14} />
-                                </Button>
-                                <h1 className="text-xl">Reyslar</h1>
-                                <Badge>{formatMoney(data?.count)}</Badge>
-                                <span>/</span>
-                                <h1 className="text-[14px] text-primary">
-                                    {name || "nimadir"}
-                                </h1>
+                                <InlineBreadcrumb
+                                    trailing={
+                                        <>
+                                            <Badge>{formatMoney(data?.count)}</Badge>
+                                            <span className="text-muted-foreground">/</span>
+                                            <span>{name || "nimadir"}</span>
+                                        </>
+                                    }
+                                />
                             </div>
                             <Button onClick={handleAdd}>
                                 <Plus size={16} />

@@ -30,17 +30,27 @@ const filterMenuItems = (
     }, [])
 }
 
+const matchesPath = (pathname: string, item: MenuItem): boolean => {
+    if (pathname === item.path || pathname.startsWith(item.path + "/")) {
+        return true
+    }
+    if (item.extraPaths) {
+        return item.extraPaths.some(
+            (p) => pathname === p || pathname.startsWith(p + "/"),
+        )
+    }
+    return false
+}
+
 const findChildPaths = (items: MenuItem[], pathname: string): MenuItem[] => {
     for (const item of items) {
-        if (pathname === item.path || pathname.startsWith(item.path + "/")) {
+        if (matchesPath(pathname, item)) {
             return item.items ?? []
         }
 
         if (item.items) {
             const hasMatchingChild = item.items.some(
-                (subItem) =>
-                    pathname === subItem.path ||
-                    pathname.startsWith(subItem.path + "/"),
+                (subItem) => matchesPath(pathname, subItem),
             )
             if (hasMatchingChild) {
                 return item.items
@@ -87,8 +97,10 @@ export const useItems = () =>
                 label: "Meneger",
                 icon: <User size={18} />,
                 path: "/managers",
+                extraPaths: ["/manager-trips"],
                 items: [
-                    { label: "Transportlar", path: "/managers" },
+                    { label: "Transportlar", path: "/managers", extraPaths: ["/manager-trips"] },
+                    { label: "Kassa", path: "/kassa" },
                     {
                         label: "Texnik ko'rik",
                         path: "/technic-check",
@@ -96,26 +108,25 @@ export const useItems = () =>
                 ],
             },
             {
-                label: "Biznes egasi",
+                label: "Investor",
                 icon: <Truck width={18} />,
                 path: "/truck",
+            },
+            {
+                label: "Buxgalteriya",
+                icon: <Wallet width={18} />,
+                path: "/buxgalteriya",
+                pending: true,
             },
             {
                 label: "Moliya",
                 icon: <Coins width={18} />,
                 path: "/moliya",
-                pending: true,
             },
             {
                 label: "Monitoring",
                 icon: <Activity width={18} />,
                 path: "/monitoring",
-                pending: true,
-            },
-            {
-                label: "Buxgalteriya",
-                icon: <Wallet width={18} />,
-                path: "/kassa",
                 pending: true,
             },
             {

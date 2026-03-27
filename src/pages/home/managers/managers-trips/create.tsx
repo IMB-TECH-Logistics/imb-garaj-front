@@ -22,10 +22,11 @@ export default function CreateManagerTrips() {
     const { getData } = useGlobalStore()
     const item = getData(MANAGERS_TRIPS)
 
-    const form = useForm<ManagerTrips>({
+    const form = useForm<any>({
         defaultValues: {
             ...item,
             vehicle: id,
+            start: item?.start || new Date().toISOString().split("T")[0],
         },
     })
 
@@ -67,20 +68,34 @@ export default function CreateManagerTrips() {
         { headers },
     )
 
-    function onSubmit(values: ManagerTrips) {
+    function onSubmit(values: any) {
         const formData = new FormData()
-        formData.append("start_mileage", String(values.start_mileage))
-        formData.append("end_mileage", String(values.end_mileage))
         formData.append("start", values.start)
-        formData.append("end", values.end)
         formData.append("driver", String(values.driver))
         formData.append("vehicle", String(values.vehicle))
-        formData.append("fuel_consume", String(values.fuel_consume))
+
+        if (values.start_mileage != null) {
+            formData.append("start_mileage", String(values.start_mileage))
+        }
+        if (values.start_fuel != null) {
+            formData.append("start_fuel", String(values.start_fuel))
+        }
+        if (values.advance != null) {
+            formData.append("advance", String(values.advance))
+        }
+        if (values.end_mileage != null) {
+            formData.append("end_mileage", String(values.end_mileage))
+        }
+        if (values.end_fuel != null) {
+            formData.append("end_fuel", String(values.end_fuel))
+        }
+        if (values.end != null) {
+            formData.append("end", values.end)
+        }
 
         if (values.start_mileage_image instanceof File) {
             formData.append("start_mileage_image", values.start_mileage_image)
         }
-
         if (values.end_mileage_image instanceof File) {
             formData.append("end_mileage_image", values.end_mileage_image)
         }
@@ -97,6 +112,16 @@ export default function CreateManagerTrips() {
     return (
         <div className="max-h-[80vh] overflow-y-auto pr-2 pl-2 no-scrollbar-x">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+                <FormCombobox
+                    control={control}
+                    required
+                    name="driver"
+                    options={drivers?.results}
+                    labelKey="first_name"
+                    valueKey="id"
+                    label="Haydovchi"
+                />
+
                 <FormNumberInput
                     name="start_mileage"
                     required
@@ -131,6 +156,25 @@ export default function CreateManagerTrips() {
                         hideClearable={true}
                     />
                 :   null}
+
+                {!item?.id && (
+                    <>
+                        <FormNumberInput
+                            name="start_fuel"
+                            label="Bakdagi yoqilg'i (litr)"
+                            control={control}
+                            decimalScale={2}
+                        />
+                        <FormNumberInput
+                            name="advance"
+                            label="Avans"
+                            control={control}
+                            thousandSeparator=" "
+                            decimalScale={0}
+                            placeholder="Ex: 5 000 000"
+                        />
+                    </>
+                )}
 
                 {item?.id && (
                     <>
@@ -172,41 +216,31 @@ export default function CreateManagerTrips() {
                         :   null}
 
                         <FormNumberInput
-                            name="fuel_consume"
-                            label="Yoqilg'i"
+                            name="end_fuel"
+                            label="Bakdagi yoqilg'i (litr)"
+                            control={control}
+                            decimalScale={2}
+                        />
+
+                        <FormDatePicker
+                            name="end"
                             required
+                            fullWidth
+                            label="Tugallangan"
                             control={control}
                         />
                     </>
                 )}
 
-                <FormDatePicker
-                    name="start"
-                    required
-                    fullWidth
-                    label="Chiqib ketgan"
-                    control={control}
-                />
-
                 {item?.id && (
                     <FormDatePicker
-                        name="end"
+                        name="start"
                         required
                         fullWidth
-                        label="Tugallangan"
+                        label="Chiqib ketgan"
                         control={control}
                     />
                 )}
-
-                <FormCombobox
-                    control={control}
-                    required
-                    name="driver"
-                    options={drivers?.results}
-                    labelKey="first_name"
-                    valueKey="id"
-                    label="Haydovchi"
-                />
 
                 <div className="flex justify-end">
                     <Button loading={isPending}>Saqlash</Button>

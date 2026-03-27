@@ -24,6 +24,7 @@ export default function FinishManagerTrips() {
         defaultValues: {
             ...item,
             vehicle: id,
+            end: new Date().toISOString().split("T")[0],
         },
     })
 
@@ -79,7 +80,7 @@ export default function FinishManagerTrips() {
                 <FormNumberInput
                     name="end_mileage"
                     required
-                    label="Chiqish probegi"
+                    label="Kirish probegi"
                     control={control}
                 />
 
@@ -111,13 +112,6 @@ export default function FinishManagerTrips() {
                     />
                 :   null}
 
-                <FormDatePicker
-                    name="end"
-                    required
-                    fullWidth
-                    label="Tugallangan"
-                    control={control}
-                />
                 <FormNumberInput
                     name="fuel_consume"
                     label="Yoqilg'i"

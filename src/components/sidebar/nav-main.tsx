@@ -27,6 +27,10 @@ export function NavMain() {
             return true
         }
 
+        if (item.extraPaths?.some((p) => pathname.startsWith(p + "/") || pathname === p)) {
+            return true
+        }
+
         if (item.items && item.items.length > 0) {
             return item.items.some((child) =>
                 hasActivePathDeep(child, pathname),

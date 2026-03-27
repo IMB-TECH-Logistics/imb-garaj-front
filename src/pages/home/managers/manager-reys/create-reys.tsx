@@ -50,7 +50,7 @@ const AddTripOrders = () => {
         { params: { model_name: "cargo-type" } },
     )
 
-    const form = useForm<TripOrdersRow>({
+    const form = useForm<any>({
         defaultValues: {
             loading: currentTripOrder?.loading,
             unloading: currentTripOrder?.unloading,
@@ -60,9 +60,9 @@ const AddTripOrders = () => {
             client: currentTripOrder?.client,
             cargo_type: currentTripOrder?.cargo_type,
             status: currentTripOrder?.status,
-            payments:
-                currentTripOrder?.payments?.length ?
-                    currentTripOrder.payments
+            incomes:
+                currentTripOrder?.incomes?.length ?
+                    currentTripOrder.incomes
                 :   [
                         {
                             payment_type: null,
@@ -78,7 +78,7 @@ const AddTripOrders = () => {
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: "payments",
+        name: "incomes",
     })
 
     const onSuccess = () => {
@@ -97,17 +97,17 @@ const AddTripOrders = () => {
     const { mutate: update, isPending: updating } = usePatch({ onSuccess })
     const isPending = creating || updating
 
-    const onSubmit = (data: TripOrdersRow) => {
-        const formattedPayments = data.payments.map((p: any) => {
-            const payment: any = {
+    const onSubmit = (data: any) => {
+        const formattedIncomes = data.incomes.map((p: any) => {
+            const income: any = {
                 currency: p.currency,
                 amount: String(p.amount),
                 payment_type: p.payment_type,
             }
-            if (p.currency === 2) {
-                payment.currency_course = String(p.currency_course)
+            if (p.currency === 2 && p.currency_course) {
+                income.currency_course = String(p.currency_course)
             }
-            return payment
+            return income
         })
 
         const formattedData = {
@@ -119,7 +119,7 @@ const AddTripOrders = () => {
             trip: id,
             status: data?.status,
             cargo_type: data?.cargo_type,
-            payments: formattedPayments,
+            incomes: formattedIncomes,
         }
 
         if (currentTripOrder?.id) {
@@ -236,7 +236,7 @@ const AddTripOrders = () => {
             />
             <div className="col-span-2 flex flex-col gap-4">
                 {fields.map((field, index) => {
-                    const selectedCurrency = watch(`payments.${index}.currency`)
+                    const selectedCurrency = watch(`incomes.${index}.currency`)
 
                     return (
                         <div
@@ -244,13 +244,13 @@ const AddTripOrders = () => {
                             className="grid grid-cols-2 gap-4 border rounded-lg p-4 relative"
                         >
                             <span className="col-span-2 font-medium text-sm text-muted-foreground">
-                                To'lov #{index + 1}
+                                Tushum #{index + 1}
                             </span>
 
                             <FormCombobox
                                 required
                                 label="To'lov turi"
-                                name={`payments.${index}.payment_type`}
+                                name={`incomes.${index}.payment_type`}
                                 control={control}
                                 options={paymentType || undefined}
                                 valueKey="id"
@@ -260,7 +260,7 @@ const AddTripOrders = () => {
                             <FormCombobox
                                 required
                                 label="Valyuta"
-                                name={`payments.${index}.currency`}
+                                name={`incomes.${index}.currency`}
                                 control={control}
                                 options={[
                                     { value: 1, label: "UZS - So'm" },
@@ -274,7 +274,7 @@ const AddTripOrders = () => {
                                 <FormNumberInput
                                     required
                                     thousandSeparator=" "
-                                    name={`payments.${index}.currency_course`}
+                                    name={`incomes.${index}.currency_course`}
                                     label="Valyuta kursi"
                                     placeholder="12 206 UZS"
                                     control={control}
@@ -282,9 +282,9 @@ const AddTripOrders = () => {
                             )}
                             <FormNumberInput
                                 required
-                                name={`payments.${index}.amount`}
+                                name={`incomes.${index}.amount`}
                                 thousandSeparator=" "
-                                label="To'lov miqdori"
+                                label="Summa"
                                 placeholder="12 206 000 UZS"
                                 control={control}
                             />
@@ -310,7 +310,6 @@ const AddTripOrders = () => {
                     className="w-full"
                     onClick={() =>
                         append({
-                            cargo_type: null,
                             payment_type: null,
                             currency: null,
                             currency_course: null,
@@ -319,7 +318,7 @@ const AddTripOrders = () => {
                     }
                 >
                     <Plus className="w-4 h-4 mr-2" />
-                    To'lov qo'shish
+                    Tushum qo'shish
                 </Button>
             </div>
 

@@ -6,18 +6,21 @@ type ManagerVehicles = {
     pending_orders: number
     type: string
     status: number
+    loading_name: string
+    unloading_name: string
+    order_status: number
 }
 
 type ImageField = File | string | null
 
 interface ManagerTrips {
-    income_uzs: number
+    income_uzs: string
     pending_order_count: string
-    driver_name: any
+    driver_name: string
     id?: number
     vehicle?: number | string
-    income_usd: number
-    cash_flow_sum: number
+    income_usd: string
+    cash_flow_sum: string
     start_mileage: number
     end_mileage: number
     fuel: number
@@ -27,6 +30,8 @@ interface ManagerTrips {
     driver: number
     start_mileage_image: ImageField
     end_mileage_image: ImageField
+    loading: string
+    unloading: string
 }
 
 type ManagerOrdersPayments = {

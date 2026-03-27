@@ -43,14 +43,6 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Kimniki",
-                accessorKey: "owner_name",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="capitalize">{row.original.owner_name || "—"}</span>
-                ),
-            },
-            {
                 header: "Reys (Band/Bo'sh)",
                 accessorKey: "order_count_busy",
                 enableSorting: true,

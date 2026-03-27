@@ -5,7 +5,7 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
 export const STATUS_LABELS: any = {
     1: "Band",
     2: "Bo'sh",
@@ -19,7 +19,12 @@ export const STATUS_TRIP: any = {
     4: "Bekor qilindi",
 }
 
-export const useColumnsManagersTrips = () => {
+export const useColumnsManagersTrips = (opts?: {
+    onMoliya?: (item: ManagerTrips) => void
+    onEdit?: (item: ManagerTrips) => void
+    onDelete?: (item: ManagerTrips) => void
+}) => {
+    const { onMoliya, onEdit, onDelete } = opts || {}
     const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { setData, getData } = useGlobalStore()
     const handleFinished = (item: ManagerTrips) => {
@@ -50,6 +55,14 @@ export const useColumnsManagersTrips = () => {
                 header: "Haydovchi",
                 enableSorting: true,
                 cell: ({ row }) => <div>{row.original.driver_name || "-"}</div>,
+            },
+            {
+                accessorKey: "completed_order_count",
+                header: "Yakunlangan reyslar",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div>{(row.original as any).completed_order_count || "0"}</div>
+                ),
             },
             {
                 accessorKey: "pending_order_count",
@@ -121,25 +134,57 @@ export const useColumnsManagersTrips = () => {
             },
 
             {
-                id: "action",
-                cell: ({ row }) => {
-                    if (row.original.end) return null
-                    return (
+                id: "actions",
+                header: " ",
+                cell: ({ row }) => (
+                    <div className="flex items-center justify-end gap-2 py-2">
+                        {!row.original.end && (
+                            <Button
+                                size="sm"
+                                className="bg-green-500/10 text-green-600 hover:bg-green-500/15"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleFinished(row.original)
+                                }}
+                            >
+                                <CheckCircle size={14} />
+                                Tugatish
+                            </Button>
+                        )}
                         <Button
-                            variant="outline"
-                            className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 h-8 px-3"
+                            icon={<HandCoins className="text-blue-500" size={16} />}
+                            size="sm"
+                            className="p-0 h-3"
+                            variant="ghost"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                handleFinished(row.original)
+                                onMoliya?.(row.original)
                             }}
-                        >
-                            <CheckCircle size={14} />
-                            Tugatish
-                        </Button>
-                    )
-                },
+                        />
+                        <Button
+                            icon={<SquarePen className="text-primary" size={16} />}
+                            size="sm"
+                            className="p-0 h-3"
+                            variant="ghost"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onEdit?.(row.original)
+                            }}
+                        />
+                        <Button
+                            icon={<Trash2 className="text-red-500" size={16} />}
+                            size="sm"
+                            className="p-0 h-3"
+                            variant="ghost"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onDelete?.(row.original)
+                            }}
+                        />
+                    </div>
+                ),
             },
         ],
-        [],
+        [onMoliya, onEdit, onDelete],
     )
 }

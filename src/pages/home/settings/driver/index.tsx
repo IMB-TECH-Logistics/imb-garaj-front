@@ -5,12 +5,13 @@ import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import TableHeader from "../table-header"
 import AddDriverModal from "./add-driver"
 import { useColumnsDriverTable } from "./driver-cols"
 
 const Drivers = () => {
+    const navigate = useNavigate()
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
@@ -37,6 +38,16 @@ const Drivers = () => {
         setData(SETTINGS_DRIVERS, item)
         openCreateModal()
     }
+    const handleRowClick = (item: DriversType) => {
+        navigate({
+            to: "/manager-trips/$id",
+            params: { id: item.id.toString() },
+            search: {
+                driver_id: item.id,
+                name: `${item.first_name} ${item.last_name}`,
+            } as any,
+        })
+    }
     return (
         <>
             <DataTable
@@ -45,6 +56,7 @@ const Drivers = () => {
                 data={data?.results}
                 onDelete={handleDelete}
                 onEdit={({ original }) => handleEdit(original)}
+                onRowClick={handleRowClick}
                 head={
                     <TableHeader
                         fileName="Haydovchilar"

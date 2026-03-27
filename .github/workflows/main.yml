@@ -1,0 +1,54 @@
+name: Deploy Garage Front
+
+on:
+    push:
+        branches:
+            - prod 
+ 
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            # Checkout the code
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Install Node.js
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "23"
+
+            # Install pnpm
+            - name: Install pnpm
+              run: npm install -g pnpm
+
+            # Install dependencies
+            - name: Install dependencies
+              run: pnpm install
+
+            # Build the app
+            - name: Build the app
+              run: pnpm run build
+
+            # Deploy to the server
+            - name: Deploy to server
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+                  HOST: ${{ secrets.HOST }}
+                  USERNAME: ${{ secrets.USERNAME }}
+              run: |
+                  mkdir -p ~/.ssh
+                  # Add the SSH private key
+                  echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+                  # Set the correct permissions
+                  chmod 600 ~/.ssh/id_rsa
+                  # Disable strict host key checking
+                  echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+                  # Copy build files to the server
+                  rsync -avz --delete dist/ $USERNAME@$HOST:/var/www/imb-garage-front/
+                  # Restart Nginx on the server
+                  ssh -o StrictHostKeyChecking=yes $USERNAME@$HOST << 'EOF'
+                    sudo systemctl reload nginx
+                  EOF

@@ -85,9 +85,8 @@ const FinanceStatisticMain = () => {
                 // onEdit={({ original }) => handleEdit(original)}
                 // onDelete={handleDelete}
                 head={
-                    <div className="flex items-center justify-between gap-3 mb-3">
-                        <h1 className="text-xl">Biznes Egasi Ma'lumotlari</h1>
-                        <div className="flex justify-between mb-3  gap-4">
+                    <div className="flex items-center justify-end gap-3 mb-3">
+                        <div className="flex gap-4">
                             <ParamDateRange 
                                 from="from_date" 
                                 to="to_date" 
