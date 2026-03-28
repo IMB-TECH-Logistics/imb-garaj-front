@@ -212,30 +212,7 @@ export default function CreateManagerTrips() {
                             />
                         :   null}
 
-                        <FormNumberInput
-                            name="end_fuel"
-                            label="Tugashdagi yoqilg'i (litr)"
-                            control={control}
-                            decimalScale={2}
-                        />
-
-                        <FormDatePicker
-                            name="end"
-                            fullWidth
-                            label="Tugallangan"
-                            control={control}
-                        />
                     </>
-                )}
-
-                {item?.id && (
-                    <FormDatePicker
-                        name="start"
-                        required
-                        fullWidth
-                        label="Chiqib ketgan"
-                        control={control}
-                    />
                 )}
 
                 <div className="flex justify-end">
