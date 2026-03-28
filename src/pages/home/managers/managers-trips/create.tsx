@@ -159,7 +159,7 @@ export default function CreateManagerTrips() {
 
                 <FormNumberInput
                     name="start_fuel"
-                    label="Boshlanish yoqilg'i (litr)"
+                    label="Boshlanishdagi yoqilg'i (litr)"
                     control={control}
                     decimalScale={2}
                 />
@@ -214,7 +214,7 @@ export default function CreateManagerTrips() {
 
                         <FormNumberInput
                             name="end_fuel"
-                            label="Tugash yoqilg'i (litr)"
+                            label="Tugashdagi yoqilg'i (litr)"
                             control={control}
                             decimalScale={2}
                         />

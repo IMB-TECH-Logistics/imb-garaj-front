@@ -106,7 +106,7 @@ export function Combobox<T extends Record<string, any>>({
                             {value ?
                                 options
                                     ?.find((d) => d[valueKey] == value)
-                                    ?.[labelKey]?.toString() || value
+                                    ?.[labelKey]?.toString() || label
                             :   label}
                         </span>
                         <ChevronDown className=" h-4 w-4  text-primary opacity-50 " />
