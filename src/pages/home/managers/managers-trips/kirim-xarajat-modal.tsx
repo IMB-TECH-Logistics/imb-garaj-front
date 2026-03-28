@@ -349,6 +349,8 @@ const useIncomeCols = (opts?: { onEdit?: (item: FinanceRow) => void; onDelete?: 
                     </span>
                 ),
             },
+            { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
+            { header: "Ma'sul", accessorKey: "executor_name", enableSorting: true },
             { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
             {
                 id: "actions",
@@ -400,6 +402,8 @@ const useExpenseCols = (opts?: { onEdit?: (item: FinanceRow) => void; onDelete?:
                     return q ? <span className="font-medium">{q}</span> : <span className="text-muted-foreground">—</span>
                 },
             }] : []),
+            { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
+            { header: "Ma'sul", accessorKey: "executor_name", enableSorting: true },
             { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
             {
                 id: "actions",
