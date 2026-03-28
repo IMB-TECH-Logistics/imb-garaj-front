@@ -25,7 +25,7 @@ const AddPaymentTypeModal = () => {
     const methodOptions = [
         { id: 1, name: "Naqd" },
         { id: 2, name: "Plastik" },
-        { id: 3, name: "Bank" },
+        { id: 3, name: "Kassa" },
     ]
 
     const onSuccess = () => {
