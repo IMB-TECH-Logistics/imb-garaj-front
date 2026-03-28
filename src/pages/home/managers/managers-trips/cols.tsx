@@ -104,7 +104,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "start_mileage",
-                header: "Kirish probegi",
+                header: "Ketish probegi",
                 enableSorting: true,
                 cell: ({ row }) => {
                     return <div>{formatMoney(row.original.start_mileage)}</div>
@@ -113,7 +113,7 @@ export const useColumnsManagersTrips = (opts?: {
 
             {
                 accessorKey: "end_mileage",
-                header: "Chiqish probegi",
+                header: "Kelish probegi",
                 enableSorting: true,
                 cell: ({ row }) => {
                     return <div>{formatMoney(row.original.end_mileage)}</div>

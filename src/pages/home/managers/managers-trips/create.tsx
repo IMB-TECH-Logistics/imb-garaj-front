@@ -57,15 +57,11 @@ export default function CreateManagerTrips() {
         reset()
     }
 
-    const headers = { "Content-Type": "multipart/form-data" }
-
     const { mutate: createTrip, isPending: isCreating } = usePost(
         { onSuccess },
-        { headers },
     )
     const { mutate: editTrip, isPending: isEditing } = usePatch(
         { onSuccess },
-        { headers },
     )
 
     function onSubmit(values: any) {
@@ -125,7 +121,7 @@ export default function CreateManagerTrips() {
                 <FormNumberInput
                     name="start_mileage"
                     required
-                    label="Kirish probegi"
+                    label="Ketish probegi"
                     control={control}
                 />
 
@@ -178,7 +174,7 @@ export default function CreateManagerTrips() {
                         <FormNumberInput
                             name="end_mileage"
                             required
-                            label="Chiqish probegi"
+                            label="Kelish probegi"
                             control={control}
                         />
 

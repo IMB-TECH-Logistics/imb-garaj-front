@@ -66,7 +66,7 @@ export default function FinishManagerTrips() {
         const formData = new FormData()
         formData.append("end_mileage", String(values.end_mileage))
         formData.append("end", values.end)
-        formData.append("fuel_consume", String(values.fuel_consume))
+        formData.append("end_fuel", String(values.end_fuel))
         if (values.end_mileage_image instanceof File) {
             formData.append("end_mileage_image", values.end_mileage_image)
         }
@@ -80,8 +80,14 @@ export default function FinishManagerTrips() {
                 <FormNumberInput
                     name="end_mileage"
                     required
-                    label="Kirish probegi"
+                    label="Kelish probegi"
                     control={control}
+                    registerOptions={{
+                        min: {
+                            value: item?.start_mileage || 0,
+                            message: `Kelish probegi ${item?.start_mileage || 0} dan kam bo'lmasligi kerak`,
+                        },
+                    }}
                 />
 
                 {endImage ?
@@ -113,7 +119,7 @@ export default function FinishManagerTrips() {
                 :   null}
 
                 <FormNumberInput
-                    name="fuel_consume"
+                    name="end_fuel"
                     label="Yoqilg'i"
                     required
                     control={control}
