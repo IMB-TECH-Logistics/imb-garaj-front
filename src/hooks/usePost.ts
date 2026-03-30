@@ -14,9 +14,9 @@ export const postRequest = <T>(
 ) =>
     axiosInstance
         .post(`/${url}/`, payload, {
-            headers: {
-                "Content-Type": "application/json",
-            },
+            ...(!(payload instanceof FormData) && {
+                headers: { "Content-Type": "application/json" },
+            }),
             ...config,
         })
         .then((res) => res.data)
