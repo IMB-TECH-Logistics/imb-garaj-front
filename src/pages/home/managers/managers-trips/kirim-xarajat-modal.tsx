@@ -207,7 +207,7 @@ function AddFinanceForm({
     const currency = watch("currency")
 
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
-        params: { page_size: 100000 },
+        params: { page_size: 1000000 },
     })
 
     const { data: ordersData } = useGet<ListResponse<{ id: number; loading_name: string; unloading_name: string }>>(
@@ -491,7 +491,7 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
 
     const { data: categoriesData } = useGet<ListResponse<Category>>(
         MANAGERS_EXPENSE_CATEGORIES,
-        { params: { page_size: 100, action: 1, trip_id: tripId }, enabled: !!tripId },
+        { params: { page_size: 100000, action: 1, trip_id: tripId }, enabled: !!tripId },
     )
     const categories = categoriesData?.results ?? []
     const [selectedCatId, setSelectedCatId] = useState<number | null>(null)
@@ -555,6 +555,7 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                     columns={columns}
                     data={rows}
                     numeration
+                    viewAll
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
@@ -567,7 +568,6 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                             </Button>
                         </div>
                     }
-                    paginationProps={{ totalPages: expensesData?.total_pages }}
                 />
             </div>
             <DeleteModal
@@ -591,7 +591,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
 
     const { data: categoriesData } = useGet<ListResponse<Category>>(
         MANAGERS_EXPENSE_CATEGORIES,
-        { params: { page_size: 100, action: -1, trip_id: tripId }, enabled: !!tripId },
+        { params: { page_size: 100000, action: -1, trip_id: tripId }, enabled: !!tripId },
     )
     const categories = categoriesData?.results ?? []
     const [selectedCatId, setSelectedCatId] = useState<number | null>(null)
@@ -655,6 +655,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                     columns={columns}
                     data={rows}
                     numeration
+                    viewAll
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
@@ -667,7 +668,6 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                             </Button>
                         </div>
                     }
-                    paginationProps={{ totalPages: expensesData?.total_pages }}
                 />
             </div>
             <DeleteModal
@@ -693,7 +693,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
     const queryClient = useQueryClient()
 
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
-        params: { page_size: 100000 },
+        params: { page_size: 1000000 },
     })
 
     const onSubmit = (data: any) => {
@@ -857,7 +857,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
     const { data: incomeData } = useGet<ListResponse<FinanceRow>>(
         MANAGERS_CASHFLOW,
         {
-            params: { trip: tripId, action: isDriver ? "1,2" : 1, page_size: 100, ...(isDriver ? { driver: true } : {}) },
+            params: { trip: tripId, action: isDriver ? "1,2" : 1, page_size: 100000, ...(isDriver ? { driver: true } : {}) },
             enabled: !!tripId,
             options: { queryKey: [MANAGERS_CASHFLOW, "t-hisob-income", tripId, isDriver] },
         },
@@ -865,7 +865,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
     const { data: expenseData } = useGet<ListResponse<FinanceRow>>(
         MANAGERS_CASHFLOW,
         {
-            params: { trip: tripId, action: -1, page_size: 100, ...(isDriver ? { driver: true } : {}) },
+            params: { trip: tripId, action: -1, page_size: 100000, ...(isDriver ? { driver: true } : {}) },
             enabled: !!tripId,
             options: { queryKey: [MANAGERS_CASHFLOW, "t-hisob-expense", tripId, isDriver] },
         },
@@ -927,6 +927,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         columns={incomeCols}
                         data={incomeRows}
                         numeration
+                        viewAll
                         head={
                             <div className="flex mb-3 items-center gap-3">
                                 <h1 className="text-xl text-green-600">Kirim</h1>
@@ -940,6 +941,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         columns={expenseCols}
                         data={expenseRows}
                         numeration
+                        viewAll
                         head={
                             <div className="flex mb-3 items-center gap-3">
                                 <h1 className="text-xl text-red-600">Chiqim</h1>
