@@ -8,7 +8,7 @@ import { formatMoney } from "@/lib/format-money"
 import { formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowLeftRight, Plus, SquarePen, Trash2, Truck, User } from "lucide-react"
+import { Plus, SquarePen, Trash2, Truck, User } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { FormCombobox } from "@/components/form/combobox"
@@ -199,9 +199,12 @@ function AddFinanceForm({
             comment: editItem?.comment ?? "",
             receipt: null as any,
             order: editItem?.order ?? "",
+            currency: editItem?.currency ?? 1,
+            currency_course: editItem?.currency_course ?? "",
         },
     })
-    const { handleSubmit, control, reset } = form
+    const { handleSubmit, control, reset, watch } = form
+    const currency = watch("currency")
 
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 100000 },
@@ -232,6 +235,8 @@ function AddFinanceForm({
                 comment: editItem.comment ?? "",
                 receipt: null,
                 order: editItem.order ?? "",
+                currency: editItem.currency ?? 1,
+                currency_course: editItem.currency_course ?? "",
             })
         } else {
             reset({
@@ -241,6 +246,8 @@ function AddFinanceForm({
                 comment: "",
                 receipt: null,
                 order: "",
+                currency: 1,
+                currency_course: "",
             })
         }
     }, [editItem?.id, reset])
@@ -270,6 +277,8 @@ function AddFinanceForm({
             payment_type: data.payment_type || null,
             quantity: data.quantity ? String(data.quantity) : null,
             action,
+            currency: data.currency || 1,
+            currency_course: data.currency === 2 ? data.currency_course || null : null,
         }
         if (isOrderCategory && data.order) {
             payload.order = data.order
@@ -288,6 +297,17 @@ function AddFinanceForm({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            <FormCombobox
+                control={control}
+                label="Valyuta"
+                name="currency"
+                options={[
+                    { id: 1, name: "UZS" },
+                    { id: 2, name: "USD" },
+                ]}
+                valueKey="id"
+                labelKey="name"
+            />
             <FormNumberInput
                 required
                 control={control}
@@ -295,8 +315,19 @@ function AddFinanceForm({
                 name="amount"
                 placeholder="Ex: 123 000"
                 thousandSeparator=" "
-                decimalScale={0}
+                decimalScale={currency === 2 ? 2 : 0}
             />
+            {currency === 2 && (
+                <FormNumberInput
+                    required
+                    control={control}
+                    label="Valyuta kursi"
+                    name="currency_course"
+                    placeholder="Ex: 12 000"
+                    thousandSeparator=" "
+                    decimalScale={0}
+                />
+            )}
             {isOrderCategory && (
                 <FormCombobox
                     required
@@ -654,28 +685,6 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
     )
 }
 
-// ──── T hisob (T accounting) types & data ────
-
-type TAccountRow = {
-    id: number
-    description: string
-    amount: number
-    type: "kirim" | "chiqim"
-    payment_method: "naqd" | "plastik" | "perechisleniya" | "solyarka"
-    date: string
-    visible_to_driver: boolean
-    visible_to_company: boolean
-}
-
-
-
-const paymentMethodLabels: Record<TAccountRow["payment_method"], string> = {
-    naqd: "Naqd",
-    plastik: "Plastik",
-    perechisleniya: "Perechisleniya",
-    solyarka: "Solyarka",
-}
-
 // ──── Avans form ────
 
 function AvansForm({ tripId }: { tripId?: number }) {
@@ -828,28 +837,6 @@ function SummaryCard({
 
 // ──── Returnable breakdown ────
 
-function ReturnableBreakdown({
-    data,
-}: {
-    data: { label: string; amount: number }[]
-}) {
-    return (
-        <div className="flex items-stretch gap-3 overflow-x-auto no-scrollbar">
-            {data.map((item) => (
-                <div
-                    key={item.label}
-                    className="px-4 py-2 rounded-md bg-orange-100 dark:bg-orange-900/40 border-transparent min-w-32 text-center shrink-0"
-                >
-                    <p className="text-xs text-muted-foreground">{item.label}</p>
-                    <p className="font-semibold text-orange-600 dark:text-orange-400">
-                        {formatMoney(item.amount)}
-                    </p>
-                </div>
-            ))}
-        </div>
-    )
-}
-
 // ──── T hisob tab ────
 
 function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number }) {
@@ -888,6 +875,9 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
 
     const incomeRows = incomeData?.results ?? []
     const expenseRows = expenseData?.results ?? []
+
+    const incomeCols = useIncomeCols()
+    const expenseCols = useExpenseCols()
 
     const stat = mode === "aylanma" ? tripStat : driverStat
     const totalIncome = Number(stat?.income ?? 0)
@@ -933,97 +923,32 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                 </div>
             </div>
 
-            {/* Single card, two columns inside */}
-            <div className="flex-1 min-h-0 flex flex-col border rounded-lg">
-                {/* Shared header row */}
-                <div className="grid grid-cols-2 border-b items-center shrink-0">
-                    <div className="px-4 py-3 flex items-center justify-center gap-2 border-r bg-green-500/10">
-                        <span className="size-2 rounded-full bg-green-500" />
-                        <h2 className="font-semibold text-sm text-green-600">Kirim</h2>
-                        <span className="text-[10px] font-semibold text-green-600 bg-green-500/15 rounded-full px-1.5 py-0.5 leading-none">{incomeRows.length}</span>
-                    </div>
-                    <div className="px-4 py-3 flex items-center justify-center gap-2 bg-red-600/10">
-                        <span className="size-2 rounded-full bg-red-500" />
-                        <h2 className="font-semibold text-sm text-red-600">Chiqim</h2>
-                        <span className="text-[10px] font-semibold text-red-600 bg-red-500/15 rounded-full px-1.5 py-0.5 leading-none">{expenseRows.length}</span>
-                    </div>
+            <div className="flex-1 min-h-0 grid grid-cols-2 gap-4 overflow-hidden">
+                <div className="overflow-y-auto min-h-0">
+                    <DataTable
+                        columns={incomeCols}
+                        data={incomeRows}
+                        numeration
+                        head={
+                            <div className="flex mb-3 items-center gap-3">
+                                <h1 className="text-xl text-green-600">Kirim</h1>
+                                <Badge className="text-sm">{incomeRows.length}</Badge>
+                            </div>
+                        }
+                    />
                 </div>
-
-                {/* Two columns of items */}
-                <div className="grid grid-cols-2 flex-1 min-h-0">
-                    {/* Left: Kirim */}
-                    <div className="border-r overflow-y-auto divide-y">
-                        {incomeRows.map((row, i) => (
-                            <div key={row.id} className="px-4 py-3 hover:bg-muted/30 transition-colors">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex gap-2 min-w-0">
-                                        <span className="text-xs text-muted-foreground mt-0.5 shrink-0 w-4 text-right">
-                                            {i + 1}
-                                        </span>
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate">{row.category_name}</p>
-                                            {row.order && (
-                                                <p className="text-xs text-muted-foreground truncate">
-                                                    {row.loading_name} → {row.unloading_name}
-                                                </p>
-                                            )}
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                {row.comment && <span className="text-xs text-muted-foreground">{row.comment}</span>}
-                                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted">
-                                                    {row.payment_type_name}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span className="text-sm font-semibold text-green-500 shrink-0">
-                                        + {formatAmount(row)}
-                                    </span>
-                                </div>
+                <div className="overflow-y-auto min-h-0">
+                    <DataTable
+                        columns={expenseCols}
+                        data={expenseRows}
+                        numeration
+                        head={
+                            <div className="flex mb-3 items-center gap-3">
+                                <h1 className="text-xl text-red-600">Chiqim</h1>
+                                <Badge className="text-sm">{expenseRows.length}</Badge>
                             </div>
-                        ))}
-                        {incomeRows.length === 0 && (
-                            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                                Kirim yo'q
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right: Chiqim */}
-                    <div className="overflow-y-auto divide-y">
-                        {expenseRows.map((row, i) => (
-                            <div key={row.id} className="px-4 py-3 hover:bg-muted/30 transition-colors">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex gap-2 min-w-0">
-                                        <span className="text-xs text-muted-foreground mt-0.5 shrink-0 w-4 text-right">
-                                            {i + 1}
-                                        </span>
-                                        <div className="min-w-0">
-                                            <p className="text-sm font-medium truncate">{row.category_name}</p>
-                                            {row.order && (
-                                                <p className="text-xs text-muted-foreground truncate">
-                                                    {row.loading_name} → {row.unloading_name}
-                                                </p>
-                                            )}
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                {row.comment && <span className="text-xs text-muted-foreground">{row.comment}</span>}
-                                                <span className="text-xs px-1.5 py-0.5 rounded-full bg-muted">
-                                                    {row.payment_type_name}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span className="text-sm font-semibold text-red-500 shrink-0">
-                                        - {formatAmount(row)}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                        {expenseRows.length === 0 && (
-                            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                                Chiqim yo'q
-                            </div>
-                        )}
-                    </div>
+                        }
+                    />
                 </div>
             </div>
 
