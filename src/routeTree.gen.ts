@@ -35,6 +35,9 @@ const MainTrucksTruckIndexLazyRouteImport = createFileRoute(
   '/_main/_trucks/truck/',
 )()
 const MainTripTripIndexLazyRouteImport = createFileRoute('/_main/_trip/trip/')()
+const MainSettingsVehiclesIndexLazyRouteImport = createFileRoute(
+  '/_main/_settings/vehicles/',
+)()
 const MainSettingsVehicleTypesIndexLazyRouteImport = createFileRoute(
   '/_main/_settings/vehicle-types/',
 )()
@@ -139,6 +142,14 @@ const MainTripTripIndexLazyRoute = MainTripTripIndexLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/_main/_trip/trip/index.lazy').then((d) => d.Route),
 )
+const MainSettingsVehiclesIndexLazyRoute =
+  MainSettingsVehiclesIndexLazyRouteImport.update({
+    id: '/_settings/vehicles/',
+    path: '/vehicles/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/_settings/vehicles/index.lazy').then((d) => d.Route),
+  )
 const MainSettingsVehicleTypesIndexLazyRoute =
   MainSettingsVehicleTypesIndexLazyRouteImport.update({
     id: '/_settings/vehicle-types/',
@@ -300,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/roles/': typeof MainSettingsRolesIndexLazyRoute
   '/users/': typeof MainSettingsUsersIndexLazyRoute
   '/vehicle-types/': typeof MainSettingsVehicleTypesIndexLazyRoute
+  '/vehicles/': typeof MainSettingsVehiclesIndexLazyRoute
   '/trip/': typeof MainTripTripIndexLazyRoute
   '/truck/': typeof MainTrucksTruckIndexLazyRoute
   '/manager-trips/manager-reys/$id': typeof MainManagersManagerTripsManagerReysIdRoute
@@ -328,6 +340,7 @@ export interface FileRoutesByTo {
   '/roles': typeof MainSettingsRolesIndexLazyRoute
   '/users': typeof MainSettingsUsersIndexLazyRoute
   '/vehicle-types': typeof MainSettingsVehicleTypesIndexLazyRoute
+  '/vehicles': typeof MainSettingsVehiclesIndexLazyRoute
   '/trip': typeof MainTripTripIndexLazyRoute
   '/truck': typeof MainTrucksTruckIndexLazyRoute
   '/manager-trips/manager-reys/$id': typeof MainManagersManagerTripsManagerReysIdRoute
@@ -359,6 +372,7 @@ export interface FileRoutesById {
   '/_main/_settings/roles/': typeof MainSettingsRolesIndexLazyRoute
   '/_main/_settings/users/': typeof MainSettingsUsersIndexLazyRoute
   '/_main/_settings/vehicle-types/': typeof MainSettingsVehicleTypesIndexLazyRoute
+  '/_main/_settings/vehicles/': typeof MainSettingsVehiclesIndexLazyRoute
   '/_main/_trip/trip/': typeof MainTripTripIndexLazyRoute
   '/_main/_trucks/truck/': typeof MainTrucksTruckIndexLazyRoute
   '/_main/_managers/manager-trips/manager-reys/$id': typeof MainManagersManagerTripsManagerReysIdRoute
@@ -389,6 +403,7 @@ export interface FileRouteTypes {
     | '/roles/'
     | '/users/'
     | '/vehicle-types/'
+    | '/vehicles/'
     | '/trip/'
     | '/truck/'
     | '/manager-trips/manager-reys/$id'
@@ -417,6 +432,7 @@ export interface FileRouteTypes {
     | '/roles'
     | '/users'
     | '/vehicle-types'
+    | '/vehicles'
     | '/trip'
     | '/truck'
     | '/manager-trips/manager-reys/$id'
@@ -447,6 +463,7 @@ export interface FileRouteTypes {
     | '/_main/_settings/roles/'
     | '/_main/_settings/users/'
     | '/_main/_settings/vehicle-types/'
+    | '/_main/_settings/vehicles/'
     | '/_main/_trip/trip/'
     | '/_main/_trucks/truck/'
     | '/_main/_managers/manager-trips/manager-reys/$id'
@@ -536,6 +553,13 @@ declare module '@tanstack/react-router' {
       path: '/trip'
       fullPath: '/trip/'
       preLoaderRoute: typeof MainTripTripIndexLazyRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/_settings/vehicles/': {
+      id: '/_main/_settings/vehicles/'
+      path: '/vehicles'
+      fullPath: '/vehicles/'
+      preLoaderRoute: typeof MainSettingsVehiclesIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
     '/_main/_settings/vehicle-types/': {
@@ -691,6 +715,7 @@ interface MainRouteChildren {
   MainSettingsRolesIndexLazyRoute: typeof MainSettingsRolesIndexLazyRoute
   MainSettingsUsersIndexLazyRoute: typeof MainSettingsUsersIndexLazyRoute
   MainSettingsVehicleTypesIndexLazyRoute: typeof MainSettingsVehicleTypesIndexLazyRoute
+  MainSettingsVehiclesIndexLazyRoute: typeof MainSettingsVehiclesIndexLazyRoute
   MainTripTripIndexLazyRoute: typeof MainTripTripIndexLazyRoute
   MainTrucksTruckIndexLazyRoute: typeof MainTrucksTruckIndexLazyRoute
   MainManagersManagerTripsManagerReysIdRoute: typeof MainManagersManagerTripsManagerReysIdRoute
@@ -723,6 +748,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainSettingsUsersIndexLazyRoute: MainSettingsUsersIndexLazyRoute,
   MainSettingsVehicleTypesIndexLazyRoute:
     MainSettingsVehicleTypesIndexLazyRoute,
+  MainSettingsVehiclesIndexLazyRoute: MainSettingsVehiclesIndexLazyRoute,
   MainTripTripIndexLazyRoute: MainTripTripIndexLazyRoute,
   MainTrucksTruckIndexLazyRoute: MainTrucksTruckIndexLazyRoute,
   MainManagersManagerTripsManagerReysIdRoute:

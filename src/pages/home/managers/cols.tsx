@@ -2,12 +2,17 @@ import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowRight } from "lucide-react"
 import { useMemo } from "react"
-import { STATUS_LABELS } from "./managers-trips/cols"
 
 const STATUS_COLORS: Record<number, string> = {
-    1: "bg-green-500/10 text-green-600 border-transparent",    // Band
-    2: "bg-gray-500/10 text-gray-500 border-transparent",       // Bo'sh
-    3: "bg-orange-500/10 text-orange-600 border-transparent",  // Ta'mirda
+    1: "bg-green-500/10 text-green-600 border-transparent",
+    2: "bg-gray-500/10 text-gray-500 border-transparent",
+    3: "bg-orange-500/10 text-orange-600 border-transparent",
+}
+
+const STATUS_LABELS: Record<number, string> = {
+    1: "Band",
+    2: "Bo'sh",
+    3: "Ta'mirda",
 }
 
 export const useColumnsManagersVehicles = () => {
@@ -39,7 +44,7 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "status",
-                header: "Aylanma statusi",
+                header: "Avtomobil statusi",
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
@@ -56,14 +61,8 @@ export const useColumnsManagersVehicles = () => {
                 header: "Joylashuv",
                 enableSorting: false,
                 cell: ({ row }) => {
-                    const { loading_name, unloading_name, status } = row.original
+                    const { loading_name, unloading_name } = row.original
 
-                    // Bo'sh (2) or Ta'mirda (3) → no active route
-                    if (status === 2 || status === 3) {
-                        return <span className="text-muted-foreground">-</span>
-                    }
-
-                    // Band (1) → from → to
                     if (loading_name && unloading_name) {
                         return (
                             <div className="flex items-center gap-1.5">

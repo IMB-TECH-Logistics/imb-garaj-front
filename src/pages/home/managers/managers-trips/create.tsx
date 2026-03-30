@@ -11,7 +11,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
 import { X } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -53,9 +53,16 @@ export default function CreateManagerTrips() {
         }
     }, [startData, isEdit, setValue])
 
-    const { data: drivers } = useGet(SETTINGS_DRIVERS, {
+    const { data: driversData } = useGet(SETTINGS_DRIVERS, {
         params: { page_size: 10000 },
     })
+    const drivers = useMemo(() =>
+        driversData?.results?.map((d: any) => ({
+            ...d,
+            full_name: `${d.first_name} ${d.last_name || ""}`.trim(),
+        })) ?? [],
+        [driversData],
+    )
 
     const startImage = watch("start_mileage_image") as File | string | null
     const endImage = watch("end_mileage_image") as File | string | null
@@ -137,8 +144,8 @@ export default function CreateManagerTrips() {
                     control={control}
                     required
                     name="driver"
-                    options={drivers?.results}
-                    labelKey="first_name"
+                    options={drivers}
+                    labelKey="full_name"
                     valueKey="id"
                     label="Haydovchi"
                 />

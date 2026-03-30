@@ -155,6 +155,10 @@ export const useItems = () =>
                         path: "/customers",
                     },
                     {
+                        label: "Avtomobillar",
+                        path: "/vehicles",
+                    },
+                    {
                         label: "Mashina turlari",
                         path: "/vehicle-types",
                     },
