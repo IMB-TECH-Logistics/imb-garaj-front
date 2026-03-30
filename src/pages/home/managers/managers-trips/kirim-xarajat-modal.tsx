@@ -23,7 +23,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
-import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 
@@ -203,8 +203,19 @@ function AddFinanceForm({
             currency_course: editItem?.currency_course ?? "",
         },
     })
-    const { handleSubmit, control, reset, watch } = form
+    const { handleSubmit, control, reset, watch, setValue } = form
     const currency = watch("currency")
+
+    const { data: currencyData } = useGet(MANAGERS_CASHFLOW_CURRENCY, {
+        enabled: currency === 2,
+        options: { staleTime: 0, gcTime: 0, refetchOnMount: "always" },
+    })
+
+    useEffect(() => {
+        if (currency === 2 && currencyData?.currency_course && !isEdit) {
+            setValue("currency_course", currencyData.currency_course)
+        }
+    }, [currency, currencyData, isEdit, setValue])
 
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 1000000 },
@@ -687,10 +698,22 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
 
 function AvansForm({ tripId }: { tripId?: number }) {
     const { closeModal } = useModal("avans-berish")
-    const form = useForm()
-    const { handleSubmit, control, reset } = form
+    const form = useForm({ defaultValues: { amount: "", payment_type: "", comment: "", date: "", currency: 1, currency_course: "" } })
+    const { handleSubmit, control, reset, watch, setValue } = form
     const { mutate, isPending } = usePost()
     const queryClient = useQueryClient()
+    const currency = watch("currency")
+
+    const { data: currencyData } = useGet(MANAGERS_CASHFLOW_CURRENCY, {
+        enabled: currency === 2,
+        options: { staleTime: 0, gcTime: 0, refetchOnMount: "always" },
+    })
+
+    useEffect(() => {
+        if (currency === 2 && currencyData?.currency_course) {
+            setValue("currency_course", currencyData.currency_course)
+        }
+    }, [currency, currencyData, setValue])
 
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 1000000 },
@@ -704,6 +727,8 @@ function AvansForm({ tripId }: { tripId?: number }) {
             comment: data.comment || null,
             date: data.date || null,
             action: 2,
+            currency: data.currency || 1,
+            currency_course: data.currency === 2 ? data.currency_course || null : null,
         }, {
             onSuccess: () => {
                 toast.success("Avans muvaffaqiyatli berildi")
@@ -718,6 +743,17 @@ function AvansForm({ tripId }: { tripId?: number }) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            <FormCombobox
+                control={control}
+                label="Valyuta"
+                name="currency"
+                options={[
+                    { id: 1, name: "UZS" },
+                    { id: 2, name: "USD" },
+                ]}
+                valueKey="id"
+                labelKey="name"
+            />
             <FormNumberInput
                 required
                 control={control}
@@ -725,8 +761,19 @@ function AvansForm({ tripId }: { tripId?: number }) {
                 name="amount"
                 placeholder="Ex: 5 000 000"
                 thousandSeparator=" "
-                decimalScale={0}
+                decimalScale={currency === 2 ? 2 : 0}
             />
+            {currency === 2 && (
+                <FormNumberInput
+                    required
+                    control={control}
+                    label="Valyuta kursi"
+                    name="currency_course"
+                    placeholder="Ex: 12 000"
+                    thousandSeparator=" "
+                    decimalScale={0}
+                />
+            )}
             <FormCombobox
                 control={control}
                 required
