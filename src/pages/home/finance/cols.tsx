@@ -113,7 +113,7 @@ export const useCostCols = () => {
                 accessorKey: "income_with_vat",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const v = toNum(row.original.income_with_vat)
+                    const v = (toNum(row.original.income_with_vat) || toNum(row.original.income))
                     return <span className="text-green-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
@@ -122,7 +122,7 @@ export const useCostCols = () => {
                 id: "profit",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const profit = toNum(row.original.income) - toNum(row.original.expense)
+                    const profit = (toNum(row.original.income_with_vat) || toNum(row.original.income)) - toNum(row.original.expense)
                     return <span className={`font-medium ${profit >= 0 ? "text-blue-600" : "text-red-600"}`}>{formatMoney(profit)}</span>
                 },
             },
