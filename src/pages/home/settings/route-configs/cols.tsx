@@ -13,6 +13,7 @@ export type DirectionRow = {
     payment_type_name: string
     currency: 1 | 2
     amount: string | null
+    current_price: string | number | null
 }
 
 const CURRENCY_LABELS: Record<number, string> = {
@@ -30,10 +31,11 @@ export const useDirectionColumns = () =>
             { accessorKey: "cargo_type_name", header: "Yuk turi", enableSorting: true },
             { accessorKey: "payment_type_name", header: "To'lov turi", enableSorting: true },
             {
-                accessorKey: "amount",
+                accessorKey: "current_price",
                 header: "Summa",
                 enableSorting: true,
-                cell: ({ row }) => formatMoney(Number(row.original.amount ?? 0)),
+                cell: ({ row }) =>
+                    formatMoney(Number(row.original.current_price ?? 0)),
             },
             {
                 accessorKey: "currency",
