@@ -11,6 +11,8 @@ export const MANAGERS_ORDERS_NEW = "hr/"
 export const TRIPS = "trips"
 export const TRIPS_ORDERS = "trips/orders"
 export const TRIPS_ORDERS_PAYMENT = "trips/order-payments"
+export const TRIPS_DRIVER_STATS = "trips/driver-stats"
+export const MANAGERS_DRIVER_SALARY = "manager/driver-salary"
 
 export const SHIFTS = "hr/"
 export const LOGIN = "auth/login"

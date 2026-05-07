@@ -5,10 +5,11 @@ import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     DRIVERS_BALANCE,
-    MANAGERS_CASHFLOW,
+    MANAGERS_DRIVER_SALARY,
     MANAGERS_ORDERS,
     MANAGERS_TRIPS,
     SETTINGS_DRIVERS,
+    TRIPS_DRIVER_STATS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
@@ -21,6 +22,12 @@ import { useMemo } from "react"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 
 type DriverBalance = { id: number; full_name: string; balance: string }
+
+type DriverStats = {
+    income_total: string | number
+    total_trips: number
+    total_orders: number
+}
 
 type OrderIncome = {
     id: number
@@ -52,6 +59,7 @@ type FlatReys = OrderRow & {
 
 type SalaryRow = {
     id: number
+    trip: number | null
     amount: string
     comment: string | null
     payment_type_name: string | null
@@ -64,8 +72,6 @@ type FlatSalary = SalaryRow & {
     trip_id: number
     trip_index: number
 }
-
-const SALARY_CATEGORY_ID = 2
 
 const STATUS_LABEL: Record<number, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
     0: { label: "Kutilmoqda", variant: "secondary" },
@@ -292,6 +298,11 @@ export default function HaydovchiDetail() {
         [balances, driverId],
     )
 
+    const { data: driverStats } = useGet<DriverStats>(
+        `${TRIPS_DRIVER_STATS}/${driverId}`,
+        { enabled: !!driverId },
+    )
+
     const { data: tripsData, isLoading: tripsLoading } = useGet<
         ListResponse<ManagerTrips>
     >(MANAGERS_TRIPS, {
@@ -325,40 +336,27 @@ export default function HaydovchiDetail() {
 
     const ordersLoading = orderQueries.some((q) => q.isLoading)
 
-    const salaryQueries = useQueries({
-        queries: tripsSorted.map((t) => ({
-            queryKey: [MANAGERS_CASHFLOW, "salary", t.id],
-            queryFn: () =>
-                axiosInstance
-                    .get(`/${MANAGERS_CASHFLOW}/`, {
-                        params: {
-                            trip: t.id,
-                            category: SALARY_CATEGORY_ID,
-                            action: -1,
-                            page_size: 1000,
-                        },
-                    })
-                    .then((r) => r.data as ListResponse<SalaryRow>),
-            enabled: !!t.id,
-            staleTime: 1000 * 60,
-        })),
+    const { data: salaryData, isLoading: salaryLoading } = useGet<
+        ListResponse<SalaryRow>
+    >(MANAGERS_DRIVER_SALARY, {
+        params: { trip__driver: driverId, page_size: 1000 },
+        enabled: !!driverId,
     })
 
-    const salaryLoading = salaryQueries.some((q) => q.isLoading)
-
     const flatSalaries = useMemo<FlatSalary[]>(() => {
-        const out: FlatSalary[] = []
+        const tripIndex = new Map<number, number>()
         tripsSorted.forEach((t, i) => {
-            const q = salaryQueries[i]
-            const rows = q?.data?.results ?? []
-            rows.forEach((r) => {
-                out.push({ ...r, trip_id: t.id ?? 0, trip_index: i + 1 })
-            })
+            if (t.id != null) tripIndex.set(t.id, i + 1)
         })
-        return out.sort((a, b) =>
-            (b.created || "").localeCompare(a.created || ""),
-        )
-    }, [tripsSorted, salaryQueries.map((q) => q.dataUpdatedAt).join(",")])
+        const rows = salaryData?.results ?? []
+        return [...rows]
+            .map((r) => ({
+                ...r,
+                trip_id: r.trip ?? 0,
+                trip_index: r.trip != null ? tripIndex.get(r.trip) ?? 0 : 0,
+            }))
+            .sort((a, b) => (b.created || "").localeCompare(a.created || ""))
+    }, [tripsSorted, salaryData])
 
     const flatReyses = useMemo<FlatReys[]>(() => {
         const out: FlatReys[] = []
@@ -523,35 +521,14 @@ export default function HaydovchiDetail() {
                         <StatCard
                             icon={<Route size={16} />}
                             label="Aylanmalar"
-                            value={`${trips.length}`}
+                            value={`${driverStats?.total_trips ?? 0}`}
                             suffix="ta"
                         />
                         <StatCard
                             icon={<Receipt size={16} />}
                             label="Reyslar"
-                            value={`${flatReyses.length}`}
+                            value={`${driverStats?.total_orders ?? 0}`}
                             suffix="ta"
-                        />
-                        <StatCard
-                            icon={<TrendingUp size={16} />}
-                            label="Daromad"
-                            value={formatMoney(totals.tripIncomeUzs)}
-                            suffix="UZS"
-                            extra={
-                                totals.tripIncomeUsd > 0 ? (
-                                    <>
-                                        {formatMoney(totals.tripIncomeUsd)} USD
-                                    </>
-                                ) : undefined
-                            }
-                            accent="text-green-500"
-                        />
-                        <StatCard
-                            icon={<TrendingDown size={16} />}
-                            label="Xarajat"
-                            value={formatMoney(totals.tripExpenseUzs)}
-                            suffix="UZS"
-                            accent="text-red-500"
                         />
                     </div>
                     <Card>
@@ -559,18 +536,15 @@ export default function HaydovchiDetail() {
                             <div className="flex items-center justify-between mb-3">
                                 <h3 className="font-medium">Reyslar ro'yxati</h3>
                                 <span className="text-sm font-normal text-muted-foreground">
-                                    Jami:{" "}
+                                    Jami daromad:{" "}
                                     <span className="text-green-600 font-semibold">
-                                        {formatMoney(totals.ordersUzs)} UZS
+                                        {formatMoney(
+                                            Number(
+                                                driverStats?.income_total ?? 0,
+                                            ),
+                                        )}{" "}
+                                        UZS
                                     </span>
-                                    {totals.ordersUsd > 0 && (
-                                        <>
-                                            {" + "}
-                                            <span className="text-green-600 font-semibold">
-                                                {formatMoney(totals.ordersUsd)} USD
-                                            </span>
-                                        </>
-                                    )}
                                 </span>
                             </div>
                             <DataTable
@@ -586,38 +560,6 @@ export default function HaydovchiDetail() {
                 </TabsContent>
 
                 <TabsContent value="oylik" className="mt-4 space-y-4">
-                    {/* Summary cards */}
-                    <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
-                        <SummaryTile
-                            icon={<TrendingUp size={16} />}
-                            label="Jami daromad"
-                            value={formatMoneyText(totals.tripIncomeUzs)}
-                            suffix="so'm"
-                            tone="green"
-                        />
-                        <SummaryTile
-                            icon={<TrendingDown size={16} />}
-                            label="Jami oylik berildi"
-                            value={formatMoneyText(totals.salaryPaid)}
-                            suffix="so'm"
-                            tone="red"
-                        />
-                        <SummaryTile
-                            icon={<Wallet size={16} />}
-                            label="Hozirgi balans"
-                            value={formatMoneyText(computedBalance)}
-                            suffix="so'm"
-                            tone={
-                                computedBalance < 0
-                                    ? "red"
-                                    : computedBalance > 0
-                                      ? "green"
-                                      : "neutral"
-                            }
-                            accent
-                        />
-                    </div>
-
                     {/* Ledger */}
                     <DataTable
                         loading={salaryLoading || tripsLoading}
