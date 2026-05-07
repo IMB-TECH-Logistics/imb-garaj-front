@@ -24,6 +24,19 @@ import { toast } from "sonner"
 
 type Option = { id: number; name: string }
 
+type StatusOption = { id: string; name: string }
+
+const STATUS_OPTIONS: StatusOption[] = [
+    { id: "0", name: "Kutilmoqda" },
+    { id: "1", name: "Boshlandi" },
+    { id: "5", name: "Yuklanmoqda" },
+    { id: "6", name: "Yo'lda" },
+    { id: "7", name: "Tushirilmoqda" },
+    { id: "2", name: "Yakunlandi" },
+    { id: "3", name: "Bekor qilindi" },
+    { id: "4", name: "Arxivlangan" },
+]
+
 type Direction = {
     id: number
     owner: number
@@ -68,6 +81,10 @@ const AddTripOrders = () => {
             trip: id,
             cargo_type: currentTripOrder?.cargo_type,
             date: currentTripOrder?.date ?? new Date().toISOString().split("T")[0],
+            status:
+                currentTripOrder?.status != null
+                    ? String(currentTripOrder.status)
+                    : "0",
             images: [] as File[],
         },
     })
@@ -245,6 +262,7 @@ const AddTripOrders = () => {
         )
 
         if (currentTripOrder?.id) {
+            formData.append("status", String(Number(data.status)))
             update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formData)
         } else {
             create(MANAGERS_ORDERS, formData)
@@ -361,6 +379,19 @@ const AddTripOrders = () => {
                     />
                 </div>
             </div>
+
+            {/* Status (faqat tahrirlashda) */}
+            {currentTripOrder?.id && (
+                <FormCombobox
+                    label="Holati"
+                    name="status"
+                    control={control}
+                    options={STATUS_OPTIONS}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Holatni tanlang"
+                />
+            )}
 
             {/* Yuklangan rasmlar */}
             {previewItems.length > 0 && (
