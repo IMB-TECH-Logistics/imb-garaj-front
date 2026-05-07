@@ -13,7 +13,7 @@ import { useSearch } from "@tanstack/react-router"
 import { useMemo } from "react"
 import TableHeader from "../table-header"
 import AddRouteConfigModal from "./add-route"
-import { type DirectionRow, useDirectionColumns } from "./cols"
+import { type DirectionPrice, type DirectionRow, useDirectionColumns } from "./cols"
 
 type Direction = {
     id: number
@@ -27,8 +27,8 @@ type Direction = {
     cargo_type_name: string
     payment_type: number
     currency: 1 | 2
-    amount: string | null
-    current_price: string | number | null
+    current_price: DirectionPrice | null
+    prices?: DirectionPrice[]
     created?: string
     updated?: string
 }
@@ -81,7 +81,6 @@ const RouteConfigsPage = () => {
                 payment_type_name:
                     paymentMap[d.payment_type] ?? String(d.payment_type),
                 currency: d.currency,
-                amount: d.amount,
                 current_price: d.current_price,
             })),
         [data, paymentMap],
@@ -126,7 +125,10 @@ const RouteConfigsPage = () => {
                     />
                 }
             />
-            <DeleteModal path={COMMON_DIRECTIONS} id={item?.id} />
+            <DeleteModal
+                path={COMMON_DIRECTIONS}
+                id={item?.id ? `${item.id}/delete` : undefined}
+            />
             <Modal
                 title={
                     item?.id ? "Yo'nalishni tahrirlash" : "Yo'nalish qo'shish"

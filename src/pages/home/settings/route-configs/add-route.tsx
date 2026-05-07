@@ -17,6 +17,12 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+type DirectionPrice = {
+    id: number
+    price: string | number
+    valid_from: string
+}
+
 type Direction = {
     id?: number
     owner: number | null
@@ -25,8 +31,10 @@ type Direction = {
     cargo_type: number | null
     payment_type: number | null
     currency: number | null
-    amount: string | null
+    price: string | null
     valid_from: string | null
+    current_price?: DirectionPrice | null
+    prices?: DirectionPrice[]
 }
 
 type SelectItem = { id: number | string; name: string }
@@ -50,8 +58,11 @@ const AddRouteConfigModal = () => {
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
             currency: current?.currency ?? null,
-            amount: current?.amount ?? null,
-            valid_from: current?.valid_from ?? null,
+            price:
+                current?.current_price?.price != null
+                    ? String(current.current_price.price)
+                    : null,
+            valid_from: current?.current_price?.valid_from ?? null,
         },
     })
 
@@ -87,9 +98,9 @@ const AddRouteConfigModal = () => {
 
     const onSubmit = (values: Direction) => {
         if (current?.id) {
-            updateMutate(`${COMMON_DIRECTIONS}/${current.id}`, values)
+            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, values)
         } else {
-            postMutate(COMMON_DIRECTIONS, values)
+            postMutate(`${COMMON_DIRECTIONS}/create`, values)
         }
     }
 
@@ -158,12 +169,13 @@ const AddRouteConfigModal = () => {
             <FormNumberInput
                 required
                 thousandSeparator=" "
-                name="amount"
+                name="price"
                 label="Summa"
                 placeholder="12 206 000"
                 control={control}
             />
             <FormDatePicker
+                required
                 label="Qaysi sanadan amal qiladi"
                 control={control}
                 name="valid_from"

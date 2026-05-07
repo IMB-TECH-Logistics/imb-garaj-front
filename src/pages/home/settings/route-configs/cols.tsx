@@ -4,6 +4,13 @@ import { useMemo } from "react"
 
 export type SelectableItem = { id: number; name: string }
 
+export type DirectionPrice = {
+    id: number
+    price: string | number
+    valid_from: string
+    created?: string
+}
+
 export type DirectionRow = {
     id: number
     owner_name: string
@@ -12,8 +19,7 @@ export type DirectionRow = {
     cargo_type_name: string
     payment_type_name: string
     currency: 1 | 2
-    amount: string | null
-    current_price: string | number | null
+    current_price: DirectionPrice | null
 }
 
 const CURRENCY_LABELS: Record<number, string> = {
@@ -35,7 +41,7 @@ export const useDirectionColumns = () =>
                 header: "Summa",
                 enableSorting: true,
                 cell: ({ row }) =>
-                    formatMoney(Number(row.original.current_price ?? 0)),
+                    formatMoney(Number(row.original.current_price?.price ?? 0)),
             },
             {
                 accessorKey: "currency",
