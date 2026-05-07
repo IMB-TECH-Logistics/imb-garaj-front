@@ -163,6 +163,7 @@ export const useItems = () =>
                     { label: "Yuk turi", path: "/cargo-types", allowKey: "settings_cargo_types_view" },
                     { label: "To'lov turlari", path: "/payment-types", allowKey: "settings_payment_types_view" },
                     { label: "Xarajat turlari", path: "/expense-types", allowKey: "settings_expense_types_view" },
+                    { label: "Zapravkalar", path: "/petrol-stations", allowKey: "settings_petrol_stations_view" },
                 ],
             },
         ],

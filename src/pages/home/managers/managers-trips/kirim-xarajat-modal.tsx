@@ -23,7 +23,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
-import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 
@@ -49,6 +49,8 @@ type FinanceRow = {
     updated: string
     currency: number
     currency_course: string | null
+    petrol_station: number | null
+    petrol_station_name: string | null
 }
 
 function formatAmount(row: FinanceRow) {
@@ -166,6 +168,46 @@ function AddCategoryForm({ flowType, modalKey = "add-category" }: { flowType: 1 
     )
 }
 
+// ──── Petrol station picker (used in fuel expense) ────
+
+type PetrolStationOption = {
+    id: number
+    name: string
+    address: string
+    balance: string | number | null
+}
+
+function PetrolStationField({ control }: { control: any }) {
+    const { data } = useGet<ListResponse<PetrolStationOption>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { page_size: 1000 } },
+    )
+    const formatBalance = (n: number) =>
+        Math.round(n)
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+    const options = useMemo(
+        () =>
+            (data?.results ?? []).map((p) => ({
+                id: p.id,
+                name: `${p.name} (Balans: ${formatBalance(Number(p.balance ?? 0))} so'm)`,
+            })),
+        [data],
+    )
+    return (
+        <FormCombobox
+            required
+            control={control}
+            label="Zapravka"
+            name="petrol_station"
+            options={options}
+            valueKey="id"
+            labelKey="name"
+            placeholder="Zapravkani tanlang"
+        />
+    )
+}
+
 // ──── Add finance form ────
 
 function AddFinanceForm({
@@ -203,6 +245,7 @@ function AddFinanceForm({
             order: editItem?.order ?? "",
             currency: editItem?.currency ?? 1,
             currency_course: editItem?.currency_course ?? "",
+            petrol_station: editItem?.petrol_station ?? "",
         },
     })
     const { handleSubmit, control, reset, watch, setValue } = form
@@ -250,6 +293,7 @@ function AddFinanceForm({
                 order: editItem.order ?? "",
                 currency: editItem.currency ?? 1,
                 currency_course: editItem.currency_course ?? "",
+                petrol_station: editItem.petrol_station ?? "",
             })
         } else {
             reset({
@@ -261,6 +305,7 @@ function AddFinanceForm({
                 order: "",
                 currency: 1,
                 currency_course: "",
+                petrol_station: "",
             })
         }
     }, [editItem?.id, reset])
@@ -292,6 +337,7 @@ function AddFinanceForm({
             action,
             currency: data.currency || 1,
             currency_course: data.currency === 2 ? data.currency_course || null : null,
+            petrol_station: isFuel && data.petrol_station ? data.petrol_station : null,
         }
         if (isOrderCategory && data.order) {
             payload.order = data.order
@@ -309,7 +355,10 @@ function AddFinanceForm({
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 no-scrollbar-x"
+        >
             <FormCombobox
                 control={control}
                 label="Valyuta"
@@ -354,14 +403,17 @@ function AddFinanceForm({
                 />
             )}
             {isFuel && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label="Miqdori (litr)"
-                    name="quantity"
-                    placeholder="Ex: 120.5"
-                    decimalScale={2}
-                />
+                <>
+                    <FormNumberInput
+                        required
+                        control={control}
+                        label="Miqdori (litr)"
+                        name="quantity"
+                        placeholder="Ex: 120.5"
+                        decimalScale={2}
+                    />
+                    <PetrolStationField control={control} />
+                </>
             )}
             <FormCombobox
                 control={control}

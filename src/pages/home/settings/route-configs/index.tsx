@@ -82,6 +82,7 @@ const RouteConfigsPage = () => {
                     paymentMap[d.payment_type] ?? String(d.payment_type),
                 currency: d.currency,
                 current_price: d.current_price,
+                prices: d.prices,
             })),
         [data, paymentMap],
     )

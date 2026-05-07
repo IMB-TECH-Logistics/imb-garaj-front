@@ -14,6 +14,7 @@ export const TRIPS_ORDERS_PAYMENT = "trips/order-payments"
 export const TRIPS_DRIVER_STATS = "trips/driver-stats"
 export const MANAGERS_DRIVER_SALARY = "manager/driver-salary"
 export const MOBILE_ORDER_UPDATE = "mobile/order-update"
+export const SETTINGS_PETROL_STATIONS = "common/petrol-stations"
 
 export const SHIFTS = "hr/"
 export const LOGIN = "auth/login"
