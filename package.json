@@ -104,5 +104,10 @@
         "wavesurfer.js": "^7.8.8",
         "zod": "^3.23.8",
         "zustand": "^5.0.3"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "esbuild"
+        ]
     }
 }

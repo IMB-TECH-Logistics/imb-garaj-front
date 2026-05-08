@@ -4,11 +4,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
+import { useConfirm } from "@/hooks/useConfirm"
+import { useDelete } from "@/hooks/useDelete"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
+import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, MapPin, Plus } from "lucide-react"
+import { toast } from "sonner"
 import {
     type StationCashFlowRow,
     useStationCashFlowColumns,
@@ -44,6 +48,31 @@ const PetrolStationDetail = () => {
 
     const { openModal: openTopUp } = useModal("petrol-top-up")
     const cashFlowEdit = useEditCashFlowStore()
+    const confirm = useConfirm()
+    const queryClient = useQueryClient()
+
+    const { mutate: deleteCashFlow } = useDelete({
+        onSuccess: () => {
+            toast.success("O'chirildi")
+            queryClient.refetchQueries({
+                predicate: (q) =>
+                    String(q.queryKey[0]).includes("petrol-stations"),
+            })
+        },
+    })
+
+    const handleDelete = async (row: { original: StationCashFlowRow }) => {
+        if (row.original.action !== 1) return
+        const ok = await confirm({
+            title: "To'ldirishni o'chirish",
+            description:
+                "Tasdiqlasangiz, balansdan ushbu summa yechib qo'yiladi.",
+        })
+        if (!ok) return
+        deleteCashFlow(
+            `${SETTINGS_PETROL_STATIONS}/cash-flows/${row.original.id}/delete`,
+        )
+    }
 
     const columns = useStationCashFlowColumns()
 
@@ -110,6 +139,14 @@ const PetrolStationDetail = () => {
                                   )
                               }
                           }
+                        : undefined
+                }
+                onDelete={
+                    hasControl
+                        ? (row) =>
+                              handleDelete(
+                                  row as { original: StationCashFlowRow },
+                              )
                         : undefined
                 }
                 numeration
