@@ -689,7 +689,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                 path={MANAGERS_EXPENSES}
                 id={useGlobalStore.getState().getData(MANAGERS_EXPENSES)?.id}
                 modalKey={`${MANAGERS_EXPENSES}-xarajat-delete`}
-                refetchKeys={[MANAGERS_CASHFLOW]}
+                refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES]}
             />
             <Modal modalKey="add-category-expense" title="Kategoriya qo'shish" size="max-w-sm">
                 <AddCategoryForm flowType={-1} modalKey="add-category-expense" />
@@ -1036,13 +1036,23 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                 path={MANAGERS_INCOMES}
                 id={useGlobalStore.getState().getData(MANAGERS_INCOMES)?.id}
                 modalKey={`${MANAGERS_INCOMES}-thisob-delete`}
-                refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_CASHFLOW_DRIVER_STAT]}
+                refetchKeys={[
+                    MANAGERS_CASHFLOW,
+                    MANAGERS_EXPENSE_CATEGORIES,
+                    `${MANAGERS_CASHFLOW_TRIP_STAT}/${tripId}/statistic`,
+                    `${MANAGERS_CASHFLOW_DRIVER_STAT}/${tripId}/statistic`,
+                ]}
             />
             <DeleteModal
                 path={MANAGERS_EXPENSES}
                 id={useGlobalStore.getState().getData(MANAGERS_EXPENSES)?.id}
                 modalKey={`${MANAGERS_EXPENSES}-thisob-delete`}
-                refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_CASHFLOW_DRIVER_STAT]}
+                refetchKeys={[
+                    MANAGERS_CASHFLOW,
+                    MANAGERS_EXPENSE_CATEGORIES,
+                    `${MANAGERS_CASHFLOW_TRIP_STAT}/${tripId}/statistic`,
+                    `${MANAGERS_CASHFLOW_DRIVER_STAT}/${tripId}/statistic`,
+                ]}
             />
         </div>
     )
