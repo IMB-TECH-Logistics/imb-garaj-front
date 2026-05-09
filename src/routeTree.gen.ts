@@ -19,7 +19,7 @@ import { Route as MainIndexImport } from './routes/_main/index'
 import { Route as MainHaydovchilarIdImport } from './routes/_main/haydovchilar/$id'
 import { Route as MainTrucksTruckDetailIdImport } from './routes/_main/_trucks/truck-detail/$id'
 import { Route as MainTrucksOrdersIdImport } from './routes/_main/_trucks/orders/$id'
-import { Route as MainSettingsPetrolStationsIdImport } from './routes/_main/_settings/petrol-stations/$id'
+import { Route as MainManagersPetrolStationsIdImport } from './routes/_main/_managers/petrol-stations/$id'
 import { Route as MainManagersManagerTripsIdImport } from './routes/_main/_managers/manager-trips/$id'
 import { Route as MainTripTripParentIdIndexImport } from './routes/_main/_trip/trip/$parentId/index'
 import { Route as MainTripTripParentIdChildIdImport } from './routes/_main/_trip/trip/$parentId/$childId'
@@ -60,9 +60,6 @@ const MainSettingsRouteConfigsIndexLazyImport = createFileRoute(
 const MainSettingsRolesIndexLazyImport = createFileRoute(
   '/_main/_settings/roles/',
 )()
-const MainSettingsPetrolStationsIndexLazyImport = createFileRoute(
-  '/_main/_settings/petrol-stations/',
-)()
 const MainSettingsPaymentTypesIndexLazyImport = createFileRoute(
   '/_main/_settings/payment-types/',
 )()
@@ -86,6 +83,9 @@ const MainManagersTransportsIndexLazyImport = createFileRoute(
 )()
 const MainManagersTechnicCheckIndexLazyImport = createFileRoute(
   '/_main/_managers/technic-check/',
+)()
+const MainManagersPetrolStationsIndexLazyImport = createFileRoute(
+  '/_main/_managers/petrol-stations/',
 )()
 const MainSettingsUsersCreateIndexLazyImport = createFileRoute(
   '/_main/_settings/users/create/',
@@ -230,16 +230,6 @@ const MainSettingsRolesIndexLazyRoute = MainSettingsRolesIndexLazyImport.update(
   import('./routes/_main/_settings/roles/index.lazy').then((d) => d.Route),
 )
 
-const MainSettingsPetrolStationsIndexLazyRoute =
-  MainSettingsPetrolStationsIndexLazyImport.update({
-    path: '/petrol-stations/',
-    getParentRoute: () => MainRoute,
-  } as any).lazy(() =>
-    import('./routes/_main/_settings/petrol-stations/index.lazy').then(
-      (d) => d.Route,
-    ),
-  )
-
 const MainSettingsPaymentTypesIndexLazyRoute =
   MainSettingsPaymentTypesIndexLazyImport.update({
     path: '/payment-types/',
@@ -318,6 +308,16 @@ const MainManagersTechnicCheckIndexLazyRoute =
     ),
   )
 
+const MainManagersPetrolStationsIndexLazyRoute =
+  MainManagersPetrolStationsIndexLazyImport.update({
+    path: '/petrol-stations/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/_managers/petrol-stations/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
 const MainTrucksTruckDetailIdRoute = MainTrucksTruckDetailIdImport.update({
   path: '/truck-detail/$id',
   getParentRoute: () => MainRoute,
@@ -328,8 +328,8 @@ const MainTrucksOrdersIdRoute = MainTrucksOrdersIdImport.update({
   getParentRoute: () => MainRoute,
 } as any)
 
-const MainSettingsPetrolStationsIdRoute =
-  MainSettingsPetrolStationsIdImport.update({
+const MainManagersPetrolStationsIdRoute =
+  MainManagersPetrolStationsIdImport.update({
     path: '/petrol-stations/$id',
     getParentRoute: () => MainRoute,
   } as any)
@@ -471,11 +471,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainManagersManagerTripsIdImport
       parentRoute: typeof MainImport
     }
-    '/_main/_settings/petrol-stations/$id': {
-      id: '/_main/_settings/petrol-stations/$id'
+    '/_main/_managers/petrol-stations/$id': {
+      id: '/_main/_managers/petrol-stations/$id'
       path: '/petrol-stations/$id'
       fullPath: '/petrol-stations/$id'
-      preLoaderRoute: typeof MainSettingsPetrolStationsIdImport
+      preLoaderRoute: typeof MainManagersPetrolStationsIdImport
       parentRoute: typeof MainImport
     }
     '/_main/_trucks/orders/$id': {
@@ -490,6 +490,13 @@ declare module '@tanstack/react-router' {
       path: '/truck-detail/$id'
       fullPath: '/truck-detail/$id'
       preLoaderRoute: typeof MainTrucksTruckDetailIdImport
+      parentRoute: typeof MainImport
+    }
+    '/_main/_managers/petrol-stations/': {
+      id: '/_main/_managers/petrol-stations/'
+      path: '/petrol-stations'
+      fullPath: '/petrol-stations'
+      preLoaderRoute: typeof MainManagersPetrolStationsIndexLazyImport
       parentRoute: typeof MainImport
     }
     '/_main/_managers/technic-check/': {
@@ -546,13 +553,6 @@ declare module '@tanstack/react-router' {
       path: '/payment-types'
       fullPath: '/payment-types'
       preLoaderRoute: typeof MainSettingsPaymentTypesIndexLazyImport
-      parentRoute: typeof MainImport
-    }
-    '/_main/_settings/petrol-stations/': {
-      id: '/_main/_settings/petrol-stations/'
-      path: '/petrol-stations'
-      fullPath: '/petrol-stations'
-      preLoaderRoute: typeof MainSettingsPetrolStationsIndexLazyImport
       parentRoute: typeof MainImport
     }
     '/_main/_settings/roles/': {
@@ -665,9 +665,10 @@ interface MainRouteChildren {
   MainMoliyaIndexLazyRoute: typeof MainMoliyaIndexLazyRoute
   MainTexnikCheckIndexLazyRoute: typeof MainTexnikCheckIndexLazyRoute
   MainManagersManagerTripsIdRoute: typeof MainManagersManagerTripsIdRoute
-  MainSettingsPetrolStationsIdRoute: typeof MainSettingsPetrolStationsIdRoute
+  MainManagersPetrolStationsIdRoute: typeof MainManagersPetrolStationsIdRoute
   MainTrucksOrdersIdRoute: typeof MainTrucksOrdersIdRoute
   MainTrucksTruckDetailIdRoute: typeof MainTrucksTruckDetailIdRoute
+  MainManagersPetrolStationsIndexLazyRoute: typeof MainManagersPetrolStationsIndexLazyRoute
   MainManagersTechnicCheckIndexLazyRoute: typeof MainManagersTechnicCheckIndexLazyRoute
   MainManagersTransportsIndexLazyRoute: typeof MainManagersTransportsIndexLazyRoute
   MainSettingsCargoTypesIndexLazyRoute: typeof MainSettingsCargoTypesIndexLazyRoute
@@ -676,7 +677,6 @@ interface MainRouteChildren {
   MainSettingsExpenseTypesIndexLazyRoute: typeof MainSettingsExpenseTypesIndexLazyRoute
   MainSettingsLocationsIndexLazyRoute: typeof MainSettingsLocationsIndexLazyRoute
   MainSettingsPaymentTypesIndexLazyRoute: typeof MainSettingsPaymentTypesIndexLazyRoute
-  MainSettingsPetrolStationsIndexLazyRoute: typeof MainSettingsPetrolStationsIndexLazyRoute
   MainSettingsRolesIndexLazyRoute: typeof MainSettingsRolesIndexLazyRoute
   MainSettingsRouteConfigsIndexLazyRoute: typeof MainSettingsRouteConfigsIndexLazyRoute
   MainSettingsUsersIndexLazyRoute: typeof MainSettingsUsersIndexLazyRoute
@@ -702,9 +702,11 @@ const MainRouteChildren: MainRouteChildren = {
   MainMoliyaIndexLazyRoute: MainMoliyaIndexLazyRoute,
   MainTexnikCheckIndexLazyRoute: MainTexnikCheckIndexLazyRoute,
   MainManagersManagerTripsIdRoute: MainManagersManagerTripsIdRoute,
-  MainSettingsPetrolStationsIdRoute: MainSettingsPetrolStationsIdRoute,
+  MainManagersPetrolStationsIdRoute: MainManagersPetrolStationsIdRoute,
   MainTrucksOrdersIdRoute: MainTrucksOrdersIdRoute,
   MainTrucksTruckDetailIdRoute: MainTrucksTruckDetailIdRoute,
+  MainManagersPetrolStationsIndexLazyRoute:
+    MainManagersPetrolStationsIndexLazyRoute,
   MainManagersTechnicCheckIndexLazyRoute:
     MainManagersTechnicCheckIndexLazyRoute,
   MainManagersTransportsIndexLazyRoute: MainManagersTransportsIndexLazyRoute,
@@ -716,8 +718,6 @@ const MainRouteChildren: MainRouteChildren = {
   MainSettingsLocationsIndexLazyRoute: MainSettingsLocationsIndexLazyRoute,
   MainSettingsPaymentTypesIndexLazyRoute:
     MainSettingsPaymentTypesIndexLazyRoute,
-  MainSettingsPetrolStationsIndexLazyRoute:
-    MainSettingsPetrolStationsIndexLazyRoute,
   MainSettingsRolesIndexLazyRoute: MainSettingsRolesIndexLazyRoute,
   MainSettingsRouteConfigsIndexLazyRoute:
     MainSettingsRouteConfigsIndexLazyRoute,
@@ -750,9 +750,10 @@ export interface FileRoutesByFullPath {
   '/moliya': typeof MainMoliyaIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
-  '/petrol-stations/$id': typeof MainSettingsPetrolStationsIdRoute
+  '/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
   '/orders/$id': typeof MainTrucksOrdersIdRoute
   '/truck-detail/$id': typeof MainTrucksTruckDetailIdRoute
+  '/petrol-stations': typeof MainManagersPetrolStationsIndexLazyRoute
   '/technic-check': typeof MainManagersTechnicCheckIndexLazyRoute
   '/transports': typeof MainManagersTransportsIndexLazyRoute
   '/cargo-types': typeof MainSettingsCargoTypesIndexLazyRoute
@@ -761,7 +762,6 @@ export interface FileRoutesByFullPath {
   '/expense-types': typeof MainSettingsExpenseTypesIndexLazyRoute
   '/locations': typeof MainSettingsLocationsIndexLazyRoute
   '/payment-types': typeof MainSettingsPaymentTypesIndexLazyRoute
-  '/petrol-stations': typeof MainSettingsPetrolStationsIndexLazyRoute
   '/roles': typeof MainSettingsRolesIndexLazyRoute
   '/route-configs': typeof MainSettingsRouteConfigsIndexLazyRoute
   '/users': typeof MainSettingsUsersIndexLazyRoute
@@ -789,9 +789,10 @@ export interface FileRoutesByTo {
   '/moliya': typeof MainMoliyaIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
-  '/petrol-stations/$id': typeof MainSettingsPetrolStationsIdRoute
+  '/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
   '/orders/$id': typeof MainTrucksOrdersIdRoute
   '/truck-detail/$id': typeof MainTrucksTruckDetailIdRoute
+  '/petrol-stations': typeof MainManagersPetrolStationsIndexLazyRoute
   '/technic-check': typeof MainManagersTechnicCheckIndexLazyRoute
   '/transports': typeof MainManagersTransportsIndexLazyRoute
   '/cargo-types': typeof MainSettingsCargoTypesIndexLazyRoute
@@ -800,7 +801,6 @@ export interface FileRoutesByTo {
   '/expense-types': typeof MainSettingsExpenseTypesIndexLazyRoute
   '/locations': typeof MainSettingsLocationsIndexLazyRoute
   '/payment-types': typeof MainSettingsPaymentTypesIndexLazyRoute
-  '/petrol-stations': typeof MainSettingsPetrolStationsIndexLazyRoute
   '/roles': typeof MainSettingsRolesIndexLazyRoute
   '/route-configs': typeof MainSettingsRouteConfigsIndexLazyRoute
   '/users': typeof MainSettingsUsersIndexLazyRoute
@@ -830,9 +830,10 @@ export interface FileRoutesById {
   '/_main/moliya/': typeof MainMoliyaIndexLazyRoute
   '/_main/texnik-check/': typeof MainTexnikCheckIndexLazyRoute
   '/_main/_managers/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
-  '/_main/_settings/petrol-stations/$id': typeof MainSettingsPetrolStationsIdRoute
+  '/_main/_managers/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
   '/_main/_trucks/orders/$id': typeof MainTrucksOrdersIdRoute
   '/_main/_trucks/truck-detail/$id': typeof MainTrucksTruckDetailIdRoute
+  '/_main/_managers/petrol-stations/': typeof MainManagersPetrolStationsIndexLazyRoute
   '/_main/_managers/technic-check/': typeof MainManagersTechnicCheckIndexLazyRoute
   '/_main/_managers/transports/': typeof MainManagersTransportsIndexLazyRoute
   '/_main/_settings/cargo-types/': typeof MainSettingsCargoTypesIndexLazyRoute
@@ -841,7 +842,6 @@ export interface FileRoutesById {
   '/_main/_settings/expense-types/': typeof MainSettingsExpenseTypesIndexLazyRoute
   '/_main/_settings/locations/': typeof MainSettingsLocationsIndexLazyRoute
   '/_main/_settings/payment-types/': typeof MainSettingsPaymentTypesIndexLazyRoute
-  '/_main/_settings/petrol-stations/': typeof MainSettingsPetrolStationsIndexLazyRoute
   '/_main/_settings/roles/': typeof MainSettingsRolesIndexLazyRoute
   '/_main/_settings/route-configs/': typeof MainSettingsRouteConfigsIndexLazyRoute
   '/_main/_settings/users/': typeof MainSettingsUsersIndexLazyRoute
@@ -874,6 +874,7 @@ export interface FileRouteTypes {
     | '/petrol-stations/$id'
     | '/orders/$id'
     | '/truck-detail/$id'
+    | '/petrol-stations'
     | '/technic-check'
     | '/transports'
     | '/cargo-types'
@@ -882,7 +883,6 @@ export interface FileRouteTypes {
     | '/expense-types'
     | '/locations'
     | '/payment-types'
-    | '/petrol-stations'
     | '/roles'
     | '/route-configs'
     | '/users'
@@ -912,6 +912,7 @@ export interface FileRouteTypes {
     | '/petrol-stations/$id'
     | '/orders/$id'
     | '/truck-detail/$id'
+    | '/petrol-stations'
     | '/technic-check'
     | '/transports'
     | '/cargo-types'
@@ -920,7 +921,6 @@ export interface FileRouteTypes {
     | '/expense-types'
     | '/locations'
     | '/payment-types'
-    | '/petrol-stations'
     | '/roles'
     | '/route-configs'
     | '/users'
@@ -948,9 +948,10 @@ export interface FileRouteTypes {
     | '/_main/moliya/'
     | '/_main/texnik-check/'
     | '/_main/_managers/manager-trips/$id'
-    | '/_main/_settings/petrol-stations/$id'
+    | '/_main/_managers/petrol-stations/$id'
     | '/_main/_trucks/orders/$id'
     | '/_main/_trucks/truck-detail/$id'
+    | '/_main/_managers/petrol-stations/'
     | '/_main/_managers/technic-check/'
     | '/_main/_managers/transports/'
     | '/_main/_settings/cargo-types/'
@@ -959,7 +960,6 @@ export interface FileRouteTypes {
     | '/_main/_settings/expense-types/'
     | '/_main/_settings/locations/'
     | '/_main/_settings/payment-types/'
-    | '/_main/_settings/petrol-stations/'
     | '/_main/_settings/roles/'
     | '/_main/_settings/route-configs/'
     | '/_main/_settings/users/'
@@ -1020,9 +1020,10 @@ export const routeTree = rootRoute
         "/_main/moliya/",
         "/_main/texnik-check/",
         "/_main/_managers/manager-trips/$id",
-        "/_main/_settings/petrol-stations/$id",
+        "/_main/_managers/petrol-stations/$id",
         "/_main/_trucks/orders/$id",
         "/_main/_trucks/truck-detail/$id",
+        "/_main/_managers/petrol-stations/",
         "/_main/_managers/technic-check/",
         "/_main/_managers/transports/",
         "/_main/_settings/cargo-types/",
@@ -1031,7 +1032,6 @@ export const routeTree = rootRoute
         "/_main/_settings/expense-types/",
         "/_main/_settings/locations/",
         "/_main/_settings/payment-types/",
-        "/_main/_settings/petrol-stations/",
         "/_main/_settings/roles/",
         "/_main/_settings/route-configs/",
         "/_main/_settings/users/",
@@ -1090,8 +1090,8 @@ export const routeTree = rootRoute
       "filePath": "_main/_managers/manager-trips/$id.tsx",
       "parent": "/_main"
     },
-    "/_main/_settings/petrol-stations/$id": {
-      "filePath": "_main/_settings/petrol-stations/$id.tsx",
+    "/_main/_managers/petrol-stations/$id": {
+      "filePath": "_main/_managers/petrol-stations/$id.tsx",
       "parent": "/_main"
     },
     "/_main/_trucks/orders/$id": {
@@ -1100,6 +1100,10 @@ export const routeTree = rootRoute
     },
     "/_main/_trucks/truck-detail/$id": {
       "filePath": "_main/_trucks/truck-detail/$id.tsx",
+      "parent": "/_main"
+    },
+    "/_main/_managers/petrol-stations/": {
+      "filePath": "_main/_managers/petrol-stations/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/_managers/technic-check/": {
@@ -1132,10 +1136,6 @@ export const routeTree = rootRoute
     },
     "/_main/_settings/payment-types/": {
       "filePath": "_main/_settings/payment-types/index.lazy.tsx",
-      "parent": "/_main"
-    },
-    "/_main/_settings/petrol-stations/": {
-      "filePath": "_main/_settings/petrol-stations/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/_settings/roles/": {

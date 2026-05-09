@@ -114,6 +114,7 @@ export const useItems = () =>
                     { label: "Transportlar", path: "/managers", extraPaths: ["/manager-trips"], allowKey: "manager_vehicles_view" },
                     { label: "Kassa", path: "/kassa", allowKey: "manager_cashflow_view" },
                     { label: "Texnik ko'rik", path: "/technic-check", allowKey: "manager_tech_check_view" },
+                    { label: "Zapravkalar", path: "/petrol-stations", allowKey: "settings_petrol_stations_view" },
                 ],
             },
             {
@@ -163,7 +164,6 @@ export const useItems = () =>
                     { label: "Yuk turi", path: "/cargo-types", allowKey: "settings_cargo_types_view" },
                     { label: "To'lov turlari", path: "/payment-types", allowKey: "settings_payment_types_view" },
                     { label: "Xarajat turlari", path: "/expense-types", allowKey: "settings_expense_types_view" },
-                    { label: "Zapravkalar", path: "/petrol-stations", allowKey: "settings_petrol_stations_view" },
                 ],
             },
         ],
