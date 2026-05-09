@@ -57,7 +57,10 @@ const AddPetrolStationModal = () => {
         reset()
         clearKey(SETTINGS_PETROL_STATIONS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [SETTINGS_PETROL_STATIONS] })
+        queryClient.refetchQueries({
+            predicate: (q) =>
+                String(q.queryKey[0]).includes("petrol-stations"),
+        })
     }
 
     const { mutate: postMutate, isPending: isPendingCreate } = usePost({

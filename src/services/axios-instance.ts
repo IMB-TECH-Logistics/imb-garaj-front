@@ -1,10 +1,12 @@
 import axios from "axios"
 import { toast } from "sonner"
+import { mockAdapter } from "./mocks"
 
 export const baseURL = import.meta.env.VITE_DEFAULT_URL
 
 const axiosInstance = axios.create({
     baseURL,
+    adapter: mockAdapter,
 })
 
 export const getAccessToken = () => localStorage.getItem("token")

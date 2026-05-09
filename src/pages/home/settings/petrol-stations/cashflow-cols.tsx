@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -14,12 +13,13 @@ export type StationCashFlowRow = {
     petrol_station_name: string | null
     executor: number
     executor_name: string | null
+    driver: number | null
+    driver_name: string | null
+    vehicle_plate: string | null
+    liters: number | null
+    price_per_liter: number | null
+    running_balance: number | null
     created: string
-}
-
-const ACTION_LABEL: Record<number, { label: string; tone: "income" | "expense" }> = {
-    1: { label: "To'ldirildi", tone: "income" },
-    [-1]: { label: "Sarflandi", tone: "expense" },
 }
 
 const CURRENCY_LABEL: Record<number, string> = {
@@ -40,39 +40,57 @@ const formatDateTime = (s?: string | null) => {
     })
 }
 
+const formatLiters = (v: number | null) =>
+    v == null ? "—" : `${v.toLocaleString("uz-UZ")} L`
+
 export const useStationCashFlowColumns = () =>
     useMemo<ColumnDef<StationCashFlowRow>[]>(
         () => [
             {
-                accessorKey: "action",
-                header: "Harakat",
+                accessorKey: "created",
+                header: "Vaqt",
+                cell: ({ row }) => formatDateTime(row.original.created),
+            },
+            {
+                accessorKey: "driver_name",
+                header: "Haydovchi",
                 cell: ({ row }) => {
-                    const a = ACTION_LABEL[row.original.action]
-                    if (!a) return "—"
+                    if (!row.original.driver_name) return "—"
                     return (
-                        <Badge
-                            variant={
-                                a.tone === "income" ? "default" : "destructive"
-                            }
-                        >
-                            {a.label}
-                        </Badge>
+                        <div className="flex flex-col">
+                            <span className="font-medium">
+                                {row.original.driver_name}
+                            </span>
+                            {row.original.vehicle_plate && (
+                                <span className="text-[11px] text-muted-foreground">
+                                    {row.original.vehicle_plate}
+                                </span>
+                            )}
+                        </div>
                     )
                 },
             },
             {
-                accessorKey: "amount",
-                header: "Summa",
+                accessorKey: "liters",
+                header: "Litr",
                 cell: ({ row }) => (
                     <span className="tabular-nums">
-                        {formatMoney(Number(row.original.amount ?? 0))}
+                        {formatLiters(row.original.liters)}
                     </span>
                 ),
             },
             {
-                accessorKey: "currency",
-                header: "Valyuta",
-                cell: ({ row }) => CURRENCY_LABEL[row.original.currency] ?? "—",
+                accessorKey: "price_per_liter",
+                header: "Litr narxi",
+                cell: ({ row }) =>
+                    row.original.price_per_liter == null ? (
+                        "—"
+                    ) : (
+                        <span className="tabular-nums text-muted-foreground">
+                            {formatMoney(Number(row.original.price_per_liter))}{" "}
+                            so'm
+                        </span>
+                    ),
             },
             {
                 accessorKey: "comment",
@@ -85,9 +103,53 @@ export const useStationCashFlowColumns = () =>
                 cell: ({ row }) => row.original.executor_name ?? "—",
             },
             {
-                accessorKey: "created",
-                header: "Vaqt",
-                cell: ({ row }) => formatDateTime(row.original.created),
+                accessorKey: "amount",
+                header: "Summa",
+                cell: ({ row }) => {
+                    const isIncome = row.original.action === 1
+                    const amount = Number(row.original.amount ?? 0)
+                    const currency = row.original.currency
+                    const inUzs =
+                        currency === 2
+                            ? amount *
+                              Number(row.original.currency_course ?? 0)
+                            : amount
+                    return (
+                        <div className="flex flex-col">
+                            <span
+                                className={`tabular-nums font-medium ${
+                                    isIncome
+                                        ? "text-emerald-600"
+                                        : "text-rose-600"
+                                }`}
+                            >
+                                {isIncome ? "+" : "−"}
+                                {formatMoney(inUzs)} so'm
+                            </span>
+                            {currency === 2 && (
+                                <span className="text-[11px] text-muted-foreground tabular-nums">
+                                    {formatMoney(amount)}{" "}
+                                    {CURRENCY_LABEL[currency]} ×{" "}
+                                    {formatMoney(
+                                        Number(
+                                            row.original.currency_course ?? 0,
+                                        ),
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                    )
+                },
+            },
+            {
+                accessorKey: "running_balance",
+                header: "Balans",
+                cell: ({ row }) => (
+                    <span className="tabular-nums font-medium">
+                        {formatMoney(Number(row.original.running_balance ?? 0))}{" "}
+                        so'm
+                    </span>
+                ),
             },
         ],
         [],

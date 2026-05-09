@@ -38,7 +38,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success("Balans to'ldirildi")
+            toast.success("Kirim qo'shildi")
             reset()
             queryClient.refetchQueries({ queryKey: [SETTINGS_PETROL_STATIONS] })
             queryClient.refetchQueries({
@@ -94,7 +94,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>
-                    To'ldirish
+                    Saqlash
                 </Button>
             </div>
         </form>
