@@ -8,7 +8,7 @@ import { formatMoney } from "@/lib/format-money"
 import { formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { Plus, SquarePen, Trash2, Truck, User } from "lucide-react"
+import { Plus, Truck, User } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { FormCombobox } from "@/components/form/combobox"
@@ -23,7 +23,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
-import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 
@@ -441,7 +441,7 @@ function AddFinanceForm({
 
 // ──── Columns ────
 
-const useIncomeCols = (opts?: { onEdit?: (item: FinanceRow) => void; onDelete?: (item: FinanceRow) => void }) => {
+const useIncomeCols = () => {
     return useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             {
@@ -467,34 +467,12 @@ const useIncomeCols = (opts?: { onEdit?: (item: FinanceRow) => void; onDelete?: 
             { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
             { header: "Izoh", accessorKey: "comment", enableSorting: true },
             { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
-            {
-                id: "actions",
-                header: " ",
-                cell: ({ row }) => (
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
-                        <Button
-                            icon={<SquarePen className="text-primary" size={14} />}
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-6 w-6"
-                            onClick={(e) => { e.stopPropagation(); opts?.onEdit?.(row.original) }}
-                        />
-                        <Button
-                            icon={<Trash2 className="text-red-500" size={14} />}
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-6 w-6"
-                            onClick={(e) => { e.stopPropagation(); opts?.onDelete?.(row.original) }}
-                        />
-                    </div>
-                ),
-            },
         ],
-        [opts?.onEdit, opts?.onDelete],
+        [],
     )
 }
 
-const useExpenseCols = (opts?: { onEdit?: (item: FinanceRow) => void; onDelete?: (item: FinanceRow) => void; isFuel?: boolean }) => {
+const useExpenseCols = (opts?: { isFuel?: boolean }) => {
     return useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             { header: "Izoh", accessorKey: "comment", enableSorting: true },
@@ -519,30 +497,8 @@ const useExpenseCols = (opts?: { onEdit?: (item: FinanceRow) => void; onDelete?:
             }] : []),
             { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
             { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
-            {
-                id: "actions",
-                header: " ",
-                cell: ({ row }) => (
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
-                        <Button
-                            icon={<SquarePen className="text-primary" size={14} />}
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-6 w-6"
-                            onClick={(e) => { e.stopPropagation(); opts?.onEdit?.(row.original) }}
-                        />
-                        <Button
-                            icon={<Trash2 className="text-red-500" size={14} />}
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-6 w-6"
-                            onClick={(e) => { e.stopPropagation(); opts?.onDelete?.(row.original) }}
-                        />
-                    </div>
-                ),
-            },
         ],
-        [opts?.onEdit, opts?.onDelete, opts?.isFuel],
+        [opts?.isFuel],
     )
 }
 
@@ -581,16 +537,12 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
     )
     const rows = expensesData?.results ?? []
 
-    const handleEdit = (item: FinanceRow) => {
-        setData(MANAGERS_EXPENSES, item)
-        openModal()
-    }
     const handleDelete = (item: FinanceRow) => {
         setData(MANAGERS_EXPENSES, item)
         openDeleteModal()
     }
 
-    const columns = useIncomeCols({ onEdit: handleEdit, onDelete: handleDelete })
+    const columns = useIncomeCols()
 
     const handleSelect = (cat: Category) => {
         setSelectedCatId(cat.id ?? null)
@@ -621,6 +573,7 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                     data={rows}
                     numeration
                     viewAll
+                    onDelete={({ original }) => handleDelete(original)}
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
@@ -636,10 +589,10 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                 />
             </div>
             <DeleteModal
-                path={MANAGERS_EXPENSES}
+                path={MANAGERS_INCOMES}
                 id={useGlobalStore.getState().getData(MANAGERS_EXPENSES)?.id}
                 modalKey={`${MANAGERS_EXPENSES}-delete`}
-                refetchKeys={[MANAGERS_CASHFLOW]}
+                refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES]}
             />
             <Modal modalKey="add-category" title="Kategoriya qo'shish" size="max-w-sm">
                 <AddCategoryForm flowType={1} />
@@ -680,10 +633,6 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
     )
     const rows = expensesData?.results ?? []
 
-    const handleEdit = (item: FinanceRow) => {
-        setData(MANAGERS_EXPENSES, item)
-        openModal()
-    }
     const handleDelete = (item: FinanceRow) => {
         setData(MANAGERS_EXPENSES, item)
         openDeleteModal()
@@ -691,7 +640,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
 
     const selectedCatName = categories.find((c) => c.id === selectedCatId)?.name ?? ""
     const isFuel = /yoqilg['ʻ']i|fuel|solyarka|metan|dizel|benzin/i.test(selectedCatName)
-    const columns = useExpenseCols({ onEdit: handleEdit, onDelete: handleDelete, isFuel })
+    const columns = useExpenseCols({ isFuel })
 
     const handleSelect = (cat: Category) => {
         setSelectedCatId(cat.id ?? null)
@@ -721,6 +670,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                     data={rows}
                     numeration
                     viewAll
+                    onDelete={({ original }) => handleDelete(original)}
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
@@ -954,6 +904,18 @@ function SummaryCard({
 
 function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number }) {
     const { openModal: openAvansModal } = useModal("avans-berish")
+    const { setData } = useGlobalStore()
+    const { openModal: openDeleteIncomeModal } = useModal(`${MANAGERS_INCOMES}-thisob-delete`)
+    const { openModal: openDeleteExpenseModal } = useModal(`${MANAGERS_EXPENSES}-thisob-delete`)
+
+    const handleDeleteIncome = (row: FinanceRow) => {
+        setData(MANAGERS_INCOMES, row)
+        openDeleteIncomeModal()
+    }
+    const handleDeleteExpense = (row: FinanceRow) => {
+        setData(MANAGERS_EXPENSES, row)
+        openDeleteExpenseModal()
+    }
 
     // Trip statistic (aylanma mode)
     const { data: tripStat } = useGet(
@@ -1041,6 +1003,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         data={incomeRows}
                         numeration
                         viewAll
+                        onDelete={({ original }) => handleDeleteIncome(original)}
                         head={
                             <div className="flex mb-3 items-center gap-3">
                                 <h1 className="text-xl text-green-600">Kirim</h1>
@@ -1055,6 +1018,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         data={expenseRows}
                         numeration
                         viewAll
+                        onDelete={({ original }) => handleDeleteExpense(original)}
                         head={
                             <div className="flex mb-3 items-center gap-3">
                                 <h1 className="text-xl text-red-600">Chiqim</h1>
@@ -1068,6 +1032,18 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
             <Modal modalKey="avans-berish" title="Avans berish" size="max-w-md">
                 <AvansForm tripId={tripId} />
             </Modal>
+            <DeleteModal
+                path={MANAGERS_INCOMES}
+                id={useGlobalStore.getState().getData(MANAGERS_INCOMES)?.id}
+                modalKey={`${MANAGERS_INCOMES}-thisob-delete`}
+                refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_CASHFLOW_DRIVER_STAT]}
+            />
+            <DeleteModal
+                path={MANAGERS_EXPENSES}
+                id={useGlobalStore.getState().getData(MANAGERS_EXPENSES)?.id}
+                modalKey={`${MANAGERS_EXPENSES}-thisob-delete`}
+                refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_CASHFLOW_DRIVER_STAT]}
+            />
         </div>
     )
 }
