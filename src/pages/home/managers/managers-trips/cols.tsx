@@ -42,7 +42,7 @@ export const useColumnsManagersTrips = (opts?: {
         () => [
             {
                 accessorKey: "start",
-                header: "Chiqib ketgan vaqt",
+                header: "Boshlanish vaqti",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="">{row.original.start || "-"}</div>
