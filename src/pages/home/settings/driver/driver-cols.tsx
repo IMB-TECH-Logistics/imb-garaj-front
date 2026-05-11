@@ -39,6 +39,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: "Passport seriyasi",
                 enableSorting: true,
+                size: 160,
                 accessorFn: (row) => row.driver?.passport_serial || "",
                 cell: ({ row }) => {
                     return row.getValue("passport_number") || "-"
@@ -48,6 +49,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: "JShShIR",
                 enableSorting: true,
+                size: 140,
                 accessorFn: (row) => row.driver?.pinfl || "",
                 cell: ({ row }) => {
                     return row.getValue("pinfl") || "-"
@@ -57,6 +59,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: "Haydovchilik guvohnomasi",
                 enableSorting: true,
+                size: 220,
                 accessorFn: (row) => row.driver?.driver_license || "",
                 cell: ({ row }) => {
                     return row.getValue("driver_license") || "-"
@@ -66,6 +69,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: "Ish staji",
                 enableSorting: true,
+                size: 120,
                 accessorFn: (row) => row.driver?.experience || 0,
                 cell: ({ row }) => {
                     const value = row.getValue("work_experience")
@@ -76,6 +80,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: "Litsenziya muddati",
                 enableSorting: true,
+                size: 170,
                 accessorFn: (row) => row.driver?.driver_license_date || "",
                 cell: ({ row }) => {
                     const dateValue = row.getValue("license_expiry") as string

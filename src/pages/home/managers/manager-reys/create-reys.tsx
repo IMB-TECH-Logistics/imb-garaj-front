@@ -8,6 +8,7 @@ import {
 import {
     COMMON_DIRECTIONS,
     MANAGERS_ORDERS,
+    SETTINTS_PAYMENT_TYPE,
     TRIPS_ORDERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -21,6 +22,13 @@ import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useController, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import {
+    findNaqdId,
+    findPerechId,
+    isNaqdPaymentTypeName,
+    PaymentFields,
+    PaymentType,
+} from "./payment-fields"
 
 type Option = { id: number; name: string }
 
@@ -74,6 +82,7 @@ const AddTripOrders = () => {
     const { closeModal } = useModal(MANAGERS_ORDERS)
     const currentTripOrder = getData<TripOrdersRow>(MANAGERS_ORDERS)
 
+    const existingPayment = currentTripOrder?.payments?.[0]
     const form = useForm<any>({
         defaultValues: {
             loading: currentTripOrder?.loading,
@@ -85,6 +94,11 @@ const AddTripOrders = () => {
                 currentTripOrder?.status != null
                     ? String(currentTripOrder.status)
                     : "0",
+            is_naqd: false,
+            amount:
+                existingPayment?.amount ??
+                (currentTripOrder?.amount as string | number | undefined) ??
+                "",
             images: [] as File[],
         },
     })
@@ -109,6 +123,31 @@ const AddTripOrders = () => {
         COMMON_DIRECTIONS,
         { params: { page_size: 10000 } },
     )
+
+    const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
+        SETTINTS_PAYMENT_TYPE,
+        { params: { page_size: 1000000 } },
+    )
+
+    useEffect(() => {
+        if (!currentTripOrder?.id) return
+        const existingPtId =
+            existingPayment?.payment_type ??
+            (currentTripOrder?.payment_type as number | undefined)
+        if (!existingPtId) return
+        const pt = paymentTypesData?.results?.find(
+            (p) => p.id === Number(existingPtId),
+        )
+        if (pt && isNaqdPaymentTypeName(pt.name)) {
+            setValue("is_naqd", true)
+        }
+    }, [
+        paymentTypesData,
+        currentTripOrder?.id,
+        existingPayment?.payment_type,
+        currentTripOrder?.payment_type,
+        setValue,
+    ])
 
     const directions = useMemo(
         () => directionsResponse?.results ?? [],
@@ -227,23 +266,33 @@ const AddTripOrders = () => {
     const isPending = creating || updating
 
     const onSubmit = (data: any) => {
-        if (!matchedDirection) {
+        const isNaqdSel = !!data.is_naqd
+        const naqdId = findNaqdId(paymentTypesData?.results)
+        const perechId = findPerechId(paymentTypesData?.results)
+
+        if (isNaqdSel && !naqdId) {
+            toast.error("Naqd to'lov turi sozlamasi topilmadi.")
+            return
+        }
+        if (!isNaqdSel && !perechId) {
+            toast.error(
+                "Perechisleniye to'lov turi sozlamasi topilmadi.",
+            )
+            return
+        }
+        if (!isNaqdSel && !matchedDirection) {
             toast.error(
                 "Tanlangan yo'nalish uchun sozlama topilmadi. Avval Yo'nalishlar sozlamasida yaratib oling.",
             )
             return
         }
 
-        const incomes = [
-            {
-                payment_type: matchedDirection.payment_type,
-                currency: matchedDirection.currency,
-                amount:
-                    matchedDirection.amount != null ?
-                        String(matchedDirection.amount)
-                    :   "0",
-            },
-        ]
+        const income = {
+            payment_type: isNaqdSel ? naqdId : perechId,
+            currency: isNaqdSel ? 1 : null,
+            amount: isNaqdSel ? String(data.amount ?? "0") : "0",
+        }
+        const incomes = [income]
 
         const isEmpty = !data.cargo_type || data.cargo_type === 0
 
@@ -254,7 +303,9 @@ const AddTripOrders = () => {
         formData.append("trip", String(id))
         formData.append("type", isEmpty ? "2" : "1")
         formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
-        formData.append("direction", String(matchedDirection.id))
+        if (matchedDirection) {
+            formData.append("direction", String(matchedDirection.id))
+        }
         formData.append("incomes", JSON.stringify(incomes))
         images.forEach((file) => formData.append("images", file))
         removedImageIds.forEach((imgId) =>
@@ -379,6 +430,12 @@ const AddTripOrders = () => {
                     />
                 </div>
             </div>
+
+            {/* To'lov turi + (Naqd bo'lsa) summa */}
+            <PaymentFields
+                methods={form}
+                matchedDirection={matchedDirection}
+            />
 
             {/* Status (faqat tahrirlashda) */}
             {currentTripOrder?.id && (
