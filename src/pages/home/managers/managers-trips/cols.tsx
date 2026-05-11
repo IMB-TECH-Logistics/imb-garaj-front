@@ -89,6 +89,38 @@ export const useColumnsManagersTrips = (opts?: {
             // },
 
             {
+                accessorKey: "start_mileage",
+                header: "Boshlash probegi",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <div>{formatMoney(row.original.start_mileage)}</div>
+                },
+            },
+            {
+                accessorKey: "end_mileage",
+                header: "Tugash probegi",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    return <div>{formatMoney(row.original.end_mileage)}</div>
+                },
+            },
+            {
+                accessorKey: "start_fuel",
+                header: "Boshlang'ich yoqilg'i",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div>{formatMoney((row.original as any).start_fuel)}</div>
+                ),
+            },
+            {
+                accessorKey: "end_fuel",
+                header: "Yakuniy yoqilg'i",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div>{formatMoney((row.original as any).end_fuel)}</div>
+                ),
+            },
+            {
                 accessorKey: "income_uzs",
                 header: "Tushum (uzs)",
                 enableSorting: true,
@@ -105,45 +137,11 @@ export const useColumnsManagersTrips = (opts?: {
                 ),
             },
             {
-                accessorKey: "start_mileage",
-                header: "Boshlash probegi",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    return <div>{formatMoney(row.original.start_mileage)}</div>
-                },
-            },
-
-            {
-                accessorKey: "end_mileage",
-                header: "Tugash probegi",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    return <div>{formatMoney(row.original.end_mileage)}</div>
-                },
-            },
-
-            {
                 accessorKey: "cash_flow_sum",
                 header: "Xarajat",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.cash_flow_sum)}</div>
-                ),
-            },
-            {
-                accessorKey: "start_fuel",
-                header: "Boshlang'ich yoqilg'i",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <div>{formatMoney((row.original as any).start_fuel)}</div>
-                ),
-            },
-            {
-                accessorKey: "end_fuel",
-                header: "Yakuniy yoqilg'i",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <div>{formatMoney((row.original as any).end_fuel)}</div>
                 ),
             },
 
