@@ -164,7 +164,7 @@ export default function CreateManagerTrips() {
                 <FormNumberInput
                     name="start_mileage"
                     required
-                    label={`Ketish probegi${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
+                    label={`Boshlash probegi${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
                     control={control}
                 />
 
@@ -222,7 +222,7 @@ export default function CreateManagerTrips() {
                         <FormNumberInput
                             name="end_mileage"
                             required
-                            label="Kelish probegi"
+                            label="Tugash probegi"
                             control={control}
                         />
 

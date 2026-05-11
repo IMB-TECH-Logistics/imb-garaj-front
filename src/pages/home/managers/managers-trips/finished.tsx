@@ -89,12 +89,12 @@ export default function FinishManagerTrips() {
                 <FormNumberInput
                     name="end_mileage"
                     required
-                    label="Kelish probegi"
+                    label="Tugash probegi"
                     control={control}
                     registerOptions={{
                         min: {
                             value: item?.start_mileage || 0,
-                            message: `Kelish probegi ${item?.start_mileage || 0} dan kam bo'lmasligi kerak`,
+                            message: `Tugash probegi ${item?.start_mileage || 0} dan kam bo'lmasligi kerak`,
                         },
                     }}
                 />
