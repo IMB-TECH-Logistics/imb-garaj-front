@@ -1,3 +1,4 @@
+import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,12 +6,14 @@ import { DataTable } from "@/components/ui/datatable"
 import { CHECKOUT_MAIN, DRIVERS_BALANCE } from "@/constants/api-endpoints"
 const TRANSACTIONS = "transaction"
 import { useGet } from "@/hooks/useGet"
+import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
+import { cn } from "@/lib/utils"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useSearch } from "@tanstack/react-router"
 import { useHasAction } from "@/constants/useUser"
-import { Plus } from "lucide-react"
-import { useMemo } from "react"
+import { Download, Plus } from "lucide-react"
+import { useMemo, useState } from "react"
 
 type Transaction = {
     amount: string
@@ -90,14 +93,26 @@ const useTransactionCols = () => {
 const Kassa = () => {
     const hasControl = useHasAction("manager_cashflow_control")
     const transactionCols = useTransactionCols()
-    const navigate = useNavigate()
     const search = useSearch({ strict: false }) as any
+    const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null)
     const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
     const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
+    const transactionParams = {
+        page: search.page,
+        page_size: search.page_size,
+        from: search.from,
+        to: search.to,
+        driver: selectedDriverId ?? undefined,
+    }
     const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
         TRANSACTIONS,
-        { params: { page: search.page, page_size: search.page_size } },
+        { params: transactionParams },
     )
+    const { trigger: downloadExcel, isFetching: excelLoading } = useDownloadAsExcel({
+        url: `${TRANSACTIONS}/excel`,
+        name: "Kassa",
+        params: transactionParams,
+    })
     const drivers = driversData ?? []
 
     const driversTotal = useMemo(
@@ -111,14 +126,7 @@ const Kassa = () => {
 
     const handleDriverClick = (driver: DriverRow) => {
         if (!driver.id) return
-        navigate({
-            to: "/manager-trips/$id",
-            params: { id: driver.id.toString() },
-            search: {
-                driver_id: driver.id,
-                name: driver.full_name,
-            } as any,
-        })
+        setSelectedDriverId((prev) => (prev === driver.id ? null : driver.id!))
     }
 
     return (
@@ -173,7 +181,11 @@ const Kassa = () => {
                                     <div
                                         key={driver.id}
                                         onClick={() => handleDriverClick(driver)}
-                                        className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/80 transition-colors cursor-pointer"
+                                        className={cn(
+                                            "flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/80 transition-colors cursor-pointer",
+                                            selectedDriverId === driver.id &&
+                                                "bg-primary/10 hover:bg-primary/15",
+                                        )}
                                     >
                                         <span className="text-sm flex items-center gap-2">
                                             <span className="text-xs text-muted-foreground w-4 text-right">
@@ -205,10 +217,21 @@ const Kassa = () => {
                         pageSizeParamName: "page_size",
                     }}
                     head={
-                        <div className="flex justify-between items-center gap-3 mb-3">
+                        <div className="flex justify-between items-center gap-3 mb-3 flex-wrap">
                             <div className="flex items-center gap-2">
                                 <h1 className="text-lg">Kiritilgan summa</h1>
                                 <Badge>{formatMoney(transactionsData?.count)}</Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <ParamDateRange from="from" to="to" />
+                                <Button
+                                    variant="secondary"
+                                    icon={<Download size={16} />}
+                                    loading={excelLoading}
+                                    onClick={downloadExcel}
+                                >
+                                    Excel
+                                </Button>
                             </div>
                         </div>
                     }

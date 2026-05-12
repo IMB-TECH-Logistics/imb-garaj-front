@@ -7,12 +7,15 @@ import {
     SETTINGS_SELECTABLE_CARGO_TYPE,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import ParamInput from "@/components/as-params/input"
+import { Button } from "@/components/ui/button"
+import { Download } from "lucide-react"
 import { useAccountingCols, ReysOrder } from "./cols"
 import EditReysModal from "./edit-reys"
 
@@ -35,22 +38,27 @@ const BuxgalteriyaPage = () => {
     const { data: districts } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_DISTRICT)
     const { data: cargoTypes } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CARGO_TYPE)
 
+    const reysParams = {
+        from_date: search?.from_date,
+        to_date: search?.to_date,
+        page: search?.page,
+        page_size: search?.page_size,
+        search: search?.search,
+        client: search?.client,
+        loading: search?.loading,
+        unloading: search?.unloading,
+        cargo_type: search?.cargo_type,
+    }
     const { data, isLoading } = useGet<ListResponse<ReysOrder>>(
         MANAGERS_REYS,
-        {
-            params: {
-                from_date: search?.from_date,
-                to_date: search?.to_date,
-                page: search?.page,
-                page_size: search?.page_size,
-                search: search?.search,
-                client: search?.client,
-                loading: search?.loading,
-                unloading: search?.unloading,
-                cargo_type: search?.cargo_type,
-            },
-        },
+        { params: reysParams },
     )
+    const { trigger: downloadExcel, isFetching: excelLoading } =
+        useDownloadAsExcel({
+            url: `${MANAGERS_REYS}/excel`,
+            name: "Buxgalteriya",
+            params: reysParams,
+        })
 
     const columns = useAccountingCols()
 
@@ -117,6 +125,14 @@ const BuxgalteriyaPage = () => {
                                     className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
                                 }}
                             />
+                            <Button
+                                variant="secondary"
+                                icon={<Download size={16} />}
+                                loading={excelLoading}
+                                onClick={downloadExcel}
+                            >
+                                Excel
+                            </Button>
                         </div>
                     </div>
                 }

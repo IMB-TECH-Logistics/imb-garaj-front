@@ -1,6 +1,6 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { Settings, Truck, User, Users, Wallet, Coins, Activity } from "lucide-react"
+import { Settings, Truck, User, Users, Wallet, Coins, Activity, Boxes } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 
 export interface MenuItem {
@@ -133,6 +133,12 @@ export const useItems = () =>
                 label: "Haydovchilar",
                 icon: <Users width={18} />,
                 path: "/haydovchilar",
+                alwaysShow: true,
+            },
+            {
+                label: "Ombor",
+                icon: <Boxes width={18} />,
+                path: "/ombor",
                 alwaysShow: true,
             },
             {

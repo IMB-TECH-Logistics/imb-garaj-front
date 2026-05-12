@@ -30,6 +30,7 @@ import { Route as MainManagersManagerTripsManagerReysIdImport } from './routes/_
 const MainDashboardLazyImport = createFileRoute('/_main/dashboard')()
 const AuthAuthLazyImport = createFileRoute('/_auth/auth')()
 const MainTexnikCheckIndexLazyImport = createFileRoute('/_main/texnik-check/')()
+const MainOmborIndexLazyImport = createFileRoute('/_main/ombor/')()
 const MainMoliyaIndexLazyImport = createFileRoute('/_main/moliya/')()
 const MainKassaIndexLazyImport = createFileRoute('/_main/kassa/')()
 const MainHaydovchilarIndexLazyImport = createFileRoute(
@@ -128,6 +129,13 @@ const MainTexnikCheckIndexLazyRoute = MainTexnikCheckIndexLazyImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/texnik-check/index.lazy').then((d) => d.Route),
+)
+
+const MainOmborIndexLazyRoute = MainOmborIndexLazyImport.update({
+  path: '/ombor/',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/ombor/index.lazy').then((d) => d.Route),
 )
 
 const MainMoliyaIndexLazyRoute = MainMoliyaIndexLazyImport.update({
@@ -457,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainMoliyaIndexLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/ombor/': {
+      id: '/_main/ombor/'
+      path: '/ombor'
+      fullPath: '/ombor'
+      preLoaderRoute: typeof MainOmborIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/texnik-check/': {
       id: '/_main/texnik-check/'
       path: '/texnik-check'
@@ -663,6 +678,7 @@ interface MainRouteChildren {
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
   MainKassaIndexLazyRoute: typeof MainKassaIndexLazyRoute
   MainMoliyaIndexLazyRoute: typeof MainMoliyaIndexLazyRoute
+  MainOmborIndexLazyRoute: typeof MainOmborIndexLazyRoute
   MainTexnikCheckIndexLazyRoute: typeof MainTexnikCheckIndexLazyRoute
   MainManagersManagerTripsIdRoute: typeof MainManagersManagerTripsIdRoute
   MainManagersPetrolStationsIdRoute: typeof MainManagersPetrolStationsIdRoute
@@ -700,6 +716,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
   MainKassaIndexLazyRoute: MainKassaIndexLazyRoute,
   MainMoliyaIndexLazyRoute: MainMoliyaIndexLazyRoute,
+  MainOmborIndexLazyRoute: MainOmborIndexLazyRoute,
   MainTexnikCheckIndexLazyRoute: MainTexnikCheckIndexLazyRoute,
   MainManagersManagerTripsIdRoute: MainManagersManagerTripsIdRoute,
   MainManagersPetrolStationsIdRoute: MainManagersPetrolStationsIdRoute,
@@ -748,6 +765,7 @@ export interface FileRoutesByFullPath {
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/kassa': typeof MainKassaIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
+  '/ombor': typeof MainOmborIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
   '/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
@@ -787,6 +805,7 @@ export interface FileRoutesByTo {
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/kassa': typeof MainKassaIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
+  '/ombor': typeof MainOmborIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
   '/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
@@ -828,6 +847,7 @@ export interface FileRoutesById {
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/_main/kassa/': typeof MainKassaIndexLazyRoute
   '/_main/moliya/': typeof MainMoliyaIndexLazyRoute
+  '/_main/ombor/': typeof MainOmborIndexLazyRoute
   '/_main/texnik-check/': typeof MainTexnikCheckIndexLazyRoute
   '/_main/_managers/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
   '/_main/_managers/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
@@ -869,6 +889,7 @@ export interface FileRouteTypes {
     | '/haydovchilar'
     | '/kassa'
     | '/moliya'
+    | '/ombor'
     | '/texnik-check'
     | '/manager-trips/$id'
     | '/petrol-stations/$id'
@@ -907,6 +928,7 @@ export interface FileRouteTypes {
     | '/haydovchilar'
     | '/kassa'
     | '/moliya'
+    | '/ombor'
     | '/texnik-check'
     | '/manager-trips/$id'
     | '/petrol-stations/$id'
@@ -946,6 +968,7 @@ export interface FileRouteTypes {
     | '/_main/haydovchilar/'
     | '/_main/kassa/'
     | '/_main/moliya/'
+    | '/_main/ombor/'
     | '/_main/texnik-check/'
     | '/_main/_managers/manager-trips/$id'
     | '/_main/_managers/petrol-stations/$id'
@@ -1018,6 +1041,7 @@ export const routeTree = rootRoute
         "/_main/haydovchilar/",
         "/_main/kassa/",
         "/_main/moliya/",
+        "/_main/ombor/",
         "/_main/texnik-check/",
         "/_main/_managers/manager-trips/$id",
         "/_main/_managers/petrol-stations/$id",
@@ -1080,6 +1104,10 @@ export const routeTree = rootRoute
     },
     "/_main/moliya/": {
       "filePath": "_main/moliya/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/ombor/": {
+      "filePath": "_main/ombor/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/texnik-check/": {

@@ -5,11 +5,20 @@ import {
     Dialog,
     DialogContent,
 } from "@/components/ui/dialog"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     COMMON_DIRECTIONS,
     MANAGERS_ORDERS,
+    SETTINGS_SELECTABLE_CLIENT,
+    SETTINTS_PAYMENT_TYPE,
     TRIPS_ORDERS,
 } from "@/constants/api-endpoints"
+import {
+    findNaqdId,
+    isNaqdPaymentTypeName,
+    NaqdAmountField,
+    PaymentType,
+} from "./payment-fields"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
@@ -74,6 +83,7 @@ const AddTripOrders = () => {
     const { closeModal } = useModal(MANAGERS_ORDERS)
     const currentTripOrder = getData<TripOrdersRow>(MANAGERS_ORDERS)
 
+    const existingPayment = currentTripOrder?.payments?.[0]
     const form = useForm<any>({
         defaultValues: {
             loading: currentTripOrder?.loading,
@@ -85,6 +95,12 @@ const AddTripOrders = () => {
                 currentTripOrder?.status != null
                     ? String(currentTripOrder.status)
                     : "0",
+            is_naqd: false,
+            amount:
+                existingPayment?.amount ??
+                (currentTripOrder?.amount as string | number | undefined) ??
+                "",
+            client: currentTripOrder?.client ?? null,
             images: [] as File[],
         },
     })
@@ -110,6 +126,38 @@ const AddTripOrders = () => {
         { params: { page_size: 10000 } },
     )
 
+    const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
+        SETTINTS_PAYMENT_TYPE,
+        { params: { page_size: 1000000 } },
+    )
+
+    const { data: clientsData } = useGet<{ id: number; name: string }[]>(
+        SETTINGS_SELECTABLE_CLIENT,
+        { params: { model_name: "client" } },
+    )
+
+    const isNaqd = !!watch("is_naqd")
+
+    useEffect(() => {
+        if (!currentTripOrder?.id) return
+        const existingPtId =
+            existingPayment?.payment_type ??
+            (currentTripOrder?.payment_type as number | undefined)
+        if (!existingPtId) return
+        const pt = paymentTypesData?.results?.find(
+            (p) => p.id === Number(existingPtId),
+        )
+        if (pt && isNaqdPaymentTypeName(pt.name)) {
+            setValue("is_naqd", true)
+        }
+    }, [
+        paymentTypesData,
+        currentTripOrder?.id,
+        existingPayment?.payment_type,
+        currentTripOrder?.payment_type,
+        setValue,
+    ])
+
     const directions = useMemo(
         () => directionsResponse?.results ?? [],
         [directionsResponse],
@@ -125,15 +173,30 @@ const AddTripOrders = () => {
     )
 
     const unloadsData = useMemo(() => {
+        if (isNaqd) {
+            return distinctOptions(directions, (d) => ({
+                id: d.unload,
+                name: d.unload_name,
+            }))
+        }
         if (!loadingValue) return []
         const rows = directions.filter((d) => d.load === Number(loadingValue))
         return distinctOptions(rows, (d) => ({
             id: d.unload,
             name: d.unload_name,
         }))
-    }, [directions, loadingValue])
+    }, [directions, loadingValue, isNaqd])
 
     const cargoTypesData = useMemo(() => {
+        if (isNaqd) {
+            return [
+                { id: 0, name: "Yuksiz" },
+                ...distinctOptions(directions, (d) => ({
+                    id: d.cargo_type,
+                    name: d.cargo_type_name,
+                })),
+            ]
+        }
         if (!loadingValue || !unloadingValue) return []
         const rows = directions.filter(
             (d) =>
@@ -147,7 +210,7 @@ const AddTripOrders = () => {
                 name: d.cargo_type_name,
             })),
         ]
-    }, [directions, loadingValue, unloadingValue])
+    }, [directions, loadingValue, unloadingValue, isNaqd])
 
     const matchedDirection = useMemo(() => {
         if (currentTripOrder?.direction) {
@@ -227,7 +290,14 @@ const AddTripOrders = () => {
     const isPending = creating || updating
 
     const onSubmit = (data: any) => {
-        if (!matchedDirection) {
+        const isNaqdSel = !!data.is_naqd
+        const naqdId = findNaqdId(paymentTypesData?.results)
+
+        if (isNaqdSel && !naqdId) {
+            toast.error("Naqd to'lov turi sozlamasi topilmadi.")
+            return
+        }
+        if (!isNaqdSel && !matchedDirection) {
             toast.error(
                 "Tanlangan yo'nalish uchun sozlama topilmadi. Avval Yo'nalishlar sozlamasida yaratib oling.",
             )
@@ -235,14 +305,20 @@ const AddTripOrders = () => {
         }
 
         const incomes = [
-            {
-                payment_type: matchedDirection.payment_type,
-                currency: matchedDirection.currency,
-                amount:
-                    matchedDirection.amount != null ?
-                        String(matchedDirection.amount)
-                    :   "0",
-            },
+            isNaqdSel
+                ? {
+                      payment_type: naqdId,
+                      currency: 1,
+                      amount: String(data.amount ?? "0"),
+                  }
+                : {
+                      payment_type: matchedDirection!.payment_type,
+                      currency: matchedDirection!.currency,
+                      amount:
+                          matchedDirection!.amount != null
+                              ? String(matchedDirection!.amount)
+                              : "0",
+                  },
         ]
 
         const isEmpty = !data.cargo_type || data.cargo_type === 0
@@ -254,7 +330,12 @@ const AddTripOrders = () => {
         formData.append("trip", String(id))
         formData.append("type", isEmpty ? "2" : "1")
         formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
-        formData.append("direction", String(matchedDirection.id))
+        if (!isNaqdSel && data.client) {
+            formData.append("client", String(data.client))
+        }
+        if (!isNaqdSel && matchedDirection) {
+            formData.append("direction", String(matchedDirection.id))
+        }
         formData.append("incomes", JSON.stringify(incomes))
         images.forEach((file) => formData.append("images", file))
         removedImageIds.forEach((imgId) =>
@@ -308,6 +389,31 @@ const AddTripOrders = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 max-h-[72vh] overflow-y-auto pr-1 no-scrollbar-x"
         >
+            {/* To'lov turi tabs */}
+            <Tabs
+                value={isNaqd ? "naqd" : "perech"}
+                onValueChange={(v) => setValue("is_naqd", v === "naqd")}
+            >
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="perech">Shartnoma</TabsTrigger>
+                    <TabsTrigger value="naqd">Bir martalik</TabsTrigger>
+                </TabsList>
+            </Tabs>
+
+            {/* Yuk beruvchi (faqat Shartnoma) */}
+            {!isNaqd && (
+                <FormCombobox
+                    required
+                    label="Yuk beruvchi"
+                    name="client"
+                    control={control}
+                    options={clientsData ?? []}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Yuk beruvchini tanlang"
+                />
+            )}
+
             {/* Qayerdan → Qayerga route visual */}
             <div className="rounded-lg border bg-card/50 p-4">
                 <div className="flex gap-3">
@@ -336,6 +442,9 @@ const AddTripOrders = () => {
                             valueKey="id"
                             labelKey="name"
                             placeholder="Qayerdan"
+                            addButtonProps={{
+                                disabled: !isNaqd && !watch("client"),
+                            }}
                         />
                         <FormCombobox
                             required
@@ -379,6 +488,9 @@ const AddTripOrders = () => {
                     />
                 </div>
             </div>
+
+            {/* Naqd tab: summa */}
+            <NaqdAmountField methods={form} matchedDirection={matchedDirection} />
 
             {/* Status (faqat tahrirlashda) */}
             {currentTripOrder?.id && (
