@@ -856,11 +856,13 @@ function SummaryCard({
     amountUzs,
     amountUsd,
     variant,
+    unitUzs = "UZS",
 }: {
     label: string
     amountUzs: number
     amountUsd?: number
     variant: "income" | "expense" | "balance"
+    unitUzs?: string
 }) {
     return (
         <div
@@ -880,7 +882,7 @@ function SummaryCard({
                     variant === "balance" && "text-primary",
                 )}
             >
-                {formatMoney(amountUzs)} <span className="text-xs text-muted-foreground">UZS</span>
+                {formatMoney(amountUzs)}{unitUzs && <> <span className="text-xs text-muted-foreground">{unitUzs}</span></>}
             </p>
             {amountUsd != null && Number(amountUsd) > 0 && (
                 <p
@@ -978,7 +980,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                             <>
                                 <SummaryCard label="Yoqilg'i summasi" amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)} amountUsd={Number(driverStat.return_fuel_amount_usd ?? 0)} variant="balance" />
                                 {Number(driverStat.return_fuel ?? 0) > 0 && (
-                                    <SummaryCard label="Yoqilg'i (litr)" amountUzs={Number(driverStat.return_fuel)} variant="balance" />
+                                    <SummaryCard label="Yoqilg'i (litr)" amountUzs={Number(driverStat.return_fuel)} variant="balance" unitUzs="" />
                                 )}
                             </>
                         )}
