@@ -441,7 +441,7 @@ function AddFinanceForm({
 
 // ──── Columns ────
 
-const useIncomeCols = () => {
+const useIncomeCols = (opts?: { withCategory?: boolean }) => {
     return useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             {
@@ -454,6 +454,12 @@ const useIncomeCols = () => {
                 accessorKey: "unloading_name",
                 cell: ({ row }) => row.original.order ? <span>{row.original.unloading_name || "-"}</span> : null,
             },
+            ...(opts?.withCategory ? [{
+                header: "Kategoriya",
+                accessorKey: "category_name",
+                enableSorting: true,
+                cell: ({ row }: { row: any }) => row.original.category_name || <span className="text-muted-foreground">—</span>,
+            }] : []),
             {
                 header: "Summa",
                 accessorKey: "amount",
@@ -468,13 +474,19 @@ const useIncomeCols = () => {
             { header: "Izoh", accessorKey: "comment", enableSorting: true },
             { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
         ],
-        [],
+        [opts?.withCategory],
     )
 }
 
-const useExpenseCols = (opts?: { isFuel?: boolean }) => {
+const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => {
     return useMemo<ColumnDef<FinanceRow>[]>(
         () => [
+            ...(opts?.withCategory ? [{
+                header: "Kategoriya",
+                accessorKey: "category_name",
+                enableSorting: true,
+                cell: ({ row }: { row: any }) => row.original.category_name || <span className="text-muted-foreground">—</span>,
+            }] : []),
             { header: "Izoh", accessorKey: "comment", enableSorting: true },
             {
                 header: "Summa",
@@ -498,7 +510,7 @@ const useExpenseCols = (opts?: { isFuel?: boolean }) => {
             { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
             { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
         ],
-        [opts?.isFuel],
+        [opts?.isFuel, opts?.withCategory],
     )
 }
 
@@ -953,8 +965,8 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
     const incomeRows = incomeData?.results ?? []
     const expenseRows = expenseData?.results ?? []
 
-    const incomeCols = useIncomeCols()
-    const expenseCols = useExpenseCols()
+    const incomeCols = useIncomeCols({ withCategory: true })
+    const expenseCols = useExpenseCols({ withCategory: true })
 
     const stat = mode === "aylanma" ? tripStat : driverStat
     const incomeUzs = Number(stat?.income_uzs ?? 0)
