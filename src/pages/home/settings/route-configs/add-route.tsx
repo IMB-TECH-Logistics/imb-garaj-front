@@ -71,7 +71,7 @@ const AddRouteConfigModal = () => {
     const { data: clientData } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
         params: { model_name: "client" },
     })
-    const { data: regionsData } = useGet<SelectItem[]>("common/selectable/region", {
+    const { data: regionsData } = useGet<SelectItem[]>("selectable/region", {
         params: { model_name: "region" },
     })
     const { data: cargoType } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CARGO_TYPE, {

@@ -1,7 +1,7 @@
 import { FormNumberInput } from "@/components/form/number-input"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
-import { MANAGERS_REYS } from "@/constants/api-endpoints"
+import { MANAGERS_RUNS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
@@ -14,7 +14,7 @@ const EditReysModal = () => {
     const queryClient = useQueryClient()
     const { closeModal } = useModal("edit-reys")
     const { getData, clearKey } = useGlobalStore()
-    const current = getData<ReysOrder>(MANAGERS_REYS)
+    const current = getData<ReysOrder>(MANAGERS_RUNS)
 
     const form = useForm({
         defaultValues: {
@@ -36,9 +36,9 @@ const EditReysModal = () => {
 
     const onSuccess = () => {
         toast.success("Muvaffaqiyatli tahrirlandi!")
-        clearKey(MANAGERS_REYS)
+        clearKey(MANAGERS_RUNS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [MANAGERS_REYS] })
+        queryClient.refetchQueries({ queryKey: [MANAGERS_RUNS] })
     }
 
     const { mutate, isPending } = usePatch({ onSuccess })

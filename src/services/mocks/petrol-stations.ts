@@ -293,14 +293,14 @@ const recalcBalance = (stationId: number) => {
     setStations(stations)
 }
 
-const STATIONS_LIST = /^\/common\/petrol-stations\/?$/
-const STATIONS_STATS = /^\/common\/petrol-stations\/stats\/?$/
-const STATION_STATS = /^\/common\/petrol-stations\/(\d+)\/stats\/?$/
-const STATION_DETAIL = /^\/common\/petrol-stations\/(\d+)\/?$/
-const STATION_CASHFLOWS = /^\/common\/petrol-stations\/(\d+)\/cash-flows\/?$/
-const STATION_TOPUP = /^\/common\/petrol-stations\/(\d+)\/top-up\/?$/
-const FLOW_PATCH = /^\/common\/petrol-stations\/cash-flows\/(\d+)\/?$/
-const FLOW_DELETE = /^\/common\/petrol-stations\/cash-flows\/(\d+)\/delete\/?$/
+const STATIONS_LIST = /^\/petrol-stations\/?$/
+const STATIONS_STATS = /^\/petrol-stations\/stats\/?$/
+const STATION_STATS = /^\/petrol-stations\/(\d+)\/stats\/?$/
+const STATION_DETAIL = /^\/petrol-stations\/(\d+)\/?$/
+const STATION_CASHFLOWS = /^\/petrol-stations\/(\d+)\/cash-flows\/?$/
+const STATION_TOPUP = /^\/petrol-stations\/(\d+)\/top-up\/?$/
+const FLOW_PATCH = /^\/petrol-stations\/cash-flows\/(\d+)\/?$/
+const FLOW_DELETE = /^\/petrol-stations\/cash-flows\/(\d+)\/delete\/?$/
 
 export const petrolStationHandlers: MockHandler[] = [
     {
