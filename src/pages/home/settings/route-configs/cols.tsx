@@ -22,6 +22,7 @@ export type DirectionPrice = {
 export type DirectionRow = {
     id: number
     owner_name: string
+    owner_code: string
     load_name: string
     unload_name: string
     cargo_type_name: string
@@ -116,6 +117,7 @@ const CURRENCY_LABELS: Record<number, string> = {
 export const useDirectionColumns = () =>
     useMemo<ColumnDef<DirectionRow>[]>(
         () => [
+            { accessorKey: "owner_code", header: "Firma kodi", enableSorting: true, size: 100 },
             { accessorKey: "load_name", header: "Yuklash manzili", enableSorting: true },
             { accessorKey: "unload_name", header: "Yuk tushirish manzili", enableSorting: true },
             { accessorKey: "owner_name", header: "Yuk egasi", enableSorting: true },
@@ -132,7 +134,9 @@ export const useDirectionColumns = () =>
                                 Number(row.original.current_price?.price ?? 0),
                             )}
                         </span>
-                        <PriceHistoryPopover prices={row.original.prices} />
+                        {(row.original.prices?.length ?? 0) > 1 && (
+                            <PriceHistoryPopover prices={row.original.prices} />
+                        )}
                     </div>
                 ),
             },

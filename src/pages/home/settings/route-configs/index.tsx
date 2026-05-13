@@ -19,6 +19,7 @@ type Direction = {
     id: number
     owner: number
     owner_name: string
+    owner_code: string
     load: number
     load_name: string
     unload: number
@@ -75,6 +76,7 @@ const RouteConfigsPage = () => {
             (data?.results ?? []).map((d) => ({
                 id: d.id,
                 owner_name: d.owner_name ?? String(d.owner),
+                owner_code: d.owner_code ?? "",
                 load_name: d.load_name ?? String(d.load),
                 unload_name: d.unload_name ?? String(d.unload),
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
