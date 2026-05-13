@@ -146,7 +146,7 @@ export const useItems = () =>
                 icon: <Activity width={18} />,
                 path: "/monitoring",
                 allowKey: "monitoring_view",
-                pending: true,
+                alwaysShow: true,
             },
             {
                 label: "Sozlamalar",
