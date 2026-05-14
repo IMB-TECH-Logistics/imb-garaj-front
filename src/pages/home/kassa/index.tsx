@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CHECKOUT_MAIN, DRIVERS_BALANCE } from "@/constants/api-endpoints"
 const TRANSACTIONS = "transaction"
 import { useGet } from "@/hooks/useGet"
@@ -98,12 +99,15 @@ const Kassa = () => {
     const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
     const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
     const driverFilterId = search.driver ? Number(search.driver) : null
+    const typeFilter: "all" | "1" | "-1" =
+        search.type === "1" || search.type === "-1" ? search.type : "all"
     const filterParams = {
         page: search.page,
         page_size: search.page_size,
         from_date: search.from_date,
         to_date: search.to_date,
         driver: search.driver,
+        type: typeFilter === "all" ? undefined : Number(typeFilter),
     }
     const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
         TRANSACTIONS,
@@ -139,12 +143,22 @@ const Kassa = () => {
         navigate({ search: { ...search, driver: undefined } as any })
     }
 
+    const handleTypeChange = (val: string) => {
+        navigate({
+            search: {
+                ...search,
+                type: val === "all" ? undefined : val,
+                page: undefined,
+            } as any,
+        })
+    }
+
     return (
         <div className="flex md:flex-row flex-col w-full gap-3 md:items-start">
             {/* Left sidebar */}
-            <div className="md:max-w-sm md:min-w-sm w-full md:sticky md:top-0 shrink-0">
-                <Card className="bg-muted/60">
-                    <CardHeader className="space-y-0">
+            <div className="md:max-w-sm md:min-w-sm w-full md:sticky md:top-0 md:max-h-screen shrink-0">
+                <Card className="bg-muted/60 md:max-h-screen flex flex-col">
+                    <CardHeader className="space-y-0 shrink-0">
                         <CardTitle className="font-medium text-lg">
                             Asosiy Balans
                         </CardTitle>
@@ -155,9 +169,9 @@ const Kassa = () => {
                             <span className="text-base">so'm</span>
                         </span>
                     </CardHeader>
-                    <CardContent className="pt-0 space-y-3">
+                    <CardContent className="pt-0 space-y-3 flex-1 min-h-0 flex flex-col">
                         {hasControl && (
-                            <div className="gap-3 flex items-center justify-between">
+                            <div className="gap-3 flex items-center justify-between shrink-0">
                                 <Button
                                     variant="destructive"
                                     type="button"
@@ -173,7 +187,7 @@ const Kassa = () => {
                             </div>
                         )}
 
-                        <div className="border-t pt-3">
+                        <div className="border-t pt-3 shrink-0">
                             <p className="text-sm text-muted-foreground">
                                 Haydovchilar balansi
                             </p>
@@ -182,11 +196,11 @@ const Kassa = () => {
                             </p>
                         </div>
 
-                        <div className="border-t pt-3">
-                            <p className="text-sm font-medium text-muted-foreground mb-2">
+                        <div className="border-t pt-3 flex-1 min-h-0 flex flex-col">
+                            <p className="text-sm font-medium text-muted-foreground mb-2 shrink-0">
                                 Batafsil
                             </p>
-                            <div className="space-y-1">
+                            <div className="space-y-1 flex-1 min-h-0 overflow-y-auto pr-1">
                                 {drivers.map((driver, i) => {
                                     const isActive =
                                         driverFilterId === driver.id
@@ -258,6 +272,22 @@ const Kassa = () => {
                                 )}
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
+                                <Tabs
+                                    value={typeFilter}
+                                    onValueChange={handleTypeChange}
+                                >
+                                    <TabsList className="h-9">
+                                        <TabsTrigger value="all">
+                                            Hammasi
+                                        </TabsTrigger>
+                                        <TabsTrigger value="1">
+                                            Tushum
+                                        </TabsTrigger>
+                                        <TabsTrigger value="-1">
+                                            Chiqim
+                                        </TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
                                 <ParamDateRange
                                     from="from_date"
                                     to="to_date"

@@ -79,7 +79,7 @@ const useOrderCols = () =>
                 header: "Yo'nalish",
                 id: "route",
                 cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
+                    <span className="block break-words">
                         {row.original.loading_name || "—"} →{" "}
                         {row.original.unloading_name || "—"}
                     </span>
@@ -88,7 +88,11 @@ const useOrderCols = () =>
             {
                 header: "Sana",
                 accessorKey: "date",
-                cell: ({ row }) => formatDate(row.original.date),
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {formatDate(row.original.date)}
+                    </span>
+                ),
             },
             {
                 header: "Yuk turi",
@@ -144,6 +148,8 @@ type LedgerEntry = {
     kind: "income" | "salary"
     date: string
     trip_index: number | null
+    trip_start?: string | null
+    trip_end?: string | null
     amount: number
     comment?: string | null
     running: number
@@ -198,7 +204,7 @@ const useAylanmaCols = () =>
                 header: "Yo'nalish",
                 id: "route",
                 cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
+                    <span className="block break-words">
                         {row.original.loading || "—"} →{" "}
                         {row.original.unloading || "—"}
                     </span>
@@ -257,15 +263,18 @@ const useLedgerCols = () =>
             },
             {
                 header: "Aylanma",
-                accessorKey: "trip_index",
-                cell: ({ row }) =>
-                    row.original.trip_index ? (
-                        <Badge variant="outline" className="font-mono text-xs">
-                            #{row.original.trip_index}
-                        </Badge>
-                    ) : (
-                        <span className="text-muted-foreground">—</span>
-                    ),
+                id: "trip_range",
+                cell: ({ row }) => {
+                    const s = row.original.trip_start
+                    const e = row.original.trip_end
+                    if (!s && !e)
+                        return <span className="text-muted-foreground">—</span>
+                    return (
+                        <span className="whitespace-nowrap tabular-nums">
+                            {formatDate(s)} → {formatDate(e)}
+                        </span>
+                    )
+                },
             },
             {
                 header: "Operatsiya",
@@ -482,6 +491,7 @@ export default function HaydovchiDetail() {
     // qadamdan keyingi balansni hisoblaymiz. Balans = jami daromad − jami oylik.
     const ledger = useMemo<LedgerEntry[]>(() => {
         const events: Omit<LedgerEntry, "running">[] = []
+        const tripById = new Map(tripsSorted.map((t) => [t.id, t]))
         tripsSorted.forEach((t, i) => {
             const incomeUzs = Number(t.income_uzs ?? 0) || 0
             if (incomeUzs > 0) {
@@ -490,17 +500,22 @@ export default function HaydovchiDetail() {
                     kind: "income",
                     date: t.end || t.start || "",
                     trip_index: i + 1,
+                    trip_start: t.start,
+                    trip_end: t.end,
                     amount: incomeUzs,
                     comment: "Reys daromadi",
                 })
             }
         })
         flatSalaries.forEach((s) => {
+            const t = s.trip != null ? tripById.get(s.trip) : undefined
             events.push({
                 id: `salary-${s.id}`,
                 kind: "salary",
                 date: s.created || "",
                 trip_index: s.trip_index,
+                trip_start: t?.start ?? null,
+                trip_end: t?.end ?? null,
                 amount: -(Number(s.amount) || 0),
                 comment: s.comment,
             })
@@ -535,10 +550,6 @@ export default function HaydovchiDetail() {
               ? "text-green-500"
               : "text-muted-foreground"
 
-    const lastTrip = tripsSorted[0]
-    const lastStatus = lastTrip ? tripStatusLabel(lastTrip) : null
-    const lastDate = lastTrip?.end || lastTrip?.start || null
-
     return (
         <div className="space-y-4 pb-6">
             {/* Header */}
@@ -567,7 +578,7 @@ export default function HaydovchiDetail() {
                 </div>
             </div>
 
-            {/* Top cards: Balans + Ohirgi holati */}
+            {/* Balans card */}
             <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                 <Card className="relative overflow-hidden">
                     <button
@@ -593,49 +604,14 @@ export default function HaydovchiDetail() {
                         </div>
                     </CardContent>
                 </Card>
-
-                <Card className="overflow-hidden">
-                    <CardContent className="p-4">
-                        <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
-                            Ohirgi holati
-                        </div>
-                        <div className="mt-2 flex items-center gap-2">
-                            {lastStatus ? (
-                                <Badge variant={lastStatus.variant}>
-                                    {lastStatus.label}
-                                </Badge>
-                            ) : (
-                                <span className="text-muted-foreground">
-                                    Aylanmalar yo'q
-                                </span>
-                            )}
-                            {lastDate && (
-                                <span className="text-sm text-muted-foreground tabular-nums">
-                                    {formatDate(lastDate)}
-                                </span>
-                            )}
-                        </div>
-                        {lastTrip && (lastTrip.loading || lastTrip.unloading) && (
-                            <div className="mt-1 text-sm text-muted-foreground whitespace-nowrap truncate">
-                                {lastTrip.loading || "—"} →{" "}
-                                {lastTrip.unloading || "—"}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Aylanmalar table */}
             <Card>
                 <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 mb-3">
                         <h3 className="font-medium">Aylanmalar ro'yxati</h3>
-                        <span className="text-sm font-normal text-muted-foreground">
-                            Jami daromad:{" "}
-                            <span className="text-green-600 font-semibold">
-                                {formatMoney(totals.tripIncomeUzs)} UZS
-                            </span>
-                        </span>
+                        <Badge>{aylanmaRows.length}</Badge>
                     </div>
                     <DataTable
                         loading={tripsLoading || ordersLoading}
@@ -651,7 +627,7 @@ export default function HaydovchiDetail() {
 
             <Modal
                 modalKey="driver-salary-history"
-                size="max-w-3xl"
+                size="max-w-5xl"
                 title="Oyliklar tarixi"
             >
                 <DataTable
@@ -665,7 +641,7 @@ export default function HaydovchiDetail() {
 
             <Modal
                 modalKey="aylanma-orders"
-                size="max-w-4xl"
+                size="max-w-6xl"
                 title={
                     selectedTrip
                         ? `Reyslar — Aylanma #${selectedTrip.trip_index} (ID:${selectedTrip.id})`
