@@ -181,15 +181,6 @@ const useAylanmaCols = () =>
         () => [
             {
                 header: "Aylanma",
-                accessorKey: "trip_index",
-                cell: ({ row }) => (
-                    <Badge variant="outline" className="font-mono">
-                        #{row.original.trip_index} (ID:{row.original.id})
-                    </Badge>
-                ),
-            },
-            {
-                header: "Sana oralig'i",
                 id: "trip_range",
                 cell: ({ row }) => {
                     const s = row.original.start
