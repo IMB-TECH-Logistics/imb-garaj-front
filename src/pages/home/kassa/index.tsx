@@ -154,10 +154,10 @@ const Kassa = () => {
     }
 
     return (
-        <div className="flex md:flex-row flex-col w-full gap-3 md:items-start">
+        <div className="flex md:flex-row flex-col w-full gap-3 md:h-[calc(100svh-7.5rem)] md:min-h-0 md:overflow-hidden">
             {/* Left sidebar */}
-            <div className="md:max-w-sm md:min-w-sm w-full md:sticky md:top-0 md:max-h-screen shrink-0">
-                <Card className="bg-muted/60 md:max-h-screen flex flex-col">
+            <div className="md:max-w-sm md:min-w-sm w-full md:h-full shrink-0">
+                <Card className="bg-muted/60 md:h-full flex flex-col overflow-hidden">
                     <CardHeader className="space-y-0 shrink-0">
                         <CardTitle className="font-medium text-lg">
                             Asosiy Balans
@@ -200,7 +200,7 @@ const Kassa = () => {
                             <p className="text-sm font-medium text-muted-foreground mb-2 shrink-0">
                                 Batafsil
                             </p>
-                            <div className="space-y-1 flex-1 min-h-0 overflow-y-auto pr-1">
+                            <div className="space-y-1 flex-1 min-h-0">
                                 {drivers.map((driver, i) => {
                                     const isActive =
                                         driverFilterId === driver.id
@@ -236,12 +236,14 @@ const Kassa = () => {
             </div>
 
             {/* Right table */}
-            <div className="w-full min-w-0 overflow-x-auto">
+            <div className="w-full min-w-0 md:h-full min-h-0">
                 <DataTable
                     numeration
                     loading={transactionsLoading}
                     columns={transactionCols}
                     data={transactionsData?.results}
+                    wrapperClassName="md:h-full flex flex-col"
+                    tableWrapperClassName="flex-1 min-h-0 overflow-auto"
                     paginationProps={{
                         totalPages: transactionsData?.total_pages,
                         paramName: "page",

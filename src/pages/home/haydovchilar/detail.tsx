@@ -195,7 +195,6 @@ export default function HaydovchiDetail() {
         })),
     })
 
-    const ordersLoading = orderQueries.some((q) => q.isLoading)
 
     const { data: salaryData } = useGet<
         ListResponse<SalaryRow>
@@ -342,7 +341,7 @@ export default function HaydovchiDetail() {
                         <Badge>{aylanmaRows.length}</Badge>
                     </div>
                     <DataTable
-                        loading={tripsLoading || ordersLoading}
+                        loading={tripsLoading}
                         columns={aylanmaCols}
                         data={aylanmaRows}
                         numeration
