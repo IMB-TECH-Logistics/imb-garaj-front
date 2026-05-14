@@ -164,6 +164,7 @@ export const useItems = () =>
                     { label: "Haydovchilar", path: "/drivers", allowKey: "settings_drivers_view" },
                     { label: "Avtomobillar", path: "/vehicles", allowKey: "settings_vehicles_view" },
                     { label: "Foydalanuvchilar", path: "/users", allowKey: "settings_users_view" },
+                    { label: "Rollar", path: "/roles", allowKey: "settings_roles_view" },
                     { label: "Mijozlar", path: "/customers", allowKey: "settings_customers_view" },
                     { label: "Mashina turlari", path: "/vehicle-types", allowKey: "settings_vehicle_types_view" },
                     { label: "Yuk turi", path: "/cargo-types", allowKey: "settings_cargo_types_view" },
