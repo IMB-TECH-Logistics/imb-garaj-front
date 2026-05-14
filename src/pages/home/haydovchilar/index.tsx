@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
 import { DRIVERS_BALANCE, SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -100,7 +101,10 @@ export default function HaydovchilarList() {
             onRowClick={handleRowClick}
             head={
                 <div className="mb-3 flex items-center justify-between">
-                    <h1 className="text-xl font-semibold">Haydovchilar</h1>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-xl font-semibold">Haydovchilar</h1>
+                        <Badge>{data?.count ?? 0}</Badge>
+                    </div>
                 </div>
             }
             paginationProps={{
