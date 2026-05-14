@@ -200,7 +200,7 @@ const Kassa = () => {
                             <p className="text-sm font-medium text-muted-foreground mb-2 shrink-0">
                                 Batafsil
                             </p>
-                            <div className="space-y-1 flex-1 min-h-0">
+                            <div className="space-y-1 flex-1 min-h-0 overflow-y-auto pr-1">
                                 {drivers.map((driver, i) => {
                                     const isActive =
                                         driverFilterId === driver.id
