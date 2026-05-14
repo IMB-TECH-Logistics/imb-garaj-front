@@ -312,7 +312,7 @@ export function DataTable<TData>({
                                         className="border-none "
                                     >
                                         {selecteds_row && (
-                                            <TableHead>
+                                            <TableHead className="w-8 px-2">
                                                 <Checkbox
                                                     checked={
                                                         table.getIsAllPageRowsSelected() ||

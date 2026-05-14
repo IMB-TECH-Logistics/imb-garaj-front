@@ -1,4 +1,3 @@
-import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,31 +10,19 @@ import {
     SETTINGS_DRIVERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import axiosInstance from "@/services/axios-instance"
 import { useQueries } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import {
-    ArrowLeft,
-    Info,
-    Phone,
-    TrendingDown,
-    TrendingUp,
-} from "lucide-react"
-import { useMemo, useState } from "react"
+import { ArrowLeft, Phone } from "lucide-react"
+import { useMemo } from "react"
 
 type DriverBalance = { id: number; full_name: string; balance: string }
 
 type OrderRow = {
     id: number
-    loading_name: string
-    unloading_name: string
-    cargo_type_name: string
-    date: string
-    status: number
     payment_amount_uzs: string | null
     payment_amount_usd: string | null
 }
@@ -59,100 +46,6 @@ type AylanmaRow = ManagerTrips & {
     trip_index: number
     orders_count: number
     driver_earnings: number
-}
-
-const ORDER_STATUS_LABEL: Record<
-    number,
-    { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
-> = {
-    0: { label: "Kutilmoqda", variant: "secondary" },
-    1: { label: "Boshlandi", variant: "outline" },
-    2: { label: "Yo'lda", variant: "outline" },
-    3: { label: "Yakunlandi", variant: "default" },
-    4: { label: "Bekor qilindi", variant: "destructive" },
-}
-
-const useOrderCols = () =>
-    useMemo<ColumnDef<OrderRow>[]>(
-        () => [
-            {
-                header: "Yo'nalish",
-                id: "route",
-                cell: ({ row }) => (
-                    <span className="block break-words">
-                        {row.original.loading_name || "—"} →{" "}
-                        {row.original.unloading_name || "—"}
-                    </span>
-                ),
-            },
-            {
-                header: "Sana",
-                accessorKey: "date",
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
-                        {formatDate(row.original.date)}
-                    </span>
-                ),
-            },
-            {
-                header: "Yuk turi",
-                accessorKey: "cargo_type_name",
-                cell: ({ row }) => row.original.cargo_type_name || "—",
-            },
-            {
-                header: "Status",
-                accessorKey: "status",
-                cell: ({ row }) => {
-                    const s = ORDER_STATUS_LABEL[row.original.status]
-                    return s ? (
-                        <Badge variant={s.variant}>{s.label}</Badge>
-                    ) : (
-                        "—"
-                    )
-                },
-            },
-            {
-                header: "Summa (UZS)",
-                accessorKey: "payment_amount_uzs",
-                cell: ({ row }) => {
-                    const v = Number(row.original.payment_amount_uzs ?? 0)
-                    return v > 0 ? (
-                        <span className="text-green-500 font-medium whitespace-nowrap">
-                            {formatMoney(v)}
-                        </span>
-                    ) : (
-                        <span className="text-muted-foreground">—</span>
-                    )
-                },
-            },
-            {
-                header: "Summa (USD)",
-                accessorKey: "payment_amount_usd",
-                cell: ({ row }) => {
-                    const v = Number(row.original.payment_amount_usd ?? 0)
-                    return v > 0 ? (
-                        <span className="text-green-500 font-medium whitespace-nowrap">
-                            {formatMoney(v)}
-                        </span>
-                    ) : (
-                        <span className="text-muted-foreground">—</span>
-                    )
-                },
-            },
-        ],
-        [],
-    )
-
-type LedgerEntry = {
-    id: string
-    kind: "income" | "salary"
-    date: string
-    trip_index: number | null
-    trip_start?: string | null
-    trip_end?: string | null
-    amount: number
-    comment?: string | null
-    running: number
 }
 
 function formatMoneyText(n: number): string {
@@ -249,112 +142,12 @@ const useAylanmaCols = () =>
         [],
     )
 
-const useLedgerCols = () =>
-    useMemo<ColumnDef<LedgerEntry>[]>(
-        () => [
-            {
-                header: "Sana",
-                accessorKey: "date",
-                cell: ({ row }) => (
-                    <span className="text-muted-foreground whitespace-nowrap">
-                        {formatDate(row.original.date)}
-                    </span>
-                ),
-            },
-            {
-                header: "Aylanma",
-                id: "trip_range",
-                cell: ({ row }) => {
-                    const s = row.original.trip_start
-                    const e = row.original.trip_end
-                    if (!s && !e)
-                        return <span className="text-muted-foreground">—</span>
-                    return (
-                        <span className="whitespace-nowrap tabular-nums">
-                            {formatDate(s)} → {formatDate(e)}
-                        </span>
-                    )
-                },
-            },
-            {
-                header: "Operatsiya",
-                id: "operation",
-                cell: ({ row }) => {
-                    const e = row.original
-                    return e.kind === "income" ? (
-                        <span className="inline-flex items-center gap-1.5">
-                            <span className="size-6 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center">
-                                <TrendingUp size={12} />
-                            </span>
-                            <span className="font-medium">Reys daromadi</span>
-                        </span>
-                    ) : (
-                        <span className="inline-flex items-center gap-1.5">
-                            <span className="size-6 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center">
-                                <TrendingDown size={12} />
-                            </span>
-                            <span className="font-medium">Oylik</span>
-                            {e.comment && (
-                                <span className="text-muted-foreground text-xs">
-                                    · {e.comment}
-                                </span>
-                            )}
-                        </span>
-                    )
-                },
-            },
-            {
-                header: "Summa",
-                accessorKey: "amount",
-                cell: ({ row }) => {
-                    const a = row.original.amount
-                    return (
-                        <span
-                            className={
-                                "tabular-nums whitespace-nowrap font-semibold " +
-                                (a >= 0 ? "text-green-500" : "text-red-500")
-                            }
-                        >
-                            {a >= 0 ? "+" : ""}
-                            {formatMoneyText(a)}
-                        </span>
-                    )
-                },
-            },
-            {
-                header: "Balans",
-                accessorKey: "running",
-                cell: ({ row }) => {
-                    const r = row.original.running
-                    return (
-                        <span
-                            className={
-                                "tabular-nums whitespace-nowrap font-bold " +
-                                (r < 0
-                                    ? "text-red-500"
-                                    : r > 0
-                                      ? "text-foreground"
-                                      : "text-muted-foreground")
-                            }
-                        >
-                            {formatMoneyText(r)}
-                        </span>
-                    )
-                },
-            },
-        ],
-        [],
-    )
-
 export default function HaydovchiDetail() {
     const navigate = useNavigate()
     const { id } = useParams({ strict: false }) as { id: string }
     const search = useSearch({ strict: false }) as any
     const driverId = Number(id)
 
-    const { openModal: openSalaryModal } = useModal("driver-salary-history")
-    const { openModal: openOrdersModal } = useModal("aylanma-orders")
-    const [selectedTripIdx, setSelectedTripIdx] = useState<number | null>(null)
 
     const { data: drivers } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
@@ -404,7 +197,7 @@ export default function HaydovchiDetail() {
 
     const ordersLoading = orderQueries.some((q) => q.isLoading)
 
-    const { data: salaryData, isLoading: salaryLoading } = useGet<
+    const { data: salaryData } = useGet<
         ListResponse<SalaryRow>
     >(MANAGERS_DRIVER_SALARY, {
         params: { trip__driver: driverId, page_size: 1000 },
@@ -453,26 +246,18 @@ export default function HaydovchiDetail() {
     ])
 
     const aylanmaCols = useAylanmaCols()
-    const ledgerCols = useLedgerCols()
-    const orderCols = useOrderCols()
-
-    const selectedTrip =
-        selectedTripIdx != null ? aylanmaRows[selectedTripIdx] : null
-    const selectedOrders =
-        selectedTripIdx != null
-            ? orderQueries[selectedTripIdx]?.data?.results ?? []
-            : []
-    const selectedOrdersLoading =
-        selectedTripIdx != null
-            ? orderQueries[selectedTripIdx]?.isLoading ?? false
-            : false
 
     const handleAylanmaClick = (row: AylanmaRow) => {
-        const idx = aylanmaRows.findIndex((r) => r.id === row.id)
-        if (idx >= 0) {
-            setSelectedTripIdx(idx)
-            openOrdersModal()
-        }
+        navigate({
+            to: "/haydovchilar/$id/aylanma/$tripId",
+            params: { id, tripId: String(row.id) },
+            search: {
+                name: search?.name,
+                trip_index: row.trip_index ? String(row.trip_index) : undefined,
+                start: row.start ?? undefined,
+                end: row.end ?? undefined,
+            } as any,
+        })
     }
 
     const totals = useMemo(() => {
@@ -486,48 +271,6 @@ export default function HaydovchiDetail() {
         )
         return { tripIncomeUzs, salaryPaid }
     }, [flatSalaries, trips])
-
-    // Reys daromadi va oyliklarni xronologik tartibda birlashtirib, har bir
-    // qadamdan keyingi balansni hisoblaymiz. Balans = jami daromad − jami oylik.
-    const ledger = useMemo<LedgerEntry[]>(() => {
-        const events: Omit<LedgerEntry, "running">[] = []
-        const tripById = new Map(tripsSorted.map((t) => [t.id, t]))
-        tripsSorted.forEach((t, i) => {
-            const incomeUzs = Number(t.income_uzs ?? 0) || 0
-            if (incomeUzs > 0) {
-                events.push({
-                    id: `trip-${t.id}`,
-                    kind: "income",
-                    date: t.end || t.start || "",
-                    trip_index: i + 1,
-                    trip_start: t.start,
-                    trip_end: t.end,
-                    amount: incomeUzs,
-                    comment: "Reys daromadi",
-                })
-            }
-        })
-        flatSalaries.forEach((s) => {
-            const t = s.trip != null ? tripById.get(s.trip) : undefined
-            events.push({
-                id: `salary-${s.id}`,
-                kind: "salary",
-                date: s.created || "",
-                trip_index: s.trip_index,
-                trip_start: t?.start ?? null,
-                trip_end: t?.end ?? null,
-                amount: -(Number(s.amount) || 0),
-                comment: s.comment,
-            })
-        })
-        events.sort((a, b) => (a.date || "").localeCompare(b.date || ""))
-        let running = 0
-        const withRunning: LedgerEntry[] = events.map((e) => {
-            running += e.amount
-            return { ...e, running }
-        })
-        return withRunning.reverse()
-    }, [tripsSorted, flatSalaries])
 
     const computedBalance = useMemo(
         () => totals.tripIncomeUzs - totals.salaryPaid,
@@ -562,7 +305,7 @@ export default function HaydovchiDetail() {
                 >
                     <ArrowLeft size={18} />
                 </Button>
-                <div>
+                <div className="flex-1 min-w-0">
                     <h1 className="text-xl font-semibold leading-tight">
                         {fullName || "Haydovchi"}
                     </h1>
@@ -576,34 +319,19 @@ export default function HaydovchiDetail() {
                         </a>
                     )}
                 </div>
-            </div>
-
-            {/* Balans card */}
-            <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-                <Card className="relative overflow-hidden">
-                    <button
-                        type="button"
-                        onClick={() => openSalaryModal()}
-                        className="absolute top-2 right-2 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition"
-                        aria-label="Oyliklar tarixi"
-                        title="Oyliklar tarixi"
+                <div className="text-right shrink-0">
+                    <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                        Balans
+                    </div>
+                    <div
+                        className={`text-lg font-semibold tabular-nums ${balanceColor}`}
                     >
-                        <Info size={14} />
-                    </button>
-                    <CardContent className="p-4">
-                        <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
-                            Haydovchi balansi
-                        </div>
-                        <div
-                            className={`mt-2 text-2xl font-bold tabular-nums ${balanceColor}`}
-                        >
-                            {formatMoneyText(balanceNum)}
-                            <span className="text-sm font-normal text-muted-foreground ml-1.5">
-                                UZS
-                            </span>
-                        </div>
-                    </CardContent>
-                </Card>
+                        {formatMoneyText(balanceNum)}
+                        <span className="text-xs font-normal text-muted-foreground ml-1">
+                            UZS
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {/* Aylanmalar table */}
@@ -625,38 +353,6 @@ export default function HaydovchiDetail() {
                 </CardContent>
             </Card>
 
-            <Modal
-                modalKey="driver-salary-history"
-                size="max-w-5xl"
-                title="Oyliklar tarixi"
-            >
-                <DataTable
-                    loading={salaryLoading || tripsLoading}
-                    columns={ledgerCols}
-                    data={ledger}
-                    numeration
-                    viewAll
-                />
-            </Modal>
-
-            <Modal
-                modalKey="aylanma-orders"
-                size="max-w-6xl"
-                title={
-                    selectedTrip
-                        ? `Reyslar — Aylanma #${selectedTrip.trip_index} (ID:${selectedTrip.id})`
-                        : "Reyslar"
-                }
-                onClose={() => setSelectedTripIdx(null)}
-            >
-                <DataTable
-                    loading={selectedOrdersLoading}
-                    columns={orderCols}
-                    data={selectedOrders}
-                    numeration
-                    viewAll
-                />
-            </Modal>
         </div>
     )
 }
