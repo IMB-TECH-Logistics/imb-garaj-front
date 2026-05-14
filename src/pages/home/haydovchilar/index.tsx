@@ -91,6 +91,21 @@ const useCols = () =>
                 ),
             },
             {
+                header: "Telefon",
+                accessorKey: "phone",
+                cell: ({ row }) =>
+                    formatPhoneNumber(row.original?.driver?.phone || "—"),
+            },
+            {
+                header: "Tajriba",
+                accessorKey: "_experience",
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original._experience > 0
+                        ? `${row.original._experience} yil`
+                        : "-",
+            },
+            {
                 header: "Reyslar",
                 accessorKey: "_completed_trips",
                 enableSorting: true,
@@ -101,12 +116,12 @@ const useCols = () =>
                 ),
             },
             {
-                header: "Olib kelgan summa",
-                accessorKey: "_revenue",
+                header: "O'z vaqtida",
+                accessorKey: "_on_time_rate",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <span className="tabular-nums font-medium">
-                        {formatMoney(row.original._revenue)} so'm
+                    <span className="tabular-nums">
+                        {row.original._on_time_rate}%
                     </span>
                 ),
             },
@@ -140,23 +155,14 @@ const useCols = () =>
                 ),
             },
             {
-                header: "O'z vaqtida",
-                accessorKey: "_on_time_rate",
+                header: "Olib kelgan summa",
+                accessorKey: "_revenue",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <span className="tabular-nums">
-                        {row.original._on_time_rate}%
+                    <span className="tabular-nums font-medium">
+                        {formatMoney(row.original._revenue)} so'm
                     </span>
                 ),
-            },
-            {
-                header: "Tajriba",
-                accessorKey: "_experience",
-                enableSorting: true,
-                cell: ({ row }) =>
-                    row.original._experience > 0
-                        ? `${row.original._experience} yil`
-                        : "-",
             },
             {
                 header: "Balans",
@@ -178,12 +184,6 @@ const useCols = () =>
                         </span>
                     )
                 },
-            },
-            {
-                header: "Telefon",
-                accessorKey: "phone",
-                cell: ({ row }) =>
-                    formatPhoneNumber(row.original?.driver?.phone || "—"),
             },
         ],
         [],
