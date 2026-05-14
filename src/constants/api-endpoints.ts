@@ -92,3 +92,24 @@ export const MONITORING_ROUTES_POLYLINE = "monitoring/routes/polyline"
 export const MONITORING_LIVE_TRACKING = "monitoring/live-tracking"
 // Append `/<tripId>/track` when calling: `${MONITORING_TRIP_TRACK}/${id}/track`
 export const MONITORING_TRIP_TRACK = "monitoring/trips"
+
+/** ===== WAREHOUSE / OMBOR ===== */
+export const WAREHOUSE_PRODUCTS = "warehouse/products"
+export const WAREHOUSE_STATS = "warehouse/stats"
+
+/** ===== CHECKOUT extras ===== */
+export const CHECKOUT_TOP_UP = "checkout/top-up"
+export const CHECKOUT_EXPENSE = "checkout/expense"
+export const TRANSACTIONS = "transaction"
+export const PETROL_STATIONS_STATS = "petrol-stations/stats"
+
+export const WAREHOUSE_WITHDRAW = "warehouse/withdraw"
+export const WAREHOUSE_WITHDRAWALS = "warehouse/withdrawals"
+
+/** ===== DRIVERS (Haydovchilar) ===== */
+export const DRIVERS_STATS = "users/drivers/stats"
+export const DRIVERS_OVERVIEW = "users/drivers"
+
+/** ===== DRIVER SALARIES (route config) ===== */
+export const DRIVER_SALARIES = "driver-salaries"
+export const DRIVERS_LIST = "users/drivers/list"

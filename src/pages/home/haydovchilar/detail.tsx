@@ -3,50 +3,70 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import {
-    DRIVERS_BALANCE,
-    MANAGERS_DRIVER_SALARY,
-    MANAGERS_ORDERS,
-    MANAGERS_TRIPS,
-    SETTINGS_DRIVERS,
+    DRIVERS_OVERVIEW,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
-import axiosInstance from "@/services/axios-instance"
-import { useQueries } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Phone } from "lucide-react"
 import { useMemo } from "react"
 
-type DriverBalance = { id: number; full_name: string; balance: string }
-
-type OrderRow = {
+type DriverOverview = {
     id: number
-    payment_amount_uzs: string | null
-    payment_amount_usd: string | null
+    full_name: string
+    first_name: string
+    last_name: string
+    phone: string | null
+    passport_serial: string | null
+    pinfl: string | null
+    driver_license: string | null
+    driver_license_date: string | null
+    experience: number
+    completed_trips: number
+    total_trips: number
+    ongoing_trips: number
+    completed_orders: number
+    total_orders: number
+    revenue_uzs: string | number
+    revenue_usd: string | number
+    salary_paid_uzs: string | number
+    computed_balance_uzs: string | number
+    total_distance_km: string | number
+    total_fuel_liters: string | number
+    fuel_per_100km: string | number
+    coverage: number
+    last_trip: null | {
+        id: number
+        start: string | null
+        end: string | null
+        vehicle_plate: string | null
+        income_uzs: string | number
+        income_usd: string | number
+        expense_uzs: string | number
+        orders_count: number
+    }
 }
 
-type SalaryRow = {
+type DriverTripRow = {
     id: number
-    trip: number | null
-    amount: string
-    comment: string | null
-    payment_type_name: string | null
-    created: string
-    currency: number
-    currency_course: string | null
-}
-
-type FlatSalary = SalaryRow & {
-    trip_index: number
-}
-
-type AylanmaRow = ManagerTrips & {
-    trip_index: number
+    start: string | null
+    end: string | null
+    loading: string | null
+    unloading: string | null
+    vehicle_plate: string | null
+    start_mileage: number
+    end_mileage: number
     orders_count: number
-    driver_earnings: number
+    income_uzs: string | number
+    income_usd: string | number
+    expense_uzs: string | number
+    driver_earnings: string | number
+    status: "completed" | "ongoing" | "pending"
 }
+
+const num = (v: unknown) => Number(v ?? 0) || 0
 
 function formatMoneyText(n: number): string {
     const negative = n < 0
@@ -67,16 +87,14 @@ function formatDate(s?: string | null) {
     })
 }
 
-function tripStatusLabel(t: ManagerTrips):
-    | { label: string; variant: "default" | "secondary" | "outline" }
-    | null {
-    if (t.end) return { label: "Yakunlandi", variant: "default" }
-    if (t.start) return { label: "Yo'lda", variant: "outline" }
-    return { label: "Kutilmoqda", variant: "secondary" }
+function statusBadge(s: DriverTripRow["status"]) {
+    if (s === "completed") return { label: "Yakunlandi", variant: "default" as const }
+    if (s === "ongoing") return { label: "Yo'lda", variant: "outline" as const }
+    return { label: "Kutilmoqda", variant: "secondary" as const }
 }
 
 const useAylanmaCols = () =>
-    useMemo<ColumnDef<AylanmaRow>[]>(
+    useMemo<ColumnDef<DriverTripRow>[]>(
         () => [
             {
                 header: "Aylanma",
@@ -104,6 +122,14 @@ const useAylanmaCols = () =>
                 ),
             },
             {
+                header: "Avto",
+                accessorKey: "vehicle_plate",
+                cell: ({ row }) =>
+                    row.original.vehicle_plate || (
+                        <span className="text-muted-foreground">—</span>
+                    ),
+            },
+            {
                 header: "Reyslar",
                 accessorKey: "orders_count",
                 cell: ({ row }) => (
@@ -113,22 +139,27 @@ const useAylanmaCols = () =>
                 ),
             },
             {
+                header: "Kirim (UZS)",
+                accessorKey: "income_uzs",
+                cell: ({ row }) => (
+                    <span className="tabular-nums text-green-600">
+                        {formatMoney(num(row.original.income_uzs))}
+                    </span>
+                ),
+            },
+            {
                 header: "Holat",
                 id: "status",
                 cell: ({ row }) => {
-                    const s = tripStatusLabel(row.original)
-                    return s ? (
-                        <Badge variant={s.variant}>{s.label}</Badge>
-                    ) : (
-                        "—"
-                    )
+                    const s = statusBadge(row.original.status)
+                    return <Badge variant={s.variant}>{s.label}</Badge>
                 },
             },
             {
                 header: "Haydovchi daromadi",
                 accessorKey: "driver_earnings",
                 cell: ({ row }) => {
-                    const v = row.original.driver_earnings
+                    const v = num(row.original.driver_earnings)
                     return v > 0 ? (
                         <span className="text-green-500 font-medium whitespace-nowrap">
                             {formatMoney(v)} UZS
@@ -142,159 +173,71 @@ const useAylanmaCols = () =>
         [],
     )
 
+const StatCard = ({
+    label,
+    value,
+    accent,
+}: {
+    label: string
+    value: React.ReactNode
+    accent?: string
+}) => (
+    <Card>
+        <CardContent className="p-3">
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                {label}
+            </div>
+            <div className={`text-lg font-semibold tabular-nums ${accent || ""}`}>
+                {value}
+            </div>
+        </CardContent>
+    </Card>
+)
+
 export default function HaydovchiDetail() {
     const navigate = useNavigate()
     const { id } = useParams({ strict: false }) as { id: string }
     const search = useSearch({ strict: false }) as any
     const driverId = Number(id)
 
-
-    const { data: drivers } = useGet<ListResponse<DriversType>>(
-        SETTINGS_DRIVERS,
-        { params: { page_size: 1000 } },
-    )
-    const driver = useMemo(
-        () => drivers?.results?.find((d) => d.id === driverId),
-        [drivers, driverId],
+    const { data: overview } = useGet<DriverOverview>(
+        `${DRIVERS_OVERVIEW}/${driverId}/overview`,
+        { enabled: !!driverId },
     )
 
-    const { data: balances } = useGet<DriverBalance[]>(DRIVERS_BALANCE)
-    const apiBalance = useMemo(
-        () => balances?.find((b) => b.id === driverId)?.balance ?? "0",
-        [balances, driverId],
+    const { data: trips, isLoading: tripsLoading } = useGet<DriverTripRow[]>(
+        `${DRIVERS_OVERVIEW}/${driverId}/trips`,
+        { enabled: !!driverId },
     )
-
-    const { data: tripsData, isLoading: tripsLoading } = useGet<
-        ListResponse<ManagerTrips>
-    >(MANAGERS_TRIPS, {
-        params: { driver_id: driverId, page_size: 1000 },
-        enabled: !!driverId,
-    })
-    const trips = tripsData?.results ?? []
-
-    // newest first — index 1 at the top
-    const tripsSorted = useMemo(
-        () =>
-            [...trips].sort((a, b) =>
-                (b.start || "").localeCompare(a.start || ""),
-            ),
-        [trips],
-    )
-
-    const orderQueries = useQueries({
-        queries: tripsSorted.map((t) => ({
-            queryKey: [MANAGERS_ORDERS, "reys", t.id],
-            queryFn: () =>
-                axiosInstance
-                    .get(`/${MANAGERS_ORDERS}/`, {
-                        params: { trip: t.id, page_size: 1000 },
-                    })
-                    .then((r) => r.data as ListResponse<OrderRow>),
-            enabled: !!t.id,
-            staleTime: 1000 * 60,
-        })),
-    })
-
-
-    const { data: salaryData } = useGet<
-        ListResponse<SalaryRow>
-    >(MANAGERS_DRIVER_SALARY, {
-        params: { trip__driver: driverId, page_size: 1000 },
-        enabled: !!driverId,
-    })
-
-    const flatSalaries = useMemo<FlatSalary[]>(() => {
-        const tripIndex = new Map<number, number>()
-        tripsSorted.forEach((t, i) => {
-            if (t.id != null) tripIndex.set(t.id, i + 1)
-        })
-        const rows = salaryData?.results ?? []
-        return [...rows]
-            .map((r) => ({
-                ...r,
-                trip_index: r.trip != null ? tripIndex.get(r.trip) ?? 0 : 0,
-            }))
-            .sort((a, b) => (b.created || "").localeCompare(a.created || ""))
-    }, [tripsSorted, salaryData])
-
-    const aylanmaRows = useMemo<AylanmaRow[]>(() => {
-        const salaryByTrip = new Map<number, number>()
-        ;(salaryData?.results ?? []).forEach((s) => {
-            if (s.trip != null) {
-                salaryByTrip.set(
-                    s.trip,
-                    (salaryByTrip.get(s.trip) ?? 0) +
-                        (Number(s.amount) || 0),
-                )
-            }
-        })
-        return tripsSorted.map((t, i) => {
-            const q = orderQueries[i]
-            return {
-                ...t,
-                trip_index: i + 1,
-                orders_count: q?.data?.results?.length ?? 0,
-                driver_earnings:
-                    t.id != null ? salaryByTrip.get(t.id) ?? 0 : 0,
-            }
-        })
-    }, [
-        tripsSorted,
-        salaryData,
-        orderQueries.map((q) => q.dataUpdatedAt).join(","),
-    ])
 
     const aylanmaCols = useAylanmaCols()
 
-    const handleAylanmaClick = (row: AylanmaRow) => {
+    const handleAylanmaClick = (row: DriverTripRow) => {
         navigate({
             to: "/haydovchilar/$id/aylanma/$tripId",
             params: { id, tripId: String(row.id) },
             search: {
                 name: search?.name,
-                trip_index: row.trip_index ? String(row.trip_index) : undefined,
                 start: row.start ?? undefined,
                 end: row.end ?? undefined,
             } as any,
         })
     }
 
-    const totals = useMemo(() => {
-        const tripIncomeUzs = trips.reduce(
-            (acc, t) => acc + Number(t.income_uzs ?? 0),
-            0,
-        )
-        const salaryPaid = flatSalaries.reduce(
-            (acc, s) => acc + (Number(s.amount) || 0),
-            0,
-        )
-        return { tripIncomeUzs, salaryPaid }
-    }, [flatSalaries, trips])
-
-    const computedBalance = useMemo(
-        () => totals.tripIncomeUzs - totals.salaryPaid,
-        [totals.tripIncomeUzs, totals.salaryPaid],
-    )
-
     const fullName =
         search?.name ||
-        (driver
-            ? `${driver.first_name ?? ""} ${driver.last_name ?? ""}`.trim()
-            : "")
+        (overview ? overview.full_name : "")
 
-    const balanceNum = Number.isFinite(computedBalance)
-        ? computedBalance
-        : Number(apiBalance ?? 0)
+    const balance = num(overview?.computed_balance_uzs)
     const balanceColor =
-        balanceNum < 0
+        balance < 0
             ? "text-red-500"
-            : balanceNum > 0
+            : balance > 0
               ? "text-green-500"
               : "text-muted-foreground"
 
     return (
         <div className="space-y-4 pb-6">
-            {/* Header */}
             <div className="flex items-center gap-3">
                 <Button
                     variant="ghost"
@@ -308,13 +251,13 @@ export default function HaydovchiDetail() {
                     <h1 className="text-xl font-semibold leading-tight">
                         {fullName || "Haydovchi"}
                     </h1>
-                    {driver?.driver?.phone && (
+                    {overview?.phone && (
                         <a
-                            href={`tel:${driver.driver.phone}`}
+                            href={`tel:${overview.phone}`}
                             className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mt-0.5"
                         >
                             <Phone size={12} />
-                            {formatPhoneNumber(driver.driver.phone)}
+                            {formatPhoneNumber(overview.phone)}
                         </a>
                     )}
                 </div>
@@ -325,7 +268,7 @@ export default function HaydovchiDetail() {
                     <div
                         className={`text-lg font-semibold tabular-nums ${balanceColor}`}
                     >
-                        {formatMoneyText(balanceNum)}
+                        {formatMoneyText(balance)}
                         <span className="text-xs font-normal text-muted-foreground ml-1">
                             UZS
                         </span>
@@ -333,17 +276,55 @@ export default function HaydovchiDetail() {
                 </div>
             </div>
 
-            {/* Aylanmalar table */}
+            {overview && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <StatCard
+                        label="Reyslar (yakun./jami)"
+                        value={`${overview.completed_trips}/${overview.total_trips}`}
+                    />
+                    <StatCard
+                        label="Olib kelgan (UZS)"
+                        value={formatMoneyText(num(overview.revenue_uzs))}
+                        accent="text-green-600"
+                    />
+                    <StatCard
+                        label="Oylik berildi (UZS)"
+                        value={formatMoneyText(num(overview.salary_paid_uzs))}
+                        accent="text-rose-600"
+                    />
+                    <StatCard
+                        label="Tajriba"
+                        value={
+                            overview.experience > 0
+                                ? `${overview.experience} yil`
+                                : "—"
+                        }
+                    />
+                    <StatCard
+                        label="Yoqilg'i"
+                        value={`${num(overview.fuel_per_100km).toFixed(1)} l/100km`}
+                    />
+                    <StatCard
+                        label="Qamrov (hudud)"
+                        value={overview.coverage}
+                    />
+                    <StatCard
+                        label="Buyurtmalar (yakun./jami)"
+                        value={`${overview.completed_orders}/${overview.total_orders}`}
+                    />
+                </div>
+            )}
+
             <Card>
                 <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
                         <h3 className="font-medium">Aylanmalar ro'yxati</h3>
-                        <Badge>{aylanmaRows.length}</Badge>
+                        <Badge>{trips?.length ?? 0}</Badge>
                     </div>
                     <DataTable
                         loading={tripsLoading}
                         columns={aylanmaCols}
-                        data={aylanmaRows}
+                        data={trips ?? []}
                         numeration
                         viewAll
                         onRowClick={handleAylanmaClick}
@@ -351,7 +332,6 @@ export default function HaydovchiDetail() {
                     />
                 </CardContent>
             </Card>
-
         </div>
     )
 }

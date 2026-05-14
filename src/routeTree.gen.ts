@@ -76,6 +76,9 @@ const MainSettingsExpenseTypesIndexLazyImport = createFileRoute(
 const MainSettingsDriversIndexLazyImport = createFileRoute(
   '/_main/_settings/drivers/',
 )()
+const MainSettingsDriverSalariesIndexLazyImport = createFileRoute(
+  '/_main/_settings/driver-salaries/',
+)()
 const MainSettingsCustomersIndexLazyImport = createFileRoute(
   '/_main/_settings/customers/',
 )()
@@ -287,6 +290,16 @@ const MainSettingsDriversIndexLazyRoute =
     getParentRoute: () => MainRoute,
   } as any).lazy(() =>
     import('./routes/_main/_settings/drivers/index.lazy').then((d) => d.Route),
+  )
+
+const MainSettingsDriverSalariesIndexLazyRoute =
+  MainSettingsDriverSalariesIndexLazyImport.update({
+    path: '/driver-salaries/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/_settings/driver-salaries/index.lazy').then(
+      (d) => d.Route,
+    ),
   )
 
 const MainSettingsCustomersIndexLazyRoute =
@@ -594,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainSettingsCustomersIndexLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/_settings/driver-salaries/': {
+      id: '/_main/_settings/driver-salaries/'
+      path: '/driver-salaries'
+      fullPath: '/driver-salaries'
+      preLoaderRoute: typeof MainSettingsDriverSalariesIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/_settings/drivers/': {
       id: '/_main/_settings/drivers/'
       path: '/drivers'
@@ -763,6 +783,7 @@ interface MainRouteChildren {
   MainManagersTransportsIndexLazyRoute: typeof MainManagersTransportsIndexLazyRoute
   MainSettingsCargoTypesIndexLazyRoute: typeof MainSettingsCargoTypesIndexLazyRoute
   MainSettingsCustomersIndexLazyRoute: typeof MainSettingsCustomersIndexLazyRoute
+  MainSettingsDriverSalariesIndexLazyRoute: typeof MainSettingsDriverSalariesIndexLazyRoute
   MainSettingsDriversIndexLazyRoute: typeof MainSettingsDriversIndexLazyRoute
   MainSettingsExpenseTypesIndexLazyRoute: typeof MainSettingsExpenseTypesIndexLazyRoute
   MainSettingsLocationsIndexLazyRoute: typeof MainSettingsLocationsIndexLazyRoute
@@ -805,6 +826,8 @@ const MainRouteChildren: MainRouteChildren = {
   MainManagersTransportsIndexLazyRoute: MainManagersTransportsIndexLazyRoute,
   MainSettingsCargoTypesIndexLazyRoute: MainSettingsCargoTypesIndexLazyRoute,
   MainSettingsCustomersIndexLazyRoute: MainSettingsCustomersIndexLazyRoute,
+  MainSettingsDriverSalariesIndexLazyRoute:
+    MainSettingsDriverSalariesIndexLazyRoute,
   MainSettingsDriversIndexLazyRoute: MainSettingsDriversIndexLazyRoute,
   MainSettingsExpenseTypesIndexLazyRoute:
     MainSettingsExpenseTypesIndexLazyRoute,
@@ -855,6 +878,7 @@ export interface FileRoutesByFullPath {
   '/transports': typeof MainManagersTransportsIndexLazyRoute
   '/cargo-types': typeof MainSettingsCargoTypesIndexLazyRoute
   '/customers': typeof MainSettingsCustomersIndexLazyRoute
+  '/driver-salaries': typeof MainSettingsDriverSalariesIndexLazyRoute
   '/drivers': typeof MainSettingsDriversIndexLazyRoute
   '/expense-types': typeof MainSettingsExpenseTypesIndexLazyRoute
   '/locations': typeof MainSettingsLocationsIndexLazyRoute
@@ -898,6 +922,7 @@ export interface FileRoutesByTo {
   '/transports': typeof MainManagersTransportsIndexLazyRoute
   '/cargo-types': typeof MainSettingsCargoTypesIndexLazyRoute
   '/customers': typeof MainSettingsCustomersIndexLazyRoute
+  '/driver-salaries': typeof MainSettingsDriverSalariesIndexLazyRoute
   '/drivers': typeof MainSettingsDriversIndexLazyRoute
   '/expense-types': typeof MainSettingsExpenseTypesIndexLazyRoute
   '/locations': typeof MainSettingsLocationsIndexLazyRoute
@@ -944,6 +969,7 @@ export interface FileRoutesById {
   '/_main/_managers/transports/': typeof MainManagersTransportsIndexLazyRoute
   '/_main/_settings/cargo-types/': typeof MainSettingsCargoTypesIndexLazyRoute
   '/_main/_settings/customers/': typeof MainSettingsCustomersIndexLazyRoute
+  '/_main/_settings/driver-salaries/': typeof MainSettingsDriverSalariesIndexLazyRoute
   '/_main/_settings/drivers/': typeof MainSettingsDriversIndexLazyRoute
   '/_main/_settings/expense-types/': typeof MainSettingsExpenseTypesIndexLazyRoute
   '/_main/_settings/locations/': typeof MainSettingsLocationsIndexLazyRoute
@@ -990,6 +1016,7 @@ export interface FileRouteTypes {
     | '/transports'
     | '/cargo-types'
     | '/customers'
+    | '/driver-salaries'
     | '/drivers'
     | '/expense-types'
     | '/locations'
@@ -1032,6 +1059,7 @@ export interface FileRouteTypes {
     | '/transports'
     | '/cargo-types'
     | '/customers'
+    | '/driver-salaries'
     | '/drivers'
     | '/expense-types'
     | '/locations'
@@ -1076,6 +1104,7 @@ export interface FileRouteTypes {
     | '/_main/_managers/transports/'
     | '/_main/_settings/cargo-types/'
     | '/_main/_settings/customers/'
+    | '/_main/_settings/driver-salaries/'
     | '/_main/_settings/drivers/'
     | '/_main/_settings/expense-types/'
     | '/_main/_settings/locations/'
@@ -1152,6 +1181,7 @@ export const routeTree = rootRoute
         "/_main/_managers/transports/",
         "/_main/_settings/cargo-types/",
         "/_main/_settings/customers/",
+        "/_main/_settings/driver-salaries/",
         "/_main/_settings/drivers/",
         "/_main/_settings/expense-types/",
         "/_main/_settings/locations/",
@@ -1264,6 +1294,10 @@ export const routeTree = rootRoute
     },
     "/_main/_settings/customers/": {
       "filePath": "_main/_settings/customers/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/_settings/driver-salaries/": {
+      "filePath": "_main/_settings/driver-salaries/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/_settings/drivers/": {
