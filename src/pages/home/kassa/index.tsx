@@ -1,3 +1,5 @@
+import ParamDateRange from "@/components/as-params/date-picker-range"
+import DownloadAsExcel from "@/components/download-as-excel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,11 +7,12 @@ import { DataTable } from "@/components/ui/datatable"
 import { CHECKOUT_MAIN, DRIVERS_BALANCE } from "@/constants/api-endpoints"
 const TRANSACTIONS = "transaction"
 import { useGet } from "@/hooks/useGet"
+import { useHasAction } from "@/constants/useUser"
 import { formatMoney } from "@/lib/format-money"
+import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useHasAction } from "@/constants/useUser"
-import { Plus } from "lucide-react"
+import { Plus, X } from "lucide-react"
 import { useMemo } from "react"
 
 type Transaction = {
@@ -94,11 +97,26 @@ const Kassa = () => {
     const search = useSearch({ strict: false }) as any
     const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
     const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
+    const driverFilterId = search.driver ? Number(search.driver) : null
+    const filterParams = {
+        page: search.page,
+        page_size: search.page_size,
+        from_date: search.from_date,
+        to_date: search.to_date,
+        driver: search.driver,
+    }
     const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
         TRANSACTIONS,
-        { params: { page: search.page, page_size: search.page_size } },
+        { params: filterParams },
     )
     const drivers = driversData ?? []
+    const selectedDriver = useMemo(
+        () =>
+            driverFilterId != null
+                ? drivers.find((d) => d.id === driverFilterId)
+                : null,
+        [drivers, driverFilterId],
+    )
 
     const driversTotal = useMemo(
         () =>
@@ -111,14 +129,14 @@ const Kassa = () => {
 
     const handleDriverClick = (driver: DriverRow) => {
         if (!driver.id) return
+        const next = driverFilterId === driver.id ? undefined : driver.id
         navigate({
-            to: "/manager-trips/$id",
-            params: { id: driver.id.toString() },
-            search: {
-                driver_id: driver.id,
-                name: driver.full_name,
-            } as any,
+            search: { ...search, driver: next, page: undefined } as any,
         })
+    }
+
+    const clearDriverFilter = () => {
+        navigate({ search: { ...search, driver: undefined } as any })
     }
 
     return (
@@ -169,23 +187,34 @@ const Kassa = () => {
                                 Batafsil
                             </p>
                             <div className="space-y-1">
-                                {drivers.map((driver, i) => (
-                                    <div
-                                        key={driver.id}
-                                        onClick={() => handleDriverClick(driver)}
-                                        className="flex items-center justify-between py-1.5 px-2 rounded-md hover:bg-muted/80 transition-colors cursor-pointer"
-                                    >
-                                        <span className="text-sm flex items-center gap-2">
-                                            <span className="text-xs text-muted-foreground w-4 text-right">
-                                                {i + 1}
+                                {drivers.map((driver, i) => {
+                                    const isActive =
+                                        driverFilterId === driver.id
+                                    return (
+                                        <div
+                                            key={driver.id}
+                                            onClick={() =>
+                                                handleDriverClick(driver)
+                                            }
+                                            className={cn(
+                                                "flex items-center justify-between py-1.5 px-2 rounded-md transition-colors cursor-pointer",
+                                                isActive
+                                                    ? "bg-primary/10 text-primary"
+                                                    : "hover:bg-muted/80",
+                                            )}
+                                        >
+                                            <span className="text-sm flex items-center gap-2">
+                                                <span className="text-xs text-muted-foreground w-4 text-right">
+                                                    {i + 1}
+                                                </span>
+                                                {driver.full_name}
                                             </span>
-                                            {driver.full_name}
-                                        </span>
-                                        <span className="text-sm font-medium">
-                                            {driver.balance} so'm
-                                        </span>
-                                    </div>
-                                ))}
+                                            <span className="text-sm font-medium">
+                                                {driver.balance} so'm
+                                            </span>
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
                     </CardContent>
@@ -205,10 +234,39 @@ const Kassa = () => {
                         pageSizeParamName: "page_size",
                     }}
                     head={
-                        <div className="flex justify-between items-center gap-3 mb-3">
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 <h1 className="text-lg">Kiritilgan summa</h1>
-                                <Badge>{formatMoney(transactionsData?.count)}</Badge>
+                                <Badge>
+                                    {formatMoney(transactionsData?.count)}
+                                </Badge>
+                                {selectedDriver && (
+                                    <Badge
+                                        variant="outline"
+                                        className="gap-1 pr-1"
+                                    >
+                                        Haydovchi: {selectedDriver.full_name}
+                                        <button
+                                            type="button"
+                                            onClick={clearDriverFilter}
+                                            className="ml-1 p-0.5 rounded hover:bg-muted"
+                                            aria-label="Filterni tozalash"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </Badge>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <ParamDateRange
+                                    from="from_date"
+                                    to="to_date"
+                                />
+                                <DownloadAsExcel
+                                    url={`${TRANSACTIONS}/excel`}
+                                    name="Kassa"
+                                    params={filterParams}
+                                />
                             </div>
                         </div>
                     }

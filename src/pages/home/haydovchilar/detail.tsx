@@ -25,7 +25,7 @@ import {
     TrendingDown,
     TrendingUp,
 } from "lucide-react"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 
 type DriverBalance = { id: number; full_name: string; balance: string }
 
@@ -60,6 +60,84 @@ type AylanmaRow = ManagerTrips & {
     orders_count: number
     driver_earnings: number
 }
+
+const ORDER_STATUS_LABEL: Record<
+    number,
+    { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+> = {
+    0: { label: "Kutilmoqda", variant: "secondary" },
+    1: { label: "Boshlandi", variant: "outline" },
+    2: { label: "Yo'lda", variant: "outline" },
+    3: { label: "Yakunlandi", variant: "default" },
+    4: { label: "Bekor qilindi", variant: "destructive" },
+}
+
+const useOrderCols = () =>
+    useMemo<ColumnDef<OrderRow>[]>(
+        () => [
+            {
+                header: "Yo'nalish",
+                id: "route",
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {row.original.loading_name || "—"} →{" "}
+                        {row.original.unloading_name || "—"}
+                    </span>
+                ),
+            },
+            {
+                header: "Sana",
+                accessorKey: "date",
+                cell: ({ row }) => formatDate(row.original.date),
+            },
+            {
+                header: "Yuk turi",
+                accessorKey: "cargo_type_name",
+                cell: ({ row }) => row.original.cargo_type_name || "—",
+            },
+            {
+                header: "Status",
+                accessorKey: "status",
+                cell: ({ row }) => {
+                    const s = ORDER_STATUS_LABEL[row.original.status]
+                    return s ? (
+                        <Badge variant={s.variant}>{s.label}</Badge>
+                    ) : (
+                        "—"
+                    )
+                },
+            },
+            {
+                header: "Summa (UZS)",
+                accessorKey: "payment_amount_uzs",
+                cell: ({ row }) => {
+                    const v = Number(row.original.payment_amount_uzs ?? 0)
+                    return v > 0 ? (
+                        <span className="text-green-500 font-medium whitespace-nowrap">
+                            {formatMoney(v)}
+                        </span>
+                    ) : (
+                        <span className="text-muted-foreground">—</span>
+                    )
+                },
+            },
+            {
+                header: "Summa (USD)",
+                accessorKey: "payment_amount_usd",
+                cell: ({ row }) => {
+                    const v = Number(row.original.payment_amount_usd ?? 0)
+                    return v > 0 ? (
+                        <span className="text-green-500 font-medium whitespace-nowrap">
+                            {formatMoney(v)}
+                        </span>
+                    ) : (
+                        <span className="text-muted-foreground">—</span>
+                    )
+                },
+            },
+        ],
+        [],
+    )
 
 type LedgerEntry = {
     id: string
@@ -275,6 +353,8 @@ export default function HaydovchiDetail() {
     const driverId = Number(id)
 
     const { openModal: openSalaryModal } = useModal("driver-salary-history")
+    const { openModal: openOrdersModal } = useModal("aylanma-orders")
+    const [selectedTripIdx, setSelectedTripIdx] = useState<number | null>(null)
 
     const { data: drivers } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
@@ -374,6 +454,26 @@ export default function HaydovchiDetail() {
 
     const aylanmaCols = useAylanmaCols()
     const ledgerCols = useLedgerCols()
+    const orderCols = useOrderCols()
+
+    const selectedTrip =
+        selectedTripIdx != null ? aylanmaRows[selectedTripIdx] : null
+    const selectedOrders =
+        selectedTripIdx != null
+            ? orderQueries[selectedTripIdx]?.data?.results ?? []
+            : []
+    const selectedOrdersLoading =
+        selectedTripIdx != null
+            ? orderQueries[selectedTripIdx]?.isLoading ?? false
+            : false
+
+    const handleAylanmaClick = (row: AylanmaRow) => {
+        const idx = aylanmaRows.findIndex((r) => r.id === row.id)
+        if (idx >= 0) {
+            setSelectedTripIdx(idx)
+            openOrdersModal()
+        }
+    }
 
     const totals = useMemo(() => {
         const tripIncomeUzs = trips.reduce(
@@ -552,6 +652,7 @@ export default function HaydovchiDetail() {
                         data={aylanmaRows}
                         numeration
                         viewAll
+                        onRowClick={handleAylanmaClick}
                         wrapperClassName="p-0 bg-transparent"
                     />
                 </CardContent>
@@ -566,6 +667,25 @@ export default function HaydovchiDetail() {
                     loading={salaryLoading || tripsLoading}
                     columns={ledgerCols}
                     data={ledger}
+                    numeration
+                    viewAll
+                />
+            </Modal>
+
+            <Modal
+                modalKey="aylanma-orders"
+                size="max-w-4xl"
+                title={
+                    selectedTrip
+                        ? `Reyslar — Aylanma #${selectedTrip.trip_index} (ID:${selectedTrip.id})`
+                        : "Reyslar"
+                }
+                onClose={() => setSelectedTripIdx(null)}
+            >
+                <DataTable
+                    loading={selectedOrdersLoading}
+                    columns={orderCols}
+                    data={selectedOrders}
                     numeration
                     viewAll
                 />
