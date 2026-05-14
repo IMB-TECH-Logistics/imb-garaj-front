@@ -1,42 +1,33 @@
+import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     DRIVERS_BALANCE,
     MANAGERS_DRIVER_SALARY,
     MANAGERS_ORDERS,
     MANAGERS_TRIPS,
     SETTINGS_DRIVERS,
-    TRIPS_DRIVER_STATS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
+import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import axiosInstance from "@/services/axios-instance"
 import { useQueries } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { ArrowLeft, Calendar, Phone, Receipt, Route, TrendingDown, TrendingUp, Wallet } from "lucide-react"
+import {
+    ArrowLeft,
+    Info,
+    Phone,
+    TrendingDown,
+    TrendingUp,
+} from "lucide-react"
 import { useMemo } from "react"
-import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 
 type DriverBalance = { id: number; full_name: string; balance: string }
-
-type DriverStats = {
-    income_total: string | number
-    total_trips: number
-    total_orders: number
-}
-
-type OrderIncome = {
-    id: number
-    payment_type: number | null
-    currency: number
-    currency_course: string | null
-    amount: string
-    category: number
-}
 
 type OrderRow = {
     id: number
@@ -47,14 +38,6 @@ type OrderRow = {
     status: number
     payment_amount_uzs: string | null
     payment_amount_usd: string | null
-    incomes: OrderIncome[]
-}
-
-type FlatReys = OrderRow & {
-    trip_id: number
-    trip_index: number
-    trip_start: string | null
-    trip_end: string | null
 }
 
 type SalaryRow = {
@@ -69,16 +52,23 @@ type SalaryRow = {
 }
 
 type FlatSalary = SalaryRow & {
-    trip_id: number
     trip_index: number
 }
 
-const STATUS_LABEL: Record<number, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-    0: { label: "Kutilmoqda", variant: "secondary" },
-    1: { label: "Boshlandi", variant: "outline" },
-    2: { label: "Yo'lda", variant: "outline" },
-    3: { label: "Yakunlandi", variant: "default" },
-    4: { label: "Bekor qilindi", variant: "destructive" },
+type AylanmaRow = ManagerTrips & {
+    trip_index: number
+    orders_count: number
+    driver_earnings: number
+}
+
+type LedgerEntry = {
+    id: string
+    kind: "income" | "salary"
+    date: string
+    trip_index: number | null
+    amount: number
+    comment?: string | null
+    running: number
 }
 
 function formatMoneyText(n: number): string {
@@ -100,15 +90,23 @@ function formatDate(s?: string | null) {
     })
 }
 
-const useReysCols = () =>
-    useMemo<ColumnDef<FlatReys>[]>(
+function tripStatusLabel(t: ManagerTrips):
+    | { label: string; variant: "default" | "secondary" | "outline" }
+    | null {
+    if (t.end) return { label: "Yakunlandi", variant: "default" }
+    if (t.start) return { label: "Yo'lda", variant: "outline" }
+    return { label: "Kutilmoqda", variant: "secondary" }
+}
+
+const useAylanmaCols = () =>
+    useMemo<ColumnDef<AylanmaRow>[]>(
         () => [
             {
                 header: "Aylanma",
                 accessorKey: "trip_index",
                 cell: ({ row }) => (
                     <Badge variant="outline" className="font-mono">
-                        #{row.original.trip_index} (ID:{row.original.trip_id})
+                        #{row.original.trip_index} (ID:{row.original.id})
                     </Badge>
                 ),
             },
@@ -116,8 +114,8 @@ const useReysCols = () =>
                 header: "Sana oralig'i",
                 id: "trip_range",
                 cell: ({ row }) => {
-                    const s = row.original.trip_start
-                    const e = row.original.trip_end
+                    const s = row.original.start
+                    const e = row.original.end
                     if (!s && !e)
                         return <span className="text-muted-foreground">—</span>
                     return (
@@ -129,25 +127,28 @@ const useReysCols = () =>
             },
             {
                 header: "Yo'nalish",
-                accessorFn: (row) =>
-                    `${row.loading_name || "—"} → ${row.unloading_name || "—"}`,
                 id: "route",
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {row.original.loading || "—"} →{" "}
+                        {row.original.unloading || "—"}
+                    </span>
+                ),
             },
             {
-                header: "Sana",
-                accessorKey: "date",
-                cell: ({ row }) => formatDate(row.original.date),
+                header: "Reyslar",
+                accessorKey: "orders_count",
+                cell: ({ row }) => (
+                    <span className="tabular-nums">
+                        {row.original.orders_count}
+                    </span>
+                ),
             },
             {
-                header: "Yuk turi",
-                accessorKey: "cargo_type_name",
-                cell: ({ row }) => row.original.cargo_type_name || "—",
-            },
-            {
-                header: "Status",
-                accessorKey: "status",
+                header: "Holat",
+                id: "status",
                 cell: ({ row }) => {
-                    const s = STATUS_LABEL[row.original.status]
+                    const s = tripStatusLabel(row.original)
                     return s ? (
                         <Badge variant={s.variant}>{s.label}</Badge>
                     ) : (
@@ -156,27 +157,13 @@ const useReysCols = () =>
                 },
             },
             {
-                header: "Summa (UZS)",
-                accessorKey: "payment_amount_uzs",
+                header: "Haydovchi daromadi",
+                accessorKey: "driver_earnings",
                 cell: ({ row }) => {
-                    const v = Number(row.original.payment_amount_uzs ?? 0)
+                    const v = row.original.driver_earnings
                     return v > 0 ? (
                         <span className="text-green-500 font-medium whitespace-nowrap">
-                            {formatMoney(v)}
-                        </span>
-                    ) : (
-                        <span className="text-muted-foreground">—</span>
-                    )
-                },
-            },
-            {
-                header: "Summa (USD)",
-                accessorKey: "payment_amount_usd",
-                cell: ({ row }) => {
-                    const v = Number(row.original.payment_amount_usd ?? 0)
-                    return v > 0 ? (
-                        <span className="text-green-500 font-medium whitespace-nowrap">
-                            {formatMoney(v)}
+                            {formatMoney(v)} UZS
                         </span>
                     ) : (
                         <span className="text-muted-foreground">—</span>
@@ -186,17 +173,6 @@ const useReysCols = () =>
         ],
         [],
     )
-
-type LedgerEntry = {
-    id: string
-    kind: "income" | "salary"
-    date: string
-    trip_id: number | null
-    trip_index: number | null
-    amount: number
-    comment?: string | null
-    running: number
-}
 
 const useLedgerCols = () =>
     useMemo<ColumnDef<LedgerEntry>[]>(
@@ -298,6 +274,8 @@ export default function HaydovchiDetail() {
     const search = useSearch({ strict: false }) as any
     const driverId = Number(id)
 
+    const { openModal: openSalaryModal } = useModal("driver-salary-history")
+
     const { data: drivers } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
         { params: { page_size: 1000 } },
@@ -308,14 +286,9 @@ export default function HaydovchiDetail() {
     )
 
     const { data: balances } = useGet<DriverBalance[]>(DRIVERS_BALANCE)
-    const balance = useMemo(
+    const apiBalance = useMemo(
         () => balances?.find((b) => b.id === driverId)?.balance ?? "0",
         [balances, driverId],
-    )
-
-    const { data: driverStats } = useGet<DriverStats>(
-        `${TRIPS_DRIVER_STATS}/${driverId}`,
-        { enabled: !!driverId },
     )
 
     const { data: tripsData, isLoading: tripsLoading } = useGet<
@@ -326,7 +299,7 @@ export default function HaydovchiDetail() {
     })
     const trips = tripsData?.results ?? []
 
-    // tartiblangan: eng yangi aylanma yuqorida — index 1 dan boshlab
+    // newest first — index 1 at the top
     const tripsSorted = useMemo(
         () =>
             [...trips].sort((a, b) =>
@@ -367,69 +340,55 @@ export default function HaydovchiDetail() {
         return [...rows]
             .map((r) => ({
                 ...r,
-                trip_id: r.trip ?? 0,
                 trip_index: r.trip != null ? tripIndex.get(r.trip) ?? 0 : 0,
             }))
             .sort((a, b) => (b.created || "").localeCompare(a.created || ""))
     }, [tripsSorted, salaryData])
 
-    const flatReyses = useMemo<FlatReys[]>(() => {
-        const out: FlatReys[] = []
-        tripsSorted.forEach((t, i) => {
-            const q = orderQueries[i]
-            const orders = q?.data?.results ?? []
-            orders.forEach((o) => {
-                out.push({
-                    ...o,
-                    trip_id: t.id ?? 0,
-                    trip_index: i + 1,
-                    trip_start: t.start ?? null,
-                    trip_end: t.end ?? null,
-                })
-            })
+    const aylanmaRows = useMemo<AylanmaRow[]>(() => {
+        const salaryByTrip = new Map<number, number>()
+        ;(salaryData?.results ?? []).forEach((s) => {
+            if (s.trip != null) {
+                salaryByTrip.set(
+                    s.trip,
+                    (salaryByTrip.get(s.trip) ?? 0) +
+                        (Number(s.amount) || 0),
+                )
+            }
         })
-        return out
-    }, [tripsSorted, orderQueries.map((q) => q.dataUpdatedAt).join(",")])
+        return tripsSorted.map((t, i) => {
+            const q = orderQueries[i]
+            return {
+                ...t,
+                trip_index: i + 1,
+                orders_count: q?.data?.results?.length ?? 0,
+                driver_earnings:
+                    t.id != null ? salaryByTrip.get(t.id) ?? 0 : 0,
+            }
+        })
+    }, [
+        tripsSorted,
+        salaryData,
+        orderQueries.map((q) => q.dataUpdatedAt).join(","),
+    ])
 
-    const reysCols = useReysCols()
+    const aylanmaCols = useAylanmaCols()
     const ledgerCols = useLedgerCols()
 
     const totals = useMemo(() => {
-        let uzs = 0
-        let usd = 0
-        flatReyses.forEach((r) => {
-            uzs += Number(r.payment_amount_uzs ?? 0) || 0
-            usd += Number(r.payment_amount_usd ?? 0) || 0
-        })
         const tripIncomeUzs = trips.reduce(
             (acc, t) => acc + Number(t.income_uzs ?? 0),
-            0,
-        )
-        const tripIncomeUsd = trips.reduce(
-            (acc, t) => acc + Number(t.income_usd ?? 0),
-            0,
-        )
-        const tripExpenseUzs = trips.reduce(
-            (acc, t) => acc + Number(t.cash_flow_sum ?? 0),
             0,
         )
         const salaryPaid = flatSalaries.reduce(
             (acc, s) => acc + (Number(s.amount) || 0),
             0,
         )
-        return {
-            ordersUzs: uzs,
-            ordersUsd: usd,
-            tripIncomeUzs,
-            tripIncomeUsd,
-            tripExpenseUzs,
-            salaryPaid,
-        }
-    }, [flatReyses, flatSalaries, trips])
+        return { tripIncomeUzs, salaryPaid }
+    }, [flatSalaries, trips])
 
     // Reys daromadi va oyliklarni xronologik tartibda birlashtirib, har bir
     // qadamdan keyingi balansni hisoblaymiz. Balans = jami daromad − jami oylik.
-
     const ledger = useMemo<LedgerEntry[]>(() => {
         const events: Omit<LedgerEntry, "running">[] = []
         tripsSorted.forEach((t, i) => {
@@ -439,7 +398,6 @@ export default function HaydovchiDetail() {
                     id: `trip-${t.id}`,
                     kind: "income",
                     date: t.end || t.start || "",
-                    trip_id: t.id ?? null,
                     trip_index: i + 1,
                     amount: incomeUzs,
                     comment: "Reys daromadi",
@@ -451,7 +409,6 @@ export default function HaydovchiDetail() {
                 id: `salary-${s.id}`,
                 kind: "salary",
                 date: s.created || "",
-                trip_id: s.trip_id,
                 trip_index: s.trip_index,
                 amount: -(Number(s.amount) || 0),
                 comment: s.comment,
@@ -463,7 +420,6 @@ export default function HaydovchiDetail() {
             running += e.amount
             return { ...e, running }
         })
-        // Eng yangi tepada ko'rinishi uchun teskariga
         return withRunning.reverse()
     }, [tripsSorted, flatSalaries])
 
@@ -478,8 +434,9 @@ export default function HaydovchiDetail() {
             ? `${driver.first_name ?? ""} ${driver.last_name ?? ""}`.trim()
             : "")
 
-    const balanceNum = computedBalance
-
+    const balanceNum = Number.isFinite(computedBalance)
+        ? computedBalance
+        : Number(apiBalance ?? 0)
     const balanceColor =
         balanceNum < 0
             ? "text-red-500"
@@ -487,227 +444,132 @@ export default function HaydovchiDetail() {
               ? "text-green-500"
               : "text-muted-foreground"
 
+    const lastTrip = tripsSorted[0]
+    const lastStatus = lastTrip ? tripStatusLabel(lastTrip) : null
+    const lastDate = lastTrip?.end || lastTrip?.start || null
+
     return (
         <div className="space-y-4 pb-6">
-            {/* Header + Tabs inline */}
-            <Tabs defaultValue="reyslar" className="w-full">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => navigate({ to: "/haydovchilar" })}
-                            className="shrink-0"
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate({ to: "/haydovchilar" })}
+                    className="shrink-0"
+                >
+                    <ArrowLeft size={18} />
+                </Button>
+                <div>
+                    <h1 className="text-xl font-semibold leading-tight">
+                        {fullName || "Haydovchi"}
+                    </h1>
+                    {driver?.driver?.phone && (
+                        <a
+                            href={`tel:${driver.driver.phone}`}
+                            className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mt-0.5"
                         >
-                            <ArrowLeft size={18} />
-                        </Button>
-                        <div>
-                            <h1 className="text-xl font-semibold leading-tight">
-                                {fullName || "Haydovchi"}
-                            </h1>
-                            {driver?.driver?.phone && (
-                                <a
-                                    href={`tel:${driver.driver.phone}`}
-                                    className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mt-0.5"
-                                >
-                                    <Phone size={12} />
-                                    {formatPhoneNumber(driver.driver.phone)}
-                                </a>
+                            <Phone size={12} />
+                            {formatPhoneNumber(driver.driver.phone)}
+                        </a>
+                    )}
+                </div>
+            </div>
+
+            {/* Top cards: Balans + Ohirgi holati */}
+            <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                <Card className="relative overflow-hidden">
+                    <button
+                        type="button"
+                        onClick={() => openSalaryModal()}
+                        className="absolute top-2 right-2 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                        aria-label="Oyliklar tarixi"
+                        title="Oyliklar tarixi"
+                    >
+                        <Info size={14} />
+                    </button>
+                    <CardContent className="p-4">
+                        <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                            Haydovchi balansi
+                        </div>
+                        <div
+                            className={`mt-2 text-2xl font-bold tabular-nums ${balanceColor}`}
+                        >
+                            {formatMoneyText(balanceNum)}
+                            <span className="text-sm font-normal text-muted-foreground ml-1.5">
+                                UZS
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="overflow-hidden">
+                    <CardContent className="p-4">
+                        <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                            Ohirgi holati
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                            {lastStatus ? (
+                                <Badge variant={lastStatus.variant}>
+                                    {lastStatus.label}
+                                </Badge>
+                            ) : (
+                                <span className="text-muted-foreground">
+                                    Aylanmalar yo'q
+                                </span>
+                            )}
+                            {lastDate && (
+                                <span className="text-sm text-muted-foreground tabular-nums">
+                                    {formatDate(lastDate)}
+                                </span>
                             )}
                         </div>
-                    </div>
-                    <TabsList>
-                        <TabsTrigger value="reyslar" className="flex items-center gap-2">
-                            <Receipt size={14} />
-                            Reyslar
-                        </TabsTrigger>
-                        <TabsTrigger value="oylik" className="flex items-center gap-2">
-                            <Calendar size={14} />
-                            Oylik maosh
-                        </TabsTrigger>
-                    </TabsList>
-                </div>
-
-                <TabsContent value="reyslar" className="mt-4 space-y-4">
-                    {/* Stats row */}
-                    <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-                        <StatCard
-                            icon={<Route size={16} />}
-                            label="Aylanmalar"
-                            value={`${driverStats?.total_trips ?? 0}`}
-                            suffix="ta"
-                        />
-                        <StatCard
-                            icon={<Receipt size={16} />}
-                            label="Reyslar"
-                            value={`${driverStats?.total_orders ?? 0}`}
-                            suffix="ta"
-                        />
-                    </div>
-                    <Card>
-                        <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="font-medium">Reyslar ro'yxati</h3>
-                                <span className="text-sm font-normal text-muted-foreground">
-                                    Jami daromad:{" "}
-                                    <span className="text-green-600 font-semibold">
-                                        {formatMoney(
-                                            Number(
-                                                driverStats?.income_total ?? 0,
-                                            ),
-                                        )}{" "}
-                                        UZS
-                                    </span>
-                                </span>
+                        {lastTrip && (lastTrip.loading || lastTrip.unloading) && (
+                            <div className="mt-1 text-sm text-muted-foreground whitespace-nowrap truncate">
+                                {lastTrip.loading || "—"} →{" "}
+                                {lastTrip.unloading || "—"}
                             </div>
-                            <DataTable
-                                loading={tripsLoading || ordersLoading}
-                                columns={reysCols}
-                                data={flatReyses}
-                                numeration
-                                viewAll
-                                wrapperClassName="p-0 bg-transparent"
-                            />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
 
-                <TabsContent value="oylik" className="mt-4 space-y-4">
-                    {/* Ledger */}
+            {/* Aylanmalar table */}
+            <Card>
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium">Aylanmalar ro'yxati</h3>
+                        <span className="text-sm font-normal text-muted-foreground">
+                            Jami daromad:{" "}
+                            <span className="text-green-600 font-semibold">
+                                {formatMoney(totals.tripIncomeUzs)} UZS
+                            </span>
+                        </span>
+                    </div>
                     <DataTable
-                        loading={salaryLoading || tripsLoading}
-                        columns={ledgerCols}
-                        data={ledger}
+                        loading={tripsLoading || ordersLoading}
+                        columns={aylanmaCols}
+                        data={aylanmaRows}
                         numeration
                         viewAll
+                        wrapperClassName="p-0 bg-transparent"
                     />
-                </TabsContent>
-            </Tabs>
+                </CardContent>
+            </Card>
+
+            <Modal
+                modalKey="driver-salary-history"
+                size="max-w-3xl"
+                title="Oyliklar tarixi"
+            >
+                <DataTable
+                    loading={salaryLoading || tripsLoading}
+                    columns={ledgerCols}
+                    data={ledger}
+                    numeration
+                    viewAll
+                />
+            </Modal>
         </div>
-    )
-}
-
-function SummaryLine({
-    label,
-    value,
-    accent,
-}: {
-    label: string
-    value: string
-    accent?: string
-}) {
-    return (
-        <div className="rounded-md border bg-muted/30 px-3 py-2">
-            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                {label}
-            </div>
-            <div className={`font-semibold tabular-nums ${accent ?? ""}`}>{value}</div>
-        </div>
-    )
-}
-
-function SummaryTile({
-    icon,
-    label,
-    value,
-    suffix,
-    tone,
-    accent,
-}: {
-    icon: React.ReactNode
-    label: string
-    value: string
-    suffix?: string
-    tone: "green" | "red" | "neutral"
-    accent?: boolean
-}) {
-    const toneBg =
-        tone === "green"
-            ? "bg-green-500/10"
-            : tone === "red"
-              ? "bg-red-500/10"
-              : "bg-muted"
-    const toneText =
-        tone === "green"
-            ? "text-green-500"
-            : tone === "red"
-              ? "text-red-500"
-              : "text-muted-foreground"
-    return (
-        <Card
-            className={
-                "overflow-hidden " +
-                (accent
-                    ? tone === "green"
-                        ? "bg-green-500/5 border-green-500/20"
-                        : tone === "red"
-                          ? "bg-red-500/5 border-red-500/20"
-                          : ""
-                    : "")
-            }
-        >
-            <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
-                        {label}
-                    </span>
-                    <span
-                        className={`size-7 rounded-full flex items-center justify-center ${toneBg} ${toneText}`}
-                    >
-                        {icon}
-                    </span>
-                </div>
-                <div className={`mt-2 text-2xl font-bold tabular-nums ${toneText}`}>
-                    {value}
-                    {suffix && (
-                        <span className="text-sm font-normal text-muted-foreground ml-1.5">
-                            {suffix}
-                        </span>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
-
-function StatCard({
-    icon,
-    label,
-    value,
-    suffix,
-    extra,
-    accent,
-}: {
-    icon: React.ReactNode
-    label: string
-    value: React.ReactNode
-    suffix?: string
-    extra?: React.ReactNode
-    accent?: string
-}) {
-    return (
-        <Card className="overflow-hidden">
-            <CardContent className="p-4">
-                <div className="flex items-center justify-between text-muted-foreground">
-                    <span className="text-xs uppercase tracking-wider font-medium">
-                        {label}
-                    </span>
-                    <span className="opacity-70">{icon}</span>
-                </div>
-                <div className={`mt-2 text-xl font-bold tabular-nums ${accent ?? ""}`}>
-                    {value}
-                    {suffix && (
-                        <span className="text-xs font-normal text-muted-foreground ml-1">
-                            {suffix}
-                        </span>
-                    )}
-                </div>
-                {extra && (
-                    <div className={`text-xs mt-0.5 ${accent ?? "text-muted-foreground"}`}>
-                        {extra}
-                    </div>
-                )}
-            </CardContent>
-        </Card>
     )
 }
