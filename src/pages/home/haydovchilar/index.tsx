@@ -6,12 +6,11 @@ import {
     TRIPS_DRIVER_STATS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
+import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useDeferredValue, useEffect, useMemo, useState } from "react"
-import { RatingBellCurve } from "./bell-curve"
+import { useMemo } from "react"
 
 type DriverBalance = { id: number; full_name: string; balance: string }
 
@@ -269,33 +268,6 @@ export default function HaydovchilarList() {
             .sort((a, b) => b._score - a._score)
     }, [data?.results, balances, metricsList])
 
-    const scores = useMemo(() => rows.map((r) => r._score), [rows])
-    const scoreBounds = useMemo<[number, number]>(() => {
-        if (scores.length === 0) return [0, 100]
-        return [Math.min(...scores), Math.max(...scores)]
-    }, [scores])
-
-    const [range, setRange] = useState<[number, number]>(scoreBounds)
-    useEffect(() => {
-        setRange(scoreBounds)
-    }, [scoreBounds[0], scoreBounds[1]])
-
-    const defaultThreshold = useMemo(() => {
-        if (scores.length === 0) return 0
-        const sorted = [...scores].sort((a, b) => a - b)
-        return sorted[Math.floor(sorted.length * 0.1)] ?? sorted[0]
-    }, [scores])
-    const [threshold, setThreshold] = useState<number>(defaultThreshold)
-    useEffect(() => {
-        setThreshold(defaultThreshold)
-    }, [defaultThreshold])
-
-    const deferredRange = useDeferredValue(range)
-    const filteredRows = useMemo(() => {
-        const [lo, hi] = deferredRange
-        return rows.filter((r) => r._score >= lo && r._score <= hi)
-    }, [rows, deferredRange])
-
     const handleRowClick = (row: DriverRow) => {
         navigate({
             to: "/haydovchilar/$id",
@@ -307,40 +279,23 @@ export default function HaydovchilarList() {
     }
 
     return (
-        <div className="space-y-3">
-            <RatingBellCurve
-                scores={scores}
-                range={range}
-                onRangeChange={setRange}
-                threshold={threshold}
-                onThresholdChange={setThreshold}
-                defaultThreshold={defaultThreshold}
-                title="Haydovchilar reytingi"
-                selectedCount={filteredRows.length}
-            />
-            <DataTable
-                loading={isLoading}
-                columns={cols}
-                data={filteredRows}
-                numeration
-                viewAll
-                onRowClick={handleRowClick}
-                head={
-                    <div className="mb-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-xl font-semibold">Haydovchilar</h1>
-                            <Badge className="text-sm">
-                                {formatMoney(filteredRows.length)}
-                                {filteredRows.length !== rows.length && (
-                                    <span className="text-muted-foreground ml-1">
-                                        / {formatMoney(rows.length)}
-                                    </span>
-                                )}
-                            </Badge>
-                        </div>
+        <DataTable
+            loading={isLoading}
+            columns={cols}
+            data={rows}
+            numeration
+            viewAll
+            onRowClick={handleRowClick}
+            head={
+                <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-xl font-semibold">Haydovchilar</h1>
+                        <Badge className="text-sm">
+                            {formatMoney(rows.length)}
+                        </Badge>
                     </div>
-                }
-            />
-        </div>
+                </div>
+            }
+        />
     )
 }
