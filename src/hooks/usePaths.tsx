@@ -155,11 +155,10 @@ export const useItems = () =>
                 items: [
                     { label: "Manzillar", path: "/locations", allowKey: "settings_locations_view" },
                     { label: "Yo'nalishlar", path: "/route-configs", allowKey: "settings_directions_view" },
-                    { label: "Foydalanuvchilar", path: "/users", allowKey: "settings_users_view" },
                     { label: "Haydovchilar", path: "/drivers", allowKey: "settings_drivers_view" },
-                    { label: "Rollar", path: "/roles", allowKey: "settings_roles_view" },
-                    { label: "Xaridorlar", path: "/customers", allowKey: "settings_customers_view" },
                     { label: "Avtomobillar", path: "/vehicles", allowKey: "settings_vehicles_view" },
+                    { label: "Foydalanuvchilar", path: "/users", allowKey: "settings_users_view" },
+                    { label: "Mijozlar", path: "/customers", allowKey: "settings_customers_view" },
                     { label: "Mashina turlari", path: "/vehicle-types", allowKey: "settings_vehicle_types_view" },
                     { label: "Yuk turi", path: "/cargo-types", allowKey: "settings_cargo_types_view" },
                     { label: "To'lov turlari", path: "/payment-types", allowKey: "settings_payment_types_view" },
