@@ -46,7 +46,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Reys (Band/Bo'sh)",
+                header: "Reys (Yukli/Yuksiz)",
                 accessorKey: "order_count_busy",
                 enableSorting: true,
                 cell: ({ row }) => (

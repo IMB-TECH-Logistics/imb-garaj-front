@@ -61,10 +61,10 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                     const data = row.original;
                     if (data.is_summary) return null;
                     if (data.type === 2) {
-                        return <Badge variant="secondary">Bo'sh</Badge>
+                        return <Badge variant="secondary">Yuksiz</Badge>
                     }
                     if (data.type === 1 && !data.cargo_type_name) {
-                        return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">Band</Badge>
+                        return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">Yukli</Badge>
                     }
                     return <span>{data.cargo_type_name || "—"}</span>
                 },

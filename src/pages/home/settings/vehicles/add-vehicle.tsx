@@ -18,8 +18,8 @@ const FUEL_OPTIONS = [
 ]
 
 const STATUS_OPTIONS = [
-    { value: 1, label: "Band" },
-    { value: 2, label: "Bo'sh" },
+    { value: 1, label: "Yukli" },
+    { value: 2, label: "Yuksiz" },
     { value: 3, label: "Ta'mirda" },
 ]
 

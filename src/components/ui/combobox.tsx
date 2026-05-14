@@ -158,22 +158,28 @@ export function Combobox<T extends Record<string, any>>({
                     <CommandList>
                         <CommandEmpty>{"Mavjud emas"}</CommandEmpty>
                         <CommandGroup>
-                            {sortedOptions?.map((d, i) => (
-                                <CommandItem
-                                    key={i}
-                                    onSelect={() => handleSelect(d)}
-                                >
-                                    {d[labelKey]}
-                                    <CheckIcon
-                                        className={cn(
-                                            "ml-auto h-4 w-4",
-                                            value == d[valueKey] ?
-                                                "opacity-100"
-                                            :   "opacity-0",
-                                        )}
-                                    />
-                                </CommandItem>
-                            ))}
+                            {sortedOptions?.map((d, i) => {
+                                const itemId = String(d[valueKey] ?? i)
+                                const itemLabel = String(d[labelKey] ?? "")
+                                return (
+                                    <CommandItem
+                                        key={itemId}
+                                        value={itemId}
+                                        keywords={[itemLabel]}
+                                        onSelect={() => handleSelect(d)}
+                                    >
+                                        {d[labelKey]}
+                                        <CheckIcon
+                                            className={cn(
+                                                "ml-auto h-4 w-4",
+                                                value == d[valueKey] ?
+                                                    "opacity-100"
+                                                :   "opacity-0",
+                                            )}
+                                        />
+                                    </CommandItem>
+                                )
+                            })}
 
                             {isLoading ?
                                 <div className="space-y-1">

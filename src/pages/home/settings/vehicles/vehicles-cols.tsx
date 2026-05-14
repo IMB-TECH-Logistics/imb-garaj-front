@@ -8,8 +8,8 @@ const FUEL_LABELS: Record<string, string> = {
 }
 
 const STATUS_LABELS: Record<number, string> = {
-    1: "Band",
-    2: "Bo'sh",
+    1: "Yukli",
+    2: "Yuksiz",
     3: "Ta'mirda",
 }
 

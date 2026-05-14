@@ -8,8 +8,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
 export const STATUS_LABELS: any = {
-    1: "Band",
-    2: "Bo'sh",
+    1: "Yukli",
+    2: "Yuksiz",
     3: "Ta'mirda",
 }
 
