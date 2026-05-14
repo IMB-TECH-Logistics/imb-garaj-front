@@ -46,12 +46,12 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Reys (Yukli/Yuksiz)",
-                accessorKey: "order_count_busy",
+                header: "Reys (Yuksiz/Yukli)",
+                accessorKey: "order_count_empty",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="text-sm border py-1 px-2 rounded bg-muted">
-                        {row.original.order_count_busy} / {row.original.order_count_empty}
+                        {row.original.order_count_empty} / {row.original.order_count_busy}
                     </span>
                 ),
             },

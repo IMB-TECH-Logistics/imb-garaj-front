@@ -113,6 +113,21 @@ const useReysCols = () =>
                 ),
             },
             {
+                header: "Sana oralig'i",
+                id: "trip_range",
+                cell: ({ row }) => {
+                    const s = row.original.trip_start
+                    const e = row.original.trip_end
+                    if (!s && !e)
+                        return <span className="text-muted-foreground">—</span>
+                    return (
+                        <span className="whitespace-nowrap tabular-nums">
+                            {formatDate(s)} → {formatDate(e)}
+                        </span>
+                    )
+                },
+            },
+            {
                 header: "Yo'nalish",
                 accessorFn: (row) =>
                     `${row.loading_name || "—"} → ${row.unloading_name || "—"}`,
@@ -474,35 +489,33 @@ export default function HaydovchiDetail() {
 
     return (
         <div className="space-y-4 pb-6">
-            {/* Header */}
-            <div className="flex items-center gap-3">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigate({ to: "/haydovchilar" })}
-                    className="shrink-0"
-                >
-                    <ArrowLeft size={18} />
-                </Button>
-                <div>
-                    <h1 className="text-xl font-semibold leading-tight">
-                        {fullName || "Haydovchi"}
-                    </h1>
-                    {driver?.driver?.phone && (
-                        <a
-                            href={`tel:${driver.driver.phone}`}
-                            className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mt-0.5"
-                        >
-                            <Phone size={12} />
-                            {formatPhoneNumber(driver.driver.phone)}
-                        </a>
-                    )}
-                </div>
-            </div>
-
-            {/* Tabs: Reyslar / Oylik maosh */}
+            {/* Header + Tabs inline */}
             <Tabs defaultValue="reyslar" className="w-full">
                 <div className="flex items-center justify-between flex-wrap gap-3">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => navigate({ to: "/haydovchilar" })}
+                            className="shrink-0"
+                        >
+                            <ArrowLeft size={18} />
+                        </Button>
+                        <div>
+                            <h1 className="text-xl font-semibold leading-tight">
+                                {fullName || "Haydovchi"}
+                            </h1>
+                            {driver?.driver?.phone && (
+                                <a
+                                    href={`tel:${driver.driver.phone}`}
+                                    className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mt-0.5"
+                                >
+                                    <Phone size={12} />
+                                    {formatPhoneNumber(driver.driver.phone)}
+                                </a>
+                            )}
+                        </div>
+                    </div>
                     <TabsList>
                         <TabsTrigger value="reyslar" className="flex items-center gap-2">
                             <Receipt size={14} />

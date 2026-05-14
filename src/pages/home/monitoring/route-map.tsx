@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils"
-import maplibregl from "maplibre-gl"
 import "maplibre-gl/dist/maplibre-gl.css"
 import { useEffect, useMemo, useRef } from "react"
 import Map, {
@@ -10,22 +9,14 @@ import Map, {
     Source,
 } from "react-map-gl/maplibre"
 
-const OSM_STYLE: maplibregl.StyleSpecification = {
-    version: 8,
-    sources: {
-        osm: {
-            type: "raster",
-            tiles: [
-                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            ],
-            tileSize: 256,
-            attribution: "© OpenStreetMap",
-        },
-    },
-    layers: [{ id: "osm", type: "raster", source: "osm" }],
-}
+const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron"
+
+const LOCALIZED_TEXT_FIELD: any = [
+    "coalesce",
+    ["get", "name:latin"],
+    ["get", "name:en"],
+    ["get", "name"],
+]
 
 const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 
@@ -129,8 +120,22 @@ export default function RouteMap({
                     longitude: DEFAULT_CENTER.lng,
                     zoom: 11,
                 }}
-                mapStyle={OSM_STYLE as never}
+                mapStyle={MAP_STYLE_URL}
                 style={{ width: "100%", height: "100%" }}
+                onLoad={(e) => {
+                    const map = e.target
+                    const layers = map.getStyle().layers ?? []
+                    for (const layer of layers) {
+                        if (layer.type !== "symbol") continue
+                        const hasText = (layer.layout as any)?.["text-field"]
+                        if (!hasText) continue
+                        map.setLayoutProperty(
+                            layer.id,
+                            "text-field",
+                            LOCALIZED_TEXT_FIELD,
+                        )
+                    }
+                }}
             >
                 <NavigationControl
                     position="bottom-right"
