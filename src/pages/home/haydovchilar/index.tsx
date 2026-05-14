@@ -1,19 +1,28 @@
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
+import {
+    DRIVERS_BALANCE,
+    SETTINGS_DRIVERS,
+    TRIPS_DRIVER_STATS,
+} from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { ColumnDef } from "@tanstack/react-table"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useDeferredValue, useEffect, useMemo, useState } from "react"
 import { RatingBellCurve } from "./bell-curve"
-import {
-    DriverMetrics,
-    MOCK_DRIVERS,
-    MOCK_DRIVER_BALANCES,
-    MOCK_DRIVER_METRICS,
-} from "./mock-data"
 
 type DriverBalance = { id: number; full_name: string; balance: string }
+
+type DriverMetrics = {
+    id: number
+    completed_trips?: number
+    revenue?: number
+    fuel_per_100km?: number
+    coverage?: number
+    on_time_rate?: number
+}
 
 type DriverRow = DriversType & {
     _balance: number
@@ -182,12 +191,21 @@ const useCols = () =>
 
 export default function HaydovchilarList() {
     const navigate = useNavigate()
+    const search = useSearch({ strict: false }) as any
     const cols = useCols()
 
-    const data = { results: MOCK_DRIVERS }
-    const isLoading = false
-    const balances: DriverBalance[] = MOCK_DRIVER_BALANCES
-    const metricsList: DriverMetrics[] = MOCK_DRIVER_METRICS
+    const { data, isLoading } = useGet<ListResponse<DriversType>>(
+        SETTINGS_DRIVERS,
+        {
+            params: {
+                search: search.driver_search,
+                page: search.page,
+                page_size: search.page_size,
+            },
+        },
+    )
+    const { data: balances } = useGet<DriverBalance[]>(DRIVERS_BALANCE)
+    const { data: metricsList } = useGet<DriverMetrics[]>(TRIPS_DRIVER_STATS)
 
     const rows = useMemo<DriverRow[]>(() => {
         const drivers = data?.results ?? []
