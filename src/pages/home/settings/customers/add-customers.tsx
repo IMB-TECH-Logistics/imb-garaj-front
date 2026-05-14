@@ -91,6 +91,7 @@ const AddCustomerModal = () => {
                     />
 
                     <FormInput
+                        required
                         name="nds_percent"
                         label="NDS foizi (%)"
                         methods={form}
