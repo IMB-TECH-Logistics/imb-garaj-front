@@ -121,6 +121,29 @@ export const useColumnsManagersTrips = (opts?: {
                 ),
             },
             {
+                id: "fuel_per_100km",
+                header: "100 km ga sarf (l)",
+                enableSorting: true,
+                accessorFn: (row) => {
+                    const startFuel = Number((row as any).start_fuel ?? 0)
+                    const endFuel = Number((row as any).end_fuel ?? 0)
+                    const distance = Number(row.end_mileage ?? 0) - Number(row.start_mileage ?? 0)
+                    const liters = startFuel - endFuel
+                    if (distance <= 0 || liters <= 0) return 0
+                    return (liters / distance) * 100
+                },
+                cell: ({ row }) => {
+                    const startFuel = Number((row.original as any).start_fuel ?? 0)
+                    const endFuel = Number((row.original as any).end_fuel ?? 0)
+                    const distance =
+                        Number(row.original.end_mileage ?? 0) -
+                        Number(row.original.start_mileage ?? 0)
+                    const liters = startFuel - endFuel
+                    if (distance <= 0 || liters <= 0) return <div>-</div>
+                    return <div>{((liters / distance) * 100).toFixed(1)}</div>
+                },
+            },
+            {
                 accessorKey: "income_uzs",
                 header: "Tushum (uzs)",
                 enableSorting: true,
