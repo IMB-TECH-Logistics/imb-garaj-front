@@ -62,25 +62,6 @@ const useCols = () =>
     useMemo<ColumnDef<DriverRow>[]>(
         () => [
             {
-                header: "Reyting",
-                accessorKey: "_score",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const s = Math.round(row.original._score)
-                    const t = tier(row.original._score)
-                    return (
-                        <div className="flex items-center gap-2">
-                            <span
-                                className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-[11px] font-bold ${t.cls}`}
-                            >
-                                {t.label}
-                            </span>
-                            <span className="tabular-nums font-semibold">{s}</span>
-                        </div>
-                    )
-                },
-            },
-            {
                 header: "Ism",
                 accessorKey: "first_name",
                 enableSorting: true,
@@ -182,6 +163,25 @@ const useCols = () =>
                         >
                             {formatMoney(v)} so'm
                         </span>
+                    )
+                },
+            },
+            {
+                header: "Reyting",
+                accessorKey: "_score",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const s = Math.round(row.original._score)
+                    const t = tier(row.original._score)
+                    return (
+                        <div className="flex items-center gap-2">
+                            <span
+                                className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-[11px] font-bold ${t.cls}`}
+                            >
+                                {t.label}
+                            </span>
+                            <span className="tabular-nums font-semibold">{s}</span>
+                        </div>
                     )
                 },
             },
