@@ -47,7 +47,7 @@ const AddExpenseModal = () => {
 
     const { handleSubmit, control, reset } = form
 
-    const { data: vehicles } = useGet<SelectItem[]>("common/selectable/vehicle", {
+    const { data: vehicles } = useGet<SelectItem[]>("selectable/vehicle", {
         params: { model_name: "vehicle" },
     })
 

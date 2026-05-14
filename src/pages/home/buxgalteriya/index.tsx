@@ -1,7 +1,7 @@
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import {
-    MANAGERS_REYS,
+    MANAGERS_RUNS,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINGS_SELECTABLE_DISTRICT,
     SETTINGS_SELECTABLE_CARGO_TYPE,
@@ -36,7 +36,7 @@ const BuxgalteriyaPage = () => {
     const { data: cargoTypes } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CARGO_TYPE)
 
     const { data, isLoading } = useGet<ListResponse<ReysOrder>>(
-        MANAGERS_REYS,
+        MANAGERS_RUNS,
         {
             params: {
                 from_date: search?.from_date,
@@ -59,7 +59,7 @@ const BuxgalteriyaPage = () => {
     }
 
     const handleEdit = (row: { original: ReysOrder }) => {
-        setData(MANAGERS_REYS, row.original)
+        setData(MANAGERS_RUNS, row.original)
         openModal()
     }
 
