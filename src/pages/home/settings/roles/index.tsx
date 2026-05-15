@@ -68,6 +68,7 @@ const RolesPage = () => {
             <Modal
                 title={item?.id ? "Rolllarni tahrirlash" : " Rollarni qo'shish"}
                 modalKey="create"
+                size="max-w-5xl"
             >
                 <AddRolesModal />
             </Modal>

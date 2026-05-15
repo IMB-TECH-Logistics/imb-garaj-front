@@ -8,6 +8,7 @@ import { usePost } from "@/hooks/usePost"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useRef } from "react"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import PermissionField from "./permission-field"
@@ -37,9 +38,40 @@ const UserFormPage = () => {
     const { handleSubmit, control } = form
 
     const selectedRole = useWatch({ control, name: "role" })
-    const selectedRoleName = (userRole?.results as { id: number; name: string }[])
-        ?.find((r) => r.id === selectedRole)?.name
+    const roles = (userRole?.results as RolesType[]) ?? []
+    const selectedRoleName = roles.find(
+        (r) => Number(r.id) === Number(selectedRole),
+    )?.name
     const isDriver = selectedRoleName?.toLowerCase() === "driver"
+
+    // Rol tanlanganda o'sha rolning action'lari default belgilanadi.
+    // Tahrirlashda esa birinchi yuklashda foydalanuvchining saqlangan
+    // action'lari saqlanib qoladi (faqat rol qo'lda o'zgartirilganda
+    // yangi rolning default action'lari qo'yiladi).
+    const prevRoleRef = useRef<number | undefined>(undefined)
+    const keepSavedActionsRef = useRef<boolean>(!!id)
+
+    useEffect(() => {
+        if (!selectedRole || roles.length === 0) return
+        if (id && !userData) return
+
+        if (keepSavedActionsRef.current) {
+            keepSavedActionsRef.current = false
+            prevRoleRef.current = Number(selectedRole)
+            return
+        }
+
+        if (prevRoleRef.current === Number(selectedRole)) return
+        prevRoleRef.current = Number(selectedRole)
+
+        const role = roles.find(
+            (r) => Number(r.id) === Number(selectedRole),
+        )
+        form.setValue("actions", role?.actions ?? [], {
+            shouldDirty: true,
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedRole, userRole, userData, id])
 
     const queryClient = useQueryClient()
 

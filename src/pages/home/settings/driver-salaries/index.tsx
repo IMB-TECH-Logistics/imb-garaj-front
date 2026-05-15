@@ -71,8 +71,8 @@ const DriverSalariesPage = () => {
                 }
             />
             <DeleteModal
-                path={`${DRIVER_SALARIES}/${item?.id}/delete`}
-                id={item?.id}
+                path={DRIVER_SALARIES}
+                id={`${item?.id}/delete`}
                 refetchKeys={[DRIVER_SALARIES]}
             />
             <Modal
