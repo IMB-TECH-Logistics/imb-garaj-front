@@ -88,7 +88,7 @@ const AddDriverSalaryModal = () => {
                 <FormCombobox
                     required
                     control={control}
-                    label="Qaerdan"
+                    label="Qayerdan"
                     name="from_region"
                     options={regionOptions}
                     valueKey="id"
@@ -116,7 +116,7 @@ const AddDriverSalaryModal = () => {
             <FormDatePicker
                 required
                 control={control}
-                label="Amal qila boshlash sanasi"
+                label="Boshlanish sanasi"
                 name="valid_from"
                 placeholder="Sanani tanlang"
                 className="w-full"

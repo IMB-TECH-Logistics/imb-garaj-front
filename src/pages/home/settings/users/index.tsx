@@ -55,6 +55,7 @@ const UsersPage = () => {
                         searchKey="first_name"
                         pageKey="page"
                         onAdd={hasControl ? () => navigate({ to: "/users/create" }) : undefined}
+                        count={data?.count}
                     />
                 }
             />

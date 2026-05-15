@@ -170,7 +170,7 @@ export const useItems = () =>
                     { label: "Yuk turi", path: "/cargo-types", allowKey: "settings_cargo_types_view" },
                     { label: "To'lov turlari", path: "/payment-types", allowKey: "settings_payment_types_view" },
                     { label: "Xarajat turlari", path: "/expense-types", allowKey: "settings_expense_types_view" },
-                    { label: "Oylik tariflari", path: "/driver-salaries", allowKey: "settings_driver_salaries_view" },
+                    { label: "Oylik tariflar", path: "/driver-salaries", allowKey: "settings_driver_salaries_view" },
                 ],
             },
         ],

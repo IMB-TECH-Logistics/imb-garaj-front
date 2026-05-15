@@ -125,6 +125,7 @@ const RouteConfigsPage = () => {
                         storeKey={hasControl ? COMMON_DIRECTIONS : undefined}
                         searchKey="route_configs_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

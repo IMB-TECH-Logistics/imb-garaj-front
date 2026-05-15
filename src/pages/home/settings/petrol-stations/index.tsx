@@ -140,6 +140,7 @@ const PetrolStationsPage = () => {
                         }
                         searchKey="petrol_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

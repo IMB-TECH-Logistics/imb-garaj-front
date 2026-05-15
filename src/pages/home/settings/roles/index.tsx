@@ -60,6 +60,7 @@ const RolesPage = () => {
                         storeKey={hasControl ? SETTINGS_ROLES : undefined}
                         searchKey="roles_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

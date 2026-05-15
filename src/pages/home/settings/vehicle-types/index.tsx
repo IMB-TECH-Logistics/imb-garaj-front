@@ -55,11 +55,12 @@ const VehicleTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Rollar"
+                        fileName="Mashina turlari"
                         url="excel"
                         storeKey={hasControl ? SETTINGS_VEHICLE_TYPE : undefined}
                         searchKey="vehicle_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

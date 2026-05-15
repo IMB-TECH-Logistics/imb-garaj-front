@@ -1,5 +1,6 @@
 import ParamInput from "@/components/as-params/input"
 import DownloadAsExcel from "@/components/download-as-excel"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -12,6 +13,7 @@ interface TableHeaderProps {
     searchKey: string
     pageKey: string
     onAdd?: () => void
+    count?: number
 }
 
 const TableHeader = ({
@@ -20,6 +22,7 @@ const TableHeader = ({
     searchKey,
     pageKey,
     onAdd,
+    count,
 }: TableHeaderProps) => {
     const { openModal: openCreateModal } = useModal("create")
     const { clearKey } = useGlobalStore()
@@ -35,10 +38,30 @@ const TableHeader = ({
         openCreateModal()
     }
 
+    const showTitle = count !== undefined
+
     return (
         <div className="flex items-center justify-between gap-3 mb-3">
-            <ParamInput fullWidth searchKey={searchKey} pageKey={pageKey} />
-            <div className="flex items-center gap-3">
+            {showTitle && (
+                <div className="flex items-center gap-2">
+                    <h1 className="text-xl font-semibold">{fileName}</h1>
+                    <Badge className="text-sm">{count}</Badge>
+                </div>
+            )}
+            <div
+                className={
+                    showTitle
+                        ? "flex items-center gap-3 ml-auto"
+                        : "flex items-center justify-between gap-3 w-full"
+                }
+            >
+                <div className={showTitle ? "w-72" : "flex-1"}>
+                    <ParamInput
+                        fullWidth
+                        searchKey={searchKey}
+                        pageKey={pageKey}
+                    />
+                </div>
                 {/* <DownloadAsExcel url={"settings_url"} name={`${fileName}`} /> */}
 
                 {(onAdd || storeKey) && (

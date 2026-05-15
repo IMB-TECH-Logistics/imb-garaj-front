@@ -56,11 +56,12 @@ const ExpensesTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Xarajatlar"
+                        fileName="Xarajat turlari"
                         url="excel"
                         storeKey={hasControl ? SETTINGS_EXPENSES : undefined}
                         searchKey="expense_type"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

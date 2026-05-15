@@ -100,6 +100,7 @@ export function Combobox<T extends Record<string, any>>({
                         className={cn(
                             "flex items-center gap-2 pl-2 ",
                             onAdd && "pr-4",
+                            !!value && isClearIcon && !onAdd && "pr-7",
                         )}
                     >
                         <span className="line-clamp-1 break-all whitespace-pre-wrap ">

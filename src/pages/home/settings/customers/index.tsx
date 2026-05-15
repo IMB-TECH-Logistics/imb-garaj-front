@@ -60,6 +60,7 @@ const Customers = () => {
                         storeKey={hasControl ? SETTINGS_CUSTOMERS : undefined}
                         pageKey="page"
                         searchKey="customer_search"
+                        count={data?.count}
                     />
                 }
             />

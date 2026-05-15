@@ -51,8 +51,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
     const simpleColumns = useColumnsRegionsTable()
     return (
         <div className="h-[500px] flex flex-col   overflow-hidden bg-background">
-            <h3 className="text-lg font-semibold px-3 pt-3">Viloyatlar</h3>
-            <div className="px-3 pb-2">
+            <div className="px-3 pt-3">
                 <TableHeaderLocation
                     disabled={!country_id}
                     storeKey={SETTINGS_REGIONS}
@@ -60,6 +59,8 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                     name="Viloyatlar"
                     searchKey="region_search"
                     pageKey="page"
+                    title="Joylashuvlar"
+                    count={data?.count}
                 />
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar-x ">

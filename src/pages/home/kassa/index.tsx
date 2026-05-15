@@ -50,8 +50,8 @@ const useTransactionCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span>
-                        {formatMoney(Number(row.original.amount))}{" "}
-                        {row.original.currency === 2 ? "USD" : "so'm"}
+                        {formatMoney(Number(row.original.amount))}
+                        {row.original.currency === 2 ? " USD" : ""}
                     </span>
                 ),
             },
@@ -278,7 +278,7 @@ const Kassa = () => {
                                                 {driver.full_name}
                                             </span>
                                             <span className="text-sm font-medium">
-                                                {formatMoney(Number(driver.balance ?? 0))} so'm
+                                                {formatMoney(Number(driver.balance ?? 0))}
                                             </span>
                                         </div>
                                     )

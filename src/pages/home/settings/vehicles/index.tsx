@@ -61,6 +61,7 @@ const VehiclesPage = () => {
                         storeKey={hasControl ? VEHICLES : undefined}
                         searchKey="vehicles_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

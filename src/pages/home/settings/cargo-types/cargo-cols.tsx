@@ -52,11 +52,12 @@ const  CargoPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Yuk"
+                        fileName="Yuk turi"
                         url="excel"
                         storeKey={hasControl ? SETTINGS_CARGO_TYPE : undefined}
                         searchKey="cargo_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

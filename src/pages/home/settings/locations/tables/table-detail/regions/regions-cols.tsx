@@ -6,7 +6,7 @@ export const useColumnsRegionsTable = () => {
         () => [
             {
                 accessorKey: "name",
-                header: "Viloyat nomi",
+                header: "Joylashuv nomi",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="">

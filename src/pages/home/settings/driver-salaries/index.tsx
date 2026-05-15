@@ -9,7 +9,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import TableHeader from "../table-header"
 import AddDriverSalaryModal from "./add-edit"
-import { useDriverSalaryCols, type DriverSalaryRow } from "./cols"
+import { SalaryHistoryPopover, useDriverSalaryCols, type DriverSalaryRow } from "./cols"
 
 const DriverSalariesPage = () => {
     const hasControl = useHasAction("settings_driver_salaries_control")
@@ -48,6 +48,11 @@ const DriverSalariesPage = () => {
                 data={data?.results}
                 onDelete={handleDelete}
                 onEdit={({ original }) => handleEdit(original)}
+                rowAction={(row) =>
+                    (row.amounts?.length ?? 0) > 1 ? (
+                        <SalaryHistoryPopover amounts={row.amounts} />
+                    ) : null
+                }
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -56,11 +61,12 @@ const DriverSalariesPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Oylik tariflari"
+                        fileName="Oylik tariflar"
                         url=""
                         storeKey={hasControl ? DRIVER_SALARIES : undefined}
                         pageKey="page"
                         searchKey="salary_search"
+                        count={data?.count}
                     />
                 }
             />

@@ -60,6 +60,7 @@ const PaymenTypePage = () => {
                         storeKey={hasControl ? SETTINTS_PAYMENT_TYPE : undefined}
                         pageKey="page"
                         searchKey="payment_type"
+                        count={data?.count}
                     />
                 }
             />
