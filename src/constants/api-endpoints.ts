@@ -81,6 +81,7 @@ export const MANAGERS_CASHFLOW_TRIP_STAT = "manager/cashflow/trip"
 export const MANAGERS_CASHFLOW_DRIVER_STAT = "manager/cashflow/driver"
 export const MANAGERS_EXPENSE_CATEGORIES = "manager/expense/category"
 export const MANAGERS_RUNS = "manager/runs"
+export const MANAGERS_RUNS_FILTER_OPTIONS = "manager/runs/filter-options"
 export const MANAGERS_DRIVER_SALARY = "manager/driver-salary"
 
 /** ===== MOBILE (driver app — unchanged) ===== */

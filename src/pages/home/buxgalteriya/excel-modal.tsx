@@ -3,13 +3,8 @@ import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DatePickerWithRange } from "@/components/form/date-range-picker"
-import {
-    MANAGERS_RUNS,
-    SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_CARGO_TYPE,
-} from "@/constants/api-endpoints"
-import { useLoadingPlaces } from "./loading-options"
-import { useGet } from "@/hooks/useGet"
+import { MANAGERS_RUNS } from "@/constants/api-endpoints"
+import { useRunFilterOptions } from "./loading-options"
 import { useModal } from "@/hooks/useModal"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useSearch } from "@tanstack/react-router"
@@ -17,8 +12,6 @@ import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { DateRange } from "react-day-picker"
 import { Download } from "lucide-react"
-
-type SelectItem = { id: number | string; name: string }
 
 const EXCEL_MODAL_KEY = "buxgalteriya-excel"
 
@@ -30,16 +23,6 @@ const toStr = (v: unknown) =>
 const BuxgalteriyaExcelModal = () => {
     const search: any = useSearch({ strict: false })
     const { isOpen, closeModal } = useModal(EXCEL_MODAL_KEY)
-
-    const { data: clients } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
-        enabled: isOpen,
-        params: { model_name: "client" },
-    })
-    const { loadingOptions, unloadingOptions } = useLoadingPlaces(isOpen)
-    const { data: cargoTypes } = useGet<SelectItem[]>(
-        SETTINGS_SELECTABLE_CARGO_TYPE,
-        { enabled: isOpen, params: { model_name: "cargo-type" } },
-    )
 
     const [client, setClient] = useState<string>("")
     const [loading, setLoading] = useState<string>("")
@@ -71,6 +54,18 @@ const BuxgalteriyaExcelModal = () => {
         to_date: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
     }
 
+    const {
+        loadingOptions,
+        unloadingOptions,
+        clientOptions,
+        cargoTypeOptions,
+    } = useRunFilterOptions({
+        from_date: params.from_date,
+        to_date: params.to_date,
+        search: params.search,
+        enabled: isOpen,
+    })
+
     const { trigger, isFetching } = useDownloadAsExcel({
         url: `${MANAGERS_RUNS}/excel`,
         name: "Buxgalteriya",
@@ -92,7 +87,7 @@ const BuxgalteriyaExcelModal = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <Combobox
                         label="Firma nomi"
-                        options={clients || []}
+                        options={clientOptions}
                         value={client}
                         setValue={(v: any) => setClient(toStr(v))}
                         labelKey="name"
@@ -100,7 +95,7 @@ const BuxgalteriyaExcelModal = () => {
                     />
                     <Combobox
                         label="Yuk turi"
-                        options={cargoTypes || []}
+                        options={cargoTypeOptions}
                         value={cargoType}
                         setValue={(v: any) => setCargoType(toStr(v))}
                         labelKey="name"

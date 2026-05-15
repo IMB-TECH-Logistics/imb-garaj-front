@@ -1,11 +1,7 @@
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
-import {
-    MANAGERS_RUNS,
-    SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_CARGO_TYPE,
-} from "@/constants/api-endpoints"
-import { useLoadingPlaces } from "./loading-options"
+import { MANAGERS_RUNS } from "@/constants/api-endpoints"
+import { useRunFilterOptions } from "./loading-options"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -22,8 +18,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Download } from "lucide-react"
 
-type SelectItem = { id: number | string; name: string }
-
 const BuxgalteriyaPage = () => {
     const search: any = useSearch({ strict: false })
     const { setData } = useGlobalStore()
@@ -38,14 +32,16 @@ const BuxgalteriyaPage = () => {
             ? { from: startOfMonth, to: endOfMonth }
             : undefined
 
-    const { data: clients } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
-        params: { model_name: "client" },
+    const {
+        loadingOptions,
+        unloadingOptions,
+        clientOptions,
+        cargoTypeOptions,
+    } = useRunFilterOptions({
+        from_date: search?.from_date,
+        to_date: search?.to_date,
+        search: search?.search,
     })
-    const { loadingOptions, unloadingOptions } = useLoadingPlaces()
-    const { data: cargoTypes } = useGet<SelectItem[]>(
-        SETTINGS_SELECTABLE_CARGO_TYPE,
-        { params: { model_name: "cargo-type" } },
-    )
 
     const { data, isLoading } = useGet<ListResponse<ReysOrder>>(
         MANAGERS_RUNS,
@@ -99,7 +95,7 @@ const BuxgalteriyaPage = () => {
                             <div className="flex items-center justify-end gap-3 flex-wrap">
                             <ParamCombobox
                                 paramName="client"
-                                options={clients || []}
+                                options={clientOptions}
                                 label="Firma nomi"
                                 addButtonProps={comboStyle}
                             />
@@ -117,7 +113,7 @@ const BuxgalteriyaPage = () => {
                             />
                             <ParamCombobox
                                 paramName="cargo_type"
-                                options={cargoTypes || []}
+                                options={cargoTypeOptions}
                                 label="Yuk turi"
                                 addButtonProps={comboStyle}
                             />
