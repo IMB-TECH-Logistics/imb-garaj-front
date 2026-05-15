@@ -457,7 +457,10 @@ export function DataTable<TData>({
                                                     1) *
                                                     (search[
                                                         pageSizeParamName
-                                                    ] || DEFAULT_PAGE_SIZE) +
+                                                    ] ||
+                                                        paginationProps
+                                                            ?.page_sizes?.[0] ||
+                                                        DEFAULT_PAGE_SIZE) +
                                                     index +
                                                     1}
                                             </TableCell>

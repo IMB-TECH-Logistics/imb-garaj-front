@@ -84,6 +84,7 @@ export function ParamCombobox<T extends Record<string, any>>({
             string | undefined
         >
         updatedSearch[paramName] = String(returnValue)
+        updatedSearch["page"] = undefined
 
         asloClear.forEach((key) => {
             delete updatedSearch[key]
@@ -104,7 +105,11 @@ export function ParamCombobox<T extends Record<string, any>>({
     }
 
     const handleCancel = () => {
-        const updatedSearch = { ...search, [paramName]: undefined }
+        const updatedSearch = {
+            ...search,
+            [paramName]: undefined,
+            page: undefined,
+        }
         asloClear.forEach((param) => {
             updatedSearch[param] = undefined
         })

@@ -73,6 +73,7 @@ export default function ParamDateRange({
                         ? format(range.from, dateFormat)
                         : undefined,
                     [to]: range?.to ? format(range.to, dateFormat) : undefined,
+                    page: undefined,
                 },
             });
         }
@@ -85,6 +86,7 @@ export default function ParamDateRange({
                     ...search,
                     [from]: undefined,
                     [to]: undefined,
+                    page: undefined,
                 },
             });
         }
