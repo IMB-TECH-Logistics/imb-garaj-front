@@ -6,9 +6,9 @@ import { DatePickerWithRange } from "@/components/form/date-range-picker"
 import {
     MANAGERS_RUNS,
     SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_DISTRICT,
     SETTINGS_SELECTABLE_CARGO_TYPE,
 } from "@/constants/api-endpoints"
+import { useLoadingPlaces } from "./loading-options"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
@@ -35,10 +35,7 @@ const BuxgalteriyaExcelModal = () => {
         enabled: isOpen,
         params: { model_name: "client" },
     })
-    const { data: districts } = useGet<SelectItem[]>(
-        SETTINGS_SELECTABLE_DISTRICT,
-        { enabled: isOpen, params: { model_name: "district" } },
-    )
+    const { loadingOptions, unloadingOptions } = useLoadingPlaces(isOpen)
     const { data: cargoTypes } = useGet<SelectItem[]>(
         SETTINGS_SELECTABLE_CARGO_TYPE,
         { enabled: isOpen, params: { model_name: "cargo-type" } },
@@ -111,7 +108,7 @@ const BuxgalteriyaExcelModal = () => {
                     />
                     <Combobox
                         label="Yuklash joyi"
-                        options={districts || []}
+                        options={loadingOptions}
                         value={loading}
                         setValue={(v: any) => setLoading(toStr(v))}
                         labelKey="name"
@@ -119,7 +116,7 @@ const BuxgalteriyaExcelModal = () => {
                     />
                     <Combobox
                         label="Tushirish joyi"
-                        options={districts || []}
+                        options={unloadingOptions}
                         value={unloading}
                         setValue={(v: any) => setUnloading(toStr(v))}
                         labelKey="name"

@@ -3,9 +3,9 @@ import { DataTable } from "@/components/ui/datatable"
 import {
     MANAGERS_RUNS,
     SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_DISTRICT,
     SETTINGS_SELECTABLE_CARGO_TYPE,
 } from "@/constants/api-endpoints"
+import { useLoadingPlaces } from "./loading-options"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -41,10 +41,7 @@ const BuxgalteriyaPage = () => {
     const { data: clients } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
         params: { model_name: "client" },
     })
-    const { data: districts } = useGet<SelectItem[]>(
-        SETTINGS_SELECTABLE_DISTRICT,
-        { params: { model_name: "district" } },
-    )
+    const { loadingOptions, unloadingOptions } = useLoadingPlaces()
     const { data: cargoTypes } = useGet<SelectItem[]>(
         SETTINGS_SELECTABLE_CARGO_TYPE,
         { params: { model_name: "cargo-type" } },
@@ -108,13 +105,13 @@ const BuxgalteriyaPage = () => {
                             />
                             <ParamCombobox
                                 paramName="loading"
-                                options={districts || []}
+                                options={loadingOptions}
                                 label="Yuklash joyi"
                                 addButtonProps={comboStyle}
                             />
                             <ParamCombobox
                                 paramName="unloading"
-                                options={districts || []}
+                                options={unloadingOptions}
                                 label="Tushirish joyi"
                                 addButtonProps={comboStyle}
                             />
