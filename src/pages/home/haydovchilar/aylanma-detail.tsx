@@ -100,7 +100,7 @@ const useOrderCols = () =>
                 },
             },
             {
-                header: "Summa (UZS)",
+                header: "Reys narxi (UZS)",
                 accessorKey: "payment_amount_uzs",
                 cell: ({ row }) => {
                     const v = num(row.original.payment_amount_uzs)
