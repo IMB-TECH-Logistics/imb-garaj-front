@@ -27,7 +27,6 @@ import {
 import BulkSalaryModal from "./bulk-salary-modal"
 import {
     buildSalaryFilterOptions,
-    filterSalaryRows,
     SALARY_FILTER_COLUMNS,
     useSalaryColumns,
 } from "./cols"
@@ -69,6 +68,16 @@ const DriverSalariesPage = () => {
     const [priceEdits, setPriceEdits] = useState<Record<number, string>>({})
     const { mutateAsync: bulkUpdateAsync, isPending: isSaving } = usePatch()
 
+    const serverFilters = useMemo(() => {
+        const out: Record<string, string> = {}
+        for (const [key, vals] of Object.entries(filters)) {
+            if (Array.isArray(vals) && vals.length > 0) {
+                out[key] = vals.join(",")
+            }
+        }
+        return out
+    }, [filters])
+
     const { data, isLoading } = useGet<ListResponse<Direction>>(
         COMMON_DIRECTIONS,
         {
@@ -76,6 +85,7 @@ const DriverSalariesPage = () => {
                 search: search.salary_search,
                 page: search.page,
                 page_size: search.page_size,
+                ...serverFilters,
             },
         },
     )
@@ -126,11 +136,6 @@ const DriverSalariesPage = () => {
                 driver_salary_amount: d.driver_salary_amount ?? null,
             })),
         [data, paymentMap],
-    )
-
-    const filtered = useMemo(
-        () => filterSalaryRows(enriched, filters),
-        [enriched, filters],
     )
 
     const filterOptions = useMemo(
@@ -231,7 +236,7 @@ const DriverSalariesPage = () => {
             <DataTable
                 loading={isLoading}
                 columns={columns}
-                data={filtered}
+                data={enriched}
                 selecteds_row={hasControl}
                 onSelectedRowsChange={setSelectedRows}
                 clearSelectionTrigger={clearSelectionTick}
