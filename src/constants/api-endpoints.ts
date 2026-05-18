@@ -93,6 +93,9 @@ export const MONITORING_ROUTES_POLYLINE = "monitoring/routes/polyline"
 export const MONITORING_LIVE_TRACKING = "monitoring/live-tracking"
 // Append `/<tripId>/track` when calling: `${MONITORING_TRIP_TRACK}/${id}/track`
 export const MONITORING_TRIP_TRACK = "monitoring/trips"
+export const MONITORING_ORDERS = "monitoring/orders"
+export const MONITORING_TRIPS_TRACKING = "monitoring/trips"
+export const MONITORING_VEHICLES = "monitoring/vehicles"
 
 /** ===== WAREHOUSE / OMBOR ===== */
 export const WAREHOUSE_PRODUCTS = "warehouse/products"
@@ -114,3 +117,6 @@ export const DRIVERS_OVERVIEW = "users/drivers"
 /** ===== DRIVER SALARIES (route config) ===== */
 export const DRIVER_SALARIES = "driver-salaries"
 export const DRIVERS_LIST = "users/drivers/list"
+
+export const LOGS_LIST = "logs"
+export const LOGS_SECTION = "logs/section"

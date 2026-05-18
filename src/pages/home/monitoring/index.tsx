@@ -1,116 +1,269 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import {
     MONITORING_LIVE_TRACKING,
+    MONITORING_ORDERS,
     MONITORING_ROUTES_POLYLINE,
+    MONITORING_TRIPS_TRACKING,
+    MONITORING_VEHICLES,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
-import { ArrowUpRight, RefreshCcw } from "lucide-react"
+import {
+    ArrowUpRight,
+    ChevronLeft,
+    ChevronRight,
+    RefreshCcw,
+} from "lucide-react"
 import { useMemo, useState } from "react"
-import MonitoringFilterBar, { type MonitoringFilters } from "./filter-bar"
-import LiveDriverList from "./live-list"
+import DimensionTabs from "./dimension-tabs"
+import DriverList from "./driver-list"
+import MonitoringFilterBar from "./filter-bar"
+import OrderList from "./order-list"
 import RouteMap, { type LiveMarker } from "./route-map"
-import type { LiveDriver, RoutePolyline } from "./types"
+import TripList from "./trip-list"
+import type {
+    Dimension,
+    LiveDriver,
+    MonitoringFilters,
+    OrderTracking,
+    RoutePolyline,
+    TripTracking,
+    VehicleTracking,
+} from "./types"
+import { EMPTY_FILTERS, isHistoricalView, todayIso } from "./types"
+import VehicleList from "./vehicle-list"
 
 const LIVE_REFRESH_MS = 30_000
 
 export default function MonitoringPage() {
     const navigate = useNavigate()
-    const [filters, setFilters] = useState<MonitoringFilters>({
-        driver: null,
-        trip: null,
-        fromDate: "",
-        toDate: "",
-    })
-    const [selectedUser, setSelectedUser] = useState<number | null>(null)
+    const [dimension, setDimension] = useState<Dimension>("driver")
+    const [filters, setFilters] = useState<MonitoringFilters>(EMPTY_FILTERS)
+    const [panelOpen, setPanelOpen] = useState(true)
 
-    const hasHistoricalFilter =
-        filters.trip != null ||
-        filters.driver != null ||
-        !!filters.fromDate ||
-        !!filters.toDate
+    const historical = isHistoricalView(filters)
+    const selectedId =
+        filters.driver ?? filters.order ?? filters.trip ?? filters.vehicle
 
-    const live = useGet<LiveDriver[]>(MONITORING_LIVE_TRACKING, {
+    const drivers = useGet<LiveDriver[]>(MONITORING_LIVE_TRACKING, {
+        params: { include_stale: true },
+        enabled: dimension === "driver",
         options: {
-            refetchInterval: LIVE_REFRESH_MS,
+            refetchInterval: historical ? false : LIVE_REFRESH_MS,
             refetchIntervalInBackground: false,
         },
-        enabled: !hasHistoricalFilter,
+    })
+
+    const orders = useGet<OrderTracking[]>(MONITORING_ORDERS, {
+        enabled: dimension === "order",
+        options: {
+            refetchInterval: historical ? false : LIVE_REFRESH_MS,
+            refetchIntervalInBackground: false,
+        },
+    })
+
+    const trips = useGet<TripTracking[]>(MONITORING_TRIPS_TRACKING, {
+        enabled: dimension === "trip",
+        options: {
+            refetchInterval: historical ? false : LIVE_REFRESH_MS,
+            refetchIntervalInBackground: false,
+        },
+    })
+
+    const vehicles = useGet<VehicleTracking[]>(MONITORING_VEHICLES, {
+        enabled: dimension === "vehicle",
+        options: {
+            refetchInterval: historical ? false : LIVE_REFRESH_MS,
+            refetchIntervalInBackground: false,
+        },
     })
 
     const polyline = useGet<RoutePolyline>(MONITORING_ROUTES_POLYLINE, {
         params: {
             ...(filters.trip ? { trip: filters.trip } : {}),
+            ...(filters.order ? { order: filters.order } : {}),
             ...(filters.driver ? { driver: filters.driver } : {}),
+            ...(filters.vehicle ? { vehicle: filters.vehicle } : {}),
             ...(filters.fromDate ? { from_date: filters.fromDate } : {}),
             ...(filters.toDate ? { to_date: filters.toDate } : {}),
             max_points: 2000,
         },
-        enabled: hasHistoricalFilter,
+        enabled: historical,
     })
 
     const liveDrivers = useMemo<LiveDriver[]>(
-        () =>
-            (live.data ?? []).map((d) => ({
-                ...d,
-                lat: d.lng,
-                lng: d.lat,
-            })),
-        [live.data],
+        () => drivers.data ?? [],
+        [drivers.data],
     )
-    const freshCount = liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
 
-    const polylineData = useMemo<RoutePolyline | undefined>(() => {
-        if (!polyline.data) return polyline.data
-        return {
-            ...polyline.data,
-            points: polyline.data.points?.map(
-                ([a, b]) => [b, a] as [number, number],
-            ),
-            bbox: polyline.data.bbox
-                ? ([
-                      polyline.data.bbox[1],
-                      polyline.data.bbox[0],
-                      polyline.data.bbox[3],
-                      polyline.data.bbox[2],
-                  ] as [number, number, number, number])
-                : null,
+    const polylineData = polyline.data
+
+    const liveMarkers: LiveMarker[] = useMemo(() => {
+        if (historical) return []
+        if (dimension === "driver") {
+            return liveDrivers
+                .filter((d) => d.lat != null && d.lng != null)
+                .map((d) => ({
+                    id: d.user,
+                    lat: d.lat as number,
+                    lng: d.lng as number,
+                    label: d.driver_name || `Driver #${d.user}`,
+                    sub: d.vehicle_number ?? undefined,
+                    stale: d.seconds_since > 5 * 60,
+                    selected: false,
+                    onClick: () => selectDriver(d),
+                }))
         }
-    }, [polyline.data])
+        if (dimension === "order") {
+            return (orders.data ?? [])
+                .filter((o) => o.lat != null && o.lng != null)
+                .map((o) => ({
+                    id: o.id,
+                    lat: o.lat as number,
+                    lng: o.lng as number,
+                    label: `Order #${o.id}`,
+                    sub: o.driver_name ?? o.vehicle_number ?? undefined,
+                    stale:
+                        o.seconds_since == null || o.seconds_since > 5 * 60,
+                    onClick: () => selectOrder(o),
+                }))
+        }
+        if (dimension === "trip") {
+            return (trips.data ?? [])
+                .filter((t) => t.lat != null && t.lng != null)
+                .map((t) => ({
+                    id: t.id,
+                    lat: t.lat as number,
+                    lng: t.lng as number,
+                    label: `Reys #${t.id}`,
+                    sub: t.driver_name ?? t.vehicle_number ?? undefined,
+                    stale:
+                        t.seconds_since == null || t.seconds_since > 5 * 60,
+                    onClick: () => selectTrip(t),
+                }))
+        }
+        return (vehicles.data ?? [])
+            .filter((v) => v.lat != null && v.lng != null)
+            .map((v) => ({
+                id: v.id,
+                lat: v.lat as number,
+                lng: v.lng as number,
+                label: v.truck_number,
+                sub: v.driver_name ?? undefined,
+                stale: v.seconds_since == null || v.seconds_since > 5 * 60,
+                onClick: () => selectVehicle(v),
+            }))
+    }, [
+        historical,
+        dimension,
+        liveDrivers,
+        orders.data,
+        trips.data,
+        vehicles.data,
+    ])
 
-    const liveMarkers: LiveMarker[] = liveDrivers.map((d) => ({
-        id: d.user,
-        lat: d.lat,
-        lng: d.lng,
-        label: d.driver_name || `Driver #${d.user}`,
-        sub: d.vehicle_number ?? undefined,
-        stale: d.seconds_since > 5 * 60,
-        selected: selectedUser === d.user,
-        onClick: () => setSelectedUser(d.user),
-    }))
+    function selectDriver(d: LiveDriver) {
+        setFilters({
+            ...EMPTY_FILTERS,
+            driver: d.user,
+            fromDate: todayIso(),
+            toDate: "",
+        })
+    }
+    function selectOrder(o: OrderTracking) {
+        setFilters({
+            ...EMPTY_FILTERS,
+            order: o.id,
+            fromDate: todayIso(),
+            toDate: "",
+        })
+    }
+    function selectTrip(t: TripTracking) {
+        setFilters({
+            ...EMPTY_FILTERS,
+            trip: t.id,
+            fromDate: todayIso(),
+            toDate: "",
+        })
+    }
+    function selectVehicle(v: VehicleTracking) {
+        setFilters({
+            ...EMPTY_FILTERS,
+            vehicle: v.id,
+            fromDate: todayIso(),
+            toDate: "",
+        })
+    }
 
-    const refreshing = hasHistoricalFilter
+    const activeList = (() => {
+        switch (dimension) {
+            case "driver":
+                return drivers
+            case "order":
+                return orders
+            case "trip":
+                return trips
+            case "vehicle":
+                return vehicles
+        }
+    })()
+
+    const refreshing = historical
         ? polyline.isFetching
-        : live.isFetching
-
+        : activeList.isFetching
     const handleRefresh = () =>
-        hasHistoricalFilter ? polyline.refetch() : live.refetch()
+        historical ? polyline.refetch() : activeList.refetch()
+
+    const counts: Partial<Record<Dimension, number>> = {
+        driver: drivers.data?.length,
+        order: orders.data?.length,
+        trip: trips.data?.length,
+        vehicle: vehicles.data?.length,
+    }
+
+    const panelTitle = historical
+        ? "Marshrut sharhi"
+        : ({
+              driver: "Faol haydovchilar",
+              order: "Faol orderlar",
+              trip: "Faol reyslar",
+              vehicle: "Faol moshinalar",
+          } as const)[dimension]
+
+    const freshCount =
+        dimension === "driver"
+            ? liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
+            : null
 
     return (
         <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <h1 className="text-xl font-semibold">Monitoring</h1>
-                    {hasHistoricalFilter ? (
+                    {historical ? (
                         <Badge variant="secondary">Tarixiy ko'rinish</Badge>
-                    ) : (
+                    ) : freshCount != null ? (
                         <Badge variant="secondary">
                             Onlayn · {freshCount} / {liveDrivers.length}
                         </Badge>
+                    ) : (
+                        <Badge variant="secondary">
+                            {activeList.data?.length ?? 0} ta
+                        </Badge>
                     )}
+                    <DimensionTabs
+                        value={dimension}
+                        onChange={setDimension}
+                        counts={counts}
+                    />
                 </div>
                 <div className="flex items-center gap-2">
                     <MonitoringFilterBar
@@ -137,19 +290,24 @@ export default function MonitoringPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_320px]">
+            <div
+                className={cn(
+                    "grid grid-cols-1 gap-3 transition-[grid-template-columns] duration-300",
+                    panelOpen
+                        ? "lg:grid-cols-[1fr_340px]"
+                        : "lg:grid-cols-[1fr_0px]",
+                )}
+            >
                 <Card className="overflow-hidden">
                     <CardContent className="p-0">
                         <RouteMap
                             height="calc(100vh - 200px)"
-                            markers={hasHistoricalFilter ? [] : liveMarkers}
+                            markers={liveMarkers}
                             points={
-                                hasHistoricalFilter
-                                    ? polylineData?.points
-                                    : undefined
+                                historical ? polylineData?.points : undefined
                             }
                             bbox={
-                                hasHistoricalFilter
+                                historical
                                     ? (polylineData?.bbox ?? null)
                                     : null
                             }
@@ -157,44 +315,91 @@ export default function MonitoringPage() {
                     </CardContent>
                 </Card>
 
-                <Card className="flex max-h-[calc(100vh-200px)] flex-col">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 py-3">
-                        <CardTitle className="text-sm font-semibold">
-                            {hasHistoricalFilter
-                                ? "Reys sharhi"
-                                : "Faol haydovchilar"}
-                        </CardTitle>
-                        {!hasHistoricalFilter && (
-                            <Badge variant="outline">
-                                {liveDrivers.length}
-                            </Badge>
-                        )}
-                    </CardHeader>
-                    <CardContent className="flex-1 overflow-y-auto pt-0">
-                        {hasHistoricalFilter ? (
-                            <HistoricalSummary
-                                data={polylineData}
-                                loading={polyline.isLoading}
-                                onOpenTrip={(id) =>
-                                    navigate({
-                                        to: "/monitoring/trips/$id",
-                                        params: { id: String(id) },
-                                    })
-                                }
-                            />
+                <div className="relative">
+                    <button
+                        type="button"
+                        onClick={() => setPanelOpen((v) => !v)}
+                        aria-label={
+                            panelOpen
+                                ? "Panelni yopish"
+                                : "Panelni ochish"
+                        }
+                        className="absolute -left-3 top-3 z-10 grid h-7 w-7 place-items-center rounded-full border bg-background shadow-sm transition hover:bg-muted"
+                    >
+                        {panelOpen ? (
+                            <ChevronRight className="h-4 w-4" />
                         ) : (
-                            <LiveDriverList
-                                items={liveDrivers}
-                                loading={live.isLoading}
-                                activeUserId={selectedUser}
-                                onSelect={(d) => setSelectedUser(d.user)}
-                            />
+                            <ChevronLeft className="h-4 w-4" />
                         )}
-                    </CardContent>
-                </Card>
+                    </button>
+
+                    <div
+                        className={cn(
+                            "h-full overflow-hidden transition-[opacity,transform] duration-300",
+                            panelOpen
+                                ? "opacity-100 translate-x-0"
+                                : "pointer-events-none opacity-0 translate-x-3",
+                        )}
+                    >
+                        <Card className="flex h-full max-h-[calc(100vh-200px)] flex-col">
+                            <CardHeader className="flex flex-row items-center justify-between gap-2 py-3">
+                                <CardTitle className="text-sm font-semibold">
+                                    {panelTitle}
+                                </CardTitle>
+                                {!historical && activeList.data && (
+                                    <Badge variant="outline">
+                                        {activeList.data.length}
+                                    </Badge>
+                                )}
+                            </CardHeader>
+                            <CardContent className="flex-1 overflow-y-auto pt-0">
+                                {historical ? (
+                                    <HistoricalSummary
+                                        data={polylineData}
+                                        loading={polyline.isLoading}
+                                        onOpenTrip={(id) =>
+                                            navigate({
+                                                to: "/monitoring/trips/$id",
+                                                params: { id: String(id) },
+                                            })
+                                        }
+                                    />
+                                ) : dimension === "driver" ? (
+                                    <DriverList
+                                        items={liveDrivers}
+                                        loading={drivers.isLoading}
+                                        activeId={filters.driver}
+                                        onSelect={selectDriver}
+                                    />
+                                ) : dimension === "order" ? (
+                                    <OrderList
+                                        items={orders.data ?? []}
+                                        loading={orders.isLoading}
+                                        activeId={filters.order}
+                                        onSelect={selectOrder}
+                                    />
+                                ) : dimension === "trip" ? (
+                                    <TripList
+                                        items={trips.data ?? []}
+                                        loading={trips.isLoading}
+                                        activeId={filters.trip}
+                                        onSelect={selectTrip}
+                                    />
+                                ) : (
+                                    <VehicleList
+                                        items={vehicles.data ?? []}
+                                        loading={vehicles.isLoading}
+                                        activeId={filters.vehicle}
+                                        onSelect={selectVehicle}
+                                    />
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </div>
 
-            {hasHistoricalFilter && polylineData && polylineData.count > 0 && (
+            {historical && polylineData && polylineData.count > 0 && (
                 <StatStrip data={polylineData} />
             )}
         </div>
@@ -249,10 +454,7 @@ function HistoricalSummary({
             <Stat label="Masofa" value={km} unit="km" big />
 
             <div className="grid grid-cols-1 gap-2">
-                <Row
-                    label="Boshlanish"
-                    value={formatStamp(data.first_at)}
-                />
+                <Row label="Boshlanish" value={formatStamp(data.first_at)} />
                 <Row label="Tugash" value={formatStamp(data.last_at)} />
             </div>
 
@@ -335,6 +537,9 @@ function StatStrip({ data }: { data: RoutePolyline }) {
             />
             {data.trip != null && (
                 <Pill label="Reys" value={`#${data.trip}`} />
+            )}
+            {data.order != null && (
+                <Pill label="Order" value={`#${data.order}`} />
             )}
         </div>
     )

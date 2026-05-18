@@ -1,8 +1,10 @@
+import { FormCheckbox } from "@/components/form/checkbox"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { Button } from "@/components/ui/button"
 import {
     COMMON_DIRECTIONS,
+    MANAGERS_ORDERS,
     MANAGERS_RUNS,
     SETTINGS_SELECTABLE_CLIENT,
     VEHICLES,
@@ -38,6 +40,36 @@ type Vehicle = {
 
 type Client = { id: number; name: string }
 
+type ReysFormValues = {
+    client: number | null
+    loading: number | null
+    unloading: number | null
+    cargo_type: number | null
+    vehicle: number | null
+    date: string
+    direction: number | null
+    status: number | null
+    type: number | null
+    out_of_contract: boolean
+}
+
+const ORDER_STATUS_OPTIONS: Option[] = [
+    { id: -1, name: "Draft" },
+    { id: 0, name: "Pending" },
+    { id: 1, name: "Started" },
+    { id: 5, name: "Loading" },
+    { id: 6, name: "In Transit" },
+    { id: 7, name: "Unloading" },
+    { id: 2, name: "Completed" },
+    { id: 3, name: "Canceled" },
+    { id: 4, name: "Archived" },
+]
+
+const ORDER_TYPE_OPTIONS: Option[] = [
+    { id: 1, name: "Busy" },
+    { id: 2, name: "Empty" },
+]
+
 const distinctOptions = (
     rows: Direction[],
     picker: (d: Direction) => Option,
@@ -59,14 +91,7 @@ const EditReysModal = () => {
     const { getData, clearKey } = useGlobalStore()
     const current = getData<ReysOrder>(MANAGERS_RUNS)
 
-    const form = useForm<{
-        client: number | null
-        loading: number | null
-        unloading: number | null
-        cargo_type: number | null
-        vehicle: number | null
-        date: string
-    }>({
+    const form = useForm<ReysFormValues>({
         defaultValues: {
             client: current?.client ?? null,
             loading: current?.loading ?? null,
@@ -74,6 +99,10 @@ const EditReysModal = () => {
             cargo_type: current?.cargo_type ?? null,
             vehicle: null,
             date: current?.date ?? "",
+            direction: (current as any)?.direction ?? null,
+            status: current?.status ?? null,
+            type: current?.type ?? null,
+            out_of_contract: (current as any)?.out_of_contract ?? false,
         },
     })
 
@@ -95,6 +124,15 @@ const EditReysModal = () => {
     const directions = useMemo(
         () => directionsResponse?.results ?? [],
         [directionsResponse],
+    )
+
+    const directionOptions = useMemo(
+        () =>
+            directions.map((d) => ({
+                id: d.id,
+                name: `${d.load_name} → ${d.unload_name} (${d.cargo_type_name})`,
+            })),
+        [directions],
     )
 
     const loadsData = useMemo(
@@ -135,8 +173,6 @@ const EditReysModal = () => {
         [vehiclesData],
     )
 
-    // Vehicle isn't on ReysOrder as an ID — pre-select by matching truck_number
-    // against the loaded vehicles list, once both are available.
     const vehiclePrefilledRef = useRef(false)
     useEffect(() => {
         if (vehiclePrefilledRef.current) return
@@ -158,14 +194,25 @@ const EditReysModal = () => {
         queryClient.refetchQueries({ queryKey: [MANAGERS_RUNS] })
     }
 
-    const { isPending } = usePatch({ onSuccess })
+    const { mutate, isPending } = usePatch({ onSuccess })
 
-    // TODO: backend API tayyor bo'lganda mutate(`${MANAGERS_RUNS}/${id}`, payload).
-    // Payload (speculative): { client, loading, unloading, cargo_type, vehicle,
-    // date }. Tushum (amount/payment_type/currency) edits are saved per-row
-    // via TushumList and don't go through this main submit.
-    const onSubmit = (_values: any) => {
-        toast.info("Backend API hali tayyor emas")
+    const onSubmit = (values: ReysFormValues) => {
+        if (!current?.id) {
+            toast.error("Order ID topilmadi")
+            return
+        }
+        const payload: Record<string, unknown> = {}
+        if (values.client !== null) payload.client = values.client
+        if (values.loading !== null) payload.loading = values.loading
+        if (values.unloading !== null) payload.unloading = values.unloading
+        if (values.cargo_type !== null) payload.cargo_type = values.cargo_type
+        if (values.direction !== null) payload.direction = values.direction
+        if (values.status !== null) payload.status = values.status
+        if (values.type !== null) payload.type = values.type
+        if (values.date) payload.date = values.date
+        payload.out_of_contract = values.out_of_contract
+
+        mutate(`${MANAGERS_ORDERS}/${current.id}`, payload)
     }
 
     return (
@@ -185,6 +232,24 @@ const EditReysModal = () => {
                 name="date"
                 placeholder="Sanani tanlang"
                 className="w-full"
+            />
+            <FormCombobox
+                label="Yo'nalish"
+                name="direction"
+                control={control}
+                options={directionOptions}
+                valueKey="id"
+                labelKey="name"
+                placeholder="Yo'nalishni tanlang"
+            />
+            <FormCombobox
+                label="Status"
+                name="status"
+                control={control}
+                options={ORDER_STATUS_OPTIONS}
+                valueKey="id"
+                labelKey="name"
+                placeholder="Statusni tanlang"
             />
             <FormCombobox
                 label="Yuklash joyi"
@@ -214,6 +279,15 @@ const EditReysModal = () => {
                 placeholder="Yuk turini tanlang"
             />
             <FormCombobox
+                label="Reys turi"
+                name="type"
+                control={control}
+                options={ORDER_TYPE_OPTIONS}
+                valueKey="id"
+                labelKey="name"
+                placeholder="Reys turini tanlang"
+            />
+            <FormCombobox
                 label="Mashina"
                 name="vehicle"
                 control={control}
@@ -222,9 +296,12 @@ const EditReysModal = () => {
                 labelKey="label"
                 placeholder="Mashina tanlang"
             />
-            {current?.id ? (
-                <TushumList orderId={current.id} />
-            ) : null}
+            <FormCheckbox
+                control={control}
+                name="out_of_contract"
+                label="Shartnomadan tashqari"
+            />
+            {current?.id ? <TushumList orderId={current.id} /> : null}
 
             <div className="col-span-2 flex justify-end pt-2">
                 <Button type="submit" loading={isPending} className="min-w-36">

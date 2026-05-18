@@ -7,7 +7,6 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
-import { useMemo } from "react"
 import RouteMap from "./route-map"
 import type { RoutePolyline } from "./types"
 
@@ -35,23 +34,7 @@ export default function TripTrackPage() {
         enabled: !Number.isNaN(tripId),
     })
 
-    const polylineData = useMemo<RoutePolyline | undefined>(() => {
-        if (!polyline.data) return polyline.data
-        return {
-            ...polyline.data,
-            points: polyline.data.points?.map(
-                ([a, b]) => [b, a] as [number, number],
-            ),
-            bbox: polyline.data.bbox
-                ? ([
-                      polyline.data.bbox[1],
-                      polyline.data.bbox[0],
-                      polyline.data.bbox[3],
-                      polyline.data.bbox[2],
-                  ] as [number, number, number, number])
-                : null,
-        }
-    }, [polyline.data])
+    const polylineData = polyline.data
 
     const km = polylineData
         ? (polylineData.distance_m / 1000).toFixed(2)

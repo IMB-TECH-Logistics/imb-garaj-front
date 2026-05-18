@@ -171,6 +171,7 @@ export const useItems = () =>
                     { label: "To'lov turlari", path: "/payment-types", allowKey: "settings_payment_types_view" },
                     { label: "Xarajat turlari", path: "/expense-types", allowKey: "settings_expense_types_view" },
                     { label: "Oylik tariflar", path: "/driver-salaries", allowKey: "settings_driver_salaries_view" },
+                    { label: "Faoliyat jurnali", path: "/logs", alwaysShow: true },
                 ],
             },
         ],
