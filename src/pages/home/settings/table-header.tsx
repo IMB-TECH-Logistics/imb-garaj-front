@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { Plus, PlusCircle } from "lucide-react"
+import { ReactNode } from "react"
 
 interface TableHeaderProps {
     fileName: string
@@ -14,6 +15,8 @@ interface TableHeaderProps {
     pageKey: string
     onAdd?: () => void
     count?: number
+    extraTitle?: ReactNode
+    extraRight?: ReactNode
 }
 
 const TableHeader = ({
@@ -23,6 +26,8 @@ const TableHeader = ({
     pageKey,
     onAdd,
     count,
+    extraTitle,
+    extraRight,
 }: TableHeaderProps) => {
     const { openModal: openCreateModal } = useModal("create")
     const { clearKey } = useGlobalStore()
@@ -46,6 +51,7 @@ const TableHeader = ({
                 <div className="flex items-center gap-2">
                     <h1 className="text-xl font-semibold">{fileName}</h1>
                     <Badge className="text-sm">{count}</Badge>
+                    {extraTitle}
                 </div>
             )}
             <div
@@ -73,6 +79,7 @@ const TableHeader = ({
                         Qo'shish
                     </Button>
                 )}
+                {extraRight}
             </div>
         </div>
     )

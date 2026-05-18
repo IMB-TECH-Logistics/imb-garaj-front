@@ -21,15 +21,21 @@ export type DirectionPrice = {
 
 export type DirectionRow = {
     id: number
+    owner?: number
     owner_name: string
     owner_code: string
+    load?: number
     load_name: string
+    unload?: number
     unload_name: string
+    cargo_type?: number
     cargo_type_name: string
+    payment_type?: number
     payment_type_name: string
     currency: 1 | 2
     current_price: DirectionPrice | null
     prices?: DirectionPrice[]
+    driver_salary_amount?: string | null
 }
 
 const formatDate = (s?: string | null) => {
