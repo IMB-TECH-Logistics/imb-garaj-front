@@ -28,8 +28,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
 import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useController, useForm } from "react-hook-form"
+import { useController, useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { FormNumberInput } from "@/components/form/number-input"
 
 type Option = { id: number; name: string }
 
@@ -96,10 +97,18 @@ const AddTripOrders = () => {
                     ? String(currentTripOrder.status)
                     : "0",
             is_naqd: false,
-            amount:
-                existingPayment?.amount ??
-                (currentTripOrder?.amount as string | number | undefined) ??
-                "",
+            incomes:
+                currentTripOrder?.payments?.length
+                    ? currentTripOrder.payments.map((p) => ({
+                        payment_type: p.payment_type,
+                        amount: p.amount,
+                    }))
+                    : [
+                        {
+                            payment_type: null,
+                            amount: "",
+                        },
+                    ],
             client: currentTripOrder?.client ?? null,
             images: [] as File[],
         },
@@ -113,6 +122,14 @@ const AddTripOrders = () => {
     const [removedImageIds, setRemovedImageIds] = useState<number[]>([])
 
     const { handleSubmit, control, reset, watch, setValue } = form
+    const {
+        fields: incomeFields,
+        append: appendIncome,
+        remove: removeIncome,
+    } = useFieldArray({
+        control,
+        name: "incomes",
+    })
 
     const loadingValue = watch("loading")
     const unloadingValue = watch("unloading")
@@ -137,6 +154,9 @@ const AddTripOrders = () => {
     )
 
     const isNaqd = !!watch("is_naqd")
+    const cardId = paymentTypesData?.results?.find((item) =>
+        ["card", "karta"].includes(item.name.toLowerCase()),
+    )?.id
 
     useEffect(() => {
         if (!currentTripOrder?.id) return
@@ -277,7 +297,7 @@ const AddTripOrders = () => {
         toast.success(
             currentTripOrder?.id ?
                 "Buyurtma tahrirlandi!"
-            :   "Buyurtma qo'shildi!",
+                : "Buyurtma qo'shildi!",
         )
         reset()
         clearKey(TRIPS_ORDERS)
@@ -307,18 +327,18 @@ const AddTripOrders = () => {
         const incomes = [
             isNaqdSel
                 ? {
-                      payment_type: naqdId,
-                      currency: 1,
-                      amount: String(data.amount ?? "0"),
-                  }
+                    payment_type: naqdId,
+                    currency: 1,
+                    amount: String(data.amount ?? "0"),
+                }
                 : {
-                      payment_type: matchedDirection!.payment_type,
-                      currency: matchedDirection!.currency,
-                      amount:
-                          matchedDirection!.amount != null
-                              ? String(matchedDirection!.amount)
-                              : "0",
-                  },
+                    payment_type: matchedDirection!.payment_type,
+                    currency: matchedDirection!.currency,
+                    amount:
+                        matchedDirection!.amount != null
+                            ? String(matchedDirection!.amount)
+                            : "0",
+                },
         ]
 
         const isEmpty = !data.cargo_type || data.cargo_type === 0
@@ -385,267 +405,325 @@ const AddTripOrders = () => {
 
     return (
         <>
-        <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 max-h-[72vh] overflow-y-auto pr-1 no-scrollbar-x"
-        >
-            {/* To'lov turi tabs */}
-            <Tabs
-                value={isNaqd ? "naqd" : "perech"}
-                onValueChange={(v) => setValue("is_naqd", v === "naqd")}
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-4 max-h-[72vh] overflow-y-auto pr-1 no-scrollbar-x"
             >
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="perech">Shartnoma</TabsTrigger>
-                    <TabsTrigger value="naqd">Bir martalik</TabsTrigger>
-                </TabsList>
-            </Tabs>
+                {/* To'lov turi tabs */}
+                <Tabs
+                    value={isNaqd ? "naqd" : "perech"}
+                    onValueChange={(v) => setValue("is_naqd", v === "naqd")}
+                >
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="perech">Shartnoma</TabsTrigger>
+                        <TabsTrigger value="naqd">Bir martalik</TabsTrigger>
+                    </TabsList>
+                </Tabs>
 
-            {/* Yuk beruvchi (faqat Shartnoma) */}
-            {!isNaqd && (
-                <FormCombobox
-                    required
-                    label="Yuk beruvchi"
-                    name="client"
-                    control={control}
-                    options={clientsData ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    placeholder="Yuk beruvchini tanlang"
-                />
-            )}
-
-            {/* Qayerdan → Qayerga route visual */}
-            <div className="rounded-lg border bg-card/50 p-4">
-                <div className="flex gap-3">
-                    {/* Connector */}
-                    <div className="relative shrink-0 w-3">
-                        <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
-                        <div
-                            className="absolute left-1/2 -translate-x-1/2 w-px"
-                            style={{
-                                top: 30,
-                                bottom: 18,
-                                backgroundImage:
-                                    "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
-                            }}
-                        />
-                        <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
-                    </div>
-
-                    {/* Inputs stacked */}
-                    <div className="flex flex-col gap-4 flex-1">
-                        <FormCombobox
-                            required
-                            name="loading"
-                            control={control}
-                            options={loadsData}
-                            valueKey="id"
-                            labelKey="name"
-                            placeholder="Qayerdan"
-                            addButtonProps={{
-                                disabled: !isNaqd && !watch("client"),
-                            }}
-                        />
-                        <FormCombobox
-                            required
-                            name="unloading"
-                            control={control}
-                            options={unloadsData}
-                            valueKey="id"
-                            labelKey="name"
-                            placeholder="Qayerga"
-                            addButtonProps={{ disabled: !loadingValue }}
-                        />
-                    </div>
-                </div>
-
-            </div>
-
-            {/* Mahsulot turi + Sana */}
-            <div className="flex gap-3">
-                <div className="flex-1">
+                {/* Yuk beruvchi (faqat Shartnoma) */}
+                {!isNaqd && (
                     <FormCombobox
-                        label="Mahsulot turi"
-                        name="cargo_type"
+                        required
+                        label="Yuk beruvchi"
+                        name="client"
                         control={control}
-                        options={cargoTypesData}
+                        options={clientsData ?? []}
                         valueKey="id"
                         labelKey="name"
-                        placeholder="Yuksiz"
-                        addButtonProps={{
-                            disabled: !loadingValue || !unloadingValue,
-                        }}
+                        placeholder="Yuk beruvchini tanlang"
                     />
-                </div>
-                <div className="flex-1">
-                    <FormDatePicker
-                        required
-                        label="Sana"
-                        control={control}
-                        name="date"
-                        placeholder="Sanani tanlang"
-                        className="w-full"
-                    />
-                </div>
-            </div>
+                )}
 
-            {/* Naqd tab: summa */}
-            <NaqdAmountField methods={form} matchedDirection={matchedDirection} />
-
-            {/* Status (faqat tahrirlashda) */}
-            {currentTripOrder?.id && (
-                <FormCombobox
-                    label="Holati"
-                    name="status"
-                    control={control}
-                    options={STATUS_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    placeholder="Holatni tanlang"
-                />
-            )}
-
-            {/* Yuklangan rasmlar */}
-            {previewItems.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                    {existingImages.map((img, index) => (
-                        <div
-                            key={`e-${img.id}`}
-                            className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
-                            onClick={() => setPreviewIndex(index)}
-                        >
-                            <img
-                                src={img.image}
-                                alt={`rasm-${img.id}`}
-                                className="w-full h-full object-cover"
-                            />
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    removeExistingImage(img.id)
+                {/* Qayerdan → Qayerga route visual */}
+                <div className="rounded-lg border bg-card/50 p-4">
+                    <div className="flex gap-3">
+                        {/* Connector */}
+                        <div className="relative shrink-0 w-3">
+                            <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
+                            <div
+                                className="absolute left-1/2 -translate-x-1/2 w-px"
+                                style={{
+                                    top: 30,
+                                    bottom: 18,
+                                    backgroundImage:
+                                        "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
                                 }}
-                                className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
-                            >
-                                <X size={12} />
-                            </button>
+                            />
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
                         </div>
-                    ))}
-                    {images.map((file, index) => (
-                        <div
-                            key={`n-${index}`}
-                            className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
+
+                        {/* Inputs stacked */}
+                        <div className="flex flex-col gap-4 flex-1">
+                            <FormCombobox
+                                required
+                                name="loading"
+                                control={control}
+                                options={loadsData}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder="Qayerdan"
+                                addButtonProps={{
+                                    disabled: !isNaqd && !watch("client"),
+                                }}
+                            />
+                            <FormCombobox
+                                required
+                                name="unloading"
+                                control={control}
+                                options={unloadsData}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder="Qayerga"
+                                addButtonProps={{ disabled: !loadingValue }}
+                            />
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Mahsulot turi + Sana */}
+                <div className="flex gap-3">
+                    <div className="flex-1">
+                        <FormCombobox
+                            label="Mahsulot turi"
+                            name="cargo_type"
+                            control={control}
+                            options={cargoTypesData}
+                            valueKey="id"
+                            labelKey="name"
+                            placeholder="Yuksiz"
+                            addButtonProps={{
+                                disabled: !loadingValue || !unloadingValue,
+                            }}
+                        />
+                    </div>
+                    <div className="flex-1">
+                        <FormDatePicker
+                            required
+                            label="Sana"
+                            control={control}
+                            name="date"
+                            placeholder="Sanani tanlang"
+                            className="w-full"
+                        />
+                    </div>
+                </div>
+
+                {/* Naqd tab: summa */}
+                {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
+                {isNaqd && (
+                    <div className="space-y-3">
+                        {incomeFields.map((field, index) => (
+                            <div
+                                key={field.id}
+                                className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end"
+                            >
+                                <FormCombobox
+                                    control={control}
+                                    name={`incomes.${index}.payment_type`}
+                                    label={index === 0 ? "To'lov turi" : ""}
+                                    options={[
+                                        {
+                                            id: "naqd",
+                                            name: "Naqd",
+                                        },
+                                        {
+                                            id: "card",
+                                            name: "Karta",
+                                        },
+                                    ]}
+                                    valueKey="id"
+                                    labelKey="name"
+                                    placeholder="Tanlang"
+                                />
+
+                                <FormNumberInput
+                                    control={control}
+                                    name={`incomes.${index}.amount`}
+                                    placeholder="Summa"
+                                />
+
+                                {incomeFields.length > 1 && (
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        onClick={() => removeIncome(index)}
+                                    >
+                                        O'chirish
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
+
+                        <Button
+                            type="button"
+                            variant="outline"
                             onClick={() =>
-                                setPreviewIndex(existingImages.length + index)
+                                appendIncome({
+                                    payment_type: "naqd",
+                                    amount: "",
+                                })
                             }
                         >
-                            <img
-                                src={URL.createObjectURL(file)}
-                                alt={`rasm-${index}`}
-                                className="w-full h-full object-cover"
-                            />
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    removeNewImage(index)
-                                }}
-                                className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Rasm yuklash */}
-            <div
-                className="border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors hover:border-primary/60 group"
-                style={{ minHeight: 100 }}
-                onClick={() => rasmInputRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                    e.preventDefault()
-                    if (e.dataTransfer.files?.length) {
-                        addImages(e.dataTransfer.files)
-                    }
-                }}
-            >
-                <div className="flex flex-col items-center justify-center gap-2 py-7 text-muted-foreground group-hover:text-primary transition-colors">
-                    <ImageIcon size={28} strokeWidth={1.5} />
-                    <span className="text-sm font-medium">
-                        Rasm yuklash yoki bu yerga tashlang
-                    </span>
-                    <span className="text-xs">
-                        Probeg / TTN rasmini yuklang
-                    </span>
-                </div>
-            </div>
-            <input
-                ref={rasmInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                onChange={(e) => {
-                    if (e.target.files?.length) {
-                        addImages(e.target.files)
-                        e.target.value = ""
-                    }
-                }}
-            />
-
-            <div className="flex justify-end pt-1">
-                <Button type="submit" loading={isPending} disabled={isPending}>
-                    Saqlash
-                </Button>
-            </div>
-        </form>
-
-        <Dialog
-            open={previewIndex !== null}
-            onOpenChange={() => setPreviewIndex(null)}
-        >
-            <DialogContent className="max-w-2xl p-2">
-                {previewIndex !== null && previewItems[previewIndex] && (
-                    <div className="relative flex items-center justify-center">
-                        {previewItems.length > 1 && (
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setPreviewIndex(
-                                        (previewIndex - 1 + previewItems.length) %
-                                            previewItems.length,
-                                    )
-                                }
-                                className="absolute left-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
-                            >
-                                <ChevronLeft size={20} />
-                            </button>
-                        )}
-                        <img
-                            src={previewItems[previewIndex].url}
-                            alt="preview"
-                            className="w-full h-auto rounded-lg"
-                        />
-                        {previewItems.length > 1 && (
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setPreviewIndex(
-                                        (previewIndex + 1) % previewItems.length,
-                                    )
-                                }
-                                className="absolute right-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
-                            >
-                                <ChevronRight size={20} />
-                            </button>
-                        )}
+                            + Qo'shish
+                        </Button>
                     </div>
                 )}
-            </DialogContent>
-        </Dialog>
+
+                {/* Status (faqat tahrirlashda) */}
+                {currentTripOrder?.id && (
+                    <FormCombobox
+                        label="Holati"
+                        name="status"
+                        control={control}
+                        options={STATUS_OPTIONS}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder="Holatni tanlang"
+                    />
+                )}
+
+                {/* Yuklangan rasmlar */}
+                {previewItems.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {existingImages.map((img, index) => (
+                            <div
+                                key={`e-${img.id}`}
+                                className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
+                                onClick={() => setPreviewIndex(index)}
+                            >
+                                <img
+                                    src={img.image}
+                                    alt={`rasm-${img.id}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        removeExistingImage(img.id)
+                                    }}
+                                    className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        ))}
+                        {images.map((file, index) => (
+                            <div
+                                key={`n-${index}`}
+                                className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
+                                onClick={() =>
+                                    setPreviewIndex(existingImages.length + index)
+                                }
+                            >
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={`rasm-${index}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        removeNewImage(index)
+                                    }}
+                                    className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Rasm yuklash */}
+                <div
+                    className="border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors hover:border-primary/60 group"
+                    style={{ minHeight: 100 }}
+                    onClick={() => rasmInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                        e.preventDefault()
+                        if (e.dataTransfer.files?.length) {
+                            addImages(e.dataTransfer.files)
+                        }
+                    }}
+                >
+                    <div className="flex flex-col items-center justify-center gap-2 py-7 text-muted-foreground group-hover:text-primary transition-colors">
+                        <ImageIcon size={28} strokeWidth={1.5} />
+                        <span className="text-sm font-medium">
+                            Rasm yuklash yoki bu yerga tashlang
+                        </span>
+                        <span className="text-xs">
+                            Probeg / TTN rasmini yuklang
+                        </span>
+                    </div>
+                </div>
+                <input
+                    ref={rasmInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    hidden
+                    onChange={(e) => {
+                        if (e.target.files?.length) {
+                            addImages(e.target.files)
+                            e.target.value = ""
+                        }
+                    }}
+                />
+
+                <div className="flex justify-end pt-1">
+                    <Button type="submit" loading={isPending} disabled={isPending}>
+                        Saqlash
+                    </Button>
+                </div>
+            </form>
+
+            <Dialog
+                open={previewIndex !== null}
+                onOpenChange={() => setPreviewIndex(null)}
+            >
+                <DialogContent className="max-w-2xl p-2">
+                    {previewIndex !== null && previewItems[previewIndex] && (
+                        <div className="relative flex items-center justify-center">
+                            {previewItems.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPreviewIndex(
+                                            (previewIndex - 1 + previewItems.length) %
+                                            previewItems.length,
+                                        )
+                                    }
+                                    className="absolute left-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                            )}
+                            <img
+                                src={previewItems[previewIndex].url}
+                                alt="preview"
+                                className="w-full h-auto rounded-lg"
+                            />
+                            {previewItems.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPreviewIndex(
+                                            (previewIndex + 1) % previewItems.length,
+                                        )
+                                    }
+                                    className="absolute right-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     )
 }
