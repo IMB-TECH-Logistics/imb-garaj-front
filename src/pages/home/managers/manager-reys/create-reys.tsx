@@ -14,9 +14,7 @@ import {
     TRIPS_ORDERS,
 } from "@/constants/api-endpoints"
 import {
-    findNaqdId,
     isNaqdPaymentTypeName,
-    NaqdAmountField,
     PaymentType,
 } from "./payment-fields"
 import { useGet } from "@/hooks/useGet"
@@ -154,6 +152,12 @@ const AddTripOrders = () => {
     )
 
     const isNaqd = !!watch("is_naqd")
+    const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
+    const selectedPaymentTypeIds = useMemo(
+        () => new Set((incomes ?? []).map((inc) => inc.payment_type).filter(Boolean)),
+        [incomes],
+    )
+    const allPaymentTypes = paymentTypesData?.results ?? []
     const cardId = paymentTypesData?.results?.find((item) =>
         ["card", "karta"].includes(item.name.toLowerCase()),
     )?.id
@@ -311,12 +315,7 @@ const AddTripOrders = () => {
 
     const onSubmit = (data: any) => {
         const isNaqdSel = !!data.is_naqd
-        const naqdId = findNaqdId(paymentTypesData?.results)
 
-        if (isNaqdSel && !naqdId) {
-            toast.error("Naqd to'lov turi sozlamasi topilmadi.")
-            return
-        }
         if (!isNaqdSel && !matchedDirection) {
             toast.error(
                 "Tanlangan yo'nalish uchun sozlama topilmadi. Avval Yo'nalishlar sozlamasida yaratib oling.",
@@ -324,14 +323,14 @@ const AddTripOrders = () => {
             return
         }
 
-        const incomes = [
-            isNaqdSel
-                ? {
-                    payment_type: naqdId,
-                    currency: 1,
-                    amount: String(data.amount ?? "0"),
-                }
-                : {
+        const incomes = isNaqdSel
+            ? (data.incomes ?? []).map((inc: any) => ({
+                payment_type: inc.payment_type,
+                currency: 1,
+                amount: String(inc.amount ?? "0"),
+            }))
+            : [
+                {
                     payment_type: matchedDirection!.payment_type,
                     currency: matchedDirection!.currency,
                     amount:
@@ -339,7 +338,7 @@ const AddTripOrders = () => {
                             ? String(matchedDirection!.amount)
                             : "0",
                 },
-        ]
+            ]
 
         const isEmpty = !data.cargo_type || data.cargo_type === 0
 
@@ -420,7 +419,6 @@ const AddTripOrders = () => {
                     </TabsList>
                 </Tabs>
 
-                {/* Yuk beruvchi (faqat Shartnoma) */}
                 {!isNaqd && (
                     <FormCombobox
                         required
@@ -434,10 +432,8 @@ const AddTripOrders = () => {
                     />
                 )}
 
-                {/* Qayerdan → Qayerga route visual */}
                 <div className="rounded-lg border bg-card/50 p-4">
                     <div className="flex gap-3">
-                        {/* Connector */}
                         <div className="relative shrink-0 w-3">
                             <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
                             <div
@@ -452,7 +448,6 @@ const AddTripOrders = () => {
                             <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
                         </div>
 
-                        {/* Inputs stacked */}
                         <div className="flex flex-col gap-4 flex-1">
                             <FormCombobox
                                 required
@@ -481,7 +476,6 @@ const AddTripOrders = () => {
 
                 </div>
 
-                {/* Mahsulot turi + Sana */}
                 <div className="flex gap-3">
                     <div className="flex-1">
                         <FormCombobox
@@ -509,7 +503,6 @@ const AddTripOrders = () => {
                     </div>
                 </div>
 
-                {/* Naqd tab: summa */}
                 {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
                 {isNaqd && (
                     <div className="space-y-3">
@@ -522,16 +515,9 @@ const AddTripOrders = () => {
                                     control={control}
                                     name={`incomes.${index}.payment_type`}
                                     label={index === 0 ? "To'lov turi" : ""}
-                                    options={[
-                                        {
-                                            id: "naqd",
-                                            name: "Naqd",
-                                        },
-                                        {
-                                            id: "card",
-                                            name: "Karta",
-                                        },
-                                    ]}
+                                    options={allPaymentTypes.filter(
+                                        (pt) => !selectedPaymentTypeIds.has(pt.id) || pt.id === incomes[index]?.payment_type,
+                                    )}
                                     valueKey="id"
                                     labelKey="name"
                                     placeholder="Tanlang"
@@ -558,9 +544,10 @@ const AddTripOrders = () => {
                         <Button
                             type="button"
                             variant="outline"
+                            disabled={selectedPaymentTypeIds.size >= allPaymentTypes.length}
                             onClick={() =>
                                 appendIncome({
-                                    payment_type: "naqd",
+                                    payment_type: null,
                                     amount: "",
                                 })
                             }
@@ -570,7 +557,6 @@ const AddTripOrders = () => {
                     </div>
                 )}
 
-                {/* Status (faqat tahrirlashda) */}
                 {currentTripOrder?.id && (
                     <FormCombobox
                         label="Holati"
@@ -583,7 +569,6 @@ const AddTripOrders = () => {
                     />
                 )}
 
-                {/* Yuklangan rasmlar */}
                 {previewItems.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                         {existingImages.map((img, index) => (
