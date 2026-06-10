@@ -5,28 +5,19 @@ export function formatMoney(
     className?: ClassNameValue,
     suffix?: boolean,
 ) {
-    // Round to at most 2 decimals, then strip trailing zeros (1234.50 -> 1234.5, 1234.00 -> 1234)
+    // Currency: round to a whole number, strip any decimal remainder (1234.56 -> 1235)
     const rounded =
         amount !== undefined && amount !== "" && amount !== null
-            ? Number(parseFloat(amount.toString()).toFixed(2))
+            ? Math.round(parseFloat(amount.toString()))
             : amount
-    const [integerPart, decimalPart] =
-        rounded ? rounded.toString().split(".") : ""
+    const integerPart = rounded ? rounded.toString() : ""
     const newIntegerPart = integerPart?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
     if (rounded) {
-        if (decimalPart && +decimalPart > 0) {
-            return (
-                <span className={`${className} text-nowrap`}>
-                    {newIntegerPart}.{decimalPart} {suffix ? " so'm" : ""}
-                </span>
-            )
-        } else {
-            return (
-                <span className={`${className} text-nowrap`}>
-                    {newIntegerPart} {suffix ? " so'm" : ""}
-                </span>
-            )
-        }
+        return (
+            <span className={`${className} text-nowrap`}>
+                {newIntegerPart} {suffix ? " so'm" : ""}
+            </span>
+        )
     } else {
         return (
             <span className={`${className} text-nowrap`}>

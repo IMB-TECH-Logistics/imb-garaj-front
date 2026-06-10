@@ -95,7 +95,7 @@ export const useCostCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     return (
-                        <span>{row.original.fuel_per_km ?? "—"}</span>
+                        <span>{row.original.fuel_per_km != null ? parseFloat(Number(row.original.fuel_per_km).toFixed(2)) : "—"}</span>
                     )
                 },
             },
