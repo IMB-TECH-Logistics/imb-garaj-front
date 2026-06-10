@@ -5,8 +5,9 @@ const getBaseURL = () => {
     if (import.meta.env.VITE_DEFAULT_URL) {
         return import.meta.env.VITE_DEFAULT_URL
     }
-    const subdomain = window.location.hostname.split(".")[0]
-    return `https://${subdomain}.imbgarage.uz/api/v1`
+    // Same-origin: nginx proxies /api/ to the backend, django-tenants
+    // resolves the tenant from the Host header (the current subdomain).
+    return `${window.location.origin}/api/v1`
 }
 
 export const baseURL = getBaseURL()
