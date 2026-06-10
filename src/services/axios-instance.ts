@@ -1,7 +1,15 @@
 import axios from "axios"
 import { toast } from "sonner"
 
-export const baseURL = import.meta.env.VITE_DEFAULT_URL
+const getBaseURL = () => {
+    if (import.meta.env.VITE_DEFAULT_URL) {
+        return import.meta.env.VITE_DEFAULT_URL
+    }
+    const subdomain = window.location.hostname.split(".")[0]
+    return `https://${subdomain}.imbgarage.uz/api/v1`
+}
+
+export const baseURL = getBaseURL()
 
 const axiosInstance = axios.create({
     baseURL,
