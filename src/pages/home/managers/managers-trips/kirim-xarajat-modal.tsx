@@ -486,7 +486,7 @@ function AddFinanceForm({
                     </div>
                     {salaryLookup?.results?.[0]?.current_amount?.amount ? (
                         <div className="text-[11px] text-emerald-600">
-                            Sozlangan tariff: {salaryLookup.results[0].current_amount.amount}
+                            Sozlangan tariff: {formatMoney(salaryLookup.results[0].current_amount.amount)}
                         </div>
                     ) : fromRegion && toRegion ? (
                         <div className="text-[11px] text-amber-600">
