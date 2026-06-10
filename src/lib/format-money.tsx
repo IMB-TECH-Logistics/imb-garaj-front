@@ -5,10 +5,15 @@ export function formatMoney(
     className?: ClassNameValue,
     suffix?: boolean,
 ) {
+    // Round to at most 2 decimals, then strip trailing zeros (1234.50 -> 1234.5, 1234.00 -> 1234)
+    const rounded =
+        amount !== undefined && amount !== "" && amount !== null
+            ? Number(parseFloat(amount.toString()).toFixed(2))
+            : amount
     const [integerPart, decimalPart] =
-        amount ? amount.toString().split(".") : ""
+        rounded ? rounded.toString().split(".") : ""
     const newIntegerPart = integerPart?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-    if (amount) {
+    if (rounded) {
         if (decimalPart && +decimalPart > 0) {
             return (
                 <span className={`${className} text-nowrap`}>
