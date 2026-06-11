@@ -41,6 +41,8 @@ type Props = {
     className?: string
     /** Render the line as a 2-stop gradient (start → end) instead of solid. */
     gradient?: boolean
+    /** Solid line color (hex). Overrides gradient when set. */
+    lineColor?: string
 }
 
 export default function RouteMap({
@@ -50,6 +52,7 @@ export default function RouteMap({
     height = "100%",
     className,
     gradient = false,
+    lineColor,
 }: Props) {
     const mapRef = useRef<MapRef | null>(null)
 
@@ -147,7 +150,7 @@ export default function RouteMap({
                         id="route-line"
                         type="geojson"
                         data={polylineFeature}
-                        lineMetrics={gradient}
+                        lineMetrics={gradient && !lineColor}
                     >
                         <Layer
                             id="route-line-casing"
@@ -166,7 +169,12 @@ export default function RouteMap({
                             id="route-line-stroke"
                             type="line"
                             paint={
-                                gradient
+                                lineColor
+                                    ? {
+                                          "line-color": lineColor,
+                                          "line-width": 4,
+                                      }
+                                    : gradient
                                     ? {
                                           "line-color": "#10b981",
                                           "line-width": 4,

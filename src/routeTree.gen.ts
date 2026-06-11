@@ -38,8 +38,14 @@ const MainKassaIndexLazyRouteImport = createFileRoute('/_main/kassa/')()
 const MainHaydovchilarIndexLazyRouteImport = createFileRoute(
   '/_main/haydovchilar/',
 )()
+const MainBuyurtmalarIndexLazyRouteImport = createFileRoute(
+  '/_main/buyurtmalar/',
+)()
 const MainBuxgalteriyaIndexLazyRouteImport = createFileRoute(
   '/_main/buxgalteriya/',
+)()
+const MainMonitoringStatusLazyRouteImport = createFileRoute(
+  '/_main/monitoring/status',
 )()
 const MainManagersManagersLazyRouteImport = createFileRoute(
   '/_main/_managers/managers',
@@ -175,6 +181,14 @@ const MainHaydovchilarIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/_main/haydovchilar/index.lazy').then((d) => d.Route),
   )
+const MainBuyurtmalarIndexLazyRoute =
+  MainBuyurtmalarIndexLazyRouteImport.update({
+    id: '/buyurtmalar/',
+    path: '/buyurtmalar/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/buyurtmalar/index.lazy').then((d) => d.Route),
+  )
 const MainBuxgalteriyaIndexLazyRoute =
   MainBuxgalteriyaIndexLazyRouteImport.update({
     id: '/buxgalteriya/',
@@ -182,6 +196,14 @@ const MainBuxgalteriyaIndexLazyRoute =
     getParentRoute: () => MainRoute,
   } as any).lazy(() =>
     import('./routes/_main/buxgalteriya/index.lazy').then((d) => d.Route),
+  )
+const MainMonitoringStatusLazyRoute =
+  MainMonitoringStatusLazyRouteImport.update({
+    id: '/monitoring/status',
+    path: '/monitoring/status',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/monitoring/status.lazy').then((d) => d.Route),
   )
 const MainManagersManagersLazyRoute =
   MainManagersManagersLazyRouteImport.update({
@@ -445,7 +467,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof MainDashboardLazyRoute
   '/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/managers': typeof MainManagersManagersLazyRoute
+  '/monitoring/status': typeof MainMonitoringStatusLazyRoute
   '/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
+  '/buyurtmalar/': typeof MainBuyurtmalarIndexLazyRoute
   '/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/kassa/': typeof MainKassaIndexLazyRoute
   '/moliya/': typeof MainMoliyaIndexLazyRoute
@@ -488,7 +512,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthAuthLazyRoute
   '/dashboard': typeof MainDashboardLazyRoute
   '/managers': typeof MainManagersManagersLazyRoute
+  '/monitoring/status': typeof MainMonitoringStatusLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
+  '/buyurtmalar': typeof MainBuyurtmalarIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/kassa': typeof MainKassaIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
@@ -535,7 +561,9 @@ export interface FileRoutesById {
   '/_main/': typeof MainIndexRoute
   '/_main/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
+  '/_main/monitoring/status': typeof MainMonitoringStatusLazyRoute
   '/_main/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
+  '/_main/buyurtmalar/': typeof MainBuyurtmalarIndexLazyRoute
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/_main/kassa/': typeof MainKassaIndexLazyRoute
   '/_main/moliya/': typeof MainMoliyaIndexLazyRoute
@@ -581,7 +609,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/haydovchilar/$id'
     | '/managers'
+    | '/monitoring/status'
     | '/buxgalteriya/'
+    | '/buyurtmalar/'
     | '/haydovchilar/'
     | '/kassa/'
     | '/moliya/'
@@ -624,7 +654,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/managers'
+    | '/monitoring/status'
     | '/buxgalteriya'
+    | '/buyurtmalar'
     | '/haydovchilar'
     | '/kassa'
     | '/moliya'
@@ -670,7 +702,9 @@ export interface FileRouteTypes {
     | '/_main/'
     | '/_main/haydovchilar/$id'
     | '/_main/_managers/managers'
+    | '/_main/monitoring/status'
     | '/_main/buxgalteriya/'
+    | '/_main/buyurtmalar/'
     | '/_main/haydovchilar/'
     | '/_main/kassa/'
     | '/_main/moliya/'
@@ -793,11 +827,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainHaydovchilarIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
+    '/_main/buyurtmalar/': {
+      id: '/_main/buyurtmalar/'
+      path: '/buyurtmalar'
+      fullPath: '/buyurtmalar/'
+      preLoaderRoute: typeof MainBuyurtmalarIndexLazyRouteImport
+      parentRoute: typeof MainRoute
+    }
     '/_main/buxgalteriya/': {
       id: '/_main/buxgalteriya/'
       path: '/buxgalteriya'
       fullPath: '/buxgalteriya/'
       preLoaderRoute: typeof MainBuxgalteriyaIndexLazyRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/monitoring/status': {
+      id: '/_main/monitoring/status'
+      path: '/monitoring/status'
+      fullPath: '/monitoring/status'
+      preLoaderRoute: typeof MainMonitoringStatusLazyRouteImport
       parentRoute: typeof MainRoute
     }
     '/_main/_managers/managers': {
@@ -1055,7 +1103,9 @@ interface MainRouteChildren {
   MainIndexRoute: typeof MainIndexRoute
   MainHaydovchilarIdRoute: typeof MainHaydovchilarIdRouteWithChildren
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
+  MainMonitoringStatusLazyRoute: typeof MainMonitoringStatusLazyRoute
   MainBuxgalteriyaIndexLazyRoute: typeof MainBuxgalteriyaIndexLazyRoute
+  MainBuyurtmalarIndexLazyRoute: typeof MainBuyurtmalarIndexLazyRoute
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
   MainKassaIndexLazyRoute: typeof MainKassaIndexLazyRoute
   MainMoliyaIndexLazyRoute: typeof MainMoliyaIndexLazyRoute
@@ -1097,7 +1147,9 @@ const MainRouteChildren: MainRouteChildren = {
   MainIndexRoute: MainIndexRoute,
   MainHaydovchilarIdRoute: MainHaydovchilarIdRouteWithChildren,
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
+  MainMonitoringStatusLazyRoute: MainMonitoringStatusLazyRoute,
   MainBuxgalteriyaIndexLazyRoute: MainBuxgalteriyaIndexLazyRoute,
+  MainBuyurtmalarIndexLazyRoute: MainBuyurtmalarIndexLazyRoute,
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
   MainKassaIndexLazyRoute: MainKassaIndexLazyRoute,
   MainMoliyaIndexLazyRoute: MainMoliyaIndexLazyRoute,
