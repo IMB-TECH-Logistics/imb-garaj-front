@@ -6,15 +6,15 @@ export function formatStaleness(seconds: number | null): string {
     if (seconds == null) return "—"
     if (seconds < 60) return `${seconds}s`
     const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) return `${minutes}m`
+    if (minutes < 60) return `${minutes} min`
     const hours = Math.floor(minutes / 60)
-    return `${hours}h ${minutes % 60}m`
+    return `${hours}h ${minutes % 60} min`
 }
 
 export const STALE_THRESHOLD_SECONDS = 5 * 60
 
 type DimensionRowProps = {
-    primary: string
+    primary: ReactNode
     secondary?: ReactNode
     metaRight?: ReactNode
     secondsSince: number | null
@@ -46,66 +46,50 @@ export function DimensionRow({
                 type="button"
                 onClick={onClick}
                 className={cn(
-                    "group relative flex w-full items-stretch gap-3 overflow-hidden rounded-lg border bg-card/90 p-3 text-left backdrop-blur-sm transition",
-                    "hover:border-primary/40 hover:bg-card",
+                    "group relative flex w-full flex-col gap-0.5 overflow-hidden rounded-lg border bg-card py-2 pl-3.5 pr-3 text-left transition",
+                    "hover:border-primary/40 hover:bg-accent/40",
                     active
-                        ? "border-primary/60 ring-2 ring-primary/15"
+                        ? "border-primary/60 ring-1 ring-primary/20"
                         : "border-border/70",
                 )}
             >
                 <span
                     aria-hidden
                     className={cn(
-                        "absolute top-0 bottom-0 left-0 w-[3px]",
-                        stale ? "bg-slate-400" : "bg-emerald-500",
+                        "absolute inset-y-0 left-0 w-[3px]",
+                        stale ? "bg-slate-400/70" : "bg-emerald-500",
                     )}
                 />
 
-                <div className="flex shrink-0 items-center pl-1">
-                    <span className="relative inline-flex h-2.5 w-2.5 items-center justify-center">
-                        {!stale && (
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/70" />
+                <div className="flex items-center justify-between gap-2">
+                    <span className="flex min-w-0 items-center gap-1.5">
+                        <span className="truncate text-sm font-semibold tracking-tight">
+                            {primary}
+                        </span>
+                        {badge}
+                    </span>
+                    <span
+                        className={cn(
+                            "shrink-0 font-mono text-[10px] uppercase tracking-wider tabular-nums",
+                            stale
+                                ? "text-muted-foreground"
+                                : "text-emerald-600 dark:text-emerald-400",
                         )}
-                        <span
-                            className={cn(
-                                "relative inline-flex h-2 w-2 rounded-full",
-                                stale ? "bg-slate-400" : "bg-emerald-500",
-                            )}
-                        />
+                    >
+                        {formatStaleness(secondsSince)}
                     </span>
                 </div>
 
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
-                    <div className="flex items-center justify-between gap-2">
-                        <span className="flex min-w-0 items-center gap-1.5">
-                            <span className="truncate text-sm font-semibold tracking-tight">
-                                {primary}
-                            </span>
-                            {badge}
+                {(secondary || metaRight) && (
+                    <div className="flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
+                        <span className="flex min-w-0 items-center gap-3">
+                            {secondary}
                         </span>
-                        <span
-                            className={cn(
-                                "shrink-0 font-mono text-[10px] uppercase tracking-wider tabular-nums",
-                                stale
-                                    ? "text-muted-foreground"
-                                    : "text-emerald-600 dark:text-emerald-400",
-                            )}
-                        >
-                            {formatStaleness(secondsSince)}
-                        </span>
+                        {metaRight && (
+                            <span className="shrink-0">{metaRight}</span>
+                        )}
                     </div>
-
-                    {(secondary || metaRight) && (
-                        <div className="flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
-                            <span className="flex min-w-0 items-center gap-3">
-                                {secondary}
-                            </span>
-                            {metaRight && (
-                                <span className="shrink-0">{metaRight}</span>
-                            )}
-                        </div>
-                    )}
-                </div>
+                )}
             </button>
         </li>
     )
@@ -115,7 +99,7 @@ export function DimensionListSkeleton({ rows = 5 }: { rows?: number }) {
     return (
         <div className="flex flex-col gap-2">
             {Array.from({ length: rows }).map((_, i) => (
-                <Skeleton key={i} className="h-[68px] w-full rounded-lg" />
+                <Skeleton key={i} className="h-[52px] w-full rounded-lg" />
             ))}
         </div>
     )

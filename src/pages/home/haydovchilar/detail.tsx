@@ -70,7 +70,8 @@ const num = (v: unknown) => Number(v ?? 0) || 0
 
 function formatMoneyText(n: number): string {
     const negative = n < 0
-    const abs = Math.abs(n)
+    // Round doubles to at most two figures after the comma.
+    const abs = Math.round(Math.abs(n) * 100) / 100
     const [int, dec] = abs.toString().split(".")
     const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
     return (negative ? "-" : "") + grouped + (dec && Number(dec) > 0 ? `.${dec}` : "")
@@ -278,10 +279,28 @@ export default function HaydovchiDetail() {
 
             {overview && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <StatCard
-                        label="Reyslar (yakun./jami)"
-                        value={`${overview.completed_trips}/${overview.total_trips}`}
-                    />
+                    <Card>
+                        <CardContent className="p-3">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                                        Aylanmalar
+                                    </div>
+                                    <div className="text-lg font-semibold tabular-nums">
+                                        {`${overview.completed_trips}/${overview.total_trips}`}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                                        Reyslar
+                                    </div>
+                                    <div className="text-lg font-semibold tabular-nums">
+                                        {`${overview.completed_orders}/${overview.total_orders}`}
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                     <StatCard
                         label="Olib kelgan (UZS)"
                         value={formatMoneyText(num(overview.revenue_uzs))}
@@ -293,24 +312,8 @@ export default function HaydovchiDetail() {
                         accent="text-rose-600"
                     />
                     <StatCard
-                        label="Tajriba"
-                        value={
-                            overview.experience > 0
-                                ? `${overview.experience} yil`
-                                : "—"
-                        }
-                    />
-                    <StatCard
                         label="Yoqilg'i"
                         value={`${num(overview.fuel_per_100km).toFixed(1)} l/100km`}
-                    />
-                    <StatCard
-                        label="Qamrov (hudud)"
-                        value={overview.coverage}
-                    />
-                    <StatCard
-                        label="Buyurtmalar (yakun./jami)"
-                        value={`${overview.completed_orders}/${overview.total_orders}`}
                     />
                 </div>
             )}

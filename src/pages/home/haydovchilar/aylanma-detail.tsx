@@ -88,7 +88,7 @@ const useOrderCols = () =>
                 cell: ({ row }) => row.original.cargo_type_name || "—",
             },
             {
-                header: "Status",
+                header: "Holat",
                 accessorKey: "status",
                 cell: ({ row }) => {
                     const s = ORDER_STATUS_LABEL[row.original.status]
@@ -127,29 +127,29 @@ const useOrderCols = () =>
             },
             {
                 header: "Oylik",
-                id: "salary_status",
+                accessorKey: "salary_paid_uzs",
                 cell: ({ row }) => {
                     const paid = num(row.original.salary_paid_uzs)
-                    if (row.original.salary_given) {
-                        return (
-                            <div className="flex flex-col">
-                                <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 w-fit">
-                                    Berildi
-                                </Badge>
-                                {paid > 0 && (
-                                    <span className="text-[11px] text-muted-foreground tabular-nums">
-                                        {formatMoney(paid)} UZS
-                                    </span>
-                                )}
-                            </div>
-                        )
-                    }
-                    return (
+                    return paid > 0 ? (
+                        <span className="tabular-nums">{formatMoney(paid)}</span>
+                    ) : (
+                        <span className="text-muted-foreground">—</span>
+                    )
+                },
+            },
+            {
+                header: "Status",
+                id: "salary_status",
+                cell: ({ row }) =>
+                    row.original.salary_given ? (
+                        <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 w-fit">
+                            Berildi
+                        </Badge>
+                    ) : (
                         <Badge className="bg-amber-500/15 text-amber-500 hover:bg-amber-500/20 w-fit">
                             Berilmadi
                         </Badge>
-                    )
-                },
+                    ),
             },
         ],
         [],

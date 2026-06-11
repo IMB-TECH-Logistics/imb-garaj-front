@@ -9,6 +9,7 @@ type ManagerVehicles = {
     loading_name: string
     unloading_name: string
     order_status: number
+    phone?: string | null
 }
 
 type ImageField = File | string | null

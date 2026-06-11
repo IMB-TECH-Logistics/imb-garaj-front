@@ -50,10 +50,14 @@ type OrderDispatchData = {
     dispatcher: {
         id: number
         full_name: string
-    }
+    } | null
     get_time: string
     contact: ContactField
-
+    rejected_time?: string
+    updated_at?: string
+    sub_status?: number
+    loading_id?: number | string
+    created_through?: number | string
 }
 
 

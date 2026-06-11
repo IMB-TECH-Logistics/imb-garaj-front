@@ -120,3 +120,12 @@ export const DRIVERS_LIST = "users/drivers/list"
 
 export const LOGS_LIST = "logs"
 export const LOGS_SECTION = "logs/section"
+
+/** ===== BUYURTMALAR / DISPATCHER ORDERS ===== */
+export const DISPATCHERS_WAITING_ORDERS = "dispatchers/waiting-orders"
+export const DISPATCHERS_BOOK_ORDER = "dispatchers/book-order"
+export const DISPATCHERS__WITHDRAW = "dispatchers/withdraw"
+export const DISPATCHERS__CONTROL_WITHDRAW = "dispatchers/control-withdraw"
+export const MANAGERS_ORDERS_DELETE = "managers/orders/delete"
+export const ORDERS_FREEZE = "orders/freeze"
+export const ORDERS_UNDO_FREEZE = "orders/undo-freeze"

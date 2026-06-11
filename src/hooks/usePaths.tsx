@@ -105,6 +105,12 @@ export const usePaths = () => {
 export const useItems = () =>
     useMemo<MenuItem[]>(
         () => [
+            // {
+            //     label: "Buyurtmalar",
+            //     icon: <ClipboardList size={18} />,
+            //     path: "/buyurtmalar",
+            //     alwaysShow: true,
+            // },
             {
                 label: "Meneger",
                 icon: <User size={18} />,

@@ -8,7 +8,6 @@ import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import { ParamCombobox } from "@/components/as-params/combobox"
-import ParamInput from "@/components/as-params/input"
 import { useAccountingCols, ReysOrder } from "./cols"
 import EditReysModal from "./edit-reys"
 import BuxgalteriyaExcelModal, {
@@ -116,11 +115,6 @@ const BuxgalteriyaPage = () => {
                                 options={cargoTypeOptions}
                                 label="Yuk turi"
                                 addButtonProps={comboStyle}
-                            />
-                            <ParamInput
-                                searchKey="search"
-                                placeholder="Davlat raqami..."
-                                className="!bg-background dark:!bg-secondary min-w-40"
                             />
                             <ParamDateRange
                                 from="from_date"

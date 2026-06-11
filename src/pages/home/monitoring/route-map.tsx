@@ -22,6 +22,8 @@ const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 
 export type MapPoint = [number, number] // [lng, lat]
 
+export type ColoredSegment = { points: MapPoint[]; color: string }
+
 export type LiveMarker = {
     id: string | number
     lat: number
@@ -41,6 +43,10 @@ type Props = {
     className?: string
     /** Render the line as a 2-stop gradient (start → end) instead of solid. */
     gradient?: boolean
+    /** Solid line color (hex). Overrides gradient when set. */
+    lineColor?: string
+    /** Draw the route as per-status colored sub-paths. Overrides the solid line. */
+    segments?: ColoredSegment[]
 }
 
 export default function RouteMap({
@@ -50,8 +56,26 @@ export default function RouteMap({
     height = "100%",
     className,
     gradient = false,
+    lineColor,
+    segments,
 }: Props) {
     const mapRef = useRef<MapRef | null>(null)
+
+    const segmentFeatures = useMemo(() => {
+        const valid = (segments ?? []).filter((s) => s.points.length >= 2)
+        if (valid.length === 0) return null
+        return {
+            type: "FeatureCollection" as const,
+            features: valid.map((s) => ({
+                type: "Feature" as const,
+                properties: { color: s.color },
+                geometry: {
+                    type: "LineString" as const,
+                    coordinates: s.points,
+                },
+            })),
+        }
+    }, [segments])
 
     const polylineFeature = useMemo(() => {
         if (!points || points.length < 2) return null
@@ -142,12 +166,44 @@ export default function RouteMap({
                     showCompass={false}
                 />
 
-                {polylineFeature && (
+                {segmentFeatures ? (
+                    <Source
+                        id="route-segments"
+                        type="geojson"
+                        data={segmentFeatures}
+                    >
+                        <Layer
+                            id="route-seg-casing"
+                            type="line"
+                            paint={{
+                                "line-color": "#0b1220",
+                                "line-width": 8,
+                                "line-opacity": 0.45,
+                            }}
+                            layout={{
+                                "line-cap": "round",
+                                "line-join": "round",
+                            }}
+                        />
+                        <Layer
+                            id="route-seg-stroke"
+                            type="line"
+                            paint={{
+                                "line-color": ["get", "color"],
+                                "line-width": 4,
+                            }}
+                            layout={{
+                                "line-cap": "round",
+                                "line-join": "round",
+                            }}
+                        />
+                    </Source>
+                ) : polylineFeature ? (
                     <Source
                         id="route-line"
                         type="geojson"
                         data={polylineFeature}
-                        lineMetrics={gradient}
+                        lineMetrics={gradient && !lineColor}
                     >
                         <Layer
                             id="route-line-casing"
@@ -166,7 +222,12 @@ export default function RouteMap({
                             id="route-line-stroke"
                             type="line"
                             paint={
-                                gradient
+                                lineColor
+                                    ? {
+                                          "line-color": lineColor,
+                                          "line-width": 4,
+                                      }
+                                    : gradient
                                     ? {
                                           "line-color": "#10b981",
                                           "line-width": 4,
@@ -193,7 +254,7 @@ export default function RouteMap({
                             }}
                         />
                     </Source>
-                )}
+                ) : null}
 
                 {startPoint && (
                     <Marker
