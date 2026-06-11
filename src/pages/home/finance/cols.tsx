@@ -94,8 +94,9 @@ export const useCostCols = () => {
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
                 cell: ({ row }) => {
+                    const v = row.original.fuel_per_km
                     return (
-                        <span>{row.original.fuel_per_km ?? "—"}</span>
+                        <span>{v != null ? Number(toNum(v).toFixed(2)) : "—"}</span>
                     )
                 },
             },

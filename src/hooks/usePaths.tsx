@@ -1,6 +1,6 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { Settings, Truck, User, Users, Wallet, Coins, Activity, Boxes, ClipboardList } from "lucide-react"
+import { Settings, Truck, User, Users, Wallet, Coins, Activity, Boxes } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 
 export interface MenuItem {
@@ -105,12 +105,12 @@ export const usePaths = () => {
 export const useItems = () =>
     useMemo<MenuItem[]>(
         () => [
-            {
-                label: "Buyurtmalar",
-                icon: <ClipboardList size={18} />,
-                path: "/buyurtmalar",
-                alwaysShow: true,
-            },
+            // {
+            //     label: "Buyurtmalar",
+            //     icon: <ClipboardList size={18} />,
+            //     path: "/buyurtmalar",
+            //     alwaysShow: true,
+            // },
             {
                 label: "Meneger",
                 icon: <User size={18} />,
@@ -159,10 +159,6 @@ export const useItems = () =>
                 path: "/monitoring",
                 allowKey: "monitoring_view",
                 alwaysShow: true,
-                items: [
-                    { label: "Monitoring", path: "/monitoring", allowKey: "monitoring_view", alwaysShow: true },
-                    { label: "Status hisoboti", path: "/monitoring/status", alwaysShow: true },
-                ],
             },
             {
                 label: "Sozlamalar",

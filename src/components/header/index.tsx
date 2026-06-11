@@ -7,6 +7,7 @@ import { SidebarTrigger, useSidebar } from "../ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ThemeColorToggle } from "./color-toggle"
 import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamInput from "@/components/as-params/input"
 
 const Header = () => {
     const { open } = useSidebar()
@@ -62,6 +63,14 @@ const Header = () => {
             </div>
 
             <hgroup className="flex items-center gap-2 sm:gap-4">
+                {pathname.startsWith("/buxgalteriya") && (
+                    <ParamInput
+                        searchKey="search"
+                        placeholder="Davlat raqami..."
+                        wrapperClassName="!h-9 !w-56 hidden sm:block"
+                        className="!h-9 !bg-muted/40 text-sm"
+                    />
+                )}
                 {pathname.startsWith("/moliya") && (
                     <ParamDateRange
                         from="from_date"

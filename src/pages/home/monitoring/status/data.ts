@@ -217,3 +217,72 @@ export function trackDistanceKm(points: [number, number][]): number {
     }
     return m / 1000
 }
+
+const MOCK_FIRST = [
+    "Akmal", "Bekzod", "Davron", "Jasur", "Sardor", "Otabek", "Sherzod",
+    "Xojiakbar", "Ulug'bek", "Farrux", "Nodir", "Sanjar", "Rustam", "Aziz",
+    "Kamol", "Dilshod", "Shavkat", "Bahodir", "Islom", "Temur",
+]
+const MOCK_LAST = [
+    "Komilov", "Aliyev", "Karimov", "Yusupov", "Rashidov", "Toshev", "Umarov",
+    "Nazarov", "Sobirov", "Ergashev", "Qodirov", "Maxmudov", "Tursunov",
+    "Olimov", "Saidov", "Yo'ldoshev", "Hamidov", "Raximov", "Berdiyev", "Jo'rayev",
+]
+const PLATE_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"]
+
+// Deterministic mock driver name + truck plate, keyed by id. Replaces the
+// placeholder/test data coming from the API so the (mock) demo reads cleanly.
+export function mockDriverIdentity(id: number): { name: string; plate: string } {
+    const rand = mulberry32(id * 2654435761 + 101)
+    const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)]
+    const name = `${pick(MOCK_FIRST)} ${pick(MOCK_LAST)}`
+    const region = String(10 + Math.floor(rand() * 90))
+    const num = String(100 + Math.floor(rand() * 900))
+    const plate = `${region} ${pick(PLATE_LETTERS)} ${num} ${pick(PLATE_LETTERS)}${pick(PLATE_LETTERS)}`
+    return { name, plate }
+}
+
+export type ColoredPathSegment = {
+    points: [number, number][]
+    color: string
+    status: number
+}
+
+// Split a GPS track into status-colored sub-paths. Mock: the real points carry
+// no per-point status, so they're distributed across the day's mock status
+// segments proportionally to each status's duration. Same engine as the ribbon,
+// so the map colors and the ribbon agree. Consecutive sub-paths share a point
+// so the drawn line stays continuous.
+export function buildStatusColoredPath(
+    points: [number, number][],
+    vehicleId: number,
+    day: Date,
+): ColoredPathSegment[] {
+    if (points.length < 2) return []
+    const segs = splitByDay(buildMockTimeline(vehicleId, day, day), day)
+    const totalMin = segs.reduce((a, s) => a + (s.endMin - s.startMin), 0)
+    if (segs.length === 0 || totalMin <= 0) return []
+
+    const n = points.length
+    const cuts: number[] = [0]
+    let cum = 0
+    for (const s of segs) {
+        cum += (s.endMin - s.startMin) / totalMin
+        cuts.push(Math.round(cum * (n - 1)))
+    }
+    cuts[cuts.length - 1] = n - 1
+
+    const out: ColoredPathSegment[] = []
+    for (let i = 0; i < segs.length; i++) {
+        const a = cuts[i]
+        const b = cuts[i + 1]
+        if (b <= a) continue
+        const meta = STATUS_META[segs[i].status]
+        out.push({
+            points: points.slice(a, b + 1),
+            color: meta?.color ?? "#10b981",
+            status: segs[i].status,
+        })
+    }
+    return out
+}

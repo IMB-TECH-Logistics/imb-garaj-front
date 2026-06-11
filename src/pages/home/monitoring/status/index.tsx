@@ -9,7 +9,13 @@ type View =
     | { type: "timeline"; vehicle: VehicleRow }
     | { type: "route"; vehicle: VehicleRow; status: number; from: "list" | "timeline" }
 
-export default function StatusReport() {
+export default function StatusReport({
+    onSelectOnMap,
+}: {
+    // Tapping a timeline segment selects that avtomobil on the map with the
+    // tapped status active on the Holat lentasi (status ribbon).
+    onSelectOnMap?: (vehicleId: number, status: number) => void
+}) {
     const [view, setView] = useState<View>({ type: "list" })
 
     if (view.type === "timeline")
@@ -18,12 +24,14 @@ export default function StatusReport() {
                 vehicle={view.vehicle}
                 onBack={() => setView({ type: "list" })}
                 onShowRoute={(status) =>
-                    setView({
-                        type: "route",
-                        vehicle: view.vehicle,
-                        status,
-                        from: "timeline",
-                    })
+                    onSelectOnMap
+                        ? onSelectOnMap(view.vehicle.id, status)
+                        : setView({
+                              type: "route",
+                              vehicle: view.vehicle,
+                              status,
+                              from: "timeline",
+                          })
                 }
             />
         )

@@ -1,12 +1,9 @@
-import ParamDateRange from "@/components/as-params/date-picker-range"
 import { DataTable } from "@/components/ui/datatable"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { eachDayOfInterval, endOfMonth, startOfMonth } from "date-fns"
-import { Search } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import {
     ACTIVE_STATUSES,
     buildMockTimeline,
@@ -33,8 +30,8 @@ export default function VehicleList({
     onSelect: (v: VehicleRow) => void
     onStatusSelect: (v: VehicleRow, status: number) => void
 }) {
-    const [q, setQ] = useState("")
     const search = useSearch({ strict: false }) as Record<string, string>
+    const q = search.q ?? ""
     const today = new Date()
     const from = search.from_date
         ? new Date(search.from_date)
@@ -68,37 +65,47 @@ export default function VehicleList({
 
     const columns = useMemo<ColumnDef<Row>[]>(() => {
         const statusCols: ColumnDef<Row>[] = [...ACTIVE_STATUSES, IDLE].map(
-            (k) => ({
-                header: () => (
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                        <span
-                            className={cn(
-                                "h-2.5 w-2.5 rounded-sm",
-                                STATUS_META[k].dot,
-                            )}
-                        />
-                        {STATUS_META[k].label}
-                    </div>
-                ),
-                accessorKey: `status_${k}`,
-                cell: ({ row }) => (
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onStatusSelect(row.original, k)
-                        }}
-                        className="tabular-nums cursor-pointer rounded px-1.5 py-0.5 hover:bg-muted hover:underline"
-                    >
-                        {fmtDur(row.original.totals[k] ?? 0)}
-                    </button>
-                ),
-            }),
+            (k) => {
+                const id = `status_${k}`
+                return {
+                    id,
+                    accessorFn: (row) => fmtDur(row.totals[k] ?? 0),
+                    enableSorting: true,
+                    sortingFn: (a, b) =>
+                        (a.original.totals[k] ?? 0) -
+                        (b.original.totals[k] ?? 0),
+                    header: () => (
+                        <span className="flex items-center gap-1.5 whitespace-nowrap">
+                            <span
+                                className={cn(
+                                    "h-2.5 w-2.5 rounded-sm",
+                                    STATUS_META[k].dot,
+                                )}
+                            />
+                            {STATUS_META[k].label}
+                        </span>
+                    ),
+                    cell: ({ row }) => (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onStatusSelect(row.original, k)
+                            }}
+                            className="tabular-nums cursor-pointer rounded px-1.5 py-0.5 hover:bg-muted hover:underline"
+                        >
+                            {fmtDur(row.original.totals[k] ?? 0)}
+                        </button>
+                    ),
+                }
+            },
         )
         return [
             {
+                id: "truck_number",
+                accessorFn: (row) => row.truck_number,
+                enableSorting: true,
                 header: "Mashina",
-                accessorKey: "truck_number",
                 cell: ({ row }) => (
                     <span className="font-medium whitespace-nowrap">
                         {row.original.truck_number}
@@ -106,8 +113,10 @@ export default function VehicleList({
                 ),
             },
             {
+                id: "driver_name",
+                accessorFn: (row) => row.driver_name,
+                enableSorting: true,
                 header: "Haydovchi",
-                accessorKey: "driver_name",
                 cell: ({ row }) => (
                     <div className="whitespace-nowrap">
                         <div>{row.original.driver_name}</div>
@@ -119,31 +128,10 @@ export default function VehicleList({
             },
             ...statusCols,
         ]
-    }, [onStatusSelect])
+    }, [onStatusSelect, rows])
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="relative max-w-xs flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        value={q}
-                        onChange={(e) => setQ(e.target.value)}
-                        placeholder="Mashina yoki haydovchi..."
-                        className="pl-8"
-                    />
-                </div>
-                <ParamDateRange
-                    from="from_date"
-                    to="to_date"
-                    clearable={false}
-                    defaultValue={{ from: startOfMonth(today), to: endOfMonth(today) }}
-                    addButtonProps={{
-                        className:
-                            "!bg-muted/50 h-8 text-xs min-w-28 justify-start",
-                    }}
-                />
-            </div>
             <DataTable
                 columns={columns}
                 data={rows}

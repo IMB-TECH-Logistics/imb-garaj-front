@@ -3,6 +3,9 @@ import { useMemo } from "react"
 import { formatMoney } from "@/lib/format-money"
 import { Badge } from "@/components/ui/badge"
 
+// At most two figures after the decimal comma, trailing zeros trimmed.
+const round2 = (v: unknown) => Number((Number(v ?? 0) || 0).toFixed(2))
+
 export interface OrderTripType {
     date: string
     loading_name: string
@@ -88,7 +91,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 cell: ({ row }) => {
                     const data = row.original;
                     if (!data.is_summary) return null;
-                    return <span className="font-bold text-white">{data.total_mileage} km</span>
+                    return <span className="font-bold text-white">{round2(data.total_mileage)} km</span>
                 },
             },
             {
@@ -99,7 +102,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 cell: ({ row }) => {
                     const data = row.original;
                     if (!data.is_summary) return null;
-                    return <span className="font-bold text-white">{data.fuel_consume}</span>
+                    return <span className="font-bold text-white">{round2(data.fuel_consume)}</span>
                 },
             },
             {

@@ -351,6 +351,18 @@ export function DataTable<TData>({
 
                                         {headerGroup.headers.map(
                                             (header, index) => {
+                                                // Columns can opt out of the built-in sort chevron + header-click
+                                                // sorting (e.g. when an external popover drives sorting).
+                                                const hideSortIndicator = (
+                                                    header.column.columnDef
+                                                        .meta as
+                                                        | { hideSortIndicator?: boolean }
+                                                        | undefined
+                                                )?.hideSortIndicator
+                                                const showSort =
+                                                    header.column.columnDef
+                                                        .enableSorting &&
+                                                    !hideSortIndicator
                                                 return (
                                                     <TableHead
                                                         key={header.id}
@@ -360,11 +372,7 @@ export function DataTable<TData>({
                                                         )}
                                                         style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}
                                                         onClick={
-                                                            (
-                                                                header.column
-                                                                    .columnDef
-                                                                    .enableSorting
-                                                            ) ?
+                                                            showSort ?
                                                                 header.column.getToggleSortingHandler()
                                                             :   undefined
                                                         }
@@ -377,11 +385,7 @@ export function DataTable<TData>({
                                                                 header.getContext(),
                                                             )}
 
-                                                            {(
-                                                                header.column
-                                                                    .columnDef
-                                                                    .enableSorting
-                                                            ) ?
+                                                            {showSort ?
                                                                 ({
                                                                     asc: (
                                                                         <ChevronUp
