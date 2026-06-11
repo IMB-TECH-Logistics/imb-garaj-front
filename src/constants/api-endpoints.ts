@@ -96,6 +96,9 @@ export const MONITORING_TRIP_TRACK = "monitoring/trips"
 export const MONITORING_ORDERS = "monitoring/orders"
 export const MONITORING_TRIPS_TRACKING = "monitoring/trips"
 export const MONITORING_VEHICLES = "monitoring/vehicles"
+export const MONITORING_STATUS_VEHICLES = "monitoring/status/vehicles"
+export const MONITORING_STATUS_TIMELINE = "monitoring/status/timeline"
+export const MONITORING_STATUS_ROUTE = "monitoring/status/route"
 
 /** ===== WAREHOUSE / OMBOR ===== */
 export const WAREHOUSE_PRODUCTS = "warehouse/products"
@@ -129,3 +132,13 @@ export const DISPATCHERS__CONTROL_WITHDRAW = "dispatchers/control-withdraw"
 export const MANAGERS_ORDERS_DELETE = "managers/orders/delete"
 export const ORDERS_FREEZE = "orders/freeze"
 export const ORDERS_UNDO_FREEZE = "orders/undo-freeze"
+
+/** ===== FINANCE (moliya dashboard) ===== */
+export const FINANCE_SUMMARY = "finance/summary"
+export const FINANCE_INCOME_EXPENSE = "finance/income-expense"
+export const FINANCE_BALANCE = "finance/balance"
+export const FINANCE_CATEGORIES = "finance/categories"
+export const FINANCE_LEDGER = "finance/ledger"
+export const FINANCE_DEBTORS = "finance/debtors"
+export const FINANCE_CREDITORS = "finance/creditors"
+export const FINANCE_FORECAST = "finance/forecast"

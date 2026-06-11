@@ -24,7 +24,7 @@ import {
     RefreshCcw,
 } from "lucide-react"
 import { endOfMonth, startOfMonth } from "date-fns"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo } from "react"
 import ParamInput from "@/components/as-params/input"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
@@ -58,49 +58,73 @@ export default function MonitoringView() {
     const navigate = useNavigate()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const search = useSearch({ strict: false }) as any
-    const [dimension, setDimension] = useState<Dimension>("driver")
-    const [filters, setFilters] = useState<MonitoringFilters>(EMPTY_FILTERS)
-    // "map" = live map + side panel; "report" = status hisoboti takes over, map
-    // shrinks to a corner. Driven by a query param so the expand transition
-    // stays on the same route (no page navigation).
-    const mode: "map" | "report" = search?.report ? "report" : "map"
-    const setMode = (m: "map" | "report") =>
+    const patchSearch = (patch: Record<string, unknown>) =>
         navigate({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            search: ((prev: any) => ({
-                ...prev,
-                report: m === "report" ? 1 : undefined,
-            })) as any,
+            search: ((prev: any) => {
+                const next = { ...prev, ...patch }
+                for (const key of Object.keys(next)) {
+                    const v = next[key]
+                    if (v === undefined || v === null || v === "")
+                        delete next[key]
+                }
+                return next
+            }) as any,
         })
-    // Status isolated on the ribbon → map shows only that status's path.
-    const [activeStatus, setActiveStatus] = useState<number | null>(null)
-    const toggleStatus = (s: number) =>
-        setActiveStatus((prev) => (prev === s ? null : s))
 
-    // A status tapped in the report → select that avtomobil on the map AND
-    // pre-activate that status on the ribbon. The driver-change effect below
-    // would wipe activeStatus, so stash the desired status and re-apply it.
-    const pendingStatusRef = useRef<number | null>(null)
-
-    // Clear the isolated status when the driver or day changes (unless a status
-    // was explicitly requested for the new selection).
-    useEffect(() => {
-        setActiveStatus(pendingStatusRef.current)
-        pendingStatusRef.current = null
-    }, [filters.driver, filters.fromDate])
-
-    // Report timeline → map: select the avtomobil with the tapped status active.
-    const selectFromStatus = (vehicleId: number, status: number) => {
-        pendingStatusRef.current = status
-        setMode("map")
-        setDimension("driver")
-        setFilters({
-            ...EMPTY_FILTERS,
-            driver: vehicleId,
-            fromDate: todayIso(),
-            toDate: "",
-        })
+    const num = (v: unknown): number | null => {
+        if (v === undefined || v === null || v === "") return null
+        const n = Number(v)
+        return Number.isNaN(n) ? null : n
     }
+
+    const dimension: Dimension = (search?.dimension as Dimension) ?? "driver"
+    const filters: MonitoringFilters = useMemo(
+        () => ({
+            driver: num(search?.driver),
+            order: num(search?.order),
+            trip: num(search?.trip),
+            vehicle: num(search?.vehicle),
+            fromDate: (search?.mdate as string) ?? "",
+            toDate: "",
+        }),
+        [
+            search?.driver,
+            search?.order,
+            search?.trip,
+            search?.vehicle,
+            search?.mdate,
+        ],
+    )
+    const setFilters = (f: MonitoringFilters) =>
+        patchSearch({
+            driver: f.driver ?? undefined,
+            order: f.order ?? undefined,
+            trip: f.trip ?? undefined,
+            vehicle: f.vehicle ?? undefined,
+            mdate: f.fromDate || undefined,
+            status: undefined,
+        })
+
+    const mode: "map" | "report" = search?.report ? "report" : "map"
+    const setMode = (m: "map" | "report") =>
+        patchSearch({ report: m === "report" ? 1 : undefined })
+
+    const activeStatus = num(search?.status)
+    const toggleStatus = (s: number) =>
+        patchSearch({ status: activeStatus === s ? undefined : s })
+
+    const selectFromStatus = (vehicleId: number, status: number) =>
+        patchSearch({
+            report: undefined,
+            dimension: undefined,
+            driver: vehicleId,
+            order: undefined,
+            trip: undefined,
+            vehicle: undefined,
+            mdate: todayIso(),
+            status,
+        })
 
     const historical = isHistoricalView(filters)
     const selectedId =

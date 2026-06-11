@@ -1,14 +1,20 @@
+import { MONITORING_STATUS_VEHICLES } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { DataTable } from "@/components/ui/datatable"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
-import { eachDayOfInterval, endOfMonth, startOfMonth } from "date-fns"
+import {
+    eachDayOfInterval,
+    endOfMonth,
+    format,
+    startOfMonth,
+} from "date-fns"
 import { useMemo } from "react"
 import {
     ACTIVE_STATUSES,
-    buildMockTimeline,
+    type ApiStatusVehicle,
     IDLE,
-    MOCK_VEHICLES,
     STATUS_META,
     type VehicleRow,
 } from "./data"
@@ -43,25 +49,42 @@ export default function VehicleList({
         return eachDayOfInterval({ start: from, end: to }).slice(0, 62).length
     }, [from.getTime(), to.getTime()])
 
+    const { data: vehicles = [] } = useGet<ApiStatusVehicle[]>(
+        MONITORING_STATUS_VEHICLES,
+        {
+            params: {
+                from_date: format(from, "yyyy-MM-dd"),
+                to_date: format(to, "yyyy-MM-dd"),
+            },
+        },
+    )
+
     const rows = useMemo<Row[]>(() => {
         const s = q.trim().toLowerCase()
-        return MOCK_VEHICLES.filter(
-            (v) =>
-                !s ||
-                v.truck_number.toLowerCase().includes(s) ||
-                v.driver_name.toLowerCase().includes(s),
-        ).map((v) => {
-            const segments = buildMockTimeline(v.id, from, to)
-            const map: Record<number, number> = {}
-            for (const seg of segments) {
-                const mins = (seg.end.getTime() - seg.start.getTime()) / 60000
-                map[seg.status] = (map[seg.status] ?? 0) + mins
-            }
-            const active = Object.values(map).reduce((a, b) => a + b, 0)
-            map[IDLE] = Math.max(0, dayCount * 1440 - active)
-            return { ...v, totals: map }
-        })
-    }, [q, from.getTime(), to.getTime(), dayCount])
+        return vehicles
+            .map<Row>((v) => {
+                const totals: Record<number, number> = { ...v.totals }
+                const active = ACTIVE_STATUSES.reduce(
+                    (a, k) => a + (totals[k] ?? 0),
+                    0,
+                )
+                totals[IDLE] = Math.max(0, dayCount * 1440 - active)
+                return {
+                    id: v.id,
+                    truck_number: v.truck_number,
+                    driver_name: v.driver_name ?? "—",
+                    type: v.type ?? "—",
+                    current_status: v.current_status,
+                    totals,
+                }
+            })
+            .filter(
+                (v) =>
+                    !s ||
+                    v.truck_number.toLowerCase().includes(s) ||
+                    v.driver_name.toLowerCase().includes(s),
+            )
+    }, [vehicles, q, dayCount])
 
     const columns = useMemo<ColumnDef<Row>[]>(() => {
         const statusCols: ColumnDef<Row>[] = [...ACTIVE_STATUSES, IDLE].map(

@@ -1,4 +1,7 @@
 import { useState, useMemo } from "react"
+import { useSearch } from "@tanstack/react-router"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_LEDGER } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/layouts/theme"
 
@@ -11,40 +14,67 @@ type Transaction = {
     note: string
 }
 
-const TRANSACTIONS: Transaction[] = [
-    { date: "01.03.2026", description: "Oylik maosh", type: "kirim", amount: 5_000_000, balance: 5_000_000, note: "Fevral oyi uchun" },
-    { date: "02.03.2026", description: "Yoqilg'i xarajati", type: "chiqim", amount: 350_000, balance: 4_650_000, note: "Diesel AI-92" },
-    { date: "03.03.2026", description: "Yo'l to'lovi", type: "chiqim", amount: 200_000, balance: 4_450_000, note: "Toshkent—Samarqand" },
-    { date: "05.03.2026", description: "Yuk tashish", type: "kirim", amount: 3_200_000, balance: 7_650_000, note: "Buxoro reysi" },
-    { date: "06.03.2026", description: "Shinalar almashtirish", type: "chiqim", amount: 1_800_000, balance: 5_850_000, note: "Old 2ta shina" },
-    { date: "08.03.2026", description: "Shartnoma to'lov", type: "kirim", amount: 4_500_000, balance: 10_350_000, note: "Artel — oylik" },
-    { date: "10.03.2026", description: "Mexanik ish haqi", type: "chiqim", amount: 2_000_000, balance: 8_350_000, note: "Mart oyi" },
-    { date: "12.03.2026", description: "Farg'ona yuk", type: "kirim", amount: 2_800_000, balance: 11_150_000, note: "Yuk tashish xizmati" },
-    { date: "14.03.2026", description: "Moy almashtirish", type: "chiqim", amount: 450_000, balance: 10_700_000, note: "Dvigatel moyi" },
-    { date: "15.03.2026", description: "Avans", type: "kirim", amount: 1_500_000, balance: 12_200_000, note: "Haydovchiga avans" },
-    { date: "18.03.2026", description: "Parkovka", type: "chiqim", amount: 120_000, balance: 12_080_000, note: "Toshkent markazi" },
-    { date: "20.03.2026", description: "Nestle shartnoma", type: "kirim", amount: 6_000_000, balance: 18_080_000, note: "Oylik shartnoma" },
-    { date: "22.03.2026", description: "Haydovchi maoshi", type: "chiqim", amount: 3_500_000, balance: 14_580_000, note: "Mart oyi" },
-    { date: "25.03.2026", description: "Express yetkazish", type: "kirim", amount: 1_200_000, balance: 15_780_000, note: "Farg'ona—Toshkent" },
-]
+type LedgerItem = {
+    id: number
+    date: string
+    description: string
+    type: "kirim" | "chiqim"
+    amount: string | number
+    balance: string | number
+    note: string
+}
+
+type LedgerResponse = {
+    count: number
+    total_pages: number
+    page_size: number
+    results: LedgerItem[]
+}
 
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
-const DESCRIPTIONS = [...new Set(TRANSACTIONS.map((t) => t.description))]
+const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    const pad = (n: number) => String(n).padStart(2, "0")
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`
+}
 
 export default function TransactionLedger() {
     const { theme } = useTheme()
     const scheme = theme === "dark" ? "dark" : "light"
     const [descFilter, setDescFilter] = useState<string>("")
     const [typeFilter, setTypeFilter] = useState<"" | "kirim" | "chiqim">("")
+    const search: any = useSearch({ strict: false })
+
+    const { data } = useGet<LedgerResponse>(FINANCE_LEDGER, {
+        params: { from_date: search?.from_date, to_date: search?.to_date, page_size: 500 },
+    })
+
+    const rows: Transaction[] = useMemo(
+        () =>
+            (data?.results ?? []).map((r) => ({
+                date: formatDate(r.date),
+                description: r.description,
+                type: r.type,
+                amount: Number(r.amount),
+                balance: Number(r.balance),
+                note: r.note,
+            })),
+        [data],
+    )
+
+    const DESCRIPTIONS = useMemo(
+        () => [...new Set(rows.map((t) => t.description).filter(Boolean))],
+        [rows],
+    )
 
     const filtered = useMemo(() => {
-        return TRANSACTIONS.filter((tx) => {
+        return rows.filter((tx) => {
             if (descFilter && tx.description !== descFilter) return false
             if (typeFilter && tx.type !== typeFilter) return false
             return true
         })
-    }, [descFilter, typeFilter])
+    }, [rows, descFilter, typeFilter])
 
     return (
         <div className="flex flex-col h-full overflow-hidden">

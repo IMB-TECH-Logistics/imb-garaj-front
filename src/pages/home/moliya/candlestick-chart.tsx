@@ -11,7 +11,18 @@ import {
   ColorType,
   CrosshairMode,
 } from 'lightweight-charts';
+import { useSearch } from '@tanstack/react-router';
+import { useGet } from '@/hooks/useGet';
+import { FINANCE_BALANCE } from '@/constants/api-endpoints';
 import './candlestick-chart.css';
+
+interface ApiCandle {
+  time: string;
+  open: string | number;
+  high: string | number;
+  low: string | number;
+  close: string | number;
+}
 
 interface OHLCInfo {
   open: number;
@@ -232,7 +243,7 @@ export default function CandlestickChart() {
   const allDatesRef = useRef<string[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [isLive, setIsLive] = useState(true);
+  const [isLive, setIsLive] = useState(false);
   const [lastPrice, setLastPrice] = useState(0);
   const [priceChange, setPriceChange] = useState(0);
   const [priceChangePercent, setPriceChangePercent] = useState(0);
@@ -250,6 +261,22 @@ export default function CandlestickChart() {
   const today = getTodayStr();
   const [dateFrom, setDateFrom] = useState(today);
   const [dateTo, setDateTo] = useState(today);
+
+  const search: any = useSearch({ strict: false });
+  const { data: apiBalance } = useGet<ApiCandle[]>(FINANCE_BALANCE, {
+    params: { from_date: search?.from_date, to_date: search?.to_date },
+  });
+  const apiCandles = useMemo<CandlestickData[]>(
+    () =>
+      (apiBalance ?? []).map((c) => ({
+        time: c.time as Time,
+        open: Number(c.open),
+        high: Number(c.high),
+        low: Number(c.low),
+        close: Number(c.close),
+      })),
+    [apiBalance],
+  );
 
   const isRange = dateFrom !== dateTo;
 
@@ -387,7 +414,7 @@ export default function CandlestickChart() {
       priceLineVisible: false,
     });
 
-    const data = generateHistoricalData();
+    const data = apiCandles;
     candleSeries.setData(data);
     dataRef.current = data;
     const dates = data.map((d) => timeToString(d.time));
@@ -423,7 +450,7 @@ export default function CandlestickChart() {
       setDateFrom(dateStr);
       setDateTo(dateStr);
     });
-  }, [updatePriceState]);
+  }, [updatePriceState, apiCandles]);
 
   // Update highlight when range changes
   useEffect(() => {

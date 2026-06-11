@@ -1,4 +1,6 @@
 import ParamDateRange from "@/components/as-params/date-picker-range"
+import { MONITORING_STATUS_TIMELINE } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -13,8 +15,9 @@ import { ArrowLeft } from "lucide-react"
 import { useMemo, useState } from "react"
 import {
     ACTIVE_STATUSES,
-    buildMockTimeline,
+    type ApiStatusSegment,
     IDLE,
+    type Segment,
     splitByDay,
     STATUS_META,
     type VehicleRow,
@@ -47,9 +50,25 @@ export default function VehicleTimeline({
         return all.slice(0, 62)
     }, [from.getTime(), to.getTime()])
 
-    const segments = useMemo(
-        () => buildMockTimeline(vehicle.id, from, to),
-        [vehicle.id, from.getTime(), to.getTime()],
+    const { data: apiSegments = [] } = useGet<ApiStatusSegment[]>(
+        MONITORING_STATUS_TIMELINE,
+        {
+            params: {
+                vehicle: vehicle.id,
+                from_date: format(from, "yyyy-MM-dd"),
+                to_date: format(to, "yyyy-MM-dd"),
+            },
+        },
+    )
+
+    const segments = useMemo<Segment[]>(
+        () =>
+            apiSegments.map((s) => ({
+                status: s.status,
+                start: new Date(s.start),
+                end: new Date(s.end),
+            })),
+        [apiSegments],
     )
 
     const totals = useMemo(() => {

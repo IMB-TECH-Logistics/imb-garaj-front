@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef, useCallback, ReactNode, CSSProperties } from "react"
+import { useSearch } from "@tanstack/react-router"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_SUMMARY } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 import CandlestickChart from "./candlestick-chart"
 import IncomeExpenseChart from "./income-expense-chart"
@@ -215,9 +218,20 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
     )
 }
 
+type FinanceSummary = {
+    balance: number
+    income_total: number
+    expense_total: number
+    profit: number
+}
+
 export default function MoliyaPage() {
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const pageRef = useRef<HTMLDivElement>(null)
+    const search: any = useSearch({ strict: false })
+    const { data: summary } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+        params: { from_date: search?.from_date, to_date: search?.to_date },
+    })
 
     // Prevent browser pinch-to-zoom on this page
     useEffect(() => {
@@ -243,19 +257,19 @@ export default function MoliyaPage() {
             <div className="grid grid-cols-3 gap-3 mb-3">
                 <StatCard
                     label="Balans"
-                    value={142_800_000}
+                    value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
                 />
                 <StatCard
                     label="Tushum"
-                    value={67_500_000}
+                    value={Number(summary?.income_total ?? 0)}
                     icon={<ArrowUpIcon />}
                     color="emerald"
                 />
                 <StatCard
                     label="Xarajat"
-                    value={38_200_000}
+                    value={Number(summary?.expense_total ?? 0)}
                     icon={<ArrowDownIcon />}
                     color="red"
                 />

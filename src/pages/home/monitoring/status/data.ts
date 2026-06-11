@@ -87,6 +87,33 @@ export type DaySegment = {
     end: Date
 }
 
+export type ApiStatusVehicle = {
+    id: number
+    truck_number: string
+    driver_name: string | null
+    type: string | null
+    current_status: number
+    totals: Record<number, number>
+}
+
+export type ApiStatusSegment = {
+    status: number
+    start: string
+    end: string
+}
+
+export type ApiStatusRoute = {
+    vehicle: number | null
+    status: number
+    count: number
+    distance_m: number
+    duration_min: number
+    first_at: string | null
+    last_at: string | null
+    bbox: [number, number, number, number] | null
+    points: [number, number][]
+}
+
 export const MOCK_VEHICLES: VehicleRow[] = [
     { id: 1, truck_number: "01 A 123 AB", driver_name: "Xojakbar Komilov", type: "Tent", current_status: ORDER_STATUS.IN_TRANSIT },
     { id: 2, truck_number: "01 B 456 CD", driver_name: "Sardor Aliyev", type: "Ref", current_status: ORDER_STATUS.LOADING },

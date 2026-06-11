@@ -1,18 +1,13 @@
+import { MONITORING_STATUS_ROUTE } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
-import { endOfMonth, startOfMonth } from "date-fns"
+import { endOfMonth, format, startOfMonth } from "date-fns"
 import { ArrowLeft } from "lucide-react"
-import { useMemo } from "react"
 import RouteMap from "../route-map"
-import {
-    buildMockTimeline,
-    buildMockTrack,
-    STATUS_META,
-    trackDistanceKm,
-    type VehicleRow,
-} from "./data"
+import { type ApiStatusRoute, STATUS_META, type VehicleRow } from "./data"
 
 function fmtDur(mins: number): string {
     const total = Math.round(mins)
@@ -39,22 +34,18 @@ export default function RouteView({
         : startOfMonth(today)
     const to = search.to_date ? new Date(search.to_date) : endOfMonth(today)
 
-    const points = useMemo(
-        () => buildMockTrack(vehicle.id, status),
-        [vehicle.id, status],
-    )
+    const { data } = useGet<ApiStatusRoute>(MONITORING_STATUS_ROUTE, {
+        params: {
+            vehicle: vehicle.id,
+            status,
+            from_date: format(from, "yyyy-MM-dd"),
+            to_date: format(to, "yyyy-MM-dd"),
+        },
+    })
 
-    const durationMin = useMemo(() => {
-        const segments = buildMockTimeline(vehicle.id, from, to)
-        let mins = 0
-        for (const s of segments) {
-            if (s.status === status)
-                mins += (s.end.getTime() - s.start.getTime()) / 60000
-        }
-        return mins
-    }, [vehicle.id, status, from.getTime(), to.getTime()])
-
-    const km = useMemo(() => trackDistanceKm(points).toFixed(2), [points])
+    const points = data?.points ?? []
+    const durationMin = data?.duration_min ?? 0
+    const km = ((data?.distance_m ?? 0) / 1000).toFixed(2)
 
     return (
         <div className="flex flex-col gap-3">
