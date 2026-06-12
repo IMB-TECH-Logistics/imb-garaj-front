@@ -153,21 +153,13 @@ const useCols = () =>
                 header: "Reyting",
                 accessorKey: "score",
                 enableSorting: true,
-                cell: ({ row }) => {
-                    const score = Math.round(num(row.original.score))
-                    return (
-                        <div className="flex items-center gap-2">
-                            <span
-                                className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-[11px] font-bold ${TIER_STYLES[row.original.tier]}`}
-                            >
-                                {row.original.tier}
-                            </span>
-                            <span className="tabular-nums font-semibold">
-                                {score}
-                            </span>
-                        </div>
-                    )
-                },
+                cell: ({ row }) => (
+                    <span
+                        className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-[11px] font-bold ${TIER_STYLES[row.original.tier]}`}
+                    >
+                        {row.original.tier}
+                    </span>
+                ),
             },
         ],
         [],
