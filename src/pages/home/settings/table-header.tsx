@@ -11,7 +11,7 @@ interface TableHeaderProps {
     fileName: string
     storeKey?: string
     url: string
-    searchKey: string
+    searchKey?: string
     pageKey: string
     onAdd?: () => void
     count?: number
@@ -61,13 +61,15 @@ const TableHeader = ({
                         : "flex items-center justify-between gap-3 w-full"
                 }
             >
-                <div className={showTitle ? "w-72" : "flex-1"}>
-                    <ParamInput
-                        fullWidth
-                        searchKey={searchKey}
-                        pageKey={pageKey}
-                    />
-                </div>
+                {searchKey && (
+                    <div className={showTitle ? "w-72" : "flex-1"}>
+                        <ParamInput
+                            fullWidth
+                            searchKey={searchKey}
+                            pageKey={pageKey}
+                        />
+                    </div>
+                )}
                 {/* <DownloadAsExcel url={"settings_url"} name={`${fileName}`} /> */}
 
                 {(onAdd || storeKey) && (

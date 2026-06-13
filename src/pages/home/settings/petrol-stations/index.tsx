@@ -138,7 +138,6 @@ const PetrolStationsPage = () => {
                         storeKey={
                             hasControl ? SETTINGS_PETROL_STATIONS : undefined
                         }
-                        searchKey="petrol_search"
                         pageKey="page"
                         count={data?.count}
                     />
