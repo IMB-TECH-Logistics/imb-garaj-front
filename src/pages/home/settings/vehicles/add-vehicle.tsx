@@ -1,6 +1,8 @@
 import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { FormCombobox } from "@/components/form/combobox"
+import { FormDatePicker } from "@/components/form/date-picker"
+import FormImagePicker from "@/components/form/image-picker"
 import { Button } from "@/components/ui/button"
 import { VEHICLES, SETTINGS_VEHICLE_TYPE, SETTINGS_DRIVERS, SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -9,8 +11,18 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+
+const IMAGE_FIELDS = [
+    "truck_front",
+    "truck_back",
+    "license_front",
+    "license_back",
+    "trailer_front",
+    "trailer_back",
+] as const
 
 const FUEL_OPTIONS = [
     { value: "methane", label: "Metan" },
@@ -58,15 +70,37 @@ const AddVehicleSettingsModal = () => {
     const isPending = isPendingCreate || isPendingUpdate
 
     const onSubmit = (values: any) => {
+        const formData = new FormData()
+
+        Object.entries(values).forEach(([key, value]) => {
+            if (IMAGE_FIELDS.includes(key as (typeof IMAGE_FIELDS)[number])) {
+                return
+            }
+            if (value === undefined || value === null || value === "") {
+                return
+            }
+            if (key === "registered_date") {
+                formData.append(key, format(new Date(value as string), "yyyy-MM-dd"))
+                return
+            }
+            formData.append(key, String(value))
+        })
+
+        IMAGE_FIELDS.forEach((key) => {
+            if (values[key] instanceof File) {
+                formData.append(key, values[key])
+            }
+        })
+
         if (current?.id) {
-            updateMutate(`${VEHICLES}/${current.id}`, values)
+            updateMutate(`${VEHICLES}/${current.id}`, formData)
         } else {
-            postMutate(VEHICLES, values)
+            postMutate(VEHICLES, formData)
         }
     }
 
     return (
-        <div className="w-full max-w-4xl mx-auto p-1">
+        <div className="w-full max-w-4xl mx-auto p-1 max-h-[75vh] overflow-y-auto pr-2">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -148,6 +182,51 @@ const AddVehicleSettingsModal = () => {
                     control={control}
                     decimalScale={0}
                 />
+                <FormDatePicker
+                    name="registered_date"
+                    label="Ro'yxatdan o'tgan sana"
+                    control={control}
+                    fullWidth
+                />
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:col-span-2 pt-4">
+                    <FormImagePicker
+                        name="truck_front"
+                        label="Avtomobil old"
+                        methods={form}
+                        className="w-full h-28 object-cover rounded-md border"
+                    />
+                    <FormImagePicker
+                        name="truck_back"
+                        label="Avtomobil orqa"
+                        methods={form}
+                        className="w-full h-28 object-cover rounded-md border"
+                    />
+                    <FormImagePicker
+                        name="license_front"
+                        label="Tex passport old"
+                        methods={form}
+                        className="w-full h-28 object-cover rounded-md border"
+                    />
+                    <FormImagePicker
+                        name="license_back"
+                        label="Tex passport orqa"
+                        methods={form}
+                        className="w-full h-28 object-cover rounded-md border"
+                    />
+                    <FormImagePicker
+                        name="trailer_front"
+                        label="Tirkama old"
+                        methods={form}
+                        className="w-full h-28 object-cover rounded-md border"
+                    />
+                    <FormImagePicker
+                        name="trailer_back"
+                        label="Tirkama orqa"
+                        methods={form}
+                        className="w-full h-28 object-cover rounded-md border"
+                    />
+                </div>
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button

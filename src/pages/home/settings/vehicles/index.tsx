@@ -73,6 +73,7 @@ const VehiclesPage = () => {
                         : "Avtomobil qo'shish"
                 }
                 modalKey="create"
+                size="max-w-3xl"
             >
                 <AddVehicleSettingsModal />
             </Modal>

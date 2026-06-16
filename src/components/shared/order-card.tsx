@@ -81,7 +81,18 @@ const OrderCard = ({
     }
 
     return (
-        <Card className="relative flex flex-col justify-between h-full overflow-hidden text-sm">
+        <Card
+            className={cn(
+                "relative flex flex-col justify-between h-full overflow-hidden text-sm",
+                c.is_integration &&
+                    "border-orange-400/50 bg-orange-50/40 dark:bg-orange-950/20",
+            )}
+        >
+            {c.is_integration && (
+                <span className="absolute top-0 left-0 z-10 bg-orange-500/15 text-orange-600 rounded-br-lg py-0.5 px-2 text-xs font-medium">
+                    Integratsiya
+                </span>
+            )}
 
             <CardContent className="p-3 flex flex-col gap-3">
                 {c.rejected_time ? (

@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { formatDate } from "@/lib/format-date"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 
@@ -75,6 +76,15 @@ export const useColumnsVehiclesTable = () => {
                 header: "Sarfi",
                 enableSorting: true,
                 cell: ({ row }) => row.original.consumption || "-",
+            },
+            {
+                accessorKey: "registered_date",
+                header: "Ro'yxatdan o'tgan sana",
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.registered_date ?
+                        formatDate(row.original.registered_date)
+                    :   "-",
             },
         ],
         [],

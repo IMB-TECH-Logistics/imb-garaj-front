@@ -29,6 +29,9 @@ export type OrderTracking = {
     lng: number | null
     last_seen: string | null
     seconds_since: number | null
+    external_id: string | null
+    is_integration: boolean
+    amount: number | string | null
 }
 
 export type TripTracking = {

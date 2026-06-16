@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Package, Truck, User2 } from "lucide-react"
+import { Coins, Package, Truck, User2 } from "lucide-react"
 import {
     DimensionEmpty,
     DimensionListSkeleton,
@@ -55,16 +55,26 @@ export default function OrderList({
                     onClick={() => onSelect?.(order)}
                     primary={`Order #${order.id}`}
                     badge={
-                        <Badge
-                            variant={
-                                ACTIVE_STATUSES.has(order.status)
-                                    ? "default"
-                                    : "secondary"
-                            }
-                            className="h-5 px-1.5 text-[10px] font-medium"
-                        >
-                            {STATUS_LABEL[order.status] ?? "—"}
-                        </Badge>
+                        <span className="flex items-center gap-1">
+                            <Badge
+                                variant={
+                                    ACTIVE_STATUSES.has(order.status)
+                                        ? "default"
+                                        : "secondary"
+                                }
+                                className="h-5 px-1.5 text-[10px] font-medium"
+                            >
+                                {STATUS_LABEL[order.status] ?? "—"}
+                            </Badge>
+                            {order.is_integration && (
+                                <Badge
+                                    variant="orange"
+                                    className="h-5 px-1.5 text-[10px] font-medium"
+                                >
+                                    Integratsiya
+                                </Badge>
+                            )}
+                        </span>
                     }
                     secondary={
                         <>
@@ -89,6 +99,14 @@ export default function OrderList({
                                     <Package className="h-3 w-3 shrink-0" />
                                     <span className="truncate">
                                         {order.client_name}
+                                    </span>
+                                </span>
+                            )}
+                            {order.is_integration && Number(order.amount) > 0 && (
+                                <span className="inline-flex items-center gap-1 text-orange-600 font-medium">
+                                    <Coins className="h-3 w-3 shrink-0" />
+                                    <span>
+                                        {Number(order.amount).toLocaleString()}
                                     </span>
                                 </span>
                             )}

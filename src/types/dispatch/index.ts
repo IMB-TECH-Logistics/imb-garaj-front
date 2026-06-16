@@ -1,5 +1,7 @@
 type OrderDispatchData = {
     id: number;
+    external_id?: string | null
+    is_integration?: boolean
     driver_type: number
     note1:string
     note2:string
