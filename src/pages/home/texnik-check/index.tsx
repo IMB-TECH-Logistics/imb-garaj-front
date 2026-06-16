@@ -1,6 +1,5 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
 import ParamDateRange from "@/components/as-params/date-picker-range"
-import ParamInput from "@/components/as-params/input"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
@@ -98,11 +97,6 @@ export const TexnikCheck = () => {
                             <Badge>{data?.count ?? 0}</Badge>
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">
-                            <ParamInput
-                                searchKey="vehicle_search"
-                                placeholder="Mashina raqami..."
-                                className="!bg-background dark:!bg-secondary min-w-44"
-                            />
                             <ParamCombobox
                                 paramName="category"
                                 options={expenseCategories || []}

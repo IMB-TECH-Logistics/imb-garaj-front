@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import ParamInput from "@/components/as-params/input"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { CHECKOUT_MAIN, DRIVERS_BALANCE, TRANSACTIONS } from "@/constants/api-endpoints"
 import Modal from "@/components/custom/modal"
@@ -328,11 +327,6 @@ const Kassa = () => {
                                 )}
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <ParamInput
-                                    searchKey="tx_search"
-                                    placeholder="Izoh / ma'sul..."
-                                    className="!bg-background dark:!bg-secondary min-w-44"
-                                />
                                 <ParamCombobox
                                     paramName="vehicle"
                                     options={vehicles}

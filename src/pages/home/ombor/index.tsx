@@ -11,6 +11,7 @@ import { useDelete } from "@/hooks/useDelete"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
+import { useSearch } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -38,10 +39,12 @@ const Ombor = () => {
     const [editing, setEditing] = useState<OmborProduct | null>(null)
     const [withdrawing, setWithdrawing] = useState<OmborProduct | null>(null)
     const [toDelete, setToDelete] = useState<OmborProduct | null>(null)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const search: any = useSearch({ strict: false })
 
     const { data: products, isLoading } = useGet<ListResponse<OmborProduct>>(
         WAREHOUSE_PRODUCTS,
-        { params: { page_size: 1000 } },
+        { params: { page_size: 1000, search: search.search } },
     )
     const { data: stats } = useGet<Stats>(WAREHOUSE_STATS)
     const items = products?.results ?? []

@@ -15,6 +15,7 @@ export default function Managers() {
             params:{
                 page_size:search.page_size,
                 page:search.page,
+                search:search.search,
             }
         })
     const navigate = useNavigate()

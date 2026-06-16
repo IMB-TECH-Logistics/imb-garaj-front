@@ -25,7 +25,6 @@ import {
 } from "lucide-react"
 import { endOfMonth, startOfMonth } from "date-fns"
 import { useMemo } from "react"
-import ParamInput from "@/components/as-params/input"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import MonitoringFilterBar from "./filter-bar"
@@ -411,11 +410,6 @@ export default function MonitoringView() {
                 )}
                 {mode === "report" && (
                     <div className="flex flex-wrap items-center justify-end gap-2">
-                        <ParamInput
-                            searchKey="q"
-                            placeholder="Mashina yoki haydovchi..."
-                            className="h-9 w-full sm:w-56"
-                        />
                         <ParamDateRange
                             from="from_date"
                             to="to_date"
