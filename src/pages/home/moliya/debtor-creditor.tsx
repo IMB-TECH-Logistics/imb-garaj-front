@@ -9,21 +9,39 @@ type Entry = { name: string; amount: number; days: number; note?: string }
 type PartnerItem = { id: number; name: string; amount: string | number; days: number; note: string }
 type PartnerResponse = { results: PartnerItem[]; total: string | number }
 
-function usePartners(url: string): Entry[] {
+// TODO: vaqtinchalik default data — backend tayyor bo'lgach olib tashlash kerak
+const DEFAULT_DEBTORS: Entry[] = [
+    { name: "Кола", amount: 601_117_470, days: 42 },
+    { name: "Coca Cola PRO", amount: 34_753_767.44, days: 27 },
+    { name: "CocaCola", amount: 28_684_876.64, days: 27 },
+    { name: "TAPO disk", amount: 21_789_240, days: 42 },
+    { name: "Coca Cola Shosh", amount: 2_718_367, days: 27 },
+]
+
+const DEFAULT_CREDITORS: Entry[] = [
+    { name: "Mantella", amount: 3_568_590, days: 42 },
+    { name: "Aqua-Products", amount: 1_511_112, days: 42 },
+    { name: "Dinay", amount: 1_203_896, days: 42 },
+    { name: "Evita", amount: 591_304, days: 42 },
+    { name: "Family", amount: 566_667, days: 42 },
+    { name: "RC Cola", amount: 380_000, days: 31 },
+]
+
+function usePartners(url: string, fallback: Entry[]): Entry[] {
     const search: any = useSearch({ strict: false })
     const { data } = useGet<PartnerResponse>(url, {
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
-    return useMemo(
-        () =>
-            (data?.results ?? []).map((r) => ({
-                name: r.name,
-                amount: Number(r.amount),
-                days: r.days,
-                note: r.note,
-            })),
-        [data],
-    )
+    return useMemo(() => {
+        const results = data?.results ?? []
+        if (!results.length) return fallback
+        return results.map((r) => ({
+            name: r.name,
+            amount: Number(r.amount),
+            days: r.days,
+            note: r.note,
+        }))
+    }, [data, fallback])
 }
 
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
@@ -78,12 +96,12 @@ function EntryList({ entries, variant }: { entries: Entry[]; variant: "income" |
 }
 
 export function DebtorCard() {
-    const entries = usePartners(FINANCE_DEBTORS)
+    const entries = usePartners(FINANCE_DEBTORS, DEFAULT_DEBTORS)
     return <EntryList entries={entries} variant="income" />
 }
 
 export function CreditorCard() {
-    const entries = usePartners(FINANCE_CREDITORS)
+    const entries = usePartners(FINANCE_CREDITORS, DEFAULT_CREDITORS)
     return <EntryList entries={entries} variant="expense" />
 }
 
