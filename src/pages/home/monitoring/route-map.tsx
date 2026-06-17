@@ -89,9 +89,20 @@ export default function RouteMap({
         }
     }, [points])
 
+    // Only re-fit when the *set* of things to frame changes (a new bbox, or a
+    // different roster/selection of markers). Live tracking refreshes marker
+    // coordinates on every tick — refitting on those would constantly yank the
+    // user's pan/zoom, so coordinate-only updates intentionally don't re-fit.
+    const fitSignature = useMemo(() => {
+        if (bbox && bbox.length === 4) return `bbox:${bbox.join(",")}`
+        if (markers && markers.length > 0)
+            return `markers:${markers.map((m) => m.id).join(",")}`
+        return null
+    }, [bbox, markers])
+
     useEffect(() => {
         const map = mapRef.current
-        if (!map) return
+        if (!map || !fitSignature) return
         if (bbox && bbox.length === 4) {
             map.fitBounds(
                 [
@@ -102,26 +113,27 @@ export default function RouteMap({
             )
             return
         }
-        if (markers && markers.length > 0) {
-            if (markers.length === 1) {
-                map.flyTo({
-                    center: [markers[0].lng, markers[0].lat],
-                    zoom: 13,
-                    duration: 700,
-                })
-            } else {
-                const lngs = markers.map((m) => m.lng)
-                const lats = markers.map((m) => m.lat)
-                map.fitBounds(
-                    [
-                        [Math.min(...lngs), Math.min(...lats)],
-                        [Math.max(...lngs), Math.max(...lats)],
-                    ],
-                    { padding: 96, duration: 700, maxZoom: 12 },
-                )
-            }
+        if (markers && markers.length === 1) {
+            map.flyTo({
+                center: [markers[0].lng, markers[0].lat],
+                zoom: 13,
+                duration: 700,
+            })
+        } else if (markers && markers.length > 1) {
+            const lngs = markers.map((m) => m.lng)
+            const lats = markers.map((m) => m.lat)
+            map.fitBounds(
+                [
+                    [Math.min(...lngs), Math.min(...lats)],
+                    [Math.max(...lngs), Math.max(...lats)],
+                ],
+                { padding: 96, duration: 700, maxZoom: 12 },
+            )
         }
-    }, [bbox, markers, points])
+        // fitSignature collapses bbox/markers into a stable key; refitting only
+        // when it changes is the intended behavior.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fitSignature])
 
     const startPoint = points && points.length > 0 ? points[0] : null
     const endPoint =
@@ -136,9 +148,7 @@ export default function RouteMap({
             style={{ height }}
         >
             <Map
-                ref={(r) => {
-                    mapRef.current = r
-                }}
+                ref={mapRef}
                 initialViewState={{
                     latitude: DEFAULT_CENTER.lat,
                     longitude: DEFAULT_CENTER.lng,
@@ -168,6 +178,7 @@ export default function RouteMap({
 
                 {segmentFeatures ? (
                     <Source
+                        key="route-segments"
                         id="route-segments"
                         type="geojson"
                         data={segmentFeatures}
@@ -200,6 +211,7 @@ export default function RouteMap({
                     </Source>
                 ) : polylineFeature ? (
                     <Source
+                        key="route-line"
                         id="route-line"
                         type="geojson"
                         data={polylineFeature}
