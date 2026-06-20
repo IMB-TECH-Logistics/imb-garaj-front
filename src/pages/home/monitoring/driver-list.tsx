@@ -3,7 +3,6 @@ import {
     DimensionListSkeleton,
     DimensionRow,
 } from "./dimension-row"
-import { mockDriverIdentity } from "./status/data"
 import type { LiveDriver } from "./types"
 
 type Props = {
@@ -34,9 +33,7 @@ export default function DriverList({
 
     return (
         <ul className="flex flex-col gap-1.5">
-            {items.map((driver, i) => {
-                const identity = mockDriverIdentity(driver.user)
-                return (
+            {items.map((driver, i) => (
                 <DimensionRow
                     key={driver.user}
                     index={i}
@@ -49,13 +46,14 @@ export default function DriverList({
                                 {i + 1}.
                             </span>
                             <span className="font-mono tracking-wide">
-                                {identity.plate}
+                                {driver.vehicle_number ??
+                                    driver.driver_name ??
+                                    "—"}
                             </span>
                         </span>
                     }
                 />
-                )
-            })}
+            ))}
         </ul>
     )
 }
