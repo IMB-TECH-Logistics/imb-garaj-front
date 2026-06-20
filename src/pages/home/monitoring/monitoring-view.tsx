@@ -10,6 +10,7 @@ import {
     MONITORING_LIVE_TRACKING,
     MONITORING_ORDERS,
     MONITORING_ROUTES_POLYLINE,
+    MONITORING_STATUS_ROUTE,
     MONITORING_TRIPS_TRACKING,
     MONITORING_VEHICLES,
 } from "@/constants/api-endpoints"
@@ -32,10 +33,9 @@ import OrderList from "./order-list"
 import RouteMap, { type LiveMarker } from "./route-map"
 import StatusReport from "./status"
 import {
-    buildMockTrack,
-    buildStatusColoredPath,
-    mockDriverIdentity,
-    trackDistanceKm,
+    type ApiStatusRoute,
+    type ColoredPathSegment,
+    STATUS_META,
 } from "./status/data"
 import StatusRibbon from "./status-ribbon"
 import TripList from "./trip-list"
@@ -116,11 +116,11 @@ export default function MonitoringView() {
     const selectFromStatus = (vehicleId: number, status: number) =>
         patchSearch({
             report: undefined,
-            dimension: undefined,
-            driver: vehicleId,
+            dimension: "vehicle",
+            driver: undefined,
             order: undefined,
             trip: undefined,
-            vehicle: undefined,
+            vehicle: vehicleId,
             mdate: todayIso(),
             status,
         })
@@ -180,39 +180,7 @@ export default function MonitoringView() {
         [drivers.data],
     )
 
-    // Drivers come from the real "faol mashinalar" API, but their GPS track /
-    // statuses are mock for now. When the real polyline endpoint has no data for
-    // the selected driver, fall back to a deterministic mock track so the map,
-    // stats and Holat lentasi still populate.
-    const polylineData = useMemo<RoutePolyline | undefined>(() => {
-        const real = polyline.data
-        if (real && real.count > 0) return real
-        if (!historical || filters.driver == null) return real
-        const points = buildMockTrack(filters.driver, 6)
-        if (points.length < 2) return real
-        let minLng = Infinity,
-            minLat = Infinity,
-            maxLng = -Infinity,
-            maxLat = -Infinity
-        for (const [lng, lat] of points) {
-            if (lng < minLng) minLng = lng
-            if (lat < minLat) minLat = lat
-            if (lng > maxLng) maxLng = lng
-            if (lat > maxLat) maxLat = lat
-        }
-        const dayIso = filters.fromDate || todayIso()
-        return {
-            trip: null,
-            order: null,
-            driver: filters.driver,
-            count: points.length,
-            distance_m: Math.round(trackDistanceKm(points) * 1000),
-            first_at: `${dayIso}T06:00:00`,
-            last_at: `${dayIso}T18:00:00`,
-            bbox: [minLng, minLat, maxLng, maxLat],
-            points,
-        }
-    }, [polyline.data, historical, filters.driver, filters.fromDate])
+    const polylineData = polyline.data
 
     const liveMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
@@ -223,8 +191,8 @@ export default function MonitoringView() {
                     id: d.user,
                     lat: d.lat as number,
                     lng: d.lng as number,
-                    label: mockDriverIdentity(d.user).name,
-                    sub: mockDriverIdentity(d.user).plate,
+                    label: d.vehicle_number ?? d.driver_name ?? `#${d.user}`,
+                    sub: d.driver_name ?? undefined,
                     stale: d.seconds_since > 5 * 60,
                     selected: false,
                     onClick: () => selectDriver(d),
@@ -347,25 +315,69 @@ export default function MonitoringView() {
     const ribbonDate = filters.fromDate
         ? parseLocalDate(filters.fromDate)
         : null
-    const selectedDriverName =
-        filters.driver != null
-            ? (() => {
-                  const id = mockDriverIdentity(filters.driver)
-                  return `${id.plate} · ${id.name}`
-              })()
-            : null
 
-    // Color the route line by status when a driver + day is selected (mock).
-    // When a status is selected on the ribbon, the map shows only that path.
-    const routeSegments = useMemo(() => {
-        if (filters.driver == null || !ribbonDate) return undefined
-        const pts = polylineData?.points
+    const selectedDriver = useMemo(
+        () =>
+            filters.driver != null
+                ? (liveDrivers.find((d) => d.user === filters.driver) ?? null)
+                : null,
+        [filters.driver, liveDrivers],
+    )
+    const selectedVehicle = useMemo(
+        () =>
+            filters.vehicle != null
+                ? ((vehicles.data ?? []).find(
+                      (v) => v.id === filters.vehicle,
+                  ) ?? null)
+                : null,
+        [filters.vehicle, vehicles.data],
+    )
+
+    // Status timeline / route endpoints are keyed by vehicle. Resolve it from the
+    // selected live driver, or directly from a selected vehicle.
+    const ribbonVehicleId =
+        filters.vehicle ?? selectedDriver?.vehicle ?? null
+
+    const selectedDriverName = selectedDriver
+        ? [selectedDriver.vehicle_number, selectedDriver.driver_name]
+              .filter(Boolean)
+              .join(" · ") || null
+        : selectedVehicle
+          ? [selectedVehicle.truck_number, selectedVehicle.driver_name]
+                .filter(Boolean)
+                .join(" · ") || null
+          : null
+
+    // Real GPS track for the status selected on the ribbon.
+    const statusRoute = useGet<ApiStatusRoute>(MONITORING_STATUS_ROUTE, {
+        params: {
+            vehicle: ribbonVehicleId ?? undefined,
+            status: activeStatus ?? undefined,
+            from_date: filters.fromDate || undefined,
+            to_date: filters.fromDate || undefined,
+            max_points: 2000,
+        },
+        enabled:
+            mode === "map" &&
+            ribbonVehicleId != null &&
+            activeStatus != null &&
+            !!filters.fromDate,
+    })
+
+    // When a status is selected on the ribbon, highlight only that path on the map.
+    const routeSegments = useMemo<ColoredPathSegment[] | undefined>(() => {
+        if (activeStatus == null) return undefined
+        const pts = statusRoute.data?.points
         if (!pts || pts.length < 2) return undefined
-        const all = buildStatusColoredPath(pts, filters.driver, ribbonDate)
-        return activeStatus == null
-            ? all
-            : all.filter((s) => s.status === activeStatus)
-    }, [filters.driver, ribbonDate?.getTime(), polylineData, activeStatus])
+        const meta = STATUS_META[activeStatus]
+        return [
+            {
+                points: pts,
+                color: meta?.color ?? "#10b981",
+                status: activeStatus,
+            },
+        ]
+    }, [activeStatus, statusRoute.data])
 
     return (
         <div className="flex flex-col gap-3">
@@ -580,10 +592,10 @@ export default function MonitoringView() {
                 </Card>
             </div>
 
-            {mode === "map" && filters.driver != null && ribbonDate && (
+            {mode === "map" && ribbonVehicleId != null && ribbonDate && (
                 <StatusRibbon
-                    driverId={filters.driver}
-                    driverName={selectedDriverName}
+                    vehicleId={ribbonVehicleId}
+                    vehicleLabel={selectedDriverName}
                     date={ribbonDate}
                     active={activeStatus}
                     onToggle={toggleStatus}

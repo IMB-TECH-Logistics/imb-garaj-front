@@ -3,7 +3,6 @@ import { DatePicker } from "@/components/ui/datepicker"
 import { SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useMemo } from "react"
-import { mockDriverIdentity } from "./status/data"
 import type { DriverOption, MonitoringFilters } from "./types"
 
 type Props = {
@@ -19,12 +18,14 @@ export default function MonitoringFilterBar({ value, onChange }: Props) {
         { params: { role: "driver", page_size: 1000 } },
     )
 
-    // Plate number only — no driver name in the dropdown.
     const vehicleOptions = useMemo<VehicleOption[]>(
         () =>
             (drivers ?? []).map((d) => ({
                 id: d.id,
-                label: mockDriverIdentity(d.id).plate,
+                label:
+                    d.full_name ||
+                    [d.first_name, d.last_name].filter(Boolean).join(" ") ||
+                    `#${d.id}`,
             })),
         [drivers],
     )
@@ -43,7 +44,7 @@ export default function MonitoringFilterBar({ value, onChange }: Props) {
                         vehicle: null,
                     })
                 }
-                label="Avtomobil"
+                label="Haydovchi"
                 valueKey="id"
                 labelKey="label"
                 className="h-9 w-auto min-w-[140px]"

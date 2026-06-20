@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { MONITORING_STATUS_TIMELINE } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { RotateCcw } from "lucide-react"
 import { useMemo } from "react"
 import {
     ACTIVE_STATUSES,
-    buildMockTimeline,
+    type ApiStatusSegment,
     IDLE,
+    type Segment,
     splitByDay,
     STATUS_META,
 } from "./status/data"
@@ -23,27 +26,40 @@ function fmtDur(mins: number): string {
     return m ? `${h}s ${m}m` : `${h}s`
 }
 
-// One-day status ribbon for the selected driver. Mock for now — fed by the same
-// buildMockTimeline engine the /monitoring/status report uses; swap for a real
-// status-history endpoint later without touching the layout.
 export default function StatusRibbon({
-    driverId,
-    driverName,
+    vehicleId,
+    vehicleLabel,
     date,
     active = null,
     onToggle,
 }: {
-    driverId: number
-    driverName?: string | null
+    vehicleId: number
+    vehicleLabel?: string | null
     date: Date
-    /** Selected status — isolates it on the ribbon and (via parent) the map. */
     active?: number | null
     onToggle?: (status: number) => void
 }) {
-    const segments = useMemo(
-        () => splitByDay(buildMockTimeline(driverId, date, date), date),
-        [driverId, date.getTime()],
+    const dayParam = format(date, "yyyy-MM-dd")
+
+    const { data: apiSegments = [], isLoading } = useGet<ApiStatusSegment[]>(
+        MONITORING_STATUS_TIMELINE,
+        {
+            params: {
+                vehicle: vehicleId,
+                from_date: dayParam,
+                to_date: dayParam,
+            },
+        },
     )
+
+    const segments = useMemo(() => {
+        const mapped: Segment[] = apiSegments.map((s) => ({
+            status: s.status,
+            start: new Date(s.start),
+            end: new Date(s.end),
+        }))
+        return splitByDay(mapped, date)
+    }, [apiSegments, date.getTime()])
 
     const totals = useMemo(() => {
         const map: Record<number, number> = {}
@@ -63,7 +79,8 @@ export default function StatusRibbon({
                 <CardTitle className="text-sm font-semibold">
                     Holat lentasi
                     <span className="ml-2 font-normal text-muted-foreground">
-                        {driverName || `#${driverId}`} · {format(date, "dd.MM.yyyy")}
+                        {vehicleLabel || `#${vehicleId}`} ·{" "}
+                        {format(date, "dd.MM.yyyy")}
                     </span>
                 </CardTitle>
                 {active != null && (
@@ -134,6 +151,11 @@ export default function StatusRibbon({
                             />
                         )
                     })}
+                    {!isLoading && segments.length === 0 && (
+                        <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">
+                            Bu kun uchun holat ma'lumoti yo'q
+                        </div>
+                    )}
                 </div>
 
                 {/* Legend + per-status totals (click to isolate a status) */}
