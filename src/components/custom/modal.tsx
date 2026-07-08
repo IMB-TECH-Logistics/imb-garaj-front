@@ -63,7 +63,7 @@ const Modal = ({
                     closable && e.preventDefault()
                 }}
                     classNameIcon={classNameIcon}
-                    className={cn(size, className)}
+                    className={cn(size, "min-w-0 overflow-hidden", className)}
                 >
                     {title && (
                         <DialogTitle className={cn(classNameTitle)}>
@@ -78,7 +78,7 @@ const Modal = ({
                     {description && (
                         <DialogDescription>{description}</DialogDescription>
                     )}
-                    {children}
+                    <div className="min-w-0 overflow-x-auto">{children}</div>
                 </DialogContent>
             )}
         </Dialog>

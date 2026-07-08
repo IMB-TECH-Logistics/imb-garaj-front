@@ -14,7 +14,9 @@ export const useUser = () => {
 }
 
 export function useHasAction(actionCodes: string | string[]): boolean {
-    const { actions } = useUser()
+    const { actions, data } = useUser()
+
+    if (data?.is_superuser) return true
 
     if (!actions || !Array.isArray(actions)) return false
 

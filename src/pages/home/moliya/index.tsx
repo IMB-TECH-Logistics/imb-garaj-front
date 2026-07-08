@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef, useCallback, ReactNode, CSSProperties } from "react"
+import { useSearch } from "@tanstack/react-router"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_SUMMARY } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 import CandlestickChart from "./candlestick-chart"
 import IncomeExpenseChart from "./income-expense-chart"
@@ -166,9 +169,69 @@ function ChartPanel({
     )
 }
 
+const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
+
+function WalletIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+            <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+            <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+        </svg>
+    )
+}
+
+function ArrowUpIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 17l5-5 5 5" />
+            <path d="M7 11l5-5 5 5" />
+        </svg>
+    )
+}
+
+function ArrowDownIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 7l5 5 5-5" />
+            <path d="M7 13l5 5 5-5" />
+        </svg>
+    )
+}
+
+function StatCard({ label, value, icon, color }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red" }) {
+    const colors = {
+        blue: "text-blue-600 bg-blue-500/10",
+        emerald: "text-emerald-600 bg-emerald-500/10",
+        red: "text-red-600 bg-red-500/10",
+    }
+    return (
+        <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
+            <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", colors[color])}>
+                {icon}
+            </div>
+            <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="text-sm font-semibold truncate">{fmt(value)} so'm</p>
+            </div>
+        </div>
+    )
+}
+
+type FinanceSummary = {
+    balance: number
+    income_total: number
+    expense_total: number
+    profit: number
+}
+
 export default function MoliyaPage() {
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const pageRef = useRef<HTMLDivElement>(null)
+    const search: any = useSearch({ strict: false })
+    const { data: summary } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+        params: { from_date: search?.from_date, to_date: search?.to_date },
+    })
 
     // Prevent browser pinch-to-zoom on this page
     useEffect(() => {
@@ -190,10 +253,32 @@ export default function MoliyaPage() {
                 )}
                 onClick={() => setExpandedId(null)}
             />
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3 mb-3">
+                <StatCard
+                    label="Balans"
+                    value={Number(summary?.balance ?? 0)}
+                    icon={<WalletIcon />}
+                    color="blue"
+                />
+                <StatCard
+                    label="Tushum"
+                    value={Number(summary?.income_total ?? 0)}
+                    icon={<ArrowUpIcon />}
+                    color="emerald"
+                />
+                <StatCard
+                    label="Xarajat"
+                    value={Number(summary?.expense_total ?? 0)}
+                    icon={<ArrowDownIcon />}
+                    color="red"
+                />
+            </div>
+
             {/* Main 2x2 grid */}
             <div
                 className={cn(
-                    "grid gap-3 h-[calc(100vh-80px)]",
+                    "grid gap-3 h-[calc(100vh-80px-76px)]",
                     "grid-cols-1 md:grid-cols-2 grid-rows-2",
                 )}
             >

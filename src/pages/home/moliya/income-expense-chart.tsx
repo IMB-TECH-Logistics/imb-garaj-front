@@ -10,8 +10,17 @@ import {
     Tooltip,
 } from "recharts"
 import { useSearch } from "@tanstack/react-router"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_INCOME_EXPENSE } from "@/constants/api-endpoints"
 import { useGlobalStore } from "@/store/global-store"
 import { PALETTES, PALETTE_STORE_KEY } from "./palettes"
+
+type IncomeExpensePoint = {
+    date: string
+    tushum: string | number
+    xarajat: string | number
+    foyda: string | number
+}
 
 const formatCompact = (v: number) => {
     const abs = Math.abs(v)
@@ -25,31 +34,6 @@ const formatFull = (v: number) =>
     new Intl.NumberFormat("uz-UZ").format(Math.round(v)) + " so'm"
 
 const MONTHS_UZ = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"]
-
-function generateMonthlyData() {
-    const data = []
-    const now = new Date()
-    for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-        const month = MONTHS_UZ[d.getMonth()]
-        const yr = String(d.getFullYear()).slice(2)
-        const tushum = Math.round((Math.random() * 60 + 20) * 1_000_000)
-        const xarajat = Math.round((Math.random() * 40 + 10) * 1_000_000)
-        data.push({ name: `${month}'${yr}`, tushum, xarajat, foyda: Math.max(0, tushum - xarajat) })
-    }
-    return data
-}
-
-function generateDailyData(year: number, month: number) {
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const data = []
-    for (let day = 1; day <= daysInMonth; day++) {
-        const tushum = Math.round((Math.random() * 8 + 1) * 1_000_000)
-        const xarajat = Math.round((Math.random() * 5 + 0.5) * 1_000_000)
-        data.push({ name: String(day), tushum, xarajat, foyda: Math.max(0, tushum - xarajat) })
-    }
-    return data
-}
 
 function isMonthRange(from?: string, to?: string) {
     if (!from || !to) return false
@@ -83,10 +67,25 @@ export default function IncomeExpenseChart() {
     const selectedMonth = isDaily ? new Date(search.from_date).getMonth() : null
     const selectedYear = isDaily ? new Date(search.from_date).getFullYear() : null
 
+    const { data: raw } = useGet<IncomeExpensePoint[]>(FINANCE_INCOME_EXPENSE, {
+        params: { from_date: search?.from_date, to_date: search?.to_date },
+    })
+
     const chartData = useMemo(() => {
-        if (isDaily && selectedYear != null && selectedMonth != null) return generateDailyData(selectedYear, selectedMonth)
-        return generateMonthlyData()
-    }, [isDaily, selectedYear, selectedMonth])
+        const rows = raw ?? []
+        return rows.map((r) => {
+            const d = new Date(r.date)
+            const name = isDaily
+                ? String(d.getDate())
+                : `${MONTHS_UZ[d.getMonth()]}'${String(d.getFullYear()).slice(2)}`
+            return {
+                name,
+                tushum: Number(r.tushum),
+                xarajat: Number(r.xarajat),
+                foyda: Number(r.foyda),
+            }
+        })
+    }, [raw, isDaily])
 
     const totals = useMemo(() => ({
         income: chartData.reduce((s, i) => s + i.tushum, 0),

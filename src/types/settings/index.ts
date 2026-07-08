@@ -206,6 +206,7 @@ type UserType = {
     is_active: boolean
     role: number
     role_name: string
+    actions: string[]
 }
 
 type DriversType = {

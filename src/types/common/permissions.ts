@@ -1,77 +1,45 @@
-type TPermissions = [
-    "buyurtmalar",
-    "buyurtma-toldirish",
-    "buyurtma-analiz-qilish",
-    "buyurtma-statusi",
-    "haydovchilarni-korish",
-    "reyestr",
-    "reyestr-distributor",
-    "reyestr-yopilganlar",
-    "dispetcherlik",
-    "dispetcherlar-nazorati",
-    "bosh-kassa",
-    "plastik",
-    "tolov-naqd-pul",
-    "shartnoma-tuzish",
-    "schet-faktura",
-    "otkazmani-yakunlash",
-    "otkazmalar-statusi",
-    "arxiv",
-    "forsmajor",
-    "firma-kodlari",
-    "kadrlar-malumoti",
-    "test-bolimi",
-    "xodimlar-malumoti",
-    "foydalanuvchilar-qoshish",
-    "xodimlar-davomati",
-    "rollar",
-    "sms-xabarnoma",
-    "akkountni-tasdiqlash",
-    "lokatsiyalar",
-    "statistika",
-    "dispetcherlik-xizmati",
-    "qulayliklar",
-    "sms-xabarnoma-2",
-    "bildirishnomalar",
-    "statistika-2",
-    "garaj-mashinalari",
-    "ijara-mashinalari",
-    "tolovlar",
-    "takliflar",
-    "shartnoma-tasdiqlay-olish",
-    "haydovchilarga-sms-jonatish",
-    "kocha-mashinalari",
-    "boost",
-    "izoh-va-mulohazalar",
-    "oshxona-navbatchilik",
-    "ishxona-jihozlari",
-    "hojatxona-navbatchilik",
-    "qongiroqlar",
-    "bozor-narxlari",
-    "buyurtmani-kuzatish",
-    "ijara-mashinalari-taqsimoti",
-    "kontaktlar",
-    "pul-otkazma",
-    "ijara-mashinalari-statistikasi",
-    "reyslar",
-    "tugallanmagan-reyslar",
-    "aroba",
-    "naqd-yuklar",
-    "pul-otkazma-yuklar",
-    "joylar",
-    "mening-statistikam",
-    "xavfsizlik",
-    "telegram-guruhga-xabar-jonatish",
-    "ijara-mashinalari-boshqaruvi",
-    "yuk-javobgarligi",
-    "asosiy-balans",
-    "pul-otkazmalari",
-    "kirim",
-    "kirimchiqim-jurnali",
-    "boshqa-chiqimlar",
-    "qarz-bolimi",
-    "shafyorlarga-qoshimcha-berish",
-    "kunlik-hisobot",
-    "reyestr-2",
-    "kontaktlarni-yuklab-olish",
-]
+type TPermissions =
+    // Meneger
+    | "manager_vehicles_view"
+    | "manager_vehicles_control"
+    | "manager_cashflow_view"
+    | "manager_cashflow_control"
+    | "manager_tech_check_view"
+    | "manager_tech_check_control"
+    // Buxgalteriya
+    | "accounting_view"
+    | "accounting_control"
+    // Investor
+    | "investor_view"
+    | "investor_control"
+    // Moliya
+    | "finance_view"
+    | "finance_control"
+    // Monitoring
+    | "monitoring_view"
+    | "monitoring_control"
+    // Sozlamalar
+    | "settings_locations_view"
+    | "settings_locations_control"
+    | "settings_directions_view"
+    | "settings_directions_control"
+    | "settings_users_view"
+    | "settings_users_control"
+    | "settings_drivers_view"
+    | "settings_drivers_control"
+    | "settings_roles_view"
+    | "settings_roles_control"
+    | "settings_customers_view"
+    | "settings_customers_control"
+    | "settings_vehicles_view"
+    | "settings_vehicles_control"
+    | "settings_vehicle_types_view"
+    | "settings_vehicle_types_control"
+    | "settings_cargo_types_view"
+    | "settings_cargo_types_control"
+    | "settings_payment_types_view"
+    | "settings_payment_types_control"
+    | "settings_expense_types_view"
+    | "settings_expense_types_control"
+    | "settings_petrol_stations_view"
+    | "settings_petrol_stations_control"

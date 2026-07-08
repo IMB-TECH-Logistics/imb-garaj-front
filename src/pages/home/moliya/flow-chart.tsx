@@ -1,4 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react"
+import { useSearch } from "@tanstack/react-router"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_CATEGORIES } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 
 type NodeData = {
@@ -9,59 +12,22 @@ type NodeData = {
     children?: NodeData[]
 }
 
-const TUSHUM: NodeData = {
-    id: "total", label: "Tushum", value: 170_000_000, color: "#00e5a0",
-    children: [
-        { id: "c1", label: "Yuk tashish", value: 85_000_000, color: "#00e5a0", children: [
-            { id: "c1-1", label: "Toshkent–Samarqand", value: 32_000_000, color: "#00e5a0", children: [
-                { id: "c1-1a", label: "Reys #45 — naqd", value: 18_000_000, color: "#00e5a0" },
-                { id: "c1-1b", label: "Reys #47 — bank", value: 14_000_000, color: "#00e5a0" },
-            ]},
-            { id: "c1-2", label: "Buxoro–Navoiy", value: 28_000_000, color: "#00e5a0", children: [
-                { id: "c1-2a", label: "Reys #46 — naqd", value: 15_000_000, color: "#00e5a0" },
-                { id: "c1-2b", label: "Reys #48 — plastik", value: 13_000_000, color: "#00e5a0" },
-            ]},
-            { id: "c1-3", label: "Farg'ona yuk", value: 25_000_000, color: "#00e5a0" },
-        ]},
-        { id: "c2", label: "Shartnoma", value: 42_000_000, color: "#06b6d4", children: [
-            { id: "c2-1", label: "Artel — oylik", value: 22_000_000, color: "#06b6d4" },
-            { id: "c2-2", label: "Nestle — oylik", value: 20_000_000, color: "#06b6d4" },
-        ]},
-        { id: "c3", label: "Logistika", value: 28_000_000, color: "#8b5cf6", children: [
-            { id: "c3-1", label: "Ombor xizmati", value: 16_000_000, color: "#8b5cf6" },
-            { id: "c3-2", label: "Express yetkazish", value: 12_000_000, color: "#8b5cf6" },
-        ]},
-        { id: "c4", label: "Ijara", value: 15_000_000, color: "#f59e0b", children: [
-            { id: "c4-1", label: "Furgon ijarasi", value: 15_000_000, color: "#f59e0b" },
-        ]},
-    ],
+type ApiNode = {
+    id: string
+    label: string
+    value: string | number
+    color: string
+    children?: ApiNode[]
 }
 
-const XARAJAT: NodeData = {
-    id: "total", label: "Xarajat", value: 140_000_000, color: "#f43f5e",
-    children: [
-        { id: "c1", label: "Yoqilg'i", value: 65_000_000, color: "#f43f5e", children: [
-            { id: "c1-1", label: "Diesel", value: 32_000_000, color: "#f43f5e", children: [
-                { id: "c1-1a", label: "Reys #45 — 120L", value: 14_000_000, color: "#f43f5e" },
-                { id: "c1-1b", label: "Reys #47 — 95L", value: 11_000_000, color: "#f43f5e" },
-                { id: "c1-1c", label: "Reys #49 — 60L", value: 7_000_000, color: "#f43f5e" },
-            ]},
-            { id: "c1-2", label: "Benzin AI-92", value: 18_000_000, color: "#f43f5e" },
-            { id: "c1-3", label: "Gaz LPG", value: 15_000_000, color: "#f43f5e" },
-        ]},
-        { id: "c2", label: "Ta'mirlash", value: 35_000_000, color: "#f97316", children: [
-            { id: "c2-1", label: "Dvigatel ta'miri", value: 20_000_000, color: "#f97316" },
-            { id: "c2-2", label: "Shinalar", value: 15_000_000, color: "#f97316" },
-        ]},
-        { id: "c3", label: "Ish haqi", value: 28_000_000, color: "#a855f7", children: [
-            { id: "c3-1", label: "Haydovchi maoshi", value: 18_000_000, color: "#a855f7" },
-            { id: "c3-2", label: "Mexanik maoshi", value: 10_000_000, color: "#a855f7" },
-        ]},
-        { id: "c4", label: "Yo'l to'lovi", value: 12_000_000, color: "#ec4899", children: [
-            { id: "c4-1", label: "Toshkent—Samarqand", value: 7_000_000, color: "#ec4899" },
-            { id: "c4-2", label: "Buxoro—Navoiy", value: 5_000_000, color: "#ec4899" },
-        ]},
-    ],
+function mapNode(node: ApiNode, isRoot: boolean): NodeData {
+    return {
+        id: isRoot ? "total" : node.id,
+        label: node.label,
+        value: Number(node.value),
+        color: node.color,
+        children: node.children?.map((child) => mapNode(child, false)),
+    }
 }
 
 const formatSum = (v: number) => {
@@ -162,7 +128,23 @@ export default function FlowChart() {
     }, [])
 
     const isFullscreen = size.h > 400
-    const root = mode === "tushum" ? TUSHUM : XARAJAT
+    const search: any = useSearch({ strict: false })
+    const { data: apiRoot } = useGet<ApiNode>(FINANCE_CATEGORIES, {
+        params: { type: mode, from_date: search?.from_date, to_date: search?.to_date },
+    })
+    const root: NodeData = useMemo(
+        () =>
+            apiRoot
+                ? mapNode(apiRoot, true)
+                : {
+                      id: "total",
+                      label: mode === "tushum" ? "Tushum" : "Xarajat",
+                      value: 0,
+                      color: mode === "tushum" ? "#00e5a0" : "#f43f5e",
+                      children: [],
+                  },
+        [apiRoot, mode],
+    )
     const { nodes, links } = useMemo(() => buildTree(root, expanded), [root, expanded])
 
     // Compute canvas bounds

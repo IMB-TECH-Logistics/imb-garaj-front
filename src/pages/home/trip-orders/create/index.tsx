@@ -132,8 +132,8 @@ const AddTripOrders = () => {
                 name="type"
                 control={control}
                 options={[
-                    { id: 1, name: "Band" },
-                    { id: 2, name: "Bo'sh" },
+                    { id: 1, name: "Yukli" },
+                    { id: 2, name: "Yuksiz" },
                 ]}
                 valueKey="id"
                 labelKey="name"

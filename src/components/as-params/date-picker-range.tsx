@@ -39,8 +39,11 @@ export default function ParamDateRange({
         string | undefined
     >;
 
+    const fromDateString = search[from];
+    const toDateString = search[to];
+
     useEffect(() => {
-        if (defaultValue) {
+        if (defaultValue && !fromDateString && !toDateString) {
             navigate({
                 search: {
                     ...search,
@@ -51,12 +54,10 @@ export default function ParamDateRange({
                         ? format(defaultValue.to, dateFormat)
                         : undefined,
                 },
+                replace: true,
             });
         }
-    }, []);
-
-    const fromDateString = search[from];
-    const toDateString = search[to];
+    }, [fromDateString, toDateString]);
 
     const parsedDate: DateRange | undefined = {
         from: fromDateString ? new Date(fromDateString) : undefined,
@@ -72,6 +73,7 @@ export default function ParamDateRange({
                         ? format(range.from, dateFormat)
                         : undefined,
                     [to]: range?.to ? format(range.to, dateFormat) : undefined,
+                    page: undefined,
                 },
             });
         }
@@ -84,6 +86,7 @@ export default function ParamDateRange({
                     ...search,
                     [from]: undefined,
                     [to]: undefined,
+                    page: undefined,
                 },
             });
         }

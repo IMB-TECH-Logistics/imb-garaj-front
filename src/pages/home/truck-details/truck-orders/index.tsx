@@ -121,7 +121,9 @@ const TruckTripOrderMain = () => {
                                             {order.payments?.[0]?.amount ?
                                                 Number(
                                                     order.payments[0].amount,
-                                                ).toLocaleString("uz-UZ")
+                                                ).toLocaleString("uz-UZ", {
+                                                    maximumFractionDigits: 2,
+                                                })
                                             :   "—"}
                                         </TableCell>
 

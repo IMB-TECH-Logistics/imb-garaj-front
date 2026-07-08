@@ -1,12 +1,30 @@
 import { usePaths } from "@/hooks/usePaths"
 import { cn } from "@/lib/utils"
-import { useLocation, useNavigate } from "@tanstack/react-router"
+import { useLocation, useNavigate, useSearch } from "@tanstack/react-router"
 import { useMemo } from "react"
 import { NavUser } from "../sidebar/nav-user"
 import { SidebarTrigger, useSidebar } from "../ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ThemeColorToggle } from "./color-toggle"
 import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamInput from "@/components/as-params/input"
+
+// Per-section search box shown in the header. Settings ("Sozlamalar") routes are
+// intentionally excluded — they keep their own in-page search. Matched by pathname
+// (exact or a "/"-segment prefix, first match wins); each `searchKey` mirrors the
+// URL param the corresponding page already reads.
+const HEADER_SEARCH: { prefix: string; searchKey: string; placeholder: string }[] = [
+    { prefix: "/buxgalteriya", searchKey: "search", placeholder: "Davlat raqami..." },
+    { prefix: "/haydovchilar", searchKey: "driver_search", placeholder: "Haydovchi..." },
+    { prefix: "/managers", searchKey: "search", placeholder: "Mashina raqami..." },
+    { prefix: "/kassa", searchKey: "tx_search", placeholder: "Izoh / ma'sul..." },
+    { prefix: "/texnik-check", searchKey: "vehicle_search", placeholder: "Mashina raqami..." },
+    { prefix: "/technic-check", searchKey: "vehicle_search", placeholder: "Mashina raqami..." },
+    { prefix: "/petrol-stations", searchKey: "petrol_search", placeholder: "Qidirish..." },
+    { prefix: "/truck", searchKey: "search", placeholder: "Mashina raqami..." },
+    { prefix: "/ombor", searchKey: "search", placeholder: "Mahsulot nomi..." },
+    { prefix: "/monitoring", searchKey: "q", placeholder: "Mashina yoki haydovchi..." },
+]
 
 const Header = () => {
     const { open } = useSidebar()
@@ -14,6 +32,18 @@ const Header = () => {
     const navigate = useNavigate()
     const { childPaths } = usePaths()
     const { isMobile } = useSidebar()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const search: any = useSearch({ strict: false })
+
+    const searchConfig = useMemo(() => {
+        const cfg = HEADER_SEARCH.find(
+            (c) => pathname === c.prefix || pathname.startsWith(c.prefix + "/"),
+        )
+        if (!cfg) return undefined
+        // Monitoring search filters the report list only, not the live map.
+        if (cfg.prefix === "/monitoring" && !search?.report) return undefined
+        return cfg
+    }, [pathname, search?.report])
 
     const activeTab = useMemo(() => {
         // Find the matching tab for nested routes (e.g. /manager-trips/123 -> /managers)
@@ -62,6 +92,15 @@ const Header = () => {
             </div>
 
             <hgroup className="flex items-center gap-2 sm:gap-4">
+                {searchConfig && (
+                    <ParamInput
+                        key={searchConfig.prefix}
+                        searchKey={searchConfig.searchKey}
+                        placeholder={searchConfig.placeholder}
+                        wrapperClassName="!h-9 !w-56 hidden sm:block"
+                        className="!h-9 !bg-muted/40 text-sm"
+                    />
+                )}
                 {pathname.startsWith("/moliya") && (
                     <ParamDateRange
                         from="from_date"

@@ -13,11 +13,17 @@ export interface OwnerStatistic {
     fuel: string
     fuel_consume: number | null
     fuel_per_km: number
-    income_uzs: number | null
-    income_usd: number | null
-    total_expense: number | null
+    income: string | number | null
+    income_with_vat: string | number | null
+    expense: string | number | null
     cargo_type_name: string | null
 }
+
+const toNum = (v: string | number | null | undefined): number =>
+    Number(v ?? 0) || 0
+
+const round3 = (v: string | number | null | undefined): number =>
+    Math.round(toNum(v) * 1000) / 1000
 
 export const useCostCols = () => {
     return useMemo<ColumnDef<OwnerStatistic>[]>(
@@ -43,12 +49,12 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Reys (Band/Bo'sh)",
-                accessorKey: "order_count_busy",
+                header: "Reys (Yuksiz/Yukli)",
+                accessorKey: "order_count_empty",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="text-sm border py-1 px-2 rounded bg-muted">
-                        {row.original.order_count_busy} / {row.original.order_count_empty}
+                        {row.original.order_count_empty} / {row.original.order_count_busy}
                     </span>
                 ),
             },
@@ -56,7 +62,7 @@ export const useCostCols = () => {
                 header: "Probeg km",
                 accessorKey: "total_mileage",
                 enableSorting: true,
-                cell: ({ row }) => <span>{row.original.total_mileage ?? "—"}</span>,
+                cell: ({ row }) => <span>{row.original.total_mileage != null ? round3(row.original.total_mileage) : "—"}</span>,
             },
             {
                 header: "Yoqilg'i turi",
@@ -74,7 +80,7 @@ export const useCostCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     return (
-                        <span>{row.original.fuel_consume !== null ? formatMoney(row.original.fuel_consume) : "—"}</span>
+                        <span>{row.original.fuel_consume !== null ? formatMoney(round3(row.original.fuel_consume)) : "—"}</span>
                     )
                 },
             },
@@ -91,33 +97,37 @@ export const useCostCols = () => {
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
                 cell: ({ row }) => {
+                    const v = row.original.fuel_per_km
                     return (
-                        <span>{row.original.fuel_per_km ?? "—"}</span>
+                        <span>{v != null ? Number(toNum(v).toFixed(2)) : "—"}</span>
                     )
                 },
             },
             {
-                header: "Tushum (UZS)",
-                accessorKey: "income_uzs",
+                header: "Xarajat",
+                accessorKey: "expense",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    return <span className="text-green-600 font-medium">{row.original.income_uzs !== null ? formatMoney(row.original.income_uzs) : "—"}</span>
+                    const v = round3(row.original.expense)
+                    return <span className="text-red-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
             {
-                header: "Tushum (USD)",
-                accessorKey: "income_usd",
+                header: "Tushum",
+                accessorKey: "income_with_vat",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    return <span className="text-green-600 font-medium">{row.original.income_usd !== null ? `$${formatMoney(row.original.income_usd)}` : "—"}</span>
+                    const v = round3(toNum(row.original.income_with_vat) || toNum(row.original.income))
+                    return <span className="text-green-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
             {
-                header: "Jami xarajat",
-                accessorKey: "total_expense",
+                header: "Foyda",
+                id: "profit",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    return <span className="text-red-600 font-medium">{row.original.total_expense !== null ? formatMoney(row.original.total_expense) : "—"}</span>
+                    const profit = round3((toNum(row.original.income_with_vat) || toNum(row.original.income)) - toNum(row.original.expense))
+                    return <span className={`font-medium ${profit >= 0 ? "text-blue-600" : "text-red-600"}`}>{formatMoney(profit)}</span>
                 },
             },
         ],

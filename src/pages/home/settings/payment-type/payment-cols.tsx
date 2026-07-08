@@ -4,7 +4,7 @@ import { useMemo } from "react"
 const METHOD_LABELS: Record<number, string> = {
     1: "Naqd",
     2: "Plastik",
-    3: "Bank",
+    3: "Kassa",
 }
 
 export const useColumnsPaymentTable = () => {

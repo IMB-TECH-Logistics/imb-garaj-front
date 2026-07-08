@@ -3,6 +3,7 @@ import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SETTINGS_COUNTRIES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { CirclePlus, Plus, PlusCircle } from "lucide-react"
@@ -10,6 +11,7 @@ import CountriesTable from "./tables/country"
 import AddCountriesModal from "./tables/country/add-country"
 
 const Locations = () => {
+    const hasControl = useHasAction("settings_locations_control")
     const { openModal } = useModal("country-modal")
     const { clearKey } = useGlobalStore()
 
@@ -20,7 +22,7 @@ const Locations = () => {
 
     return (
         <>
-            <Card className="max-w-[3]">
+            <Card>
                 <CardHeader className="pb-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <CardTitle className="text-xl font-semibold tracking-tight">
@@ -35,13 +37,15 @@ const Locations = () => {
                                     pageKey="page"
                                 />
                             </div>
-                            <Button
-                                className="flex items-center gap-2"
-                                onClick={handleCountyModalOpen}
-                            >
-                                <CirclePlus size={18} />
-                                Qo'shish
-                            </Button>
+                            {hasControl && (
+                                <Button
+                                    className="flex items-center gap-2"
+                                    onClick={handleCountyModalOpen}
+                                >
+                                    <CirclePlus size={18} />
+                                    Qo'shish
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </CardHeader>

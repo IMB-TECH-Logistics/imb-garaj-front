@@ -8,7 +8,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { MenuItem, useItems, usePaths } from "@/hooks/usePaths"
+import { MenuItem, usePaths } from "@/hooks/usePaths"
 import { Link, useLocation } from "@tanstack/react-router"
 import { Badge } from "@/components/ui/badge"
 
@@ -20,7 +20,6 @@ export function NavMain() {
     const pathname = location.pathname
 
     const { filteredItems } = usePaths()
-    const allPaths = useItems()
 
     const hasActivePathDeep = (item: MenuItem, pathname: string): boolean => {
         if (pathname.includes(item.path)) {
@@ -63,7 +62,7 @@ export function NavMain() {
                             </Link>
                         </div>
                     </SidebarMenuItem>
-                    {allPaths.map(({ label, icon, path, pending, ...item }) => {
+                    {filteredItems.map(({ label, icon, path, pending, ...item }) => {
                         const isParentActive = hasActivePathDeep(
                             { label, icon, path, ...item },
                             pathname,

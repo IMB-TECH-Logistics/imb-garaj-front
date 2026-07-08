@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+import { ImageIcon } from "lucide-react"
 import { useMemo } from "react"
 import { STATUS_TRIP } from "../managers-trips/cols"
 
@@ -14,7 +15,10 @@ const HOLAT_COLORS: Record<number, string> = {
     1: "bg-green-500/10 text-green-600 border-transparent",
     2: "bg-gray-500/10 text-gray-500 border-transparent",
 }
-export const useColumnsManagersOrders = () => {
+
+export const useColumnsManagersOrders = (opts?: {
+    onImageClick?: (images: { id: number; image: string }[]) => void
+}) => {
     return useMemo<ColumnDef<ManagerOrders>[]>(
         () => [
             {
@@ -27,7 +31,7 @@ export const useColumnsManagersOrders = () => {
                 header: "Tushirish joyi",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div className="">{row.original.loading_name || "-"}</div>
+                    <div className="">{row.original.unloading_name || "-"}</div>
                 ),
             },
             {
@@ -74,44 +78,74 @@ export const useColumnsManagersOrders = () => {
                 },
             },
             {
+                id: "images",
+                header: "Rasm",
+                size: 60,
+                cell: ({ row }) => {
+                    const images = row.original?.images
+                    if (!images?.length) return <span className="text-muted-foreground">—</span>
+                    return (
+                        <button
+                            type="button"
+                            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                opts?.onImageClick?.(images)
+                            }}
+                        >
+                            <ImageIcon size={16} />
+                            <span className="text-xs">{images.length}</span>
+                        </button>
+                    )
+                },
+            },
+            {
                 accessorKey: "pending_time",
                 header: "Pending vaqt",
-                cell: ({ row }) => formatDateSafe(row.original.pending_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.pending_time)}</span>,
             },
             {
                 accessorKey: "started_time",
                 header: "Boshlangan vaqt",
-                cell: ({ row }) => formatDateSafe(row.original.started_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.started_time)}</span>,
             },
             {
                 accessorKey: "loading_time",
                 header: "Yuklash vaqti",
-                cell: ({ row }) => formatDateSafe(row.original.loading_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.loading_time)}</span>,
             },
             {
                 accessorKey: "in_transit_time",
-                header: "Yo‘lda",
-                cell: ({ row }) => formatDateSafe(row.original.in_transit_time),
+                header: "Yo'lda",
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.in_transit_time)}</span>,
             },
             {
                 accessorKey: "unloading_time",
                 header: "Tushirish vaqti",
-                cell: ({ row }) => formatDateSafe(row.original.unloading_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.unloading_time)}</span>,
             },
             {
                 accessorKey: "completed_time",
                 header: "Yakunlangan",
-                cell: ({ row }) => formatDateSafe(row.original.completed_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.completed_time)}</span>,
             },
             {
                 accessorKey: "canceled_time",
                 header: "Bekor qilingan",
-                cell: ({ row }) => formatDateSafe(row.original.canceled_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.canceled_time)}</span>,
             },
             {
                 accessorKey: "archived_time",
                 header: "Arxivlangan",
-                cell: ({ row }) => formatDateSafe(row.original.archived_time),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.archived_time)}</span>,
             },
             {
                 accessorKey: "status",
@@ -123,7 +157,7 @@ export const useColumnsManagersOrders = () => {
                 },
             },
         ],
-        [],
+        [opts?.onImageClick],
     )
 }
 
@@ -134,5 +168,5 @@ const formatDateSafe = (value?: string) => {
 
     if (isNaN(date.getTime())) return "-"
 
-    return format(date, "yyyy-MM-dd")
+    return format(date, "yyyy-MM-dd HH:mm")
 }

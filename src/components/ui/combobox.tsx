@@ -89,7 +89,7 @@ export function Combobox<T extends Record<string, any>>({
                     variant={"outline"}
                     role="combobox"
                     className={cn(
-                        "w-full justify-between relative   px-2 hover:bg-card font-normal ",
+                        "w-full justify-between relative   px-4 hover:bg-card font-normal ",
                         value && "font-medium text-foreground",
                         isError && "border border-destructive",
                         className,
@@ -100,13 +100,14 @@ export function Combobox<T extends Record<string, any>>({
                         className={cn(
                             "flex items-center gap-2 pl-2 ",
                             onAdd && "pr-4",
+                            !!value && isClearIcon && !onAdd && "pr-7",
                         )}
                     >
                         <span className="line-clamp-1 break-all whitespace-pre-wrap ">
                             {value ?
                                 options
                                     ?.find((d) => d[valueKey] == value)
-                                    ?.[labelKey]?.toString() || value
+                                    ?.[labelKey]?.toString() || label
                             :   label}
                         </span>
                         <ChevronDown className=" h-4 w-4  text-primary opacity-50 " />
@@ -158,22 +159,28 @@ export function Combobox<T extends Record<string, any>>({
                     <CommandList>
                         <CommandEmpty>{"Mavjud emas"}</CommandEmpty>
                         <CommandGroup>
-                            {sortedOptions?.map((d, i) => (
-                                <CommandItem
-                                    key={i}
-                                    onSelect={() => handleSelect(d)}
-                                >
-                                    {d[labelKey]}
-                                    <CheckIcon
-                                        className={cn(
-                                            "ml-auto h-4 w-4",
-                                            value == d[valueKey] ?
-                                                "opacity-100"
-                                            :   "opacity-0",
-                                        )}
-                                    />
-                                </CommandItem>
-                            ))}
+                            {sortedOptions?.map((d, i) => {
+                                const itemId = String(d[valueKey] ?? i)
+                                const itemLabel = String(d[labelKey] ?? "")
+                                return (
+                                    <CommandItem
+                                        key={itemId}
+                                        value={itemId}
+                                        keywords={[itemLabel]}
+                                        onSelect={() => handleSelect(d)}
+                                    >
+                                        {d[labelKey]}
+                                        <CheckIcon
+                                            className={cn(
+                                                "ml-auto h-4 w-4",
+                                                value == d[valueKey] ?
+                                                    "opacity-100"
+                                                :   "opacity-0",
+                                            )}
+                                        />
+                                    </CommandItem>
+                                )
+                            })}
 
                             {isLoading ?
                                 <div className="space-y-1">

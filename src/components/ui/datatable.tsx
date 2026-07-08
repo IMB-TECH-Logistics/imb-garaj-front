@@ -69,6 +69,7 @@ interface DataTableProps<TData> {
     head?: React.ReactNode
     viewCount?: number | boolean | undefined
     sortable?: boolean
+    stickyHeader?: boolean
     numeration?: boolean
     wrapperClassName?: string
     actionMenuMode?: boolean
@@ -78,6 +79,7 @@ interface DataTableProps<TData> {
     onView?: (data: Row<TData>) => void
     onRedo?: (data: Row<TData>) => void
     onFinished?: (data: Row<TData>) => void
+    rowAction?: (data: TData) => React.ReactNode
     tableWrapperClassName?: string
     skeletonRowCount?: number
     onSelectedRowsChange?: (rows: TData[]) => void
@@ -106,6 +108,7 @@ export function DataTable<TData>({
     viewAll,
     head,
     numeration = false,
+    stickyHeader = false,
     wrapperClassName,
     actionMenuMode,
     onEdit,
@@ -114,6 +117,7 @@ export function DataTable<TData>({
     onView,
     onFinished,
     onRedo,
+    rowAction,
     tableWrapperClassName,
     onSelectedRowsChange,
     skeletonRowCount = 15,
@@ -144,32 +148,36 @@ export function DataTable<TData>({
     const orderedColumns = React.useMemo(() => {
         if (hasActions) return columns
 
-        if (onDelete || onEdit || onUndo || onView || onRedo) {
+        if (onDelete || onEdit || onUndo || onView || onRedo || rowAction) {
             return [
                 ...columns,
                 {
                     header: " ",
                     accessorKey: "action",
                     enableSorting: false,
+                    size: 120,
                     cell: ({ row }) => (
-                        <TableActions
-                            menuMode={actionMenuMode}
-                            onDelete={
-                                onDelete ? () => onDelete?.(row) : undefined
-                            }
-                            onEdit={onEdit ? () => onEdit?.(row) : undefined}
-                            onUndo={onUndo ? () => onUndo?.(row) : undefined}
-                            onView={onView ? () => onView?.(row) : undefined}
-                            onRedo={onRedo ? () => onRedo?.(row) : undefined}
-                            onFinished={
-                                onFinished ? () => onFinished?.(row) : undefined
-                            }
-                        />
+                        <div className="flex items-center justify-end gap-2 pr-2">
+                            {rowAction?.(row.original)}
+                            <TableActions
+                                menuMode={actionMenuMode}
+                                onDelete={
+                                    onDelete ? () => onDelete?.(row) : undefined
+                                }
+                                onEdit={onEdit ? () => onEdit?.(row) : undefined}
+                                onUndo={onUndo ? () => onUndo?.(row) : undefined}
+                                onView={onView ? () => onView?.(row) : undefined}
+                                onRedo={onRedo ? () => onRedo?.(row) : undefined}
+                                onFinished={
+                                    onFinished ? () => onFinished?.(row) : undefined
+                                }
+                            />
+                        </div>
                     ),
                 },
             ]
         } else return columns
-    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView,onFinished, hasActions])
+    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView, onFinished, rowAction, hasActions])
 
     React.useEffect(() => {
         if (
@@ -252,7 +260,8 @@ export function DataTable<TData>({
 
             <div
                 className={cn(
-                    "relative overflow-x-auto overflow-y-hidden no-scollbar-x   rounded-md ",
+                    "relative overflow-x-auto no-scollbar-x   rounded-md ",
+                    !stickyHeader && "overflow-y-hidden",
                     tableWrapperClassName,
                 )}
             >
@@ -301,6 +310,7 @@ export function DataTable<TData>({
                 {data?.length ?
                     <Table
                         className={`${className} select-text  bg-card rounded-md`}
+                        style={{ tableLayout: "fixed" }}
                     >
                         <TableHeader>
                             {table
@@ -311,7 +321,7 @@ export function DataTable<TData>({
                                         className="border-none "
                                     >
                                         {selecteds_row && (
-                                            <TableHead>
+                                            <TableHead className={cn("w-8 px-2", stickyHeader && "sticky top-0 bg-card z-10")}>
                                                 <Checkbox
                                                     checked={
                                                         table.getIsAllPageRowsSelected() ||
@@ -332,6 +342,7 @@ export function DataTable<TData>({
                                                 className={cn(
                                                     " px-2  cursor-pointer",
                                                     index === 0 && "w-8",
+                                                    stickyHeader && "sticky top-0 bg-card z-10",
                                                 )}
                                             >
                                                 №
@@ -340,18 +351,28 @@ export function DataTable<TData>({
 
                                         {headerGroup.headers.map(
                                             (header, index) => {
+                                                // Columns can opt out of the built-in sort chevron + header-click
+                                                // sorting (e.g. when an external popover drives sorting).
+                                                const hideSortIndicator = (
+                                                    header.column.columnDef
+                                                        .meta as
+                                                        | { hideSortIndicator?: boolean }
+                                                        | undefined
+                                                )?.hideSortIndicator
+                                                const showSort =
+                                                    header.column.columnDef
+                                                        .enableSorting &&
+                                                    !hideSortIndicator
                                                 return (
                                                     <TableHead
                                                         key={header.id}
                                                         className={cn(
                                                             " px-2 cursor-pointer",
+                                                            stickyHeader && "sticky top-0 bg-card z-10",
                                                         )}
+                                                        style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}
                                                         onClick={
-                                                            (
-                                                                header.column
-                                                                    .columnDef
-                                                                    .enableSorting
-                                                            ) ?
+                                                            showSort ?
                                                                 header.column.getToggleSortingHandler()
                                                             :   undefined
                                                         }
@@ -364,11 +385,7 @@ export function DataTable<TData>({
                                                                 header.getContext(),
                                                             )}
 
-                                                            {(
-                                                                header.column
-                                                                    .columnDef
-                                                                    .enableSorting
-                                                            ) ?
+                                                            {showSort ?
                                                                 ({
                                                                     asc: (
                                                                         <ChevronUp
@@ -444,7 +461,10 @@ export function DataTable<TData>({
                                                     1) *
                                                     (search[
                                                         pageSizeParamName
-                                                    ] || DEFAULT_PAGE_SIZE) +
+                                                    ] ||
+                                                        paginationProps
+                                                            ?.page_sizes?.[0] ||
+                                                        DEFAULT_PAGE_SIZE) +
                                                     index +
                                                     1}
                                             </TableCell>

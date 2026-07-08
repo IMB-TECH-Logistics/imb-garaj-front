@@ -6,8 +6,17 @@ export const useColumnsCustomersTable = () => {
     return useMemo<ColumnDef<CustomersType>[]>(
         () => [
             {
+                accessorKey: "code",
+                header: "Firma kodi",
+                size: 80,
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span>{row.original.code || "—"}</span>
+                ),
+            },
+            {
                 accessorKey: "name",
-                header: "F.I.O",
+                header: "Firma nomi",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="min-w-[180px] w-[220px] truncate">
@@ -31,6 +40,14 @@ export const useColumnsCustomersTable = () => {
                     const digitsB = (phoneB || "").replace(/\D/g, "")
                     return digitsA.localeCompare(digitsB)
                 },
+            },
+            {
+                accessorKey: "nds_percent",
+                header: "NDS (%)",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span>{row.original.nds_percent ?? "—"} %</span>
+                ),
             },
         ],
         [],

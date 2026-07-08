@@ -11,11 +11,17 @@ type PaginationProps = {
 }
 
 type User = {
-    uuid: string
-    full_name: string
-    phone: string | null
-    actions: string[]
+    id: number
     username: string
+    first_name: string
+    last_name: string
+    role: number
+    role_name: string
+    actions: string[]
+    is_superuser: boolean
+    uuid?: string
+    full_name?: string
+    phone?: string | null
 }
 
 type MonthCalProps = {

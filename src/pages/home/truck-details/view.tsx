@@ -10,14 +10,10 @@ function ViewPage() {
     return (
         <div className="pb-4">
             <div
-                className="flex flex-wrap items-center gap-3 mb-4 cursor-pointer"
-                onClick={() => navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })}
+                className="flex flex-wrap items-center gap-3 mb-4"
             >
                 <Button
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })
-                    }}
+                    onClick={() => navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })}
                     className="shrink-0"
                 >
                     <ArrowLeft className="h-4" />

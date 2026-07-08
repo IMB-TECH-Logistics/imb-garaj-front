@@ -53,6 +53,18 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
     return (
         <>
             <div className="h-[500px]  flex flex-col overflow-hidden bg-background">
+                <div className="px-3 pt-3">
+                    <TableHeaderLocation
+                        storeKey={SETTINGS_DISTRICTS}
+                        modalKey="create-districts"
+                        disabled={!region_id}
+                        pageKey="page"
+                        name="tumanlar"
+                        searchKey="district_search"
+                        title="Tumanlar"
+                        count={region_id ? data?.count : 0}
+                    />
+                </div>
                 <div className="flex-1 overflow-y-auto no-scrollbar-0 no-scrollbar-x ">
                     <DataTable
                         loading={isLoading}
@@ -67,16 +79,6 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                         paginationProps={{
                             totalPages: 1,
                         }}
-                        head={
-                            <TableHeaderLocation
-                                storeKey={SETTINGS_DISTRICTS}
-                                modalKey="create-districts"
-                                disabled={!region_id}
-                                pageKey="page"
-                                name="tumanlar"
-                                searchKey="district_search"
-                            />
-                        }
                     />
                 </div>
                 <DeleteModal

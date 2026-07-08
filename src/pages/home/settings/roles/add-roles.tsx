@@ -6,8 +6,9 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import PermissionField from "../users/permission-field"
 
 const  AddRolesModal = () => {
     const queryClient = useQueryClient()
@@ -16,7 +17,10 @@ const  AddRolesModal = () => {
     const currentRole = getData<RolesType>(SETTINGS_ROLES)
 
     const form = useForm<RolesType>({
-        defaultValues: currentRole,
+        defaultValues: {
+            name: currentRole?.name ?? "",
+            actions: currentRole?.actions ?? [],
+        },
     })
 
     const { handleSubmit, reset } = form
@@ -50,19 +54,25 @@ const  AddRolesModal = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <FormInput required name="name" label="Rol turi" methods={form} />
+        <FormProvider {...form}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <FormInput required name="name" label="Rol turi" methods={form} />
 
-            <div className="flex items-center justify-end  mt-3">
-                <Button
-                    className="min-w-36 w-full md:w-max"
-                    type="submit"
-                    loading={isPending}
-                >
-                    {"Saqlash"}
-                </Button>
-            </div>
-        </form>
+                <div className="mt-4 max-h-[60vh] overflow-y-auto pr-1">
+                    <PermissionField />
+                </div>
+
+                <div className="flex items-center justify-end  mt-3">
+                    <Button
+                        className="min-w-36 w-full md:w-max"
+                        type="submit"
+                        loading={isPending}
+                    >
+                        {"Saqlash"}
+                    </Button>
+                </div>
+            </form>
+        </FormProvider>
     )
 }
 

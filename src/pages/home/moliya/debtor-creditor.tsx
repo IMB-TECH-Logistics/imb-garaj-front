@@ -1,21 +1,48 @@
+import { useMemo } from "react"
+import { useSearch } from "@tanstack/react-router"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_DEBTORS, FINANCE_CREDITORS } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 
 type Entry = { name: string; amount: number; days: number; note?: string }
 
-const DEBTORS: Entry[] = [
-    { name: "Artel Group", amount: 12_500_000, days: 15, note: "Mart shartnomasi" },
-    { name: "Nestle Uzbekistan", amount: 8_200_000, days: 7, note: "Yuk tashish" },
-    { name: "Coca-Cola", amount: 4_800_000, days: 32, note: "Fevral qoldig'i" },
-    { name: "Korzinka", amount: 3_100_000, days: 3, note: "Express yetkazish" },
-    { name: "Makro", amount: 6_700_000, days: 22, note: "Ombor xizmati" },
+type PartnerItem = { id: number; name: string; amount: string | number; days: number; note: string }
+type PartnerResponse = { results: PartnerItem[]; total: string | number }
+
+// TODO: vaqtinchalik default data — backend tayyor bo'lgach olib tashlash kerak
+const DEFAULT_DEBTORS: Entry[] = [
+    { name: "Кола", amount: 601_117_470, days: 42 },
+    { name: "Coca Cola PRO", amount: 34_753_767.44, days: 27 },
+    { name: "CocaCola", amount: 28_684_876.64, days: 27 },
+    { name: "TAPO disk", amount: 21_789_240, days: 42 },
+    { name: "Coca Cola Shosh", amount: 2_718_367, days: 27 },
 ]
 
-const CREDITORS: Entry[] = [
-    { name: "Yoqilg'i bazasi", amount: 7_400_000, days: 10, note: "Diesel uchun" },
-    { name: "Shina do'koni", amount: 3_200_000, days: 5, note: "4ta shina" },
-    { name: "Mexanik ustaxona", amount: 2_100_000, days: 18, note: "Dvigatel ta'miri" },
-    { name: "OSAGO sug'urta", amount: 1_800_000, days: 45, note: "Yillik sug'urta" },
+const DEFAULT_CREDITORS: Entry[] = [
+    { name: "Mantella", amount: 3_568_590, days: 42 },
+    { name: "Aqua-Products", amount: 1_511_112, days: 42 },
+    { name: "Dinay", amount: 1_203_896, days: 42 },
+    { name: "Evita", amount: 591_304, days: 42 },
+    { name: "Family", amount: 566_667, days: 42 },
+    { name: "RC Cola", amount: 380_000, days: 31 },
 ]
+
+function usePartners(url: string, fallback: Entry[]): Entry[] {
+    const search: any = useSearch({ strict: false })
+    const { data } = useGet<PartnerResponse>(url, {
+        params: { from_date: search?.from_date, to_date: search?.to_date },
+    })
+    return useMemo(() => {
+        const results = data?.results ?? []
+        if (!results.length) return fallback
+        return results.map((r) => ({
+            name: r.name,
+            amount: Number(r.amount),
+            days: r.days,
+            note: r.note,
+        }))
+    }, [data, fallback])
+}
 
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
@@ -69,11 +96,13 @@ function EntryList({ entries, variant }: { entries: Entry[]; variant: "income" |
 }
 
 export function DebtorCard() {
-    return <EntryList entries={DEBTORS} variant="income" />
+    const entries = usePartners(FINANCE_DEBTORS, DEFAULT_DEBTORS)
+    return <EntryList entries={entries} variant="income" />
 }
 
 export function CreditorCard() {
-    return <EntryList entries={CREDITORS} variant="expense" />
+    const entries = usePartners(FINANCE_CREDITORS, DEFAULT_CREDITORS)
+    return <EntryList entries={entries} variant="expense" />
 }
 
 export default function DebtorCreditor() {

@@ -2,6 +2,7 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_VEHICLE_TYPE } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -11,6 +12,7 @@ import AddVehicleModal from "./add-vehicle"
 import { useColumnsVehicleTable } from "./vehicle-cols"
 
 const VehicleTypePage = () => {
+    const hasControl = useHasAction("settings_vehicle_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
         SETTINGS_VEHICLE_TYPE,
@@ -43,8 +45,8 @@ const VehicleTypePage = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -53,11 +55,12 @@ const VehicleTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Rollar"
+                        fileName="Mashina turlari"
                         url="excel"
-                        storeKey={SETTINGS_VEHICLE_TYPE}
+                        storeKey={hasControl ? SETTINGS_VEHICLE_TYPE : undefined}
                         searchKey="vehicle_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

@@ -82,6 +82,7 @@ type TripOrdersRow = {
     unloading: number
     trip: number
     cargo_type: string | number
+    direction: number | null
     date: string | number
     client: string
     payment_type: string | number
@@ -100,6 +101,7 @@ type TripOrdersRow = {
             payment_type: number | null
         },
     ]
+    images?: { id: number; image: string }[]
 }
 
 type CashflowRow = {

@@ -9,6 +9,7 @@ type ManagerVehicles = {
     loading_name: string
     unloading_name: string
     order_status: number
+    phone?: string | null
 }
 
 type ImageField = File | string | null
@@ -52,6 +53,8 @@ type ManagerOrders = {
     unloading_name: string
     cargo_type: number
     cargo_type_name: string
+    client: number
+    direction: number | null
     date: string
     type: number
     status: number
@@ -66,6 +69,7 @@ type ManagerOrders = {
     completed_time: string
     canceled_time: string
     archived_time: string
+    images?: { id: number; image: string }[]
 }
 
 type ManagerExpenses = {

@@ -10,17 +10,15 @@ import {
     ReferenceLine,
     ReferenceArea,
 } from "recharts"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_FORECAST } from "@/constants/api-endpoints"
 
-const MONTHS = ["Apr", "May", "Iyn", "Iyl", "Avg", "Sen"]
-
-function generateForecast() {
-    let balance = 15_780_000
-    return MONTHS.map((month) => {
-        const income = Math.round((Math.random() * 30 + 20) * 1_000_000)
-        const expense = Math.round((Math.random() * 25 + 15) * 1_000_000)
-        balance = balance + income - expense
-        return { month, income, expense, balance, net: income - expense }
-    })
+type ForecastPoint = {
+    month: string
+    income: string | number
+    expense: string | number
+    balance: string | number
+    net: string | number
 }
 
 const fmt = (v: number) => {
@@ -49,9 +47,21 @@ function ForecastTooltip({ active, payload, label }: any) {
 }
 
 export default function CashflowForecast() {
-    const data = useMemo(() => generateForecast(), [])
+    const { data: raw } = useGet<ForecastPoint[]>(FINANCE_FORECAST)
 
-    const minBalance = Math.min(...data.map((d) => d.balance))
+    const data = useMemo(
+        () =>
+            (raw ?? []).map((d) => ({
+                month: d.month,
+                income: Number(d.income),
+                expense: Number(d.expense),
+                balance: Number(d.balance),
+                net: Number(d.net),
+            })),
+        [raw],
+    )
+
+    const minBalance = data.length ? Math.min(...data.map((d) => d.balance)) : 0
     const hasCashGap = minBalance < 5_000_000
 
     const cashGapMonths = data.filter((d) => d.balance < 5_000_000)

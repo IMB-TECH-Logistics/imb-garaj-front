@@ -1,4 +1,3 @@
-import { FormCheckbox } from "@/components/form/checkbox"
 import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
@@ -9,8 +8,9 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import PermissionField from "./permission-field"
 
 const AddUserModal = () => {
     const queryClient = useQueryClient()
@@ -22,6 +22,7 @@ const AddUserModal = () => {
         defaultValues: {
             ...currentDriver,
             password: "",
+            actions: currentDriver?.actions ?? [],
         },
     })
 
@@ -61,65 +62,68 @@ const AddUserModal = () => {
 
     return (
         <div className="w-full max-w-4xl mx-auto">
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
-                <FormInput
-                    required
-                    name="first_name"
-                    label="Ism"
-                    methods={form}
-                    placeholder="Misol: Ali"
-                />
-                <FormInput
-                    required
-                    name="last_name"
-                    label="Familiya"
-                    methods={form}
-                    placeholder="Misol: Aliyev"
-                />
+            <FormProvider {...form}>
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                >
+                    <FormInput
+                        required
+                        name="first_name"
+                        label="Ism"
+                        methods={form}
+                        placeholder="Misol: Ali"
+                    />
+                    <FormInput
+                        required
+                        name="last_name"
+                        label="Familiya"
+                        methods={form}
+                        placeholder="Misol: Aliyev"
+                    />
 
-                <FormInput
-                    required
-                    name="username"
-                    label="Login"
-                    methods={form}
-                    placeholder="Misol: ali1"
-                />
-                <FormInput
-                    required={!currentDriver?.id}
-                    type="password"
-                    name="password"
-                    label="Parol"
-                    methods={form}
-                    placeholder={
-                        currentDriver?.id ?
-                            "O'zgartirish uchun kiriting"
-                        :   "Misol: SecurePass123!"
-                    }
-                />
+                    <FormInput
+                        required
+                        name="username"
+                        label="Login"
+                        methods={form}
+                        placeholder="Misol: ali1"
+                    />
+                    <FormInput
+                        required={!currentDriver?.id}
+                        type="password"
+                        name="password"
+                        label="Parol"
+                        methods={form}
+                        placeholder={
+                            currentDriver?.id ?
+                                "O'zgartirish uchun kiriting"
+                            :   "Misol: SecurePass123!"
+                        }
+                    />
 
-                <FormCombobox
-                    options={userRole?.results ?? []}
-                    name="role"
-                    control={form.control}
-                    labelKey="name"
-                    valueKey="id"
-                    label="Foydalanuvchi roli"
-                />
-     
+                    <FormCombobox
+                        options={userRole?.results ?? []}
+                        name="role"
+                        control={form.control}
+                        labelKey="name"
+                        valueKey="id"
+                        label="Foydalanuvchi roli"
+                    />
 
-                <div className="md:col-span-2 flex justify-end pt-2">
-                    <Button
-                        className="w-full md:w-auto md:min-w-36"
-                        type="submit"
-                        loading={isPending}
-                    >
-                        Saqlash
-                    </Button>
-                </div>
-            </form>
+                    <PermissionField />
+
+                    <div className="md:col-span-2 flex justify-end pt-2">
+                        <Button
+                            className="w-full md:w-auto md:min-w-36"
+                            type="submit"
+                            loading={isPending}
+                        >
+                            Saqlash
+                        </Button>
+                    </div>
+                </form>
+            </FormProvider>
         </div>
     )
 }

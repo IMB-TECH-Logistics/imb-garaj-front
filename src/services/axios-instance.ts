@@ -1,7 +1,17 @@
 import axios from "axios"
 import { toast } from "sonner"
 
-export const baseURL = import.meta.env.VITE_DEFAULT_URL
+const getBaseURL = () => {
+    if (import.meta.env.DEV) {
+        return import.meta.env.VITE_DEFAULT_URL
+    }
+
+    // Same-origin: nginx proxies /api/ to the backend, django-tenants
+    // resolves the tenant from the Host header (the current subdomain).
+    return `${window.location.origin}/api/v1`
+}
+
+export const baseURL = getBaseURL()
 
 const axiosInstance = axios.create({
     baseURL,
@@ -26,7 +36,6 @@ axiosInstance.interceptors.response.use(
     (response) => response,
 
     async (error) => {
-        const originalRequest = error.config
         const status = error.response?.status
         
         const isLoginPage = window.location.pathname === '/auth';
@@ -34,15 +43,10 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        if (status === 401 && originalRequest._retry) {
-            originalRequest._retry = true
-
-            try {
-                return axiosInstance(originalRequest)
-            } catch (refreshError) {
-                location.href = "/auth"
-                return Promise.reject(refreshError)
-            }
+        if (status === 401) {
+            localStorage.removeItem("token")
+            window.location.href = "/auth"
+            return Promise.reject(error)
         }
         if (status === 403) {
             toast.error("Sizga ruxsat berilmagan" + ": " + error?.config?.url)

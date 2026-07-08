@@ -1,11 +1,16 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { InlineBreadcrumb } from "@/components/header/breadcrumbs"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { cn } from "@/lib/utils"
+import { X } from "lucide-react"
 import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
@@ -26,16 +31,28 @@ export default function ManagersTrips() {
     const { openModal: editTripModal } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { openModal: createExpenses } = useModal(MANAGERS_EXPENSES)
     const { openModal: deleteTrip } = useModal(`${MANAGERS_TRIPS}-delete`)
-    const [moliyaOpen, setMoliyaOpen] = useState(false)
+    const hasControl = useHasAction("manager_vehicles_control")
+    const [isArchive, setIsArchive] = useState(false)
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
     const { name } = useSearch({ strict: false }) as any
     const { driver_id } = useSearch({ strict: false }) as any
+    const { from_date, to_date, moliya_trip_id } = search as any
+    const moliyaOpen = !!moliya_trip_id
+    const setMoliyaOpen = (open: boolean) => {
+        if (!open) {
+            navigate({ search: (prev: any) => { const { moliya_trip_id, ...rest } = prev; return rest } } as any)
+        }
+    }
     const { data, isLoading } = useGet<ListResponse<ManagerTrips>>(
         MANAGERS_TRIPS,
         {
             params: {
                 ...(driver_id ? { driver_id } : { vehicle: id }),
+                ...(!isArchive ? { page_size: 2 } : {}),
+                ...(isArchive && from_date ? { from_date } : {}),
+                ...(isArchive && to_date ? { to_date } : {}),
+                ...(isArchive ? { page_size: search.page_size, page: search.page } : {}),
             },
         },
     )
@@ -46,6 +63,7 @@ export default function ManagersTrips() {
             page_size: search.page_size,
             page: search.page,
         },
+        enabled: !!currentItem?.id,
     })
 
     const item = getData(MANAGERS_TRIPS)
@@ -90,7 +108,7 @@ export default function ManagersTrips() {
     }
     const handleMoliya = (item: ManagerTrips) => {
         setData(`${MANAGERS_TRIPS}-moliya`, item)
-        setMoliyaOpen(true)
+        navigate({ search: (prev: any) => ({ ...prev, moliya_trip_id: item.id }) } as any)
     }
     const cols = useColumnsManagersTrips({
         onMoliya: handleMoliya,
@@ -104,11 +122,14 @@ export default function ManagersTrips() {
                 numeration
                 data={data?.results}
                 columns={cols}
-                paginationProps={{
-                    totalPages: data?.total_pages,
-                    paramName: "page",
-                    pageSizeParamName: "page_size",
-                }}
+                viewAll={!isArchive}
+                {...(isArchive ? {
+                    paginationProps: {
+                        totalPages: data?.total_pages,
+                        paramName: "page",
+                        pageSizeParamName: "page_size",
+                    },
+                } : {})}
                 onRowClick={handleRowClick}
                 head={
                     <div className="mb-4">
@@ -124,10 +145,28 @@ export default function ManagersTrips() {
                                     }
                                 />
                             </div>
-                            <Button onClick={handleAdd} disabled={hasOngoingTrip}>
-                                <Plus size={16} />
-                                Boshlash
-                            </Button>
+                            <div className="flex items-center gap-3">
+                                {isArchive && (
+                                    <ParamDateRange
+                                        from="from_date"
+                                        to="to_date"
+                                    />
+                                )}
+                                <div className="flex items-center gap-2">
+                                    <Label htmlFor="archive-switch" className="text-sm cursor-pointer">Arxiv</Label>
+                                    <Switch
+                                        id="archive-switch"
+                                        checked={isArchive}
+                                        onCheckedChange={setIsArchive}
+                                    />
+                                </div>
+                                {hasControl && (
+                                    <Button onClick={handleAdd} disabled={hasOngoingTrip}>
+                                        <Plus size={16} />
+                                        Boshlash
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 }
@@ -152,16 +191,28 @@ export default function ManagersTrips() {
                 modalKey={`${MANAGERS_TRIPS}-delete`}
             ></DeleteModal>
 
-            <Sheet open={moliyaOpen} onOpenChange={setMoliyaOpen}>
-                <SheetContent side="bottom" className="h-[95vh] rounded-t-2xl overflow-hidden">
-                    <SheetHeader className="sr-only">
-                        <SheetTitle>Kirim va Xarajatlar</SheetTitle>
-                    </SheetHeader>
-                    <div className="h-[calc(95vh-60px)] flex flex-col overflow-hidden">
-                        <KirimXarajatContent />
+            {moliyaOpen && (
+                <div className="fixed inset-0 z-40 bg-black/30" onClick={() => setMoliyaOpen(false)} />
+            )}
+            <div
+                className={cn(
+                    "fixed bottom-0 right-0 z-50 transition-transform duration-300 ease-in-out",
+                    moliyaOpen ? "translate-y-0" : "translate-y-full",
+                )}
+                style={{ height: "100vh", left: "var(--sidebar-width, 14rem)" }}
+            >
+                <button
+                    onClick={() => setMoliyaOpen(false)}
+                    className="absolute -left-10 top-2 z-50 bg-gray-500/70 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-sm hover:bg-gray-500/90"
+                >
+                    <X size={16} />
+                </button>
+                <div className="bg-background shadow-2xl h-full flex flex-col overflow-hidden">
+                    <div className="h-full flex flex-col overflow-hidden p-4">
+                        {moliyaOpen && <KirimXarajatContent />}
                     </div>
-                </SheetContent>
-            </Sheet>
+                </div>
+            </div>
         </>
     )
 }
