@@ -1,4 +1,5 @@
 import { FormCombobox } from "@/components/form/combobox"
+import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,6 +33,7 @@ type RowValues = {
     amount: number | string
     payment_type: number | null
     currency: number
+    comment?: string | null
 }
 
 const CURRENCY_OPTIONS = [
@@ -70,6 +72,7 @@ const TushumRow = ({
             currency: initial?.currency ?? 1,
         },
     })
+
     const { control, handleSubmit } = form
 
     const refresh = () =>
@@ -82,6 +85,7 @@ const TushumRow = ({
             onDone()
         },
     })
+
     const { mutate: update, isPending: updating } = usePatch({
         onSuccess: () => {
             toast.success("Tushum yangilandi")
@@ -89,6 +93,7 @@ const TushumRow = ({
             onDone()
         },
     })
+
     const { mutate: remove, isPending: removing } = useDelete({
         onSuccess: () => {
             toast.success("Tushum o'chirildi")
@@ -101,10 +106,12 @@ const TushumRow = ({
             toast.error("To'lov turini tanlang")
             return
         }
+
         if (!Number(v.amount)) {
             toast.error("Summani kiriting")
             return
         }
+
         if (isNew) {
             create(ORDER_CASHFLOWS, {
                 order: orderId,
@@ -113,12 +120,14 @@ const TushumRow = ({
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
                 currency: v.currency,
+                comment: v?.comment,
             })
         } else {
             update(`${ORDER_CASHFLOWS}/${initial!.id}`, {
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
                 currency: v.currency,
+                comment: v?.comment,
             })
         }
     }
@@ -135,6 +144,7 @@ const TushumRow = ({
                     placeholder="0"
                 />
             </div>
+
             <div className="flex-[1.4]">
                 <FormCombobox
                     name="payment_type"
@@ -145,6 +155,7 @@ const TushumRow = ({
                     placeholder="To'lov turi"
                 />
             </div>
+
             <div className="w-28">
                 <FormCombobox
                     name="currency"
@@ -157,6 +168,16 @@ const TushumRow = ({
                     isClearIcon={false}
                 />
             </div>
+
+            <div>
+                <FormInput
+                    name="comment"
+                    methods={form}
+                    required
+                    placeholder="Izoh"
+                />
+            </div>
+
             <Button
                 type="button"
                 size="sm"
@@ -165,6 +186,7 @@ const TushumRow = ({
             >
                 Saqlash
             </Button>
+
             {!isNew && (
                 <Button
                     type="button"
@@ -177,6 +199,7 @@ const TushumRow = ({
                     <Trash2 size={16} className="text-destructive" />
                 </Button>
             )}
+
             {isNew && onCancelDraft && (
                 <Button
                     type="button"
@@ -238,7 +261,9 @@ const TushumList = ({ orderId }: { orderId: number }) => {
             </div>
 
             {isLoading && (
-                <div className="text-sm text-muted-foreground">Yuklanmoqda...</div>
+                <div className="text-sm text-muted-foreground">
+                    Yuklanmoqda...
+                </div>
             )}
 
             {!isLoading && rows.length === 0 && draftIds.length === 0 && (

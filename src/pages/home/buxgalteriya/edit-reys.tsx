@@ -1,6 +1,7 @@
 import { FormCheckbox } from "@/components/form/checkbox"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
     COMMON_DIRECTIONS,
@@ -51,6 +52,7 @@ type ReysFormValues = {
     status: number | null
     type: number | null
     out_of_contract: boolean
+    nds_percent?: string | null
 }
 
 const ORDER_STATUS_OPTIONS: Option[] = [
@@ -166,9 +168,10 @@ const EditReysModal = () => {
         () =>
             (vehiclesData?.results ?? []).map((v) => ({
                 id: v.id,
-                label: v.truck_type_name
-                    ? `${v.truck_number} — ${v.truck_type_name}`
-                    : v.truck_number,
+                label:
+                    v.truck_type_name ?
+                        `${v.truck_number} — ${v.truck_type_name}`
+                    :   v.truck_number,
             })),
         [vehiclesData],
     )
@@ -201,6 +204,7 @@ const EditReysModal = () => {
             toast.error("Order ID topilmadi")
             return
         }
+
         const payload: Record<string, unknown> = {}
         if (values.client !== null) payload.client = values.client
         if (values.loading !== null) payload.loading = values.loading
@@ -210,13 +214,17 @@ const EditReysModal = () => {
         if (values.status !== null) payload.status = values.status
         if (values.type !== null) payload.type = values.type
         if (values.date) payload.date = values.date
+        if (values?.nds_percent !== null) payload.nds_percent = values?.nds_percent
         payload.out_of_contract = values.out_of_contract
 
         mutate(`${MANAGERS_ORDERS}/${current.id}`, payload)
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-2 gap-4"
+        >
             <FormCombobox
                 label="Firma"
                 name="client"
@@ -226,6 +234,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Firmani tanlang"
             />
+
             <FormDatePicker
                 label="Sana"
                 control={control}
@@ -233,6 +242,7 @@ const EditReysModal = () => {
                 placeholder="Sanani tanlang"
                 className="w-full"
             />
+
             <FormCombobox
                 label="Yo'nalish"
                 name="direction"
@@ -242,6 +252,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Yo'nalishni tanlang"
             />
+
             <FormCombobox
                 label="Status"
                 name="status"
@@ -251,6 +262,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Statusni tanlang"
             />
+
             <FormCombobox
                 label="Yuklash joyi"
                 name="loading"
@@ -260,6 +272,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Yuklash joyini tanlang"
             />
+
             <FormCombobox
                 label="Tushirish joyi"
                 name="unloading"
@@ -269,6 +282,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Tushirish joyini tanlang"
             />
+
             <FormCombobox
                 label="Yuk turi"
                 name="cargo_type"
@@ -278,6 +292,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Yuk turini tanlang"
             />
+
             <FormCombobox
                 label="Reys turi"
                 name="type"
@@ -287,6 +302,7 @@ const EditReysModal = () => {
                 labelKey="name"
                 placeholder="Reys turini tanlang"
             />
+
             <FormCombobox
                 label="Mashina"
                 name="vehicle"
@@ -296,12 +312,23 @@ const EditReysModal = () => {
                 labelKey="label"
                 placeholder="Mashina tanlang"
             />
+
+            <FormNumberInput
+                name="nds_percent"
+                label="Foiz"
+                control={control}
+                required
+            />
+
             <FormCheckbox
                 control={control}
                 name="out_of_contract"
                 label="Shartnomadan tashqari"
             />
-            {current?.id ? <TushumList orderId={current.id} /> : null}
+
+            {current?.id ?
+                <TushumList orderId={current.id} />
+            :   null}
 
             <div className="col-span-2 flex justify-end pt-2">
                 <Button type="submit" loading={isPending} className="min-w-36">
