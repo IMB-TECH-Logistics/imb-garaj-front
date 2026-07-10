@@ -1,3 +1,4 @@
+import { CopyButton } from "@/lib/copy-button"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -27,15 +28,31 @@ export interface ReysOrder {
     naqd_amount: string | number
     pct: number
     our_share: string | number
+    external_id: string | number
 }
 
 export const useAccountingCols = () => {
     return useMemo<ColumnDef<ReysOrder>[]>(
         () => [
             {
+                header: "Buyurtma ID",
+                accessorKey: "external_id",
+                size: 140,
+                enableSorting: true,
+                cell({ row: { original } }) {
+                    return (
+                        <div>
+                            {original?.external_id ?
+                                CopyButton(original?.external_id)
+                            :   "-"}
+                        </div>
+                    )
+                },
+            },
+            {
                 header: "Firma kodi",
                 accessorKey: "client_code",
-                size: 80,
+                size: 140,
                 enableSorting: true,
             },
             {
@@ -68,7 +85,9 @@ export const useAccountingCols = () => {
                 size: 100,
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <span className="uppercase">{row.original.vehicle_type || "—"}</span>
+                    <span className="uppercase">
+                        {row.original.vehicle_type || "—"}
+                    </span>
                 ),
             },
             {
@@ -107,7 +126,11 @@ export const useAccountingCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const v = toNum(row.original.naqd_amount)
-                    return <span className="font-medium text-green-600">{formatMoney(v)}</span>
+                    return (
+                        <span className="font-medium text-green-600">
+                            {formatMoney(v)}
+                        </span>
+                    )
                 },
             },
         ],

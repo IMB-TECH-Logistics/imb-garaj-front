@@ -1,3 +1,6 @@
+import { cn } from "@/lib/utils"
+import { format, isToday, parseISO } from "date-fns"
+import { Clock } from "lucide-react"
 import {
     DimensionEmpty,
     DimensionListSkeleton,
@@ -18,7 +21,6 @@ export default function DriverList({
     activeId,
     onSelect,
 }: Props) {
-
     if (loading && items.length === 0) {
         return <DimensionListSkeleton />
     }
@@ -45,11 +47,30 @@ export default function DriverList({
                             <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
                                 {i + 1}.
                             </span>
+
                             <span className="font-mono tracking-wide">
                                 {driver.vehicle_number ??
                                     driver.driver_name ??
                                     "—"}
                             </span>
+                        </span>
+                    }
+                    metaRight={
+                        <span
+                            className={cn(
+                                "inline-flex items-center gap-1",
+                                driver.last_seen &&
+                                    !isToday(parseISO(driver.last_seen)) &&
+                                    "text-destructive",
+                            )}
+                        >
+                            <Clock className="h-3 w-3 shrink-0" />
+                            {driver.last_seen ?
+                                format(
+                                    parseISO(driver.last_seen),
+                                    "dd.MM.yyyy HH:mm",
+                                )
+                            :   "—"}
                         </span>
                     }
                 />
