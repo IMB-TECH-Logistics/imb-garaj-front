@@ -8,8 +8,18 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDateLabel(dateStr: string): string {
     const months = [
-        "yanvar", "fevral", "mart", "aprel", "may", "iyun",
-        "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"
+        "yanvar",
+        "fevral",
+        "mart",
+        "aprel",
+        "may",
+        "iyun",
+        "iyul",
+        "avgust",
+        "sentabr",
+        "oktabr",
+        "noyabr",
+        "dekabr",
     ]
 
     const [_, month, day] = dateStr.split("-") // "2025-09-22"
@@ -23,8 +33,7 @@ export const educationLevels = [
     { label: "Tugallanmagan oliy ta'lim", key: 4 },
     { label: "Oliy ta'lim", key: 5 },
     { label: "Magistratura", key: 6 },
-];
-
+]
 
 export function getTimeDifference(time1: string, time2: string): string {
     const [h1, m1, s1] = time1.split(":").map(Number)
@@ -60,12 +69,10 @@ export function getTimeDifference(time1: string, time2: string): string {
     const formattedMinutes = String(diffMinutes).padStart(2, "0")
     const formattedSeconds = String(diffSeconds).padStart(2, "0")
 
-    return !isNegative
-        ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
-        : "-"
+    return !isNegative ?
+            `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+        :   "-"
 }
-
-
 
 export const imagePaths = [
     "/task/fon1.jpg",
@@ -92,15 +99,13 @@ export const imagePaths = [
     "/task/fon22.jpg",
     "/task/fon23.png",
     "/task/fon24.png",
-];
-
+]
 
 export function getRandomImage() {
-    return imagePaths[Math.floor(Math.random() * imagePaths.length)];
+    return imagePaths[Math.floor(Math.random() * imagePaths.length)]
 }
 
 export function formatDateChat(dateString: string): string {
-
     const date = new Date(dateString)
     const today = new Date()
     const yesterday = new Date(today)
@@ -114,3 +119,6 @@ export function formatDateChat(dateString: string): string {
         return format(String(date), "yyyy-MM-dd")
     }
 }
+
+export const toNum = (v: string | number | null | undefined): number =>
+    Number(v ?? 0) || 0
