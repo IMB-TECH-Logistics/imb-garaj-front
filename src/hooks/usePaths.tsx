@@ -160,6 +160,7 @@ export const useItems = () =>
                 allowKey: "monitoring_view",
                 alwaysShow: true,
             },
+            { label: "Airtag", icon: <Coins width={18} />, path: "/airtag-device", allowKey: "oxrana_view", },
             {
                 label: "Sozlamalar",
                 icon: <Settings width={18} />,
