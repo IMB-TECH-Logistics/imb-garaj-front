@@ -98,6 +98,9 @@ const MainManagersTechnicCheckIndexLazyImport = createFileRoute(
 const MainManagersPetrolStationsIndexLazyImport = createFileRoute(
   '/_main/_managers/petrol-stations/',
 )()
+const MainManagersFlightsIndexLazyImport = createFileRoute(
+  '/_main/_managers/flights/',
+)()
 const MainMonitoringTripsIdLazyImport = createFileRoute(
   '/_main/monitoring/trips/$id',
 )()
@@ -370,6 +373,14 @@ const MainManagersPetrolStationsIndexLazyRoute =
     ),
   )
 
+const MainManagersFlightsIndexLazyRoute =
+  MainManagersFlightsIndexLazyImport.update({
+    path: '/flights/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/_managers/flights/index.lazy').then((d) => d.Route),
+  )
+
 const MainHaydovchilarIdIndexRoute = MainHaydovchilarIdIndexImport.update({
   path: '/',
   getParentRoute: () => MainHaydovchilarIdRoute,
@@ -597,6 +608,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainHaydovchilarIdIndexImport
       parentRoute: typeof MainHaydovchilarIdImport
     }
+    '/_main/_managers/flights/': {
+      id: '/_main/_managers/flights/'
+      path: '/flights'
+      fullPath: '/flights'
+      preLoaderRoute: typeof MainManagersFlightsIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/_managers/petrol-stations/': {
       id: '/_main/_managers/petrol-stations/'
       path: '/petrol-stations'
@@ -811,6 +829,7 @@ interface MainRouteChildren {
   MainTrucksOrdersIdRoute: typeof MainTrucksOrdersIdRoute
   MainTrucksTruckDetailIdRoute: typeof MainTrucksTruckDetailIdRoute
   MainMonitoringTripsIdLazyRoute: typeof MainMonitoringTripsIdLazyRoute
+  MainManagersFlightsIndexLazyRoute: typeof MainManagersFlightsIndexLazyRoute
   MainManagersPetrolStationsIndexLazyRoute: typeof MainManagersPetrolStationsIndexLazyRoute
   MainManagersTechnicCheckIndexLazyRoute: typeof MainManagersTechnicCheckIndexLazyRoute
   MainManagersTransportsIndexLazyRoute: typeof MainManagersTransportsIndexLazyRoute
@@ -854,6 +873,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainTrucksOrdersIdRoute: MainTrucksOrdersIdRoute,
   MainTrucksTruckDetailIdRoute: MainTrucksTruckDetailIdRoute,
   MainMonitoringTripsIdLazyRoute: MainMonitoringTripsIdLazyRoute,
+  MainManagersFlightsIndexLazyRoute: MainManagersFlightsIndexLazyRoute,
   MainManagersPetrolStationsIndexLazyRoute:
     MainManagersPetrolStationsIndexLazyRoute,
   MainManagersTechnicCheckIndexLazyRoute:
@@ -910,6 +930,7 @@ export interface FileRoutesByFullPath {
   '/truck-detail/$id': typeof MainTrucksTruckDetailIdRoute
   '/monitoring/trips/$id': typeof MainMonitoringTripsIdLazyRoute
   '/haydovchilar/$id/': typeof MainHaydovchilarIdIndexRoute
+  '/flights': typeof MainManagersFlightsIndexLazyRoute
   '/petrol-stations': typeof MainManagersPetrolStationsIndexLazyRoute
   '/technic-check': typeof MainManagersTechnicCheckIndexLazyRoute
   '/transports': typeof MainManagersTransportsIndexLazyRoute
@@ -956,6 +977,7 @@ export interface FileRoutesByTo {
   '/truck-detail/$id': typeof MainTrucksTruckDetailIdRoute
   '/monitoring/trips/$id': typeof MainMonitoringTripsIdLazyRoute
   '/haydovchilar/$id': typeof MainHaydovchilarIdIndexRoute
+  '/flights': typeof MainManagersFlightsIndexLazyRoute
   '/petrol-stations': typeof MainManagersPetrolStationsIndexLazyRoute
   '/technic-check': typeof MainManagersTechnicCheckIndexLazyRoute
   '/transports': typeof MainManagersTransportsIndexLazyRoute
@@ -1005,6 +1027,7 @@ export interface FileRoutesById {
   '/_main/_trucks/truck-detail/$id': typeof MainTrucksTruckDetailIdRoute
   '/_main/monitoring/trips/$id': typeof MainMonitoringTripsIdLazyRoute
   '/_main/haydovchilar/$id/': typeof MainHaydovchilarIdIndexRoute
+  '/_main/_managers/flights/': typeof MainManagersFlightsIndexLazyRoute
   '/_main/_managers/petrol-stations/': typeof MainManagersPetrolStationsIndexLazyRoute
   '/_main/_managers/technic-check/': typeof MainManagersTechnicCheckIndexLazyRoute
   '/_main/_managers/transports/': typeof MainManagersTransportsIndexLazyRoute
@@ -1054,6 +1077,7 @@ export interface FileRouteTypes {
     | '/truck-detail/$id'
     | '/monitoring/trips/$id'
     | '/haydovchilar/$id/'
+    | '/flights'
     | '/petrol-stations'
     | '/technic-check'
     | '/transports'
@@ -1099,6 +1123,7 @@ export interface FileRouteTypes {
     | '/truck-detail/$id'
     | '/monitoring/trips/$id'
     | '/haydovchilar/$id'
+    | '/flights'
     | '/petrol-stations'
     | '/technic-check'
     | '/transports'
@@ -1146,6 +1171,7 @@ export interface FileRouteTypes {
     | '/_main/_trucks/truck-detail/$id'
     | '/_main/monitoring/trips/$id'
     | '/_main/haydovchilar/$id/'
+    | '/_main/_managers/flights/'
     | '/_main/_managers/petrol-stations/'
     | '/_main/_managers/technic-check/'
     | '/_main/_managers/transports/'
@@ -1225,6 +1251,7 @@ export const routeTree = rootRoute
         "/_main/_trucks/orders/$id",
         "/_main/_trucks/truck-detail/$id",
         "/_main/monitoring/trips/$id",
+        "/_main/_managers/flights/",
         "/_main/_managers/petrol-stations/",
         "/_main/_managers/technic-check/",
         "/_main/_managers/transports/",
@@ -1329,6 +1356,10 @@ export const routeTree = rootRoute
     "/_main/haydovchilar/$id/": {
       "filePath": "_main/haydovchilar/$id.index.tsx",
       "parent": "/_main/haydovchilar/$id"
+    },
+    "/_main/_managers/flights/": {
+      "filePath": "_main/_managers/flights/index.lazy.tsx",
+      "parent": "/_main"
     },
     "/_main/_managers/petrol-stations/": {
       "filePath": "_main/_managers/petrol-stations/index.lazy.tsx",

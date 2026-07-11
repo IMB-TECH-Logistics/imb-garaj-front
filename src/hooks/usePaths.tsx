@@ -1,6 +1,15 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { Settings, Truck, User, Users, Wallet, Coins, Activity, Boxes } from "lucide-react"
+import {
+    Activity,
+    Boxes,
+    Coins,
+    Settings,
+    Truck,
+    User,
+    Users,
+    Wallet,
+} from "lucide-react"
 import { ReactNode, useMemo } from "react"
 
 export interface MenuItem {
@@ -60,8 +69,8 @@ const findChildPaths = (items: MenuItem[], pathname: string): MenuItem[] => {
         }
 
         if (item.items) {
-            const hasMatchingChild = item.items.some(
-                (subItem) => matchesPath(pathname, subItem),
+            const hasMatchingChild = item.items.some((subItem) =>
+                matchesPath(pathname, subItem),
             )
             if (hasMatchingChild) {
                 return item.items
@@ -87,7 +96,7 @@ export const usePaths = () => {
     const items = useItems()
 
     const filteredItems = useMemo(
-        () => isSuperuser ? items : filterMenuItems(items, safeActions),
+        () => (isSuperuser ? items : filterMenuItems(items, safeActions)),
         [items, safeActions, isSuperuser],
     )
 
@@ -117,10 +126,32 @@ export const useItems = () =>
                 path: "/managers",
                 extraPaths: ["/manager-trips"],
                 items: [
-                    { label: "Transportlar", path: "/managers", extraPaths: ["/manager-trips"], allowKey: "manager_vehicles_view" },
-                    { label: "Kassa", path: "/kassa", allowKey: "manager_cashflow_view" },
-                    { label: "Texnik ko'rik", path: "/technic-check", allowKey: "manager_tech_check_view" },
-                    { label: "Zapravkalar", path: "/petrol-stations", allowKey: "settings_petrol_stations_view" },
+                    {
+                        label: "Transportlar",
+                        path: "/managers",
+                        extraPaths: ["/manager-trips"],
+                        allowKey: "manager_vehicles_view",
+                    },
+                    {
+                        label: "Reyslar",
+                        path: "/flights",
+                        allowKey: "manager_flights_view",
+                    },
+                    {
+                        label: "Kassa",
+                        path: "/kassa",
+                        allowKey: "manager_cashflow_view",
+                    },
+                    {
+                        label: "Texnik ko'rik",
+                        path: "/technic-check",
+                        allowKey: "manager_tech_check_view",
+                    },
+                    {
+                        label: "Zapravkalar",
+                        path: "/petrol-stations",
+                        allowKey: "settings_petrol_stations_view",
+                    },
                 ],
             },
             {
@@ -165,19 +196,71 @@ export const useItems = () =>
                 icon: <Settings width={18} />,
                 path: "/locations",
                 items: [
-                    { label: "Manzillar", path: "/locations", allowKey: "settings_locations_view" },
-                    { label: "Yo'nalishlar", path: "/route-configs", allowKey: "settings_directions_view" },
-                    { label: "Haydovchilar", path: "/drivers", allowKey: "settings_drivers_view" },
-                    { label: "Avtomobillar", path: "/vehicles", allowKey: "settings_vehicles_view" },
-                    { label: "Foydalanuvchilar", path: "/users", allowKey: "settings_users_view" },
-                    { label: "Rollar", path: "/roles", allowKey: "settings_roles_view" },
-                    { label: "Mijozlar", path: "/customers", allowKey: "settings_customers_view" },
-                    { label: "Mashina turlari", path: "/vehicle-types", allowKey: "settings_vehicle_types_view" },
-                    { label: "Yuk turi", path: "/cargo-types", allowKey: "settings_cargo_types_view" },
-                    { label: "To'lov turlari", path: "/payment-types", allowKey: "settings_payment_types_view" },
-                    { label: "Xarajat turlari", path: "/expense-types", allowKey: "settings_expense_types_view" },
-                    { label: "Oylik tariflar", path: "/driver-salaries", allowKey: "settings_driver_salaries_view" },
-                    { label: "Faoliyat jurnali", path: "/logs", alwaysShow: true },
+                    {
+                        label: "Manzillar",
+                        path: "/locations",
+                        allowKey: "settings_locations_view",
+                    },
+                    {
+                        label: "Yo'nalishlar",
+                        path: "/route-configs",
+                        allowKey: "settings_directions_view",
+                    },
+                    {
+                        label: "Haydovchilar",
+                        path: "/drivers",
+                        allowKey: "settings_drivers_view",
+                    },
+                    {
+                        label: "Avtomobillar",
+                        path: "/vehicles",
+                        allowKey: "settings_vehicles_view",
+                    },
+                    {
+                        label: "Foydalanuvchilar",
+                        path: "/users",
+                        allowKey: "settings_users_view",
+                    },
+                    {
+                        label: "Rollar",
+                        path: "/roles",
+                        allowKey: "settings_roles_view",
+                    },
+                    {
+                        label: "Mijozlar",
+                        path: "/customers",
+                        allowKey: "settings_customers_view",
+                    },
+                    {
+                        label: "Mashina turlari",
+                        path: "/vehicle-types",
+                        allowKey: "settings_vehicle_types_view",
+                    },
+                    {
+                        label: "Yuk turi",
+                        path: "/cargo-types",
+                        allowKey: "settings_cargo_types_view",
+                    },
+                    {
+                        label: "To'lov turlari",
+                        path: "/payment-types",
+                        allowKey: "settings_payment_types_view",
+                    },
+                    {
+                        label: "Xarajat turlari",
+                        path: "/expense-types",
+                        allowKey: "settings_expense_types_view",
+                    },
+                    {
+                        label: "Oylik tariflar",
+                        path: "/driver-salaries",
+                        allowKey: "settings_driver_salaries_view",
+                    },
+                    {
+                        label: "Faoliyat jurnali",
+                        path: "/logs",
+                        alwaysShow: true,
+                    },
                 ],
             },
         ],

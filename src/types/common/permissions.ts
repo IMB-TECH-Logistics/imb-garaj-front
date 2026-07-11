@@ -1,5 +1,7 @@
 type TPermissions =
     // Meneger
+    | "manager_flights_view"
+    | "manager_flights_control"
     | "manager_vehicles_view"
     | "manager_vehicles_control"
     | "manager_cashflow_view"

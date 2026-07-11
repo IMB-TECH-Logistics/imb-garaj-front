@@ -29,7 +29,7 @@ export interface ReysOrder {
     external_id: string | number
 }
 
-export const useAccountingCols = () => {
+export const useFlightsColumns = () => {
     return useMemo<ColumnDef<ReysOrder>[]>(
         () => [
             {
@@ -108,27 +108,6 @@ export const useAccountingCols = () => {
                 cell: ({ row }) => {
                     const v = toNum(row.original.summa_s_nds)
                     return <span className="font-medium">{formatMoney(v)}</span>
-                },
-            },
-            {
-                header: "%",
-                accessorKey: "pct",
-                size: 60,
-                enableSorting: true,
-                cell: ({ row }) => <span>{row.original.pct}%</span>,
-            },
-            {
-                header: "Naqd",
-                accessorKey: "naqd_amount",
-                size: 120,
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const v = toNum(row.original.naqd_amount)
-                    return (
-                        <span className="font-medium text-green-600">
-                            {formatMoney(v)}
-                        </span>
-                    )
                 },
             },
         ],
