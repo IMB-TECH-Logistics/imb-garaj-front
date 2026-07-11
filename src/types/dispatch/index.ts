@@ -1,5 +1,7 @@
 type OrderDispatchData = {
     id: number;
+    external_id?: string | null
+    is_integration?: boolean
     driver_type: number
     note1:string
     note2:string
@@ -50,10 +52,14 @@ type OrderDispatchData = {
     dispatcher: {
         id: number
         full_name: string
-    }
+    } | null
     get_time: string
     contact: ContactField
-
+    rejected_time?: string
+    updated_at?: string
+    sub_status?: number
+    loading_id?: number | string
+    created_through?: number | string
 }
 
 

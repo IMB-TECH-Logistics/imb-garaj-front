@@ -26,6 +26,11 @@ export function NavUser() {
     const { data: user } = useGet<User>(PROFILE)
     const { isMobile } = useSidebar()
 
+    const fullName =
+        [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
+        user?.username ||
+        "Super Admin"
+
     const logOut = () => {
         localStorage.clear()
         navigate({ to: "/auth" })
@@ -48,20 +53,20 @@ export function NavUser() {
                             >
                                 <AvatarImage
                                     src={undefined}
-                                    alt={user?.full_name}
+                                    alt={fullName}
                                 />
                                 <AvatarFallback className="rounded-lg uppercase">
-                                    {user?.full_name?.slice(0, 2) || "SA"}
+                                    {fullName.slice(0, 2) || "SA"}
                                 </AvatarFallback>
                             </Avatar>
                             {!isMobile && (
                                 <>
                                     <div className="lg:grid hidden flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-medium">
-                                            {user?.full_name || "Super Admin"}
+                                            {fullName}
                                         </span>
                                         <span className="text-muted-foreground truncate text-xs">
-                                            {user?.phone}
+                                            {user?.role_name}
                                         </span>
                                     </div>
                                     <EllipsisVertical className="ml-auto size-4" />
@@ -80,18 +85,18 @@ export function NavUser() {
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage
                                         src={undefined}
-                                        alt={user?.full_name}
+                                        alt={fullName}
                                     />
                                     <AvatarFallback className="rounded-lg uppercase">
-                                        {user?.full_name?.slice(0, 2)}
+                                        {fullName.slice(0, 2)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">
-                                        {user?.full_name || "Super Admin"}
+                                        {fullName}
                                     </span>
                                     <span className="text-muted-foreground truncate text-xs">
-                                        {user?.phone}
+                                        {user?.role_name}
                                     </span>
                                 </div>
                             </div>

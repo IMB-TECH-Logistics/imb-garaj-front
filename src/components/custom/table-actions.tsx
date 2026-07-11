@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils"
 import {
+    Check,
     Edit,
     EllipsisVertical,
     Eye,
+    RotateCcw,
     SquarePen,
     Trash2,
     Undo,
@@ -21,6 +23,8 @@ type Props = {
     onDelete?: () => void
     onUndo?: () => void
     onView?: () => void
+    onRedo?: () => void
+    onFinished?: () => void
     className?: string
 }
 
@@ -30,6 +34,8 @@ export default function TableActions({
     onDelete,
     onUndo,
     onView,
+    onRedo,
+    onFinished,
     className,
 }: Props) {
     return menuMode ?
@@ -90,6 +96,29 @@ export default function TableActions({
                             <Undo width={16} className="mr-1.5" /> {"Qaytarish"}
                         </DropdownMenuItem>
                     )}
+                    {onRedo && (
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onRedo()
+                            }}
+                            className="!text-muted-foreground"
+                        >
+                            <RotateCcw width={16} className="mr-1.5" />{" "}
+                            {"Hisoblash"}
+                        </DropdownMenuItem>
+                    )}
+                    {onFinished && (
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onFinished()
+                            }}
+                            className="!text-muted-foreground"
+                        >
+                            <Check width={16} className="mr-1.5" /> {"Tugatmoq"}
+                        </DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         :   <div
@@ -98,6 +127,18 @@ export default function TableActions({
                     className,
                 )}
             >
+                {onFinished && (
+                    <Button
+                        icon={<Check className="text-green-500" size={16} />}
+                        size="sm"
+                        className="p-0 h-3"
+                        variant="ghost"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onFinished()
+                        }}
+                    ></Button>
+                )}
                 {onView && (
                     <Button
                         icon={<Eye className="text-green-500" size={16} />}
@@ -143,6 +184,18 @@ export default function TableActions({
                         onClick={(e) => {
                             e.stopPropagation()
                             onUndo()
+                        }}
+                    ></Button>
+                )}
+                {onRedo && (
+                    <Button
+                        icon={<RotateCcw size={16} />}
+                        size="sm"
+                        className="p-0 h-3"
+                        variant="ghost"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onRedo()
                         }}
                     ></Button>
                 )}

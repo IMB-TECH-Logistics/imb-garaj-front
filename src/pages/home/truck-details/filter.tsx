@@ -158,8 +158,8 @@ export default function ReportsFilter() {
 // ]
 
 const statusFilter = [
-    { key: 1, name: "Band" },
-    { key: 2, name: "Bo'sh" },
+    { key: 1, name: "Yukli" },
+    { key: 2, name: "Yuksiz" },
     { key: 3, name: "Ta'mirda" },
 
 ]

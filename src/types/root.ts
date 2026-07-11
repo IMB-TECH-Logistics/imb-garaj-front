@@ -61,5 +61,6 @@ type SearchParams = {
     cashflow_search?:string
     driver?:string
     vehicle?:string
+    route_configs_search?:string
 }
 

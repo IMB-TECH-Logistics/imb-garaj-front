@@ -1,8 +1,10 @@
+import compressImg from "@/lib/compress-img"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
 import { useState } from "react"
 import { FileUploader } from "react-drag-drop-files"
 import { Control, FieldValues, Path, useController } from "react-hook-form"
+import { toast } from "sonner"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import Spinner from "../ui/spinner"
@@ -37,7 +39,7 @@ export default function FileUpload<TForm extends FieldValues>({
     multiple = false,
     isCompressed = true,
     maxSize = 10,
-    maxLength = 5,
+    maxLength = 3,
     dropAccept = ["JPG", "PNG", "JPEG"],
     isPaste = true,
     hideError = true,
@@ -102,21 +104,31 @@ export default function FileUpload<TForm extends FieldValues>({
         :   value
 
     async function handleOnChange(files: File[]) {
-        if (files.length > 0) {
-            if (isCompressed && files[0].type.includes("image")) {
-                setIsCompressing(true)
+        if (!files?.length) return
+
+        const imageFiles = files.filter((f) => f.type.startsWith("image/"))
+        const nonImageFiles = files.filter((f) => !f.type.startsWith("image/"))
+
+        if (isCompressed && imageFiles.length > 0) {
+            setIsCompressing(true)
+            try {
                 const compressedFiles = await Promise.all(
-                    files.map((item) => item),
+                    imageFiles.map(async (img) => {
+                        const compressed = await compressImg(img)
+                        return compressed || img
+                    }),
                 )
-                setIsCompressing(false)
+                const resultFiles = [...compressedFiles, ...nonImageFiles]
                 onChange(
-                    multiple ?
-                        [...compressedFiles, ...fileArray]
-                    :   compressedFiles[0],
+                    multiple ? [...resultFiles, ...fileArray] : resultFiles[0],
                 )
-            } else {
-                onChange(multiple ? [...files, ...fileArray] : files[0])
+            } catch (error) {
+                toast.error("Rasmni compress qilishda xatolik yuz berdi.")
+            } finally {
+                setIsCompressing(false)
             }
+        } else {
+            onChange(multiple ? [...files, ...fileArray] : files[0])
         }
     }
 
@@ -145,6 +157,7 @@ export default function FileUpload<TForm extends FieldValues>({
                     tabIndex={0}
                     placeholder="(CTRL+V)"
                     fullWidth
+                    className="!mb-1"
                 />
             )}
 

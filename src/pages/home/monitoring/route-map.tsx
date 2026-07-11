@@ -1,0 +1,402 @@
+import { cn } from "@/lib/utils"
+import "maplibre-gl/dist/maplibre-gl.css"
+import { useEffect, useMemo, useRef } from "react"
+import Map, {
+    Layer,
+    type MapRef,
+    Marker,
+    NavigationControl,
+    Source,
+} from "react-map-gl/maplibre"
+
+const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron"
+
+const LOCALIZED_TEXT_FIELD: any = [
+    "coalesce",
+    ["get", "name:latin"],
+    ["get", "name:en"],
+    ["get", "name"],
+]
+
+const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
+
+export type MapPoint = [number, number] // [lng, lat]
+
+export type ColoredSegment = { points: MapPoint[]; color: string }
+
+export type LiveMarker = {
+    id: string | number
+    lat: number
+    lng: number
+    label: string
+    sub?: string
+    stale?: boolean
+    selected?: boolean
+    onClick?: () => void
+}
+
+type Props = {
+    points?: MapPoint[]
+    bbox?: [number, number, number, number] | null
+    markers?: LiveMarker[]
+    height?: string
+    className?: string
+    /** Render the line as a 2-stop gradient (start → end) instead of solid. */
+    gradient?: boolean
+    /** Solid line color (hex). Overrides gradient when set. */
+    lineColor?: string
+    /** Draw the route as per-status colored sub-paths. Overrides the solid line. */
+    segments?: ColoredSegment[]
+}
+
+export default function RouteMap({
+    points,
+    bbox,
+    markers,
+    height = "100%",
+    className,
+    gradient = false,
+    lineColor,
+    segments,
+}: Props) {
+    const mapRef = useRef<MapRef | null>(null)
+
+    const segmentFeatures = useMemo(() => {
+        const valid = (segments ?? []).filter((s) => s.points.length >= 2)
+        if (valid.length === 0) return null
+        return {
+            type: "FeatureCollection" as const,
+            features: valid.map((s) => ({
+                type: "Feature" as const,
+                properties: { color: s.color },
+                geometry: {
+                    type: "LineString" as const,
+                    coordinates: s.points,
+                },
+            })),
+        }
+    }, [segments])
+
+    const polylineFeature = useMemo(() => {
+        if (!points || points.length < 2) return null
+        return {
+            type: "Feature" as const,
+            properties: {},
+            geometry: {
+                type: "LineString" as const,
+                coordinates: points,
+            },
+        }
+    }, [points])
+
+    // Only re-fit when the *set* of things to frame changes (a new bbox, or a
+    // different roster/selection of markers). Live tracking refreshes marker
+    // coordinates on every tick — refitting on those would constantly yank the
+    // user's pan/zoom, so coordinate-only updates intentionally don't re-fit.
+    const fitSignature = useMemo(() => {
+        if (bbox && bbox.length === 4) return `bbox:${bbox.join(",")}`
+        if (markers && markers.length > 0)
+            return `markers:${markers.map((m) => m.id).join(",")}`
+        return null
+    }, [bbox, markers])
+
+    useEffect(() => {
+        const map = mapRef.current
+        if (!map || !fitSignature) return
+        if (bbox && bbox.length === 4) {
+            map.fitBounds(
+                [
+                    [bbox[0], bbox[1]],
+                    [bbox[2], bbox[3]],
+                ],
+                { padding: 80, duration: 700, maxZoom: 15 },
+            )
+            return
+        }
+        if (markers && markers.length === 1) {
+            map.flyTo({
+                center: [markers[0].lng, markers[0].lat],
+                zoom: 13,
+                duration: 700,
+            })
+        } else if (markers && markers.length > 1) {
+            const lngs = markers.map((m) => m.lng)
+            const lats = markers.map((m) => m.lat)
+            map.fitBounds(
+                [
+                    [Math.min(...lngs), Math.min(...lats)],
+                    [Math.max(...lngs), Math.max(...lats)],
+                ],
+                { padding: 96, duration: 700, maxZoom: 12 },
+            )
+        }
+        // fitSignature collapses bbox/markers into a stable key; refitting only
+        // when it changes is the intended behavior.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fitSignature])
+
+    const startPoint = points && points.length > 0 ? points[0] : null
+    const endPoint =
+        points && points.length > 1 ? points[points.length - 1] : null
+
+    return (
+        <div
+            className={cn(
+                "relative overflow-hidden bg-slate-100 dark:bg-slate-950",
+                className,
+            )}
+            style={{ height }}
+        >
+            <Map
+                ref={mapRef}
+                initialViewState={{
+                    latitude: DEFAULT_CENTER.lat,
+                    longitude: DEFAULT_CENTER.lng,
+                    zoom: 11,
+                }}
+                mapStyle={MAP_STYLE_URL}
+                style={{ width: "100%", height: "100%" }}
+                onLoad={(e) => {
+                    const map = e.target
+                    const layers = map.getStyle().layers ?? []
+                    for (const layer of layers) {
+                        if (layer.type !== "symbol") continue
+                        const hasText = (layer.layout as any)?.["text-field"]
+                        if (!hasText) continue
+                        map.setLayoutProperty(
+                            layer.id,
+                            "text-field",
+                            LOCALIZED_TEXT_FIELD,
+                        )
+                    }
+                }}
+            >
+                <NavigationControl
+                    position="bottom-right"
+                    showCompass={false}
+                />
+
+                {segmentFeatures ? (
+                    <Source
+                        key="route-segments"
+                        id="route-segments"
+                        type="geojson"
+                        data={segmentFeatures}
+                    >
+                        <Layer
+                            id="route-seg-casing"
+                            type="line"
+                            paint={{
+                                "line-color": "#0b1220",
+                                "line-width": 8,
+                                "line-opacity": 0.45,
+                            }}
+                            layout={{
+                                "line-cap": "round",
+                                "line-join": "round",
+                            }}
+                        />
+                        <Layer
+                            id="route-seg-stroke"
+                            type="line"
+                            paint={{
+                                "line-color": ["get", "color"],
+                                "line-width": 4,
+                            }}
+                            layout={{
+                                "line-cap": "round",
+                                "line-join": "round",
+                            }}
+                        />
+                    </Source>
+                ) : polylineFeature ? (
+                    <Source
+                        key="route-line"
+                        id="route-line"
+                        type="geojson"
+                        data={polylineFeature}
+                        lineMetrics={gradient && !lineColor}
+                    >
+                        <Layer
+                            id="route-line-casing"
+                            type="line"
+                            paint={{
+                                "line-color": "#0b1220",
+                                "line-width": 8,
+                                "line-opacity": 0.45,
+                            }}
+                            layout={{
+                                "line-cap": "round",
+                                "line-join": "round",
+                            }}
+                        />
+                        <Layer
+                            id="route-line-stroke"
+                            type="line"
+                            paint={
+                                lineColor
+                                    ? {
+                                          "line-color": lineColor,
+                                          "line-width": 4,
+                                      }
+                                    : gradient
+                                    ? {
+                                          "line-color": "#10b981",
+                                          "line-width": 4,
+                                          "line-gradient": [
+                                              "interpolate",
+                                              ["linear"],
+                                              ["line-progress"],
+                                              0,
+                                              "#22d3ee",
+                                              0.5,
+                                              "#10b981",
+                                              1,
+                                              "#f43f5e",
+                                          ],
+                                      }
+                                    : {
+                                          "line-color": "#10b981",
+                                          "line-width": 4,
+                                      }
+                            }
+                            layout={{
+                                "line-cap": "round",
+                                "line-join": "round",
+                            }}
+                        />
+                    </Source>
+                ) : null}
+
+                {startPoint && (
+                    <Marker
+                        latitude={startPoint[1]}
+                        longitude={startPoint[0]}
+                        anchor="center"
+                    >
+                        <EndpointDot variant="start" label="Boshlanish" />
+                    </Marker>
+                )}
+                {endPoint && (
+                    <Marker
+                        latitude={endPoint[1]}
+                        longitude={endPoint[0]}
+                        anchor="center"
+                    >
+                        <EndpointDot variant="end" label="Tugash" />
+                    </Marker>
+                )}
+
+                {markers?.map((m) => (
+                    <Marker
+                        key={m.id}
+                        latitude={m.lat}
+                        longitude={m.lng}
+                        anchor="center"
+                        onClick={(e) => {
+                            e.originalEvent.stopPropagation()
+                            m.onClick?.()
+                        }}
+                    >
+                        <DriverMarker marker={m} />
+                    </Marker>
+                ))}
+            </Map>
+
+            {/* edge vignette — subtle dark fade for a 'screen' feel */}
+            <div className="pointer-events-none absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(8,14,28,0.18)_100%)] mix-blend-multiply dark:[background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.45)_100%)]" />
+        </div>
+    )
+}
+
+function EndpointDot({
+    variant,
+    label,
+}: {
+    variant: "start" | "end"
+    label: string
+}) {
+    const color =
+        variant === "start"
+            ? "bg-emerald-500"
+            : "bg-rose-500"
+    const ring =
+        variant === "start"
+            ? "ring-emerald-500/30"
+            : "ring-rose-500/30"
+    return (
+        <div className="group relative flex items-center justify-center">
+            <div className={cn("h-3 w-3 rounded-full ring-4", color, ring)} />
+            <div
+                className={cn(
+                    "pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100",
+                    variant === "start" ? "bg-emerald-600" : "bg-rose-600",
+                )}
+            >
+                {label}
+            </div>
+        </div>
+    )
+}
+
+function DriverMarker({ marker }: { marker: LiveMarker }) {
+    const fresh = !marker.stale
+    return (
+        <button
+            type="button"
+            onClick={marker.onClick}
+            className="group relative flex flex-col items-center transition will-change-transform hover:-translate-y-0.5 hover:scale-[1.04]"
+        >
+            {/* pulse */}
+            {fresh && (
+                <>
+                    <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[140%] h-10 w-10 rounded-full bg-emerald-500/30 animate-ping" />
+                    <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[140%] h-7 w-7 rounded-full bg-emerald-500/40 animate-pulse" />
+                </>
+            )}
+
+            {/* pin head */}
+            <div
+                className={cn(
+                    "relative z-10 flex h-9 w-9 -mt-1 items-center justify-center rounded-full border-2 shadow-lg shadow-slate-900/30 backdrop-blur",
+                    fresh
+                        ? "border-emerald-500 bg-white/95 dark:bg-slate-900/95"
+                        : "border-slate-400/60 bg-slate-200/85 dark:border-slate-600 dark:bg-slate-800/85",
+                    marker.selected && "ring-4 ring-primary/40",
+                )}
+            >
+                <span
+                    className={cn(
+                        "h-2 w-2 rounded-full",
+                        fresh ? "bg-emerald-500" : "bg-slate-500",
+                    )}
+                />
+            </div>
+
+            {/* pin tail */}
+            <span
+                className={cn(
+                    "z-0 -mt-0.5 h-2 w-0.5",
+                    fresh ? "bg-emerald-500" : "bg-slate-400",
+                )}
+            />
+
+            {/* label */}
+            <div
+                className={cn(
+                    "mt-0.5 max-w-[180px] truncate rounded-md px-1.5 py-0.5 text-[11px] font-semibold shadow-md backdrop-blur-md transition",
+                    fresh
+                        ? "bg-white/95 text-slate-900 dark:bg-slate-900/95 dark:text-white"
+                        : "bg-slate-200/85 text-slate-700 dark:bg-slate-800/85 dark:text-slate-300",
+                )}
+            >
+                {marker.label}
+            </div>
+            {marker.sub && (
+                <div className="mt-px max-w-[180px] truncate rounded-sm bg-white/85 px-1.5 py-px font-mono text-[10px] font-medium text-slate-600 shadow-sm dark:bg-slate-900/85 dark:text-slate-400">
+                    {marker.sub}
+                </div>
+            )}
+        </button>
+    )
+}

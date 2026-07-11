@@ -1,240 +1,134 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
+import ParamDateRange from "@/components/as-params/date-picker-range"
+import DeleteModal from "@/components/custom/delete-modal"
+import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { ColumnDef } from "@tanstack/react-table"
-import { useMemo } from "react"
+import {
+    TECHNICAL_INSPECT,
+    SETTINGS_EXPENSES,
+} from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
+import { useGlobalStore } from "@/store/global-store"
+import { useSearch } from "@tanstack/react-router"
+import { Plus } from "lucide-react"
+import { useExpenseCols, type VehicleExpenseRow } from "./cols"
+import AddExpenseModal from "./add-expense"
 
-type TruckStats = {
-    zapchast: number
-    oil_change: number
-    tire_change: number
-    repair_cost: number
-    other_expenses: number
-    payment_type: "Naqt" | "Plastik" | "Perechislenie"
-}
+type SelectItem = { id: number | string; name: string }
 
 export const TexnikCheck = () => {
-    const data: TruckStats[] = [
-        {
-            zapchast: 450_000,
-            oil_change: 300_000,
-            tire_change: 700_000,
-            repair_cost: 250_000,
-            other_expenses: 150_000,
-            payment_type: "Naqt",
-        },
-        {
-            zapchast: 500_000,
-            oil_change: 280_000,
-            tire_change: 800_000,
-            repair_cost: 300_000,
-            other_expenses: 100_000,
-            payment_type: "Perechislenie",
-        },
-        {
-            zapchast: 300_000,
-            oil_change: 250_000,
-            tire_change: 600_000,
-            repair_cost: 200_000,
-            other_expenses: 120_000,
-            payment_type: "Plastik",
-        },
-    ]
+    const search: any = useSearch({ strict: false })
+    const { setData, getData, clearKey } = useGlobalStore()
+    const { openModal } = useModal("add-expense")
+    const { openModal: openDeleteModal } = useModal("delete")
+    const current = getData<VehicleExpenseRow>(TECHNICAL_INSPECT)
 
-    const allData = Array.from({ length: 25 }, (_, i) => ({
-        ...data[i % data.length],
-    }))
+    const { data: categoriesData } = useGet<ListResponse<SelectItem>>(
+        SETTINGS_EXPENSES,
+        { params: { type: 1, page_size: 100 } },
+    )
+    const expenseCategories = categoriesData?.results
+
+    const currentDate = new Date()
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+    const defaultDateRange =
+        !search?.from_date && !search?.to_date
+            ? { from: startOfMonth, to: endOfMonth }
+            : undefined
+
+    const { data, isLoading } = useGet<ListResponse<VehicleExpenseRow>>(
+        TECHNICAL_INSPECT,
+        {
+            params: {
+                category: search?.category,
+                from_date: search?.from_date,
+                to_date: search?.to_date,
+                page: search?.page,
+                page_size: search?.page_size,
+                search: search?.vehicle_search,
+            },
+        },
+    )
+
+    const columns = useExpenseCols()
+
+    const handleAdd = () => {
+        clearKey(TECHNICAL_INSPECT)
+        openModal()
+    }
+
+    const handleEdit = (row: { original: VehicleExpenseRow }) => {
+        setData(TECHNICAL_INSPECT, row.original)
+        openModal()
+    }
+
+    const handleDelete = (row: { original: VehicleExpenseRow }) => {
+        setData(TECHNICAL_INSPECT, row.original)
+        openDeleteModal()
+    }
+
+    const comboStyle = {
+        className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
+    }
 
     return (
-        <div>
-            <div className="mb-3 flex items-center gap-3 justify-end">
-                <ParamCombobox
-                    paramName="region"
-                    options={[]}
-                    isSearch={false}
-                    label="Transport turi"
-                    className="w-full"
-                    addButtonProps={{
-                        className: "!bg-background dark:!bg-secondary",
-                    }}
-                />
-                <ParamCombobox
-                    paramName="truck_type"
-                    options={[]}
-                    isSearch={false}
-                    label="Haydovchi"
-                    className="w-full"
-                    addButtonProps={{
-                        className: "!bg-background dark:!bg-secondary",
-                    }}
-                />
-                <ParamCombobox
-                    paramName="status"
-                    options={[]}
-                    isSearch={false}
-                    valueKey="key"
-                    labelKey="name"
-                    label="Status"
-                    className="w-full"
-                    addButtonProps={{
-                        className: "!bg-background dark:!bg-secondary",
-                    }}
-                />
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-                <div className="mb-4 bg-muted p-4 rounded-lg text-sm">
-                    <p>
-                        <strong>Transport Miqdori :</strong>
-                    </p>
-                    <p>
-                        <strong>Fura:</strong> 25 ta
-                    </p>
-                    <p>
-                        <strong>Isuzu:</strong> 25 ta
-                    </p>
-                    <p>
-                        <strong>Maz:</strong> 25 ta
-                    </p>
-                </div>
-                <div className="mb-4 bg-muted p-4 rounded-lg text-sm">
-                    <p>
-                        <strong>Yoqilg'i Miqdori :</strong>
-                    </p>
-                    <p>
-                        <strong>Benzin:</strong> 25 litr
-                    </p>
-                    <p>
-                        <strong>Dizel:</strong> 25 litr
-                    </p>
-                    <p>
-                        <strong>Metan:</strong> 80 kg/m3
-                    </p>
-                </div>
-
-                <div className="mb-4 bg-muted p-4 rounded-lg text-sm">
-                    <p>
-                        <strong>Balon umumiy soni: 200 ta</strong>
-                    </p>
-                    <p>
-                        <strong>Moy:</strong> 200 litr
-                    </p>
-                </div>
-            </div>
-
+        <div className="space-y-3">
             <DataTable
+                columns={columns}
+                loading={isLoading}
+                data={data?.results || []}
                 numeration
-                columns={cols()}
-                data={allData}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                    page_sizes: [25, 50, 100, 250, 500],
+                }}
                 head={
-                    <div className="flex items-center gap-3 mb-3 ">
-                        <h1 className="text-xl font-semibold">
-                            {`Transportlar ro'yxati`}
-                        </h1>
-                        <Badge className="text-sm">25</Badge>
+                    <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-lg font-semibold">Xarajatlar</h1>
+                            <Badge>{data?.count ?? 0}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <ParamCombobox
+                                paramName="category"
+                                options={expenseCategories || []}
+                                label="Xarajat turi"
+                                addButtonProps={comboStyle}
+                            />
+                            <ParamDateRange
+                                from="from_date"
+                                to="to_date"
+                                defaultValue={defaultDateRange}
+                                addButtonProps={{
+                                    className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
+                                }}
+                            />
+                            <Button onClick={handleAdd}>
+                                <Plus size={16} />
+                                Qo'shish
+                            </Button>
+                        </div>
                     </div>
                 }
-                paginationProps={{
-                    totalPages: 3,
-                }}
             />
+
+            <Modal
+                modalKey="add-expense"
+                title={current?.id ? "Xarajat tahrirlash" : "Xarajat qo'shish"}
+                size="max-w-xl"
+            >
+                <AddExpenseModal />
+            </Modal>
+
+            <DeleteModal path={TECHNICAL_INSPECT} id={current?.id} />
         </div>
-    )
-}
-
-const cols = () => {
-    return useMemo<ColumnDef<TruckStats>[]>(
-        () => [
-            {
-                header: "Avto raqam",
-                accessorKey: "zapchast",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">01 A 123 BA</span>
-                ),
-            },
-            {
-                header: "Transport turi",
-                accessorKey: "zapchast",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">Fura</span>
-                ),
-            },
-            {
-                header: "Ishlab chiqarilgan yili",
-                accessorKey: "other_expenses",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">2025-09-21</span>
-                ),
-            },
-            {
-                header: "Texnik holat",
-                accessorKey: "other_expenses",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">80%</span>
-                ),
-            },
-            {
-                header: "Tirkama",
-                accessorKey: "oil_change",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">01 D 332 HA</span>
-                ),
-            },
-
-            {
-                header: "Probeg",
-                accessorKey: "other_expenses",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">300 000 km</span>
-                ),
-            },
-            {
-                header: "Yoqilg'i turlari",
-                accessorKey: "repair_cost",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">Benzin</span>
-                ),
-            },
-            {
-                header: "Yoqilg‘i sarfi",
-                accessorKey: "other_expenses",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">100 litr</span>
-                ),
-            },
-            {
-                header: "Balon soni",
-                accessorKey: "other_expenses",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">4 ta</span>
-                ),
-            },
-            {
-                header: "Moy sig'imi",
-                accessorKey: "other_expenses",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">100 litr</span>
-                ),
-            },
-
-            {
-                header: "Haydovchi",
-                accessorKey: "tire_change",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">Azizbek Sattorov</span>
-                ),
-            },
-        ],
-        [],
     )
 }

@@ -75,7 +75,7 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                 <FormInput
                     required
                     name="name"
-                    label="Viloyat nomi"
+                    label="Joylashuv nomi"
                     methods={form}
                 />
 

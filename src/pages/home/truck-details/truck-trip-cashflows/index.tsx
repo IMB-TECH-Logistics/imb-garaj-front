@@ -1,6 +1,9 @@
+import DeleteModal from "@/components/custom/delete-modal"
 import { DataTable } from "@/components/ui/datatable"
 import { ORDER_CASHFLOWS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
+import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import { useCostCols } from "./cols"
 
@@ -14,7 +17,16 @@ const TruckTripCashflowRow = () => {
         },
     )
 
+    const { setData } = useGlobalStore()
+    const { openModal: openDeleteModal } = useModal("delete-truck-trip-cashflow")
+    const item = useGlobalStore.getState().getData<CashflowRow>(ORDER_CASHFLOWS)
+
     const columns = useCostCols()
+
+    const handleDelete = (row: { original: CashflowRow }) => {
+        setData(ORDER_CASHFLOWS, row.original)
+        openDeleteModal()
+    }
 
     return (
         <div className="space-y-3 border-t p-4">
@@ -29,9 +41,17 @@ const TruckTripCashflowRow = () => {
                 columns={columns}
                 data={data?.results}
                 numeration
+                onDelete={handleDelete}
                 paginationProps={{
                     totalPages: data?.total_pages ?? 1,
                 }}
+            />
+
+            <DeleteModal
+                path={ORDER_CASHFLOWS}
+                id={item?.id}
+                modalKey="delete-truck-trip-cashflow"
+                refetchKeys={[ORDER_CASHFLOWS]}
             />
         </div>
     )

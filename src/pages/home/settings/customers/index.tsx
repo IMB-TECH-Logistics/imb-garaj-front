@@ -2,6 +2,7 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -11,6 +12,7 @@ import AddCustomersModal from "./add-customers"
 import { useColumnsCustomersTable } from "./customers-cols"
 
 const Customers = () => {
+    const hasControl = useHasAction("settings_customers_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<CustomersType>>(
         SETTINGS_CUSTOMERS,
@@ -43,8 +45,8 @@ const Customers = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 numeration={true}
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -55,9 +57,10 @@ const Customers = () => {
                     <TableHeader
                         fileName="Mijozlar"
                         url="excel"
-                        storeKey={SETTINGS_CUSTOMERS}
+                        storeKey={hasControl ? SETTINGS_CUSTOMERS : undefined}
                         pageKey="page"
                         searchKey="customer_search"
+                        count={data?.count}
                     />
                 }
             />

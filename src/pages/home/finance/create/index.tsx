@@ -151,6 +151,8 @@ const AddTransport = () => {
                 name="truck_type"
                 control={form.control}
                 options={truckType}
+                valueKey="id"
+                labelKey="name"
                 placeholder="Avtomobil turi"
             />
 
@@ -160,6 +162,8 @@ const AddTransport = () => {
                 name="trailer_type"
                 control={form.control}
                 options={trailerType}
+                valueKey="id"
+                labelKey="name"
                 placeholder="Tirkama turi"
             />
 

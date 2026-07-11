@@ -1,80 +1,95 @@
-import DeleteModal from "@/components/custom/delete-modal"
-import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
-import { TRIPS } from "@/constants/api-endpoints"
+import { OWNER_TRIP_DAILY_STATISTIC } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { useModal } from "@/hooks/useModal"
-import { useGlobalStore } from "@/store/global-store"
-import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { useCostCols } from "./cols"
-import AddTrip from "./truck-trips-add"
-import TruckTripsHeader from "./truck-trips-header"
+import { useParams, useSearch } from "@tanstack/react-router"
+import { useState } from "react"
+import { useOrderCols, TripDailyStatisticType } from "./cols"
+import ExpenseDialog from "./expense-dialog"
 
 const VehicleTrips = () => {
-    const { setData, getData } = useGlobalStore()
-    const navigate = useNavigate()
-    const { openModal: openCreateModal } = useModal("post-trips")
-    const { openModal: openDeleteModal } = useModal("delete")
-
     const params = useParams({ strict: false })
-    const search = useSearch({ strict: false })
-    const { data, isLoading } = useGet<ListResponse<TripRow>>(TRIPS, {
+    const search: any = useSearch({ strict: false })
+    const [expenseTrip, setExpenseTrip] = useState<{ id: number; total: number | null } | null>(null)
+
+    const { data, isLoading } = useGet<TripDailyStatisticType[]>(OWNER_TRIP_DAILY_STATISTIC, {
         params: {
-            vehicle: params.id,
-            ...search,
-            page: search.page,
-            page_size: search.page_size,
+            vehicle_id: params.id,
+            from_date: search?.from_date,
+            to_date: search?.to_date,
         },
     })
-    const item = getData<TripRow>(TRIPS)
 
-    const columns = useCostCols()
+    const columns = useOrderCols({
+        onExpenseClick: (tripId, totalExpense) =>
+            setExpenseTrip({ id: tripId, total: totalExpense ?? null }),
+    })
 
-    const handleRowClick = (item: TripRow) => {
-        const id = item?.id
-        if (!id) return
-        navigate({
-            to: "/trip-orders/$id",
-            params: { id: id.toString() },
+    const trips = (data || []).map(trip => {
+        let minDate = ""
+        let maxDate = ""
+
+        const rows: any[] = []
+
+        trip.orders_trip?.forEach((order, idx) => {
+            rows.push({ ...order })
+            if (idx === 0) {
+                minDate = order.date
+                maxDate = order.date
+            } else {
+                if (order.date < minDate) minDate = order.date
+                if (order.date > maxDate) maxDate = order.date
+            }
         })
-    }
 
-    const handleEdit = (item: TripRow) => {
-        setData(TRIPS, item)
-        openCreateModal()
-    }
-    const handleDelete = (row: { original: TripRow }) => {
-        setData(TRIPS, row.original)
-        openDeleteModal()
+        const totalIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
+
+        rows.push({
+            is_summary: true,
+            id: trip.id,
+            trip_id: trip.id,
+            total_expense: trip.total_expense,
+            total_mileage: trip.total_mileage,
+            fuel_consume: trip.fuel_consume,
+            income: totalIncome,
+            cargo_type_name: Array.from(new Set(trip.orders_trip?.map(o => o.cargo_type_name).filter(Boolean))).join(", "),
+        })
+
+        return { id: trip.id, minDate, maxDate, rows }
+    })
+
+    if (isLoading) {
+        return (
+            <div className="mt-4">
+                <DataTable loading columns={columns as any} data={[]} viewAll />
+            </div>
+        )
     }
 
     return (
-        <div className="space-y-3">
-            <div className="flex justify-between items-center mb-3 gap-4"></div>
+        <div className="space-y-6 mt-4">
+            {trips.map((trip, index) => (
+                <div key={trip.id}>
+                    <h3 className="text-left text-sm font-semibold text-muted-foreground mb-2">
+                        {index + 1}. Aylanma ({trip.minDate || "—"} — {trip.maxDate || "—"})
+                    </h3>
+                    <DataTable
+                        columns={columns as any}
+                        data={trip.rows}
+                        viewAll
+                        rowColor={(row: any) => row.is_summary ? "!bg-slate-200 dark:!bg-slate-700 hover:!bg-slate-200 dark:hover:!bg-slate-700 [&>td]:!py-1 [&>td]:!h-6" : ""}
+                    />
+                </div>
+            ))}
+            {!isLoading && trips.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">Ma'lumot topilmadi</p>
+            )}
 
-            <DataTable
-                loading={isLoading}
-                columns={columns}
-                data={data?.results}
-                numeration
-                onRowClick={handleRowClick}
-                onEdit={({ original }) => handleEdit(original)}
-                onDelete={handleDelete}
-                head={<TruckTripsHeader />}
-                paginationProps={{
-                    totalPages: data?.total_pages,
-                    paramName: "page",
-                    pageSizeParamName: "page_size",
-                }}
+            <ExpenseDialog
+                tripId={expenseTrip?.id ?? null}
+                totalExpense={expenseTrip?.total ?? null}
+                open={expenseTrip !== null}
+                onClose={() => setExpenseTrip(null)}
             />
-            <DeleteModal path={TRIPS} id={item?.id} />
-            <Modal
-                size="max-w-2xl"
-                title={item?.id ? "Reysni tahrirlash" : "Reys qo'shish "}
-                modalKey="post-trips"
-            >
-                <AddTrip />
-            </Modal>
         </div>
     )
 }

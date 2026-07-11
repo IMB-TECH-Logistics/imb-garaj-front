@@ -127,7 +127,7 @@ export const TruckTabsOneClone = () => {
                 head={
                     <div className="flex items-center gap-3 mb-3">
                         <h1 className="text-xl font-semibold">
-                            {`Bo'sh Reyslar ro'yxati`}
+                            {`Yuksiz Reyslar ro'yxati`}
                         </h1>
                         <Badge className="text-sm">{formatMoney(25)}</Badge>
                     </div>

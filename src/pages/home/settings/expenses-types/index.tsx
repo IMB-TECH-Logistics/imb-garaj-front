@@ -2,6 +2,7 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_EXPENSES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -11,6 +12,7 @@ import AddExpensesModal from "./add-expenses"
 import { useColumnsExpensesTable } from "./expenses-cols"
 
 const ExpensesTypePage = () => {
+    const hasControl = useHasAction("settings_expense_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
         SETTINGS_EXPENSES,
@@ -43,8 +45,8 @@ const ExpensesTypePage = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -54,11 +56,12 @@ const ExpensesTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Xarajatlar"
+                        fileName="Xarajat turlari"
                         url="excel"
-                        storeKey={SETTINGS_EXPENSES}
+                        storeKey={hasControl ? SETTINGS_EXPENSES : undefined}
                         searchKey="expense_type"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />

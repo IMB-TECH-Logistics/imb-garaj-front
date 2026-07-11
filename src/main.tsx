@@ -5,6 +5,31 @@ import ReactDOM from "react-dom/client"
 import "./main.css"
 import { routeTree } from "./routeTree.gen"
 
+const RELOAD_KEY = "vite:chunk-reload"
+
+const reloadOnce = () => {
+    if (sessionStorage.getItem(RELOAD_KEY)) {
+        sessionStorage.removeItem(RELOAD_KEY)
+        return
+    }
+    sessionStorage.setItem(RELOAD_KEY, "1")
+    window.location.reload()
+}
+
+window.addEventListener("vite:preloadError", () => reloadOnce())
+
+window.addEventListener("unhandledrejection", (event) => {
+    const msg = String(event.reason?.message ?? event.reason ?? "")
+    if (
+        /Failed to fetch dynamically imported module/i.test(msg) ||
+        /Importing a module script failed/i.test(msg) ||
+        /Loading chunk \S+ failed/i.test(msg) ||
+        /error loading dynamically imported module/i.test(msg)
+    ) {
+        reloadOnce()
+    }
+})
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {

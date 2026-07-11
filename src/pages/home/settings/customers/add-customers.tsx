@@ -17,7 +17,10 @@ const AddCustomerModal = () => {
 
     const currentForwarder = getData<CustomersType>(SETTINGS_CUSTOMERS)
     const form = useForm<CustomersType>({
-        defaultValues: currentForwarder,
+        defaultValues: {
+            ...currentForwarder,
+            phone_number: currentForwarder?.phone_number?.replace(/^\+?998/, "") || "",
+        },
     })
 
     const { handleSubmit, reset } = form
@@ -51,18 +54,6 @@ const AddCustomerModal = () => {
             return
         }
 
-        const phoneValue = values.phone_number || ""
-        const digitsOnly = phoneValue.replace(/\D/g, "")
-
-        if (digitsOnly.length !== 9) {
-            form.setError("phone_number", {
-                type: "manual",
-                message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
-            })
-            toast.error("Telefon raqam to'liq emas")
-            return
-        }
-
         if (currentForwarder?.id) {
             updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, values)
         } else {
@@ -80,17 +71,32 @@ const AddCustomerModal = () => {
                     <FormInput
                         required
                         name="name"
-                        label="F.I.O"
+                        label="Firma nomi"
                         methods={form}
+                    />
+
+                    <FormInput
+                        name="code"
+                        label="Firma kodi"
+                        methods={form}
+                        placeholder="Masalan: 100A"
                     />
 
                     <FormFormatNumberInput
                         control={form.control}
                         format="+998 ## ### ## ##"
-                        required
                         label={"Telefon"}
                         name={"phone_number"}
                         placeholder="+998 __ ___ __ __"
+                    />
+
+                    <FormInput
+                        required
+                        name="nds_percent"
+                        label="NDS foizi (%)"
+                        methods={form}
+                        type="number"
+                        placeholder="Masalan: 12"
                     />
 
                     <div className="flex items-center justify-end gap-2 md:col-span-2">

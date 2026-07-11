@@ -3,7 +3,7 @@ interface TripFormData {
     vehicle: number | string
     start: Date
     type: number | string
-    end:Date
+    end: Date
 }
 
 type CardMain = {
@@ -46,7 +46,7 @@ type Truck = {
     truck_type: number
     trailer_type: number | null
     driver: number
-    page:string
+    page: string
 }
 
 type CargoItem = {
@@ -82,6 +82,7 @@ type TripOrdersRow = {
     unloading: number
     trip: number
     cargo_type: string | number
+    direction: number | null
     date: string | number
     client: string
     payment_type: string | number
@@ -89,18 +90,22 @@ type TripOrdersRow = {
     currency_course: number | string
     amount: number | string
     type: number | string
+    payment_amount_uzs: string
+    payment_amount_usd: string
+    status:number
     payments: [
         {
-            currency: number|null
-            currency_course: string|null
-            amount: string|null
-            payment_type:number|null
+            currency: number | null
+            currency_course: string | null
+            amount: string | null
+            payment_type: number | null
         },
     ]
+    images?: { id: number; image: string }[]
 }
 
 type CashflowRow = {
-    amount?: number|string
+    amount?: number | string
     id?: number
     created?: string
     updated: string
@@ -109,9 +114,8 @@ type CashflowRow = {
     transaction?: number
     order?: number
     category?: number
-    technic?:string|number
-     end_time?:string|number
-
+    technic?: string | number
+    end_time?: string | number
 }
 
 type ExpenseCategory = {
@@ -130,8 +134,6 @@ type OrderPaymentType = {
     payment_type: number
 }
 
-
-
 //   "currency": 1,
 //   "currency_course": "-7354.24",
 //   "amount": "-284127952717280608.1",
@@ -139,3 +141,23 @@ type OrderPaymentType = {
 //   "order": 0,
 //   "payment_type": 0
 // }
+
+type TruckInfo = {
+    driver_name: string
+    fuel_consumed: number
+    fuel_cost: number
+    fuel_type: string
+    mileage: number
+    other_expense: number
+    owner: string
+    phone: string
+    primary_truck: string
+    profit: number
+    repair: number
+    revenue: number
+    salary: number
+    secondary_trucks: []
+    total_expense: number
+    trip_count: number
+    vehicle_type: string
+}
