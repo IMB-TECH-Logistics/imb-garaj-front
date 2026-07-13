@@ -66,6 +66,12 @@ export const useColumnsVehiclesTable = () => {
                 },
             },
             {
+                accessorKey: "gps_device_id",
+                header: "Airtag (Qurilma idsi)",
+                enableSorting: true,
+                cell: ({ row }) => row.original.gps_device_id || "-",
+            },
+            {
                 accessorKey: "year",
                 header: "Yili",
                 enableSorting: true,
@@ -84,7 +90,7 @@ export const useColumnsVehiclesTable = () => {
                 cell: ({ row }) =>
                     row.original.registered_date ?
                         formatDate(row.original.registered_date)
-                    :   "-",
+                        : "-",
             },
         ],
         [],

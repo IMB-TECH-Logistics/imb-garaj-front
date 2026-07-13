@@ -4,7 +4,7 @@ import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import FormImagePicker from "@/components/form/image-picker"
 import { Button } from "@/components/ui/button"
-import { VEHICLES, SETTINGS_VEHICLE_TYPE, SETTINGS_DRIVERS, SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
+import { VEHICLES, SETTINGS_VEHICLE_TYPE, SETTINGS_DRIVERS, SETTINGS_SELECTABLE_USERS, AIRTAGS_LIST } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
@@ -47,10 +47,17 @@ const AddVehicleSettingsModal = () => {
     const { data: drivers } = useGet(SETTINGS_DRIVERS, {
         params: { page_size: 10000 },
     })
+
+    const { data: airtags } = useGet(AIRTAGS_LIST, {
+        params: { page_size: 10000 },
+    })
     const { data: owners } = useGet(SETTINGS_SELECTABLE_USERS)
 
     const form = useForm({
-        defaultValues: current || {},
+        defaultValues: {
+            ...current,
+            gps_id: current?.gps?.id,
+        },
     })
 
     const { handleSubmit, reset, control } = form
@@ -188,6 +195,14 @@ const AddVehicleSettingsModal = () => {
                     control={control}
                     fullWidth
                 />
+                <FormCombobox
+                    name="gps"
+                    label="Airtag"
+                    options={airtags?.results || []}
+                    control={control}
+                    labelKey="device_id"
+                    valueKey="id"
+                />
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:col-span-2 pt-4">
                     <FormImagePicker
@@ -226,6 +241,7 @@ const AddVehicleSettingsModal = () => {
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
+
                 </div>
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
