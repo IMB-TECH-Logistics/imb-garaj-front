@@ -142,3 +142,10 @@ export const FINANCE_LEDGER = "finance/ledger"
 export const FINANCE_DEBTORS = "finance/debtors"
 export const FINANCE_CREDITORS = "finance/creditors"
 export const FINANCE_FORECAST = "finance/forecast"
+
+/** ===== AIRTAG ===== */
+export const AIRTAG_ORDERS = "tag/orders"
+export const AIRTAG_CONNECT_TO_ORDER = "tag/connect-to-order"
+export const AIRTAG_CONNECT_TO_VEHICLE = "tag/connect-to-vehicle"
+export const AIRTAG_DEVICE_POST = "vehicles/gps-tags"
+export const AIRTAG_DEVICE_GET = "vehicles/gps-tags"

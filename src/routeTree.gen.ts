@@ -43,6 +43,9 @@ const MainBuyurtmalarIndexLazyImport = createFileRoute('/_main/buyurtmalar/')()
 const MainBuxgalteriyaIndexLazyImport = createFileRoute(
   '/_main/buxgalteriya/',
 )()
+const MainAirtagDeviceIndexLazyImport = createFileRoute(
+  '/_main/airtag-device/',
+)()
 const MainManagersManagersLazyImport = createFileRoute(
   '/_main/_managers/managers',
 )()
@@ -191,6 +194,13 @@ const MainBuxgalteriyaIndexLazyRoute = MainBuxgalteriyaIndexLazyImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/buxgalteriya/index.lazy').then((d) => d.Route),
+)
+
+const MainAirtagDeviceIndexLazyRoute = MainAirtagDeviceIndexLazyImport.update({
+  path: '/airtag-device/',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/airtag-device/index.lazy').then((d) => d.Route),
 )
 
 const MainManagersManagersLazyRoute = MainManagersManagersLazyImport.update({
@@ -499,6 +509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainManagersManagersLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/airtag-device/': {
+      id: '/_main/airtag-device/'
+      path: '/airtag-device'
+      fullPath: '/airtag-device'
+      preLoaderRoute: typeof MainAirtagDeviceIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/buxgalteriya/': {
       id: '/_main/buxgalteriya/'
       path: '/buxgalteriya'
@@ -798,6 +815,7 @@ interface MainRouteChildren {
   MainIndexRoute: typeof MainIndexRoute
   MainHaydovchilarIdRoute: typeof MainHaydovchilarIdRouteWithChildren
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
+  MainAirtagDeviceIndexLazyRoute: typeof MainAirtagDeviceIndexLazyRoute
   MainBuxgalteriyaIndexLazyRoute: typeof MainBuxgalteriyaIndexLazyRoute
   MainBuyurtmalarIndexLazyRoute: typeof MainBuyurtmalarIndexLazyRoute
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
@@ -841,6 +859,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainIndexRoute: MainIndexRoute,
   MainHaydovchilarIdRoute: MainHaydovchilarIdRouteWithChildren,
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
+  MainAirtagDeviceIndexLazyRoute: MainAirtagDeviceIndexLazyRoute,
   MainBuxgalteriyaIndexLazyRoute: MainBuxgalteriyaIndexLazyRoute,
   MainBuyurtmalarIndexLazyRoute: MainBuyurtmalarIndexLazyRoute,
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
@@ -896,6 +915,7 @@ export interface FileRoutesByFullPath {
   '/': typeof MainIndexRoute
   '/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/managers': typeof MainManagersManagersLazyRoute
+  '/airtag-device': typeof MainAirtagDeviceIndexLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/buyurtmalar': typeof MainBuyurtmalarIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
@@ -942,6 +962,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof MainDashboardLazyRoute
   '/': typeof MainIndexRoute
   '/managers': typeof MainManagersManagersLazyRoute
+  '/airtag-device': typeof MainAirtagDeviceIndexLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/buyurtmalar': typeof MainBuyurtmalarIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
@@ -991,6 +1012,7 @@ export interface FileRoutesById {
   '/_main/': typeof MainIndexRoute
   '/_main/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
+  '/_main/airtag-device/': typeof MainAirtagDeviceIndexLazyRoute
   '/_main/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
   '/_main/buyurtmalar/': typeof MainBuyurtmalarIndexLazyRoute
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
@@ -1040,6 +1062,7 @@ export interface FileRouteTypes {
     | '/'
     | '/haydovchilar/$id'
     | '/managers'
+    | '/airtag-device'
     | '/buxgalteriya'
     | '/buyurtmalar'
     | '/haydovchilar'
@@ -1085,6 +1108,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/'
     | '/managers'
+    | '/airtag-device'
     | '/buxgalteriya'
     | '/buyurtmalar'
     | '/haydovchilar'
@@ -1132,6 +1156,7 @@ export interface FileRouteTypes {
     | '/_main/'
     | '/_main/haydovchilar/$id'
     | '/_main/_managers/managers'
+    | '/_main/airtag-device/'
     | '/_main/buxgalteriya/'
     | '/_main/buyurtmalar/'
     | '/_main/haydovchilar/'
@@ -1212,6 +1237,7 @@ export const routeTree = rootRoute
         "/_main/",
         "/_main/haydovchilar/$id",
         "/_main/_managers/managers",
+        "/_main/airtag-device/",
         "/_main/buxgalteriya/",
         "/_main/buyurtmalar/",
         "/_main/haydovchilar/",
@@ -1272,6 +1298,10 @@ export const routeTree = rootRoute
     },
     "/_main/_managers/managers": {
       "filePath": "_main/_managers/managers.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/airtag-device/": {
+      "filePath": "_main/airtag-device/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/buxgalteriya/": {
