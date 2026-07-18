@@ -60,13 +60,14 @@ const AddPaymentTypeModal = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 p-1">
             <FormInput
                 required
                 name="name"
                 label="To'lov turi"
                 methods={form}
             />
+
             <FormCombobox
                 required
                 name="method"

@@ -8,6 +8,7 @@ import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
@@ -18,6 +19,7 @@ const Drivers = () => {
     const hasControl = useHasAction("settings_drivers_control")
     const navigate = useNavigate()
     const search = useSearch({ strict: false })
+
     const { data, isLoading } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
         {
@@ -28,6 +30,7 @@ const Drivers = () => {
             },
         },
     )
+
     const { getData, setData, clearKey } = useGlobalStore()
     const item = getData<DriversType>(SETTINGS_DRIVERS)
 
@@ -39,14 +42,17 @@ const Drivers = () => {
         setData(SETTINGS_DRIVERS, row.original)
         openDeleteModal()
     }
+
     const handleEdit = (item: DriversType) => {
         setData(SETTINGS_DRIVERS, item)
         openCreateModal()
     }
+
     const handleAdd = () => {
         clearKey(SETTINGS_DRIVERS)
         openCreateModal()
     }
+
     const handleRowClick = (item: DriversType) => {
         navigate({
             to: "/manager-trips/$id",
@@ -57,6 +63,7 @@ const Drivers = () => {
             } as any,
         })
     }
+
     return (
         <>
             <DataTable
@@ -65,19 +72,30 @@ const Drivers = () => {
                 columns={columns}
                 data={data?.results}
                 onDelete={hasControl ? handleDelete : undefined}
-                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                onEdit={
+                    hasControl ?
+                        ({ original }) => handleEdit(original)
+                    :   undefined
+                }
                 onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-lg font-semibold">Haydovchilar</h1>
-                            <Badge>{data?.count ?? 0}</Badge>
+                            <h1 className="text-lg font-semibold">
+                                Haydovchilar
+                            </h1>
+
+                            <Badge className="text-sm">
+                                {formatMoney(data?.count ?? 0)}
+                            </Badge>
                         </div>
+
                         <div className="flex items-center gap-3">
                             <ParamInput
                                 searchKey="driver_search"
                                 pageKey="page"
                             />
+
                             {hasControl && (
                                 <Button
                                     className="flex items-center gap-2"
@@ -96,11 +114,13 @@ const Drivers = () => {
                     pageSizeParamName: "page_size",
                 }}
             />
+
             <DeleteModal
                 path={SETTINGS_DRIVERS}
                 refetchKeys={[SETTINGS_DRIVERS]}
                 id={item?.id}
             />
+
             <Modal
                 size="max-w-2xl"
                 title={

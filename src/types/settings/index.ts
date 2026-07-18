@@ -194,7 +194,13 @@ type CustomersType = {
     id: number
     name: string
     phone_number: string
+    code: string
+    created?: string
+    updated?: string
+    nds_percent: number
+    is_deleted?: false
 }
+
 type UserType = {
     id: number
     password: string

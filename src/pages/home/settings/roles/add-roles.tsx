@@ -10,7 +10,7 @@ import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import PermissionField from "../users/permission-field"
 
-const  AddRolesModal = () => {
+const AddRolesModal = () => {
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -55,8 +55,13 @@ const  AddRolesModal = () => {
 
     return (
         <FormProvider {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <FormInput required name="name" label="Rol turi" methods={form} />
+            <form onSubmit={handleSubmit(onSubmit)} className="p-1">
+                <FormInput
+                    required
+                    name="name"
+                    label="Rol turi"
+                    methods={form}
+                />
 
                 <div className="mt-4 max-h-[60vh] overflow-y-auto pr-1">
                     <PermissionField />
@@ -67,6 +72,7 @@ const  AddRolesModal = () => {
                         className="min-w-36 w-full md:w-max"
                         type="submit"
                         loading={isPending}
+                        disabled={isPending}
                     >
                         {"Saqlash"}
                     </Button>
@@ -76,4 +82,4 @@ const  AddRolesModal = () => {
     )
 }
 
-export default  AddRolesModal
+export default AddRolesModal
