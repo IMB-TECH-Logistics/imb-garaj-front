@@ -50,7 +50,7 @@ const AddCargoModal = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-1">
             <FormInput required name="name" label="Yuk turi" methods={form} />
 
             <div className="flex items-center justify-end  mt-3">

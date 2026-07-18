@@ -21,7 +21,7 @@ const STATUS_COLORS: Record<number, string> = {
 }
 
 export const useColumnsVehiclesTable = () => {
-    return useMemo<ColumnDef<any>[]>(
+    return useMemo<ColumnDef<VehicleDetailType>[]>(
         () => [
             {
                 accessorKey: "truck_number",
@@ -59,7 +59,10 @@ export const useColumnsVehiclesTable = () => {
                 cell: ({ row }) => {
                     const status = row.original.status
                     return (
-                        <Badge variant="outline" className={STATUS_COLORS[status] || ""}>
+                        <Badge
+                            variant="outline"
+                            className={STATUS_COLORS[status] || ""}
+                        >
                             {STATUS_LABELS[status] || "-"}
                         </Badge>
                     )

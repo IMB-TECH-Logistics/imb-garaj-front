@@ -1,11 +1,11 @@
 import ParamInput from "@/components/as-params/input"
-import DownloadAsExcel from "@/components/download-as-excel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
+import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
-import { Plus, PlusCircle } from "lucide-react"
-import { ReactNode } from "react"
+import { PlusCircle } from "lucide-react"
+import { ReactNode, useRef } from "react"
 
 interface TableHeaderProps {
     fileName: string
@@ -37,28 +37,40 @@ const TableHeader = ({
             onAdd()
             return
         }
+
         if (storeKey) {
             clearKey(storeKey)
         }
+
         openCreateModal()
     }
 
-    const showTitle = count !== undefined
+    const lastCount = useRef<number>()
+    if (count !== undefined) {
+        lastCount.current = count
+    }
+
+    const showTitle = lastCount.current !== undefined
 
     return (
         <div className="flex items-center justify-between gap-3 mb-3">
             {showTitle && (
                 <div className="flex items-center gap-2">
                     <h1 className="text-xl font-semibold">{fileName}</h1>
-                    <Badge className="text-sm">{count}</Badge>
+
+                    <Badge className="text-sm">
+                        {formatMoney(lastCount.current)}
+                    </Badge>
+
                     {extraTitle}
                 </div>
             )}
+
             <div
                 className={
-                    showTitle
-                        ? "flex items-center gap-3 ml-auto"
-                        : "flex items-center justify-between gap-3 w-full"
+                    showTitle ?
+                        "flex items-center gap-3 ml-auto"
+                    :   "flex items-center justify-between gap-3 w-full"
                 }
             >
                 {searchKey && (
@@ -70,6 +82,7 @@ const TableHeader = ({
                         />
                     </div>
                 )}
+
                 {/* <DownloadAsExcel url={"settings_url"} name={`${fileName}`} /> */}
 
                 {(onAdd || storeKey) && (
@@ -81,6 +94,7 @@ const TableHeader = ({
                         Qo'shish
                     </Button>
                 )}
+
                 {extraRight}
             </div>
         </div>
