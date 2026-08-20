@@ -29,6 +29,11 @@ export const useColumnsVehiclesTable = () => {
                 enableSorting: true,
             },
             {
+                accessorKey: "owner_name",
+                header: "Egasi",
+                enableSorting: true,
+            },
+            {
                 accessorKey: "trailer_number",
                 header: "Tirkama raqami",
                 enableSorting: true,
