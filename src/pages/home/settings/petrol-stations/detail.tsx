@@ -1,5 +1,7 @@
 import ParamDateRange from "@/components/as-params/date-picker-range"
+import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
+import TableActions from "@/components/custom/table-actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
@@ -9,21 +11,28 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
+import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
+import { useState } from "react"
 import {
     ArrowDownCircle,
     ArrowLeft,
     ArrowUpCircle,
-    Droplet,
+    Flame,
+    Fuel,
     MapPin,
     Plus,
     Wallet,
 } from "lucide-react"
+import AddExpenseModal from "./add-expense-modal"
 import {
     type StationCashFlowRow,
     useStationCashFlowColumns,
 } from "./cashflow-cols"
 import { type PetrolStationRow } from "./cols"
+import EditCashFlowModal, {
+    useEditCashFlowStore,
+} from "./edit-cashflow-modal"
 import TopUpModal from "./top-up-modal"
 
 type StationStats = {
@@ -31,10 +40,12 @@ type StationStats = {
     total_top_ups: number
     total_outcomes: number
     total_liters: number
-    avg_price_per_liter: number
+    total_gas: number
     top_up_count: number
     expense_count: number
 }
+
+const CASH_FLOW_DELETE_KEY = "petrol-cash-flow-delete"
 
 const TABS: { key: string; label: string; action: number | null }[] = [
     { key: "all", label: "Hammasi", action: null },
@@ -44,6 +55,7 @@ const TABS: { key: string; label: string; action: number | null }[] = [
 
 const PetrolStationDetail = () => {
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const { id } = useParams({ strict: false }) as { id: string }
     const stationId = Number(id)
     const search = useSearch({ strict: false }) as Record<string, any>
@@ -84,8 +96,30 @@ const PetrolStationDetail = () => {
     })
 
     const { openModal: openTopUp } = useModal("petrol-top-up")
+    const { openModal: openExpense } = useModal("petrol-expense")
+    const editCashFlow = useEditCashFlowStore()
+    const { openModal: openDeleteCashFlow } = useModal(CASH_FLOW_DELETE_KEY)
+    const [deletingCashFlow, setDeletingCashFlow] =
+        useState<StationCashFlowRow | null>(null)
+
+    const refetchAll = () => {
+        queryClient.refetchQueries({
+            predicate: (q) => String(q.queryKey[0]).includes("petrol-stations"),
+        })
+    }
 
     const columns = useStationCashFlowColumns()
+
+    const handleEditCashFlow = (row: StationCashFlowRow) => {
+        if (row.action !== 1) return
+        editCashFlow.open(row)
+    }
+
+    const handleDeleteCashFlow = (row: StationCashFlowRow) => {
+        if (row.action !== 1) return
+        setDeletingCashFlow(row)
+        openDeleteCashFlow()
+    }
 
     const setTab = (key: string) => {
         navigate({
@@ -124,7 +158,7 @@ const PetrolStationDetail = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 <Card>
                     <CardContent className="p-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -185,7 +219,7 @@ const PetrolStationDetail = () => {
                 <Card>
                     <CardContent className="p-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
-                            <Droplet size={20} />
+                            <Fuel size={20} />
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -193,14 +227,28 @@ const PetrolStationDetail = () => {
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
                                 {formatMoney(Number(stats?.total_liters ?? 0))}{" "}
-                                L
+                                litr
                             </div>
                             <div className="text-[11px] text-muted-foreground">
-                                ~
-                                {formatMoney(
-                                    Number(stats?.avg_price_per_liter ?? 0),
-                                )}{" "}
-                                so'm/L
+                                Dizel mashinalar
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-sky-500/10 text-sky-600 flex items-center justify-center shrink-0">
+                            <Flame size={20} />
+                        </div>
+                        <div className="min-w-0">
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
+                                Sarflangan gaz
+                            </div>
+                            <div className="text-xl font-semibold tabular-nums truncate text-sky-600">
+                                {formatMoney(Number(stats?.total_gas ?? 0))} m³
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">
+                                Gaz (metan) mashinalar
                             </div>
                         </div>
                     </CardContent>
@@ -218,10 +266,16 @@ const PetrolStationDetail = () => {
                     </TabsList>
                 </Tabs>
                 {hasControl && (
-                    <Button onClick={openTopUp}>
-                        <Plus size={16} className="mr-1" />
-                        Kirim qo'shish
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={openExpense}>
+                            <Plus size={16} className="mr-1" />
+                            Chiqim qo'shish
+                        </Button>
+                        <Button onClick={openTopUp}>
+                            <Plus size={16} className="mr-1" />
+                            Kirim qo'shish
+                        </Button>
+                    </div>
                 )}
             </div>
 
@@ -235,6 +289,19 @@ const PetrolStationDetail = () => {
                     paramName: "page",
                     pageSizeParamName: "page_size",
                 }}
+                rowAction={
+                    hasControl
+                        ? (row: StationCashFlowRow) =>
+                              row.action === 1 ? (
+                                  <TableActions
+                                      onEdit={() => handleEditCashFlow(row)}
+                                      onDelete={() =>
+                                          handleDeleteCashFlow(row)
+                                      }
+                                  />
+                              ) : null
+                        : undefined
+                }
             />
 
             <Modal
@@ -244,6 +311,29 @@ const PetrolStationDetail = () => {
             >
                 <TopUpModal stationId={stationId} />
             </Modal>
+            <Modal
+                title="Chiqim qo'shish"
+                modalKey="petrol-expense"
+                size="max-w-md"
+            >
+                <AddExpenseModal stationId={stationId} />
+            </Modal>
+            <Modal
+                title="Kirimni tahrirlash"
+                modalKey="petrol-cash-flow-edit"
+                size="max-w-md"
+            >
+                <EditCashFlowModal />
+            </Modal>
+            <DeleteModal
+                path={`${SETTINGS_PETROL_STATIONS}/cash-flows`}
+                id={
+                    deletingCashFlow ? `${deletingCashFlow.id}/delete` : undefined
+                }
+                modalKey={CASH_FLOW_DELETE_KEY}
+                onSuccessAction={refetchAll}
+                disableRefetch
+            />
         </div>
     )
 }

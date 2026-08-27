@@ -25,6 +25,12 @@ const toNum = (v: string | number | null | undefined): number =>
 const round3 = (v: string | number | null | undefined): number =>
     Math.round(toNum(v) * 1000) / 1000
 
+// Har bir mashinaning yagona `fuel` turi bor — o'lchov birligi doim shu qiymatdan
+// kelib chiqib aniqlanadi, hardcoded "litr" ishlatilmaydi.
+const UNIT_LABEL: Record<string, string> = { methane: "m³", diesel: "litr" }
+const unitFor = (fuel?: string | null) =>
+    UNIT_LABEL[(fuel ?? "").toLowerCase()] ?? "litr"
+
 export const useCostCols = () => {
     return useMemo<ColumnDef<OwnerStatistic>[]>(
         () => [
@@ -79,8 +85,12 @@ export const useCostCols = () => {
                 accessorKey: "fuel_consume",
                 enableSorting: true,
                 cell: ({ row }) => {
+                    if (row.original.fuel_consume === null) return <span>—</span>
                     return (
-                        <span>{row.original.fuel_consume !== null ? formatMoney(round3(row.original.fuel_consume)) : "—"}</span>
+                        <span>
+                            {formatMoney(round3(row.original.fuel_consume))}{" "}
+                            {unitFor(row.original.fuel)}
+                        </span>
                     )
                 },
             },
@@ -93,13 +103,17 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: "Litr / km",
+                header: "Sarfi / km",
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
                 cell: ({ row }) => {
                     const v = row.original.fuel_per_km
+                    if (v == null) return <span>—</span>
                     return (
-                        <span>{v != null ? Number(toNum(v).toFixed(2)) : "—"}</span>
+                        <span>
+                            {Number(toNum(v).toFixed(2))}{" "}
+                            {unitFor(row.original.fuel)}/km
+                        </span>
                     )
                 },
             },

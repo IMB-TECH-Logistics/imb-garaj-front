@@ -16,8 +16,9 @@ export type StationCashFlowRow = {
     driver: number | null
     driver_name: string | null
     vehicle_plate: string | null
-    liters: number | null
-    price_per_liter: number | null
+    liters: number | string | null
+    price_per_liter: number | string | null
+    unit: "liter" | "m3" | null
     running_balance: number | null
     created: string
 }
@@ -26,6 +27,11 @@ const CURRENCY_LABEL: Record<number, string> = {
     1: "UZS",
     2: "USD",
 }
+
+// `unit` — "liter" yoki "m3" (yoki null, kirim yozuvlarida yoki mashina/FuelLog
+// bo'lmagan chiqimlarda). Bu doim mashina/yozuvning `fuel`iga qarab aniqlanadi —
+// hardcoded "litr" ishlatilmaydi.
+const UNIT_LABEL: Record<string, string> = { liter: "litr", m3: "m³" }
 
 const formatDateTime = (s?: string | null) => {
     if (!s) return "—"
@@ -40,8 +46,11 @@ const formatDateTime = (s?: string | null) => {
     })
 }
 
-const formatLiters = (v: number | null) =>
-    v == null ? "—" : `${v.toLocaleString("uz-UZ")} L`
+const formatQuantity = (v: number | string | null, unit: string | null) => {
+    if (v == null) return "—"
+    const label = unit ? (UNIT_LABEL[unit] ?? unit) : ""
+    return `${Number(v).toLocaleString("uz-UZ")}${label ? ` ${label}` : ""}`
+}
 
 export const useStationCashFlowColumns = () =>
     useMemo<ColumnDef<StationCashFlowRow>[]>(
@@ -72,16 +81,19 @@ export const useStationCashFlowColumns = () =>
             },
             {
                 accessorKey: "liters",
-                header: "Litr",
+                header: "Miqdori",
                 cell: ({ row }) => (
                     <span className="tabular-nums">
-                        {formatLiters(row.original.liters)}
+                        {formatQuantity(
+                            row.original.liters,
+                            row.original.unit,
+                        )}
                     </span>
                 ),
             },
             {
                 accessorKey: "price_per_liter",
-                header: "Litr narxi",
+                header: "Narxi",
                 cell: ({ row }) =>
                     row.original.price_per_liter == null ? (
                         "—"
@@ -140,16 +152,6 @@ export const useStationCashFlowColumns = () =>
                         </div>
                     )
                 },
-            },
-            {
-                accessorKey: "running_balance",
-                header: "Balans",
-                cell: ({ row }) => (
-                    <span className="tabular-nums font-medium">
-                        {formatMoney(Number(row.original.running_balance ?? 0))}{" "}
-                        so'm
-                    </span>
-                ),
             },
         ],
         [],

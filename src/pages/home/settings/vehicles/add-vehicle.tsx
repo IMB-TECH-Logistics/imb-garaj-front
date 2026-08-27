@@ -50,10 +50,13 @@ const AddVehicleSettingsModal = () => {
     const { data: owners } = useGet(SETTINGS_SELECTABLE_USERS)
 
     const form = useForm({
-        defaultValues: current || {},
+        defaultValues: current || { fuel: "methane" },
     })
 
-    const { handleSubmit, reset, control } = form
+    const { handleSubmit, reset, control, watch } = form
+    const fuel = watch("fuel")
+    const consumptionLabel =
+        fuel === "diesel" ? "Sarfi (litr/100km)" : "Sarfi (m³/100km)"
 
     const onSuccess = () => {
         toast.success(
@@ -178,7 +181,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormNumberInput
                     name="consumption"
-                    label="Sarfi (litr/100km)"
+                    label={consumptionLabel}
                     control={control}
                     decimalScale={0}
                 />
