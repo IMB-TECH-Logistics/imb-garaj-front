@@ -1,4 +1,9 @@
 import { Button } from "@/components/ui/button"
+import {
+    HangWatcher,
+    isReportableError,
+    isServerDownError,
+} from "@/lib/query-health"
 import { useQueryClient } from "@tanstack/react-query"
 import { AlertTriangle, RefreshCw, X } from "lucide-react"
 import * as React from "react"
@@ -23,38 +28,24 @@ import * as React from "react"
  *
  * 401/403 hisobga olinmaydi — bu "server o'chgan" emas, "ruxsat yo'q";
  * chiqish/sessiya tugash oqimida bekorga chiqmasligi uchun.
- */
-
-const statusOf = (error: unknown): number | undefined => {
-    const s = (error as { response?: { status?: number } })?.response?.status
-    return typeof s === "number" ? s : undefined
-}
-
-/** Server o'chgan / javob bermayapti (tarmoq uzilishi yoki 5xx). */
-const isServerDownError = (error: unknown) => {
-    const status = statusOf(error)
-    if (status === undefined) return true // javob umuman kelmadi
-    return status >= 500
-}
-
-/**
- * Bu xato ILOVA DARAJASIDA ogohlantirishga arziydimi?
  *
- * Yo'q bo'lganlar:
- *   401/403 — "server o'chgan" emas, "ruxsat yo'q"; chiqish yoki sessiya
- *             tugash oqimida bekorga chiqmasin.
- *   404     — aniq bitta manzil topilmadi (masalan diapazondan tashqari
- *             sahifa). Buni jadvalning o'zi joyida tushuntiradi, tepadan
- *             yana takrorlash faqat shovqin bo'lardi.
+ * ── RAUND-4 QO'SHIMCHASI ──────────────────────────────────────────────────
+ * Yuqoridagi hisob FAQAT `status === "error"` bo'lgan so'rovlarni ko'rardi.
+ * Lekin serverning eng yomon o'chishi xato BERMAYDI: ulanish qabul qilinadi,
+ * javob esa hech qachon kelmaydi. So'rov `pending` holatida osilib qoladi,
+ * `isError` yonmaydi — ya'ni bu qatlam ham jim turardi va ekranda o'sha
+ * yolg'on nollar qolardi.
+ *
+ * Endi javobsiz osilgan so'rov ham (8 soniyadan keyin — `HANG_THRESHOLD_MS`)
+ * yiqilgan deb hisoblanadi.
  */
-const isReportable = (error: unknown) => {
-    const status = statusOf(error)
-    return status !== 401 && status !== 403 && status !== 404
-}
 
 type Snapshot = { failing: number; succeeded: number; down: number }
 
 const EMPTY: Snapshot = { failing: 0, succeeded: 0, down: 0 }
+
+/** Vaqt o'tishi kesh hodisasi emas — osilgan so'rovni davriy tekshirish kerak. */
+const POLL_MS = 1000
 
 export default function ServerStatusBanner() {
     const queryClient = useQueryClient()
@@ -65,23 +56,49 @@ export default function ServerStatusBanner() {
 
     React.useEffect(() => {
         const cache = queryClient.getQueryCache()
+        const watcher = new HangWatcher()
 
         const read = () => {
-            const active = cache
-                .getAll()
-                .filter((q) => q.getObserversCount() > 0)
+            const now = Date.now()
+            const active = cache.getAll().filter((q) => q.getObserversCount() > 0)
 
             const failing = active.filter(
                 (q) =>
-                    q.state.status === "error" && isReportable(q.state.error),
+                    q.state.status === "error" && isReportableError(q.state.error),
             )
-            const succeeded = active.filter((q) => q.state.status === "success")
             const down = failing.filter((q) => isServerDownError(q.state.error))
 
+            /** Javob bermay osilib qolganlar — ular ham "server o'chgan". */
+            const hanging = watcher.scan(active, now)
+
+            /**
+             * Nosozlik QACHON boshlangan.
+             *
+             * Bu vaqt kerak, chunki "muvaffaqiyatli so'rov bor" degan dalil
+             * o'z-o'zidan yetarli emas: `staleTime` 5 daqiqa, shuning uchun
+             * server o'chganidan keyin ham keshdagi eski so'rovlar `success`
+             * bo'lib turaveradi. Server TIRIK ekanining yagona dalili —
+             * nosozlik boshlangandan KEYIN kelgan javob.
+             */
+            const failureMoments = [
+                ...failing.map((q) => q.state.errorUpdatedAt),
+                ...hanging.map((q) => watcher.startedAt(q) ?? now),
+            ].filter((t): t is number => typeof t === "number" && t > 0)
+
+            const failureSince = failureMoments.length
+                ? Math.min(...failureMoments)
+                : now
+
+            const succeeded = active.filter(
+                (q) =>
+                    q.state.status === "success" &&
+                    q.state.dataUpdatedAt >= failureSince,
+            )
+
             const next: Snapshot = {
-                failing: failing.length,
+                failing: failing.length + hanging.length,
                 succeeded: succeeded.length,
-                down: down.length,
+                down: down.length + hanging.length,
             }
 
             setSnapshot((prev) =>
@@ -94,7 +111,12 @@ export default function ServerStatusBanner() {
         }
 
         read()
-        return cache.subscribe(read)
+        const unsubscribe = cache.subscribe(read)
+        const timer = setInterval(read, POLL_MS)
+        return () => {
+            unsubscribe()
+            clearInterval(timer)
+        }
     }, [queryClient])
 
     // Aloqa tiklanganda ogohlantirish o'zi yo'qoladi va "yopdim" holati
@@ -122,21 +144,20 @@ export default function ServerStatusBanner() {
      * "Server o'chgan" deb qachon hisoblanadi.
      *
      * Shart ataylab ikki qismli:
-     *   • kamida IKKI so'rov tarmoq/5xx sababli yiqilgan — bitta yiqilgan
-     *     ochiluvchi ro'yxat uchun butun ekranni yopish noto'g'ri bo'lardi;
-     *   • yiqilganlar soni muvaffaqiyatlilardan kam emas — ya'ni sahifa
-     *     ma'lumotining KO'P QISMI yo'q.
+     *   • kamida IKKI so'rov tarmoq/5xx sababli yiqilgan (yoki javobsiz
+     *     osilgan) — bitta yiqilgan ochiluvchi ro'yxat uchun butun ekranni
+     *     yopish noto'g'ri bo'lardi;
+     *   • nosozlik boshlangandan keyin BIRORTA ham so'rov muvaffaqiyatli
+     *     qaytmagan — ya'ni server haqiqatan javob bermayapti.
      *
-     * Ikkinchi shart aynan auditdagi holat uchun: `/kassa` da ilova
-     * qobig'ining `profile` so'rovi keshdan muvaffaqiyatli keladi, lekin
-     * sahifaning 4 ta pul so'rovi yiqiladi — kartalar esa "0 so'm" chizadi.
-     * "hech biri muvaffaqiyatli emas" deb tekshirilganda bu holat
-     * o'tkazib yuborilardi.
+     * Ikkinchi shart aynan auditdagi holat uchun: `/kassa` va `/ombor` da
+     * ilova qobig'ining so'rovlari (profil, ruxsatlar) keshdan `success`
+     * bo'lib turadi, sahifaning pul so'rovlari esa yiqiladi — kartalar
+     * "0 so'm" chizadi. Eski "yiqilganlar soni muvaffaqiyatlilardan kam emas"
+     * shartida bu holat o'tkazib yuborilardi.
      */
     const serverDown =
-        snapshot.down >= 2 &&
-        snapshot.down >= snapshot.succeeded &&
-        !overlayDismissed
+        snapshot.down >= 2 && snapshot.succeeded === 0 && !overlayDismissed
 
     if (serverDown) {
         return (

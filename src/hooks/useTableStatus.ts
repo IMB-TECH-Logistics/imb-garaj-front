@@ -1,3 +1,4 @@
+import { HangWatcher, hangError } from "@/lib/query-health"
 import { useQueryClient } from "@tanstack/react-query"
 import * as React from "react"
 
@@ -109,17 +110,36 @@ export const useFallbackQueryError = (enabled: boolean): unknown => {
             return
         }
         const cache = queryClient.getQueryCache()
+        const watcher = new HangWatcher()
+
         const read = () => {
-            const failed = cache
+            const active = cache
                 .getAll()
-                .find(
-                    (q) =>
-                        q.getObserversCount() > 0 && q.state.status === "error",
-                )
-            setFallbackError(failed?.state.error ?? null)
+                .filter((q) => q.getObserversCount() > 0)
+
+            const failed = active.find((q) => q.state.status === "error")
+            if (failed) {
+                setFallbackError(failed.state.error ?? null)
+                return
+            }
+
+            /*
+             * Xato yo'q — lekin so'rov javobsiz osilib qolgan bo'lishi mumkin
+             * (server ulanishni qabul qilib, javob bermay qo'ygan). Bu holat
+             * `status: "error"` bermaydi, shuning uchun yuqoridagi qidiruvga
+             * tushmaydi va jadval "Ma'lumot topilmadi" deb YOLG'ON aytardi.
+             */
+            const [hanging] = watcher.scan(active)
+            setFallbackError(hanging ? hangError(hanging.queryHash) : null)
         }
+
         read()
-        return cache.subscribe(read)
+        const unsubscribe = cache.subscribe(read)
+        const timer = setInterval(read, 1000)
+        return () => {
+            unsubscribe()
+            clearInterval(timer)
+        }
     }, [enabled, queryClient])
 
     return fallbackError

@@ -5,6 +5,9 @@ import { toast } from "sonner"
 import { useModal } from "./useModal"
 import axiosInstance from "@/services/axios-instance"
 
+/** Excel eksporti uchun uzaytirilgan kutish muddati (3 daqiqa). */
+const EXPORT_TIMEOUT_MS = 180_000
+
 export const useDownloadAsExcel = ({
     url,
     name,
@@ -27,6 +30,12 @@ export const useDownloadAsExcel = ({
         try {
             const response = await axiosInstance.get(url, {
                 responseType: "blob",
+                /*
+                 * Eksport katta jadvalda uzoq davom etishi mumkin, shuning
+                 * uchun umumiy 20 soniyalik chegara bu yerda uzaytiriladi —
+                 * aks holda tayyorlanayotgan hisobot yarim yo'lda uzilardi.
+                 */
+                timeout: EXPORT_TIMEOUT_MS,
                 params,
             })
             if (response.status === 200) {
@@ -55,6 +64,7 @@ export const useDownloadAsExcel = ({
         try {
             const response = await axiosInstance.get(passwordUrl, {
                 responseType: "blob",
+                timeout: EXPORT_TIMEOUT_MS,
                 params: {
                     ...params,
                     password,

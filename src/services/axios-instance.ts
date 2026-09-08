@@ -13,9 +13,34 @@ const getBaseURL = () => {
 
 export const baseURL = getBaseURL()
 
+/**
+ * So'rovning eng uzun kutish muddati.
+ *
+ * NEGA MAJBURIY: axios'da sukut bo'yicha timeout YO'Q (`0` — cheksiz). Server
+ * ulanishni qabul qilib, keyin javob bermay qo'ysa (o'chib qolgan, osilgan,
+ * tarmoq o'rtada uzilgan) so'rov CHEKSIZ osilib turadi — na natija, na xato.
+ * react-query esa uni abadiy `pending` deb ushlab turadi, `isError` hech qachon
+ * yonmaydi va sahifa `data ?? 0` yozgan joyda foydalanuvchiga **0** ko'rsatadi.
+ *
+ * Timeout shu zanjirni uzadi: kutish tugagach axios halol xato beradi va
+ * ilovaning butun xato qatlami (DataError, ServerStatusBanner) ishlab ketadi.
+ *
+ * 20 soniya — oddiy JSON ro'yxat uchun juda mo'l; undan uzoq cho'zilgan so'rov
+ * allaqachon nosozlik. Uzoqroq kerak bo'lgan joy (masalan Excel eksporti)
+ * o'z `timeout` ini config orqali beradi va bu qiymatni bekor qiladi.
+ */
+export const REQUEST_TIMEOUT_MS = 20_000
+
 const axiosInstance = axios.create({
     baseURL,
+    timeout: REQUEST_TIMEOUT_MS,
 })
+
+/** Kutish muddati tugagan (server javob bermagan) xatosimi? */
+export const isTimeoutError = (error: unknown) => {
+    const code = (error as { code?: string })?.code
+    return code === "ECONNABORTED" || code === "ETIMEDOUT"
+}
 
 /* ------------------------------------------------------------------ *
  *  Token saqlash
@@ -67,7 +92,7 @@ const redirectToLogin = () => {
  * shunda refresh'ning o'zi 401 bersa qayta refresh qilishga urinib cheksiz
  * halqaga tushib qolmaydi.
  */
-const refreshClient = axios.create({ baseURL })
+const refreshClient = axios.create({ baseURL, timeout: REQUEST_TIMEOUT_MS })
 
 /**
  * Bir vaqtda bir nechta so'rov 401 olsa, refresh FAQAT BIR MARTA yuboriladi;
