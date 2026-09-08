@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { OWNER_MAIN_STATISTIC, VEHICLES } from "@/constants/api-endpoints"
-import { formatMoney } from "@/lib/format-money"
+import { formatSom } from "@/lib/money-format"
+import { queryErrorHint, queryErrorMessage } from "@/lib/query-state"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -32,7 +33,12 @@ const FinanceStatisticMain = () => {
         ? { from: startOfMonth, to: endOfMonth } 
         : undefined;
 
-    const { data: statisticsData, isLoading } = useGet<OwnerStatistic[]>(
+    const {
+        data: statisticsData,
+        isLoading,
+        isError,
+        error,
+    } = useGet<OwnerStatistic[]>(
         OWNER_MAIN_STATISTIC,
         {
             params: {
@@ -98,6 +104,7 @@ const FinanceStatisticMain = () => {
 
     const emptyForRange =
         !isLoading &&
+        !isError &&
         (statisticsData?.length ?? 0) > 0 &&
         (statisticsData || []).every(
             (item) =>
@@ -149,9 +156,23 @@ const FinanceStatisticMain = () => {
                 </div>
             )}
 
+            {/* YANGI-04: so'rov yiqilganda (403 ham) kartalar "0 so'm" ko'rsatmasin —
+                nol daromad bilan "ma'lumot berilmadi" bir xil narsa emas. */}
+            {isError && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+                    <p className="font-medium text-amber-600 dark:text-amber-500">
+                        {queryErrorMessage(error)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        {queryErrorHint(error)}
+                    </p>
+                </div>
+            )}
+
             <DataTable
                 columns={columns}
                 loading={isLoading}
+                error={isError ? error : undefined}
                 data={statisticsData || []}
                 numeration
                 viewAll
@@ -188,7 +209,9 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalExpense)} so'm
+                                        {isError ?
+                                            queryErrorMessage(error)
+                                        :   `${formatSom(totals.totalExpense)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -207,7 +230,9 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalIncome)} so'm
+                                        {isError ?
+                                            queryErrorMessage(error)
+                                        :   `${formatSom(totals.totalIncome)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -234,7 +259,9 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalProfit)} so'm
+                                        {isError ?
+                                            queryErrorMessage(error)
+                                        :   `${formatSom(totals.totalProfit)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>

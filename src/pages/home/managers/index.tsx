@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { DataTable } from "@/components/ui/datatable"
 import { MANAGERS_VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -19,8 +20,9 @@ export default function Managers() {
             page_size: search.page_size,
             page: search.page,
             search: search.search,
-            // MT-10: global (server tomon) saralash uchun. Backend OrderingFilter
-            // qo'shgach ishlaydi — backend-kerak/F2.md ga qarang.
+            // MT-10: global (server tomon) saralash. Backend `OrderingFilter`
+            // bilan qo'llab-quvvatlaydi; sarlavhalar `SortableHeader` orqali
+            // shu parametrni yozadi (cols.tsx).
             ...(ordering ? { ordering } : {}),
         },
         options: { retry: retryExceptNotFound },
@@ -49,7 +51,18 @@ export default function Managers() {
         <>
             <DataTable
                 loading={isLoading}
+                error={query.error}
                 numeration
+                /**
+                 * MT-12: № katagi hech narsa qilmaydi, lekin sarlavhasi
+                 * `cursor-pointer` bilan bosiladigandek ko'rinardi
+                 * (datatable.tsx, boshqa agent zonasi) — ko'rsatkich shu yerdan
+                 * o'chiriladi. Kenglik ham 4+ xonali raqam uchun kengaytiriladi.
+                 */
+                wrapperClassName={cn(
+                    "[&_thead_th:first-child]:!w-16 [&_tbody_td:first-child]:!w-16",
+                    "[&_thead_th:first-child]:!cursor-default",
+                )}
                 data={data?.results}
                 columns={cols}
                 paginationProps={{

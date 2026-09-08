@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import { Controller, Control, FieldValues, Path } from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
@@ -40,7 +41,7 @@ export function FormSelect<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: `${displayFieldLabel(name, label)}ni kiriting` } : {}
                 }
                 render={({ field }) => (
                     <div className={label ? "pt-[2px]" : ""}>

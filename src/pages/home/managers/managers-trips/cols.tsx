@@ -6,6 +6,7 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { SortableHeader } from "../../sortable-header"
 import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
 export const STATUS_LABELS: any = {
     1: "Yukli",
@@ -49,38 +50,43 @@ export const useColumnsManagersTrips = (opts?: {
         () => [
             {
                 accessorKey: "start",
-                header: "Boshlanish vaqti",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="start" label="Boshlanish vaqti" />
+                ),
                 cell: ({ row }) => (
                     <div className="">{row.original.start || "-"}</div>
                 ),
             },
             {
                 accessorKey: "end",
-                header: "Tugallangan vaqti",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="end" label="Tugallangan vaqti" />
+                ),
                 cell: ({ row }) => (
                     <div className="">{row.original.end || "-"}</div>
                 ),
             },
             {
                 accessorKey: "driver_name",
-                header: "Haydovchi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="driver_name" label="Haydovchi" />
+                ),
                 cell: ({ row }) => <div>{row.original.driver_name || "-"}</div>,
             },
             {
                 accessorKey: "completed_order_count",
-                header: "Yakunlangan reyslar",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="completed_order_count" label="Yakunlangan reyslar" />
+                ),
                 // MT-21: backend bu maydonni hali qaytarmaydi (backend-kerak/F2.md).
                 // Maydon kelmasa "—" ko'rsatiladi — ilgari `as any` bilan soxta 0 chiqardi.
                 cell: ({ row }) => <div>{countOrDash(row.original.completed_order_count)}</div>,
             },
             {
                 accessorKey: "pending_order_count",
-                header: "Kutilayotgan reyslar",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="pending_order_count" label="Kutilayotgan reyslar" />
+                ),
                 cell: ({ row }) => <div>{countOrDash(row.original.pending_order_count)}</div>,
             },
             // {
@@ -95,16 +101,18 @@ export const useColumnsManagersTrips = (opts?: {
 
             {
                 accessorKey: "start_mileage",
-                header: "Boshlash probegi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="start_mileage" label="Boshlash probegi" />
+                ),
                 cell: ({ row }) => {
                     return <div>{formatMoney(row.original.start_mileage)}</div>
                 },
             },
             {
                 accessorKey: "end_mileage",
-                header: "Tugash probegi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="end_mileage" label="Tugash probegi" />
+                ),
                 cell: ({ row }) => {
                     return <div>{formatMoney(row.original.end_mileage)}</div>
                 },
@@ -112,7 +120,6 @@ export const useColumnsManagersTrips = (opts?: {
             {
                 accessorKey: "start_fuel",
                 header: "Boshlang'ich yoqilg'i",
-                enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.start_fuel ?? undefined)}</div>
                 ),
@@ -120,7 +127,6 @@ export const useColumnsManagersTrips = (opts?: {
             {
                 accessorKey: "end_fuel",
                 header: "Yakuniy yoqilg'i",
-                enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.end_fuel ?? undefined)}</div>
                 ),
@@ -128,7 +134,6 @@ export const useColumnsManagersTrips = (opts?: {
             {
                 id: "fuel_per_100km",
                 header: "100 km ga sarf (l)",
-                enableSorting: true,
                 accessorFn: (row) => {
                     const startFuel = Number(row.start_fuel ?? 0)
                     const endFuel = Number(row.end_fuel ?? 0)
@@ -150,16 +155,18 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "income_uzs",
-                header: "Tushum (uzs)",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="income_uzs" label="Tushum (uzs)" />
+                ),
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.income_uzs)}</div>
                 ),
             },
             {
                 accessorKey: "income_usd",
-                header: "Tushum (usd)",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="income_usd" label="Tushum (usd)" />
+                ),
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.income_usd)}</div>
                 ),
@@ -167,7 +174,6 @@ export const useColumnsManagersTrips = (opts?: {
             {
                 accessorKey: "cash_flow_sum",
                 header: "Xarajat",
-                enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.cash_flow_sum)}</div>
                 ),

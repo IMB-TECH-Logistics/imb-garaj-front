@@ -10,9 +10,10 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { handleFormError } from "@/lib/show-form-errors"
+import { fromUzPhone, isValidUzPhone, toUzPhone } from "@/lib/phone"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { showSettingsApiError } from "../settings-api-errors"
 
 /** Midnight today — the earliest date a driving licence may still be valid. */
 const startOfToday = () => {
@@ -42,6 +43,17 @@ const AddDriverModal = () => {
     const form = useForm<DriversType>({
         defaultValues: {
             ...currentDriver,
+            // Server telefonni `+998901112233` ko'rinishida beradi, ekrandagi
+            // `PatternFormat` esa faqat 9 ta milliy raqamni kutadi. Prefiks
+            // olib tashlanmasa tahrirlashda maydon noto'g'ri to'lardi.
+            ...(currentDriver?.driver ?
+                {
+                    driver: {
+                        ...currentDriver.driver,
+                        phone: fromUzPhone(currentDriver.driver.phone),
+                    },
+                }
+            :   {}),
             password: "",
         },
     })
@@ -80,30 +92,47 @@ const AddDriverModal = () => {
             return
         }
 
-        const phoneValue = values.driver.phone || ""
-        const digitsOnly = phoneValue.replace(/\D/g, "")
+        const phoneValue = values.driver?.phone ?? ""
 
-        if (digitsOnly.length !== 9) {
+        if (!isValidUzPhone(phoneValue)) {
             form.setError("driver.phone", {
                 type: "manual",
-                message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+                message: "Telefon raqamni to'liq kiriting: +998 XX XXX XX XX",
             })
             toast.error("Telefon raqam to'liq emas")
             return
         }
 
-        if (currentDriver?.id) {
-            const { password, ...restValues } = values
+        /**
+         * Backend `+998XXXXXXXXX` ko'rinishini talab qiladi
+         * (`apps/users/api/v1/driver/serializers.py`), ekrandagi
+         * `PatternFormat` esa `+998` ni FORMAT sifatida chizib, qiymat
+         * sifatida faqat 9 ta raqamni saqlaydi. Prefiks shu yerda
+         * qo'shilmasa har bir saqlash 400 bilan yiqiladi (YANGI-01).
+         */
+        const normalized: DriversType = {
+            ...values,
+            driver: {
+                ...values.driver,
+                phone: toUzPhone(phoneValue) as string,
+            },
+        }
 
-            const payload = password ? values : restValues
+        // Server maydon xatosini qaytarganda (masalan "Bu login band")
+        // u aynan o'sha maydon ostida ko'rinsin — ilgari forma faqat
+        // umumiy "Xatolik yuz berdi" toastini chiqarardi.
+        const onError = (error: unknown) => handleFormError(error, form)
+
+        if (currentDriver?.id) {
+            const { password, ...restValues } = normalized
+
+            const payload = password ? normalized : restValues
 
             updateMutate(`${SETTINGS_DRIVERS}/${currentDriver.id}`, payload, {
-                onError: showSettingsApiError,
+                onError,
             })
         } else {
-            postMutate(SETTINGS_DRIVERS, values, {
-                onError: showSettingsApiError,
-            })
+            postMutate(SETTINGS_DRIVERS, normalized, { onError })
         }
     }
     return (

@@ -4,6 +4,7 @@ import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { CASHFLOW_STATISTICS, TRIPS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -15,6 +16,9 @@ import { formatMoney } from "@/lib/format-money"
 
 const ShiftStatisticMain = () => {
     const search = useSearch({ strict: false })
+    // 2-raund (RBAC): backend `trips/*` ni `manager_flights` kodlari bilan himoyalaydi.
+    // Ilgari "Qo'shish" tugmasi hammaga ko'rinar, bosilganda 403 chiqardi.
+    const hasControl = useHasAction("manager_flights_control")
     const navigate = useNavigate()
     const { getData, setData, clearKey } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("create")
@@ -128,14 +132,16 @@ const ShiftStatisticMain = () => {
                     searchKey="driver_name"
                 />
 
-                <Button
-                    className="flex items-center gap-2"
-                    onClick={handleCreate}
-                    disabled={isError}
-                >
-                    <CirclePlus size={18} />
-                    Qo'shish
-                </Button>
+                {hasControl && (
+                    <Button
+                        className="flex items-center gap-2"
+                        onClick={handleCreate}
+                        disabled={isError}
+                    >
+                        <CirclePlus size={18} />
+                        Qo'shish
+                    </Button>
+                )}
             </div>
 
             <DataTable
@@ -144,8 +150,8 @@ const ShiftStatisticMain = () => {
                 columns={columns}
                 data={data?.results}
                 numeration
-                onEdit={({ original }) => handleEdit(original)}
-                onDelete={handleDelete}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                onDelete={hasControl ? handleDelete : undefined}
                 onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center gap-3 mb-3">

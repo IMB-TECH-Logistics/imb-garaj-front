@@ -9,30 +9,17 @@ import { ParamCombobox } from "@/components/as-params/combobox"
 import { CHECKOUT_MAIN, DRIVERS_BALANCE, TRANSACTIONS } from "@/constants/api-endpoints"
 import Modal from "@/components/custom/modal"
 import CheckoutAdjustModal from "./adjust-modal"
+import StornoModal, { STORNO_MODAL_KEY } from "./storno-modal"
+import { useTransactionCols, type Transaction } from "./transaction-cols"
 import { useGet } from "@/hooks/useGet"
-import { useHasAction } from "@/constants/useUser"
+import { useHasAction, useUser } from "@/constants/useUser"
+import PermissionNotice from "../permission-notice"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
-import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useModal } from "@/hooks/useModal"
-import { Plus, X } from "lucide-react"
-import { useMemo } from "react"
-
-type Transaction = {
-    id: number
-    amount: string
-    comment: string | null
-    executor_name: string
-    created: string
-    type: number
-    currency: number
-    currency_course: string | null
-    through: string | null
-    driver_name: string | null
-    vehicle_plate: string | null
-    source: string | null
-}
+import { Plus, Undo2, X } from "lucide-react"
+import { useMemo, useState } from "react"
 
 type DriverRow = {
     id?: number
@@ -40,84 +27,14 @@ type DriverRow = {
     balance: string
 }
 
-const useTransactionCols = () => {
-    return useMemo<ColumnDef<Transaction>[]>(
-        () => [
-            {
-                header: "Summa",
-                accessorKey: "amount",
-                cell: ({ row }) => (
-                    <span>
-                        {formatMoney(Number(row.original.amount))}
-                        {row.original.currency === 2 ? " USD" : ""}
-                    </span>
-                ),
-            },
-            {
-                header: "Avtomobil",
-                accessorKey: "vehicle_plate",
-                cell: ({ row }) => row.original.vehicle_plate || "—",
-            },
-            {
-                header: "Haydovchi",
-                accessorKey: "driver_name",
-                cell: ({ row }) => row.original.driver_name || "—",
-            },
-            {
-                header: "Manba",
-                accessorKey: "source",
-                cell: ({ row }) => row.original.source || "—",
-            },
-            {
-                header: "Ma'sul",
-                accessorKey: "executor_name",
-            },
-            {
-                header: "Sana",
-                accessorKey: "created",
-                cell: ({ row }) => {
-                    const d = new Date(row.original.created)
-                    if (isNaN(d.getTime())) return "-"
-                    return d.toLocaleString("uz-UZ", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
-                },
-            },
-            {
-                header: "Izoh",
-                accessorKey: "comment",
-            },
-            {
-                header: "Turi",
-                accessorKey: "type",
-                cell: ({ row }) => (
-                    <Badge
-                        variant={
-                            row.original.type === -1
-                                ? "destructive"
-                                : "default"
-                        }
-                    >
-                        {row.original.type === -1 ? "Chiqim" : "Tushum"}
-                    </Badge>
-                ),
-            },
-        ],
-        [],
-    )
-}
-
-
-const Kassa = () => {
+const KassaInner = () => {
     const hasControl = useHasAction("manager_cashflow_control")
     const transactionCols = useTransactionCols()
     const navigate = useNavigate()
     const { openModal: openTopUp } = useModal("checkout-top-up")
     const { openModal: openExpense } = useModal("checkout-expense")
+    const { openModal: openStorno } = useModal(STORNO_MODAL_KEY)
+    const [stornoRow, setStornoRow] = useState<Transaction | null>(null)
     const search = useSearch({ strict: false }) as any
     const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
     const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
@@ -141,11 +58,15 @@ const Kassa = () => {
         search: search.tx_search,
         type: typeFilter === "all" ? undefined : Number(typeFilter),
         currency: currencyFilter === "all" ? undefined : Number(currencyFilter),
+        // KT-13: saralash server tomonda (backend `ordering_fields`:
+        // id, amount, created, type, currency, through, status, executor_name).
+        ordering: search.ordering,
     }
-    const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
-        TRANSACTIONS,
-        { params: filterParams },
-    )
+    const {
+        data: transactionsData,
+        isLoading: transactionsLoading,
+        error: transactionsError,
+    } = useGet<ListResponse<Transaction>>(TRANSACTIONS, { params: filterParams })
     const drivers = driversData ?? []
     const selectedDriver = useMemo(
         () =>
@@ -303,9 +224,52 @@ const Kassa = () => {
                 <DataTable
                     numeration
                     loading={transactionsLoading}
+                    error={transactionsError}
+                    /**
+                     * KT-24: jadvalda birorta amal tugmasi yo'q edi — xato
+                     * yozuvni tuzatib bo'lmasdi. O'chirish emas, STORNO
+                     * (teskari yozuv) qo'shiladi. Faqat kassaning o'z
+                     * yozuvi (`through === "checkout"`) so'ndiriladi: reys
+                     * yoki buyurtmaga bog'langan yozuv o'z bo'limidan
+                     * o'chiriladi (backend ham shuni talab qiladi).
+                     */
+                    rowAction={(tx) =>
+                        hasControl &&
+                        tx.through === "checkout" &&
+                        !tx.is_reversed &&
+                        !tx.reversal_of ? (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                title="So'ndirish (storno)"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setStornoRow(tx)
+                                    openStorno()
+                                }}
+                            >
+                                <Undo2 size={16} />
+                            </Button>
+                        ) : null
+                    }
                     columns={transactionCols}
                     data={transactionsData?.results}
-                    wrapperClassName="md:h-full flex flex-col"
+                    /**
+                     * YANGI-03 (regressiya): qator raqami 4 xonali bo'lganda
+                     * (69-sahifada 1701) № va Summa ustunlari bir-biriga tegib
+                     * ketardi — "17011 265 000". Sabab: `datatable.tsx` № ustuniga
+                     * qat'iy `w-8` (32px) beradi va jadval `table-layout: fixed`.
+                     * O'sha fayl boshqa agent zonasida, shuning uchun kenglik shu
+                     * yerdan kengaytiriladi. Bir vaqtning o'zida № sarlavhasidagi
+                     * yolg'on `cursor-pointer` ham olib tashlanadi (MT-12) —
+                     * u hech qachon saralamagan.
+                     */
+                    wrapperClassName={cn(
+                        "md:h-full flex flex-col",
+                        "[&_thead_th:first-child]:!w-16 [&_tbody_td:first-child]:!w-16",
+                        "[&_thead_th:first-child]:!cursor-default",
+                    )}
                     tableWrapperClassName="flex-1 min-h-0 overflow-auto"
                     paginationProps={{
                         totalPages: transactionsData?.total_pages,
@@ -422,8 +386,40 @@ const Kassa = () => {
                     kind="expense"
                 />
             </Modal>
+
+            <StornoModal row={stornoRow} />
         </div>
     )
+}
+
+/**
+ * Ruxsat to'sig'i (2-raund, RBAC yangi Low-4).
+ *
+ * Ilgari ruxsati yo'q rol `/kassa` ni URL orqali ochganda backend hamma
+ * so'rovga 403 qaytarar, sahifa esa "Asosiy Balans 0 so'm" va "Haydovchilar
+ * balansi 0 so'm" deb chizardi. NOL — ma'lumot, ya'ni yolg'on javob:
+ * foydalanuvchi kassada pul yo'q deb tushunadi. Endi holat ochiq aytiladi.
+ */
+const Kassa = () => {
+    const { data: profile, isLoading } = useUser()
+    const hasView = useHasAction([
+        "manager_cashflow_view",
+        "accounting_view",
+        "finance_view",
+    ])
+
+    if (isLoading || !profile) return null
+
+    if (!hasView) {
+        return (
+            <PermissionNotice
+                title="Kassani ko'rishga ruxsatingiz yo'q"
+                hint="Bu bo'lim pul reyestri va balanslarni ko'rsatadi. Kerak bo'lsa administratordan «Kassa — ko'rish» ruxsatini so'rang."
+            />
+        )
+    }
+
+    return <KassaInner />
 }
 
 export default Kassa

@@ -75,6 +75,27 @@ export default function CreateManagerTrips() {
     const startDate = watch("start")
     const endDate = watch("end")
 
+    /**
+     * YANGI-01 (2-raund): boshlash probegi oldingi reysning TUGASH probegidan
+     * kichik bo'lmasin. Ilgari faqat `min: 0` bor edi — shuning uchun oxirgi
+     * reys 187 305 da tugagan mashinaga 5 000 kiritib saqlash mumkin edi
+     * (yorliqda oldingi qiymat ko'rinib turgani holda). Teskari yo'nalish
+     * (tugash < boshlanish) allaqachon bloklangan edi, bu esa uning juftligi.
+     * Tahrirlashda `startData` so'ralmaydi, shuning uchun faqat yangi reysga.
+     */
+    const previousEndMileage =
+        !isEdit && startData?.end_mileage != null ?
+            Number(startData.end_mileage)
+        :   null
+
+    const startMileageError =
+        previousEndMileage != null &&
+        startMileage !== "" &&
+        startMileage != null &&
+        Number(startMileage) < previousEndMileage ?
+            `Boshlash probegi oldingi reysning tugash probegidan (${previousEndMileage}) kam bo'lishi mumkin emas`
+        :   ""
+
     // MT-25 / qabul mezoni 5: mantiqsiz sana oralig'i (tugash < boshlanish).
     const dateRangeError =
         startDate && endDate && String(endDate) < String(startDate) ?
@@ -112,6 +133,10 @@ export default function CreateManagerTrips() {
         // tekshiriladi va sabab aniq matn bilan aytiladi.
         if (dateRangeError) {
             toast.error(dateRangeError)
+            return
+        }
+        if (startMileageError) {
+            toast.error(startMileageError)
             return
         }
 
@@ -189,12 +214,23 @@ export default function CreateManagerTrips() {
                     // MT-25: probeg (odometr) manfiy bo'lolmaydi.
                     allowNegative={false}
                     registerOptions={{
-                        min: {
-                            value: 0,
-                            message: "Probeg manfiy bo'lishi mumkin emas",
-                        },
+                        min:
+                            previousEndMileage != null ?
+                                {
+                                    value: previousEndMileage,
+                                    message: `Boshlash probegi oldingi reysning tugash probegidan (${previousEndMileage}) kam bo'lishi mumkin emas`,
+                                }
+                            :   {
+                                    value: 0,
+                                    message: "Probeg manfiy bo'lishi mumkin emas",
+                                },
                     }}
                 />
+                {startMileageError && (
+                    <p className="text-[12px] text-red-600 -mt-2">
+                        {startMileageError}
+                    </p>
+                )}
 
                 {startImage ?
                     <div className="relative w-24 h-24">

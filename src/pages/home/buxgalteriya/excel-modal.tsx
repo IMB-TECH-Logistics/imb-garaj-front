@@ -78,9 +78,11 @@ const BuxgalteriyaExcelModal = () => {
     }
 
     return (
+        // YANGI-10: `description` → DialogContent'da `aria-describedby`
         <Modal
             modalKey={EXCEL_MODAL_KEY}
             title="Excel yuklab olish"
+            description="Filtrlarni tanlab, reyslar ro'yxatini Excel faylga yuklab oling"
             size="max-w-2xl"
         >
             <div className="space-y-3 pt-2">

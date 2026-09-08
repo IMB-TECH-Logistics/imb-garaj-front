@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import { cn } from "@/lib/utils"
 import {
     FieldValues,
@@ -47,7 +48,7 @@ export function FormInput<IForm extends FieldValues>({
     const error = getNestedValue(errors, name)
 
     const reg = register(name, {
-        required: required ? `${label}ni kiriting` : false,
+        required: required ? `${displayFieldLabel(name, label)}ni kiriting` : false,
         ...(uppercase && {
             setValueAs: (value: string) => String(value)?.toUpperCase(),
         }),

@@ -1,3 +1,4 @@
+import { handleFormError } from "@/lib/show-form-errors"
 import { useDelete } from "@/hooks/useDelete"
 import { useModal } from "@/hooks/useModal"
 import { useQueryClient } from "@tanstack/react-query"
@@ -63,6 +64,19 @@ export default function DeleteModal({
             if (url) {
                 navigate({ to: url })
             }
+        },
+        /**
+         * S3-40: muvaffaqiyatsizlikdan keyin ham oyna YOPILADI.
+         *
+         * Ilgari o'chirish rad etilganda (masalan yuk turi ishlatilayotgani
+         * uchun) tasdiq oynasi ochiqligicha qolardi va sababni tushuntirgan
+         * toastni to'sib turardi — foydalanuvchi esa xuddi shu tugmani
+         * qayta-qayta bosardi, natija esa har safar bir xil bo'lardi.
+         * Sabab toastda aytilgan, shuning uchun oyna joyni bo'shatadi.
+         */
+        onError: (error) => {
+            handleFormError(error)
+            closeModal()
         },
     })
 

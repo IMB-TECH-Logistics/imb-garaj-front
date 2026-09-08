@@ -2,6 +2,7 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { TRIPS_ORDERS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -11,10 +12,12 @@ import AddTripOrders from "./create"
 import { DataTable } from "@/components/ui/datatable"
 import { useTripOrdersCols } from "./new-cols"
 import AddExpenses from "./create/expense"
-import AddCashflow from "./cashfow/add-cashflow"
+import OrderExpenses from "./cashfow/order-expenses"
 
 const TripOrderMain = () => {
     const params = useParams({ strict: false })
+    // 2-raund (RBAC): `trips/orders/*` ham `manager_flights` kodlari bilan himoyalangan.
+    const hasControl = useHasAction("manager_flights_control")
     const search = useSearch({ strict: false })
     const page = Number(search.page ?? 1)
     const { getData, setData, clearKey } = useGlobalStore()
@@ -54,20 +57,27 @@ const TripOrderMain = () => {
         openDeleteModal()
     }
 
-    // const handleRowClick = (order: TripOrdersRow) => {
-    //     const childId = order.id
-    //     const parentId = params.parentId
+    /**
+     * F5-06: `/trip/$parentId/$childId` sahifasi ishlaydi, lekin ilova ichidan
+     * unga borish yo'li yo'q edi — navigatsiya izohga olingan bo'lib, sahifaga
+     * faqat qo'lda URL yozib kirish mumkin edi. Qayta yoqildi.
+     * (Amal tugmalari `stopPropagation` qiladi, shuning uchun ko'z/tahrirlash
+     * bosilganda qo'shimcha o'tish sodir bo'lmaydi.)
+     */
+    const handleRowClick = (order: TripOrdersRow) => {
+        const childId = order.id
+        const parentId = params.parentId
 
-    //     if (!childId || !parentId) return
+        if (!childId || !parentId) return
 
-    //     navigate({
-    //         to: "/trip/$parentId/$childId",
-    //         params: {
-    //             parentId: parentId.toString(),
-    //             childId: childId.toString(),
-    //         },
-    //     })
-    // }
+        navigate({
+            to: "/trip/$parentId/$childId",
+            params: {
+                parentId: parentId.toString(),
+                childId: childId.toString(),
+            },
+        })
+    }
 
     const handleAdd = (order: TripOrdersRow) => {
         setData(TRIPS_ORDERS, order)
@@ -93,12 +103,14 @@ const TripOrderMain = () => {
                     </Button>
                     <h1 className="font-bold">Reyslar ro‘yxati</h1>
                 </div>
-                <div className="flex justify-end">
-                    <Button onClick={handleCreate} disabled={isError}>
-                        <CirclePlus size={18} />
-                        Qo'shish
-                    </Button>
-                </div>
+                {hasControl && (
+                    <div className="flex justify-end">
+                        <Button onClick={handleCreate} disabled={isError}>
+                            <CirclePlus size={18} />
+                            Qo'shish
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="bg-card rounded-md p-3">
@@ -108,11 +120,12 @@ const TripOrderMain = () => {
                     columns={columns}
                     data={data?.results}
                     numeration
-                    onEdit={({ original }) => handleEdit(original)}
-                    onDelete={({ original }) => handleDelete(original)}
+                    onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                    onDelete={hasControl ? ({ original }) => handleDelete(original) : undefined}
                     paginationProps={{
                         totalPages: 1,
                     }}
+                    onRowClick={handleRowClick}
                     onView={({ original }) => handleAdd(original)}
                 />
             </div>
@@ -127,8 +140,13 @@ const TripOrderMain = () => {
             </Modal>
 
             <DeleteModal path={TRIPS_ORDERS} id={currentTripsOrder?.id} />
-            <Modal modalKey="add-expenses">
-                <AddCashflow/> </Modal>
+            <Modal
+                modalKey="add-expenses"
+                title="Buyurtma xarajatlari"
+                size="max-w-4xl"
+            >
+                <OrderExpenses orderId={currentTripsOrder?.id} />
+            </Modal>
         </div>
     )
 }

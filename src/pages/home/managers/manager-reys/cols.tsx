@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ImageIcon } from "lucide-react"
 import { useMemo } from "react"
+import { SortableHeader } from "../../sortable-header"
 import { STATUS_TRIP } from "../managers-trips/cols"
 
 const HOLAT_LABELS: Record<number, string> = {
@@ -23,31 +24,34 @@ export const useColumnsManagersOrders = (opts?: {
         () => [
             {
                 accessorKey: "loading_name",
-                header: "Yuklash joyi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="loading_name" label="Yuklash joyi" />
+                ),
             },
             {
                 accessorKey: "unloading_name",
-                header: "Tushirish joyi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="unloading_name" label="Tushirish joyi" />
+                ),
                 cell: ({ row }) => (
                     <div className="">{row.original.unloading_name || "-"}</div>
                 ),
             },
             {
                 accessorKey: "cargo_type_name",
-                header: "Yuk turi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="cargo_type_name" label="Yuk turi" />
+                ),
             },
             {
                 accessorKey: "date",
-                header: "Yaratilagan sana",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="date" label="Yaratilagan sana" />
+                ),
             },
             {
                 accessorKey: "type",
                 header: "Holati",
-                enableSorting: true,
                 cell: ({ row }) => {
                     const type = row.original?.type
                     const colorClass = HOLAT_COLORS[type] || "bg-gray-500/10 text-gray-500 border-gray-200"
@@ -60,8 +64,9 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "payment_amount_uzs",
-                header: "Tushum (uzs / usd)",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="payment_amount_uzs" label="Tushum (uzs / usd)" />
+                ),
                 cell: ({ row }) => {
                     const moneyUzs = row.original?.payment_amount_uzs
                     const moneyUsd = row.original?.payment_amount_usd
@@ -149,8 +154,9 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "status",
-                header: "Status",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="status" label="Status" />
+                ),
                 cell: ({ row }) => {
                     const status = row.original?.status
                     return <div>{STATUS_TRIP[status] || "-"}</div>

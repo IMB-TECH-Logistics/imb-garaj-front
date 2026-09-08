@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { SortableHeader } from "../sortable-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowRight } from "lucide-react"
 import { useMemo } from "react"
@@ -20,32 +21,36 @@ export const useColumnsManagersVehicles = () => {
         () => [
             {
                 accessorKey: "truck_number",
-                header: "Avto raqami",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="truck_number" label="Avto raqami" />
+                ),
                 cell: ({ row }) => (
                     <div>{row.original.truck_number || "-"}</div>
                 ),
             },
             {
                 accessorKey: "type",
-                header: "Transport turi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="type" label="Transport turi" />
+                ),
                 cell: ({ row }) => (
                     <div>{row.original.type || "-"}</div>
                 ),
             },
             {
                 accessorKey: "driver_name",
-                header: "Haydovchi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="driver_name" label="Haydovchi" />
+                ),
                 cell: ({ row }) => (
                     <div>{row.original.driver_name || "-"}</div>
                 ),
             },
             {
                 accessorKey: "status",
-                header: "Avtomobil statusi",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="status" label="Avtomobil statusi" />
+                ),
                 cell: ({ row }) => {
                     const status = row.original?.status
                     const colorClass = STATUS_COLORS[status] || "bg-gray-500/10 text-gray-500 border-gray-200"
@@ -78,8 +83,12 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "pending_orders",
-                header: "Kutilayotgan reyslar",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader
+                        field="pending_orders"
+                        label="Kutilayotgan reyslar"
+                    />
+                ),
             },
         ],
         [],

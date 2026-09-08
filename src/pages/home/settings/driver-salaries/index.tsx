@@ -65,6 +65,10 @@ const FILTER_PARAM_PREFIX = "sf_"
 
 const DriverSalariesPage = () => {
     const hasControl = useHasAction("settings_driver_salaries_control")
+    // 2-raund YANGI-03: ilgari sahifa ruxsati YO'Q rolga ham "sahifa faqat ko'rish
+    // rejimida" deb yozardi — holbuki GET ham 403 qaytarardi va jadval bo'sh edi.
+    // Ko'rish ruxsati bor-yo'qligi endi alohida tekshiriladi.
+    const hasView = useHasAction("settings_driver_salaries_view")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
 
@@ -126,7 +130,7 @@ const DriverSalariesPage = () => {
         return out
     }, [filters])
 
-    const { data, isLoading } = useGet<ListResponse<Direction>>(
+    const { data, isLoading, error } = useGet<ListResponse<Direction>>(
         COMMON_DIRECTIONS,
         {
             params: {
@@ -292,6 +296,7 @@ const DriverSalariesPage = () => {
         <>
             <DataTable
                 loading={isLoading}
+                error={error}
                 columns={columns}
                 data={enriched}
                 selecteds_row={hasControl}
@@ -312,7 +317,7 @@ const DriverSalariesPage = () => {
                           * editable cells and no buttons, and never said why
                           * (UI audit S1-40). Say it out loud instead.
                           */}
-                        {!hasControl && (
+                        {!hasControl && hasView && (
                             <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
                                 <Info size={16} className="mt-0.5 shrink-0" />
                                 <span>

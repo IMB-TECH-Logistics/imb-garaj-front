@@ -3,6 +3,8 @@ import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_SUMMARY } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
+import { formatSom } from "@/lib/money-format"
+import { queryErrorHint, queryErrorMessage } from "@/lib/query-state"
 import CandlestickChart from "./candlestick-chart"
 import IncomeExpenseChart from "./income-expense-chart"
 import FlowChart from "./flow-chart"
@@ -169,8 +171,6 @@ function ChartPanel({
     )
 }
 
-const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
-
 function WalletIcon() {
     return (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -199,22 +199,59 @@ function ArrowDownIcon() {
     )
 }
 
-function StatCard({ label, value, icon, color, hint, sublabel }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string; sublabel?: string }) {
+function StatCard({
+    label,
+    value,
+    icon,
+    color,
+    hint,
+    sublabel,
+    isLoading,
+    isError,
+    error,
+}: {
+    label: string
+    value: number
+    icon: ReactNode
+    color: "blue" | "emerald" | "red"
+    hint?: string
+    sublabel?: string
+    isLoading?: boolean
+    isError?: boolean
+    error?: unknown
+}) {
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",
         red: "text-red-600 bg-red-500/10",
     }
     return (
-        <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3" title={hint}>
+        <div
+            className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3"
+            title={isError ? queryErrorHint(error) : hint}
+        >
             <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", colors[color])}>
                 {icon}
             </div>
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="text-sm font-semibold truncate">{fmt(value)} so'm</p>
-                {sublabel && (
+                {/* YANGI-04: so'rov yiqilganda (403 ham) "0 so'm" ko'rsatilmaydi —
+                    nol balans bilan "ma'lumot berilmadi" bir xil narsa emas. */}
+                {isError ?
+                    <p className="text-sm font-semibold truncate text-amber-600 dark:text-amber-500">
+                        {queryErrorMessage(error)}
+                    </p>
+                : isLoading ?
+                    <p className="text-sm font-semibold text-muted-foreground">…</p>
+                :   <p className="text-sm font-semibold truncate">{formatSom(value)} so'm</p>
+                }
+                {sublabel && !isError && (
                     <p className="text-[10px] text-muted-foreground/80 truncate">{sublabel}</p>
+                )}
+                {isError && (
+                    <p className="text-[10px] text-muted-foreground/80 truncate">
+                        Qiymat ko'rsatilmadi — nol degani emas
+                    </p>
                 )}
             </div>
         </div>
@@ -225,6 +262,11 @@ type FinanceSummary = {
     balance: number
     income_total: number
     expense_total: number
+    advance_total: number
+    income_total_gross: number
+    opening_balance: number
+    closing_balance: number
+    net_change: number
     profit: number
 }
 
@@ -232,9 +274,20 @@ export default function MoliyaPage() {
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const pageRef = useRef<HTMLDivElement>(null)
     const search: any = useSearch({ strict: false })
-    const { data: summary } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+    const {
+        data: summary,
+        isLoading: summaryLoading,
+        isError: summaryError,
+        error: summaryErrorObj,
+    } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
+    const summaryState = {
+        isLoading: summaryLoading,
+        isError: summaryError,
+        error: summaryErrorObj,
+    }
+    const advanceTotal = Number(summary?.advance_total ?? 0)
 
     // Prevent browser pinch-to-zoom on this page
     useEffect(() => {
@@ -269,22 +322,38 @@ export default function MoliyaPage() {
                     color="blue"
                     sublabel="Sana filtriga bog'liq emas"
                     hint="Kassaning bugungi umumiy qoldig'i. Tanlangan sana oralig'iga bog'liq emas — oraliq bo'yicha harakat uchun Tushum/Xarajat kartalariga va 'Balans dinamikasi' grafigiga qarang."
+                    {...summaryState}
                 />
+                {/* YANGI-03: yorliq va izoh backend hisobiga MOSLASHTIRILDI.
+                    ML-02 dan keyin reyestr ham NDS ayirilgan summani ko'rsatadi,
+                    shuning uchun "jadvalda NDS ayirilmagan" degan eski izoh
+                    olib tashlandi. */}
                 <StatCard
                     label="Tushum"
                     value={Number(summary?.income_total ?? 0)}
                     icon={<ArrowUpIcon />}
                     color="emerald"
                     sublabel="Tanlangan oraliq · NDS ayirilgan"
-                    hint="Tanlangan sana oralig'idagi kirimlar. Mijoz NDS foizi ayirilgan holda (Kirim-Chiqim tarixi jadvalida NDS ayirilmagan summa ko'rsatiladi)."
+                    hint={`Tanlangan sana oralig'idagi kirimlar — mijoz NDS foizi ayirilgan sof summa. Kirim-Chiqim tarixi jadvali ham aynan shu qoida bilan chiziladi. NDS ayirilmagan yalpi tushum: ${formatSom(Number(summary?.income_total_gross ?? 0))} so'm.`}
+                    {...summaryState}
                 />
+                {/* YANGI-03: ML-04 tuzatilganda backend `expense_total` ga AVANS
+                    qo'shildi (`summary.py`: chiqim va avans xarajat tomonida),
+                    lekin yorliq "avanssiz" deb qolgan edi — buxgalter avansni
+                    ikki marta hisoblashi mumkin. Endi yorliq ham, izoh ham
+                    avans ICHIDA ekanini aytadi va avans miqdori ochiq ko'rsatiladi. */}
                 <StatCard
                     label="Xarajat"
                     value={Number(summary?.expense_total ?? 0)}
                     icon={<ArrowDownIcon />}
                     color="red"
-                    sublabel="Tanlangan oraliq · avanssiz"
-                    hint="Tanlangan sana oralig'idagi xarajatlar. Avans (ADVANCE) turidagi pul harakatlari bu summaga kirmaydi, lekin jadvalda chiqim sifatida ko'rinadi."
+                    sublabel={
+                        advanceTotal ?
+                            `Tanlangan oraliq · avans bilan (${formatSom(advanceTotal)})`
+                        :   "Tanlangan oraliq · avans bilan"
+                    }
+                    hint={`Tanlangan sana oralig'idagi xarajatlar. Avans (ADVANCE) turidagi pul harakatlari SHU SUMMA ICHIDA — jadvalda ular alohida "Avans" turi bilan ko'rinadi. Shundan avans: ${formatSom(advanceTotal)} so'm, sof chiqim: ${formatSom(Number(summary?.expense_total ?? 0) - advanceTotal)} so'm.`}
+                    {...summaryState}
                 />
             </div>
 

@@ -3,12 +3,16 @@ import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_CATEGORIES, FINANCE_LEDGER } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
+import { formatSom } from "@/lib/money-format"
 import { useTheme } from "@/layouts/theme"
+
+/** Backend uch qiymat qaytaradi (ML-04): kirim / chiqim / avans. */
+type FlowType = "kirim" | "chiqim" | "avans"
 
 type Transaction = {
     date: string
     description: string
-    type: "kirim" | "chiqim"
+    type: FlowType
     amount: number
     balance: number
     note: string
@@ -18,7 +22,7 @@ type LedgerItem = {
     id: number
     date: string
     description: string
-    type: "kirim" | "chiqim"
+    type: FlowType
     amount: string | number
     balance: string | number
     note: string
@@ -39,14 +43,19 @@ type CategoryNode = {
 }
 
 const PAGE_SIZE = 50
-/** Filtrlash server tomonda qo'llab-quvvatlanmagani uchun (backend-kerak/F1.md: ML-08)
- *  filtr yoqilganda butun reyestr bir marta yuklanadi va mijoz tomonda sahifalanadi.
- *  Shunda filtr natijasi 1714 yozuvning HAMMASI ustidan hisoblanadi, kesilgan qism emas. */
-const ALL_ROWS_PAGE_SIZE = 100000
 /** Tavsifi bo'sh qatorlarni ham filtrlash mumkin bo'lishi uchun maxsus qiymat (ML-07). */
 const EMPTY_DESC = "__empty__"
 
-const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
+/** Qator turi → ekrandagi nishon (ML-04: avans endi "Chiqim" bo'lib yashirinmaydi). */
+const TYPE_BADGE: Record<FlowType, { label: string; className: string }> = {
+    kirim: { label: "Kirim", className: "text-emerald-500 bg-emerald-500/10" },
+    chiqim: { label: "Chiqim", className: "text-red-500 bg-red-500/10" },
+    avans: { label: "Avans", className: "text-amber-500 bg-amber-500/10" },
+}
+
+const fmt = formatSom
+/** Butun son sifatida ko'rsatiladigan hisoblagichlar (yozuv soni, sahifa). */
+const fmtCount = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
 const formatDate = (iso: string) => {
     const d = new Date(iso)
@@ -59,7 +68,7 @@ export default function TransactionLedger() {
     const { theme } = useTheme()
     const scheme = theme === "dark" ? "dark" : "light"
     const [descFilter, setDescFilter] = useState<string>("")
-    const [typeFilter, setTypeFilter] = useState<"" | "kirim" | "chiqim">("")
+    const [typeFilter, setTypeFilter] = useState<"" | FlowType>("")
     const [page, setPage] = useState(1)
     const search: any = useSearch({ strict: false })
 
@@ -72,14 +81,17 @@ export default function TransactionLedger() {
         setPage(1)
     }, [from_date, to_date, descFilter, typeFilter])
 
+    // ML-08: filtr endi SERVER tomonda (`description` / `type`). Ilgari butun
+    // reyestr (page_size=100000) yuklanib mijoz tomonda kesilardi — endi shart
+    // emas, va bu bilan avans qatorlari ham to'g'ri filtrlanadi.
     const { data, isLoading, isError } = useGet<LedgerResponse>(FINANCE_LEDGER, {
         params: {
             from_date,
             to_date,
-            // Filtr yoqilganda hamma qator kerak (mijoz tomonda filtrlanadi),
-            // aks holda oddiy server sahifalash ishlaydi.
-            page: filterActive ? 1 : page,
-            page_size: filterActive ? ALL_ROWS_PAGE_SIZE : PAGE_SIZE,
+            description: descFilter || undefined,
+            type: typeFilter || undefined,
+            page,
+            page_size: PAGE_SIZE,
         },
         // Sahifa almashganda oldingi javob saqlanib turadi. Busiz yangi sahifa
         // yuklanayotgan lahzada `total_pages` vaqtincha yo'qoladi va quyidagi
@@ -123,36 +135,20 @@ export default function TransactionLedger() {
         return [...names].sort((a, b) => a.localeCompare(b))
     }, [incomeCats, expenseCats, rows])
 
-    const hasEmptyDescription = useMemo(
-        () => rows.some((r) => !r.description),
-        [rows],
-    )
+    // "(Tavsifsiz)" tanlovi bir marta ko'ringach yo'qolib qolmasin: filtr
+    // qo'llangandan keyin sahifada faqat o'sha qatorlar bo'ladi.
+    const [sawEmptyDescription, setSawEmptyDescription] = useState(false)
+    useEffect(() => {
+        if (rows.some((r) => !r.description)) setSawEmptyDescription(true)
+    }, [rows])
+    const hasEmptyDescription =
+        sawEmptyDescription || descFilter === EMPTY_DESC
 
-    const filteredAll = useMemo(() => {
-        if (!filterActive) return rows
-        return rows.filter((tx) => {
-            if (descFilter === EMPTY_DESC) {
-                if (tx.description) return false
-            } else if (descFilter && tx.description !== descFilter) {
-                return false
-            }
-            if (typeFilter && tx.type !== typeFilter) return false
-            return true
-        })
-    }, [rows, descFilter, typeFilter, filterActive])
-
-    // Filtrlangan holatda sahifalash mijoz tomonda, aks holda serverdan keladi
-    const totalCount = filterActive ? filteredAll.length : (data?.count ?? 0)
-    const totalPages =
-        filterActive ?
-            Math.max(1, Math.ceil(filteredAll.length / PAGE_SIZE))
-        :   Math.max(1, data?.total_pages ?? 1)
-
-    const visible = useMemo(() => {
-        if (!filterActive) return filteredAll
-        const start = (page - 1) * PAGE_SIZE
-        return filteredAll.slice(start, start + PAGE_SIZE)
-    }, [filteredAll, filterActive, page])
+    // Sahifalash va jami — SERVERDAN. Ko'rinadigan qatorlardan qayta
+    // hisoblanmaydi (server bergan yig'indi ustun).
+    const totalCount = data?.count ?? 0
+    const totalPages = Math.max(1, data?.total_pages ?? 1)
+    const visible = rows
 
     const safePage = Math.min(page, totalPages)
     useEffect(() => {
@@ -172,7 +168,7 @@ export default function TransactionLedger() {
                 </h3>
                 <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                     {/* Jami yozuvlar soni — yuklangan qatorlar soni emas (ML-06) */}
-                    jami {fmt(totalCount)} ta
+                    jami {fmtCount(totalCount)} ta
                     {totalPages > 1 && (
                         <span className="opacity-70">
                             {" "}
@@ -180,9 +176,23 @@ export default function TransactionLedger() {
                         </span>
                     )}
                 </span>
+                {/* ML-09: filtrlangan ko'rinishda Qoldiq ustuni monoton emas —
+                    u butun oqim bo'yicha hisoblanadi va filtr faqat qaysi
+                    qatorlar ko'rinishini tanlaydi. Buni ochiq aytmasak ustun
+                    "buzuq" bo'lib ko'rinadi. */}
+                {filterActive && (
+                    <span
+                        className="text-[10px] text-amber-600 dark:text-amber-500 whitespace-nowrap"
+                        title="Qoldiq ustuni har doim BUTUN kassa oqimi bo'yicha yugurib boradi — filtrlanmagan qatorlar ham unga ta'sir qiladi. Shuning uchun filtr ostida qo'shni qatorlar orasidagi farq ko'rinayotgan miqdorga teng bo'lmasligi mumkin."
+                    >
+                        · Qoldiq — butun oqim bo'yicha
+                    </span>
+                )}
             </div>
-            <div className="flex-1 overflow-y-auto min-h-0">
-                <table className="w-full text-xs">
+            {/* Uzun izohli qatorlar ustunlarni siqib qo'ymasligi uchun jadval
+                o'z ichida gorizontal suriladi (panel yarim ekran kengligida). */}
+            <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0">
+                <table className="w-full min-w-[640px] text-xs">
                     <thead className="sticky top-0 bg-card z-10">
                         <tr className="border-b border-border">
                             <th className="text-left font-medium text-muted-foreground px-4 py-2">Sana</th>
@@ -218,12 +228,16 @@ export default function TransactionLedger() {
                                         "border shadow-sm",
                                         typeFilter === "kirim" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold",
                                         typeFilter === "chiqim" && "border-red-500/30 bg-red-500/10 text-red-500 font-semibold",
+                                        typeFilter === "avans" && "border-amber-500/30 bg-amber-500/10 text-amber-500 font-semibold",
                                         !typeFilter && "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
                                     )}
                                 >
                                     <option value="">Tur</option>
                                     <option value="kirim">Kirim</option>
                                     <option value="chiqim">Chiqim</option>
+                                    {/* ML-04: avans alohida tur — ilgari "Chiqim"
+                                        filtri ostida ham ko'rinmay yo'qolardi */}
+                                    <option value="avans">Avans</option>
                                 </select>
                             </th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor</th>
@@ -278,24 +292,45 @@ export default function TransactionLedger() {
                                     <span
                                         className={cn(
                                             "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded",
-                                            tx.type === "kirim"
-                                                ? "text-emerald-500 bg-emerald-500/10"
-                                                : "text-red-500 bg-red-500/10",
+                                            (TYPE_BADGE[tx.type] ?? TYPE_BADGE.chiqim).className,
                                         )}
                                     >
-                                        {tx.type === "kirim" ? "Kirim" : "Chiqim"}
+                                        {(TYPE_BADGE[tx.type] ?? TYPE_BADGE.chiqim).label}
                                     </span>
                                 </td>
                                 <td
                                     className={cn(
                                         "px-2 py-2.5 text-right font-semibold whitespace-nowrap",
-                                        tx.type === "kirim" ? "text-emerald-500" : "text-red-500",
+                                        tx.type === "kirim" ? "text-emerald-500"
+                                        : tx.type === "avans" ? "text-amber-500"
+                                        : "text-red-500",
+                                        // YANGI-07: 0.00 miqdorli qator qoldiqni umuman
+                                        // o'zgartirmaydi — u shovqin, shuning uchun so'niq.
+                                        !tx.amount && "opacity-50 font-normal",
                                     )}
+                                    title={
+                                        !tx.amount ?
+                                            "Miqdori 0 — bu yozuv qoldiqni o'zgartirmaydi"
+                                        :   undefined
+                                    }
                                 >
-                                    {tx.type === "kirim" ? "+" : "−"}{fmt(tx.amount)}
+                                    {/* YANGI-07: miqdori nol qatorda "−0" emas, oddiy "0" */}
+                                    {tx.amount ?
+                                        `${tx.type === "kirim" ? "+" : "−"}${fmt(tx.amount)}`
+                                    :   "0"}
                                 </td>
                                 <td className="px-2 py-2.5 text-right font-medium whitespace-nowrap">{fmt(tx.balance)}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{tx.note || "—"}</td>
+                                {/* Uzun izoh ustunni siqib, harflarni ustma-ust
+                                    tashlab yuborardi — endi kesiladi, to'lig'i
+                                    tooltipda. */}
+                                <td className="px-4 py-2.5 text-muted-foreground">
+                                    <div
+                                        className="max-w-[180px] truncate"
+                                        title={tx.note || undefined}
+                                    >
+                                        {tx.note || "—"}
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -306,8 +341,8 @@ export default function TransactionLedger() {
             {totalPages > 1 && (
                 <div className="shrink-0 flex items-center justify-between gap-2 border-t border-border px-4 py-2">
                     <span className="text-[10px] text-muted-foreground">
-                        {fmt((safePage - 1) * PAGE_SIZE + (visible.length ? 1 : 0))}–
-                        {fmt((safePage - 1) * PAGE_SIZE + visible.length)} / {fmt(totalCount)}
+                        {fmtCount((safePage - 1) * PAGE_SIZE + (visible.length ? 1 : 0))}–
+                        {fmtCount((safePage - 1) * PAGE_SIZE + visible.length)} / {fmtCount(totalCount)}
                     </span>
                     <div className="flex items-center gap-1">
                         <button

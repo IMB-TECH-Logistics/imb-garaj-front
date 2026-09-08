@@ -112,7 +112,22 @@ export const useStationCashFlowColumns = () =>
             {
                 accessorKey: "executor_name",
                 header: "Kim",
-                cell: ({ row }) => row.original.executor_name ?? "—",
+                /**
+                 * ZP-13 (2-raund): ustun 16/16 qatorda BO'SH ko'rinardi.
+                 * Sabab `null` emas edi — backend `executor_name` ni " "
+                 * (bitta probel) qilib qaytaradi, chunki operatsiyani kiritgan
+                 * foydalanuvchining (id=1) ismi/familiyasi bazada bo'sh.
+                 * `?? "—"` probelni ushlamaydi, shuning uchun katak bo'm-bo'sh
+                 * chiqardi va nuqson render xatosidek ko'rinardi.
+                 * Endi bo'sh nom kim ekanini id orqali aytadi.
+                 */
+                cell: ({ row }) => {
+                    const name = (row.original.executor_name ?? "").trim()
+                    if (name) return name
+                    return row.original.executor ?
+                        `Foydalanuvchi #${row.original.executor}`
+                    :   "—"
+                },
             },
             {
                 accessorKey: "amount",

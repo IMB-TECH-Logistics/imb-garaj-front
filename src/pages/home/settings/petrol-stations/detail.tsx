@@ -222,7 +222,7 @@ const PetrolStationDetail = () => {
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                 Hozirgi balans
                             </div>
-                            <div className="text-xl font-semibold tabular-nums truncate">
+                            <div className="text-xl font-semibold tabular-nums break-words leading-tight">
                                 {formatMoney(Number(stats?.balance ?? 0))} so'm
                             </div>
                         </div>
@@ -237,7 +237,7 @@ const PetrolStationDetail = () => {
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                 Kirim
                             </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-emerald-600">
+                            <div className="text-xl font-semibold tabular-nums break-words leading-tight text-emerald-600">
                                 +
                                 {formatMoney(Number(stats?.total_top_ups ?? 0))}{" "}
                                 so'm
@@ -257,7 +257,7 @@ const PetrolStationDetail = () => {
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                 Chiqim
                             </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-rose-600">
+                            <div className="text-xl font-semibold tabular-nums break-words leading-tight text-rose-600">
                                 −
                                 {formatMoney(
                                     Number(stats?.total_outcomes ?? 0),
@@ -279,7 +279,7 @@ const PetrolStationDetail = () => {
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                 Sarflangan litr
                             </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
+                            <div className="text-xl font-semibold tabular-nums break-words leading-tight text-amber-600">
                                 {formatMoney(Number(stats?.total_liters ?? 0))}{" "}
                                 litr
                             </div>
@@ -298,7 +298,7 @@ const PetrolStationDetail = () => {
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
                                 Sarflangan gaz
                             </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-sky-600">
+                            <div className="text-xl font-semibold tabular-nums break-words leading-tight text-sky-600">
                                 {formatMoney(Number(stats?.total_gas ?? 0))} m³
                             </div>
                             <div className="text-[11px] text-muted-foreground">

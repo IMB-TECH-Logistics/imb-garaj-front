@@ -133,6 +133,22 @@ export const useDirectionColumns = () =>
                 accessorKey: "current_price",
                 header: "Summa",
                 enableSorting: true,
+                /**
+                 * YANGI-04 (2-raund): "Summa" sarlavhasi bosilganda tartib
+                 * umuman o'zgarmasdi, holbuki qo'shni ustunlar ("Yuklash manzili")
+                 * ishlardi. Sabab: `current_price` — OBYEKT ({price, valid_from,...}),
+                 * tanstack esa uni standart taqqoslagich bilan solishtirib,
+                 * hamma qatorni "teng" deb topardi. Endi ichidagi `price`
+                 * raqam sifatida solishtiriladi.
+                 *
+                 * ⚠️ Saralash faqat JORIY SAHIFA bo'yicha — backend `routes/`
+                 * endpointida `OrderingFilter` yo'q (backend-kerak-FE3.md).
+                 */
+                sortingFn: (a, b) => {
+                    const av = Number(a.original.current_price?.price ?? 0) || 0
+                    const bv = Number(b.original.current_price?.price ?? 0) || 0
+                    return av === bv ? 0 : av < bv ? -1 : 1
+                },
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         <span>

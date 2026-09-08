@@ -12,7 +12,7 @@ import { useColumnsUsersTable } from "./users-cols"
 const UsersPage = () => {
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
-    const { data, isLoading } = useGet<ListResponse<UserType>>(SETTINGS_USERS, {
+    const { data, isLoading, error } = useGet<ListResponse<UserType>>(SETTINGS_USERS, {
         params: {
             search: search.first_name,
             page: search.page,
@@ -38,6 +38,7 @@ const UsersPage = () => {
             <DataTable
                 numeration
                 loading={isLoading}
+                error={error}
                 columns={columns}
                 data={data?.results}
                 onDelete={hasControl ? handleDelete : undefined}
@@ -48,10 +49,13 @@ const UsersPage = () => {
                     pageSizeParamName: "page_size",
                 }}
                 head={
+                    // 2-raund (RBAC): `storeKey` berilgan bo'lsa TableHeader
+                    // "Qo'shish" tugmasini `onAdd` siz ham chizadi — shu sababli
+                    // 0 ruxsatli rol tugmani ko'rib, bosgach 403 olardi.
                     <TableHeader
                         fileName="Foydalanuvchilar"
                         url="excel"
-                        storeKey={SETTINGS_USERS}
+                        storeKey={hasControl ? SETTINGS_USERS : undefined}
                         searchKey="first_name"
                         pageKey="page"
                         onAdd={hasControl ? () => navigate({ to: "/users/create" }) : undefined}

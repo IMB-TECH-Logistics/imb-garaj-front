@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterProvider, createRouter } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
+import ServerStatusBanner from "./components/custom/server-status-banner"
 import "./main.css"
 import { routeTree } from "./routeTree.gen"
 
@@ -76,6 +77,12 @@ if (!rootElement.innerHTML) {
     root.render(
         <QueryClientProvider client={queryClient}>
             <RouterProvider router={router} />
+            {/*
+              * Server bilan aloqa uzilganda sahifalar `data ?? 0` yozib
+              * yolg'on nol ko'rsatmasin (masalan /kassa da "Balans 0 so'm")
+              * — izoh `components/custom/server-status-banner.tsx` da.
+              */}
+            <ServerStatusBanner />
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>,
     )

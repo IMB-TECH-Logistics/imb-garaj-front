@@ -15,7 +15,8 @@ import BuxgalteriyaExcelModal, {
 } from "./excel-modal"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { formatMoney } from "@/lib/format-money"
+import { formatSom } from "@/lib/money-format"
+import { queryErrorHint, queryErrorMessage } from "@/lib/query-state"
 import { CalendarClock, Download } from "lucide-react"
 
 /** BX-12: jami summalar butun filtrlangan to'plam bo'yicha backendda hisoblanishi kerak
@@ -61,7 +62,7 @@ const BuxgalteriyaPage = () => {
         search: search?.search,
     })
 
-    const { data, isLoading } = useGet<
+    const { data, isLoading, isError, error } = useGet<
         ListResponse<ReysOrder> & { totals?: RunTotals }
     >(MANAGERS_RUNS, {
         params: {
@@ -87,6 +88,7 @@ const BuxgalteriyaPage = () => {
     // natijada modul "bo'sh" ko'rinadi va foydalanuvchi ma'lumot yo'q deb o'ylaydi.
     const emptyForRange =
         !isLoading &&
+        !isError &&
         (data?.count ?? 0) === 0 &&
         Boolean(search?.from_date || search?.to_date)
 
@@ -133,7 +135,20 @@ const BuxgalteriyaPage = () => {
                 </div>
             )}
 
-            {totals && (
+            {/* YANGI-04: so'rov yiqilsa kartalar "0 so'm" ko'rsatmasin —
+                nol summa bilan "ma'lumot berilmadi" bir xil narsa emas. */}
+            {isError && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+                    <p className="font-medium text-amber-600 dark:text-amber-500">
+                        {queryErrorMessage(error)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        {queryErrorHint(error)}
+                    </p>
+                </div>
+            )}
+
+            {totals && !isError && (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <TotalCard
                         label="Jami Summa S NDS"
@@ -150,6 +165,7 @@ const BuxgalteriyaPage = () => {
             <DataTable
                 columns={columns}
                 loading={isLoading}
+                error={isError ? error : undefined}
                 data={data?.results || []}
                 numeration
                 onEdit={handleEdit}
@@ -211,9 +227,14 @@ const BuxgalteriyaPage = () => {
                 }
             />
 
+            {/* YANGI-10: `description` berilishi DialogContent'ga
+                `aria-describedby` qo'shadi — ekran o'quvchi uchun ham, konsoldagi
+                takroriy "Missing Description for {DialogContent}" ogohlantirishi
+                uchun ham shu kerak edi. */}
             <Modal
                 modalKey="edit-reys"
                 title="Reys tahrirlash"
+                description="Tanlangan reysning summasi, foizi va naqd qiymatini o'zgartirish"
                 size="max-w-4xl"
             >
                 <EditReysModal />
@@ -234,7 +255,7 @@ const TotalCard = ({
     <div className="rounded-lg border bg-card px-4 py-3">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="text-lg font-semibold">
-            {formatMoney(Number(value ?? 0))} so'm
+            {formatSom(Number(value ?? 0))} so'm
         </p>
         <p className="text-[10px] text-muted-foreground/80">
             Filtrlangan barcha sahifalar bo'yicha

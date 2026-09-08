@@ -1,3 +1,4 @@
+import ParamInput from "@/components/as-params/input"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { InlineBreadcrumb } from "@/components/header/breadcrumbs"
@@ -34,6 +35,10 @@ export default function ManagerReys() {
             trip: id,
             page_size: search.page_size,
             page: search.page,
+            // MT-32: backend `manager/orders` ga `search_fields` qo'shildi
+            // (yuklash/tushirish joyi, yuk turi, firma) — sahifada esa bironta
+            // kiritish maydoni yo'q edi, ya'ni qidiruvdan foydalanib bo'lmasdi.
+            search: (search as any).order_search,
             // MR-12: server tomon saralash — backend OrderingFilter qo'shgach ishlaydi.
             ...(ordering ? { ordering } : {}),
         },
@@ -99,12 +104,20 @@ export default function ManagerReys() {
                                     }
                                 />
                             </div>
-                            {hasControl && (
-                                <Button onClick={handleAdd}>
-                                    <Plus size={16} />
-                                    Qo'shish
-                                </Button>
-                            )}
+                            <div className="flex items-center gap-3">
+                                <ParamInput
+                                    className="!bg-background dark:!bg-secondary w-64"
+                                    searchKey="order_search"
+                                    pageKey="page"
+                                    placeholder="Joy, yuk turi, firma..."
+                                />
+                                {hasControl && (
+                                    <Button onClick={handleAdd}>
+                                        <Plus size={16} />
+                                        Qo'shish
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 }

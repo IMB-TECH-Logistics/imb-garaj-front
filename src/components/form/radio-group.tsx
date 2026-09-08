@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import { cn } from "@/lib/utils"
 import { ReactNode, useMemo } from "react"
 import {
@@ -51,7 +52,7 @@ export default function FormRadioGroup<IForm extends FieldValues>({
         rules: {
             required: {
                 value: required,
-                message: `${label}ni tanlang`,
+                message: `${displayFieldLabel(name, label)}ni tanlang`,
             },
         },
     })

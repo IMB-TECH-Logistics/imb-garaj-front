@@ -1,4 +1,5 @@
 "use client"
+import { displayFieldLabel } from "@/lib/field-labels"
 
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
@@ -48,7 +49,7 @@ export function FormDateTimePicker<TForm extends FieldValues>({
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni tanlang` } : {}
+                    required ? { required: `${displayFieldLabel(name, label)}ni tanlang` } : {}
                 }
                 render={({ field }) => {
                     const value =

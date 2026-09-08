@@ -5,13 +5,14 @@ import { useParams, useSearch } from "@tanstack/react-router"
 import { useState } from "react"
 import { useOrderCols, TripDailyStatisticType } from "./cols"
 import ExpenseDialog from "./expense-dialog"
+import { queryErrorHint, queryErrorMessage } from "@/lib/query-state"
 
 const VehicleTrips = () => {
     const params = useParams({ strict: false })
     const search: any = useSearch({ strict: false })
     const [expenseTrip, setExpenseTrip] = useState<{ id: number; total: number | null } | null>(null)
 
-    const { data, isLoading } = useGet<TripDailyStatisticType[]>(OWNER_TRIP_DAILY_STATISTIC, {
+    const { data, isLoading, isError, error } = useGet<TripDailyStatisticType[]>(OWNER_TRIP_DAILY_STATISTIC, {
         params: {
             vehicle_id: params.id,
             from_date: search?.from_date,
@@ -41,13 +42,46 @@ const VehicleTrips = () => {
             }
         })
 
-        const totalIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
+        /* IN-06: Jami tushum SERVERDAN olinadi (`total_income`).
+         *
+         * Ilgari bu yerda `orders_trip` ustidan `reduce` qilinardi — ya'ni faqat
+         * ko'rinadigan buyurtma qatorlari qo'shilardi. Backend esa reys darajasiga
+         * to'g'ridan-to'g'ri yozilgan (buyurtmaga bog'lanmagan) kirimni ham
+         * sanaydi. Natijada 40 131 DCA uchun ro'yxatda 16 383 000, tafsilotda
+         * 11 715 000 chiqar edi — 4 668 000 farq.
+         *
+         * Umumiy qoida: server hisoblab bergan yig'indi bo'lsa, uni qayta hisoblama.
+         * `total_income` kelmasa (eski backend) — eski usulga qaytamiz.
+         */
+        const rowsIncome =
+            trip.orders_trip?.reduce(
+                (acc: number, val: any) => acc + (Number(val.income) || 0),
+                0,
+            ) || 0
+        const directIncome = Number(trip.direct_income ?? 0) || 0
+        const totalIncome =
+            trip.total_income != null ?
+                Number(trip.total_income) || 0
+            :   rowsIncome + directIncome
+        const unassignedExpense = Number(trip.unassigned_expense ?? 0) || 0
+
+        // Jami qatorlar yig'indisidan farq qilsa — farqni ko'rsatuvchi qator
+        // qo'shiladi, shunda "Jami" ni qo'lda tekshirib bo'ladi.
+        if (directIncome || unassignedExpense) {
+            rows.push({
+                is_direct: true,
+                id: `direct-${trip.id}`,
+                income: directIncome,
+                expense: unassignedExpense,
+            })
+        }
 
         rows.push({
             is_summary: true,
             id: trip.id,
             trip_id: trip.id,
             total_expense: trip.total_expense,
+            unassigned_expense: trip.unassigned_expense,
             total_mileage: trip.total_mileage,
             fuel_consume: trip.fuel_consume,
             income: totalIncome,
@@ -71,6 +105,21 @@ const VehicleTrips = () => {
         return (
             <div className="mt-4">
                 <DataTable loading columns={columns as any} data={[]} viewAll />
+            </div>
+        )
+    }
+
+    // YANGI-04: so'rov yiqilganda bo'sh jadval emas, sababi ko'rsatiladi —
+    // "aylanma yo'q" bilan "ma'lumot berilmadi" bir xil narsa emas.
+    if (isError) {
+        return (
+            <div className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+                <p className="font-medium text-amber-600 dark:text-amber-500">
+                    {queryErrorMessage(error)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                    {queryErrorHint(error)}
+                </p>
             </div>
         )
     }

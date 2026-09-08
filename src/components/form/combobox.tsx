@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import {
     Controller,
     Control,
@@ -86,7 +87,7 @@ export function FormCombobox<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: `${displayFieldLabel(name, label)}ni kiriting` } : {}
                 }
                 render={({ field, fieldState }) => (
                     <ShadcnCombobox

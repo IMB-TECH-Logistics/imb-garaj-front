@@ -84,6 +84,35 @@ const ParamPagination: React.FC<PaginationProps> = ({
         handlePageChange(currentPage + 1)
     }
 
+    /**
+     * Sahifa hajmi tanlagichida ko'rsatiladigan qiymat.
+     *
+     * YANGI-03: `?page_size="10"` kabi manzilda qiymat QO'SHTIRNOQ bilan
+     * keladi (`"10"`), variantlar esa `10` — hech biriga mos kelmagani
+     * uchun tanlagich BO'SH ko'rinardi. Shuningdek URL dagi hajm variantlar
+     * ro'yxatida umuman bo'lmasligi ham mumkin. Ikkala holatda ham
+     * tanlagich bo'sh qolmasin.
+     */
+    const rawPageSize = String(search[pageSizeParamName] ?? "")
+        .replace(/["']/g, "")
+        .trim()
+    const isUsableSize = /^\d+$/.test(rawPageSize) && Number(rawPageSize) > 0
+
+    // URL dagi hajm ro'yxatda bo'lmasa ham u HAQIQATDA ishlatilyapti —
+    // shuning uchun variant sifatida qo'shiladi, aks holda tanlagich
+    // yolg'on (masalan 25) ko'rsatgan bo'lardi.
+    const sizeOptions = [
+        ...(page_sizes ?? []).map((size) => `${size}`),
+        ...(isUsableSize && !(page_sizes ?? []).map(String).includes(rawPageSize) ?
+            [rawPageSize]
+        :   []),
+    ].sort((a, b) => Number(a) - Number(b))
+
+    const selectedPageSize =
+        isUsableSize ? rawPageSize
+        : sizeOptions.includes(`${PageSize}`) ? `${PageSize}`
+        : (sizeOptions[0] ?? `${PageSize}`)
+
     const pageNumbers =
         totalPages > 7 ? getPageNumbers() : (
             Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -152,11 +181,11 @@ const ParamPagination: React.FC<PaginationProps> = ({
                     disabled={disabled}
                     className="w-20 h-8 sm:h-10 bg-primary/10 text-primary hover:bg-primary/15"
                     label=""
-                    options={page_sizes?.map((size) => ({
-                        label: `${size}`,
-                        value: `${size}`,
+                    options={sizeOptions.map((size) => ({
+                        label: size,
+                        value: size,
                     }))}
-                    value={search[pageSizeParamName] || PageSize}
+                    value={selectedPageSize}
                     setValue={(value) =>
                         navigate({
                             search: {

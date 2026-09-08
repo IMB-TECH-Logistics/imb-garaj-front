@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import { DatePicker } from "@/components/ui/datepicker"
 import { cn } from "@/lib/utils"
 import { Control, Controller, FieldValues, Path } from "react-hook-form"
@@ -37,7 +38,7 @@ export function FormDatePicker<TForm extends FieldValues>({
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: `${displayFieldLabel(name, label)}ni kiriting` } : {}
                 }
                 render={({ field, fieldState }) => (
                     <>

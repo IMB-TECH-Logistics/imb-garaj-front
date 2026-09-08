@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import {
     Controller,
     FieldValues,
@@ -27,7 +28,7 @@ export default function FormVideoPicker<IForm extends FieldValues>({
         rules: {
             required: {
                 value: required,
-                message: `${label}ni tanlang`,
+                message: `${displayFieldLabel(name, label)}ni tanlang`,
             },
         },
     });

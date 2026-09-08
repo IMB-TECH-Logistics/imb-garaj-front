@@ -9,6 +9,7 @@ import {
     TECHNICAL_INSPECT,
     SETTINGS_EXPENSES,
 } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -21,6 +22,9 @@ type SelectItem = { id: number | string; name: string }
 
 export const TexnikCheck = () => {
     const search: any = useSearch({ strict: false })
+    // 2-raund (RBAC): ruxsati yo'q rolga ham "Qo'shish" / tahrirlash / o'chirish
+    // ko'rinardi va bosilganda 403 qaytardi.
+    const hasControl = useHasAction("manager_tech_check_control")
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal } = useModal("add-expense")
     const { openModal: openDeleteModal } = useModal("delete")
@@ -40,7 +44,7 @@ export const TexnikCheck = () => {
             ? { from: startOfMonth, to: endOfMonth }
             : undefined
 
-    const { data, isLoading } = useGet<ListResponse<VehicleExpenseRow>>(
+    const { data, isLoading, error } = useGet<ListResponse<VehicleExpenseRow>>(
         TECHNICAL_INSPECT,
         {
             params: {
@@ -81,9 +85,10 @@ export const TexnikCheck = () => {
                 columns={columns}
                 loading={isLoading}
                 data={data?.results || []}
+                error={error}
                 numeration
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                onEdit={hasControl ? handleEdit : undefined}
+                onDelete={hasControl ? handleDelete : undefined}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -111,10 +116,12 @@ export const TexnikCheck = () => {
                                     className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
                                 }}
                             />
-                            <Button onClick={handleAdd}>
-                                <Plus size={16} />
-                                Qo'shish
-                            </Button>
+                            {hasControl && (
+                                <Button onClick={handleAdd}>
+                                    <Plus size={16} />
+                                    Qo'shish
+                                </Button>
+                            )}
                         </div>
                     </div>
                 }

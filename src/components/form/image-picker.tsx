@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import { cn } from "@/lib/utils"
 import { Download } from "lucide-react"
 import {
@@ -34,7 +35,7 @@ export default function FormImagePicker<IForm extends FieldValues>({
         rules: {
             required: {
                 value: required,
-                message: `${label}ni tanlang`,
+                message: `${displayFieldLabel(name, label)}ni tanlang`,
             },
         },
     })

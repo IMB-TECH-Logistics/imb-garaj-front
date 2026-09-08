@@ -2,7 +2,9 @@ import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_ROLES, SETTINGS_USERS } from "@/constants/api-endpoints"
+import { useHasAction, useUser } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
+import PermissionNotice from "../../permission-notice"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useNavigate, useParams } from "@tanstack/react-router"
@@ -65,7 +67,7 @@ export const showValidationErrors = (errors: Record<string, any>) => {
     }
 }
 
-const UserFormPage = () => {
+const UserFormInner = () => {
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
 
@@ -229,6 +231,34 @@ const UserFormPage = () => {
             </FormProvider>
         </div>
     )
+}
+
+/**
+ * Sahifa darajasidagi to'siq (2-raund, RBAC yangi Low-1).
+ *
+ * Ilgari 0 ruxsatli rol (masalan Driver) `/users/create` ni URL orqali ochib,
+ * tizimdagi BUTUN ruxsat matritsasini (barcha modullar va ularning kodlari)
+ * o'qiy olardi. Yuborish 403 bilan to'xtatilardi, lekin ruxsatlar ro'yxatining
+ * o'zi ham ma'lumot — shuning uchun endi sahifa umuman chizilmaydi.
+ */
+const UserFormPage = () => {
+    const { data: profile, isLoading } = useUser()
+    const canControl = useHasAction("settings_users_control")
+
+    // Profil hali kelmagan bo'lsa hech narsa aytilmaydi — aks holda ruxsati
+    // BOR foydalanuvchiga bir lahza "ruxsat yo'q" chaqnab ketardi.
+    if (isLoading || !profile) return null
+
+    if (!canControl) {
+        return (
+            <PermissionNotice
+                title="Foydalanuvchilarni boshqarishga ruxsatingiz yo'q"
+                hint="Bu sahifa yangi foydalanuvchi yaratish va unga ruxsat berish uchun. Kerak bo'lsa administratordan «Foydalanuvchilar — boshqarish» ruxsatini so'rang."
+            />
+        )
+    }
+
+    return <UserFormInner />
 }
 
 export default UserFormPage

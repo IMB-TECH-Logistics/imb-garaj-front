@@ -19,7 +19,16 @@ const getStatus = (error: unknown) =>
     (error as { response?: { status?: number } } | undefined)?.response?.status
 
 export const retryExceptNotFound = (failureCount: number, error: unknown) => {
-    if (getStatus(error) === 404) return false
+    // 2-raund: ilgari faqat 404 istisno edi, 403 esa 3 marta qayta so'ralardi
+    // (~7 soniya orqaga chekinish bilan). Shu vaqt davomida sahifa na jadval,
+    // na xato ko'rsatardi — ruxsati yo'q foydalanuvchi sababsiz bo'sh "Ro'yxat 0"
+    // kartasini ko'rib turardi. Hech qaysi 4xx qayta so'raganda o'zgarmaydi,
+    // shuning uchun hammasi darhol xatoga aylantiriladi (`useGet` dagi standart
+    // `retryPolicy` bilan bir xil qoida).
+    const status = getStatus(error)
+    if (typeof status === "number" && status >= 400 && status < 500) {
+        return false
+    }
     return failureCount < 3
 }
 

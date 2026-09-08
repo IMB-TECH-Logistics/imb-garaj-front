@@ -15,6 +15,7 @@ import { AlertTriangle, ChevronDown } from "lucide-react"
 import * as React from "react"
 
 import ParamPagination from "@/components/as-params/pagination"
+import { SERVER_DEFAULT_PAGE_SIZE } from "@/constants/default"
 import { cn } from "@/lib/utils"
 import TruckTripCashflowRow from "../truck-trip-cashflows"
 
@@ -57,8 +58,40 @@ const TruckTripOrderMain = () => {
     // (404). Ilgari sahifa xato haqida hech nima demay bo'sh jadval ko'rsatardi va
     // foydalanuvchi "buyurtma yo'q ekan" deb o'ylardi.
     const status = (error as any)?.response?.status
-    const notFound = status === 404
+    const detail = (error as any)?.response?.data?.detail as string | undefined
+    // IN-05 tuzatilgach `order=` filtri ishlaydi va mavjud bo'lmagan sahifa
+    // so'ralganda DRF ham 404 qaytaradi ("Invalid page") — bu "endpoint yo'q"
+    // degani emas, shuning uchun ikkisi ajratiladi.
+    const invalidPage = status === 404 && /invalid page/i.test(detail ?? "")
+    const notFound = status === 404 && !invalidPage
     const rows = data?.results ?? []
+
+    /* YANGI-05: qator raqami noto'g'ri edi — `data?.page_size ?? 10` ishlatilardi,
+     * `trips/orders` javobida esa `page_size` maydoni UMUMAN YO'Q (javob kalitlari:
+     * total_pages, count, results). Shuning uchun har doim zaxira 10 olinardi,
+     * server esa 25 tadan qaytaradi: 2-sahifa #11 dan boshlanar va 1-sahifadagi
+     * #11–25 bilan bir xil raqamlar takrorlanardi.
+     *
+     * Endi hajm shu tartibda aniqlanadi (DataTable dagi bilan bir xil mantiq):
+     *   1) URL dagi aniq `page_size` (server uni hurmat qiladi)
+     *   2) kuzatilgan to'liq sahifa — OXIRGI bo'lmagan har qanday sahifadagi
+     *      qatorlar soni serverning haqiqiy sahifa hajmiga teng
+     *   3) backend'ning sukut qiymati (25)
+     */
+    const explicitPageSize = Number(search.page_size) || 0
+    const observedPageSize = React.useRef(0)
+    if (
+        !explicitPageSize &&
+        !!data?.total_pages &&
+        page < data.total_pages &&
+        rows.length > 0
+    ) {
+        observedPageSize.current = rows.length
+    }
+    const pageSize =
+        explicitPageSize ||
+        observedPageSize.current ||
+        SERVER_DEFAULT_PAGE_SIZE
 
     const toggleExpand = (orderId: number) => {
         const isOpen = expandedOrderId === orderId
@@ -89,6 +122,12 @@ const TruckTripOrderMain = () => {
                             <TableHead>Yuk turi</TableHead>
                             <TableHead>To‘lov miqdori</TableHead>
                             <TableHead>Valyuta</TableHead>
+                            {/* YANGI-09: buyurtmaning O'Z sanasi. Ilgari yagona sana
+                                ustuni "Yaratilgan sana" edi va u barcha 1 726 qatorda
+                                bir xil texnik vaqtni (bazani to'ldirish lahzasini)
+                                ko'rsatardi — foydalanuvchi buyurtmalarni vaqt bo'yicha
+                                umuman ajrata olmasdi. */}
+                            <TableHead>Buyurtma sanasi</TableHead>
                             <TableHead>Yaratilgan sana</TableHead>
                             <TableHead className="text-right" />
                             <TableHead className="text-right" />
@@ -99,7 +138,7 @@ const TruckTripOrderMain = () => {
                         {isLoading && (
                             <TableRow className="border-none">
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={10}
                                     className="text-center py-6"
                                 >
                                     Yuklanmoqda...
@@ -109,18 +148,38 @@ const TruckTripOrderMain = () => {
 
                         {!isLoading && isError && (
                             <TableRow className="border-none">
-                                <TableCell colSpan={9} className="py-10">
+                                <TableCell colSpan={10} className="py-10">
                                     <div className="flex flex-col items-center gap-2 text-center">
                                         <AlertTriangle className="h-6 w-6 text-red-500" />
                                         <p className="font-medium text-red-500">
-                                            Buyurtmalar ro'yxatini yuklab bo'lmadi
+                                            {invalidPage ?
+                                                "Bunday sahifa yo'q"
+                                            :   "Buyurtmalar ro'yxatini yuklab bo'lmadi"}
                                         </p>
                                         <p className="max-w-md text-xs text-muted-foreground">
-                                            {notFound ?
+                                            {invalidPage ?
+                                                "So'ralgan sahifa raqami mavjud sahifalar sonidan katta. Birinchi sahifaga qayting."
+                                            : notFound ?
                                                 "Server bu ma'lumotni bermayapti (404 — endpoint mavjud emas). Bu ma'lumot yo'qligini ANGLATMAYDI; nosozlik haqida administratorga xabar bering."
                                             :   `Server bilan bog'lanishda xatolik${status ? ` (${status})` : ""}. Keyinroq qayta urinib ko'ring.`
                                             }
                                         </p>
+                                        {invalidPage && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() =>
+                                                    navigate({
+                                                        search: ((prev: Record<string, unknown>) => ({
+                                                            ...prev,
+                                                            page: undefined,
+                                                        })) as any,
+                                                    })
+                                                }
+                                            >
+                                                Birinchi sahifaga
+                                            </Button>
+                                        )}
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -129,7 +188,7 @@ const TruckTripOrderMain = () => {
                         {!isLoading && !isError && rows.length === 0 && (
                             <TableRow className="border-none">
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={10}
                                     className="py-10 text-center text-muted-foreground"
                                 >
                                     Ma'lumot topilmadi
@@ -153,10 +212,7 @@ const TruckTripOrderMain = () => {
                                         )}
                                     >
                                         <TableCell className="border-r border-secondary last:border-none">
-                                            {(page - 1) *
-                                                (data?.page_size ?? 10) +
-                                                index +
-                                                1}
+                                            {(page - 1) * pageSize + index + 1}
                                         </TableCell>
 
                                         <TableCell className="border-r border-secondary last:border-none">
@@ -204,7 +260,16 @@ const TruckTripOrderMain = () => {
                                             :   "—"}
                                         </TableCell>
 
-                                        <TableCell className="border-r border-secondary last:border-none">
+                                        <TableCell className="border-r border-secondary last:border-none whitespace-nowrap">
+                                            {order.date ?
+                                                format(
+                                                    new Date(order.date),
+                                                    "dd.MM.yyyy",
+                                                )
+                                            :   "—"}
+                                        </TableCell>
+
+                                        <TableCell className="border-r border-secondary last:border-none text-muted-foreground">
                                             {order.created ?
                                                 format(
                                                     new Date(order.created),
@@ -232,7 +297,7 @@ const TruckTripOrderMain = () => {
                                     {isExpanded && (
                                         <TableRow className="border-none bg-secondary">
                                             <TableCell
-                                                colSpan={9}
+                                                colSpan={10}
                                                 className="p-0"
                                             >
                                                 <TruckTripCashflowRow />

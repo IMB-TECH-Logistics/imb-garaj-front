@@ -24,13 +24,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import {
-    DEFAULT_PAGE_SIZE,
-    PAGE_KEY,
-    PAGE_SIZE_KEY,
-    SERVER_DEFAULT_PAGE_SIZE,
-} from "@/constants/default"
+import { PAGE_KEY, PAGE_SIZE_KEY } from "@/constants/default"
 import { useHasAction } from "@/constants/useUser"
+import {
+    rowNumberOffsetOf,
+    useEffectivePageSize,
+    useFallbackQueryError,
+} from "@/hooks/useTableStatus"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
@@ -158,42 +158,35 @@ export function DataTable<TData>({
         React.useState<VisibilityState>({})
     const search: any = useSearch({ from: "/_main" })
 
-    /**
-     * Qator raqami (№) uchun server HAQIQATAN qaytargan sahifa hajmi.
-     *
-     * Ilgari bu yerda `page_size` URL da bo'lmasa DEFAULT_PAGE_SIZE (10) ishlatilardi,
-     * backend esa (DRF PAGE_SIZE) 25 tadan sahifalaydi — shu sababli 2-sahifadan
-     * boshlab raqamlar noto'g'ri chiqardi (11..18 o'rniga 26..33 bo'lishi kerak edi).
-     *
-     * Endi hajm shu tartibda aniqlanadi:
-     *   1) URL dagi aniq `page_size` (server uni albatta hurmat qiladi)
-     *   2) kuzatilgan to'liq sahifa — oxirgi bo'lmagan har qanday sahifadagi
-     *      qatorlar soni serverning haqiqiy sahifa hajmiga teng
-     *   3) sahifa bergan `PageSize`
-     *   4) backend'ning o'z sukut qiymati (25)
-     */
+    // Sahifa hajmi va qator raqami — izohlar `hooks/useTableStatus.ts` da.
     const isManualPagination =
         !!totalPages || !!cursorPagination || viewAll || !!limitOffsetPagination
     const currentPage = Math.max(1, Number(search?.[paramName]) || 1)
-    const explicitPageSize = Math.max(0, Number(search?.[pageSizeParamName]) || 0)
-    const observedPageSize = React.useRef(0)
+    const effectivePageSize = useEffectivePageSize({
+        isManualPagination,
+        currentPage,
+        totalPages,
+        rowCount: data?.length,
+        explicitPageSize: Math.max(
+            0,
+            Number(search?.[pageSizeParamName]) || 0,
+        ),
+        providedPageSize: paginationProps?.PageSize,
+    })
 
-    if (
-        !explicitPageSize &&
-        !!totalPages &&
-        currentPage < totalPages &&
-        (data?.length ?? 0) > 0
-    ) {
-        observedPageSize.current = data?.length ?? 0
-    }
+    // Qator raqami: `viewAll` da `?page` hisobga olinmaydi (REG-01).
+    const rowNumberOffset = rowNumberOffsetOf({
+        viewAll,
+        currentPage,
+        pageSize: effectivePageSize,
+    })
 
-    const effectivePageSize =
-        isManualPagination ?
-            explicitPageSize ||
-            observedPageSize.current ||
-            paginationProps?.PageSize ||
-            SERVER_DEFAULT_PAGE_SIZE
-        :   explicitPageSize || DEFAULT_PAGE_SIZE
+    // Sahifa `error` bermasa ham xato holati ko'rsatilsin — batafsil izoh
+    // `hooks/useTableStatus.ts` da.
+    const fallbackError = useFallbackQueryError(
+        !loading && error === undefined && data === undefined,
+    )
+    const shownError = error ?? fallbackError
 
     const orderedColumns = React.useMemo(() => {
         if (hasActions) return columns
@@ -311,7 +304,7 @@ export function DataTable<TData>({
                     tableWrapperClassName,
                 )}
             >
-                {loading && !error && (
+                {loading && !shownError && (
                     <Table className="flex flex-col gap-1">
                         {Array.from({ length: skeletonRowCount })?.map(
                             (_, index) => (
@@ -353,7 +346,7 @@ export function DataTable<TData>({
                     </Table>
                 )}
 
-                {data?.length && !error ?
+                {data?.length && !shownError ?
                     <Table
                         className={`${className} select-text  bg-card rounded-md`}
                         style={{ tableLayout: "fixed" }}
@@ -503,10 +496,7 @@ export function DataTable<TData>({
                                         )}
                                         {numeration && (
                                             <TableCell className="w-8 ">
-                                                {(currentPage - 1) *
-                                                    effectivePageSize +
-                                                    index +
-                                                    1}
+                                                {rowNumberOffset + index + 1}
                                             </TableCell>
                                         )}
 
@@ -544,8 +534,8 @@ export function DataTable<TData>({
                         <TableFooter></TableFooter>
                     </Table>
                 :   null}
-                {!loading && error ?
-                    <DataError error={error} height={height} />
+                {!loading && shownError ?
+                    <DataError error={shownError} height={height} />
                 : data?.length === 0 && !loading ?
                     <EmptyBox height={height} />
                 :   null}

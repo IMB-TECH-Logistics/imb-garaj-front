@@ -3,6 +3,7 @@ import { formatMoney } from "@/lib/format-money"
 import { toNum } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { SortableHeader } from "../sortable-header"
 
 export interface ReysOrder {
     id: number
@@ -33,10 +34,11 @@ export const useFlightsColumns = () => {
     return useMemo<ColumnDef<ReysOrder>[]>(
         () => [
             {
-                header: "Buyurtma ID",
+                header: () => (
+                    <SortableHeader field="external_id" label="Buyurtma ID" />
+                ),
                 accessorKey: "external_id",
                 size: 140,
-                enableSorting: true,
                 cell({ row: { original } }) {
                     return (
                         <div>
@@ -48,40 +50,46 @@ export const useFlightsColumns = () => {
                 },
             },
             {
-                header: "Firma kodi",
+                header: () => (
+                    <SortableHeader field="client_code" label="Firma kodi" />
+                ),
                 accessorKey: "client_code",
                 size: 140,
-                enableSorting: true,
             },
             {
-                header: "Firma nomi",
+                header: () => (
+                    <SortableHeader field="client_name" label="Firma nomi" />
+                ),
                 accessorKey: "client_name",
                 size: 140,
-                enableSorting: true,
             },
             {
-                header: "Sana",
+                header: () => (
+                    <SortableHeader field="date" label="Sana" />
+                ),
                 accessorKey: "date",
                 size: 100,
-                enableSorting: true,
             },
             {
-                header: "Yuklash joyi",
+                header: () => (
+                    <SortableHeader field="loading_name" label="Yuklash joyi" />
+                ),
                 accessorKey: "loading_name",
                 size: 130,
-                enableSorting: true,
             },
             {
-                header: "Tushirish joyi",
+                header: () => (
+                    <SortableHeader field="unloading_name" label="Tushirish joyi" />
+                ),
                 accessorKey: "unloading_name",
                 size: 130,
-                enableSorting: true,
             },
             {
-                header: "Avto turi",
+                header: () => (
+                    <SortableHeader field="vehicle_type" label="Avto turi" />
+                ),
                 accessorKey: "vehicle_type",
                 size: 100,
-                enableSorting: true,
                 cell: ({ row }) => (
                     <span className="uppercase">
                         {row.original.vehicle_type || "—"}
@@ -89,22 +97,25 @@ export const useFlightsColumns = () => {
                 ),
             },
             {
-                header: "Davlat raqami",
+                header: () => (
+                    <SortableHeader field="truck_number" label="Davlat raqami" />
+                ),
                 accessorKey: "truck_number",
                 size: 120,
-                enableSorting: true,
             },
             {
-                header: "Yuk turi",
+                header: () => (
+                    <SortableHeader field="cargo_type_name" label="Yuk turi" />
+                ),
                 accessorKey: "cargo_type_name",
                 size: 110,
-                enableSorting: true,
             },
             {
-                header: "Summa S NDS",
+                header: () => (
+                    <SortableHeader field="summa_s_nds" label="Summa S NDS" />
+                ),
                 accessorKey: "summa_s_nds",
                 size: 130,
-                enableSorting: true,
                 cell: ({ row }) => {
                     const v = toNum(row.original.summa_s_nds)
                     return <span className="font-medium">{formatMoney(v)}</span>

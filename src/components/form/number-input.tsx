@@ -1,3 +1,4 @@
+import { displayFieldLabel } from "@/lib/field-labels"
 import {
     Control,
     FieldValues,
@@ -45,7 +46,7 @@ export function FormNumberInput<IForm extends FieldValues>({
         name,
         control,
         rules: {
-            required: required ? `${label || name} ${("ni kiriting")}` : false,
+            required: required ? `${displayFieldLabel(name, label)}ni kiriting` : false,
             ...registerOptions,
         },
     })
