@@ -4,6 +4,16 @@ import { toNum } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 
+/** BX-13: ISO sana ("2026-05-03") ekranda dd.MM.yyyy ko'rinishida — loyihaning
+ *  boshqa modullari bilan bir xil va "03/05" chalkashligisiz. */
+const formatDate = (value: string | null | undefined) => {
+    if (!value) return "—"
+    const d = new Date(value)
+    if (Number.isNaN(d.getTime())) return value
+    const pad = (n: number) => String(n).padStart(2, "0")
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`
+}
+
 export interface ReysOrder {
     id: number
     trip: number
@@ -64,6 +74,11 @@ export const useAccountingCols = () => {
                 accessorKey: "date",
                 size: 100,
                 enableSorting: true,
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {formatDate(row.original.date)}
+                    </span>
+                ),
             },
             {
                 header: "Yuklash joyi",

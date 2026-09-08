@@ -64,7 +64,18 @@ const Customers = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_CUSTOMERS} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_CUSTOMERS}
+                id={item?.id}
+                name={
+                    item?.name ?
+                        <span className="block font-medium mb-1">
+                            Mijoz: «{item.name}»
+                            {item.code ? ` (${item.code})` : ""}
+                        </span>
+                    :   ""
+                }
+            />
             <Modal
                 size="max-w-2xl"
                 title={`Mijoz ${item?.id ? "tahrirlash" : "qo'shish"}`}

@@ -6,10 +6,16 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
-import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
+import {
+    MANAGERS_CASHFLOW,
+    MANAGERS_EXPENSES,
+    MANAGERS_TRIPS,
+    MANAGERS_VEHICLES,
+} from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -18,6 +24,8 @@ import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
+import OutOfRangePageNotice from "../out-of-range-notice"
+import { isPageRequestFailed, retryExceptNotFound } from "../page-error"
 import { useColumnsManagersTrips } from "./cols"
 import CreateManagerTrips from "./create"
 import ExpensesModal from "./create-expenses"
@@ -37,25 +45,35 @@ export default function ManagersTrips() {
     const { id } = useParams({ strict: false })
     const { name } = useSearch({ strict: false }) as any
     const { driver_id } = useSearch({ strict: false }) as any
-    const { from_date, to_date, moliya_trip_id } = search as any
+    const { from_date, to_date, moliya_trip_id, ordering, page } = search as any
     const moliyaOpen = !!moliya_trip_id
     const setMoliyaOpen = (open: boolean) => {
         if (!open) {
             navigate({ search: (prev: any) => { const { moliya_trip_id, ...rest } = prev; return rest } } as any)
         }
     }
-    const { data, isLoading } = useGet<ListResponse<ManagerTrips>>(
-        MANAGERS_TRIPS,
-        {
-            params: {
-                ...(driver_id ? { driver_id } : { vehicle: id }),
-                ...(!isArchive ? { page_size: 2 } : {}),
-                ...(isArchive && from_date ? { from_date } : {}),
-                ...(isArchive && to_date ? { to_date } : {}),
-                ...(isArchive ? { page_size: search.page_size, page: search.page } : {}),
-            },
+    const resetPage = () =>
+        navigate({ search: (prev: any) => ({ ...prev, page: undefined }) } as any)
+
+    // MT-18 / MT-19: ilgari arxiv bo'lmagan rejimda `page_size: 2` qattiq yozilgan edi va
+    // `viewAll` sahifalash panelini yashirardi — badge 13 deb turib jadval 2 qator chizardi,
+    // qolgan aylanmalarga yetib borishning iloji yo'q edi. Endi ikkala rejim ham bir xil
+    // sahifalanadi. `ordering` — MT-10/MR-12 uchun (backend OrderingFilter qo'shgach ishlaydi).
+    const tripsQuery = useGet<ListResponse<ManagerTrips>>(MANAGERS_TRIPS, {
+        params: {
+            ...(driver_id ? { driver_id } : { vehicle: id }),
+            page_size: search.page_size,
+            page: search.page,
+            ...(ordering ? { ordering } : {}),
+            ...(isArchive && from_date ? { from_date } : {}),
+            ...(isArchive && to_date ? { to_date } : {}),
         },
-    )
+        options: { retry: retryExceptNotFound },
+    })
+    const { data, isLoading } = tripsQuery
+    // MT-14: diapazondan tashqari sahifa raqamida backend 404 qaytaradi —
+    // foydalanuvchi bo'sh ekran ko'radi, sababini bilmaydi.
+    const isPageOutOfRange = isPageRequestFailed(tripsQuery) && Number(page) > 1
     const currentItem = getData("expense-id")
     const { data: expenses } = useGet(MANAGERS_CASHFLOW, {
         params: {
@@ -115,6 +133,27 @@ export default function ManagersTrips() {
         onEdit: handleEdit,
         onDelete: handleDelete,
     })
+
+    // MT-22: `name` faqat URL search parametrida keladi. To'g'ridan-to'g'ri havolada,
+    // bookmarkda yoki parametrsiz yangilashda u yo'q edi va breadcrumb'da dasturchi
+    // qoldirgan "nimadir" matni foydalanuvchiga ko'rinardi. Endi: store → API → bo'sh.
+    const storedVehicle = getData<ManagerVehicles>(MANAGERS_VEHICLES)
+    const storedVehicleName =
+        storedVehicle?.id?.toString() === id ? storedVehicle?.truck_number : undefined
+    const needsVehicleLookup = !name && !storedVehicleName && !driver_id && !!id
+    const { data: vehicles, isLoading: vehiclesLoading } = useGet<
+        ListResponse<ManagerVehicles>
+    >(MANAGERS_VEHICLES, {
+        params: { page_size: 1000 },
+        enabled: needsVehicleLookup,
+    })
+    const title =
+        name ||
+        storedVehicleName ||
+        vehicles?.results?.find((v) => v.id?.toString() === id)?.truck_number ||
+        ""
+    const titleLoading = needsVehicleLookup && vehiclesLoading
+
     return (
         <>
             <DataTable
@@ -122,14 +161,14 @@ export default function ManagersTrips() {
                 numeration
                 data={data?.results}
                 columns={cols}
-                viewAll={!isArchive}
-                {...(isArchive ? {
-                    paginationProps: {
-                        totalPages: data?.total_pages,
-                        paramName: "page",
-                        pageSizeParamName: "page_size",
-                    },
-                } : {})}
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                    // Backend DRF PAGE_SIZE=25 — birinchi qiymat qator raqamlashiga ham
+                    // asos bo'ladi (datatable.tsx), shuning uchun ataylab 25 dan boshlanadi.
+                    page_sizes: [25, 50, 100, 250],
+                }}
                 onRowClick={handleRowClick}
                 head={
                     <div className="mb-4">
@@ -139,8 +178,17 @@ export default function ManagersTrips() {
                                     trailing={
                                         <>
                                             <Badge>{formatMoney(data?.count)}</Badge>
-                                            <span className="text-muted-foreground">/</span>
-                                            <span>{name || "nimadir"}</span>
+                                            {titleLoading ?
+                                                <>
+                                                    <span className="text-muted-foreground">/</span>
+                                                    <Skeleton className="h-4 w-24" />
+                                                </>
+                                            : title ?
+                                                <>
+                                                    <span className="text-muted-foreground">/</span>
+                                                    <span>{title}</span>
+                                                </>
+                                            :   null}
                                         </>
                                     }
                                 />
@@ -157,7 +205,12 @@ export default function ManagersTrips() {
                                     <Switch
                                         id="archive-switch"
                                         checked={isArchive}
-                                        onCheckedChange={setIsArchive}
+                                        onCheckedChange={(value) => {
+                                            setIsArchive(value)
+                                            // Rejim almashganda yozuvlar soni o'zgaradi —
+                                            // eski sahifa raqami diapazondan chiqib ketmasin.
+                                            resetPage()
+                                        }}
                                     />
                                 </div>
                                 {hasControl && (
@@ -168,6 +221,9 @@ export default function ManagersTrips() {
                                 )}
                             </div>
                         </div>
+                        {isPageOutOfRange && (
+                            <OutOfRangePageNotice onReset={resetPage} />
+                        )}
                     </div>
                 }
             />

@@ -1,4 +1,10 @@
-import { Controller, Control, FieldValues, Path } from "react-hook-form"
+import {
+    Controller,
+    Control,
+    FieldValues,
+    Path,
+    useFormState,
+} from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 import { Combobox as ShadcnCombobox } from "@/components/ui/combobox"
@@ -39,7 +45,10 @@ export function FormCombobox<
     required,
     options,
     control,
-    hideError = true,
+    // Majburiy maydon bo'sh qolganda foydalanuvchi FAQAT qizil ramka ko'rardi,
+    // sababini tushuntiruvchi matn esa yo'q edi — shuning uchun bu komponentda
+    // xato matni sukut bo'yicha KO'RSATILADI (xato bo'lmaganda hech nima chizilmaydi).
+    hideError = false,
     valueKey,
     labelKey,
     onAdd,
@@ -52,7 +61,15 @@ export function FormCombobox<
     isSearch = true,
     wrapperClassName,
 }: ComboboxProps<TForm, T>) {
-    const error = getNestedValue(control._formState.errors, name)
+    /**
+     * `control._formState` — react-hook-form ning ICHKI, obuna bo'linmagan
+     * holati. Undan o'qilganda komponent xato paydo bo'lganda QAYTA RENDER
+     * BO'LMAYDI, shuning uchun xato matni hech qachon ekranga chiqmasdi
+     * (`hideError={false}` qo'yilganda ham). `useFormState` esa aynan shu
+     * maydonning xatosiga obuna bo'ladi va qayta renderni ta'minlaydi.
+     */
+    const { errors, disabled } = useFormState({ control, name })
+    const error = getNestedValue(errors, name)
 
     return (
         <fieldset className={cn("flex flex-col w-full", wrapperClassName)}>
@@ -88,16 +105,18 @@ export function FormCombobox<
                         isClearIcon={isClearIcon}
                         className={className}
                         addButtonProps={{
-                            disabled: control._formState.disabled,
+                            disabled,
                             ...addButtonProps,
                         }}
                     />
                 )}
             />
-            {!hideError && error && (
-                <FieldError>
-                    {control._formState.errors[name]?.message as string}
-                </FieldError>
+            {!hideError && error?.message && (
+                // `getNestedValue` bilan olingan xato — `items.0.type` kabi
+                // ichma-ich nomlar uchun ham to'g'ri ishlaydi (ilgari tekis
+                // `errors[name]` ishlatilgani uchun bunday maydonlarda
+                // xabar `undefined` bo'lib qolardi).
+                <FieldError>{error.message as string}</FieldError>
             )}
         </fieldset>
     )

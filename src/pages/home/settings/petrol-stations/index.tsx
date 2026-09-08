@@ -9,7 +9,12 @@ import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { ArrowDownCircle, ArrowUpCircle, Wallet } from "lucide-react"
+import {
+    AlertTriangle,
+    ArrowDownCircle,
+    ArrowUpCircle,
+    Wallet,
+} from "lucide-react"
 import TableHeader from "../table-header"
 import AddPetrolStationModal from "./add-petrol"
 import { type PetrolStationRow, usePetrolStationColumns } from "./cols"
@@ -48,6 +53,15 @@ const PetrolStationsPage = () => {
 
     const columns = usePetrolStationColumns()
 
+    // 4.3: kartalar bir-biriga zid son ko'rsatmasin.
+    // Balans = Kirim − Chiqim bo'lishi shart; saqlangan `total_balance`
+    // reyestrdan chetga chiqsa (backend nuqsoni) buni jimgina ko'rsatmaymiz.
+    const totalBalance = Number(stats?.total_balance ?? 0)
+    const ledgerBalance =
+        Number(stats?.total_top_ups ?? 0) - Number(stats?.total_outcomes ?? 0)
+    const balanceDrift = totalBalance - ledgerBalance
+    const isBalanceInconsistent = !!stats && Math.abs(balanceDrift) >= 1
+
     const handleEdit = (row: { original: PetrolStationRow }) => {
         setData(SETTINGS_PETROL_STATIONS, row.original)
         openCreateModal()
@@ -60,6 +74,21 @@ const PetrolStationsPage = () => {
 
     return (
         <>
+            {isBalanceInconsistent && (
+                <div className="mb-3 flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
+                    <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+                    <span>
+                        <span className="font-semibold">
+                            Ma’lumot nomuvofiq:
+                        </span>{" "}
+                        umumiy balans ({formatMoney(totalBalance)} so‘m) kirim
+                        va chiqim ayirmasiga ({formatMoney(ledgerBalance)} so‘m)
+                        teng emas — farq {formatMoney(balanceDrift)} so‘m.
+                        Quyidagi kartalardagi raqamlarga hozircha to‘liq
+                        ishonmang, balans serverda qayta hisoblanishi kerak.
+                    </span>
+                </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <Card>
                     <CardContent className="p-4 flex items-center gap-3">

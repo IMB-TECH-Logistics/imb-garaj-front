@@ -14,6 +14,11 @@ import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { showSettingsApiError } from "../settings-api-errors"
+
+/** Plausible production-year range for a truck on the road today. */
+const MIN_YEAR = 1950
+const MAX_YEAR = new Date().getFullYear() + 1
 
 const IMAGE_FIELDS = [
     "truck_front",
@@ -35,6 +40,20 @@ const STATUS_OPTIONS = [
     { value: 3, label: "Ta'mirda" },
 ]
 
+/**
+ * FormInput and FormCombobox cannot render their own validation text here:
+ * FormInput throws on `hideError={false}` when the field is clean, and
+ * FormCombobox reads a stale `control._formState` outside its Controller. So a
+ * missing required field showed nothing but a red border. Render the message
+ * from this form, which subscribes to `formState.errors`.
+ */
+const FieldMessage = ({ message }: { message?: unknown }) =>
+    message ? (
+        <span className="mt-1 block text-xs text-destructive">
+            {String(message)}
+        </span>
+    ) : null
+
 const AddVehicleSettingsModal = () => {
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
@@ -53,7 +72,13 @@ const AddVehicleSettingsModal = () => {
         defaultValues: current || { fuel: "methane" },
     })
 
-    const { handleSubmit, reset, control, watch } = form
+    const {
+        handleSubmit,
+        reset,
+        control,
+        watch,
+        formState: { errors },
+    } = form
     const fuel = watch("fuel")
     const consumptionLabel =
         fuel === "diesel" ? "Sarfi (litr/100km)" : "Sarfi (m³/100km)"
@@ -96,9 +121,11 @@ const AddVehicleSettingsModal = () => {
         })
 
         if (current?.id) {
-            updateMutate(`${VEHICLES}/${current.id}`, formData)
+            updateMutate(`${VEHICLES}/${current.id}`, formData, {
+                onError: showSettingsApiError,
+            })
         } else {
-            postMutate(VEHICLES, formData)
+            postMutate(VEHICLES, formData, { onError: showSettingsApiError })
         }
     }
 
@@ -108,12 +135,18 @@ const AddVehicleSettingsModal = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
-                <FormInput
-                    required
-                    name="truck_number"
-                    label="Avtomobil raqami"
-                    methods={form}
-                />
+                <div>
+                    <FormInput
+                        required
+                        name="truck_number"
+                        label="Avtomobil raqami"
+                        methods={form}
+                        registerOptions={{
+                            required: "Avtomobil raqamini kiriting",
+                        }}
+                    />
+                    <FieldMessage message={errors.truck_number?.message} />
+                </div>
                 <FormInput
                     name="truck_passport"
                     label="Tex passport"
@@ -124,15 +157,18 @@ const AddVehicleSettingsModal = () => {
                     label="Tirkama raqami"
                     methods={form}
                 />
-                <FormCombobox
-                    required
-                    name="truck_type"
-                    label="Avtomobil turi"
-                    options={vehicleTypes?.results ?? []}
-                    control={control}
-                    labelKey="name"
-                    valueKey="id"
-                />
+                <div>
+                    <FormCombobox
+                        required
+                        name="truck_type"
+                        label="Avtomobil turi"
+                        options={vehicleTypes?.results ?? []}
+                        control={control}
+                        labelKey="name"
+                        valueKey="id"
+                    />
+                    <FieldMessage message={errors.truck_type?.message} />
+                </div>
                 <FormCombobox
                     name="trailer_type"
                     label="Tirkama turi"
@@ -173,17 +209,51 @@ const AddVehicleSettingsModal = () => {
                     labelKey="label"
                     valueKey="value"
                 />
+                {/*
+                  * A production year is an identifier, not money: the default
+                  * space grouping rendered "1800" as "1 800" in the form while
+                  * the table showed "1800" (UI audit S1-39). Grouping off, plus
+                  * a plausible range so a typo like 1800 or 20255 is caught.
+                  */}
                 <FormNumberInput
                     name="year"
                     label="Yili"
                     control={control}
                     decimalScale={0}
+                    allowNegative={false}
+                    thousandSeparator={""}
+                    placeholder={`Misol: ${MAX_YEAR - 1}`}
+                    registerOptions={{
+                        validate: (value: unknown) => {
+                            if (value === null || value === undefined || value === "")
+                                return true
+                            const num = Number(value)
+                            if (Number.isNaN(num))
+                                return "Yili raqam bo'lishi kerak"
+                            if (num < MIN_YEAR || num > MAX_YEAR)
+                                return `Yili ${MIN_YEAR}–${MAX_YEAR} oralig'ida bo'lishi kerak`
+                            return true
+                        },
+                    }}
                 />
                 <FormNumberInput
                     name="consumption"
                     label={consumptionLabel}
                     control={control}
                     decimalScale={0}
+                    allowNegative={false}
+                    registerOptions={{
+                        validate: (value: unknown) => {
+                            if (value === null || value === undefined || value === "")
+                                return true
+                            const num = Number(value)
+                            if (Number.isNaN(num))
+                                return "Sarfi raqam bo'lishi kerak"
+                            if (num < 0)
+                                return "Sarfi manfiy bo'lishi mumkin emas"
+                            return true
+                        },
+                    }}
                 />
                 <FormDatePicker
                     name="registered_date"

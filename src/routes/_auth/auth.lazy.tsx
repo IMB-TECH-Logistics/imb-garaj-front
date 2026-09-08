@@ -2,6 +2,7 @@ import { FormInput } from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import { LOGIN } from "@/constants/api-endpoints"
 import { usePost } from "@/hooks/usePost"
+import { setTokens } from "@/services/axios-instance"
 import { handleFormError } from "@/lib/show-form-errors"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { Truck } from "lucide-react"
@@ -26,7 +27,10 @@ function AuthComponent() {
     const onSubmit = form.handleSubmit((data) => {
         mutate(LOGIN, data, {
             onSuccess(res) {
-                localStorage.setItem("token", res.access)
+                // Access token muddati qisqa (15 daqiqa) — refresh tokensiz
+                // foydalanuvchi 15 daqiqada tizimdan chiqib ketadi, shuning
+                // uchun IKKALASI ham saqlanadi.
+                setTokens({ access: res.access, refresh: res.refresh })
                 window.location.href = "/"
             },
             onError: (error) => handleFormError(error, form),

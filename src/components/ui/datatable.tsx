@@ -24,7 +24,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { DEFAULT_PAGE_SIZE, PAGE_KEY, PAGE_SIZE_KEY } from "@/constants/default"
+import {
+    DEFAULT_PAGE_SIZE,
+    PAGE_KEY,
+    PAGE_SIZE_KEY,
+    SERVER_DEFAULT_PAGE_SIZE,
+} from "@/constants/default"
 import { useHasAction } from "@/constants/useUser"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
@@ -32,6 +37,7 @@ import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
 import CursorPagination from "../as-params/cursor-pagination"
 import LimitOffsetPagination from "../as-params/limit-offset-pagination"
 import ParamPagination from "../as-params/pagination"
+import DataError from "../custom/data-error"
 import EmptyBox from "../custom/empty-box"
 import TableActions from "../custom/table-actions"
 import { Checkbox } from "./checkbox"
@@ -40,6 +46,12 @@ interface DataTableProps<TData> {
     data: TData[] | undefined
     columns: ColumnDef<TData>[]
     loading?: boolean
+    /**
+     * So'rov xatosi (react-query `error`). Berilsa, bo'sh jadval yoki
+     * "Ma'lumot topilmadi" o'rniga ochiq xato holati ko'rsatiladi — chunki
+     * "ma'lumot yo'q" bilan "so'rov ishlamadi" bir xil narsa emas.
+     */
+    error?: unknown
     className?: string
     deleteSelecteds?: (val: number[]) => void
     onRightClick?: (val: TData) => void
@@ -94,6 +106,7 @@ export function DataTable<TData>({
     data,
     columns,
     loading,
+    error,
     className = "min-w-[1100px]",
     deleteSelecteds,
     onRightClick,
@@ -144,6 +157,43 @@ export function DataTable<TData>({
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const search: any = useSearch({ from: "/_main" })
+
+    /**
+     * Qator raqami (№) uchun server HAQIQATAN qaytargan sahifa hajmi.
+     *
+     * Ilgari bu yerda `page_size` URL da bo'lmasa DEFAULT_PAGE_SIZE (10) ishlatilardi,
+     * backend esa (DRF PAGE_SIZE) 25 tadan sahifalaydi — shu sababli 2-sahifadan
+     * boshlab raqamlar noto'g'ri chiqardi (11..18 o'rniga 26..33 bo'lishi kerak edi).
+     *
+     * Endi hajm shu tartibda aniqlanadi:
+     *   1) URL dagi aniq `page_size` (server uni albatta hurmat qiladi)
+     *   2) kuzatilgan to'liq sahifa — oxirgi bo'lmagan har qanday sahifadagi
+     *      qatorlar soni serverning haqiqiy sahifa hajmiga teng
+     *   3) sahifa bergan `PageSize`
+     *   4) backend'ning o'z sukut qiymati (25)
+     */
+    const isManualPagination =
+        !!totalPages || !!cursorPagination || viewAll || !!limitOffsetPagination
+    const currentPage = Math.max(1, Number(search?.[paramName]) || 1)
+    const explicitPageSize = Math.max(0, Number(search?.[pageSizeParamName]) || 0)
+    const observedPageSize = React.useRef(0)
+
+    if (
+        !explicitPageSize &&
+        !!totalPages &&
+        currentPage < totalPages &&
+        (data?.length ?? 0) > 0
+    ) {
+        observedPageSize.current = data?.length ?? 0
+    }
+
+    const effectivePageSize =
+        isManualPagination ?
+            explicitPageSize ||
+            observedPageSize.current ||
+            paginationProps?.PageSize ||
+            SERVER_DEFAULT_PAGE_SIZE
+        :   explicitPageSize || DEFAULT_PAGE_SIZE
 
     const orderedColumns = React.useMemo(() => {
         if (hasActions) return columns
@@ -213,11 +263,7 @@ export function DataTable<TData>({
                     search[pageSizeParamName] ? +search[pageSizeParamName] : 10,
             },
         },
-        manualPagination:
-            !!totalPages ||
-            !!cursorPagination ||
-            viewAll ||
-            !!limitOffsetPagination,
+        manualPagination: isManualPagination,
     })
 
     React.useEffect(() => {
@@ -265,7 +311,7 @@ export function DataTable<TData>({
                     tableWrapperClassName,
                 )}
             >
-                {loading && (
+                {loading && !error && (
                     <Table className="flex flex-col gap-1">
                         {Array.from({ length: skeletonRowCount })?.map(
                             (_, index) => (
@@ -307,7 +353,7 @@ export function DataTable<TData>({
                     </Table>
                 )}
 
-                {data?.length ?
+                {data?.length && !error ?
                     <Table
                         className={`${className} select-text  bg-card rounded-md`}
                         style={{ tableLayout: "fixed" }}
@@ -457,14 +503,8 @@ export function DataTable<TData>({
                                         )}
                                         {numeration && (
                                             <TableCell className="w-8 ">
-                                                {((search[paramName] || 1) -
-                                                    1) *
-                                                    (search[
-                                                        pageSizeParamName
-                                                    ] ||
-                                                        paginationProps
-                                                            ?.page_sizes?.[0] ||
-                                                        DEFAULT_PAGE_SIZE) +
+                                                {(currentPage - 1) *
+                                                    effectivePageSize +
                                                     index +
                                                     1}
                                             </TableCell>
@@ -504,7 +544,9 @@ export function DataTable<TData>({
                         <TableFooter></TableFooter>
                     </Table>
                 :   null}
-                {data?.length === 0 && !loading ?
+                {!loading && error ?
+                    <DataError error={error} height={height} />
+                : data?.length === 0 && !loading ?
                     <EmptyBox height={height} />
                 :   null}
             </div>

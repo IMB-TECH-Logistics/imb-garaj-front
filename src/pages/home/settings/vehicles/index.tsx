@@ -13,7 +13,10 @@ import { useColumnsVehiclesTable } from "./vehicles-cols"
 
 const VehiclesPage = () => {
     const hasControl = useHasAction("settings_vehicles_control")
-    const search = useSearch({ strict: false })
+    // `vehicles_search` is the key TableHeader writes below, but the shared
+    // SearchParams type only declares `vehicle_search`, so read it untyped
+    // (same pattern as the route-configs page).
+    const search = useSearch({ strict: false }) as Record<string, any>
     const { data, isLoading } = useGet<ListResponse<VehicleDetailType>>(
         VEHICLES,
         {
@@ -65,7 +68,19 @@ const VehiclesPage = () => {
                     />
                 }
             />
-            <DeleteModal path={VEHICLES} id={item?.id} />
+            <DeleteModal
+                path={VEHICLES}
+                id={item?.id}
+                name={
+                    item?.id ? (
+                        <span className="font-medium">
+                            {`"${item.truck_number ?? item.id}" raqamli avtomobil. `}
+                        </span>
+                    ) : (
+                        ""
+                    )
+                }
+            />
             <Modal
                 title={
                     item?.id

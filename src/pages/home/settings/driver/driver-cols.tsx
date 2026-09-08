@@ -1,26 +1,63 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatPhoneNumber } from "../customers/phone-number"
-export const useColumnsDriverTable = () => {
+
+/**
+ * Column widths are explicit because `DataTable` renders with
+ * `table-layout: fixed`: without a width the browser splits the row evenly and
+ * the longer headers ("Guvohnoma raqami", "Ish staji") overlap each other
+ * (UI audit S1-27). Header wording is kept identical to the labels in
+ * `add-driver.tsx` so the table and the edit dialog name the same field the
+ * same way (S1-34).
+ */
+export const useColumnsDriverTable = (
+    onOpenTrips?: (driver: DriversType) => void,
+) => {
     return useMemo<ColumnDef<DriversType>[]>(
         () => [
             {
                 accessorKey: "first_name",
                 header: "Ism",
                 enableSorting: true,
+                size: 115,
+                cell: ({ row }) =>
+                    onOpenTrips ? (
+                        // The row used to be clickable as a whole, which threw
+                        // the user out of Sozlamalar with no warning (S1-33).
+                        // Only this cell navigates now, and it looks like a link.
+                        <button
+                            type="button"
+                            className="text-primary underline-offset-2 hover:underline text-left truncate w-full"
+                            title="Haydovchining aylanmalarini ochish"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onOpenTrips(row.original)
+                            }}
+                        >
+                            {row.original.first_name || "-"}
+                        </button>
+                    ) : (
+                        <span className="truncate">
+                            {row.original.first_name || "-"}
+                        </span>
+                    ),
             },
             {
                 accessorKey: "last_name",
-                header: "Ism",
+                header: "Familiya",
                 enableSorting: true,
+                size: 125,
             },
             {
                 accessorKey: "phone_number",
-                header: "Telefon raqami",
+                header: "Telefon",
                 enableSorting: true,
+                size: 145,
                 cell: ({ row }) => (
-                    <div className="min-w-[180px] w-[220px] truncate">
-                        {formatPhoneNumber(row.original?.driver?.phone || "Mavjud emas")}
+                    <div className="truncate">
+                        {formatPhoneNumber(
+                            row.original?.driver?.phone || "Mavjud emas",
+                        )}
                     </div>
                 ),
                 sortingFn: (rowA, rowB, columnId) => {
@@ -35,10 +72,12 @@ export const useColumnsDriverTable = () => {
                 accessorKey: "username",
                 header: "Login",
                 enableSorting: true,
+                size: 105,
             },
             {
-                header: "Passport seriyasi",
+                header: "Pasport raqami",
                 enableSorting: true,
+                size: 140,
                 accessorFn: (row) => row.driver?.passport_serial || "",
                 cell: ({ row }) => {
                     return row.getValue("passport_number") || "-"
@@ -46,8 +85,9 @@ export const useColumnsDriverTable = () => {
                 id: "passport_number",
             },
             {
-                header: "JShShIR",
+                header: "PINFL",
                 enableSorting: true,
+                size: 135,
                 accessorFn: (row) => row.driver?.pinfl || "",
                 cell: ({ row }) => {
                     return row.getValue("pinfl") || "-"
@@ -55,8 +95,9 @@ export const useColumnsDriverTable = () => {
                 id: "pinfl",
             },
             {
-                header: "Haydovchilik guvohnomasi",
+                header: "Guvohnoma raqami",
                 enableSorting: true,
+                size: 155,
                 accessorFn: (row) => row.driver?.driver_license || "",
                 cell: ({ row }) => {
                     return row.getValue("driver_license") || "-"
@@ -66,6 +107,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: "Ish staji",
                 enableSorting: true,
+                size: 95,
                 accessorFn: (row) => row.driver?.experience || 0,
                 cell: ({ row }) => {
                     const value = row.getValue("work_experience")
@@ -74,8 +116,9 @@ export const useColumnsDriverTable = () => {
                 id: "work_experience",
             },
             {
-                header: "Litsenziya muddati",
+                header: "Guvohnoma muddati",
                 enableSorting: true,
+                size: 160,
                 accessorFn: (row) => row.driver?.driver_license_date || "",
                 cell: ({ row }) => {
                     const dateValue = row.getValue("license_expiry") as string
@@ -86,16 +129,7 @@ export const useColumnsDriverTable = () => {
                 },
                 id: "license_expiry",
             },
-            // {
-            //     accessorKey: "is_active",
-            //     header: "Aktiv",
-            //     enableSorting: true,
-            //     cell: ({ row }) => {
-            //         const isActive = row.getValue("is_active")
-            //         return isActive ? "Aktiv" : "Aktiv emas"
-            //     },
-            // },
         ],
-        [],
+        [onOpenTrips],
     )
 }

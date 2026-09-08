@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
+import { showUzApiError } from "@/lib/uz-api-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
@@ -81,15 +82,19 @@ const EditCashFlowModal = () => {
 
     const onSubmit = (values: FormValues) => {
         if (!current?.id) return
-        mutate(`${SETTINGS_PETROL_STATIONS}/cash-flows/${current.id}`, {
-            amount: Number(values.amount),
-            currency: values.currency,
-            currency_course:
-                values.currency === 2 && values.currency_course !== ""
-                    ? Number(values.currency_course)
-                    : null,
-            comment: values.comment || null,
-        })
+        mutate(
+            `${SETTINGS_PETROL_STATIONS}/cash-flows/${current.id}`,
+            {
+                amount: Math.round(Number(values.amount) * 100) / 100,
+                currency: values.currency,
+                currency_course:
+                    values.currency === 2 && values.currency_course !== ""
+                        ? Number(values.currency_course)
+                        : null,
+                comment: values.comment || null,
+            },
+            { onError: (error) => showUzApiError(error, form) },
+        )
     }
 
     return (
@@ -109,7 +114,9 @@ const EditCashFlowModal = () => {
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
+                decimalScale={2}
+                allowedDecimalSeparators={[",", "."]}
+                allowNegative={false}
             />
             {currency === 2 && (
                 <FormNumberInput
@@ -119,7 +126,9 @@ const EditCashFlowModal = () => {
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
-                    decimalScale={0}
+                    decimalScale={2}
+                    allowedDecimalSeparators={[",", "."]}
+                    allowNegative={false}
                 />
             )}
             <FormTextarea label="Izoh" name="comment" methods={form} />

@@ -7,6 +7,7 @@ import {
     COMMON_DIRECTIONS,
     MANAGERS_ORDERS,
     MANAGERS_RUNS,
+    SETTINGS_SELECTABLE_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
     VEHICLES,
 } from "@/constants/api-endpoints"
@@ -52,7 +53,22 @@ type ReysFormValues = {
     status: number | null
     type: number | null
     out_of_contract: boolean
-    nds_percent?: string | null
+    nds_percent?: string | number | null
+}
+
+type SelectItem = { id: number | string; name: string }
+
+/** Ro'yxatda yo'q (arxivlangan yoki boshqa manbadan kelgan) joriy qiymatni
+ *  combobox yorlig'i yo'qolib qolmasligi uchun ro'yxatga qo'shib qo'yadi (BX-05). */
+const withCurrentValue = (
+    options: SelectItem[] | undefined,
+    value: number | null | undefined,
+    label: string | null | undefined,
+): SelectItem[] => {
+    const list = options ?? []
+    if (value === null || value === undefined) return list
+    if (list.some((o) => Number(o.id) === Number(value))) return list
+    return [...list, { id: value, name: label || `ID ${value}` }]
 }
 
 const ORDER_STATUS_OPTIONS: Option[] = [
@@ -105,6 +121,10 @@ const EditReysModal = () => {
             status: current?.status ?? null,
             type: current?.type ?? null,
             out_of_contract: (current as any)?.out_of_contract ?? false,
+            // BX-04: API bu qiymatni `pct` nomi bilan qaytaradi, forma esa
+            // `nds_percent` kutadi — nomlar mos kelmagani uchun majburiy maydon
+            // hech qachon to'lmasdi va hech qanday tahrirni saqlab bo'lmasdi.
+            nds_percent: current?.pct ?? null,
         },
     })
 
@@ -122,6 +142,14 @@ const EditReysModal = () => {
     const { data: vehiclesData } = useGet<ListResponse<Vehicle>>(VEHICLES, {
         params: { page_size: 10000 },
     })
+
+    // BX-05: yuk turlari MARSHRUTLAR ro'yxatidan yig'ilardi, shuning uchun
+    // marshrutlarda uchramaydigan yuk turi (masalan id=2) combobox'da
+    // "tanlanmagan" ko'rinardi. Endi to'liq ma'lumotnomadan olinadi.
+    const { data: cargoTypesRef } = useGet<SelectItem[]>(
+        SETTINGS_SELECTABLE_CARGO_TYPE,
+        { params: { model_name: "cargo-type" } },
+    )
 
     const directions = useMemo(
         () => directionsResponse?.results ?? [],
@@ -157,11 +185,12 @@ const EditReysModal = () => {
 
     const cargoTypesData = useMemo(
         () =>
-            distinctOptions(directions, (d) => ({
-                id: d.cargo_type,
-                name: d.cargo_type_name,
-            })),
-        [directions],
+            withCurrentValue(
+                cargoTypesRef,
+                current?.cargo_type,
+                current?.cargo_type_name,
+            ),
+        [cargoTypesRef, current?.cargo_type, current?.cargo_type_name],
     )
 
     const vehicleOptions = useMemo(
@@ -175,6 +204,35 @@ const EditReysModal = () => {
             })),
         [vehiclesData],
     )
+
+    // BX-06: /manager/runs/ javobida `direction` maydoni umuman yo'q (`as any` cast
+    // buni yashirgan), shuning uchun "Yo'nalish" doim bo'sh ko'rinardi va foydalanuvchi
+    // reysning marshrutini bilmasdan o'zgartirib yuborishi mumkin edi. Endi mavjud
+    // yuklash / tushirish / yuk turi juftligi bo'yicha marshrut topib qo'yiladi.
+    const directionPrefilledRef = useRef(false)
+    useEffect(() => {
+        if (directionPrefilledRef.current) return
+        if (!directions.length) return
+        if (form.getValues("direction") != null) {
+            directionPrefilledRef.current = true
+            return
+        }
+        const match = directions.find(
+            (d) =>
+                d.load === current?.loading &&
+                d.unload === current?.unloading &&
+                d.cargo_type === current?.cargo_type,
+        )
+        if (match) setValue("direction", match.id)
+        directionPrefilledRef.current = true
+    }, [
+        directions,
+        current?.loading,
+        current?.unloading,
+        current?.cargo_type,
+        form,
+        setValue,
+    ])
 
     const vehiclePrefilledRef = useRef(false)
     useEffect(() => {
@@ -214,7 +272,13 @@ const EditReysModal = () => {
         if (values.status !== null) payload.status = values.status
         if (values.type !== null) payload.type = values.type
         if (values.date) payload.date = values.date
-        if (values?.nds_percent !== null) payload.nds_percent = values?.nds_percent
+        if (
+            values.nds_percent !== null &&
+            values.nds_percent !== undefined &&
+            values.nds_percent !== ""
+        ) {
+            payload.nds_percent = values.nds_percent
+        }
         payload.out_of_contract = values.out_of_contract
 
         mutate(`${MANAGERS_ORDERS}/${current.id}`, payload)

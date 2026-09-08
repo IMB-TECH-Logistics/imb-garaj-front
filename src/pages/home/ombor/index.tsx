@@ -106,13 +106,18 @@ const Ombor = () => {
                                             key={cat.id}
                                             className="flex items-center justify-between py-1.5 px-2 rounded-md"
                                         >
-                                            <span className="text-sm flex items-center gap-2">
-                                                <span className="text-xs text-muted-foreground w-4 text-right">
+                                            <span className="text-sm flex items-center gap-2 min-w-0 flex-1">
+                                                <span className="text-xs text-muted-foreground w-4 text-right shrink-0">
                                                     {i + 1}
                                                 </span>
-                                                {cat.name}
+                                                <span
+                                                    className="truncate"
+                                                    title={cat.name}
+                                                >
+                                                    {cat.name}
+                                                </span>
                                             </span>
-                                            <span className="text-sm font-medium">
+                                            <span className="text-sm font-medium shrink-0 pl-3 whitespace-nowrap">
                                                 {formatMoney(
                                                     Number(cat.unit_price) *
                                                         Number(cat.quantity),

@@ -18,7 +18,19 @@ export interface MenuItem {
     path: string
     items?: MenuItem[]
     pending?: boolean
+    /** Aynan shu ruxsat kodi bo'lgan foydalanuvchiga ko'rinadi. */
     allowKey?: string
+    /**
+     * Backend'da `ANY_MODULE` bilan himoyalangan sahifalar uchun: kamida BITTA
+     * modul ruxsati bo'lgan foydalanuvchiga ko'rinadi. Hech qanday ruxsati yo'q
+     * rol (masalan Driver) bu bandni ko'rmaydi.
+     */
+    requiresAnyPermission?: boolean
+    /**
+     * ⚠️ BARCHA ruxsat tekshiruvlarini chetlab o'tadi — 0 ruxsatli foydalanuvchi
+     * ham ko'radi. Yangi bandlarda ISHLATILMASIN; `allowKey` yoki
+     * `requiresAnyPermission` dan foydalaning.
+     */
     alwaysShow?: boolean
     extraPaths?: string[]
 }
@@ -27,20 +39,34 @@ const filterMenuItems = (
     items: MenuItem[],
     allowedModules: string[],
 ): MenuItem[] => {
+    const hasAnyPermission = allowedModules.length > 0
+
     return items.reduce<MenuItem[]>((acc, item) => {
         const filteredItem: MenuItem = { ...item }
+        const isParent = Array.isArray(item.items)
 
         if (item.items) {
             filteredItem.items = filterMenuItems(item.items, allowedModules)
             if (filteredItem.items.length > 0) {
+                // Ota-band bosilganda ruxsat berilgan BIRINCHI bolaga o'tadi.
                 filteredItem.path = filteredItem.items[0].path
             }
         }
 
+        // Ota-band: ruxsat berilgan birorta bola qolmasa, o'zi ham ko'rsatilmaydi —
+        // aks holda foydalanuvchini ocholmaydigan sahifaga olib boradigan
+        // (yoki 403 beradigan) band qolib ketardi.
+        if (isParent) {
+            if ((filteredItem.items?.length ?? 0) > 0) {
+                acc.push(filteredItem)
+            }
+            return acc
+        }
+
         const isAllowed =
-            item.alwaysShow ||
-            (item.allowKey && allowedModules.includes(item.allowKey)) ||
-            (filteredItem.items && filteredItem.items.length > 0)
+            item.alwaysShow === true ||
+            (item.requiresAnyPermission === true && hasAnyPermission) ||
+            (!!item.allowKey && allowedModules.includes(item.allowKey))
 
         if (isAllowed) {
             acc.push(filteredItem)
@@ -114,12 +140,10 @@ export const usePaths = () => {
 export const useItems = () =>
     useMemo<MenuItem[]>(
         () => [
-            // {
-            //     label: "Buyurtmalar",
-            //     icon: <ClipboardList size={18} />,
-            //     path: "/buyurtmalar",
-            //     alwaysShow: true,
-            // },
+            // 2026-09-08: "Buyurtmalar" bandi va /buyurtmalar sahifasi butunlay
+            // olib tashlandi — sahifa soxta (mock) buyurtmalarni ko'rsatib,
+            // "biriktirildi" degan yolg'on tasdiq berardi, backendda esa unga
+            // mos `dispatchers/*` endpointlari umuman yo'q (S3-45, S3-46).
             {
                 label: "Meneger",
                 icon: <User size={18} />,
@@ -170,13 +194,15 @@ export const useItems = () =>
                 label: "Haydovchilar",
                 icon: <Users width={18} />,
                 path: "/haydovchilar",
-                alwaysShow: true,
+                // Backend: users/drivers/* → codes("settings_drivers")
+                allowKey: "settings_drivers_view",
             },
             {
                 label: "Ombor",
                 icon: <Boxes width={18} />,
                 path: "/ombor",
-                alwaysShow: true,
+                // Backend: warehouse/* → ANY_MODULE (kamida bitta modul ruxsati)
+                requiresAnyPermission: true,
             },
             {
                 label: "Moliya",
@@ -189,7 +215,6 @@ export const useItems = () =>
                 icon: <Activity width={18} />,
                 path: "/monitoring",
                 allowKey: "monitoring_view",
-                alwaysShow: true,
             },
             {
                 label: "Sozlamalar",
@@ -259,7 +284,8 @@ export const useItems = () =>
                     {
                         label: "Faoliyat jurnali",
                         path: "/logs",
-                        alwaysShow: true,
+                        // Backend: logs/* → ANY_MODULE (kamida bitta modul ruxsati)
+                        requiresAnyPermission: true,
                     },
                 ],
             },

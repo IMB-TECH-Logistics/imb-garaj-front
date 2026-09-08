@@ -22,7 +22,7 @@ import AddTripOrders from "./create-reys"
 
 export default function ManagerReys() {
     const search = useSearch({ strict: false })
-    const { name } = search as any
+    const { name, ordering } = search as any
     const { openModal: openTripModal } = useModal(MANAGERS_ORDERS)
     const { openModal: deleteModal } = useModal(`${MANAGERS_ORDERS}-delete`)
     const { setData, getData, clearKey } = useGlobalStore()
@@ -34,8 +34,16 @@ export default function ManagerReys() {
             trip: id,
             page_size: search.page_size,
             page: search.page,
+            // MR-12: server tomon saralash — backend OrderingFilter qo'shgach ishlaydi.
+            ...(ordering ? { ordering } : {}),
         },
     })
+
+    // MT-22: `name` (haydovchi ismi) faqat URL search parametridan keladi.
+    // To'g'ridan-to'g'ri havolada u yo'q edi va breadcrumb'da "nimadir" ko'rinardi.
+    // Zaxira manba — aylanmalar sahifasida saqlangan qator.
+    const storedTrip = getData<ManagerTrips>("manager-trips")
+    const title = name || (storedTrip?.id?.toString() === id ? storedTrip?.driver_name : "") || ""
     const hasControl = useHasAction("manager_vehicles_control")
 
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
@@ -81,8 +89,12 @@ export default function ManagerReys() {
                                     trailing={
                                         <>
                                             <Badge>{formatMoney(data?.count)}</Badge>
-                                            <span className="text-muted-foreground">/</span>
-                                            <span>{name || "nimadir"}</span>
+                                            {title && (
+                                                <>
+                                                    <span className="text-muted-foreground">/</span>
+                                                    <span>{title}</span>
+                                                </>
+                                            )}
                                         </>
                                     }
                                 />

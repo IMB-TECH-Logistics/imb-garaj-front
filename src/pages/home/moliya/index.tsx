@@ -199,20 +199,23 @@ function ArrowDownIcon() {
     )
 }
 
-function StatCard({ label, value, icon, color }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red" }) {
+function StatCard({ label, value, icon, color, hint, sublabel }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string; sublabel?: string }) {
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",
         red: "text-red-600 bg-red-500/10",
     }
     return (
-        <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
+        <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3" title={hint}>
             <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", colors[color])}>
                 {icon}
             </div>
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <p className="text-sm font-semibold truncate">{fmt(value)} so'm</p>
+                {sublabel && (
+                    <p className="text-[10px] text-muted-foreground/80 truncate">{sublabel}</p>
+                )}
             </div>
         </div>
     )
@@ -255,23 +258,33 @@ export default function MoliyaPage() {
             />
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-3">
+                {/* ML-01: bu qiymat backendda global kassa qoldig'i (Checkout.main().balance)
+                    va sana filtriga bo'ysunmaydi. Ekranda "Balans" nomli ikkinchi widget
+                    (Balans dinamikasi grafigi) boshqa son ko'rsatgani uchun nomlar farqlandi
+                    va kartaning oraliqqa bog'liq emasligi ochiq yozildi. */}
                 <StatCard
-                    label="Balans"
+                    label="Kassa qoldig'i (joriy)"
                     value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
+                    sublabel="Sana filtriga bog'liq emas"
+                    hint="Kassaning bugungi umumiy qoldig'i. Tanlangan sana oralig'iga bog'liq emas — oraliq bo'yicha harakat uchun Tushum/Xarajat kartalariga va 'Balans dinamikasi' grafigiga qarang."
                 />
                 <StatCard
                     label="Tushum"
                     value={Number(summary?.income_total ?? 0)}
                     icon={<ArrowUpIcon />}
                     color="emerald"
+                    sublabel="Tanlangan oraliq · NDS ayirilgan"
+                    hint="Tanlangan sana oralig'idagi kirimlar. Mijoz NDS foizi ayirilgan holda (Kirim-Chiqim tarixi jadvalida NDS ayirilmagan summa ko'rsatiladi)."
                 />
                 <StatCard
                     label="Xarajat"
                     value={Number(summary?.expense_total ?? 0)}
                     icon={<ArrowDownIcon />}
                     color="red"
+                    sublabel="Tanlangan oraliq · avanssiz"
+                    hint="Tanlangan sana oralig'idagi xarajatlar. Avans (ADVANCE) turidagi pul harakatlari bu summaga kirmaydi, lekin jadvalda chiqim sifatida ko'rinadi."
                 />
             </div>
 

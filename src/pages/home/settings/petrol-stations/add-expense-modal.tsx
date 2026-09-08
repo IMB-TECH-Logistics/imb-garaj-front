@@ -16,6 +16,8 @@ import { useModal } from "@/hooks/useModal"
 import { useDelete } from "@/hooks/useDelete"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { showUzApiError } from "@/lib/uz-api-errors"
+import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -180,6 +182,19 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
         },
     })
 
+    // Balansdan ortiq chiqim uchun ogohlantirish: joriy balansni olib turamiz
+    const { data: stationStats } = useGet<{ balance: number }>(
+        `${SETTINGS_PETROL_STATIONS}/${stationId}/stats`,
+        { enabled: !!stationId },
+    )
+    const stationBalance = Number(stationStats?.balance ?? 0)
+    const amountValue = Number(watch("amount") || 0)
+    const courseValue = Number(watch("currency_course") || 0)
+    const amountInUzs =
+        currency === 2 ? amountValue * (courseValue || 0) : amountValue
+    const isOverBalance =
+        !!stationStats && amountInUzs > 0 && amountInUzs > stationBalance
+
     const { mutate, isPending } = usePost({
         onSuccess: () => {
             toast.success("Chiqim qo'shildi")
@@ -197,8 +212,8 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             ...(isOther
                 ? { other_vehicle: values.other_vehicle }
                 : { vehicle: values.vehicle }),
-            amount: Number(values.amount),
-            quantity: Number(values.quantity),
+            amount: Math.round(Number(values.amount) * 100) / 100,
+            quantity: Math.round(Number(values.quantity) * 100) / 100,
             currency: values.currency,
             currency_course:
                 values.currency === 2 && values.currency_course !== ""
@@ -215,9 +230,17 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 formData.append(key, String(value))
             })
             formData.append("receipt", values.receipt)
-            mutate(`${SETTINGS_PETROL_STATIONS}/${stationId}/expense`, formData)
+            mutate(
+                `${SETTINGS_PETROL_STATIONS}/${stationId}/expense`,
+                formData,
+                { onError: (error) => showUzApiError(error, form) },
+            )
         } else {
-            mutate(`${SETTINGS_PETROL_STATIONS}/${stationId}/expense`, fields)
+            mutate(
+                `${SETTINGS_PETROL_STATIONS}/${stationId}/expense`,
+                fields,
+                { onError: (error) => showUzApiError(error, form) },
+            )
         }
     }
 
@@ -451,6 +474,8 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 placeholder="Ex: 120.5"
                 thousandSeparator=" "
                 decimalScale={2}
+                allowedDecimalSeparators={[",", "."]}
+                allowNegative={false}
             />
             <FormCombobox
                 control={control}
@@ -467,7 +492,9 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
+                decimalScale={2}
+                allowedDecimalSeparators={[",", "."]}
+                allowNegative={false}
             />
             {currency === 2 && (
                 <FormNumberInput
@@ -477,8 +504,24 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
-                    decimalScale={0}
+                    decimalScale={2}
+                    allowedDecimalSeparators={[",", "."]}
+                    allowNegative={false}
                 />
+            )}
+            {isOverBalance && (
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-sm text-amber-700 dark:text-amber-400">
+                    Diqqat: chiqim summasi zapravka balansidan katta. Joriy
+                    balans{" "}
+                    <span className="font-semibold tabular-nums">
+                        {formatMoney(stationBalance)} so'm
+                    </span>
+                    , kiritilgan chiqim{" "}
+                    <span className="font-semibold tabular-nums">
+                        {formatMoney(amountInUzs)} so'm
+                    </span>
+                    . Saqlansa balans manfiyga tushadi.
+                </div>
             )}
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <FileUpload

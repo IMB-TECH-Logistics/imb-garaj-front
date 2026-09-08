@@ -45,3 +45,5 @@ type TPermissions =
     | "settings_expense_types_control"
     | "settings_petrol_stations_view"
     | "settings_petrol_stations_control"
+    | "settings_driver_salaries_view"
+    | "settings_driver_salaries_control"

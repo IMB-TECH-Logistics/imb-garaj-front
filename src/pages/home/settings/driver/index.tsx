@@ -12,6 +12,7 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
+import { useCallback } from "react"
 import AddDriverModal from "./add-driver"
 import { useColumnsDriverTable } from "./driver-cols"
 
@@ -36,7 +37,24 @@ const Drivers = () => {
 
     const { openModal: openDeleteModal } = useModal("delete")
     const { openModal: openCreateModal } = useModal(`create`)
-    const columns = useColumnsDriverTable()
+
+    // Opening a driver's trips is an explicit action on the name cell, not a
+    // click anywhere on the row — see driver-cols.tsx (UI audit S1-33).
+    const handleOpenTrips = useCallback(
+        (driver: DriversType) => {
+            navigate({
+                to: "/manager-trips/$id",
+                params: { id: driver.id.toString() },
+                search: {
+                    driver_id: driver.id,
+                    name: `${driver.first_name} ${driver.last_name}`,
+                } as any,
+            })
+        },
+        [navigate],
+    )
+
+    const columns = useColumnsDriverTable(handleOpenTrips)
 
     const handleDelete = (row: { original: DriversType }) => {
         setData(SETTINGS_DRIVERS, row.original)
@@ -53,17 +71,6 @@ const Drivers = () => {
         openCreateModal()
     }
 
-    const handleRowClick = (item: DriversType) => {
-        navigate({
-            to: "/manager-trips/$id",
-            params: { id: item.id.toString() },
-            search: {
-                driver_id: item.id,
-                name: `${item.first_name} ${item.last_name}`,
-            } as any,
-        })
-    }
-
     return (
         <>
             <DataTable
@@ -77,7 +84,6 @@ const Drivers = () => {
                         ({ original }) => handleEdit(original)
                     :   undefined
                 }
-                onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                         <div className="flex items-center gap-2">
@@ -119,6 +125,21 @@ const Drivers = () => {
                 path={SETTINGS_DRIVERS}
                 refetchKeys={[SETTINGS_DRIVERS]}
                 id={item?.id}
+                name={
+                    item?.id ? (
+                        <span className="block mb-2">
+                            <b>
+                                {`${item.first_name ?? ""} ${item.last_name ?? ""}`.trim()}
+                            </b>
+                            {" haydovchisi ro'yxatdan olib tashlanadi. "}
+                            <span className="text-muted-foreground">
+                                {`Yozuv bazadan butunlay o'chmaydi — faqat faolsizlantiriladi, shuning uchun "${item.username ?? ""}" logini band bo'lib qoladi va shu login bilan yangi haydovchi ochib bo'lmaydi.`}
+                            </span>
+                        </span>
+                    ) : (
+                        ""
+                    )
+                }
             />
 
             <Modal

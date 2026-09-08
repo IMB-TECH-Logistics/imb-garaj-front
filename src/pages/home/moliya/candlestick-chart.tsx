@@ -640,7 +640,7 @@ export default function CandlestickChart() {
     <div className="tv-layout">
       {/* Title */}
       <div style={{ padding: '10px 14px 0', fontSize: 12, fontWeight: 600, color: 'var(--tv-text-strong)', fontFamily: 'var(--sans)' }}>
-        Balans
+        Balans dinamikasi
       </div>
       {/* OHLC overlay */}
       <div className="tv-ohlc-overlay">

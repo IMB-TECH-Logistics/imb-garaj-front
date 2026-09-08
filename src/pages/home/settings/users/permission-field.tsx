@@ -16,11 +16,16 @@ type Module = {
 export default function PermissionField() {
     const form = useFormContext()
 
+    // DIQQAT: bu yerda `defaultValue` BERILMAYDI.
+    // react-hook-form (7.53) `_getWatch` ichida, forma hali mount bo'lmagan
+    // birinchi renderda, `defaultValue` berilgan bo'lsa qiymat manbasini
+    // butunlay `{ actions: defaultValue }` ga almashtiradi va useForm'ning
+    // `defaultValues.actions` ini e'tiborsiz qoldiradi. Natijada saqlangan
+    // ruxsatlar bo'sh ko'rinadi va saqlashda jimgina o'chib ketadi (S2-22/S2-23).
     const actions =
         (useWatch({
             control: form.control,
             name: "actions",
-            defaultValue: [],
         }) as string[]) || []
 
     const isChecked = (code?: string) => !!code && actions?.includes(code)

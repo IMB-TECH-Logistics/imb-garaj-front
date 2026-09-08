@@ -46,7 +46,6 @@ const useTransactionCols = () => {
             {
                 header: "Summa",
                 accessorKey: "amount",
-                enableSorting: true,
                 cell: ({ row }) => (
                     <span>
                         {formatMoney(Number(row.original.amount))}
@@ -72,12 +71,10 @@ const useTransactionCols = () => {
             {
                 header: "Ma'sul",
                 accessorKey: "executor_name",
-                enableSorting: true,
             },
             {
                 header: "Sana",
                 accessorKey: "created",
-                enableSorting: true,
                 cell: ({ row }) => {
                     const d = new Date(row.original.created)
                     if (isNaN(d.getTime())) return "-"
@@ -93,12 +90,10 @@ const useTransactionCols = () => {
             {
                 header: "Izoh",
                 accessorKey: "comment",
-                enableSorting: true,
             },
             {
                 header: "Turi",
                 accessorKey: "type",
-                enableSorting: true,
                 cell: ({ row }) => (
                     <Badge
                         variant={
@@ -159,6 +154,19 @@ const Kassa = () => {
                 : null,
         [drivers, driverFilterId],
     )
+
+    const pageTotals = useMemo(() => {
+        const rows = transactionsData?.results ?? []
+        return rows.reduce(
+            (acc, t) => {
+                const amount = Number(t.amount) || 0
+                if (t.type === -1) acc.expense += amount
+                else acc.income += amount
+                return acc
+            },
+            { income: 0, expense: 0 },
+        )
+    }, [transactionsData?.results])
 
     const driversTotal = useMemo(
         () =>
@@ -270,13 +278,15 @@ const Kassa = () => {
                                                     : "hover:bg-muted/80",
                                             )}
                                         >
-                                            <span className="text-sm flex items-center gap-2">
-                                                <span className="text-xs text-muted-foreground w-4 text-right">
+                                            <span className="text-sm flex items-center gap-2 min-w-0 flex-1">
+                                                <span className="text-xs text-muted-foreground w-4 text-right shrink-0">
                                                     {i + 1}
                                                 </span>
-                                                {driver.full_name}
+                                                <span className="truncate">
+                                                    {driver.full_name}
+                                                </span>
                                             </span>
-                                            <span className="text-sm font-medium">
+                                            <span className="text-sm font-medium shrink-0 pl-3">
                                                 {formatMoney(Number(driver.balance ?? 0))}
                                             </span>
                                         </div>
@@ -305,10 +315,24 @@ const Kassa = () => {
                     head={
                         <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h1 className="text-lg">Kiritilgan summa</h1>
+                                <h1 className="text-lg">Kassa yozuvlari</h1>
                                 <Badge>
-                                    {formatMoney(transactionsData?.count)}
+                                    {(transactionsData?.count ?? 0).toLocaleString(
+                                        "ru-RU",
+                                    )}{" "}
+                                    ta
                                 </Badge>
+                                <span className="text-sm text-muted-foreground flex items-center gap-2">
+                                    <span className="text-emerald-600 dark:text-emerald-500">
+                                        Kirim {formatMoney(pageTotals.income)}
+                                    </span>
+                                    <span className="text-rose-600 dark:text-rose-500">
+                                        Chiqim {formatMoney(pageTotals.expense)}
+                                    </span>
+                                    <span className="text-xs">
+                                        (shu sahifada)
+                                    </span>
+                                </span>
                                 {selectedDriver && (
                                     <Badge
                                         variant="outline"

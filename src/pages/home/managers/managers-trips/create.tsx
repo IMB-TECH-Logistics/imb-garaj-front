@@ -72,6 +72,14 @@ export default function CreateManagerTrips() {
     const startMileage = watch("start_mileage")
     const endMileage = watch("end_mileage")
     const startFuel = watch("start_fuel")
+    const startDate = watch("start")
+    const endDate = watch("end")
+
+    // MT-25 / qabul mezoni 5: mantiqsiz sana oralig'i (tugash < boshlanish).
+    const dateRangeError =
+        startDate && endDate && String(endDate) < String(startDate) ?
+            "Tugatish sanasi boshlanish sanasidan oldin bo'lishi mumkin emas"
+        :   ""
 
     const mileageDiffers = !isEdit && startData?.end_mileage != null && Number(startMileage) !== Number(startData.end_mileage)
     const fuelDiffers = !isEdit && startData?.end_fuel != null && Number(startFuel) !== Number(startData.end_fuel)
@@ -99,6 +107,14 @@ export default function CreateManagerTrips() {
     )
 
     function onSubmit(values: any) {
+        // Qabul mezoni: tugash sanasi boshlanish sanasidan oldin bo'lolmaydi.
+        // FormDatePicker `registerOptions` qabul qilmaydi, shuning uchun bu yerda
+        // tekshiriladi va sabab aniq matn bilan aytiladi.
+        if (dateRangeError) {
+            toast.error(dateRangeError)
+            return
+        }
+
         const formData = new FormData()
         formData.append("start", values.start)
         formData.append("driver", String(values.driver))
@@ -150,6 +166,9 @@ export default function CreateManagerTrips() {
                     labelKey="full_name"
                     valueKey="id"
                     label="Haydovchi"
+                    // MT-31: standart `hideError = true` bo'lgani uchun majburiy
+                    // maydon bo'sh qolganda faqat qizil ramka chiqardi, matn emas.
+                    hideError={false}
                 />
 
                 {(!IS_READY || isEdit) && (
@@ -158,6 +177,7 @@ export default function CreateManagerTrips() {
                         required
                         name="start"
                         label="Boshlash sanasi"
+                        hideError={false}
                     />
                 )}
 
@@ -166,6 +186,14 @@ export default function CreateManagerTrips() {
                     required
                     label={`Boshlash probegi${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
                     control={control}
+                    // MT-25: probeg (odometr) manfiy bo'lolmaydi.
+                    allowNegative={false}
+                    registerOptions={{
+                        min: {
+                            value: 0,
+                            message: "Probeg manfiy bo'lishi mumkin emas",
+                        },
+                    }}
                 />
 
                 {startImage ?
@@ -201,6 +229,13 @@ export default function CreateManagerTrips() {
                     label={`Boshlanishdagi yoqilg'i (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
                     control={control}
                     decimalScale={2}
+                    allowNegative={false}
+                    registerOptions={{
+                        min: {
+                            value: 0,
+                            message: "Yoqilg'i manfiy bo'lishi mumkin emas",
+                        },
+                    }}
                 />
                 {!item?.id && (
                     <FormNumberInput
@@ -210,6 +245,13 @@ export default function CreateManagerTrips() {
                         thousandSeparator=" "
                         decimalScale={0}
                         placeholder="Ex: 5 000 000"
+                        allowNegative={false}
+                        registerOptions={{
+                            min: {
+                                value: 0,
+                                message: "Avans manfiy bo'lishi mumkin emas",
+                            },
+                        }}
                     />
                 )}
                 {item?.id && (
@@ -219,11 +261,26 @@ export default function CreateManagerTrips() {
                             name="end"
                             label="Tugatish sanasi"
                         />
+                        {dateRangeError && (
+                            <p className="text-[12px] text-red-600 -mt-2">
+                                {dateRangeError}
+                            </p>
+                        )}
                         <FormNumberInput
                             name="end_mileage"
                             required
                             label="Tugash probegi"
                             control={control}
+                            // Qabul mezoni 5: tugash probegi boshlanishdan kichik bo'lolmaydi.
+                            allowNegative={false}
+                            registerOptions={{
+                                min: {
+                                    value: Number(startMileage) || 0,
+                                    message: `Tugash probegi boshlanish probegidan (${
+                                        Number(startMileage) || 0
+                                    }) kam bo'lishi mumkin emas`,
+                                },
+                            }}
                         />
 
                         {endImage ?

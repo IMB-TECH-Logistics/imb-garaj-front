@@ -13,6 +13,13 @@ export const STATUS_LABELS: any = {
     3: "Ta'mirda",
 }
 
+/**
+ * Hisoblagich ustunlari uchun: maydon backenddan kelmasa (undefined/null) "—",
+ * haqiqiy 0 esa "0" bo'lib ko'rinadi. MT-21 dagi soxta 0 shu bilan oldi olinadi.
+ */
+const countOrDash = (value: number | string | null | undefined) =>
+    value === null || value === undefined || value === "" ? "—" : value
+
 export const STATUS_TRIP: Record<number, string> = {
     0: "Kutilmoqda",
     1: "Boshlandi",
@@ -66,17 +73,15 @@ export const useColumnsManagersTrips = (opts?: {
                 accessorKey: "completed_order_count",
                 header: "Yakunlangan reyslar",
                 enableSorting: true,
-                cell: ({ row }) => (
-                    <div>{(row.original as any).completed_order_count || "0"}</div>
-                ),
+                // MT-21: backend bu maydonni hali qaytarmaydi (backend-kerak/F2.md).
+                // Maydon kelmasa "—" ko'rsatiladi — ilgari `as any` bilan soxta 0 chiqardi.
+                cell: ({ row }) => <div>{countOrDash(row.original.completed_order_count)}</div>,
             },
             {
                 accessorKey: "pending_order_count",
                 header: "Kutilayotgan reyslar",
                 enableSorting: true,
-                cell: ({ row }) => (
-                    <div>{row.original.pending_order_count || "0"}</div>
-                ),
+                cell: ({ row }) => <div>{countOrDash(row.original.pending_order_count)}</div>,
             },
             // {
             //     accessorKey: "status",
@@ -109,7 +114,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: "Boshlang'ich yoqilg'i",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{formatMoney((row.original as any).start_fuel)}</div>
+                    <div>{formatMoney(row.original.start_fuel ?? undefined)}</div>
                 ),
             },
             {
@@ -117,7 +122,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: "Yakuniy yoqilg'i",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{formatMoney((row.original as any).end_fuel)}</div>
+                    <div>{formatMoney(row.original.end_fuel ?? undefined)}</div>
                 ),
             },
             {
@@ -125,16 +130,16 @@ export const useColumnsManagersTrips = (opts?: {
                 header: "100 km ga sarf (l)",
                 enableSorting: true,
                 accessorFn: (row) => {
-                    const startFuel = Number((row as any).start_fuel ?? 0)
-                    const endFuel = Number((row as any).end_fuel ?? 0)
+                    const startFuel = Number(row.start_fuel ?? 0)
+                    const endFuel = Number(row.end_fuel ?? 0)
                     const distance = Number(row.end_mileage ?? 0) - Number(row.start_mileage ?? 0)
                     const liters = startFuel - endFuel
                     if (distance <= 0 || liters <= 0) return 0
                     return (liters / distance) * 100
                 },
                 cell: ({ row }) => {
-                    const startFuel = Number((row.original as any).start_fuel ?? 0)
-                    const endFuel = Number((row.original as any).end_fuel ?? 0)
+                    const startFuel = Number(row.original.start_fuel ?? 0)
+                    const endFuel = Number(row.original.end_fuel ?? 0)
                     const distance =
                         Number(row.original.end_mileage ?? 0) -
                         Number(row.original.start_mileage ?? 0)

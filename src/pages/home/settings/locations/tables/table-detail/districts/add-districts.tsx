@@ -9,11 +9,15 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { showSettingsApiError } from "../../../../settings-api-errors"
 
 interface AddDestrictsModalProps {
     region_id?: string | number
     country_id: number
 }
+
+/** Matches the server-side `max_length` on `District.name`. */
+const NAME_MAX_LENGTH = 255
 
 const AddDestrictsModal = ({
     region_id,
@@ -39,7 +43,11 @@ const AddDestrictsModal = ({
         },
     })
 
-    const { handleSubmit, reset } = form
+    const {
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = form
 
     const onSuccess = () => {
         toast.success(
@@ -65,6 +73,7 @@ const AddDestrictsModal = ({
     const onSubmit = (values: SettingsDistrictType) => {
         const formData = {
             ...values,
+            name: values.name?.trim(),
             region:
                 currentDistrict?.id ? values.region
                 : region_id ? String(region_id)
@@ -75,13 +84,16 @@ const AddDestrictsModal = ({
             updateMutate(
                 `${SETTINGS_DISTRICTS}/${currentDistrict.id}`,
                 formData,
+                { onError: showSettingsApiError },
             )
         } else {
             if (!region_id) {
-                toast.error("Iltimos, avval viloyat tanlang")
+                toast.error("Iltimos, avval joylashuvni tanlang")
                 return
             }
-            postMutate(SETTINGS_DISTRICTS, formData)
+            postMutate(SETTINGS_DISTRICTS, formData, {
+                onError: showSettingsApiError,
+            })
         }
     }
 
@@ -97,20 +109,40 @@ const AddDestrictsModal = ({
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid md:grid-cols-2 gap-4"
             >
-                <FormInput
-                    required
-                    name="name"
-                    label="Tuman nomi"
-                    methods={form}
-                />
+                <div className="flex flex-col">
+                    <FormInput
+                        required
+                        name="name"
+                        label="Tuman nomi"
+                        methods={form}
+                        maxLength={NAME_MAX_LENGTH}
+                        placeholder="Misol: Chust"
+                        registerOptions={{
+                            required: "Tuman nomini kiriting",
+                            maxLength: {
+                                value: NAME_MAX_LENGTH,
+                                message: `Nom ${NAME_MAX_LENGTH} ta belgidan oshmasligi kerak`,
+                            },
+                            validate: (value: unknown) =>
+                                String(value ?? "").trim().length > 0 ||
+                                "Tuman nomini kiriting",
+                        }}
+                    />
+                    {/* FormInput cannot render its own message — see S1-08. */}
+                    {errors.name?.message && (
+                        <span className="mt-1 text-xs text-destructive">
+                            {String(errors.name.message)}
+                        </span>
+                    )}
+                </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Viloyat</label>
+                    <label className="text-sm font-medium">Joylashuv</label>
 
                     <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
                         {selectedRegion?.name ||
                             (region_id ?
-                                `Viloyat ID: ${region_id}`
-                            :   "Viloyat tanlanmagan")}
+                                `Joylashuv ID: ${region_id}`
+                            :   "Joylashuv tanlanmagan")}
                     </div>
 
                     <input

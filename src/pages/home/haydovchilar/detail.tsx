@@ -10,7 +10,7 @@ import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { ArrowLeft, Phone } from "lucide-react"
+import { AlertTriangle, ArrowLeft, Phone } from "lucide-react"
 import { useMemo } from "react"
 
 type DriverOverview = {
@@ -36,6 +36,8 @@ type DriverOverview = {
     total_distance_km: string | number
     total_fuel_liters: string | number
     fuel_per_100km: string | number
+    total_fuel_gas?: string | number
+    fuel_gas_per_100km?: string | number
     coverage: number
     last_trip: null | {
         id: number
@@ -213,6 +215,28 @@ export default function HaydovchiDetail() {
 
     const aylanmaCols = useAylanmaCols()
 
+    // OP-12: yuqoridagi KPI kartochkalari backenddagi agregat xatosi sababli
+    // quyidagi "Aylanmalar ro'yxati" jadvalining yig'indisidan bir necha
+    // barobar katta chiqishi mumkin. Bunday holatda jim turmasdan aytamiz.
+    const tripsIncomeTotal = useMemo(
+        () => (trips ?? []).reduce((sum, t) => sum + num(t.income_uzs), 0),
+        [trips],
+    )
+    const tripsEarningsTotal = useMemo(
+        () => (trips ?? []).reduce((sum, t) => sum + num(t.driver_earnings), 0),
+        [trips],
+    )
+    const kpiRevenue = num(overview?.revenue_uzs)
+    const kpiSalary = num(overview?.salary_paid_uzs)
+    const isDivergent = (kpi: number, table: number) =>
+        table > 0 && kpi > table * 1.5
+    const hasKpiMismatch =
+        !!overview &&
+        !!trips &&
+        trips.length > 0 &&
+        (isDivergent(kpiRevenue, tripsIncomeTotal) ||
+            isDivergent(kpiSalary, tripsEarningsTotal))
+
     const handleAylanmaClick = (row: DriverTripRow) => {
         navigate({
             to: "/haydovchilar/$id/aylanma/$tripId",
@@ -277,6 +301,24 @@ export default function HaydovchiDetail() {
                 </div>
             </div>
 
+            {hasKpiMismatch && (
+                <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
+                    <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+                    <span>
+                        <span className="font-semibold">
+                            Ma’lumot nomuvofiq:
+                        </span>{" "}
+                        yuqoridagi umumiy ko‘rsatkichlar quyidagi aylanmalar
+                        jadvalining yig‘indisiga to‘g‘ri kelmaydi (jadval
+                        bo‘yicha kirim{" "}
+                        {formatMoneyText(tripsIncomeTotal)} so‘m, haydovchi
+                        daromadi {formatMoneyText(tripsEarningsTotal)} so‘m).
+                        Kartochkalardagi raqamlarga hozircha ishonmang —
+                        hisoblash serverda tuzatilmoqda.
+                    </span>
+                </div>
+            )}
+
             {overview && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <Card>
@@ -313,7 +355,18 @@ export default function HaydovchiDetail() {
                     />
                     <StatCard
                         label="Yoqilg'i"
-                        value={`${num(overview.fuel_per_100km).toFixed(1)} l/100km`}
+                        value={(() => {
+                            // OP-13: gaz (metan) bilan yuruvchi haydovchida
+                            // fuel_per_100km = 0 bo'ladi, sarf esa
+                            // fuel_gas_per_100km da keladi.
+                            const diesel = num(overview.fuel_per_100km)
+                            const gas = num(overview.fuel_gas_per_100km)
+                            const parts: string[] = []
+                            if (diesel > 0)
+                                parts.push(`${diesel.toFixed(1)} l/100km`)
+                            if (gas > 0) parts.push(`${gas.toFixed(1)} m³/100km`)
+                            return parts.length ? parts.join(" · ") : "—"
+                        })()}
                     />
                 </div>
             )}

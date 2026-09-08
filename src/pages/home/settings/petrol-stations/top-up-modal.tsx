@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
+import { showUzApiError } from "@/lib/uz-api-errors"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -50,15 +51,19 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
     })
 
     const onSubmit = (values: FormValues) => {
-        mutate(`${SETTINGS_PETROL_STATIONS}/${stationId}/top-up`, {
-            amount: Number(values.amount),
-            currency: values.currency,
-            currency_course:
-                values.currency === 2 && values.currency_course !== ""
-                    ? Number(values.currency_course)
-                    : null,
-            comment: values.comment || null,
-        })
+        mutate(
+            `${SETTINGS_PETROL_STATIONS}/${stationId}/top-up`,
+            {
+                amount: Math.round(Number(values.amount) * 100) / 100,
+                currency: values.currency,
+                currency_course:
+                    values.currency === 2 && values.currency_course !== ""
+                        ? Number(values.currency_course)
+                        : null,
+                comment: values.comment || null,
+            },
+            { onError: (error) => showUzApiError(error, form) },
+        )
     }
 
     return (
@@ -78,7 +83,9 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
+                decimalScale={2}
+                allowedDecimalSeparators={[",", "."]}
+                allowNegative={false}
             />
             {currency === 2 && (
                 <FormNumberInput
@@ -88,7 +95,9 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
-                    decimalScale={0}
+                    decimalScale={2}
+                    allowedDecimalSeparators={[",", "."]}
+                    allowNegative={false}
                 />
             )}
             <FormTextarea label="Izoh" name="comment" methods={form} />

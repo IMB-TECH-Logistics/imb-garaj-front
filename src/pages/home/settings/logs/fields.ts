@@ -354,6 +354,22 @@ const FIELD_LABELS: Record<string, string> = {
     selected: "Tanlangan",
     disabled: "O'chirilgan",
 
+    // Log tafsilotida tarjimasiz chiqib qolgan maydonlar (S2-49)
+    consumption: "Yoqilg'i sarfi",
+    fuel_consumption: "Yoqilg'i sarfi",
+    license_front: "Guvohnoma (old tarafi)",
+    license_back: "Guvohnoma (orqa tarafi)",
+    passport_front: "Pasport (old tarafi)",
+    passport_back: "Pasport (orqa tarafi)",
+    owner: "Egasi",
+    owner_code: "Egasi kodi",
+    registered_date: "Ro'yxatdan o'tgan sana",
+    year: "Yili",
+    technic_passport: "Texnik pasport",
+    tech_passport: "Texnik pasport",
+    is_deleted: "O'chirilgan",
+    flow_type: "Yo'nalishi",
+
     device: "Qurilma",
     user_agent: "User Agent",
     ip_address: "IP manzil",

@@ -126,6 +126,9 @@ const InlinePriceCell = ({
     return (
         <NumericFormat
             thousandSeparator=" "
+            // A salary tariff is never negative and the server does not check
+            // (see backend-kerak/F3.md — OP-21), so refuse the minus sign here.
+            allowNegative={false}
             value={value}
             disabled={opts.disabled}
             onValueChange={(v) => opts.onChange(row.id, v.value)}

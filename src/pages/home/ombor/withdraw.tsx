@@ -12,6 +12,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
+import { showUzApiError } from "@/lib/uz-api-errors"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
@@ -46,6 +47,10 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
     const qty = Number(watch("quantity") || 0)
     const unitPrice = Number(product?.unit_price ?? 0)
     const lineTotal = qty * unitPrice
+    // OP-36: mavjud qoldiqdan ortiq chiqim mijoz tomonda to'xtatilsin
+    const available = Number(product?.quantity ?? 0)
+    const isOverStock = qty > available
+    const unit = product?.unit_display ?? ""
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
@@ -59,12 +64,17 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
 
     const onSubmit = (data: FormValues) => {
         if (!product) return
-        mutate(WAREHOUSE_WITHDRAW, {
-            product: product.id,
-            quantity: Number(data.quantity),
-            vehicle: data.vehicle || null,
-            comment: data.comment || null,
-        })
+        if (Number(data.quantity) > Number(product.quantity ?? 0)) return
+        mutate(
+            WAREHOUSE_WITHDRAW,
+            {
+                product: product.id,
+                quantity: Number(data.quantity),
+                vehicle: data.vehicle || null,
+                comment: data.comment || null,
+            },
+            { onError: (error) => showUzApiError(error, form) },
+        )
     }
 
     if (!product) return null
@@ -95,6 +105,19 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
                 name="quantity"
                 thousandSeparator=" "
                 placeholder="Ex: 5"
+                decimalScale={2}
+                allowedDecimalSeparators={[",", "."]}
+                allowNegative={false}
+                registerOptions={{
+                    validate: (value) => {
+                        const n = Number(value)
+                        if (!(n > 0))
+                            return "Miqdor noldan katta bo'lishi kerak"
+                        if (n > available)
+                            return `Omborda faqat ${available} ${unit} bor — bundan ortiq chiqarib bo'lmaydi`
+                        return true
+                    },
+                }}
             />
             <FormCombobox
                 control={control}
@@ -112,7 +135,7 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
                 placeholder="Nima uchun ishlatildi..."
             />
 
-            {qty > 0 && (
+            {qty > 0 && !isOverStock && (
                 <div className="rounded-md border border-dashed p-2 text-sm flex justify-between">
                     <span className="text-muted-foreground">
                         Jami chiqim summasi
@@ -123,10 +146,21 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
                 </div>
             )}
 
+            {isOverStock && (
+                <div className="rounded-md border border-rose-500/40 bg-rose-500/10 p-2 text-sm text-rose-600 dark:text-rose-400">
+                    Omborda faqat{" "}
+                    <span className="font-semibold tabular-nums">
+                        {formatMoney(available)} {unit}
+                    </span>{" "}
+                    bor. Bundan ortiq miqdorni chiqarib bo'lmaydi.
+                </div>
+            )}
+
             <div className="flex justify-end pt-1">
                 <Button
                     type="submit"
                     loading={isPending}
+                    disabled={isOverStock || qty <= 0}
                     variant="destructive"
                     className="min-w-32"
                 >

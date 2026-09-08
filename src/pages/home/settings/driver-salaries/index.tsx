@@ -15,8 +15,8 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useQueryClient } from "@tanstack/react-query"
-import { useSearch } from "@tanstack/react-router"
-import { Save, Wallet } from "lucide-react"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Info, Save, Wallet } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 import TableHeader from "../table-header"
@@ -55,14 +55,62 @@ type SelectItem = { id: number | string; name: string }
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
+/**
+ * Filters live in the URL (`?sf_owner=12,13`) so a filtered view can be shared
+ * and survives a page reload — previously they were component state only, which
+ * made the URL lie about what the table was showing (UI audit S1-42). The
+ * prefix keeps them from colliding with the page/search params.
+ */
+const FILTER_PARAM_PREFIX = "sf_"
+
 const DriverSalariesPage = () => {
     const hasControl = useHasAction("settings_driver_salaries_control")
     const search = useSearch({ strict: false }) as Record<string, any>
+    const navigate = useNavigate()
 
     const { openModal: openBulkModal } = useModal("bulk-salary")
     const queryClient = useQueryClient()
 
-    const [filters, setFilters] = useState<Record<string, string[]>>({})
+    const filters = useMemo<Record<string, string[]>>(() => {
+        const out: Record<string, string[]> = {}
+        for (const col of SALARY_FILTER_COLUMNS) {
+            const raw = search[`${FILTER_PARAM_PREFIX}${col.value}`]
+            if (typeof raw === "string" && raw.length > 0) {
+                out[col.value] = raw.split(",").filter(Boolean)
+            }
+        }
+        return out
+    }, [search])
+
+    const setFilter = useCallback(
+        (column: string, values: string[]) => {
+            navigate({
+                search: ((prev: Record<string, unknown>) => ({
+                    ...prev,
+                    [`${FILTER_PARAM_PREFIX}${column}`]:
+                        values?.length ? values.join(",") : undefined,
+                    page: undefined,
+                })) as any,
+            })
+        },
+        [navigate],
+    )
+
+    const clearFilters = useCallback(() => {
+        navigate({
+            search: ((prev: Record<string, unknown>) => {
+                const next: Record<string, unknown> = {
+                    ...prev,
+                    page: undefined,
+                }
+                for (const col of SALARY_FILTER_COLUMNS) {
+                    delete next[`${FILTER_PARAM_PREFIX}${col.value}`]
+                }
+                return next
+            }) as any,
+        })
+    }, [navigate])
+
     const [selectedRows, setSelectedRows] = useState<DirectionRow[]>([])
     const [clearSelectionTick, setClearSelectionTick] = useState(0)
     const [priceEdits, setPriceEdits] = useState<Record<number, string>>({})
@@ -191,6 +239,15 @@ const DriverSalariesPage = () => {
 
     const handleSaveEdits = async () => {
         if (pendingEdits.length === 0) return
+
+        const negative = pendingEdits.filter(([, amount]) => Number(amount) < 0)
+        if (negative.length > 0) {
+            toast.error(
+                `${negative.length} ta qatorda oylik manfiy — saqlanmadi. Oylik 0 dan kichik bo'lishi mumkin emas.`,
+            )
+            return
+        }
+
         const valid_from = todayIso()
 
         const byAmount = pendingEdits.reduce<Record<string, number[]>>(
@@ -249,6 +306,24 @@ const DriverSalariesPage = () => {
                 }}
                 head={
                     <div className="flex flex-col gap-3 mb-3">
+                        {/*
+                          * Without `settings_driver_salaries_control` this page
+                          * rendered as a plain table with no checkboxes, no
+                          * editable cells and no buttons, and never said why
+                          * (UI audit S1-40). Say it out loud instead.
+                          */}
+                        {!hasControl && (
+                            <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+                                <Info size={16} className="mt-0.5 shrink-0" />
+                                <span>
+                                    Sizda oylik tariflarini o'zgartirish
+                                    huquqi yo'q — sahifa faqat ko'rish
+                                    rejimida. Tahrirlash uchun administratordan
+                                    "Oylik tariflar — boshqarish" ruxsatini
+                                    so'rang.
+                                </span>
+                            </div>
+                        )}
                         <TableHeader
                             fileName="Oylik tariflar"
                             url="excel"
@@ -277,10 +352,7 @@ const DriverSalariesPage = () => {
                                         options={filterOptions[col.value]}
                                         values={filters[col.value] ?? []}
                                         setValues={(vals: string[]) =>
-                                            setFilters((prev) => ({
-                                                ...prev,
-                                                [col.value]: vals ?? [],
-                                            }))
+                                            setFilter(col.value, vals ?? [])
                                         }
                                         labelKey="label"
                                         valueKey="value"
@@ -292,7 +364,7 @@ const DriverSalariesPage = () => {
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setFilters({})}
+                                    onClick={clearFilters}
                                 >
                                     Tozalash
                                 </Button>

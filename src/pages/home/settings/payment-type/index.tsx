@@ -64,12 +64,22 @@ const PaymenTypePage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} />
+            <DeleteModal
+                path={SETTINTS_PAYMENT_TYPE}
+                id={item?.id}
+                name={
+                    item?.name ?
+                        <span className="block font-medium mb-1">
+                            To'lov turi: «{item.name}»
+                        </span>
+                    :   ""
+                }
+            />
             <Modal
                 title={
                     item?.id ?
                         "To'lov turini tahrirlash"
-                    :   " To'lov turini qo'shish"
+                    :   "To'lov turi qo'shish"
                 }
                 modalKey="create"
             >

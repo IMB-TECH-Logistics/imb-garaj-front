@@ -13,6 +13,58 @@ import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import PermissionField from "./permission-field"
 
+/**
+ * Parol murakkabligi (S2-15). Backend DRF serializer'i Django'ning
+ * AUTH_PASSWORD_VALIDATORS'ini chaqirmaydi, shuning uchun "1" kabi parol
+ * ham qabul qilinardi. Bu frontend to'sig'i — backendda ham qo'yilishi shart
+ * (backend-kerak/F4.md ga yozilgan).
+ */
+const COMMON_PASSWORDS = [
+    "password",
+    "parol",
+    "12345678",
+    "123456789",
+    "1234567890",
+    "qwerty123",
+    "admin123",
+    "garaj123",
+]
+
+export const validatePassword = (value: unknown) => {
+    const password = String(value ?? "")
+    // Tahrirlashda bo'sh qoldirilsa — parol o'zgartirilmaydi.
+    if (!password) return true
+    if (password.length < 8) {
+        return "Parol kamida 8 ta belgidan iborat bo'lsin"
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+        return "Parolda kamida bitta harf bo'lsin"
+    }
+    if (!/\d/.test(password)) {
+        return "Parolda kamida bitta raqam bo'lsin"
+    }
+    if (COMMON_PASSWORDS.includes(password.toLowerCase())) {
+        return "Bu parol juda oddiy — boshqasini tanlang"
+    }
+    return true
+}
+
+/**
+ * Validatsiya xabarlarini toast orqali ko'rsatish.
+ * Sabab: umumiy `FormInput` komponentida `hideError={false}` berilganda
+ * `error.message` himoyasiz o'qiladi (components/form/input.tsx:83) va xatosiz
+ * holatda sahifa qulab tushadi. O'sha komponent boshqa agent zonasida
+ * bo'lgani uchun bu yerda tegilmaydi — xabar toast bilan yetkaziladi (S2-09).
+ */
+export const showValidationErrors = (errors: Record<string, any>) => {
+    const messages = Object.values(errors)
+        .map((e) => (e as { message?: string })?.message)
+        .filter(Boolean) as string[]
+    if (messages.length) {
+        toast.error(messages.join(" · "), { duration: 6000 })
+    }
+}
+
 const UserFormPage = () => {
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
@@ -112,7 +164,7 @@ const UserFormPage = () => {
 
             <FormProvider {...form}>
                 <form
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={handleSubmit(onSubmit, showValidationErrors)}
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                     <FormInput
@@ -142,6 +194,7 @@ const UserFormPage = () => {
                         name="password"
                         label="Parol"
                         methods={form}
+                        registerOptions={{ validate: validatePassword }}
                         placeholder={
                             id
                                 ? "O'zgartirish uchun kiriting"

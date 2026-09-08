@@ -14,6 +14,8 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { AlertTriangle } from "lucide-react"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -35,6 +37,13 @@ type Direction = {
     valid_from: string | null
     current_price?: DirectionPrice | null
     prices?: DirectionPrice[]
+    // Denormalised labels the list endpoint returns. They are the only source
+    // of a readable name when the referenced row was soft-deleted and so is
+    // missing from the `selectable/*` dropdown feeds.
+    owner_name?: string
+    load_name?: string
+    unload_name?: string
+    cargo_type_name?: string
 }
 
 type SelectItem = { id: number | string; name: string }
@@ -43,6 +52,41 @@ const CURRENCY_OPTIONS = [
     { id: 1, name: "UZS - So'm" },
     { id: 2, name: "USD - AQSh dollari" },
 ]
+
+/**
+ * Dropdown feeds (`selectable/*`) hide soft-deleted rows, so a direction that
+ * points at a deleted region/client renders as an empty "choose…" placeholder
+ * even though the table shows a name. Keep the saved value selectable by
+ * appending it to the option list, flagged so the user knows it is archived.
+ */
+const withCurrentValue = (
+    options: SelectItem[] | undefined,
+    value: number | null | undefined,
+    label: string | undefined,
+): SelectItem[] => {
+    const list = options ?? []
+    if (value === null || value === undefined) return list
+    if (list.some((o) => Number(o.id) === Number(value))) return list
+    return [
+        ...list,
+        { id: value, name: `${label || `ID ${value}`} (arxivlangan)` },
+    ]
+}
+
+/**
+ * FormCombobox accepts `hideError={false}` but renders the message outside its
+ * `Controller`, reading `control._formState` in the component body — that value
+ * is stale until something else re-renders the parent, so a failed required
+ * check showed a red border and no text (UI audit S1-22). Rendering the message
+ * from this form, which subscribes to `formState.errors`, makes it appear
+ * immediately without touching the shared component.
+ */
+const FieldMessage = ({ message }: { message?: unknown }) =>
+    message ? (
+        <span className="mt-1 block text-xs text-destructive">
+            {String(message)}
+        </span>
+    ) : null
 
 const AddRouteConfigModal = () => {
     const queryClient = useQueryClient()
@@ -66,7 +110,14 @@ const AddRouteConfigModal = () => {
         },
     })
 
-    const { handleSubmit, control, reset } = form
+    const {
+        handleSubmit,
+        control,
+        reset,
+        setError,
+        clearErrors,
+        formState: { errors },
+    } = form
 
     const { data: clientData } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
         params: { model_name: "client" },
@@ -80,6 +131,48 @@ const AddRouteConfigModal = () => {
     const { data: paymentType } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_PAYMENT_TYPE, {
         params: { model_name: "payment-type" },
     })
+
+    const loadOptions = useMemo(
+        () => withCurrentValue(regionsData, current?.load, current?.load_name),
+        [regionsData, current?.load, current?.load_name],
+    )
+    const unloadOptions = useMemo(
+        () =>
+            withCurrentValue(regionsData, current?.unload, current?.unload_name),
+        [regionsData, current?.unload, current?.unload_name],
+    )
+    const ownerOptions = useMemo(
+        () => withCurrentValue(clientData, current?.owner, current?.owner_name),
+        [clientData, current?.owner, current?.owner_name],
+    )
+    const cargoOptions = useMemo(
+        () =>
+            withCurrentValue(
+                cargoType,
+                current?.cargo_type,
+                current?.cargo_type_name,
+            ),
+        [cargoType, current?.cargo_type, current?.cargo_type_name],
+    )
+
+    // True when at least one saved reference is missing from its live dropdown
+    // feed — i.e. the referenced row was archived after this direction was made.
+    const hasArchivedRef = useMemo(() => {
+        if (!current?.id) return false
+        const missing = (
+            options: SelectItem[] | undefined,
+            value: number | null | undefined,
+        ) =>
+            value != null &&
+            !!options &&
+            !options.some((o) => Number(o.id) === Number(value))
+        return (
+            missing(regionsData, current.load) ||
+            missing(regionsData, current.unload) ||
+            missing(clientData, current.owner) ||
+            missing(cargoType, current.cargo_type)
+        )
+    }, [current, regionsData, clientData, cargoType])
 
     const onSuccess = () => {
         toast.success(
@@ -97,6 +190,25 @@ const AddRouteConfigModal = () => {
     const isPending = isPendingCreate || isPendingUpdate
 
     const onSubmit = (values: Direction) => {
+        // A direction from X to X is not a trip. The server accepts it today
+        // (see backend-kerak/F3.md — S1-18), so block it here as well.
+        if (
+            values.load != null &&
+            values.unload != null &&
+            Number(values.load) === Number(values.unload)
+        ) {
+            setError("unload", {
+                type: "validate",
+                message:
+                    "Yuk tushirish manzili yuklash manzilidan farq qilishi kerak",
+            })
+            toast.error(
+                "Boshlanish va tugash nuqtasi bir xil bo'lishi mumkin emas",
+            )
+            return
+        }
+        clearErrors("unload")
+
         if (current?.id) {
             updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, values)
         } else {
@@ -106,76 +218,118 @@ const AddRouteConfigModal = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
-            <FormCombobox
-                required
-                label="Yuklash manzili"
-                name="load"
-                control={control}
-                options={regionsData}
-                valueKey="id"
-                labelKey="name"
-                placeholder="Hududni tanlang"
-            />
-            <FormCombobox
-                required
-                label="Yuk tushirish manzili"
-                name="unload"
-                control={control}
-                options={regionsData}
-                valueKey="id"
-                labelKey="name"
-                placeholder="Hududni tanlang"
-            />
-            <FormCombobox
-                required
-                label="Yuk egasi"
-                name="owner"
-                control={control}
-                options={clientData}
-                labelKey="name"
-                valueKey="id"
-                placeholder="Yuk egasini tanlang"
-            />
-            <FormCombobox
-                required
-                label="Yuk turi"
-                name="cargo_type"
-                control={control}
-                options={cargoType}
-                valueKey="id"
-                labelKey="name"
-                placeholder="Yuk turini tanlang"
-            />
-            <FormCombobox
-                required
-                label="To'lov turi"
-                name="payment_type"
-                control={control}
-                options={paymentType}
-                valueKey="id"
-                labelKey="name"
-                placeholder="To'lov turini tanlang"
-            />
-            <FormCombobox
-                required
-                label="Valyuta"
-                name="currency"
-                control={control}
-                options={CURRENCY_OPTIONS}
-                valueKey="id"
-                labelKey="name"
-                placeholder="Valyutani tanlang"
-            />
+            {hasArchivedRef && (
+                <div className="col-span-2 flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                    <span>
+                        Bu yo'nalishdagi ba'zi ma'lumotnomalar arxivlangan
+                        (o'chirilgan). Ular ro'yxatda "arxivlangan" belgisi
+                        bilan ko'rsatilgan — o'zgartirmasangiz avvalgi qiymat
+                        saqlanib qoladi.
+                    </span>
+                </div>
+            )}
+            <div>
+                <FormCombobox
+                    required
+                    label="Yuklash manzili"
+                    name="load"
+                    control={control}
+                    options={loadOptions}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Hududni tanlang"
+                />
+                <FieldMessage message={errors.load?.message} />
+            </div>
+            <div>
+                <FormCombobox
+                    required
+                    label="Yuk tushirish manzili"
+                    name="unload"
+                    control={control}
+                    options={unloadOptions}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Hududni tanlang"
+                />
+                <FieldMessage message={errors.unload?.message} />
+            </div>
+            <div>
+                <FormCombobox
+                    required
+                    label="Yuk egasi"
+                    name="owner"
+                    control={control}
+                    options={ownerOptions}
+                    labelKey="name"
+                    valueKey="id"
+                    placeholder="Yuk egasini tanlang"
+                />
+                <FieldMessage message={errors.owner?.message} />
+            </div>
+            <div>
+                <FormCombobox
+                    required
+                    label="Yuk turi"
+                    name="cargo_type"
+                    control={control}
+                    options={cargoOptions}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Yuk turini tanlang"
+                />
+                <FieldMessage message={errors.cargo_type?.message} />
+            </div>
+            <div>
+                <FormCombobox
+                    required
+                    label="To'lov turi"
+                    name="payment_type"
+                    control={control}
+                    options={paymentType}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="To'lov turini tanlang"
+                />
+                <FieldMessage message={errors.payment_type?.message} />
+            </div>
+            <div>
+                <FormCombobox
+                    required
+                    label="Valyuta"
+                    name="currency"
+                    control={control}
+                    options={CURRENCY_OPTIONS}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Valyutani tanlang"
+                />
+                <FieldMessage message={errors.currency?.message} />
+            </div>
             <FormNumberInput
                 required
+                allowNegative={false}
                 thousandSeparator=" "
                 name="price"
                 label="Summa"
                 placeholder="12 206 000"
                 control={control}
+                registerOptions={{
+                    required: "Summani kiriting",
+                    validate: (value: unknown) => {
+                        const num = Number(value)
+                        if (value === null || value === "" || Number.isNaN(num))
+                            return "Summani kiriting"
+                        if (num <= 0)
+                            return "Summa 0 dan katta bo'lishi kerak (manfiy tarif hisob-kitobni buzadi)"
+                        return true
+                    },
+                }}
             />
             <FormDatePicker
                 required
+                hideError={false}
                 label="Qaysi sanadan amal qiladi"
                 control={control}
                 name="valid_from"

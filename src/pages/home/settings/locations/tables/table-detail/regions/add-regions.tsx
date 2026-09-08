@@ -9,10 +9,14 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { showSettingsApiError } from "../../../../settings-api-errors"
 
 interface AddRegionsModalProps {
     country_id: number
 }
+
+/** Matches the server-side `max_length` on `Region.name`. */
+const NAME_MAX_LENGTH = 255
 
 const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
     const queryClient = useQueryClient()
@@ -30,11 +34,18 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
         },
     })
 
-    const { handleSubmit, reset } = form
+    const {
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors },
+    } = form
+
+    const nameValue = watch("name") ?? ""
 
     const onSuccess = () => {
         toast.success(
-            `Viloyat muvaffaqiyatli ${currentRegion?.id ? "tahrirlandi!" : "qo'shildi"} `,
+            `Joylashuv muvaffaqiyatli ${currentRegion?.id ? "tahrirlandi!" : "qo'shildi"} `,
         )
 
         reset()
@@ -56,13 +67,18 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
     const onSubmit = (values: RegionsType) => {
         const formData = {
             ...values,
+            name: values.name?.trim(),
             country: currentRegion?.id ? values.country : String(country_id),
         }
 
         if (currentRegion?.id) {
-            updateMutate(`${SETTINGS_REGIONS}/${currentRegion.id}`, formData)
+            updateMutate(`${SETTINGS_REGIONS}/${currentRegion.id}`, formData, {
+                onError: showSettingsApiError,
+            })
         } else {
-            postMutate(SETTINGS_REGIONS, formData)
+            postMutate(SETTINGS_REGIONS, formData, {
+                onError: showSettingsApiError,
+            })
         }
     }
 
@@ -72,14 +88,45 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid md:grid-cols-2 gap-4"
             >
-                <FormInput
-                    required
-                    name="name"
-                    label="Joylashuv nomi"
-                    methods={form}
-                />
+                <div className="flex flex-col">
+                    <FormInput
+                        required
+                        name="name"
+                        label="Joylashuv nomi"
+                        methods={form}
+                        maxLength={NAME_MAX_LENGTH}
+                        placeholder="Misol: Namangan"
+                        registerOptions={{
+                            required: "Joylashuv nomini kiriting",
+                            maxLength: {
+                                value: NAME_MAX_LENGTH,
+                                message: `Nom ${NAME_MAX_LENGTH} ta belgidan oshmasligi kerak`,
+                            },
+                            validate: (value: unknown) =>
+                                String(value ?? "").trim().length > 0 ||
+                                "Joylashuv nomini kiriting",
+                        }}
+                    />
+                    {/*
+                      * The shared FormInput swallows the message (it renders
+                      * `error.message?.message`, and `hideError={false}` throws
+                      * on a clean field), so an empty required field showed a
+                      * red border and nothing else — UI audit S1-08. Render the
+                      * text here instead of touching the shared component.
+                      */}
+                    {errors.name?.message ? (
+                        <span className="mt-1 text-xs text-destructive">
+                            {String(errors.name.message)}
+                        </span>
+                    ) : (
+                        nameValue.length > NAME_MAX_LENGTH - 55 && (
+                            <span className="mt-1 text-xs text-muted-foreground">
+                                {nameValue.length} / {NAME_MAX_LENGTH} belgi
+                            </span>
+                        )
+                    )}
+                </div>
 
- 
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Davlat</label>
 

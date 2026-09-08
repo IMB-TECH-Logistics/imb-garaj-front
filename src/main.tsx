@@ -35,6 +35,25 @@ const queryClient = new QueryClient({
         queries: {
             refetchOnWindowFocus: false,
             refetchOnMount: false,
+            /**
+             * `networkMode: "always"` — so'rov muvaffaqiyatsiz bo'lganda
+             * react-query uni `fetchStatus: "paused"` holatiga qo'ymasin.
+             *
+             * Sukut bo'yicha (`networkMode: "online"`) so'rov yiqilganda va
+             * brauzer "oflayn" deb hisoblanganda so'rov PAUZAGA tushardi:
+             * `status` "pending" bo'lib qolar, `error` esa `null` bo'lardi —
+             * ya'ni `isError` HECH QACHON `true` bo'lmasdi. Natijada butun
+             * ilova bo'ylab "xato holati" bloklari o'lik edi va foydalanuvchi
+             * cheksiz yuklanish yoki sababsiz bo'sh ekran ko'rardi
+             * (masalan /trip da 404 shunday "jimgina yutilgan" edi).
+             *
+             * "always" bilan xato darhol `isError` ga aylanadi va sahifalar
+             * haqiqiy sababni ko'rsata oladi.
+             */
+            networkMode: "always",
+        },
+        mutations: {
+            networkMode: "always",
         },
     },
 })

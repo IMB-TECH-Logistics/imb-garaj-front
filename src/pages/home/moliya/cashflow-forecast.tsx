@@ -10,6 +10,7 @@ import {
     ReferenceLine,
     ReferenceArea,
 } from "recharts"
+import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_FORECAST } from "@/constants/api-endpoints"
 
@@ -47,7 +48,11 @@ function ForecastTooltip({ active, payload, label }: any) {
 }
 
 export default function CashflowForecast() {
-    const { data: raw } = useGet<ForecastPoint[]>(FINANCE_FORECAST)
+    // ML-18: ilgari params'siz chaqirilardi va sahifadagi sana filtriga bo'ysunmasdi
+    const search: any = useSearch({ strict: false })
+    const { data: raw } = useGet<ForecastPoint[]>(FINANCE_FORECAST, {
+        params: { from_date: search?.from_date, to_date: search?.to_date },
+    })
 
     const data = useMemo(
         () =>

@@ -16,10 +16,23 @@ const AddRolesModal = () => {
     const { getData, clearKey } = useGlobalStore()
     const currentRole = getData<RolesType>(SETTINGS_ROLES)
 
+    // `values` — reaktiv (user-form-page.tsx:27 dagi etalon yechim kabi).
+    // Faqat `defaultValues` ishlatilsa, store'dagi ma'lumot formadan keyin
+    // kelganda forma yangilanmay qoladi va saqlangan ruxsatlar yo'qoladi (S2-22/S2-23).
+    // `values` obyekti har renderda yangidan tuziladi, lekin RHF uni chuqur
+    // solishtiradi — foydalanuvchi belgilagan checkbox'lar reset bo'lmaydi.
     const form = useForm<RolesType>({
+        values:
+            currentRole?.id ?
+                {
+                    ...currentRole,
+                    name: currentRole.name ?? "",
+                    actions: currentRole.actions ?? [],
+                }
+            :   undefined,
         defaultValues: {
-            name: currentRole?.name ?? "",
-            actions: currentRole?.actions ?? [],
+            name: "",
+            actions: [],
         },
     })
 

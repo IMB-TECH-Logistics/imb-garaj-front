@@ -10,6 +10,8 @@ export const SHIFTS = "hr/"
 
 /** ===== AUTH & PROFILE ===== */
 export const LOGIN = "auth/login"
+export const REFRESH = "auth/refresh"
+export const LOGOUT = "auth/logout"
 export const PROFILE = "profile"
 
 /** ===== TRIPS ===== */

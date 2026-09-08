@@ -64,9 +64,19 @@ const RolesPage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_ROLES} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_ROLES}
+                id={item?.id}
+                name={
+                    item?.name ?
+                        <span className="block font-medium mb-1">
+                            Rol: «{item.name}»
+                        </span>
+                    :   ""
+                }
+            />
             <Modal
-                title={item?.id ? "Rolllarni tahrirlash" : " Rollarni qo'shish"}
+                title={item?.id ? "Rolni tahrirlash" : "Rol qo'shish"}
                 modalKey="create"
                 size="max-w-5xl"
             >

@@ -429,6 +429,9 @@ const AddTripOrders = () => {
                         valueKey="id"
                         labelKey="name"
                         placeholder="Yuk beruvchini tanlang"
+                        // MT-31: `hideError` standart holda true — majburiy maydon bo'sh
+                        // qolganda faqat qizil ramka chiqib, sabab yozilmasdi.
+                        hideError={false}
                     />
                 )}
 
@@ -457,6 +460,7 @@ const AddTripOrders = () => {
                                 valueKey="id"
                                 labelKey="name"
                                 placeholder="Qayerdan"
+                                hideError={false}
                                 addButtonProps={{
                                     disabled: !isNaqd && !watch("client"),
                                 }}
@@ -469,6 +473,7 @@ const AddTripOrders = () => {
                                 valueKey="id"
                                 labelKey="name"
                                 placeholder="Qayerga"
+                                hideError={false}
                                 addButtonProps={{ disabled: !loadingValue }}
                             />
                         </div>
@@ -527,6 +532,8 @@ const AddTripOrders = () => {
                                     control={control}
                                     name={`incomes.${index}.amount`}
                                     placeholder="Summa"
+                                    // MT-25 bilan bir xil mantiq: to'lov summasi manfiy bo'lolmaydi.
+                                    allowNegative={false}
                                 />
 
                                 {incomeFields.length > 1 && (

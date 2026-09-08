@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import { PROFILE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { logoutRequest } from "@/services/axios-instance"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
 import { EllipsisVertical, LogOut } from "lucide-react"
@@ -31,8 +32,11 @@ export function NavUser() {
         user?.username ||
         "Super Admin"
 
-    const logOut = () => {
-        localStorage.clear()
+    const logOut = async () => {
+        // Avval serverda refresh tokenni bekor qilamiz (blacklist), keyin
+        // lokal sessiyani tozalaymiz. Aks holda o'g'irlangan refresh token
+        // chiqishdan keyin ham 7 kun ishlaydigan bo'lib qolardi.
+        await logoutRequest()
         navigate({ to: "/auth" })
     }
 

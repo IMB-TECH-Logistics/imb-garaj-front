@@ -23,9 +23,18 @@ function ViewPage() {
                     {search?.truck_type_name || search?.truck_number ? (
                         <>
                             <Truck size={20} className="text-primary hidden sm:block" />
+                            {/* IN-10: /truck ro'yxatida ustun "Reys (Yuksiz/Yukli)" tartibida
+                                ko'rsatiladi, bu yerda esa teskari va yorliqsiz edi —
+                                bir xil ko'rsatkich ikki ekranda ikki xil o'qilardi. */}
                             {search?.order_count_busy !== undefined && (
-                                <span className="text-xs sm:text-sm border py-0.5 px-2 rounded bg-muted font-medium">
-                                    {search.order_count_busy} / {search.order_count_empty || 0}
+                                <span
+                                    className="text-xs sm:text-sm border py-0.5 px-2 rounded bg-muted font-medium"
+                                    title="Reys (Yuksiz / Yukli)"
+                                >
+                                    <span className="text-muted-foreground font-normal">
+                                        Reys (Yuksiz/Yukli):{" "}
+                                    </span>
+                                    {search.order_count_empty || 0} / {search.order_count_busy || 0}
                                 </span>
                             )}
                             {search?.truck_type_name} 

@@ -9,7 +9,21 @@ import Map, {
     Source,
 } from "react-map-gl/maplibre"
 
-const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron"
+/**
+ * Xarita uslubi (style JSON / tile server) manzili — SOZLAMADAN olinadi.
+ *
+ * Ilgari bu yerda tashqi provayder manzili qattiq yozilgan edi va sahifa har
+ * ochilganda ochiq internetga so'rov ketardi; uni o'chirish yoki ichki serverga
+ * yo'naltirish imkoni yo'q edi (UI audit topilmasi OP-37).
+ *
+ * Endi:
+ *   • qiymat berilgan  → xarita o'sha manzildan yuklanadi (ichki yoki tashqi);
+ *   • qiymat berilmagan → xarita UMUMAN yuklanmaydi va tashqariga BIRORTA so'rov
+ *     ketmaydi, o'rniga foydalanuvchiga tushuntirish ko'rsatiladi.
+ *
+ * Misol: VITE_MAP_STYLE_URL=https://tiles.ichki-tarmoq.uz/styles/positron
+ */
+const MAP_STYLE_URL = (import.meta.env.VITE_MAP_STYLE_URL ?? "").trim()
 
 const LOCALIZED_TEXT_FIELD: any = [
     "coalesce",
@@ -138,6 +152,37 @@ export default function RouteMap({
     const startPoint = points && points.length > 0 ? points[0] : null
     const endPoint =
         points && points.length > 1 ? points[points.length - 1] : null
+
+    // Manzil sozlanmagan — jimgina tashqariga chiqmaymiz, sababini aytamiz.
+    // (Barcha hook'lar yuqorida chaqirilgan, shuning uchun bu erta return xavfsiz.)
+    if (!MAP_STYLE_URL) {
+        return (
+            <div
+                className={cn(
+                    "relative overflow-hidden bg-slate-100 dark:bg-slate-950",
+                    "flex items-center justify-center p-6 text-center",
+                    className,
+                )}
+                style={{ height }}
+                data-testid="map-disabled"
+            >
+                <div className="max-w-md space-y-2">
+                    <p className="text-sm font-medium">Xarita o'chirilgan</p>
+                    <p className="text-xs text-muted-foreground">
+                        Xarita manzili sozlanmagani uchun xarita yuklanmadi va
+                        tashqi serverga hech qanday so'rov yuborilmadi.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        Yoqish uchun{" "}
+                        <code className="font-mono">VITE_MAP_STYLE_URL</code>{" "}
+                        muhit o'zgaruvchisiga xarita uslubi (style JSON)
+                        manzilini yozing — o'z serveringiz yoki tanlangan tashqi
+                        provayder.
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div

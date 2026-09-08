@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import PermissionField from "./permission-field"
+import { showValidationErrors, validatePassword } from "./user-form-page"
 
 const AddUserModal = () => {
     const queryClient = useQueryClient()
@@ -64,7 +65,7 @@ const AddUserModal = () => {
         <div className="w-full max-w-4xl mx-auto">
             <FormProvider {...form}>
                 <form
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={handleSubmit(onSubmit, showValidationErrors)}
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                     <FormInput
@@ -95,6 +96,7 @@ const AddUserModal = () => {
                         name="password"
                         label="Parol"
                         methods={form}
+                        registerOptions={{ validate: validatePassword }}
                         placeholder={
                             currentDriver?.id ?
                                 "O'zgartirish uchun kiriting"

@@ -26,10 +26,16 @@ const ACTION_LABEL: Record<number, string> = {
     7: "Import qilindi",
 }
 
+// Backend ba'zan bo'sh qiymatni Python ko'rinishida ("None"/"null") matn
+// sifatida yuboradi — foydalanuvchiga xom holda ko'rsatilmasin (S2-49).
+const EMPTY_TOKENS = new Set(["none", "null", "nan", "undefined", ""])
+
 const formatValue = (v: unknown): string => {
     if (v === null || v === undefined) return "—"
     if (typeof v === "object") return JSON.stringify(v)
-    return String(v)
+    const asText = String(v)
+    if (EMPTY_TOKENS.has(asText.trim().toLowerCase())) return "—"
+    return asText
 }
 
 const LogDetailSheet = ({ log, onClose }: Props) => {

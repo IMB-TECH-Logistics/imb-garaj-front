@@ -187,16 +187,26 @@ export default function MonitoringView() {
         if (dimension === "driver") {
             return liveDrivers
                 .filter((d) => d.lat != null && d.lng != null)
-                .map((d) => ({
-                    id: d.user,
-                    lat: d.lat as number,
-                    lng: d.lng as number,
-                    label: d.vehicle_number ?? d.driver_name ?? `#${d.user}`,
-                    sub: d.driver_name ?? undefined,
-                    stale: d.seconds_since > 5 * 60,
-                    selected: false,
-                    onClick: () => selectDriver(d),
-                }))
+                .map((d) => {
+                    // Avtomobil raqami bo'lmasa `label` ham `driver_name` ga
+                    // tushadi — o'shanda ostidagi `sub` ni takrorlamaymiz,
+                    // aks holda xaritada ism ikki marta chiqadi (OP-40).
+                    const label =
+                        d.vehicle_number ?? d.driver_name ?? `#${d.user}`
+                    return {
+                        id: d.user,
+                        lat: d.lat as number,
+                        lng: d.lng as number,
+                        label,
+                        sub:
+                            d.driver_name && d.driver_name !== label ?
+                                d.driver_name
+                            :   undefined,
+                        stale: d.seconds_since > 5 * 60,
+                        selected: false,
+                        onClick: () => selectDriver(d),
+                    }
+                })
         }
         if (dimension === "order") {
             return (orders.data ?? [])

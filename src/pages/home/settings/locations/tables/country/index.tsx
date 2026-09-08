@@ -73,6 +73,15 @@ const CountriesTable = () => {
                 modalKey="delete-country"
                 path={SETTINGS_COUNTRIES}
                 id={selectedCountry?.id}
+                name={
+                    selectedCountry?.id ? (
+                        <span className="font-medium">
+                            {`"${selectedCountry.name ?? selectedCountry.id}" davlati va uning ichidagi joylashuvlar. `}
+                        </span>
+                    ) : (
+                        ""
+                    )
+                }
             />
         </div>
     )

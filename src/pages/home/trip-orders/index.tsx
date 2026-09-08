@@ -27,7 +27,9 @@ const TripOrderMain = () => {
     const parentId = params.parentId
     const currentTripsOrder = getData<TripsOrders>(TRIPS_ORDERS)
 
-    const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
+    const { data, isLoading, isError, error } = useGet<
+        ListResponse<TripOrdersRow>
+    >(
         TRIPS_ORDERS,
         {
             params: {
@@ -92,7 +94,7 @@ const TripOrderMain = () => {
                     <h1 className="font-bold">Reyslar ro‘yxati</h1>
                 </div>
                 <div className="flex justify-end">
-                    <Button onClick={handleCreate}>
+                    <Button onClick={handleCreate} disabled={isError}>
                         <CirclePlus size={18} />
                         Qo'shish
                     </Button>
@@ -102,6 +104,7 @@ const TripOrderMain = () => {
             <div className="bg-card rounded-md p-3">
                 <DataTable
                     loading={isLoading}
+                    error={error}
                     columns={columns}
                     data={data?.results}
                     numeration

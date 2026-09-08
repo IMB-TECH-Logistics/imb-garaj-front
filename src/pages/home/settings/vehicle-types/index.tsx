@@ -64,12 +64,22 @@ const VehicleTypePage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_VEHICLE_TYPE} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_VEHICLE_TYPE}
+                id={item?.id}
+                name={
+                    item?.name ?
+                        <span className="block font-medium mb-1">
+                            Mashina turi: «{item.name}»
+                        </span>
+                    :   ""
+                }
+            />
             <Modal
                 title={
                     item?.id ?
-                        "Avtomobil turinni tahrirlash"
-                    :   " Avtomobil qo'shish"
+                        "Mashina turini tahrirlash"
+                    :   "Mashina turi qo'shish"
                 }
                 modalKey="create"
             >

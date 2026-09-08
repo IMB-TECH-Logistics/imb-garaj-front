@@ -74,6 +74,12 @@ export default function FinishManagerTrips() {
     const startMileage = watch("start_mileage")
     void startMileage
     const endMileage = watch("end_mileage")
+    const endDate = watch("end")
+
+    const dateRangeError =
+        item?.start && endDate && String(endDate) < String(item.start) ?
+            `Tugatish sanasi aylanma boshlangan sanadan (${item.start}) oldin bo'lishi mumkin emas`
+        :   ""
 
     function removeImage(name: "start_mileage_image" | "end_mileage_image") {
         setValue(name, null)
@@ -102,6 +108,11 @@ export default function FinishManagerTrips() {
             toast.error(
                 `${unpaidOrders.length} ta reys uchun oylik berilmagan`,
             )
+            return
+        }
+        // Qabul mezoni 5: tugatish sanasi aylanma boshlangan sanadan oldin bo'lolmaydi.
+        if (dateRangeError) {
+            toast.error(dateRangeError)
             return
         }
         const formData = new FormData()
@@ -178,11 +189,17 @@ export default function FinishManagerTrips() {
                         label="Tugatish sanasi"
                     />
                 )}
+                {dateRangeError && (
+                    <p className="text-[12px] text-red-600 -mt-2">
+                        {dateRangeError}
+                    </p>
+                )}
                 <FormNumberInput
                     name="end_mileage"
                     required
                     label="Tugash probegi"
                     control={control}
+                    allowNegative={false}
                     registerOptions={{
                         min: {
                             value: item?.start_mileage || 0,
@@ -224,6 +241,13 @@ export default function FinishManagerTrips() {
                     label="Yoqilg‘i"
                     required
                     control={control}
+                    allowNegative={false}
+                    registerOptions={{
+                        min: {
+                            value: 0,
+                            message: "Yoqilg'i manfiy bo'lishi mumkin emas",
+                        },
+                    }}
                 />
 
                 <div className="flex justify-end">

@@ -6,6 +6,8 @@ interface ImportMetaEnv {
     readonly VITE_SOCKET_URL: string;
     readonly VITE_HASHED_URL: string;
     readonly VITE_GOOGLE_MAPS_API_KEY: string;
+    /** Xarita uslubi (style JSON) manzili. Bo'sh bo'lsa xarita o'chiriladi. */
+    readonly VITE_MAP_STYLE_URL: string;
 }
 
 interface ImportMeta {

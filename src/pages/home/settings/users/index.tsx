@@ -63,6 +63,17 @@ const UsersPage = () => {
                 path={SETTINGS_USERS}
                 refetchKeys={[SETTINGS_USERS]}
                 id={item?.id}
+                name={
+                    item?.id ?
+                        <span className="block font-medium mb-1">
+                            Foydalanuvchi: «
+                            {[item.first_name, item.last_name]
+                                .filter(Boolean)
+                                .join(" ") || item.username}
+                            » ({item.username})
+                        </span>
+                    :   ""
+                }
             />
         </>
     )

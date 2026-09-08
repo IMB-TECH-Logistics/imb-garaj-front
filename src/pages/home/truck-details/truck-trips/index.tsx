@@ -54,8 +54,18 @@ const VehicleTrips = () => {
             cargo_type_name: Array.from(new Set(trip.orders_trip?.map(o => o.cargo_type_name).filter(Boolean))).join(", "),
         })
 
-        return { id: trip.id, minDate, maxDate, rows }
+        const orderCount = trip.orders_trip?.length ?? 0
+        const hasAnyValue =
+            Number(trip.total_expense ?? 0) !== 0 ||
+            Number(trip.total_mileage ?? 0) !== 0 ||
+            Number(trip.fuel_consume ?? 0) !== 0 ||
+            totalIncome !== 0
+
+        return { id: trip.id, minDate, maxDate, rows, orderCount, hasAnyValue }
     })
+        // IN-11: butunlay bo'sh aylanmalar (na qator, na summa) umuman ko'rsatilmaydi —
+        // ilgari "2. Aylanma (— — —)" hammasi 0 bo'lgan holda ham chizilardi.
+        .filter((trip) => trip.orderCount > 0 || trip.hasAnyValue)
 
     if (isLoading) {
         return (
@@ -70,7 +80,17 @@ const VehicleTrips = () => {
             {trips.map((trip, index) => (
                 <div key={trip.id}>
                     <h3 className="text-left text-sm font-semibold text-muted-foreground mb-2">
-                        {index + 1}. Aylanma ({trip.minDate || "—"} — {trip.maxDate || "—"})
+                        {index + 1}. Aylanma{" "}
+                        {trip.orderCount > 0 ?
+                            <>({trip.minDate || "—"} — {trip.maxDate || "—"})</>
+                        :   // IN-11: qatorsiz, lekin summasi bor guruh — sabab ko'rsatiladi
+                            <span
+                                className="font-normal text-amber-600 dark:text-amber-500"
+                                title="Bu aylanmadagi pul harakatlari hech qanday buyurtmaga bog'lanmagan, shuning uchun qatorlar ro'yxati bo'sh."
+                            >
+                                (buyurtmaga bog'lanmagan xarajat — qatorlar yo'q)
+                            </span>
+                        }
                     </h3>
                     <DataTable
                         columns={columns as any}

@@ -9,7 +9,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { ArrowDownCircle, ArrowUpCircle, PlusCircle, TrendingUp } from "lucide-react"
+import { ArrowDownCircle, ArrowUpCircle, CalendarClock, TrendingUp } from "lucide-react"
 import { useMemo } from "react"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import { useCostCols, OwnerStatistic } from "./cols"
@@ -78,8 +78,14 @@ const FinanceStatisticMain = () => {
     const totals = useMemo(() => {
         const data = statisticsData || []
         const round3 = (v: number) => Math.round(v * 1000) / 1000
-        const totalIncome = data.reduce((sum, item) => sum + (Number(item.income ?? 0) || 0), 0)
-        const totalExpense = data.reduce((sum, item) => sum + (Number(item.expense ?? 0) || 0), 0)
+        const toNum = (v: string | number | null | undefined) => Number(v ?? 0) || 0
+        // IN-01/IN-02: kartadagi jami "Tushum" va "Foyda" ustunlari bilan AYNAN bir xil
+        // ifodadan hisoblanadi (cols.tsx: income_with_vat || income), aks holda karta
+        // hech qachon ustunlar yig'indisiga teng bo'lmaydi.
+        const rowIncome = (item: (typeof data)[number]) =>
+            toNum(item.income_with_vat) || toNum(item.income)
+        const totalIncome = data.reduce((sum, item) => sum + rowIncome(item), 0)
+        const totalExpense = data.reduce((sum, item) => sum + toNum(item.expense), 0)
         const totalProfit = totalIncome - totalExpense
         return {
             totalIncome: round3(totalIncome),
@@ -89,8 +95,60 @@ const FinanceStatisticMain = () => {
     }, [statisticsData])
 
     const columns = useCostCols()
+
+    const emptyForRange =
+        !isLoading &&
+        (statisticsData?.length ?? 0) > 0 &&
+        (statisticsData || []).every(
+            (item) =>
+                !item.order_count_busy &&
+                !item.order_count_empty &&
+                !Number(item.income_with_vat ?? 0) &&
+                !Number(item.income ?? 0),
+        ) &&
+        Boolean(search?.from_date || search?.to_date)
+
+    const shiftMonth = (iso: string | undefined, months: number) => {
+        if (!iso) return undefined
+        const d = new Date(iso)
+        if (Number.isNaN(d.getTime())) return undefined
+        d.setMonth(d.getMonth() + months)
+        const pad = (n: number) => String(n).padStart(2, "0")
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    }
+
+    const goPreviousMonth = () => {
+        navigate({
+            search: {
+                ...search,
+                from_date: shiftMonth(search?.from_date, -1),
+                to_date: shiftMonth(search?.to_date, -1),
+            } as any,
+        })
+    }
+
     return (
         <div className="space-y-3">
+            {emptyForRange && (
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+                    <CalendarClock className="h-4 w-4 shrink-0 text-amber-600" />
+                    <span>
+                        Tanlangan sana oralig'ida ({search?.from_date ?? "…"} —{" "}
+                        {search?.to_date ?? "…"}) birorta reys yo'q, shuning uchun
+                        Daromad 0 ko'rinadi. Bu mashinalar ishlamayapti degani emas —
+                        sana oralig'ini kengaytiring.
+                    </span>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={goPreviousMonth}
+                        className="ml-auto"
+                    >
+                        Oldingi oyni ko'rish
+                    </Button>
+                </div>
+            )}
+
             <DataTable
                 columns={columns}
                 loading={isLoading}

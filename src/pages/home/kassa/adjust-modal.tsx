@@ -8,6 +8,7 @@ import {
 } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
+import { showUzApiError } from "@/lib/uz-api-errors"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
@@ -50,10 +51,16 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
     })
 
     const onSubmit = (values: FormValues) => {
-        mutate(url, {
-            amount: Number(values.amount),
-            comment: values.comment || null,
-        })
+        // Kasr qismini 2 xona bilan aniq yuboramiz (100.25 → 100.25).
+        const amount = Math.round(Number(values.amount) * 100) / 100
+        mutate(
+            url,
+            {
+                amount,
+                comment: values.comment || null,
+            },
+            { onError: (error) => showUzApiError(error, form) },
+        )
     }
 
     return (
@@ -65,7 +72,13 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
-                decimalScale={0}
+                decimalScale={2}
+                allowedDecimalSeparators={[",", "."]}
+                allowNegative={false}
+                registerOptions={{
+                    validate: (value) =>
+                        Number(value) > 0 || "Summa noldan katta bo'lishi kerak",
+                }}
             />
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <div className="flex justify-end mt-1">

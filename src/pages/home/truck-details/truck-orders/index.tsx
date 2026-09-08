@@ -11,12 +11,29 @@ import { TRIPS_ORDERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { format } from "date-fns"
-import { ChevronDown } from "lucide-react"
+import { AlertTriangle, ChevronDown } from "lucide-react"
 import * as React from "react"
 
 import ParamPagination from "@/components/as-params/pagination"
 import { cn } from "@/lib/utils"
 import TruckTripCashflowRow from "../truck-trip-cashflows"
+
+const currencyLabel = (currency: number | null | undefined) =>
+    currency === 1 ? "UZS"
+    : currency === 2 ? "USD"
+    : "—"
+
+/** IN-18: buyurtmaning BARCHA to'lovlarini valyuta bo'yicha jamlaydi. */
+const paymentTotals = (order: TripOrdersRow) => {
+    const sums = new Map<number | null, number>()
+    for (const payment of order.payments ?? []) {
+        const amount = Number(payment?.amount ?? 0) || 0
+        if (!amount) continue
+        const key = payment?.currency ?? null
+        sums.set(key, (sums.get(key) ?? 0) + amount)
+    }
+    return [...sums].map(([currency, amount]) => ({ currency, amount }))
+}
 
 const TruckTripOrderMain = () => {
     const params = useParams({ strict: false })
@@ -25,16 +42,23 @@ const TruckTripOrderMain = () => {
     const page = Number(search.page ?? 1)
     const expandedOrderId = search.order ? Number(search.order) : null
 
-    const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
-        TRIPS_ORDERS,
-        {
-            params: {
-                order: params.id,
-                page:search.page,
-                page_size:search.page_size
-            },
+    const { data, isLoading, isError, error } = useGet<
+        ListResponse<TripOrdersRow>
+    >(TRIPS_ORDERS, {
+        params: {
+            order: params.id,
+            page: search.page,
+            page_size: search.page_size,
         },
-    )
+        options: { retry: false },
+    })
+
+    // IN-05 / IN-15: `trips/orders` endpointi backendda ro'yxatdan o'tkazilmagan
+    // (404). Ilgari sahifa xato haqida hech nima demay bo'sh jadval ko'rsatardi va
+    // foydalanuvchi "buyurtma yo'q ekan" deb o'ylardi.
+    const status = (error as any)?.response?.status
+    const notFound = status === 404
+    const rows = data?.results ?? []
 
     const toggleExpand = (orderId: number) => {
         const isOpen = expandedOrderId === orderId
@@ -83,7 +107,37 @@ const TruckTripOrderMain = () => {
                             </TableRow>
                         )}
 
-                        {data?.results?.map((order, index) => {
+                        {!isLoading && isError && (
+                            <TableRow className="border-none">
+                                <TableCell colSpan={9} className="py-10">
+                                    <div className="flex flex-col items-center gap-2 text-center">
+                                        <AlertTriangle className="h-6 w-6 text-red-500" />
+                                        <p className="font-medium text-red-500">
+                                            Buyurtmalar ro'yxatini yuklab bo'lmadi
+                                        </p>
+                                        <p className="max-w-md text-xs text-muted-foreground">
+                                            {notFound ?
+                                                "Server bu ma'lumotni bermayapti (404 — endpoint mavjud emas). Bu ma'lumot yo'qligini ANGLATMAYDI; nosozlik haqida administratorga xabar bering."
+                                            :   `Server bilan bog'lanishda xatolik${status ? ` (${status})` : ""}. Keyinroq qayta urinib ko'ring.`
+                                            }
+                                        </p>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!isLoading && !isError && rows.length === 0 && (
+                            <TableRow className="border-none">
+                                <TableCell
+                                    colSpan={9}
+                                    className="py-10 text-center text-muted-foreground"
+                                >
+                                    Ma'lumot topilmadi
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {rows.map((order, index) => {
                             const isExpanded = expandedOrderId === order.id
 
                             return (
@@ -100,7 +154,7 @@ const TruckTripOrderMain = () => {
                                     >
                                         <TableCell className="border-r border-secondary last:border-none">
                                             {(page - 1) *
-                                                (data.page_size ?? 10) +
+                                                (data?.page_size ?? 10) +
                                                 index +
                                                 1}
                                         </TableCell>
@@ -118,26 +172,35 @@ const TruckTripOrderMain = () => {
                                         </TableCell>
 
                                         <TableCell className="border-r border-secondary last:border-none font-semibold">
-                                            {order.payments?.[0]?.amount ?
-                                                Number(
-                                                    order.payments[0].amount,
-                                                ).toLocaleString("uz-UZ", {
-                                                    maximumFractionDigits: 2,
-                                                })
+                                            {/* IN-18: buyurtma bo'lib-bo'lib to'langan bo'lsa
+                                                barcha to'lovlar valyuta bo'yicha jamlanadi */}
+                                            {paymentTotals(order).length ?
+                                                <div className="flex flex-col">
+                                                    {paymentTotals(order).map((p) => (
+                                                        <span key={p.currency ?? "none"}>
+                                                            {p.amount.toLocaleString("uz-UZ", {
+                                                                maximumFractionDigits: 2,
+                                                            })}
+                                                        </span>
+                                                    ))}
+                                                    {(order.payments?.length ?? 0) > 1 && (
+                                                        <span className="text-[10px] font-normal text-muted-foreground">
+                                                            {order.payments?.length} ta to'lov
+                                                        </span>
+                                                    )}
+                                                </div>
                                             :   "—"}
                                         </TableCell>
 
                                         <TableCell className="border-r border-secondary last:border-none">
-                                            {(
-                                                order.payments?.[0]
-                                                    ?.currency === 1
-                                            ) ?
-                                                "UZS"
-                                            : (
-                                                order.payments?.[0]
-                                                    ?.currency === 2
-                                            ) ?
-                                                "USD"
+                                            {paymentTotals(order).length ?
+                                                <div className="flex flex-col">
+                                                    {paymentTotals(order).map((p) => (
+                                                        <span key={p.currency ?? "none"}>
+                                                            {currencyLabel(p.currency)}
+                                                        </span>
+                                                    ))}
+                                                </div>
                                             :   "—"}
                                         </TableCell>
 

@@ -6,6 +6,11 @@ import { Badge } from "@/components/ui/badge"
 // At most two figures after the decimal comma, trailing zeros trimmed.
 const round2 = (v: unknown) => Number((Number(v ?? 0) || 0).toFixed(2))
 
+/** IN-13: buyurtma darajasidagi masofa/yoqilg'i/xarajat API'da umuman qaytarilmaydi
+ *  (backend-kerak/F1.md). Bo'sh katak o'rniga "—" ko'rsatiladi — shunda foydalanuvchi
+ *  "yuklanmadi"mi yoki "ma'lumot yo'q"mi degan savolda qolmaydi. */
+const NoValue = () => <span className="text-muted-foreground/60">—</span>
+
 export interface OrderTripType {
     date: string
     loading_name: string
@@ -90,7 +95,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) return <NoValue />;
                     return <span className="font-bold text-white">{round2(data.total_mileage)} km</span>
                 },
             },
@@ -101,7 +106,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) return <NoValue />;
                     return <span className="font-bold text-white">{round2(data.fuel_consume)}</span>
                 },
             },
@@ -112,7 +117,8 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) return <NoValue />;
+                    const expense = Number(data.total_expense ?? 0) || 0
                     return (
                         <span
                             className="font-bold text-red-500 underline cursor-pointer hover:text-primary"
@@ -121,7 +127,9 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                                 opts?.onExpenseClick?.(data.trip_id, data.total_expense)
                             }}
                         >
-                            - {formatMoney(data.total_expense ?? 0)}
+                            {/* IN-12: qiymat 0/null bo'lganda ilgari "- 0" chiqardi.
+                                formatMoney JSX qaytaradi — shablon satriga qo'shilmaydi. */}
+                            {expense ? <>−{formatMoney(expense)}</> : "—"}
                         </span>
                     )
                 },
@@ -146,7 +154,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) return <NoValue />;
                     const profit = (data.income || 0) - (data.total_expense || 0)
                     return <span className={`font-bold ${profit > 0 ? "text-green-600" : profit < 0 ? "text-red-600" : "text-white"}`}>{formatMoney(profit)}</span>
                 },

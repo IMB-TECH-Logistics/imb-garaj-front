@@ -16,7 +16,13 @@ type ImageField = File | string | null
 
 interface ManagerTrips {
     income_uzs: string
-    pending_order_count: string
+    pending_order_count: number | string
+    /**
+     * Backend (TripSerializer) hozircha bu maydonni QAYTARMAYDI — MT-21.
+     * Shu sababli ixtiyoriy: kelmasa ustun "—" ko'rsatadi, soxta 0 emas.
+     * backend-kerak/F2.md ga qarang.
+     */
+    completed_order_count?: number | string | null
     driver_name: string
     id?: number
     vehicle?: number | string
@@ -24,6 +30,8 @@ interface ManagerTrips {
     cash_flow_sum: string
     start_mileage: number
     end_mileage: number
+    start_fuel?: number | string | null
+    end_fuel?: number | string | null
     fuel: number
     start: string
     end: string

@@ -132,6 +132,15 @@ const RouteConfigsPage = () => {
             <DeleteModal
                 path={COMMON_DIRECTIONS}
                 id={item?.id ? `${item.id}/delete` : undefined}
+                name={
+                    item?.id ? (
+                        <span className="font-medium">
+                            {`"${item.load_name ?? item.load} → ${item.unload_name ?? item.unload}" yo'nalishi. `}
+                        </span>
+                    ) : (
+                        ""
+                    )
+                }
             />
             <Modal
                 title={

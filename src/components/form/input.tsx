@@ -62,7 +62,7 @@ export function FormInput<IForm extends FieldValues>({
             )}
         >
             {label && (
-                <FieldLabel htmlFor={name} required={required} isError={error}>
+                <FieldLabel htmlFor={name} required={required} isError={!!error}>
                     {label}
                 </FieldLabel>
             )}
@@ -82,8 +82,20 @@ export function FormInput<IForm extends FieldValues>({
                 )}
                 wrapperClassName={wrapperClassName as string}
             />
-            {!hideError && error.message && (
-                <FieldError>{error.message?.message as string}</FieldError>
+            {/*
+              * Ikkita xato bir qatorda edi:
+              *   1) `error.message` — `error` UNDEFINED bo'lganda (ya'ni maydon
+              *      to'g'ri to'ldirilgan odatiy holatda!) TypeError tashlab,
+              *      `hideError={false}` berilgan butun sahifani oq ekranga
+              *      aylantirardi. Shu sababli bir necha sahifa bu propni
+              *      ishlatolmay, aylanma yo'l bilan xato ko'rsatishga majbur bo'lgan.
+              *   2) `error.message?.message` — ikki marta `.message`, ya'ni hatto
+              *      yiqilmagan holatda ham matn `undefined` bo'lib, hech nima
+              *      chizilmasdi.
+              * Endi ixtiyoriy zanjir bilan xavfsiz va matn to'g'ri o'qiladi.
+              */}
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </fieldset>
     )

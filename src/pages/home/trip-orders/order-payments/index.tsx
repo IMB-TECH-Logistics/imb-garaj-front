@@ -22,7 +22,7 @@ const { parentId, childId } = useParams({ strict: false })
 const tripId = Number(parentId)
 const orderId = Number(childId)
 
-    const { data, isLoading } = useGet<ListResponse<OrderPaymentType>>(
+    const { data, isLoading, error } = useGet<ListResponse<OrderPaymentType>>(
         TRIPS_ORDERS_PAYMENT,
         {
             params: {
@@ -50,6 +50,7 @@ const orderId = Number(childId)
             <div className="overflow-x-auto">
                 <DataTable
                     loading={isLoading}
+                    error={error}
                     columns={columns}
                     data={data?.results}
                     numeration

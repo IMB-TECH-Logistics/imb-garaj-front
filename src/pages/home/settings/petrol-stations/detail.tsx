@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { useState } from "react"
 import {
+    AlertTriangle,
     ArrowDownCircle,
     ArrowLeft,
     ArrowUpCircle,
@@ -22,6 +23,7 @@ import {
     Fuel,
     MapPin,
     Plus,
+    SearchX,
     Wallet,
 } from "lucide-react"
 import AddExpenseModal from "./add-expense-modal"
@@ -65,10 +67,14 @@ const PetrolStationDetail = () => {
 
     const hasControl = useHasAction("settings_petrol_stations_control")
 
-    const { data: station } = useGet<PetrolStationRow>(
-        `${SETTINGS_PETROL_STATIONS}/${stationId}`,
-        { enabled: !!stationId },
-    )
+    const {
+        data: station,
+        isLoading: stationLoading,
+        isError: stationNotFound,
+    } = useGet<PetrolStationRow>(`${SETTINGS_PETROL_STATIONS}/${stationId}`, {
+        enabled: !!stationId,
+        options: { retry: 0 },
+    })
 
     const { data: stats } = useGet<StationStats>(
         `${SETTINGS_PETROL_STATIONS}/${stationId}/stats`,
@@ -127,6 +133,37 @@ const PetrolStationDetail = () => {
         } as any)
     }
 
+    // 4.3: saqlangan balans o'z reyestriga zid bo'lsa foydalanuvchi ogohlantiriladi.
+    // Sana filtri qo'yilganda kirim/chiqim faqat shu oraliqniki bo'ladi —
+    // u holda solishtirish o'rinli emas, shuning uchun tekshirmaymiz.
+    const hasDateFilter = !!search.from_date || !!search.to_date
+    const ledgerBalance =
+        Number(stats?.total_top_ups ?? 0) - Number(stats?.total_outcomes ?? 0)
+    const storedBalance = Number(stats?.balance ?? 0)
+    const balanceDrift = storedBalance - ledgerBalance
+    const isBalanceInconsistent =
+        !!stats && !hasDateFilter && Math.abs(balanceDrift) >= 1
+
+    if (!stationLoading && (stationNotFound || !Number.isFinite(stationId) || !stationId)) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
+                <SearchX className="text-muted-foreground" size={40} />
+                <h2 className="text-lg font-semibold">Zapravka topilmadi</h2>
+                <p className="max-w-md text-sm text-muted-foreground">
+                    <span className="font-medium">#{id}</span> raqamli zapravka
+                    mavjud emas yoki o‘chirilgan.
+                </p>
+                <Button
+                    variant="outline"
+                    onClick={() => navigate({ to: "/petrol-stations" })}
+                >
+                    <ArrowLeft size={16} className="mr-1" />
+                    Ro‘yxatga qaytish
+                </Button>
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-4 pb-6">
             <div className="flex items-center justify-between gap-3">
@@ -157,6 +194,23 @@ const PetrolStationDetail = () => {
                     <ParamDateRange from="from_date" to="to_date" />
                 </div>
             </div>
+
+            {isBalanceInconsistent && (
+                <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-400">
+                    <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+                    <span>
+                        <span className="font-semibold">
+                            Ma’lumot nomuvofiq:
+                        </span>{" "}
+                        saqlangan balans (
+                        {formatMoney(storedBalance)} so‘m) kirim va chiqim
+                        yig‘indisiga ({formatMoney(ledgerBalance)} so‘m) teng
+                        emas — farq {formatMoney(balanceDrift)} so‘m. Quyidagi
+                        kartalardagi raqamlarga hozircha to‘liq ishonmang,
+                        balansni qayta hisoblash kerak.
+                    </span>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 <Card>

@@ -22,18 +22,26 @@ const ShiftStatisticMain = () => {
 
     const currentTrip = getData<TripRow>(TRIPS)
 
-    const { data, isLoading } = useGet<ListResponse<TripRow>>(TRIPS, {
-        params: {
-            search: search.driver_name,
-            page: search.page,
-            page_size: search.page_size,
+    const { data, isLoading, isError, error } = useGet<ListResponse<TripRow>>(
+        TRIPS,
+        {
+            params: {
+                search: search.driver_name,
+                page: search.page,
+                page_size: search.page_size,
+            },
         },
-    })
+    )
+    // Yig'indi kartalari BOSHQA endpointdan keladi va u ishlayapti. Lekin
+    // asosiy ro'yxat yuklanmagan bo'lsa, bu raqamlarni ko'rsatish foydalanuvchini
+    // "sahifa ishlayapti, shunchaki bo'sh" deb chalg'itadi — shuning uchun
+    // ro'yxat xato bergan holatda umuman so'ralmaydi ham, chizilmaydi ham.
     const { data: cashflowData } = useGet<any>(CASHFLOW_STATISTICS, {
         params: {
             page: search.page,
             page_size: search.page_size,
         },
+        enabled: !isError,
     })
 
     const columns = useCostCols()
@@ -65,6 +73,7 @@ const ShiftStatisticMain = () => {
 
     return (
         <div className="space-y-3">
+            {!isError && (
             <div className="grid grid-cols-2 gap-4 mb-2">
                 <div
                     className="relative rounded-xl p-5 overflow-hidden"
@@ -110,6 +119,7 @@ const ShiftStatisticMain = () => {
                     </div>
                 </div>
             </div>
+            )}
 
             <div className="flex justify-between items-center mb-3 gap-4">
                 <ParamInput
@@ -121,6 +131,7 @@ const ShiftStatisticMain = () => {
                 <Button
                     className="flex items-center gap-2"
                     onClick={handleCreate}
+                    disabled={isError}
                 >
                     <CirclePlus size={18} />
                     Qo'shish
@@ -129,6 +140,7 @@ const ShiftStatisticMain = () => {
 
             <DataTable
                 loading={isLoading}
+                error={error}
                 columns={columns}
                 data={data?.results}
                 numeration

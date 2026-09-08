@@ -8,13 +8,13 @@ import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import TableHeader from "../table-header"
-import AddExpensesModal from "./add-expenses"
+import AddExpensesModal, { type ExpenseCategoryType } from "./add-expenses"
 import { useColumnsExpensesTable } from "./expenses-cols"
 
 const ExpensesTypePage = () => {
     const hasControl = useHasAction("settings_expense_types_control")
     const search = useSearch({ strict: false })
-    const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
+    const { data, isLoading } = useGet<ListResponse<ExpenseCategoryType>>(
         SETTINGS_EXPENSES,
         {
             params: {
@@ -25,17 +25,17 @@ const ExpensesTypePage = () => {
         },
     )
     const { getData, setData } = useGlobalStore()
-    const item = getData<VehicleRoleType>(SETTINGS_EXPENSES)
+    const item = getData<ExpenseCategoryType>(SETTINGS_EXPENSES)
 
     const { openModal: openDeleteModal } = useModal("delete")
     const { openModal: openCreateModal } = useModal(`create`)
     const columns = useColumnsExpensesTable()
 
-    const handleDelete = (row: { original: VehicleRoleType }) => {
+    const handleDelete = (row: { original: ExpenseCategoryType }) => {
         setData(SETTINGS_EXPENSES, row.original)
         openDeleteModal()
     }
-    const handleEdit = (item: VehicleRoleType) => {
+    const handleEdit = (item: ExpenseCategoryType) => {
         setData(SETTINGS_EXPENSES, item)
         openCreateModal()
     }
@@ -65,12 +65,22 @@ const ExpensesTypePage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_EXPENSES} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_EXPENSES}
+                id={item?.id}
+                name={
+                    item?.name ?
+                        <span className="block font-medium mb-1">
+                            Xarajat turi: «{item.name}»
+                        </span>
+                    :   ""
+                }
+            />
             <Modal
                 title={
                     item?.id ?
-                        "Xarajat turinni tahrirlash"
-                    :   " Xarajat qo'shish"
+                        "Xarajat turini tahrirlash"
+                    :   "Xarajat turi qo'shish"
                 }
                 modalKey="create"
             >

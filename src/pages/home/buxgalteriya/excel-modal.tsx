@@ -67,7 +67,7 @@ const BuxgalteriyaExcelModal = () => {
     })
 
     const { trigger, isFetching } = useDownloadAsExcel({
-        url: `${MANAGERS_RUNS}/excel`,
+        url: `${MANAGERS_RUNS}/excel/`,
         name: "Buxgalteriya",
         params,
     })
