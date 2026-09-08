@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { formatSom } from "@/lib/money-format"
 import { queryErrorHint, queryErrorMessage } from "@/lib/query-state"
 import { CalendarClock, Download } from "lucide-react"
+import { shiftFullMonth } from "../oy-oraligi"
+import { tableError } from "../pul-holat"
 
 /** BX-12: jami summalar butun filtrlangan to'plam bo'yicha backendda hisoblanishi kerak
  *  (backend-kerak/F1.md). Javobda `totals` kelgan zahoti kartalar avtomatik ko'rinadi. */
@@ -25,15 +27,6 @@ type RunTotals = {
     summa_s_nds?: string | number
     naqd_amount?: string | number
     our_share?: string | number
-}
-
-const shiftMonth = (iso: string | undefined, months: number) => {
-    if (!iso) return undefined
-    const d = new Date(iso)
-    if (Number.isNaN(d.getTime())) return undefined
-    d.setMonth(d.getMonth() + months)
-    const pad = (n: number) => String(n).padStart(2, "0")
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 const BuxgalteriyaPage = () => {
@@ -62,9 +55,9 @@ const BuxgalteriyaPage = () => {
         search: search?.search,
     })
 
-    const { data, isLoading, isError, error } = useGet<
-        ListResponse<ReysOrder> & { totals?: RunTotals }
-    >(MANAGERS_RUNS, {
+    const runsQ = useGet<ListResponse<ReysOrder> & { totals?: RunTotals }>(
+        MANAGERS_RUNS,
+        {
         params: {
             from_date: search?.from_date,
             to_date: search?.to_date,
@@ -81,23 +74,34 @@ const BuxgalteriyaPage = () => {
             // komponent (components/ui/datatable.tsx) zimmasida.
             ordering: search?.ordering,
         },
-    })
+        },
+    )
+    const { data, isLoading, isError, error } = runsQ
 
     const totals = data?.totals
     // BX-01: sahifa doim joriy oy bilan ochiladi, ma'lumot esa oldingi oyda tugagan —
     // natijada modul "bo'sh" ko'rinadi va foydalanuvchi ma'lumot yo'q deb o'ylaydi.
+    // R3: "oraliqda reys topilmadi" banneri FAQAT so'rov muvaffaqiyatli
+    // tugaganda ko'rsatiladi — aks holda u yiqilgan so'rovni "bo'sh natija"
+    // deb ko'rsatib, foydalanuvchini yanglish xulosaga olib keladi.
     const emptyForRange =
-        !isLoading &&
-        !isError &&
+        runsQ.isSuccess &&
         (data?.count ?? 0) === 0 &&
         Boolean(search?.from_date || search?.to_date)
 
+    /**
+     * BX-01 / YANGI-06 tuzatishi: ilgari bu yerda `to_date` ham xuddi
+     * `from_date` kabi bir oy orqaga SILJITILARDI (`setMonth`), oy kuni esa
+     * o'zgarmasdi — 30-sentyabr 30-avgustga aylanib, 31-avgust oralig'dan
+     * tushib qolardi va o'sha kungi 8 ta reys yashirinardi. Endi butun oy
+     * oralig'i hisoblanadi (1-kundan oyning haqiqiy oxirgi kunigacha).
+     */
     const goPreviousMonth = () => {
+        const range = shiftFullMonth(search?.from_date, search?.to_date, -1)
         navigate({
             search: {
                 ...search,
-                from_date: shiftMonth(search?.from_date, -1),
-                to_date: shiftMonth(search?.to_date, -1),
+                ...range,
                 page: undefined,
             } as any,
         })
@@ -148,7 +152,10 @@ const BuxgalteriyaPage = () => {
                 </div>
             )}
 
-            {totals && !isError && (
+            {/* R3: kartalar FAQAT so'rov muvaffaqiyatli tugaganda chiziladi.
+                Xato yoki javobsiz holatda ular umuman ko'rsatilmaydi —
+                yuqoridagi xato bloki sababini aytadi. */}
+            {runsQ.isSuccess && totals && (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <TotalCard
                         label="Jami Summa S NDS"
@@ -161,11 +168,22 @@ const BuxgalteriyaPage = () => {
                     />
                 </div>
             )}
+            {!runsQ.isSuccess && !isLoading && !isError && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+                    <p className="font-medium text-amber-600 dark:text-amber-500">
+                        Ma'lumot kelmadi
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                        Server javob bermadi — jami summalar ko'rsatilmadi. Bu
+                        summalar nolga teng degani EMAS.
+                    </p>
+                </div>
+            )}
 
             <DataTable
                 columns={columns}
                 loading={isLoading}
-                error={isError ? error : undefined}
+                error={tableError(runsQ)}
                 data={data?.results || []}
                 numeration
                 onEdit={handleEdit}
@@ -180,7 +198,7 @@ const BuxgalteriyaPage = () => {
                         <div className="flex items-center justify-between gap-3 flex-wrap">
                             <div className="flex items-center gap-2">
                                 <h1 className="text-lg">Reyslar</h1>
-                                <Badge>{data?.count ?? 0}</Badge>
+                                {runsQ.isSuccess && <Badge>{data?.count ?? 0}</Badge>}
                             </div>
                             <div className="flex items-center justify-end gap-3 flex-wrap">
                             <ParamCombobox

@@ -1,4 +1,10 @@
-import { Controller, Control, FieldValues, Path } from "react-hook-form"
+import {
+    Controller,
+    Control,
+    FieldValues,
+    Path,
+    useFormState,
+} from "react-hook-form"
 import { Checkbox } from "../ui/checkbox"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
@@ -12,10 +18,15 @@ export function FormCheckbox<TForm extends FieldValues>({
     disabled,
     control,
     required,
-    hideError = true,
+    hideError = false,
     wrapperClass,
     className,
 }: thisProps<TForm>) {
+    // `control._formState` obuna bo'linmagan ichki holat — `useFormState`
+    // esa xato o'zgarganda qayta renderni ta'minlaydi.
+    const { errors } = useFormState({ control, name })
+    const error = (errors as Record<string, any>)?.[name]
+
     return (
         <div>
             <Controller
@@ -38,17 +49,15 @@ export function FormCheckbox<TForm extends FieldValues>({
                         <FieldLabel
                             htmlFor={name}
                             required={!!required}
-                            isError={!!control._formState.errors?.[name]}
+                            isError={!!error}
                         >
                             {label}
                         </FieldLabel>
                     </div>
                 )}
             />
-            {!hideError && control._formState.errors?.[name] && (
-                <FieldError>
-                    {control._formState.errors[name]?.message as string}
-                </FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </div>
     )

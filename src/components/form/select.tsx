@@ -1,5 +1,11 @@
 import { displayFieldLabel } from "@/lib/field-labels"
-import { Controller, Control, FieldValues, Path } from "react-hook-form"
+import {
+    Controller,
+    Control,
+    FieldValues,
+    Path,
+    useFormState,
+} from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 import Select from "../ui/select"
@@ -20,12 +26,17 @@ export function FormSelect<
     setValue,
     valueKey,
     labelKey,
-    hideError = true,
+    hideError = false,
     renderOption,
     placeholder,
     className,
 }: thisProps<TForm, T>) {
-    const error = getNestedValue(control._formState.errors, name)
+    // `control._formState` — obuna bo'linmagan ICHKI holat: undan o'qilganda
+    // xato paydo bo'lganda komponent qayta render bo'lmaydi va matn ekranga
+    // chiqmaydi. `useFormState` aynan shu maydonga obuna bo'ladi (FormCombobox
+    // dagi bilan bir xil yondashuv).
+    const { errors } = useFormState({ control, name })
+    const error = getNestedValue(errors, name)
     return (
         <div className="w-full">
             {label && (
@@ -67,10 +78,8 @@ export function FormSelect<
                     </div>
                 )}
             />
-            {!hideError && error && (
-                <FieldError>
-                    {control._formState.errors[name]?.message as string}
-                </FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </div>
     )

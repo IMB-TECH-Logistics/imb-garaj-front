@@ -13,6 +13,8 @@ import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowDownCircle, ArrowUpCircle, CalendarClock, TrendingUp } from "lucide-react"
 import { useMemo } from "react"
 import ParamDateRange from "@/components/as-params/date-picker-range"
+import { shiftFullMonth } from "../oy-oraligi"
+import { tableError } from "../pul-holat"
 import { useCostCols, OwnerStatistic } from "./cols"
 import AddTransport from "./create"
 
@@ -33,12 +35,7 @@ const FinanceStatisticMain = () => {
         ? { from: startOfMonth, to: endOfMonth } 
         : undefined;
 
-    const {
-        data: statisticsData,
-        isLoading,
-        isError,
-        error,
-    } = useGet<OwnerStatistic[]>(
+    const statsQ = useGet<OwnerStatistic[]>(
         OWNER_MAIN_STATISTIC,
         {
             params: {
@@ -48,6 +45,13 @@ const FinanceStatisticMain = () => {
             },
         },
     )
+    const { data: statisticsData, isLoading, isError, error } = statsQ
+    /**
+     * R3: raqam FAQAT so'rov muvaffaqiyatli tugaganda chiziladi. Server
+     * umuman javob bermasa `isError` yonmaydi (so'rov "pending/idle" da
+     * qotib qoladi) — o'shanda ham "0 so'm" ko'rsatilmasligi shart.
+     */
+    const statsOk = statsQ.isSuccess
 
     const handleCreate = () => {
         clearKey(VEHICLES)
@@ -102,9 +106,9 @@ const FinanceStatisticMain = () => {
 
     const columns = useCostCols()
 
+    // R3: banner FAQAT muvaffaqiyatli javobda (yuqoridagi izohga qarang).
     const emptyForRange =
-        !isLoading &&
-        !isError &&
+        statsOk &&
         (statisticsData?.length ?? 0) > 0 &&
         (statisticsData || []).every(
             (item) =>
@@ -115,21 +119,19 @@ const FinanceStatisticMain = () => {
         ) &&
         Boolean(search?.from_date || search?.to_date)
 
-    const shiftMonth = (iso: string | undefined, months: number) => {
-        if (!iso) return undefined
-        const d = new Date(iso)
-        if (Number.isNaN(d.getTime())) return undefined
-        d.setMonth(d.getMonth() + months)
-        const pad = (n: number) => String(n).padStart(2, "0")
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-    }
-
+    /**
+     * YANGI-06-TRUCK: ilgari `to_date` bir oy orqaga SILJITILARDI va oy kuni
+     * saqlanib qolardi — 30-sentyabr 30-avgustga aylanib, 31-avgust
+     * oralig'dan tushib qolardi. O'lchangan zarar: 3 250 000 so'm daromad va
+     * 1 reys ekrandan yashirinardi (496 202 210.80 o'rniga 499 452 210.80
+     * bo'lishi kerak). Endi to'liq oy oralig'i olinadi.
+     */
     const goPreviousMonth = () => {
+        const range = shiftFullMonth(search?.from_date, search?.to_date, -1)
         navigate({
             search: {
                 ...search,
-                from_date: shiftMonth(search?.from_date, -1),
-                to_date: shiftMonth(search?.to_date, -1),
+                ...range,
             } as any,
         })
     }
@@ -172,7 +174,7 @@ const FinanceStatisticMain = () => {
             <DataTable
                 columns={columns}
                 loading={isLoading}
-                error={isError ? error : undefined}
+                error={tableError(statsQ)}
                 data={statisticsData || []}
                 numeration
                 viewAll
@@ -209,9 +211,10 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {isError ?
-                                            queryErrorMessage(error)
-                                        :   `${formatSom(totals.totalExpense)} so'm`}
+                                        {statsOk ?
+                                            `${formatSom(totals.totalExpense)} so'm`
+                                        : isLoading ? "…"
+                                        :   queryErrorMessage(error)}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -230,9 +233,10 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {isError ?
-                                            queryErrorMessage(error)
-                                        :   `${formatSom(totals.totalIncome)} so'm`}
+                                        {statsOk ?
+                                            `${formatSom(totals.totalIncome)} so'm`
+                                        : isLoading ? "…"
+                                        :   queryErrorMessage(error)}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -259,9 +263,10 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {isError ?
-                                            queryErrorMessage(error)
-                                        :   `${formatSom(totals.totalProfit)} so'm`}
+                                        {statsOk ?
+                                            `${formatSom(totals.totalProfit)} so'm`
+                                        : isLoading ? "…"
+                                        :   queryErrorMessage(error)}
                                     </div>
                                 </CardContent>
                             </Card>

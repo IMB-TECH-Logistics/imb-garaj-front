@@ -1,4 +1,5 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
 import ParamTabs from "@/components/as-params/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -134,6 +135,25 @@ export default function LogsPage() {
                             addButtonProps={{
                                 className:
                                     "w-full sm:w-48 shrink-0 justify-between font-normal",
+                            }}
+                        />
+
+                        {/*
+                          * S2-48 (3-raund): backend `date_from` / `date_to`
+                          * filtrini qo'llab-quvvatlaydi
+                          * (`apps/logs/api/v1/filters.py`), lekin ekranda
+                          * tanlagich yo'q edi — 4 900+ yozuv ichidan "falon
+                          * kuni nima bo'ldi" degan savolga javob berib
+                          * bo'lmasdi. Parametr nomlari backend kutgani bilan
+                          * aynan bir xil.
+                          */}
+                        <ParamDateRange
+                            from="date_from"
+                            to="date_to"
+                            className="min-w-64"
+                            addButtonProps={{
+                                className:
+                                    "w-full sm:w-64 shrink-0 justify-between font-normal",
                             }}
                         />
                     </div>

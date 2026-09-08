@@ -23,16 +23,12 @@ const startOfToday = () => {
 }
 
 /**
- * The shared FormInput swallows its validation text (it renders
- * `error.message?.message`, and `hideError={false}` throws on a clean field),
- * so a missing required field showed only a red border. Render it here.
+ * F5-35 / YANGI-03-F3 (3-raund): xato matni ikki nusxada chizilardi — bu
+ * sahifaning lokal `FieldMessage` i va maydon komponentining o'z xabari birga
+ * ko'rinardi. Butun loyihada bitta qoida qabul qilindi: XATO MATNINI MAYDON
+ * KOMPONENTI CHIZADI (`components/form/*` da `hideError` standart `false`),
+ * sahifa esa hech nima qo'shmaydi. Lokal `FieldMessage` shuning uchun yo'q.
  */
-const FieldMessage = ({ message }: { message?: unknown }) =>
-    message ? (
-        <span className="mt-1 block text-xs text-destructive">
-            {String(message)}
-        </span>
-    ) : null
 
 const AddDriverModal = () => {
     const queryClient = useQueryClient()
@@ -58,11 +54,7 @@ const AddDriverModal = () => {
         },
     })
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = form
+    const { handleSubmit, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -150,7 +142,6 @@ const AddDriverModal = () => {
                         placeholder="Misol: Ali "
                         registerOptions={{ required: "Ismni kiriting" }}
                     />
-                    <FieldMessage message={errors.first_name?.message} />
                 </div>
                 <div>
                     <FormInput
@@ -161,7 +152,6 @@ const AddDriverModal = () => {
                         placeholder="Misol: Karimov"
                         registerOptions={{ required: "Familiyani kiriting" }}
                     />
-                    <FieldMessage message={errors.last_name?.message} />
                 </div>
                 <div>
                     <FormInput
@@ -172,7 +162,6 @@ const AddDriverModal = () => {
                         placeholder="Misol: ali.karimov"
                         registerOptions={{ required: "Loginni kiriting" }}
                     />
-                    <FieldMessage message={errors.username?.message} />
                 </div>
 
                 <div>
@@ -192,22 +181,19 @@ const AddDriverModal = () => {
                                 currentDriver?.id ? false : "Parolni kiriting",
                         }}
                     />
-                    <FieldMessage message={errors.password?.message} />
                 </div>
 
                 {/*
-                  * This component renders its message from `fieldState` inside
-                  * the controller, so unlike FormInput it is safe to unhide.
-                  * (Its wording is fixed at "Ushbu maydon majburiy" — it
-                  * ignores `registerOptions` — but the red label names the
-                  * field, and onSubmit sets a specific message for a partial
-                  * number.)
+                  * FE2-05f: bu maydon ilgari umumiy "Ushbu maydon majburiy"
+                  * xabarini berardi, qolgan 9 maydon esa "<Nomi>ni kiriting"
+                  * deb aniq aytardi. Endi `FormFormatNumberInput` ham umumiy
+                  * yorliqlar jadvalidan foydalanadi → "Telefonni kiriting".
+                  * `hideError` ham endi hamma maydonda standart `false`.
                   */}
                 <FormFormatNumberInput
                     control={form.control}
                     format="+998 ## ### ## ##"
                     required
-                    hideError={false}
                     label={"Telefon"}
                     name={"driver.phone"}
                     placeholder="+998 __ ___ __ __"
@@ -229,9 +215,6 @@ const AddDriverModal = () => {
                         label="Pasport raqami"
                         methods={form}
                         placeholder="Misol: AA1234567"
-                    />
-                    <FieldMessage
-                        message={errors.driver?.passport_serial?.message}
                     />
                 </div>
 
@@ -265,9 +248,6 @@ const AddDriverModal = () => {
                         registerOptions={{
                             required: "Guvohnoma raqamini kiriting",
                         }}
-                    />
-                    <FieldMessage
-                        message={errors.driver?.driver_license?.message}
                     />
                 </div>
 

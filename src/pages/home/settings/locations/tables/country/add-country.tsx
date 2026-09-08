@@ -23,11 +23,7 @@ const AddCountriesModal = () => {
         defaultValues: currentRole,
     })
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = form
+    const { handleSubmit, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -82,12 +78,12 @@ const AddCountriesModal = () => {
                         "Davlat nomini kiriting",
                 }}
             />
-            {/* FormInput cannot render its own message — see S1-08. */}
-            {errors.name?.message && (
-                <span className="mt-1 block text-xs text-destructive">
-                    {String(errors.name.message)}
-                </span>
-            )}
+            {/*
+              * F5-35 (3-raund): bu yerda lokal xato matni ham chizilardi va
+              * `FormInput` ning o'z xabari bilan birga IKKI nusxa ko'rinardi.
+              * Endi butun loyihada xato matnini maydon komponentining o'zi
+              * chizadi — sahifa hech nima qo'shmaydi.
+              */}
 
             <div className="flex items-center justify-end  mt-3">
                 <Button

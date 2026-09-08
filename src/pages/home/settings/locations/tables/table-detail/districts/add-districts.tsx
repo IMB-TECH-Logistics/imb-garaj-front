@@ -43,11 +43,7 @@ const AddDestrictsModal = ({
         },
     })
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = form
+    const { handleSubmit, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -128,12 +124,11 @@ const AddDestrictsModal = ({
                                 "Tuman nomini kiriting",
                         }}
                     />
-                    {/* FormInput cannot render its own message — see S1-08. */}
-                    {errors.name?.message && (
-                        <span className="mt-1 text-xs text-destructive">
-                            {String(errors.name.message)}
-                        </span>
-                    )}
+                    {/*
+                      * F5-35 (3-raund): xato matnini `FormInput` ning o'zi
+                      * chizadi — lokal nusxa olib tashlandi (ikki marta
+                      * ko'rinmasligi uchun).
+                      */}
                 </div>
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Joylashuv</label>

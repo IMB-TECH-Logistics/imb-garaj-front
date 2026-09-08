@@ -24,21 +24,32 @@ export const Route = createRootRoute({
             page_size: search?.page_size ?? undefined,
         }
     },
+    /**
+     * 404 sahifasi faqat inglizcha edi ("Not found", "Back to home page"),
+     * holbuki butun tizim o'zbek tilida. Matnlar o'zbekchaga o'girildi va
+     * nima bo'lganini tushuntiruvchi bir qator qo'shildi.
+     */
     notFoundComponent: () => {
         return (
             <main className="grid place-items-center h-screen w-full bg-primary-foreground">
-                <div className="shadow rounded-md p-4 flex flex-col gap-2">
-                    <Link to="/">
-                        <Button>Back to home page</Button>
-                    </Link>
+                <div className="shadow rounded-md p-6 flex flex-col gap-3 max-w-md text-center">
                     <Badge
                         variant={"destructive"}
                         className="text-center justify-center"
                     >
-                        Not found
+                        Sahifa topilmadi
                     </Badge>
+                    <p className="text-sm text-muted-foreground">
+                        Siz so'ragan sahifa mavjud emas yoki manzil noto'g'ri
+                        yozilgan bo'lishi mumkin.
+                    </p>
+                    <Link to="/">
+                        <Button className="w-full">Bosh sahifaga qaytish</Button>
+                    </Link>
                     <Link to="/auth">
-                        <Button>Back to login page</Button>
+                        <Button variant="outline" className="w-full">
+                            Kirish sahifasiga o'tish
+                        </Button>
                     </Link>
                 </div>
             </main>

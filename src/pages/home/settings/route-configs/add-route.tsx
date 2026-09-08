@@ -74,19 +74,12 @@ const withCurrentValue = (
 }
 
 /**
- * FormCombobox accepts `hideError={false}` but renders the message outside its
- * `Controller`, reading `control._formState` in the component body — that value
- * is stale until something else re-renders the parent, so a failed required
- * check showed a red border and no text (UI audit S1-22). Rendering the message
- * from this form, which subscribes to `formState.errors`, makes it appear
- * immediately without touching the shared component.
+ * F5-35 / YANGI-03-F3 (3-raund): xato matni ikki nusxada chizilardi — bu
+ * sahifaning lokal `FieldMessage` i va maydon komponentining o'z xabari birga
+ * ko'rinardi. Butun loyihada bitta qoida qabul qilindi: XATO MATNINI MAYDON
+ * KOMPONENTI CHIZADI (`components/form/*` da `hideError` standart `false`),
+ * sahifa esa hech nima qo'shmaydi. Lokal `FieldMessage` shuning uchun yo'q.
  */
-const FieldMessage = ({ message }: { message?: unknown }) =>
-    message ? (
-        <span className="mt-1 block text-xs text-destructive">
-            {String(message)}
-        </span>
-    ) : null
 
 const AddRouteConfigModal = () => {
     const queryClient = useQueryClient()
@@ -110,14 +103,7 @@ const AddRouteConfigModal = () => {
         },
     })
 
-    const {
-        handleSubmit,
-        control,
-        reset,
-        setError,
-        clearErrors,
-        formState: { errors },
-    } = form
+    const { handleSubmit, control, reset, setError, clearErrors } = form
 
     const { data: clientData } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
         params: { model_name: "client" },
@@ -240,7 +226,6 @@ const AddRouteConfigModal = () => {
                     labelKey="name"
                     placeholder="Hududni tanlang"
                 />
-                <FieldMessage message={errors.load?.message} />
             </div>
             <div>
                 <FormCombobox
@@ -253,7 +238,6 @@ const AddRouteConfigModal = () => {
                     labelKey="name"
                     placeholder="Hududni tanlang"
                 />
-                <FieldMessage message={errors.unload?.message} />
             </div>
             <div>
                 <FormCombobox
@@ -266,7 +250,6 @@ const AddRouteConfigModal = () => {
                     valueKey="id"
                     placeholder="Yuk egasini tanlang"
                 />
-                <FieldMessage message={errors.owner?.message} />
             </div>
             <div>
                 <FormCombobox
@@ -279,7 +262,6 @@ const AddRouteConfigModal = () => {
                     labelKey="name"
                     placeholder="Yuk turini tanlang"
                 />
-                <FieldMessage message={errors.cargo_type?.message} />
             </div>
             <div>
                 <FormCombobox
@@ -292,7 +274,6 @@ const AddRouteConfigModal = () => {
                     labelKey="name"
                     placeholder="To'lov turini tanlang"
                 />
-                <FieldMessage message={errors.payment_type?.message} />
             </div>
             <div>
                 <FormCombobox
@@ -305,7 +286,6 @@ const AddRouteConfigModal = () => {
                     labelKey="name"
                     placeholder="Valyutani tanlang"
                 />
-                <FieldMessage message={errors.currency?.message} />
             </div>
             <FormNumberInput
                 required

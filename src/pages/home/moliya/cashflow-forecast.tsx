@@ -13,6 +13,7 @@ import {
 import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_FORECAST } from "@/constants/api-endpoints"
+import { ChartEmpty, ChartError, ChartUnavailable, chartPhase } from "./chart-state"
 
 type ForecastPoint = {
     month: string
@@ -50,9 +51,11 @@ function ForecastTooltip({ active, payload, label }: any) {
 export default function CashflowForecast() {
     // ML-18: ilgari params'siz chaqirilardi va sahifadagi sana filtriga bo'ysunmasdi
     const search: any = useSearch({ strict: false })
-    const { data: raw } = useGet<ForecastPoint[]>(FINANCE_FORECAST, {
+    const q = useGet<ForecastPoint[]>(FINANCE_FORECAST, {
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
+    const { data: raw, isError, error } = q
+    const phase = chartPhase(q)
 
     const data = useMemo(
         () =>
@@ -66,10 +69,18 @@ export default function CashflowForecast() {
         [raw],
     )
 
-    const minBalance = data.length ? Math.min(...data.map((d) => d.balance)) : 0
-    const hasCashGap = minBalance < 5_000_000
-
-    const cashGapMonths = data.filter((d) => d.balance < 5_000_000)
+    /**
+     * YANGI-B-04: ma'lumot bo'lmasa prognoz CHIZILMAYDI.
+     *
+     * Ilgari `minBalance` bo'sh ro'yxatda 0 ga tushardi va 0 < 5 000 000
+     * bo'lgani uchun "Cash gap xavfi" nishoni yonardi, grafik esa pastga
+     * tushuvchi ko'k punktir chiziqni chizishda davom etardi. Yonidagi
+     * panellar "Ma'lumot yo'q" deganda bu blokning prognoz ko'rsatishi
+     * to'g'ridan-to'g'ri chalg'itadi.
+     */
+    const hasData = data.length > 0
+    const minBalance = hasData ? Math.min(...data.map((d) => d.balance)) : 0
+    const hasCashGap = phase === "ok" && hasData && minBalance < 5_000_000
 
     return (
         <div className="bg-card border rounded-xl overflow-hidden h-full flex flex-col">
@@ -85,6 +96,13 @@ export default function CashflowForecast() {
                 )}
             </div>
             <div className="flex-1 min-h-0 px-2 pb-2">
+                {phase === "error" ? (
+                    <ChartError error={error} />
+                ) : phase === "unavailable" ? (
+                    <ChartUnavailable />
+                ) : phase === "ok" && !hasData ? (
+                    <ChartEmpty hint="Tanlangan sana oralig'i uchun prognoz hisoblanmadi." />
+                ) : (
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data}>
                         <defs>
@@ -156,6 +174,7 @@ export default function CashflowForecast() {
                         />
                     </AreaChart>
                 </ResponsiveContainer>
+                )}
             </div>
         </div>
     )

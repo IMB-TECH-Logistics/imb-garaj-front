@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
-import { endOfMonth, format, startOfMonth } from "date-fns"
+import { format } from "date-fns"
+import { resolveDayRange } from "../../oy-oraligi"
 import { ArrowLeft } from "lucide-react"
 import RouteMap from "../route-map"
 import { type ApiStatusRoute, STATUS_META, type VehicleRow } from "./data"
@@ -28,11 +29,10 @@ export default function RouteView({
 }) {
     const meta = STATUS_META[status]
     const search = useSearch({ strict: false }) as Record<string, string>
-    const today = new Date()
-    const from = search.from_date
-        ? new Date(search.from_date)
-        : startOfMonth(today)
-    const to = search.to_date ? new Date(search.to_date) : endOfMonth(today)
+    // FE3-34: aynan shu blok "Bosib o'tilgan masofa" ni chizadi. Ilgari
+    // `to_date` yo'q bo'lsa oy oxiri olinardi va bitta kun uchun butun oyning
+    // masofasi ko'rsatilardi (14 794.63 km, aslida ~6 908 km).
+    const { from, to } = resolveDayRange(search.from_date, search.to_date)
 
     const { data } = useGet<ApiStatusRoute>(MONITORING_STATUS_ROUTE, {
         params: {

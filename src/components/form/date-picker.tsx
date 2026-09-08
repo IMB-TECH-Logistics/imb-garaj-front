@@ -16,7 +16,7 @@ export function FormDatePicker<TForm extends FieldValues>({
     control,
     required = false,
     calendarProps,
-    hideError = true,
+    hideError = false,
     placeholder,
     fullWidth,
     className,

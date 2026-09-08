@@ -108,23 +108,17 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                         }}
                     />
                     {/*
-                      * The shared FormInput swallows the message (it renders
-                      * `error.message?.message`, and `hideError={false}` throws
-                      * on a clean field), so an empty required field showed a
-                      * red border and nothing else — UI audit S1-08. Render the
-                      * text here instead of touching the shared component.
+                      * F5-35 (3-raund): xato matnini `FormInput` ning O'ZI
+                      * chizadi (butun loyihada bitta qoida) — bu yerda faqat
+                      * belgi hisoblagichi qoldi, aks holda xabar ikki nusxada
+                      * ko'rinardi.
                       */}
-                    {errors.name?.message ? (
-                        <span className="mt-1 text-xs text-destructive">
-                            {String(errors.name.message)}
-                        </span>
-                    ) : (
+                    {!errors.name?.message &&
                         nameValue.length > NAME_MAX_LENGTH - 55 && (
                             <span className="mt-1 text-xs text-muted-foreground">
                                 {nameValue.length} / {NAME_MAX_LENGTH} belgi
                             </span>
-                        )
-                    )}
+                        )}
                 </div>
 
                 <div className="space-y-2">

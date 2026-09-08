@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
+import { ChartEmpty, ChartError, ChartUnavailable, chartPhase, NO_VALUE } from "./chart-state"
 import { FINANCE_INCOME_EXPENSE } from "@/constants/api-endpoints"
 import { useGlobalStore } from "@/store/global-store"
 import { PALETTES, PALETTE_STORE_KEY } from "./palettes"
@@ -67,9 +68,13 @@ export default function IncomeExpenseChart() {
     const selectedMonth = isDaily ? new Date(search.from_date).getMonth() : null
     const selectedYear = isDaily ? new Date(search.from_date).getFullYear() : null
 
-    const { data: raw } = useGet<IncomeExpensePoint[]>(FINANCE_INCOME_EXPENSE, {
+    const q = useGet<IncomeExpensePoint[]>(FINANCE_INCOME_EXPENSE, {
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
+    const { data: raw, isLoading, isError, error } = q
+    // Raqam FAQAT so'rov muvaffaqiyatli tugaganda ko'rsatiladi.
+    const phase = chartPhase(q)
+    const showNumbers = phase === "ok"
 
     const chartData = useMemo(() => {
         const rows = raw ?? []
@@ -110,26 +115,35 @@ export default function IncomeExpenseChart() {
                     </span>
                 </span>
             </div>
+            {/* REG-XATO-QOLDIQ: xato holatida afsonadagi 0 lar HAQIQIY nol
+                kabi o'qilardi — endi raqam o'rniga "—" chiziladi. */}
             <div className="flex items-center gap-4 text-xs shrink-0">
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.income }} />
                     <span className="text-muted-foreground">Tushum:</span>
-                    <span className="font-semibold transition-colors" style={{ color: p.income }}>{formatCompact(totals.income)}</span>
+                    <span className="font-semibold transition-colors" style={{ color: showNumbers ? p.income : undefined }}>{showNumbers ? formatCompact(totals.income) : NO_VALUE}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.expense }} />
                     <span className="text-muted-foreground">Xarajat:</span>
-                    <span className="font-semibold transition-colors" style={{ color: p.expense }}>{formatCompact(totals.expense)}</span>
+                    <span className="font-semibold transition-colors" style={{ color: showNumbers ? p.expense : undefined }}>{showNumbers ? formatCompact(totals.expense) : NO_VALUE}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.profit }} />
                     <span className="text-muted-foreground">Foyda:</span>
-                    <span className="font-semibold transition-colors" style={{ color: p.profit }}>{formatCompact(totals.profit)}</span>
+                    <span className="font-semibold transition-colors" style={{ color: showNumbers ? p.profit : undefined }}>{showNumbers ? formatCompact(totals.profit) : NO_VALUE}</span>
                 </div>
             </div>
 
             {/* Single composed chart */}
             <div className="flex-1 min-h-0">
+                {phase === "error" ? (
+                    <ChartError error={error} />
+                ) : phase === "unavailable" ? (
+                    <ChartUnavailable />
+                ) : showNumbers && chartData.length === 0 ? (
+                    <ChartEmpty />
+                ) : (
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={chartData} barGap={2} barCategoryGap="15%">
                         <defs>
@@ -188,6 +202,7 @@ export default function IncomeExpenseChart() {
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
+                )}
             </div>
         </div>
     )

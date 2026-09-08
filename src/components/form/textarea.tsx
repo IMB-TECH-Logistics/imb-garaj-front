@@ -29,7 +29,7 @@ export function FormTextarea<IForm extends FieldValues>({
     registerOptions,
     wrapperClassName,
     className,
-    hideError = true,
+    hideError = false,
     uppercase = false,
     ...props
 }: IProps<IForm> & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {

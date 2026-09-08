@@ -36,7 +36,7 @@ export function FormInput<IForm extends FieldValues>({
     wrapperClassName,
     className,
     type = "text",
-    hideError = true,
+    hideError = false,
     uppercase = false,
     ...props
 }: IProps<IForm> & React.InputHTMLAttributes<HTMLInputElement>) {

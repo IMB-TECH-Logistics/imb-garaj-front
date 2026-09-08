@@ -14,7 +14,9 @@ import { useTransactionCols, type Transaction } from "./transaction-cols"
 import { useGet } from "@/hooks/useGet"
 import { useHasAction, useUser } from "@/constants/useUser"
 import PermissionNotice from "../permission-notice"
+import { MoneyStat, tableError } from "../pul-holat"
 import { formatMoney } from "@/lib/format-money"
+import { queryErrorMessage } from "@/lib/query-state"
 import { cn } from "@/lib/utils"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useModal } from "@/hooks/useModal"
@@ -27,6 +29,12 @@ type DriverRow = {
     balance: string
 }
 
+/** Backend butun filtrlangan to'plam bo'yicha qaytaradigan jami summalar. */
+type TransactionTotals = {
+    income?: string | number
+    expense?: string | number
+}
+
 const KassaInner = () => {
     const hasControl = useHasAction("manager_cashflow_control")
     const transactionCols = useTransactionCols()
@@ -36,8 +44,21 @@ const KassaInner = () => {
     const { openModal: openStorno } = useModal(STORNO_MODAL_KEY)
     const [stornoRow, setStornoRow] = useState<Transaction | null>(null)
     const search = useSearch({ strict: false }) as any
-    const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
-    const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
+    /**
+     * R3-PUL-01: pul kartalari `isError` ni ham olishi SHART.
+     *
+     * Ilgari bu yerdan faqat `data` olinardi va quyida
+     * `formatMoney(Number(checkout?.balance ?? 0))` yozilgan edi. So'rov
+     * yiqilganda (403/500/tarmoq) `checkout` `undefined` bo'ladi va `?? 0`
+     * tufayli ekranda "0 so'm" chiqadi — menejer buni HAQIQIY balans deb
+     * o'qiydi. Nol balans bilan "ma'lumot kelmadi" bir xil narsa emas.
+     */
+    const checkoutQ = useGet<{ id: number; name: string; balance: string }>(
+        CHECKOUT_MAIN,
+    )
+    const checkout = checkoutQ.data
+    const driversQ = useGet<DriverRow[]>(DRIVERS_BALANCE)
+    const driversData = driversQ.data
     const { data: vehiclesData } = useGet<{ id: number; name: string }[]>(
         "selectable/vehicle",
         { params: { model_name: "vehicle" } },
@@ -62,11 +83,14 @@ const KassaInner = () => {
         // id, amount, created, type, currency, through, status, executor_name).
         ordering: search.ordering,
     }
+    const transactionsQ = useGet<
+        ListResponse<Transaction> & { totals?: TransactionTotals }
+    >(TRANSACTIONS, { params: filterParams })
     const {
         data: transactionsData,
         isLoading: transactionsLoading,
         error: transactionsError,
-    } = useGet<ListResponse<Transaction>>(TRANSACTIONS, { params: filterParams })
+    } = transactionsQ
     const drivers = driversData ?? []
     const selectedDriver = useMemo(
         () =>
@@ -76,7 +100,24 @@ const KassaInner = () => {
         [drivers, driverFilterId],
     )
 
+    /**
+     * KT-jami (R3): backend butun filtrlangan to'plam bo'yicha `totals`
+     * qaytaradi. Ilgari bu yerda faqat JORIY SAHIFA qatorlari qo'shilardi va
+     * sarlavhada "Kirim … Chiqim … (shu sahifada)" deb yozilardi — 69 sahifali
+     * reyestrda bu son butun kassani ifodalamaydi. Endi `totals` bo'lsa
+     * o'shani ishlatamiz (butun tanlov), bo'lmasa eski sahifa yig'indisiga
+     * qaytamiz va yorliqni shunga qarab yozamiz.
+     */
+    const totalsScope: "all" | "page" = transactionsData?.totals ? "all" : "page"
+
     const pageTotals = useMemo(() => {
+        const apiTotals = transactionsData?.totals
+        if (apiTotals) {
+            return {
+                income: Math.abs(Number(apiTotals.income ?? 0) || 0),
+                expense: Math.abs(Number(apiTotals.expense ?? 0) || 0),
+            }
+        }
         const rows = transactionsData?.results ?? []
         return rows.reduce(
             (acc, t) => {
@@ -87,7 +128,7 @@ const KassaInner = () => {
             },
             { income: 0, expense: 0 },
         )
-    }, [transactionsData?.results])
+    }, [transactionsData?.results, transactionsData?.totals])
 
     const driversTotal = useMemo(
         () =>
@@ -139,12 +180,18 @@ const KassaInner = () => {
                         <CardTitle className="font-medium text-lg">
                             Asosiy Balans
                         </CardTitle>
-                        <span>
-                            <span className="text-xl font-semibold">
-                                {formatMoney(Number(checkout?.balance ?? 0))}
-                            </span>{" "}
-                            <span className="text-base">so'm</span>
-                        </span>
+                        <MoneyStat
+                            query={checkoutQ}
+                            valueClassName="text-xl font-semibold"
+                            value={() => (
+                                <>
+                                    {formatMoney(Number(checkout?.balance))}{" "}
+                                    <span className="text-base font-normal">
+                                        so'm
+                                    </span>
+                                </>
+                            )}
+                        />
                     </CardHeader>
                     <CardContent className="pt-0 space-y-3 flex-1 min-h-0 flex flex-col">
                         {hasControl && (
@@ -173,9 +220,13 @@ const KassaInner = () => {
                             <p className="text-sm text-muted-foreground">
                                 Haydovchilar balansi
                             </p>
-                            <p className="text-xl font-semibold mt-0.5">
-                                {formatMoney(driversTotal)} so'm
-                            </p>
+                            <div className="mt-0.5">
+                                <MoneyStat
+                                    query={driversQ}
+                                    valueClassName="text-xl font-semibold"
+                                    value={() => <>{formatMoney(driversTotal)} so'm</>}
+                                />
+                            </div>
                         </div>
 
                         <div className="border-t pt-3 flex-1 min-h-0 flex flex-col">
@@ -183,6 +234,20 @@ const KassaInner = () => {
                                 Batafsil
                             </p>
                             <div className="space-y-1 flex-1 min-h-0 overflow-y-auto pr-1">
+                                {/* Xato holatida bo'sh ro'yxat "haydovchi yo'q"
+                                    degan yolg'on taassurot beradi — sabab
+                                    yuqorida aytilgani uchun bu yerda qisqa
+                                    eslatma qoldiramiz. */}
+                                {!driversQ.isSuccess && !driversQ.isLoading && (
+                                    <p className="text-sm text-muted-foreground">
+                                        Ro'yxat yuklanmadi.
+                                    </p>
+                                )}
+                                {driversQ.isSuccess && drivers.length === 0 && (
+                                    <p className="text-sm text-muted-foreground">
+                                        Haydovchi topilmadi.
+                                    </p>
+                                )}
                                 {drivers.map((driver, i) => {
                                     const isActive =
                                         driverFilterId === driver.id
@@ -224,7 +289,7 @@ const KassaInner = () => {
                 <DataTable
                     numeration
                     loading={transactionsLoading}
-                    error={transactionsError}
+                    error={tableError(transactionsQ)}
                     /**
                      * KT-24: jadvalda birorta amal tugmasi yo'q edi — xato
                      * yozuvni tuzatib bo'lmasdi. O'chirish emas, STORNO
@@ -280,23 +345,36 @@ const KassaInner = () => {
                         <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <h1 className="text-lg">Kassa yozuvlari</h1>
-                                <Badge>
-                                    {(transactionsData?.count ?? 0).toLocaleString(
-                                        "ru-RU",
-                                    )}{" "}
-                                    ta
-                                </Badge>
-                                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                                    <span className="text-emerald-600 dark:text-emerald-500">
-                                        Kirim {formatMoney(pageTotals.income)}
-                                    </span>
-                                    <span className="text-rose-600 dark:text-rose-500">
-                                        Chiqim {formatMoney(pageTotals.expense)}
-                                    </span>
-                                    <span className="text-xs">
-                                        (shu sahifada)
-                                    </span>
-                                </span>
+                                {/* Xato holatida "0 ta" va "Kirim 0 / Chiqim 0"
+                                    ko'rsatilmaydi — bu bo'sh kassa degan
+                                    yolg'on xabar bo'lardi. */}
+                                {!transactionsQ.isSuccess ? (
+                                    <MoneyStat query={transactionsQ} compact value={() => null} />
+                                ) : (
+                                    <>
+                                        <Badge>
+                                            {(
+                                                transactionsData?.count ?? 0
+                                            ).toLocaleString("ru-RU")}{" "}
+                                            ta
+                                        </Badge>
+                                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                                            <span className="text-emerald-600 dark:text-emerald-500">
+                                                Kirim{" "}
+                                                {formatMoney(pageTotals.income)}
+                                            </span>
+                                            <span className="text-rose-600 dark:text-rose-500">
+                                                Chiqim{" "}
+                                                {formatMoney(pageTotals.expense)}
+                                            </span>
+                                            <span className="text-xs">
+                                                {totalsScope === "all"
+                                                    ? "(butun tanlov)"
+                                                    : "(shu sahifada)"}
+                                            </span>
+                                        </span>
+                                    </>
+                                )}
                                 {selectedDriver && (
                                     <Badge
                                         variant="outline"
@@ -401,12 +479,49 @@ const KassaInner = () => {
  * foydalanuvchi kassada pul yo'q deb tushunadi. Endi holat ochiq aytiladi.
  */
 const Kassa = () => {
-    const { data: profile, isLoading } = useUser()
+    const {
+        data: profile,
+        isLoading,
+        isError: profileError,
+        error: profileErrorObj,
+        refetch: refetchProfile,
+    } = useUser()
     const hasView = useHasAction([
         "manager_cashflow_view",
         "accounting_view",
         "finance_view",
     ])
+
+    /**
+     * R3 (sinov paytida topildi): `if (isLoading || !profile) return null`
+     * profil so'rovi YIQILGANDA ham ishlar edi — natijada butun sahifa
+     * BO'M-BO'SH qora ekran bo'lib qolardi, hech qanday sabab yozilmasdi.
+     * Foydalanuvchi buni "kassa bo'sh" yoki "ilova buzildi" deb tushunadi.
+     * Endi yuklanish va xato ajratiladi.
+     */
+    if (profileError) {
+        return (
+            <div
+                role="alert"
+                className="flex h-[60vh] w-full flex-col items-center justify-center gap-2 text-center"
+            >
+                <p className="font-medium text-amber-600 dark:text-amber-500">
+                    {queryErrorMessage(profileErrorObj)}
+                </p>
+                <p className="max-w-md text-sm text-muted-foreground">
+                    Foydalanuvchi ma'lumoti yuklanmadi, shuning uchun kassa
+                    ko'rsatilmadi. Bu kassada pul yo'q degani EMAS.
+                </p>
+                <button
+                    type="button"
+                    onClick={() => refetchProfile()}
+                    className="mt-1 text-sm underline underline-offset-2 hover:no-underline"
+                >
+                    Qayta urinish
+                </button>
+            </div>
+        )
+    }
 
     if (isLoading || !profile) return null
 

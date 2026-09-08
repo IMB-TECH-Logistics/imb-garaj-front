@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import { Control, Controller } from "react-hook-form"
+import { Control, Controller, useFormState } from "react-hook-form"
 import { Input } from "../ui/input"
 import FieldError from "./form-error"
 import FieldLabel from "./form-label"
@@ -10,20 +10,24 @@ export function FormCarNumber({
     placeholder,
     disabled,
     required,
-    hideError = true,
+    hideError = false,
     control,
     className,
     wrapperClassName,
 }: thisProps) {
+    // `control._formState` obuna bo'linmagan ichki holat — undan o'qilganda
+    // xato paydo bo'lganda komponent qayta render bo'lmasdi va matn
+    // ekranga chiqmasdi. `useFormState` obuna bo'ladi.
+    const { errors } = useFormState({ control, name })
+    const error = (errors as Record<string, any>)?.[name]
 
-    
     return (
         <div className="w-full flex flex-col  ">
             {label && (
                 <FieldLabel
                     htmlFor={name}
                     required={!!required}
-                    isError={!!control._formState.errors?.[name]}
+                    isError={!!error}
                 >
                     {label}
                 </FieldLabel>
@@ -41,7 +45,7 @@ export function FormCarNumber({
                         autoComplete="off"
                         wrapperClassName={wrapperClassName}
                         className={cn(
-                            control._formState.errors?.[name] &&
+                            error &&
                                 "border-destructive focus:border-border !ring-destructive",
                             className,
                         )}
@@ -56,9 +60,9 @@ export function FormCarNumber({
                     />
                 )}
             />
-            {!hideError && control._formState.errors?.[name] && (
+            {!hideError && error?.message && (
                 <FieldError className="-mt-1">
-                    {control._formState.errors[name]?.message as string}
+                    {error.message as string}
                 </FieldError>
             )}
         </div>

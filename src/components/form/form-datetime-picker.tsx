@@ -3,7 +3,13 @@ import { displayFieldLabel } from "@/lib/field-labels"
 
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
-import { Control, Controller, FieldValues, Path } from "react-hook-form"
+import {
+    Control,
+    Controller,
+    FieldValues,
+    Path,
+    useFormState,
+} from "react-hook-form"
 
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Calendar, CalendarProps } from "@/components/ui/calendar"
@@ -26,12 +32,15 @@ export function FormDateTimePicker<TForm extends FieldValues>({
     required = false,
     disabled,
     calendarProps,
-    hideError = true,
+    hideError = false,
     placeholder,
     minutesInterval = 1,
     addButtonProps,
 }: thisProps<TForm>) {
-    const error = getNestedValue(control._formState.errors, name)
+    // `control._formState` obuna bo'linmagan ichki holat — `useFormState`
+    // esa xato o'zgarganda qayta renderni ta'minlaydi.
+    const { errors } = useFormState({ control, name })
+    const error = getNestedValue(errors, name)
 
     return (
         <div className="flex flex-col justify-between">
@@ -187,10 +196,8 @@ export function FormDateTimePicker<TForm extends FieldValues>({
                 }}
             />
 
-            {!hideError && control._formState.errors?.[name] && (
-                <FieldError>
-                    {control._formState.errors[name]?.message as string}
-                </FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </div>
     )

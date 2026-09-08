@@ -4,12 +4,8 @@ import { DataTable } from "@/components/ui/datatable"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
-import {
-    eachDayOfInterval,
-    endOfMonth,
-    format,
-    startOfMonth,
-} from "date-fns"
+import { eachDayOfInterval, format } from "date-fns"
+import { resolveDayRange } from "../../oy-oraligi"
 import { useMemo } from "react"
 import {
     ACTIVE_STATUSES,
@@ -38,11 +34,8 @@ export default function VehicleList({
 }) {
     const search = useSearch({ strict: false }) as Record<string, string>
     const q = search.q ?? ""
-    const today = new Date()
-    const from = search.from_date
-        ? new Date(search.from_date)
-        : startOfMonth(today)
-    const to = search.to_date ? new Date(search.to_date) : endOfMonth(today)
+    // FE3-34: bitta kun tanlanganda butun oy emas, o'sha kun ko'rsatiladi.
+    const { from, to } = resolveDayRange(search.from_date, search.to_date)
 
     const dayCount = useMemo(() => {
         if (from > to) return 0

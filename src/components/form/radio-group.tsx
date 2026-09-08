@@ -35,7 +35,7 @@ export default function FormRadioGroup<IForm extends FieldValues>({
     name,
     disabled,
     methods,
-    hideError = true,
+    hideError = false,
     required = false,
     options,
     className,

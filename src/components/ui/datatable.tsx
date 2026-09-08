@@ -245,6 +245,16 @@ export function DataTable<TData>({
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        /**
+         * FE3-36: sarlavha bosilganda "hech nima bo'lmadi" taassuroti.
+         * Sabab — tanstack ning standart sikli UCH bosqichli:
+         * o'sish → kamayish → SARALASHSIZ. Uchinchi bosish tartibni jimgina
+         * dastlabki holatiga qaytaradi va foydalanuvchi buni "saralash
+         * ishlamadi" deb o'qiydi (sinovda aynan shu qayd etilgan: ketma-ket
+         * 3 bosishdan keyin tartib o'zgarmagandek ko'rinadi).
+         * Endi sikl IKKI bosqichli: har bosish tartibni albatta o'zgartiradi.
+         */
+        enableSortingRemoval: false,
         state: {
             sorting,
             columnFilters,
@@ -376,11 +386,19 @@ export function DataTable<TData>({
                                                 />
                                             </TableHead>
                                         )}
+                                        {/*
+                                          * FE3-11 / MT-12: "№" ustuni hech qachon
+                                          * saralanmaydi, shuning uchun `cursor-pointer`
+                                          * yolg'on va'da berardi — olib tashlandi.
+                                          * MT-13: `w-8` (32px) 4 xonali raqamni
+                                          * sig'dirmasdi va "1234" keyingi ustunga
+                                          * yopishib qolardi — endi kengroq va
+                                          * o'ng tomonida bo'shliq bor.
+                                          */}
                                         {numeration && (
                                             <TableHead
                                                 className={cn(
-                                                    " px-2  cursor-pointer",
-                                                    index === 0 && "w-8",
+                                                    "px-2 pr-3 w-14 min-w-14 whitespace-nowrap cursor-default",
                                                     stickyHeader && "sticky top-0 bg-card z-10",
                                                 )}
                                             >
@@ -406,7 +424,14 @@ export function DataTable<TData>({
                                                     <TableHead
                                                         key={header.id}
                                                         className={cn(
-                                                            " px-2 cursor-pointer",
+                                                            " px-2",
+                                                            // FE3-11: kursor faqat HAQIQATAN saralanadigan
+                                                            // ustunda o'zgaradi. Ilgari `cursor-pointer`
+                                                            // hamma sarlavhada turardi va saralanmaydigan
+                                                            // ustun ham bosiladigandek ko'rinardi.
+                                                            showSort ?
+                                                                "cursor-pointer"
+                                                            :   "cursor-default",
                                                             stickyHeader && "sticky top-0 bg-card z-10",
                                                         )}
                                                         style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}
@@ -416,7 +441,14 @@ export function DataTable<TData>({
                                                             :   undefined
                                                         }
                                                     >
-                                                        <div className="cursor-pointer flex items-center gap-1 select-none w-max">
+                                                        <div
+                                                            className={cn(
+                                                                "flex items-center gap-1 select-none w-max",
+                                                                showSort ?
+                                                                    "cursor-pointer"
+                                                                :   "cursor-default",
+                                                            )}
+                                                        >
                                                             {flexRender(
                                                                 header.column
                                                                     .columnDef
@@ -495,7 +527,10 @@ export function DataTable<TData>({
                                             </TableCell>
                                         )}
                                         {numeration && (
-                                            <TableCell className="w-8 ">
+                                            // MT-13: 4 xonali raqam keyingi ustunga
+                                            // yopishib qolmasligi uchun kenglik va
+                                            // o'ng bo'shliq sarlavha bilan bir xil.
+                                            <TableCell className="w-14 min-w-14 pr-3 whitespace-nowrap tabular-nums">
                                                 {rowNumberOffset + index + 1}
                                             </TableCell>
                                         )}

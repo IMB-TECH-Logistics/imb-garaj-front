@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from "react"
 import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_CATEGORIES } from "@/constants/api-endpoints"
+import { ChartEmpty, ChartError, ChartUnavailable, chartPhase } from "./chart-state"
 import { cn } from "@/lib/utils"
 
 type NodeData = {
@@ -129,9 +130,17 @@ export default function FlowChart() {
 
     const isFullscreen = size.h > 400
     const search: any = useSearch({ strict: false })
-    const { data: apiRoot } = useGet<ApiNode>(FINANCE_CATEGORIES, {
+    const flowQ = useGet<ApiNode>(FINANCE_CATEGORIES, {
         params: { type: mode, from_date: search?.from_date, to_date: search?.to_date },
     })
+    const { data: apiRoot, isError: flowError, error: flowErrorObj } = flowQ
+    const flowPhase = chartPhase(flowQ)
+    /**
+     * REG-XATO-QOLDIQ: `apiRoot` bo'lmasa quyidagi `root` qiymati 0 ga
+     * tushadi va daraxt ildizida "Tushum 0" deb chiziladi — so'rov yiqilgani
+     * ham, bo'sh natija ham bir xil ko'rinardi. Endi ikkalasi ajratiladi.
+     */
+    const showFlowState = flowPhase === "error" || flowPhase === "unavailable" || (flowPhase === "ok" && !apiRoot)
     const root: NodeData = useMemo(
         () =>
             apiRoot
@@ -242,12 +251,23 @@ export default function FlowChart() {
 
             <div
                 ref={containerRef}
-                className="flex-1 min-h-0 cursor-grab active:cursor-grabbing overflow-hidden"
+                className="relative flex-1 min-h-0 cursor-grab active:cursor-grabbing overflow-hidden"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
             >
+                {showFlowState && (
+                    <div className="absolute inset-0 z-[2] bg-card">
+                        {flowError ? (
+                            <ChartError error={flowErrorObj} />
+                        ) : flowPhase === "unavailable" ? (
+                            <ChartUnavailable />
+                        ) : (
+                            <ChartEmpty hint="Tanlangan sana oralig'ida kategoriya bo'yicha harakat yo'q." />
+                        )}
+                    </div>
+                )}
                 <svg width={size.w} height={size.h} className="w-full h-full">
                     <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`} style={{ transition: isPanning.current ? "none" : "transform 60ms linear" }}>
                         {links.map((l, i) => (

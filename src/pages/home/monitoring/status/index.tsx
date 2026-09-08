@@ -1,7 +1,8 @@
 import { MONITORING_STATUS_VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { endOfMonth, format, startOfMonth } from "date-fns"
+import { format } from "date-fns"
+import { resolveDayRange } from "../../oy-oraligi"
 import { useMemo } from "react"
 import { type ApiStatusVehicle, type VehicleRow } from "./data"
 import RouteView from "./route-view"
@@ -22,11 +23,13 @@ export default function StatusReport({
     const routeStatus = search?.sstatus != null ? Number(search.sstatus) : null
     const cameFrom = (search?.sfrom as "list" | "timeline") ?? "list"
 
-    const today = new Date()
-    const fromD = search?.from_date
-        ? new Date(search.from_date)
-        : startOfMonth(today)
-    const toD = search?.to_date ? new Date(search.to_date) : endOfMonth(today)
+    // FE3-34: `to_date` yo'qligi "oy oxirigacha" degani EMAS. Bitta kun
+    // tanlanganda ParamDateRange URL ga faqat `from_date` yozadi — o'shanda
+    // oraliq aynan o'sha kun bo'lishi kerak (`resolveDayRange`).
+    const { from: fromD, to: toD } = resolveDayRange(
+        search?.from_date,
+        search?.to_date,
+    )
 
     const { data: vehicles = [], isLoading } = useGet<ApiStatusVehicle[]>(
         MONITORING_STATUS_VEHICLES,

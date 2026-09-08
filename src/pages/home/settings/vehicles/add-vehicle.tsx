@@ -41,18 +41,12 @@ const STATUS_OPTIONS = [
 ]
 
 /**
- * FormInput and FormCombobox cannot render their own validation text here:
- * FormInput throws on `hideError={false}` when the field is clean, and
- * FormCombobox reads a stale `control._formState` outside its Controller. So a
- * missing required field showed nothing but a red border. Render the message
- * from this form, which subscribes to `formState.errors`.
+ * F5-35 (3-raund): xato matni IKKI marta chizilardi — bu sahifaning lokal
+ * `FieldMessage` i va `FormCombobox` ning o'z xabari birga ko'rinardi.
+ * Endi butun loyihada bitta qoida: XATO MATNINI MAYDON KOMPONENTINING O'ZI
+ * chizadi (`components/form/*` da `hideError` standart holda `false`), sahifa
+ * esa hech nima qo'shmaydi. Shuning uchun lokal `FieldMessage` olib tashlandi.
  */
-const FieldMessage = ({ message }: { message?: unknown }) =>
-    message ? (
-        <span className="mt-1 block text-xs text-destructive">
-            {String(message)}
-        </span>
-    ) : null
 
 const AddVehicleSettingsModal = () => {
     const queryClient = useQueryClient()
@@ -72,13 +66,7 @@ const AddVehicleSettingsModal = () => {
         defaultValues: current || { fuel: "methane" },
     })
 
-    const {
-        handleSubmit,
-        reset,
-        control,
-        watch,
-        formState: { errors },
-    } = form
+    const { handleSubmit, reset, control, watch } = form
     const fuel = watch("fuel")
     const consumptionLabel =
         fuel === "diesel" ? "Sarfi (litr/100km)" : "Sarfi (m³/100km)"
@@ -145,7 +133,6 @@ const AddVehicleSettingsModal = () => {
                             required: "Avtomobil raqamini kiriting",
                         }}
                     />
-                    <FieldMessage message={errors.truck_number?.message} />
                 </div>
                 <FormInput
                     name="truck_passport"
@@ -167,7 +154,6 @@ const AddVehicleSettingsModal = () => {
                         labelKey="name"
                         valueKey="id"
                     />
-                    <FieldMessage message={errors.truck_type?.message} />
                 </div>
                 <FormCombobox
                     name="trailer_type"

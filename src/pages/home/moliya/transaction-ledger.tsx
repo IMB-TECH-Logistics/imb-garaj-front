@@ -84,7 +84,7 @@ export default function TransactionLedger() {
     // ML-08: filtr endi SERVER tomonda (`description` / `type`). Ilgari butun
     // reyestr (page_size=100000) yuklanib mijoz tomonda kesilardi — endi shart
     // emas, va bu bilan avans qatorlari ham to'g'ri filtrlanadi.
-    const { data, isLoading, isError } = useGet<LedgerResponse>(FINANCE_LEDGER, {
+    const ledgerQ = useGet<LedgerResponse>(FINANCE_LEDGER, {
         params: {
             from_date,
             to_date,
@@ -101,6 +101,13 @@ export default function TransactionLedger() {
 
     // "Tavsif" ro'yxati jadvalning yuklangan qatorlaridan emas, kategoriyalar
     // endpointidan olinadi — shunda oraliqdagi BARCHA kategoriyalar ko'rinadi (ML-07).
+    const { data, isLoading, isError } = ledgerQ
+    /**
+     * R3: so'rov yetib bormasa `isError` yonmaydi va `data` `undefined`
+     * bo'ladi — o'shanda "jami 0 ta" va "Ma'lumot topilmadi" YOLG'ON bo'ladi.
+     */
+    const ledgerOk = ledgerQ.isSuccess
+
     const { data: incomeCats } = useGet<CategoryNode>(FINANCE_CATEGORIES, {
         params: { type: "tushum", from_date, to_date },
     })
@@ -168,7 +175,7 @@ export default function TransactionLedger() {
                 </h3>
                 <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                     {/* Jami yozuvlar soni — yuklangan qatorlar soni emas (ML-06) */}
-                    jami {fmtCount(totalCount)} ta
+                    {ledgerOk ? `jami ${fmtCount(totalCount)} ta` : "jami —"}
                     {totalPages > 1 && (
                         <span className="opacity-70">
                             {" "}
@@ -268,7 +275,19 @@ export default function TransactionLedger() {
                         )}
 
                         {/* Bo'sh holat xabari — ilgari faqat bo'sh sarlavha qatori qolardi (ML-17) */}
-                        {!isLoading && !isError && visible.length === 0 && (
+                        {!isLoading && !isError && !ledgerOk && (
+                            <tr>
+                                <td colSpan={colSpan} className="px-4 py-10 text-center text-amber-600 dark:text-amber-500">
+                                    Ma'lumot kelmadi
+                                    <span className="block text-[10px] text-muted-foreground mt-1">
+                                        Server javob bermadi — bu yozuv yo'q
+                                        degani EMAS.
+                                    </span>
+                                </td>
+                            </tr>
+                        )}
+
+                        {!isLoading && !isError && ledgerOk && visible.length === 0 && (
                             <tr>
                                 <td colSpan={colSpan} className="px-4 py-10 text-center text-muted-foreground">
                                     Ma'lumot topilmadi

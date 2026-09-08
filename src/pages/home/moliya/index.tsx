@@ -4,7 +4,8 @@ import { useGet } from "@/hooks/useGet"
 import { FINANCE_SUMMARY } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 import { formatSom } from "@/lib/money-format"
-import { queryErrorHint, queryErrorMessage } from "@/lib/query-state"
+import { queryErrorHint } from "@/lib/query-state"
+import { MoneyStat, moneyPhase, type MoneyQueryState } from "../pul-holat"
 import CandlestickChart from "./candlestick-chart"
 import IncomeExpenseChart from "./income-expense-chart"
 import FlowChart from "./flow-chart"
@@ -206,9 +207,7 @@ function StatCard({
     color,
     hint,
     sublabel,
-    isLoading,
-    isError,
-    error,
+    query,
 }: {
     label: string
     value: number
@@ -216,10 +215,11 @@ function StatCard({
     color: "blue" | "emerald" | "red"
     hint?: string
     sublabel?: string
-    isLoading?: boolean
-    isError?: boolean
-    error?: unknown
+    /** So'rov holati — raqam FAQAT `isSuccess` da chiziladi (../pul-holat). */
+    query: MoneyQueryState
 }) {
+    const isError = !!query.isError
+    const ok = moneyPhase(query) === "ok"
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",
@@ -228,27 +228,28 @@ function StatCard({
     return (
         <div
             className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3"
-            title={isError ? queryErrorHint(error) : hint}
+            title={isError ? queryErrorHint(query.error) : hint}
         >
             <div className={cn("size-9 rounded-lg flex items-center justify-center shrink-0", colors[color])}>
                 {icon}
             </div>
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
-                {/* YANGI-04: so'rov yiqilganda (403 ham) "0 so'm" ko'rsatilmaydi —
-                    nol balans bilan "ma'lumot berilmadi" bir xil narsa emas. */}
-                {isError ?
-                    <p className="text-sm font-semibold truncate text-amber-600 dark:text-amber-500">
-                        {queryErrorMessage(error)}
-                    </p>
-                : isLoading ?
-                    <p className="text-sm font-semibold text-muted-foreground">…</p>
-                :   <p className="text-sm font-semibold truncate">{formatSom(value)} so'm</p>
-                }
-                {sublabel && !isError && (
+                {/* YANGI-04 / R3: raqam FAQAT so'rov muvaffaqiyatli tugaganda
+                    chiziladi. Server javob bermay qotib qolganda ham (isError
+                    yonmaydi!) "0 so'm" ko'rsatilmasligi shart. */}
+                <div className="text-sm font-semibold">
+                    <MoneyStat
+                        query={query}
+                        compact
+                        valueClassName="truncate"
+                        value={() => <>{formatSom(value)} so'm</>}
+                    />
+                </div>
+                {sublabel && ok && (
                     <p className="text-[10px] text-muted-foreground/80 truncate">{sublabel}</p>
                 )}
-                {isError && (
+                {!ok && (
                     <p className="text-[10px] text-muted-foreground/80 truncate">
                         Qiymat ko'rsatilmadi — nol degani emas
                     </p>
@@ -277,15 +278,19 @@ export default function MoliyaPage() {
     const {
         data: summary,
         isLoading: summaryLoading,
+        isSuccess: summarySuccess,
         isError: summaryError,
         error: summaryErrorObj,
+        refetch: refetchSummary,
     } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
-    const summaryState = {
+    const summaryState: MoneyQueryState = {
+        isSuccess: summarySuccess,
         isLoading: summaryLoading,
         isError: summaryError,
         error: summaryErrorObj,
+        refetch: () => refetchSummary(),
     }
     const advanceTotal = Number(summary?.advance_total ?? 0)
 
@@ -322,7 +327,7 @@ export default function MoliyaPage() {
                     color="blue"
                     sublabel="Sana filtriga bog'liq emas"
                     hint="Kassaning bugungi umumiy qoldig'i. Tanlangan sana oralig'iga bog'liq emas — oraliq bo'yicha harakat uchun Tushum/Xarajat kartalariga va 'Balans dinamikasi' grafigiga qarang."
-                    {...summaryState}
+                    query={summaryState}
                 />
                 {/* YANGI-03: yorliq va izoh backend hisobiga MOSLASHTIRILDI.
                     ML-02 dan keyin reyestr ham NDS ayirilgan summani ko'rsatadi,
@@ -335,7 +340,7 @@ export default function MoliyaPage() {
                     color="emerald"
                     sublabel="Tanlangan oraliq · NDS ayirilgan"
                     hint={`Tanlangan sana oralig'idagi kirimlar — mijoz NDS foizi ayirilgan sof summa. Kirim-Chiqim tarixi jadvali ham aynan shu qoida bilan chiziladi. NDS ayirilmagan yalpi tushum: ${formatSom(Number(summary?.income_total_gross ?? 0))} so'm.`}
-                    {...summaryState}
+                    query={summaryState}
                 />
                 {/* YANGI-03: ML-04 tuzatilganda backend `expense_total` ga AVANS
                     qo'shildi (`summary.py`: chiqim va avans xarajat tomonida),
@@ -353,7 +358,7 @@ export default function MoliyaPage() {
                         :   "Tanlangan oraliq · avans bilan"
                     }
                     hint={`Tanlangan sana oralig'idagi xarajatlar. Avans (ADVANCE) turidagi pul harakatlari SHU SUMMA ICHIDA — jadvalda ular alohida "Avans" turi bilan ko'rinadi. Shundan avans: ${formatSom(advanceTotal)} so'm, sof chiqim: ${formatSom(Number(summary?.expense_total ?? 0) - advanceTotal)} so'm.`}
-                    {...summaryState}
+                    query={summaryState}
                 />
             </div>
 

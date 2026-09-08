@@ -5,12 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
-import {
-    eachDayOfInterval,
-    endOfMonth,
-    format,
-    startOfMonth,
-} from "date-fns"
+import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns"
+import { resolveDayRange } from "../../oy-oraligi"
 import { ArrowLeft } from "lucide-react"
 import { useMemo, useState } from "react"
 import {
@@ -41,8 +37,9 @@ export default function VehicleTimeline({
     const monthFrom = startOfMonth(today)
     const monthTo = endOfMonth(today)
 
-    const from = search.from_date ? new Date(search.from_date) : monthFrom
-    const to = search.to_date ? new Date(search.to_date) : monthTo
+    // FE3-34: bitta kun tanlanganda oraliq o'sha kun bo'ladi.
+    // `monthFrom`/`monthTo` faqat ParamDateRange `defaultValue` si uchun qoladi.
+    const { from, to } = resolveDayRange(search.from_date, search.to_date)
 
     const days = useMemo(() => {
         if (from > to) return []

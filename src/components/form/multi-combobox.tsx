@@ -1,5 +1,11 @@
 import { displayFieldLabel } from "@/lib/field-labels"
-import { Controller, Control, FieldValues, Path } from "react-hook-form"
+import {
+    Controller,
+    Control,
+    FieldValues,
+    Path,
+    useFormState,
+} from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 import { MultiCombobox as ShadcnCombobox } from "@/components/ui/multi-combobox"
@@ -36,7 +42,7 @@ export function FormMultiCombobox<
     placeholder,
     required,
     control,
-    hideError = true,
+    hideError = false,
     valueKey="id",
     labelKey="name",
     onAdd,
@@ -48,7 +54,10 @@ export function FormMultiCombobox<
     isSearch = true,
     hideSort = false
 }: ComboboxProps<TForm, T>) {
-    const error = getNestedValue(control._formState.errors, name);
+    // `control._formState` obuna bo'linmagan ichki holat — undan o'qilsa
+    // xato paydo bo'lganda qayta render bo'lmaydi va matn chiqmaydi.
+    const { errors, disabled } = useFormState({ control, name })
+    const error = getNestedValue(errors, name)
 
 
 
@@ -87,17 +96,15 @@ export function FormMultiCombobox<
                             isSearch={isSearch}
                             hideSort={hideSort}
                             addButtonProps={{
-                                disabled: control._formState.disabled,
+                                disabled,
                                 ...addButtonProps,
                             }}
                         />
                     </div>
                 )}
             />
-            {!hideError && error && (
-                <FieldError>
-                    {control._formState.errors[name]?.message as string}
-                </FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </div>
     )

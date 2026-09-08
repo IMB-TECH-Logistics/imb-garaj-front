@@ -38,16 +38,61 @@ const formatValue = (v: unknown): string => {
     return asText
 }
 
+/**
+ * PAR-02: "Log tafsiloti" oynasi `old_data`/`new_data` ni xom holda chizardi
+ * va foydalanuvchi yozuvlarida PAROL HASH'i to'liq ko'rinardi
+ * (`pbkdf2_sha256$...`). Jurnalni ko'ra oladigan har kim xodimlarning
+ * hash'larini yig'ib olishi mumkin edi. Endi maxfiy maydonlar hech qachon
+ * qiymati bilan chizilmaydi — faqat "o'zgardi / o'zgarmadi" fakti qoladi.
+ *
+ * Eslatma: to'liq yechim uchun backend bunday maydonlarni jurnalga umuman
+ * yozmasligi kerak (backendga alohida topshiriq); bu — mijoz tomonidagi
+ * zudlik bilan qo'yilgan to'siq.
+ */
+const SENSITIVE_FIELD_PATTERN =
+    /(^|_)(password|passwd|pwd|secret|token|api_key|apikey|access|refresh|signature|otp|pin_code)($|_)/i
+
+const isSensitiveField = (field: string) =>
+    SENSITIVE_FIELD_PATTERN.test(field) ||
+    /pbkdf2|bcrypt|argon2/i.test(field)
+
+const MASK = "••••••••"
+
+/** Qiymatning o'zi emas, faqat "bor / yo'q" holati ko'rsatiladi. */
+const maskValue = (formatted: string) => (formatted === "—" ? "—" : MASK)
+
+/** Hash matni qiymat sifatida emas, boshqa maydonga tushib qolgan bo'lsa ham yashiriladi. */
+const HASH_LIKE = /(pbkdf2_[a-z0-9]+|bcrypt|argon2[a-z]*)\$/i
+
 const LogDetailSheet = ({ log, onClose }: Props) => {
     const diff = useMemo(() => {
         const before = (log?.old_data ?? {}) as Record<string, unknown>
         const after = (log?.new_data ?? {}) as Record<string, unknown>
         const keys = new Set<string>([...Object.keys(before), ...Object.keys(after)])
-        const rows: { field: string; old: string; new: string; changed: boolean }[] = []
+        const rows: {
+            field: string
+            old: string
+            new: string
+            changed: boolean
+            masked: boolean
+        }[] = []
         keys.forEach((k) => {
-            const o = formatValue(before[k])
-            const n = formatValue(after[k])
-            rows.push({ field: k, old: o, new: n, changed: o !== n })
+            const rawOld = formatValue(before[k])
+            const rawNew = formatValue(after[k])
+            // PAR-02: maxfiy maydon — qiymat hech qachon ekranga chiqmaydi.
+            const masked =
+                isSensitiveField(k) ||
+                HASH_LIKE.test(rawOld) ||
+                HASH_LIKE.test(rawNew)
+            rows.push({
+                field: k,
+                old: masked ? maskValue(rawOld) : rawOld,
+                new: masked ? maskValue(rawNew) : rawNew,
+                // "o'zgardi" fakti asl qiymatlar bo'yicha aniqlanadi, aks holda
+                // ikkala tomon ham MASK bo'lib "o'zgarmagan" ko'rinardi.
+                changed: rawOld !== rawNew,
+                masked,
+            })
         })
         rows.sort((a, b) => Number(b.changed) - Number(a.changed) || a.field.localeCompare(b.field))
         return rows
@@ -148,6 +193,14 @@ const LogDetailSheet = ({ log, onClose }: Props) => {
                                             >
                                                 <td className="border-b px-3 py-2 text-xs">
                                                     {getFieldLabel(row.field)}
+                                                    {row.masked ? (
+                                                        <span
+                                                            className="ml-1 text-muted-foreground"
+                                                            title="Maxfiy maydon — qiymati ko'rsatilmaydi"
+                                                        >
+                                                            (maxfiy)
+                                                        </span>
+                                                    ) : null}
                                                 </td>
                                                 <td className="border-b px-3 py-2 align-top">
                                                     {row.changed ? (

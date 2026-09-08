@@ -14,6 +14,7 @@ import {
 import { useSearch } from '@tanstack/react-router';
 import { useGet } from '@/hooks/useGet';
 import { FINANCE_BALANCE } from '@/constants/api-endpoints';
+import { ChartEmpty, ChartError, ChartUnavailable, chartPhase } from './chart-state';
 import './candlestick-chart.css';
 
 interface ApiCandle {
@@ -263,9 +264,11 @@ export default function CandlestickChart() {
   const [dateTo, setDateTo] = useState(today);
 
   const search: any = useSearch({ strict: false });
-  const { data: apiBalance } = useGet<ApiCandle[]>(FINANCE_BALANCE, {
+  const balanceQ = useGet<ApiCandle[]>(FINANCE_BALANCE, {
     params: { from_date: search?.from_date, to_date: search?.to_date },
   });
+  const { data: apiBalance, isError: balanceError, error: balanceErrorObj } = balanceQ;
+  const balancePhase = chartPhase(balanceQ);
   const apiCandles = useMemo<CandlestickData[]>(
     () =>
       (apiBalance ?? []).map((c) => ({
@@ -631,6 +634,11 @@ export default function CandlestickChart() {
   const displayChangePct = ohlc ? ohlc.changePercent : priceChangePercent;
   const isPositive = displayChange >= 0;
   const lastData = dataRef.current[dataRef.current.length - 1];
+  /** Grafik o'rniga holat bloki ko'rsatiladimi (xato yoki bo'sh natija). */
+  const showChartState =
+    balancePhase === "error" ||
+    balancePhase === "unavailable" ||
+    (balancePhase === "ok" && apiCandles.length === 0);
 
   const daysInRange = useMemo(() => {
     return allDates.filter((d) => d >= dateFrom && d <= dateTo).length;
@@ -642,7 +650,13 @@ export default function CandlestickChart() {
       <div style={{ padding: '10px 14px 0', fontSize: 12, fontWeight: 600, color: 'var(--tv-text-strong)', fontFamily: 'var(--sans)' }}>
         Balans dinamikasi
       </div>
-      {/* OHLC overlay */}
+      {/* REG-XATO-QOLDIQ: so'rov yiqilganda bu blok "0 so'm +0 (+0.00%)"
+          ko'rsatardi — nol balans bilan "ma'lumot kelmadi" bir xil emas.
+          OHLC qatori endi faqat haqiqiy ma'lumot bo'lganda chiziladi; grafik
+          konteyneri esa DOM da qoladi (lightweight-charts uni `ref` orqali
+          ushlab turadi — uzib qo'yilsa qayta ulanmaydi), ustiga qatlam
+          tushiriladi. */}
+      {showChartState ? null : (
       <div className="tv-ohlc-overlay">
         <span className="tv-ohlc-label">O</span>
         <span className={`tv-ohlc-val ${ohlc ? (ohlc.close >= ohlc.open ? 'up' : 'down') : (isPositive ? 'up' : 'down')}`}>
@@ -667,12 +681,31 @@ export default function CandlestickChart() {
           {isPositive ? '+' : ''}{formatSum(displayChange)} ({isPositive ? '+' : ''}{displayChangePct.toFixed(2)}%)
         </span>
       </div>
+      )}
 
       {/* Chart area - full */}
-      <div className="tv-main">
+      <div className="tv-main" style={{ position: 'relative' }}>
         <div className="tv-chart-wrap" ref={chartWrapRef}>
           <div ref={containerRef} className="tv-chart-area" />
         </div>
+        {showChartState && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'var(--tv-bg, hsl(var(--card)))',
+              zIndex: 2,
+            }}
+          >
+            {balanceError ? (
+              <ChartError error={balanceErrorObj} />
+            ) : balancePhase === "unavailable" ? (
+              <ChartUnavailable />
+            ) : (
+              <ChartEmpty hint="Tanlangan sana oralig'ida balans harakati yo'q." />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

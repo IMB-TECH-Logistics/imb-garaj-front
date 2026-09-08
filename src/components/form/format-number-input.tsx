@@ -6,6 +6,7 @@ import {
     useController,
 } from "react-hook-form";
 import { cn } from "@/lib/utils";
+import { displayFieldLabel } from "@/lib/field-labels";
 import { PatternFormat, PatternFormatProps } from "react-number-format";
 import FieldLabel from "./form-label";
 import FieldError from "./form-error";
@@ -33,7 +34,7 @@ export function FormFormatNumberInput<IForm extends FieldValues>({
     wrapperClassName,
     className,
     formatOptions,
-    hideError = true,
+    hideError = false,
     format = "",
     ...props
 }: IProps<IForm> & PatternFormatProps) {
@@ -43,8 +44,20 @@ export function FormFormatNumberInput<IForm extends FieldValues>({
     } = useController({
         name,
         control,
+        /**
+         * FE2-05f: majburiylik xabari qat'iy "Ushbu maydon majburiy" edi va
+         * maydon nomini aytmasdi — qolgan barcha maydonlar esa
+         * "<Nomi>ni kiriting" ko'rinishida gapiradi. Endi bu komponent ham
+         * umumiy yorliqlar jadvalidan (`displayFieldLabel`) foydalanadi va
+         * chaqiruvchi bergan `registerOptions` ham hisobga olinadi
+         * (ilgari butunlay e'tiborsiz qolardi).
+         */
         rules: {
-            required: { value: required, message: "Ushbu maydon majburiy" },
+            required:
+                required ?
+                    `${displayFieldLabel(name, label)}ni kiriting`
+                :   false,
+            ...(registerOptions as Record<string, unknown>),
         },
     });
 
@@ -66,7 +79,7 @@ export function FormFormatNumberInput<IForm extends FieldValues>({
                     className={cn(
                         "flex h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
                         className,
-                        control._formState.errors?.[name]  &&
+                        fieldState.error &&
                             "!border-destructive focus:border-border !ring-destructive"
                     )}
                     onValueChange={(val) => {
