@@ -17,6 +17,13 @@ const UsersPage = () => {
             search: search.first_name,
             page: search.page,
             page_size: search.page_size,
+                /**
+                 * Server tomon saralash (B-70/B-71, 5-raund): sarlavha
+                 * bosilganda `?ordering=` URL'ga yoziladi va shu yerdan
+                 * so'rovga qo'shiladi. Ilgari tanstack faqat ko'rinib turgan
+                 * 25 qatorni tartiblardi va javob butun to'plamniki emas edi.
+                 */
+                ordering: search.ordering,
         },
     })
     const { getData, setData } = useGlobalStore()

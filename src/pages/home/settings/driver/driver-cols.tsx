@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatPhoneNumber } from "../customers/phone-number"
+import SortableHeader from "../../sortable-header"
 
 /**
  * Column widths are explicit because `DataTable` renders with
@@ -9,6 +10,16 @@ import { formatPhoneNumber } from "../customers/phone-number"
  * (UI audit S1-27). Header wording is kept identical to the labels in
  * `add-driver.tsx` so the table and the edit dialog name the same field the
  * same way (S1-34).
+ *
+ * SARALASH — SERVER TOMONDA (B-70, 5-raund). To'qqizala ustun ham backend
+ * `users/drivers/` ning `ordering_fields` ida bor. Maydonlar bazada `User`
+ * da emas, bog'langan `DriverProfile` da yotadi — backend ularni shu yerdagi
+ * ustun nomi ostida taxalluslaydi, shuning uchun `field` aynan ustun
+ * nomi bilan yoziladi (`driver.phone` emas, `phone_number`).
+ *
+ * Telefonning mijoz tomondagi `sortingFn` i olib tashlandi: u faqat joriy
+ * sahifani tartiblardi va `accessorKey` bo'sh bo'lgani uchun aslida
+ * hech nimani solishtirmasdi.
  */
 export const useColumnsDriverTable = (
     onOpenTrips?: (driver: DriversType) => void,
@@ -17,8 +28,9 @@ export const useColumnsDriverTable = (
         () => [
             {
                 accessorKey: "first_name",
-                header: "Ism",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="first_name" label="Ism" />
+                ),
                 size: 115,
                 cell: ({ row }) =>
                     onOpenTrips ? (
@@ -44,14 +56,16 @@ export const useColumnsDriverTable = (
             },
             {
                 accessorKey: "last_name",
-                header: "Familiya",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="last_name" label="Familiya" />
+                ),
                 size: 125,
             },
             {
                 accessorKey: "phone_number",
-                header: "Telefon",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="phone_number" label="Telefon" />
+                ),
                 size: 145,
                 cell: ({ row }) => (
                     <div className="truncate">
@@ -60,23 +74,18 @@ export const useColumnsDriverTable = (
                         )}
                     </div>
                 ),
-                sortingFn: (rowA, rowB, columnId) => {
-                    const phoneA = rowA.getValue(columnId) as string
-                    const phoneB = rowB.getValue(columnId) as string
-                    const digitsA = (phoneA || "").replace(/\D/g, "")
-                    const digitsB = (phoneB || "").replace(/\D/g, "")
-                    return digitsA.localeCompare(digitsB)
-                },
             },
             {
                 accessorKey: "username",
-                header: "Login",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="username" label="Login" />
+                ),
                 size: 105,
             },
             {
-                header: "Pasport raqami",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="passport_number" label="Pasport raqami" />
+                ),
                 size: 140,
                 accessorFn: (row) => row.driver?.passport_serial || "",
                 cell: ({ row }) => {
@@ -85,8 +94,9 @@ export const useColumnsDriverTable = (
                 id: "passport_number",
             },
             {
-                header: "PINFL",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="pinfl" label="PINFL" />
+                ),
                 size: 135,
                 accessorFn: (row) => row.driver?.pinfl || "",
                 cell: ({ row }) => {
@@ -95,8 +105,9 @@ export const useColumnsDriverTable = (
                 id: "pinfl",
             },
             {
-                header: "Guvohnoma raqami",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="driver_license" label="Guvohnoma raqami" />
+                ),
                 size: 155,
                 accessorFn: (row) => row.driver?.driver_license || "",
                 cell: ({ row }) => {
@@ -105,8 +116,9 @@ export const useColumnsDriverTable = (
                 id: "driver_license",
             },
             {
-                header: "Ish staji",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="work_experience" label="Ish staji" />
+                ),
                 size: 95,
                 accessorFn: (row) => row.driver?.experience || 0,
                 cell: ({ row }) => {
@@ -116,8 +128,9 @@ export const useColumnsDriverTable = (
                 id: "work_experience",
             },
             {
-                header: "Guvohnoma muddati",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="license_expiry" label="Guvohnoma muddati" />
+                ),
                 size: 160,
                 accessorFn: (row) => row.driver?.driver_license_date || "",
                 cell: ({ row }) => {

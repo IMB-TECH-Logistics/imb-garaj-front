@@ -13,12 +13,17 @@ import {
 type Props = {
     modalKey?: string
     title?: ReactNode
+    /**
+     * B-84: `title` berilmaganda ekran o'quvchi uchun ishlatiladigan
+     * ko'rinmas sarlavha. Ekranda chizilmaydi, faqat eshittiriladi.
+     */
+    a11yTitle?: string
     description?: ReactNode
     children?: ReactNode
     className?: ClassNameValue
     classNameTitle?: ClassNameValue
     classNameIcon?: ClassNameValue
-    closable?:boolean
+    closable?: boolean
     size?:
         | "max-w-lg"
         | "max-w-xl"
@@ -36,6 +41,7 @@ type Props = {
 
 const Modal = ({
     title,
+    a11yTitle = "Muloqot oynasi",
     description,
     children,
     modalKey = "default",
@@ -44,7 +50,7 @@ const Modal = ({
     className = "",
     size = "max-w-lg",
     onClose,
-    closable=true,
+    closable = true,
 }: Props) => {
     const { isOpen, closeModal } = useModal(modalKey)
 
@@ -59,9 +65,9 @@ const Modal = ({
         <Dialog open={isOpen} onOpenChange={handleClose}>
             {isOpen && (
                 <DialogContent
-                   onInteractOutside={(e) => {
-                    closable && e.preventDefault()
-                }}
+                    onInteractOutside={(e) => {
+                        closable && e.preventDefault()
+                    }}
                     classNameIcon={classNameIcon}
                     className={cn(size, "min-w-0 overflow-hidden", className)}
                 >
@@ -70,9 +76,17 @@ const Modal = ({
                             {title}
                         </DialogTitle>
                     )}
+                    {/*
+                     * B-84: ilgari bu yerda o'rinbosar so'z ("title") kodda qolib
+                     * ketgan edi — Radix uni haqiqiy sarlavha deb e'lon qilardi va
+                     * ekran o'quvchi oynani "title" deb o'qirdi. Endi chaqiruvchi
+                     * `a11yTitle` orqali mazmunli nom beradi, bermasa umumiy
+                     * o'zbekcha zaxira matn ishlatiladi. Radix baribir sarlavhani
+                     * talab qilgani uchun blok o'chirilmadi, faqat matni tuzatildi.
+                     */}
                     {!title && (
                         <VisuallyHidden>
-                            <DialogTitle>title</DialogTitle>
+                            <DialogTitle>{a11yTitle}</DialogTitle>
                         </VisuallyHidden>
                     )}
                     {description && (

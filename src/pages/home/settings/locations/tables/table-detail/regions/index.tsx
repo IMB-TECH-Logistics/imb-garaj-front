@@ -18,6 +18,7 @@ import { useColumnsRegionsTable } from "./regions-cols"
  */
 const PAGE_PARAM = "region_page"
 const PAGE_SIZE_PARAM = "region_page_size"
+const ORDERING_PARAM = "region_ordering"
 
 const RegionsTable = ({ country_id }: { country_id: number }) => {
     const search = useSearch({ strict: false }) as Record<string, any>
@@ -31,6 +32,9 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                 search: search.region_search,
                 page: search[PAGE_PARAM],
                 page_size: search[PAGE_SIZE_PARAM],
+                // Server tomon saralash (`places/regions/` → ordering_fields:
+                // id, name). Parametr nomi alohida — izoh `regions-cols.tsx` da.
+                ordering: search[ORDERING_PARAM],
             },
         },
     )

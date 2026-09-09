@@ -432,6 +432,11 @@ export function DataTable<TData>({
                                                             showSort ?
                                                                 "cursor-pointer"
                                                             :   "cursor-default",
+                                                            // P-20/P-40: server tomon saralaydigan ustun
+                                                            // `enableSorting` bermaydi, shuning uchun
+                                                            // `showSort` false va katak `cursor-default`
+                                                            // bo'lib qolardi. Ichida tugma bo'lsa — qo'l.
+                                                            "has-[button]:cursor-pointer",
                                                             stickyHeader && "sticky top-0 bg-card z-10",
                                                         )}
                                                         style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}

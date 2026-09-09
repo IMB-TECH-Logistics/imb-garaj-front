@@ -5,7 +5,7 @@ import { FINANCE_SUMMARY } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 import { formatSom } from "@/lib/money-format"
 import { queryErrorHint } from "@/lib/query-state"
-import { MoneyStat, moneyPhase, type MoneyQueryState } from "../pul-holat"
+import { MoneyStat, useMoneyPhase, type MoneyQueryState } from "../pul-holat"
 import CandlestickChart from "./candlestick-chart"
 import IncomeExpenseChart from "./income-expense-chart"
 import FlowChart from "./flow-chart"
@@ -219,7 +219,13 @@ function StatCard({
     query: MoneyQueryState
 }) {
     const isError = !!query.isError
-    const ok = moneyPhase(query) === "ok"
+    /**
+     * R5: `moneyPhase` o'rniga `useMoneyPhase` — u qiymatning YOSHINI ham
+     * hisobga oladi va eskirsa serverdan qayta so'raydi. Aks holda
+     * `staleTime` (5 daqiqa) tufayli karta server o'chganini sezmasdan
+     * eskirgan raqamni joriy qiymat sifatida chizib turaverardi (P-47).
+     */
+    const ok = useMoneyPhase(query) === "ok"
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",

@@ -1,6 +1,6 @@
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 import { X } from "lucide-react";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { DatePickerWithRange } from "../form/date-range-picker";
@@ -81,17 +81,54 @@ export default function ParamDateRange({
         to: toDateString ? new Date(toDateString) : undefined,
     };
 
+    /**
+     * B-79 tuzatildi: bitta kunni ikki marta bosish filtrni JIMGINA bekor qilardi.
+     *
+     * NIMA BUZUQ EDI: react-day-picker `range` rejimida allaqachon tanlangan
+     * kun qayta bosilsa, tanlov `undefined` bo'lib qaytadi. Diapazon tanlash
+     * odati bo'yicha foydalanuvchi bitta kunni ikki marta bosadi (avval
+     * "boshlanish", keyin "tugash" deb) — natijada `date_from`/`date_to` URL
+     * dan yo'qolib, tugma yana "Kunlarni tanlang" bo'lardi va ro'yxat hech
+     * qanday ogohlantirishsiz butun bazaga qaytardi.
+     *
+     * NEGA SHUNDAY TUZATILDI: tanlov `undefined` bo'lib qaytganda oldingi
+     * holat tekshiriladi. Agar u BITTA kun bo'lgan bo'lsa (`to` yo'q yoki
+     * `from` bilan bir xil kun) — bu aynan "o'sha kunni ikkinchi marta bosish"
+     * holati, shuning uchun tozalash o'rniga o'sha kun bir kunlik oraliq
+     * (`from` = `to`) bo'lib saqlanadi.
+     *
+     * Ikki xil kun tanlangan HAQIQIY diapazonda avvalgi xatti-harakat
+     * o'zgarmaydi, ya'ni oddiy diapazon tanlash buzilmaydi. Filtrdan butunlay
+     * chiqish yo'li ham joyida qoladi — o'ngdagi X tugmasi (`reset`) hamon
+     * `from`/`to` ni tozalaydi.
+     */
+    const keepSingleDay = (range: DateRange | undefined) => {
+        if (range) return range
+
+        const prevFrom = parsedDate.from
+        const prevTo = parsedDate.to
+
+        // Qo'lda buzilgan URL sanasi bo'lsa hech nima saqlanmaydi (tozalanadi).
+        if (!prevFrom || Number.isNaN(prevFrom.getTime())) return undefined
+
+        const wasSingleDay =
+            !prevTo ||
+            (!Number.isNaN(prevTo.getTime()) && isSameDay(prevFrom, prevTo))
+
+        return wasSingleDay ? { from: prevFrom, to: prevFrom } : undefined
+    }
+
     const handleOnChange = (range: DateRange | undefined) => {
         if (!disabled) {
             navigate({
                 search: {
                     ...search,
-                    ...rangeToSearch(range),
+                    ...rangeToSearch(keepSingleDay(range)),
                     page: undefined,
                 },
-            });
+            })
         }
-    };
+    }
 
     function reset() {
         if (!disabled) {

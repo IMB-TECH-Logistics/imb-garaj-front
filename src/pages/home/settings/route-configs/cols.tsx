@@ -7,6 +7,7 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { Clock } from "lucide-react"
 import { useMemo } from "react"
+import SortableHeader from "../../sortable-header"
 
 export type SelectableItem = { id: number; name: string }
 
@@ -120,35 +121,79 @@ const CURRENCY_LABELS: Record<number, string> = {
 }
 
 
+/**
+ * SARALASH — SERVER TOMONDA (B-70 / B-71, 5-raund).
+ *
+ * `enableSorting: true` DataTable'ning mijoz tomon saralashini yoqardi va u
+ * faqat joriy 25 qatorni tartiblardi: "Summa" kamayish tartibida ekranda
+ * 25 ta nol turardi, butun to'plamdagi haqiqiy maksimum (8 524 686) esa
+ * 10-sahifada qolardi. Foydalanuvchi buni "eng qimmat yo'nalish" deb o'qirdi.
+ *
+ * Endi har bir sarlavha `SortableHeader` — u `?ordering=` ni URL'ga yozadi,
+ * `index.tsx` uni so'rovga qo'shadi va backend butun to'plamni tartiblaydi.
+ * `enableSorting` ATAYLAB berilmaydi: aks holda DataTable ustiga yana o'z
+ * strelkasini va mijoz tomon saralashini qo'shib, ikkita raqobatlashuvchi
+ * tartib paydo bo'lardi.
+ */
 export const useDirectionColumns = () =>
     useMemo<ColumnDef<DirectionRow>[]>(
         () => [
-            { accessorKey: "owner_code", header: "Firma kodi", enableSorting: true, size: 100 },
-            { accessorKey: "load_name", header: "Yuklash manzili", enableSorting: true },
-            { accessorKey: "unload_name", header: "Yuk tushirish manzili", enableSorting: true },
-            { accessorKey: "owner_name", header: "Yuk egasi", enableSorting: true },
-            { accessorKey: "cargo_type_name", header: "Yuk turi", enableSorting: true },
-            { accessorKey: "payment_type_name", header: "To'lov turi", enableSorting: true },
+            {
+                accessorKey: "owner_code",
+                header: () => (
+                    <SortableHeader field="owner_code" label="Firma kodi" />
+                ),
+                size: 100,
+            },
+            {
+                accessorKey: "load_name",
+                header: () => (
+                    <SortableHeader field="load_name" label="Yuklash manzili" />
+                ),
+            },
+            {
+                accessorKey: "unload_name",
+                header: () => (
+                    <SortableHeader
+                        field="unload_name"
+                        label="Yuk tushirish manzili"
+                    />
+                ),
+            },
+            {
+                accessorKey: "owner_name",
+                header: () => (
+                    <SortableHeader field="owner_name" label="Yuk egasi" />
+                ),
+            },
+            {
+                accessorKey: "cargo_type_name",
+                header: () => (
+                    <SortableHeader field="cargo_type_name" label="Yuk turi" />
+                ),
+            },
+            {
+                accessorKey: "payment_type_name",
+                header: () => (
+                    <SortableHeader
+                        field="payment_type_name"
+                        label="To'lov turi"
+                    />
+                ),
+            },
             {
                 accessorKey: "current_price",
-                header: "Summa",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="current_price" label="Summa" />
+                ),
                 /**
-                 * YANGI-04 (2-raund): "Summa" sarlavhasi bosilganda tartib
-                 * umuman o'zgarmasdi, holbuki qo'shni ustunlar ("Yuklash manzili")
-                 * ishlardi. Sabab: `current_price` — OBYEKT ({price, valid_from,...}),
-                 * tanstack esa uni standart taqqoslagich bilan solishtirib,
-                 * hamma qatorni "teng" deb topardi. Endi ichidagi `price`
-                 * raqam sifatida solishtiriladi.
-                 *
-                 * ⚠️ Saralash faqat JORIY SAHIFA bo'yicha — backend `routes/`
-                 * endpointida `OrderingFilter` yo'q (backend-kerak-FE3.md).
+                 * Mijoz tomondagi `sortingFn` olib tashlandi: `current_price`
+                 * obyekt bo'lgani uchun u ichidagi `price` ni raqamga
+                 * aylantirardi, lekin baribir faqat joriy sahifani
+                 * tartiblardi. Backend endi SQL da AYNAN shu qoida bilan
+                 * saralaydi (eng oxirgi `valid_from` bo'yicha amaldagi narx),
+                 * ya'ni ekrandagi raqam bilan saralanadigan raqam bir xil.
                  */
-                sortingFn: (a, b) => {
-                    const av = Number(a.original.current_price?.price ?? 0) || 0
-                    const bv = Number(b.original.current_price?.price ?? 0) || 0
-                    return av === bv ? 0 : av < bv ? -1 : 1
-                },
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         <span>
@@ -164,8 +209,9 @@ export const useDirectionColumns = () =>
             },
             {
                 accessorKey: "currency",
-                header: "Valyuta",
-                enableSorting: true,
+                header: () => (
+                    <SortableHeader field="currency" label="Valyuta" />
+                ),
                 cell: ({ row }) =>
                     CURRENCY_LABELS[row.original.currency] ?? "-",
             },

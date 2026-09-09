@@ -6,12 +6,12 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { fromUzPhone, toUzPhone, uzLocalDigits } from "@/lib/phone"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { KeyboardEvent, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-
-const digitsOnly = (value: unknown) => String(value ?? "").replace(/\D/g, "")
 
 /**
  * Validatsiya xabarlarini toast orqali ko'rsatish.
@@ -47,11 +47,10 @@ const AddCustomerModal = () => {
             currentForwarder?.id ?
                 {
                     ...currentForwarder,
-                    phone_number:
-                        currentForwarder?.phone_number?.replace(
-                            /^\+?998/,
-                            "",
-                        ) || "",
+                    // Server `+998901112233` beradi, maska esa faqat 9 ta
+                    // milliy raqamni kutadi — `lib/phone.ts` dagi yagona
+                    // qoidadan foydalaniladi.
+                    phone_number: fromUzPhone(currentForwarder?.phone_number),
                 }
             :   undefined,
         defaultValues: {
@@ -61,7 +60,57 @@ const AddCustomerModal = () => {
         },
     })
 
-    const { handleSubmit, reset, setError } = form
+    const { handleSubmit, reset } = form
+
+    /**
+     * B-55: telefon maydoni maskali (`+998 ## ### ## ##`) va maska raqam
+     * bo'lmagan belgilarni JIMGINA yutib yuboradi. Foydalanuvchi
+     * "abc-telefon" yozsa maydon qiymati BO'SH qolardi, "Saqlash" bosilganda
+     * yozuv telefonsiz saqlanardi ("Mijoz muvaffaqiyatli qo'shildi") va hech
+     * qanday ogohlantirish chiqmasdi — bazada `phone=""` qolib ketardi.
+     *
+     * Faqat qiymatga qarab bu holatni ajratib bo'lmaydi: qiymat "" — xuddi
+     * umuman teginilmagan maydondek ko'rinadi. Shuning uchun maydonga BELGI
+     * KIRITISHGA urinilgani alohida belgilanadi, qiymat haqiqatan o'zgarsa
+     * (ya'ni belgilar qabul qilindi) belgi bekor qilinadi.
+     */
+    const phoneTypedRef = useRef(false)
+    const phoneValue = form.watch("phone_number")
+
+    useEffect(() => {
+        phoneTypedRef.current = false
+    }, [phoneValue])
+
+    const markPhoneTyped = (e: KeyboardEvent<HTMLInputElement>) => {
+        // Faqat belgi kiritadigan tugmalar hisobga olinadi — Tab, o'q
+        // tugmalari, Backspace va Ctrl/Cmd qisqartmalari hisoblanmaydi.
+        if (
+            e.key.length === 1 &&
+            e.key.trim() !== "" &&
+            !e.ctrlKey &&
+            !e.metaKey &&
+            !e.altKey
+        ) {
+            phoneTypedRef.current = true
+        }
+    }
+
+    // Qo'yib kiritishda (paste) tugma bosilmaydi — alohida belgilanadi.
+    const markPhonePasted = () => {
+        phoneTypedRef.current = true
+    }
+
+    /**
+     * Telefon MAJBURIY EMAS: butunlay bo'sh qoldirilgan maydon avvalgidek
+     * qabul qilinadi. Faqat "yozdim, lekin to'liq raqam chiqmadi" holati
+     * bloklanadi (S2-33 / B-55).
+     */
+    const validatePhone = (value: unknown) => {
+        const local = uzLocalDigits(value)
+        if (local.length === 9) return true
+        if (!local && !phoneTypedRef.current) return true
+        return "Telefon raqami to'liq kiritilmagan (+998 va 9 ta raqam)"
+    }
 
     const onSuccess = () => {
         toast.success(
@@ -139,24 +188,15 @@ const AddCustomerModal = () => {
             return
         }
 
-        // Telefon: bo'sh bo'lishi mumkin, lekin kiritilgan bo'lsa to'liq
-        // 9 raqamli O'zbekiston raqami bo'lishi shart (S2-33).
-        const phoneDigits = digitsOnly(values.phone_number)
-        if (phoneDigits && phoneDigits.length !== 9) {
-            setError("phone_number", {
-                type: "validate",
-                message: "Telefon raqami to'liq emas (+998 va 9 ta raqam)",
-            })
-            toast.error("Telefon raqamini to'liq kiriting")
-            return
-        }
-
+        // Telefon to'liqligi endi maydonning o'z `validate` qoidasida
+        // tekshiriladi (yuqoriga qarang) — bu yerga faqat to'liq yoki
+        // butunlay bo'sh raqam yetib keladi.
         const payload = {
             ...values,
             name: String(values.name ?? "").trim(),
             code: String(values.code ?? "").trim(),
             // Prefiks ham saqlanadi — ilgari faqat ko'rinishda bor edi.
-            phone_number: phoneDigits ? `+998${phoneDigits}` : "",
+            phone_number: toUzPhone(values.phone_number) ?? "",
         }
 
         if (currentForwarder?.id) {
@@ -192,12 +232,21 @@ const AddCustomerModal = () => {
                         registerOptions={{ validate: isDuplicateCode }}
                     />
 
+                    {/*
+                      * B-55: to'liqsiz telefon endi jimgina yo'qolmaydi —
+                      * `validate` xatoni maydon OSTIDA chizadi va formani
+                      * yuborilishdan to'xtatadi. `onKeyDown`/`onPaste` esa
+                      * maska yutib yuborgan belgilarni ham sezish uchun.
+                      */}
                     <FormFormatNumberInput
                         control={form.control}
                         format="+998 ## ### ## ##"
                         label={"Telefon"}
                         name={"phone_number"}
                         placeholder="+998 __ ___ __ __"
+                        onKeyDown={markPhoneTyped}
+                        onPaste={markPhonePasted}
+                        registerOptions={{ validate: validatePhone }}
                     />
 
                     <FormInput

@@ -5,12 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { ReactNode, useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { Button } from "../ui/button"
-import {
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "../ui/dialog"
+import { DialogDescription, DialogFooter, DialogHeader } from "../ui/dialog"
 import Modal from "./modal"
 
 interface IProps {
@@ -84,18 +79,37 @@ export default function DeleteModal({
         mutate(path + `/${id}`)
     }
 
+    /**
+     * B-85: o'chirish oynasi Ombor sahifasidagi tasdiq oynasi bilan
+     * bir xil ko'rinishga keltirildi.
+     *
+     * Ilgari bu oyna sarlavhasiz edi va bekor qilishning yagona yo'li
+     * burchakdagi X belgisi bo'lgan — foydalanuvchi bir joyda "Bekor qilish"
+     * tugmasini, boshqa joyda faqat X ni ko'rardi. Endi ko'rinadigan
+     * sarlavha `Modal` ning `title` propi orqali beriladi (shu sababli bu
+     * yerda DialogTitle chizilmaydi — aks holda bitta oynada ikkita
+     * sarlavha paydo bo'lardi) va "O'chirish" dan chapda `outline`
+     * "Bekor qilish" tugmasi turadi.
+     */
     return (
-        <Modal size="max-w-md" modalKey={modalKey}>
+        <Modal
+            title={"O'chirishni tasdiqlang"}
+            size="max-w-md"
+            modalKey={modalKey}
+        >
             <DialogHeader>
-                <DialogTitle className="font-normal max-w-sm">
+                <div className="max-w-sm text-sm">
                     {name}
-                    {`Siz haqiqatdan ham o'chirishni xohlaysizmi?`}
-                </DialogTitle>
+                    {"Siz haqiqatdan ham o'chirishni xohlaysizmi?"}
+                </div>
                 <DialogDescription>
-                    {"Bu qaytarib bo'lmas jarayon!!!"}
+                    {"Bu qaytarib bo'lmas jarayon!"}
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
+                <Button variant={"outline"} onClick={closeModal}>
+                    {"Bekor qilish"}
+                </Button>
                 <Button
                     variant={"destructive"}
                     onClick={handleDelete}

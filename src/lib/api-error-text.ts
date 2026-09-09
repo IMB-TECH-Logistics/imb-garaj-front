@@ -89,8 +89,23 @@ const looksUzbek = (text: string) =>
         text,
     )
 
-/** Inglizcha DRF/Django xabarlari → o'zbekcha. */
-const MESSAGE_RULES: { test: RegExp; uz: (label: string) => string }[] = [
+/**
+ * Xabar ichidagi son (`-100`, `0`, `12.5`) — DRF chegara xabarlarida
+ * chegara qiymati matnning bir qismi bo'lib keladi.
+ */
+const NUM = String.raw`(-?\d+(?:[.,]\d+)?)`
+
+/**
+ * Inglizcha DRF/Django xabarlari → o'zbekcha.
+ *
+ * `uz` ikkinchi argument sifatida `test` ning MOSLIK NATIJASINI oladi —
+ * shu sabab xabar ichidagi sonni (chegarani) o'zbekcha matnga ko'chirish
+ * mumkin. Sonni ishlatmaydigan qoidalar uni oddiygina e'tiborsiz qoldiradi.
+ */
+const MESSAGE_RULES: {
+    test: RegExp
+    uz: (label: string, match: RegExpMatchArray) => string
+}[] = [
     {
         test: /already exists|must be unique|must make a unique set/i,
         uz: (l) => (l ? `${l} allaqachon band — boshqasini kiriting` : "Bunday yozuv allaqachon mavjud"),
@@ -115,6 +130,44 @@ const MESSAGE_RULES: { test: RegExp; uz: (label: string) => string }[] = [
         test: /greater than zero|must be positive|should be positive/i,
         uz: (l) => (l ? `${l} noldan katta bo'lishi kerak` : "Qiymat noldan katta bo'lishi kerak"),
     },
+    /*
+     * B-50: DRF ning sonli chegara xabarlari (`Ensure this value is greater
+     * than or equal to 0.`) foydalanuvchiga INGLIZCHA yetib borardi —
+     * masalan manfiy probeg kiritilganda. Chegara qiymati (0, 100, 12.5)
+     * har safar boshqacha bo'lgani uchun oddiy lug'at yetmaydi: son
+     * REGEX bilan ajratib olinib, o'zbekcha jumlaga qo'yiladi.
+     * Sonli qoidalar UMUMIY qoidalardan oldin turishi shart — aks holda
+     * quyidagi sonsiz variantlar birinchi bo'lib mos kelib qolardi.
+     */
+    {
+        test: new RegExp(`greater than or equal to\\s*${NUM}`, "i"),
+        uz: (l, m) =>
+            l ?
+                `${l} ${m[1]} dan kichik bo'lmasligi kerak.`
+            :   `Qiymat ${m[1]} dan kichik bo'lmasligi kerak.`,
+    },
+    {
+        test: new RegExp(`less than or equal to\\s*${NUM}`, "i"),
+        uz: (l, m) =>
+            l ?
+                `${l} ${m[1]} dan katta bo'lmasligi kerak.`
+            :   `Qiymat ${m[1]} dan katta bo'lmasligi kerak.`,
+    },
+    {
+        test: new RegExp(`greater than\\s+${NUM}`, "i"),
+        uz: (l, m) =>
+            l ?
+                `${l} ${m[1]} dan katta bo'lishi kerak.`
+            :   `Qiymat ${m[1]} dan katta bo'lishi kerak.`,
+    },
+    {
+        test: new RegExp(`less than\\s+${NUM}`, "i"),
+        uz: (l, m) =>
+            l ?
+                `${l} ${m[1]} dan kichik bo'lishi kerak.`
+            :   `Qiymat ${m[1]} dan kichik bo'lishi kerak.`,
+    },
+    // Sonsiz (masalan sana chegarasi) variantlar — eski xatti-harakat.
     {
         test: /greater than or equal to/i,
         uz: (l) => (l ? `${l} juda kichik` : "Qiymat juda kichik"),
@@ -162,8 +215,13 @@ export const translateMessage = (raw: string, label?: string): string => {
     const text = raw.trim()
     if (!text) return ""
     if (looksUzbek(text)) return text
-    const rule = MESSAGE_RULES.find((r) => r.test.test(text))
-    if (rule) return rule.uz(label ?? "")
+    // Qoidalar TARTIB bilan sinaladi va birinchi mos kelgani ishlatiladi —
+    // `match` qaytarilgani uchun qoida xabar ichidagi sonni ham o'qiy oladi.
+    for (const rule of MESSAGE_RULES) {
+        const match = text.match(rule.test)
+        if (match) return rule.uz(label ?? "", match)
+    }
+    // Mos qoida topilmadi — matn avvalgidek o'zgarishsiz qaytadi.
     return label ? `${label}: ${text}` : text
 }
 

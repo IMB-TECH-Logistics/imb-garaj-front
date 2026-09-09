@@ -14,7 +14,7 @@ import { useTransactionCols, type Transaction } from "./transaction-cols"
 import { useGet } from "@/hooks/useGet"
 import { useHasAction, useUser } from "@/constants/useUser"
 import PermissionNotice from "../permission-notice"
-import { MoneyStat, tableError } from "../pul-holat"
+import { MoneyStat, tableError, useMoneyPhase } from "../pul-holat"
 import { formatMoney } from "@/lib/format-money"
 import { queryErrorMessage } from "@/lib/query-state"
 import { cn } from "@/lib/utils"
@@ -65,10 +65,31 @@ const KassaInner = () => {
     )
     const vehicles = vehiclesData ?? []
     const driverFilterId = search.driver ? Number(search.driver) : null
-    const typeFilter: "all" | "1" | "-1" =
-        search.type === "1" || search.type === "-1" ? search.type : "all"
-    const currencyFilter: "all" | "1" | "2" =
-        search.currency === "1" || search.currency === "2" ? search.currency : "all"
+    /**
+     * B-82: filtr qiymatlari URL'ga QO'SHTIRNOQ bilan yozilardi
+     * (`?type=%22-1%22`, ya'ni `type="-1"`).
+     *
+     * Sabab: TanStack Router qidiruv parametrlarini JSON bilan seriyalaydi —
+     * MATN qiymat `"-1"` bo'lib tushadi. API so'roviga qo'shtirnoqsiz
+     * ketgani uchun ilova ishlardi, lekin URL nusxalab ulashilganda yoki
+     * backend qat'iyroq bo'lganda sinardi. `/logs` da xuddi shu tuzoq
+     * allaqachon qayd etilgan (u yerda qiymatlar SON qilib berilgan).
+     *
+     * Shuning uchun URL'ga endi SON yoziladi (`?type=-1`), o'qishda esa
+     * ikkala ko'rinish ham qabul qilinadi — eski havolalar ishlashda
+     * davom etadi.
+     */
+    const asFilter = <T extends string>(
+        raw: unknown,
+        allowed: readonly T[],
+    ): T | "all" => {
+        const value = String(raw ?? "")
+        return (allowed as readonly string[]).includes(value) ?
+                (value as T)
+            :   "all"
+    }
+    const typeFilter = asFilter(search.type, ["1", "-1"] as const)
+    const currencyFilter = asFilter(search.currency, ["1", "2"] as const)
     const filterParams = {
         page: search.page,
         page_size: search.page_size,
@@ -108,6 +129,14 @@ const KassaInner = () => {
      * o'shani ishlatamiz (butun tanlov), bo'lmasa eski sahifa yig'indisiga
      * qaytamiz va yorliqni shunga qarab yozamiz.
      */
+    /**
+     * P-47 (R5): reyestr sarlavhasidagi "1 721 ta · Kirim … Chiqim …" ham
+     * pul ma'lumoti. Ilgari u faqat `isSuccess` ga qarardi — server
+     * o'chganda ham keshdagi eski yig'indilar joriy qiymat sifatida
+     * turaverardi. Endi u ham eskirish hukmiga bo'ysunadi.
+     */
+    const txPhase = useMoneyPhase(transactionsQ)
+
     const totalsScope: "all" | "page" = transactionsData?.totals ? "all" : "page"
 
     const pageTotals = useMemo(() => {
@@ -151,11 +180,12 @@ const KassaInner = () => {
         navigate({ search: { ...search, driver: undefined } as any })
     }
 
+    // Qiymat SON bo'lib yoziladi — izoh yuqorida (B-82).
     const handleTypeChange = (val: string) => {
         navigate({
             search: {
                 ...search,
-                type: val === "all" ? undefined : val,
+                type: val === "all" ? undefined : Number(val),
                 page: undefined,
             } as any,
         })
@@ -165,7 +195,7 @@ const KassaInner = () => {
         navigate({
             search: {
                 ...search,
-                currency: val === "all" ? undefined : val,
+                currency: val === "all" ? undefined : Number(val),
                 page: undefined,
             } as any,
         })
@@ -348,8 +378,19 @@ const KassaInner = () => {
                                 {/* Xato holatida "0 ta" va "Kirim 0 / Chiqim 0"
                                     ko'rsatilmaydi — bu bo'sh kassa degan
                                     yolg'on xabar bo'lardi. */}
-                                {!transactionsQ.isSuccess ? (
-                                    <MoneyStat query={transactionsQ} compact value={() => null} />
+                                {txPhase !== "ok" ? (
+                                    <MoneyStat
+                                        query={transactionsQ}
+                                        compact
+                                        value={() => (
+                                            <>
+                                                {(
+                                                    transactionsData?.count ?? 0
+                                                ).toLocaleString("ru-RU")}{" "}
+                                                ta
+                                            </>
+                                        )}
+                                    />
                                 ) : (
                                     <>
                                         <Badge>

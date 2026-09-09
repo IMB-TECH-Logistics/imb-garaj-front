@@ -62,5 +62,13 @@ type SearchParams = {
     driver?:string
     vehicle?:string
     route_configs_search?:string
+    /**
+     * Server tomon saralash: backend `ordering_fields` dagi maydon nomi,
+     * kamayish tartibida `-` prefiksi bilan (`-current_price`).
+     * `SortableHeader` yozadi, sahifa so'roviga o'zgarishsiz uzatiladi.
+     */
+    ordering?: string
+    /** Joylashuvlar ekranida ichma-ich ikkita jadval bor — bu ikkinchisiniki. */
+    region_ordering?: string
 }
 

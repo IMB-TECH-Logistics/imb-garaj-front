@@ -54,7 +54,9 @@ const DialogContent = React.forwardRef<
                 <div className=" bg-primary/20 p-1.5 rounded-md">
                     <X className="h-4 w-4 " />
                 </div>
-                <span className="sr-only">Close</span>
+                {/* B-84 oilasidan: ekran o'quvchi yopish tugmasini inglizcha
+                    "Close" deb o'qirdi, holbuki butun ilova o'zbekcha. */}
+                <span className="sr-only">Yopish</span>
             </DialogPrimitive.Close>
         </DialogPrimitive.Content>
     </DialogPortal>

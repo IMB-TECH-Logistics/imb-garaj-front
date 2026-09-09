@@ -52,6 +52,22 @@ const RouteConfigsPage = () => {
                 search: search.route_configs_search,
                 page: search.page,
                 page_size: search.page_size,
+                /**
+                 * FE3-09 / B-70 / B-71: saralash SERVER tomonda.
+                 *
+                 * Ilgari ustun sarlavhasi tanstack'ning mijoz tomon
+                 * saralashini ishga tushirardi — u faqat ko'rinib turgan 25
+                 * qatorni tartiblaydi. "Summa" kamayish tartibida 1-sahifadagi
+                 * 25 qiymatning hammasi 0 chiqardi, haqiqiy maksimum
+                 * 8 524 686 esa 10-sahifada qolib ketardi.
+                 *
+                 * Backend 4-raundda `routes/` ga `OrderingFilter` qo'shdi
+                 * (`ordering_fields`: owner_code, owner_name, load_name,
+                 * unload_name, cargo_type_name, payment_type_name, currency,
+                 * current_price, created, id) — endi tartib butun to'plam
+                 * bo'yicha hisoblanadi.
+                 */
+                ordering: search.ordering,
             },
         },
     )

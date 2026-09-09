@@ -137,6 +137,16 @@ const DriverSalariesPage = () => {
                 search: search.salary_search,
                 page: search.page,
                 page_size: search.page_size,
+                /**
+                 * Bu sahifa ustunlarni `route-configs/cols.tsx` dan qayta
+                 * ishlatadi (`useDirectionColumns`), ya'ni u yerdagi server
+                 * tomon saralash sarlavhalari SHU YERGA ham keladi. Endpoint
+                 * ham bir xil (`routes/`). Agar `ordering` shu so'rovga
+                 * qo'shilmasa, sarlavha bosiladi, URL o'zgaradi, lekin
+                 * serverga hech nima yetmaydi — ya'ni "bosiladigandek
+                 * ko'rinib hech nima qilmaydigan" ustun paydo bo'lardi.
+                 */
+                ordering: search.ordering,
                 ...serverFilters,
             },
         },

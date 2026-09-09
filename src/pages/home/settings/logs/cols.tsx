@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { Eye, Laptop, Smartphone, Tablet } from "lucide-react"
 import { useMemo } from "react"
+import SortableHeader from "../../sortable-header"
 import { getSectionLabel } from "./sections"
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "orange"
@@ -27,23 +28,41 @@ const DeviceIcon = ({ device }: { device: string | null }) => {
     return <Laptop className={className} />
 }
 
+/**
+ * SARALASH — SERVER TOMONDA (B-70, 5-raund).
+ *
+ * Jurnalda ~4 900 yozuv, ya'ni ~198 sahifa. Mijoz tomondagi saralash aynan
+ * shu yerda eng zararli edi: jurnal "oxirgi o'zgarishni kim qildi" degan
+ * savolga javob berish uchun ochiladi, tanstack esa faqat ekrandagi 25
+ * qatorni tartiblab, o'sha 25 tasining eng yangisini butun jurnalning eng
+ * yangisi qilib ko'rsatardi.
+ *
+ * "Tavsif" (`comment`) ustuni backend `ordering_fields` ida YO'Q, shuning
+ * uchun unga ataylab ko'rsatkich qo'yilmagan — bosiladigandek ko'rinib hech
+ * nima qilmaydigan sarlavha qolmasligi kerak.
+ */
 export const useLogsCols = (onView: (log: LogItem) => void) => {
     return useMemo<ColumnDef<LogItem>[]>(
         () => [
             {
-                header: "Bo'lim",
+                header: () => (
+                    <SortableHeader field="section" label="Bo'lim" />
+                ),
                 accessorKey: "section",
                 size: 140,
-                enableSorting: true,
                 cell: ({ row }) => getSectionLabel(row.original.section),
             },
             {
-                header: "Model",
+                header: () => (
+                    <SortableHeader field="model" label="Model" />
+                ),
                 accessorKey: "model",
                 size: 120,
             },
             {
-                header: "Obyekt ID",
+                header: () => (
+                    <SortableHeader field="obj_id" label="Obyekt ID" />
+                ),
                 accessorKey: "obj_id",
                 size: 80,
             },
@@ -53,10 +72,11 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 size: 260,
             },
             {
-                header: "Harakat",
+                header: () => (
+                    <SortableHeader field="action" label="Harakat" />
+                ),
                 accessorKey: "action",
                 size: 130,
-                enableSorting: true,
                 cell: ({ row }) => {
                     const action = row.original.action
                     const config = ACTION_MAP[action]
@@ -68,7 +88,9 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 },
             },
             {
-                header: "Foydalanuvchi",
+                header: () => (
+                    <SortableHeader field="full_name" label="Foydalanuvchi" />
+                ),
                 accessorKey: "full_name",
                 size: 150,
                 cell: ({ row }) => {
@@ -77,13 +99,17 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 },
             },
             {
-                header: "Lavozim",
+                header: () => (
+                    <SortableHeader field="role_name" label="Lavozim" />
+                ),
                 accessorKey: "role_name",
                 size: 120,
                 cell: ({ row }) => row.original.role_name || "—",
             },
             {
-                header: "Qurilma",
+                header: () => (
+                    <SortableHeader field="device" label="Qurilma" />
+                ),
                 accessorKey: "device",
                 size: 100,
                 cell: ({ row }) => (
@@ -94,16 +120,19 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 ),
             },
             {
-                header: "IP manzil",
+                header: () => (
+                    <SortableHeader field="ip_address" label="IP manzil" />
+                ),
                 accessorKey: "ip_address",
                 size: 130,
                 cell: ({ row }) => row.original.ip_address || "—",
             },
             {
-                header: "Sana",
+                header: () => (
+                    <SortableHeader field="created" label="Sana" />
+                ),
                 accessorKey: "created",
                 size: 150,
-                enableSorting: true,
                 cell: ({ row }) =>
                     row.original.created
                         ? format(new Date(row.original.created), "yyyy-MM-dd  HH:mm")

@@ -33,6 +33,17 @@ const ShiftStatisticMain = () => {
                 search: search.driver_name,
                 page: search.page,
                 page_size: search.page_size,
+                /**
+                 * B-72: saralash SERVER tomonda.
+                 *
+                 * Ilgari "Buyurtmalar soni" ustuni tanstack'ning mijoz tomon
+                 * saralashini ishga tushirardi — u faqat ekrandagi 25 qatorni
+                 * tartiblaydi. 185 aylanmada kamayish tartibida yuqorida 27
+                 * chiqardi, haqiqiy maksimum esa 29 edi (o'sish tartibida
+                 * yuqorisi 1, haqiqiy minimum 0). Backend endi
+                 * `trips/?ordering=` ni qo'llab-quvvatlaydi.
+                 */
+                ordering: search.ordering,
             },
         },
     )
