@@ -11,8 +11,11 @@ export default async function compressImg(file: File, opts?: Options) {
 
     try {
         const compressedBlob = await imageCompression(file, options)
-        const compressedFile = new File([compressedBlob], file.name, {
-            type: file.type,
+        const type = compressedBlob.type || "image/jpeg"
+        const ext = (type.split("/")[1] || "jpg").replace("jpeg", "jpg")
+        const name = file.name.replace(/\.[^.]+$/, "") + "." + ext
+        const compressedFile = new File([compressedBlob], name, {
+            type,
             lastModified: Date.now(),
         })
 
