@@ -2,6 +2,13 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import TableActions from "@/components/custom/table-actions"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
@@ -10,10 +17,11 @@ import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { cn } from "@/lib/utils"
 import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
     ArrowDownCircle,
     ArrowLeft,
@@ -22,6 +30,7 @@ import {
     Fuel,
     MapPin,
     Plus,
+    Truck,
     Wallet,
 } from "lucide-react"
 import AddExpenseModal from "./add-expense-modal"
@@ -109,6 +118,66 @@ const PetrolStationDetail = () => {
     }
 
     const columns = useStationCashFlowColumns()
+
+    // Kelgan natijalarni mashina raqami (vehicle_plate) bo'yicha guruhlash
+    const groupedVehicles = useMemo(() => {
+        const results = cashflows?.results ?? []
+        const groups: Record<
+            string,
+            {
+                vehicle_plate: string
+                is_income: boolean
+                driver_name: string
+                total_liters: number
+                total_gas: number
+                total_amount: number
+                items: StationCashFlowRow[]
+            }
+        > = {}
+
+        results.forEach((row) => {
+            const plate =
+                row.vehicle_plate ||
+                (row.action === 1 ? "Kirim operatsiyalari" : "Boshqa operatsiyalar")
+
+            if (!groups[plate]) {
+                groups[plate] = {
+                    vehicle_plate: plate,
+                    is_income: row.action === 1,
+                    driver_name: row.driver_name || "-",
+                    total_liters: 0,
+                    total_gas: 0,
+                    total_amount: 0,
+                    items: [],
+                }
+            }
+
+            groups[plate].items.push(row)
+            groups[plate].total_amount += Number(row.amount || 0)
+
+            if (row.unit === "m3") {
+                groups[plate].total_gas += Number(row.liters || 0)
+            } else {
+                groups[plate].total_liters += Number(row.liters || 0)
+            }
+        })
+
+        // Sintetik (mashinasiz) guruhlar oxirida, haydovchi mashinalari
+        // esa raqami bo'yicha tartiblanadi
+        const SYNTHETIC = ["Kirim operatsiyalari", "Boshqa operatsiyalar"]
+        return Object.values(groups).sort((a, b) => {
+            const aSyn = SYNTHETIC.indexOf(a.vehicle_plate)
+            const bSyn = SYNTHETIC.indexOf(b.vehicle_plate)
+            if (aSyn !== -1 || bSyn !== -1) {
+                if (aSyn === -1) return -1
+                if (bSyn === -1) return 1
+                return aSyn - bSyn
+            }
+            return a.vehicle_plate.localeCompare(b.vehicle_plate, "uz", {
+                numeric: true,
+            })
+        })
+    }, [cashflows?.results])
 
     const handleEditCashFlow = (row: StationCashFlowRow) => {
         if (row.action !== 1) return
@@ -279,30 +348,95 @@ const PetrolStationDetail = () => {
                 )}
             </div>
 
-            <DataTable
-                loading={isLoading}
-                columns={columns}
-                data={cashflows?.results}
-                numeration
-                paginationProps={{
-                    totalPages: cashflows?.total_pages,
-                    paramName: "page",
-                    pageSizeParamName: "page_size",
-                }}
-                rowAction={
-                    hasControl
-                        ? (row: StationCashFlowRow) =>
-                              row.action === 1 ? (
-                                  <TableActions
-                                      onEdit={() => handleEditCashFlow(row)}
-                                      onDelete={() =>
-                                          handleDeleteCashFlow(row)
-                                      }
-                                  />
-                              ) : null
-                        : undefined
-                }
-            />
+            {/* Guruh: mashina raqami bo`yicha */}
+            {groupedVehicles.length > 0 ?
+                <Card className="overflow-hidden">
+                    <Accordion type="multiple">
+                        {groupedVehicles.map((group) => (
+                            <AccordionItem
+                                key={group.vehicle_plate}
+                                value={group.vehicle_plate}
+                                className="px-4 last:border-b-0"
+                            >
+                                <AccordionTrigger className="hover:no-underline">
+                                    <div className="flex flex-1 items-center justify-between gap-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                                <Truck size={18} />
+                                            </div>
+                                            <div className="text-left">
+                                                <div className="font-semibold text-sm flex items-center gap-2">
+                                                    {group.vehicle_plate}
+                                                    {group.driver_name &&
+                                                        group.driver_name !== "-" && (
+                                                            <span className="text-xs font-normal text-muted-foreground">
+                                                                ({group.driver_name})
+                                                            </span>
+                                                        )}
+                                                </div>
+                                                <div className="text-xs font-normal text-muted-foreground">
+                                                    {group.items.length} ta operatsiya
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {group.total_gas > 0 && (
+                                                <Badge className="hidden border-transparent bg-sky-500/10 text-sky-600 hover:bg-sky-500/10 sm:inline-flex">
+                                                    {group.total_gas} m³
+                                                </Badge>
+                                            )}
+                                            {group.total_liters > 0 && (
+                                                <Badge className="hidden border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 sm:inline-flex">
+                                                    {group.total_liters} litr
+                                                </Badge>
+                                            )}
+                                            <Badge
+                                                className={cn(
+                                                    "border-transparent tabular-nums",
+                                                    group.is_income ?
+                                                        "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
+                                                    :   "bg-rose-500/10 text-rose-600 hover:bg-rose-500/10",
+                                                )}
+                                            >
+                                                {group.is_income ? "+" : "-"}
+                                                {formatMoney(group.total_amount)} so'm
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="px-0 pb-2">
+                                    <DataTable
+                                        columns={columns}
+                                        data={group.items}
+                                        numeration
+                                        rowAction={
+                                            hasControl ?
+                                                (row: StationCashFlowRow) =>
+                                                    row.action === 1 ?
+                                                        <TableActions
+                                                            onEdit={() =>
+                                                                handleEditCashFlow(row)
+                                                            }
+                                                            onDelete={() =>
+                                                                handleDeleteCashFlow(row)
+                                                            }
+                                                        />
+                                                    :   null
+                                            :   undefined
+                                        }
+                                    />
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                </Card>
+            :   !isLoading && (
+                    <div className="text-center py-10 text-muted-foreground border rounded-lg">
+                        Ma'lumotlar topilmadi
+                    </div>
+                )
+            }
 
             <Modal
                 title="Kirim qo'shish"
