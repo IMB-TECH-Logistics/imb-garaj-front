@@ -93,6 +93,8 @@ type TripOrdersRow = {
     payment_amount_uzs: string
     payment_amount_usd: string
     status:number
+    activity: number
+    activity_display: string
     payments: [
         {
             currency: number | null

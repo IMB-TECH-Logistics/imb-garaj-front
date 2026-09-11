@@ -45,6 +45,14 @@ const STATUS_OPTIONS: StatusOption[] = [
     { id: "4", name: "Arxivlangan" },
 ]
 
+const ACTIVITY_OPTIONS: StatusOption[] = [
+    { id: "1", name: "Reys" },
+    { id: "2", name: "Garajda" },
+    { id: "3", name: "Ta'mirda" },
+    { id: "4", name: "Bekor turish" },
+    { id: "5", name: "Navbatda" },
+]
+
 type Direction = {
     id: number
     owner: number
@@ -90,6 +98,10 @@ const AddTripOrders = () => {
             trip: id,
             cargo_type: currentTripOrder?.cargo_type,
             date: currentTripOrder?.date ?? new Date().toISOString().split("T")[0],
+            activity:
+                currentTripOrder?.activity != null
+                    ? String(currentTripOrder.activity)
+                    : "1",
             status:
                 currentTripOrder?.status != null
                     ? String(currentTripOrder.status)
@@ -132,6 +144,12 @@ const AddTripOrders = () => {
     const loadingValue = watch("loading")
     const unloadingValue = watch("unloading")
     const cargoTypeValue = watch("cargo_type")
+    const activityValue = watch("activity") as string
+
+    const isReysActivity = !activityValue || activityValue === "1"
+    const isGarajOrTamirActivity =
+        activityValue === "2" || activityValue === "3"
+    const isCityOnlyActivity = activityValue === "4" || activityValue === "5"
 
     const prevLoadingRef = useRef(loadingValue)
     const prevUnloadingRef = useRef(unloadingValue)
@@ -314,48 +332,58 @@ const AddTripOrders = () => {
     const isPending = creating || updating
 
     const onSubmit = (data: any) => {
+        const activity = Number(data.activity) || 1
+        const isReysSel = activity === 1
+        const isCityOnlySel = activity === 4 || activity === 5
         const isNaqdSel = !!data.is_naqd
 
-        if (!isNaqdSel && !matchedDirection) {
+        if (isReysSel && !isNaqdSel && !matchedDirection) {
             toast.error(
                 "Tanlangan yo'nalish uchun sozlama topilmadi. Avval Yo'nalishlar sozlamasida yaratib oling.",
             )
             return
         }
 
-        const incomes = isNaqdSel
-            ? (data.incomes ?? []).map((inc: any) => ({
-                payment_type: inc.payment_type,
-                currency: 1,
-                amount: String(inc.amount ?? "0"),
-            }))
-            : [
-                {
-                    payment_type: matchedDirection!.payment_type,
-                    currency: matchedDirection!.currency,
-                    amount:
-                        matchedDirection!.amount != null
-                            ? String(matchedDirection!.amount)
-                            : "0",
-                },
-            ]
-
-        const isEmpty = !data.cargo_type || data.cargo_type === 0
-
         const formData = new FormData()
-        formData.append("loading", data.loading)
-        formData.append("unloading", data.unloading)
         formData.append("date", data.date)
         formData.append("trip", String(id))
-        formData.append("type", isEmpty ? "2" : "1")
-        formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
-        if (!isNaqdSel && data.client) {
-            formData.append("client", String(data.client))
+        formData.append("activity", String(activity))
+
+        if (isReysSel) {
+            const incomes = isNaqdSel
+                ? (data.incomes ?? []).map((inc: any) => ({
+                    payment_type: inc.payment_type,
+                    currency: 1,
+                    amount: String(inc.amount ?? "0"),
+                }))
+                : [
+                    {
+                        payment_type: matchedDirection!.payment_type,
+                        currency: matchedDirection!.currency,
+                        amount:
+                            matchedDirection!.amount != null
+                                ? String(matchedDirection!.amount)
+                                : "0",
+                    },
+                ]
+
+            const isEmpty = !data.cargo_type || data.cargo_type === 0
+
+            formData.append("loading", data.loading)
+            formData.append("unloading", data.unloading)
+            formData.append("type", isEmpty ? "2" : "1")
+            formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
+            if (!isNaqdSel && data.client) {
+                formData.append("client", String(data.client))
+            }
+            if (!isNaqdSel && matchedDirection) {
+                formData.append("direction", String(matchedDirection.id))
+            }
+            formData.append("incomes", JSON.stringify(incomes))
+        } else if (isCityOnlySel) {
+            formData.append("loading", data.loading)
         }
-        if (!isNaqdSel && matchedDirection) {
-            formData.append("direction", String(matchedDirection.id))
-        }
-        formData.append("incomes", JSON.stringify(incomes))
+
         images.forEach((file) => formData.append("images", file))
         removedImageIds.forEach((imgId) =>
             formData.append("removed_images", String(imgId)),
@@ -408,89 +436,121 @@ const AddTripOrders = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-4 max-h-[72vh] overflow-y-auto pr-1 no-scrollbar-x"
             >
-                {/* To'lov turi tabs */}
-                <Tabs
-                    value={isNaqd ? "naqd" : "perech"}
-                    onValueChange={(v) => setValue("is_naqd", v === "naqd")}
-                >
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="perech">Shartnoma</TabsTrigger>
-                        <TabsTrigger value="naqd">Bir martalik</TabsTrigger>
-                    </TabsList>
-                </Tabs>
+                <FormCombobox
+                    required
+                    label="Holat"
+                    name="activity"
+                    control={control}
+                    options={ACTIVITY_OPTIONS}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder="Holatni tanlang"
+                />
 
-                {!isNaqd && (
-                    <FormCombobox
-                        required
-                        label="Yuk beruvchi"
-                        name="client"
-                        control={control}
-                        options={clientsData ?? []}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder="Yuk beruvchini tanlang"
-                    />
+                {isReysActivity && (
+                    <>
+                        {/* To'lov turi tabs */}
+                        <Tabs
+                            value={isNaqd ? "naqd" : "perech"}
+                            onValueChange={(v) => setValue("is_naqd", v === "naqd")}
+                        >
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="perech">Shartnoma</TabsTrigger>
+                                <TabsTrigger value="naqd">Bir martalik</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+
+                        {!isNaqd && (
+                            <FormCombobox
+                                required
+                                label="Yuk beruvchi"
+                                name="client"
+                                control={control}
+                                options={clientsData ?? []}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder="Yuk beruvchini tanlang"
+                            />
+                        )}
+
+                        <div className="rounded-lg border bg-card/50 p-4">
+                            <div className="flex gap-3">
+                                <div className="relative shrink-0 w-3">
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
+                                    <div
+                                        className="absolute left-1/2 -translate-x-1/2 w-px"
+                                        style={{
+                                            top: 30,
+                                            bottom: 18,
+                                            backgroundImage:
+                                                "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
+                                        }}
+                                    />
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
+                                </div>
+
+                                <div className="flex flex-col gap-4 flex-1">
+                                    <FormCombobox
+                                        required
+                                        name="loading"
+                                        control={control}
+                                        options={loadsData}
+                                        valueKey="id"
+                                        labelKey="name"
+                                        placeholder="Qayerdan"
+                                        addButtonProps={{
+                                            disabled: !isNaqd && !watch("client"),
+                                        }}
+                                    />
+                                    <FormCombobox
+                                        required
+                                        name="unloading"
+                                        control={control}
+                                        options={unloadsData}
+                                        valueKey="id"
+                                        labelKey="name"
+                                        placeholder="Qayerga"
+                                        addButtonProps={{ disabled: !loadingValue }}
+                                    />
+                                </div>
+                            </div>
+
+                        </div>
+                    </>
                 )}
 
-                <div className="rounded-lg border bg-card/50 p-4">
-                    <div className="flex gap-3">
-                        <div className="relative shrink-0 w-3">
-                            <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
-                            <div
-                                className="absolute left-1/2 -translate-x-1/2 w-px"
-                                style={{
-                                    top: 30,
-                                    bottom: 18,
-                                    backgroundImage:
-                                        "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
-                                }}
-                            />
-                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
-                        </div>
-
-                        <div className="flex flex-col gap-4 flex-1">
-                            <FormCombobox
-                                required
-                                name="loading"
-                                control={control}
-                                options={loadsData}
-                                valueKey="id"
-                                labelKey="name"
-                                placeholder="Qayerdan"
-                                addButtonProps={{
-                                    disabled: !isNaqd && !watch("client"),
-                                }}
-                            />
-                            <FormCombobox
-                                required
-                                name="unloading"
-                                control={control}
-                                options={unloadsData}
-                                valueKey="id"
-                                labelKey="name"
-                                placeholder="Qayerga"
-                                addButtonProps={{ disabled: !loadingValue }}
-                            />
-                        </div>
-                    </div>
-
-                </div>
-
-                <div className="flex gap-3">
-                    <div className="flex-1">
+                {isCityOnlyActivity && (
+                    <div className="rounded-lg border bg-card/50 p-4">
                         <FormCombobox
-                            label="Mahsulot turi"
-                            name="cargo_type"
+                            required
+                            label="Shahar"
+                            name="loading"
                             control={control}
-                            options={cargoTypesData}
+                            options={loadsData}
                             valueKey="id"
                             labelKey="name"
-                            placeholder="Yuksiz"
-                            addButtonProps={{
-                                disabled: !loadingValue || !unloadingValue,
-                            }}
+                            placeholder="Shaharni tanlang"
                         />
                     </div>
+                )}
+
+                <div className="flex gap-3">
+                    {isReysActivity && (
+                        <div className="flex-1">
+                            <FormCombobox
+                                label="Mahsulot turi"
+                                name="cargo_type"
+                                control={control}
+                                options={cargoTypesData}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder="Yuksiz"
+                                addButtonProps={{
+                                    disabled: !loadingValue || !unloadingValue,
+                                }}
+                            />
+                        </div>
+                    )}
                     <div className="flex-1">
                         <FormDatePicker
                             required
@@ -504,7 +564,7 @@ const AddTripOrders = () => {
                 </div>
 
                 {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
-                {isNaqd && (
+                {isReysActivity && isNaqd && (
                     <div className="space-y-3">
                         {incomeFields.map((field, index) => (
                             <div

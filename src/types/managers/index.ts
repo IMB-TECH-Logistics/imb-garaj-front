@@ -58,6 +58,8 @@ type ManagerOrders = {
     date: string
     type: number
     status: number
+    activity: number
+    activity_display: string
     payment_amount: number
     payment_amount_uzs: string
     payment_amount_usd: string

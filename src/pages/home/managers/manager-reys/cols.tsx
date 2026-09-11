@@ -16,6 +16,17 @@ const HOLAT_COLORS: Record<number, string> = {
     2: "bg-gray-500/10 text-gray-500 border-transparent",
 }
 
+const ACTIVITY_COLORS: Record<number, string> = {
+    1: "bg-green-500/10 text-green-600 border-transparent",
+    2: "bg-blue-500/10 text-blue-600 border-transparent",
+    3: "bg-orange-500/10 text-orange-600 border-transparent",
+    4: "bg-red-500/10 text-red-600 border-transparent",
+    5: "bg-yellow-500/10 text-yellow-600 border-transparent",
+}
+
+const isGarajOrTamirActivity = (activity?: number) =>
+    activity === 2 || activity === 3
+
 export const useColumnsManagersOrders = (opts?: {
     onImageClick?: (images: { id: number; image: string }[]) => void
 }) => {
@@ -25,14 +36,23 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "loading_name",
                 header: "Yuklash joyi",
                 enableSorting: true,
+                cell: ({ row }) => {
+                    if (isGarajOrTamirActivity(row.original?.activity)) {
+                        return <span className="text-muted-foreground">—</span>
+                    }
+                    return <div>{row.original.loading_name || "-"}</div>
+                },
             },
             {
                 accessorKey: "unloading_name",
                 header: "Tushirish joyi",
                 enableSorting: true,
-                cell: ({ row }) => (
-                    <div className="">{row.original.unloading_name || "-"}</div>
-                ),
+                cell: ({ row }) => {
+                    if (isGarajOrTamirActivity(row.original?.activity)) {
+                        return <span className="text-muted-foreground">—</span>
+                    }
+                    return <div>{row.original.unloading_name || "-"}</div>
+                },
             },
             {
                 accessorKey: "cargo_type_name",
@@ -43,6 +63,22 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "date",
                 header: "Yaratilagan sana",
                 enableSorting: true,
+            },
+            {
+                accessorKey: "activity_display",
+                header: "Holat",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const activity = row.original?.activity
+                    const colorClass =
+                        ACTIVITY_COLORS[activity] ||
+                        "bg-gray-500/10 text-gray-500 border-gray-200"
+                    return (
+                        <Badge variant="outline" className={colorClass}>
+                            {row.original?.activity_display || "-"}
+                        </Badge>
+                    )
+                },
             },
             {
                 accessorKey: "type",
