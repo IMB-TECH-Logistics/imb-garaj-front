@@ -214,7 +214,7 @@ export default function FinishManagerTrips() {
                         control={control}
                         name="end_mileage_image"
                         multiple={false}
-                        isPaste={false}
+                        isPaste={true}
                         hideClearable={true}
                     />
                 ) : null}

@@ -191,7 +191,7 @@ export default function CreateManagerTrips() {
                         control={control}
                         name="start_mileage_image"
                         multiple={false}
-                        isPaste={false}
+                        isPaste={true}
                         hideClearable={true}
                     />
                 :   null}
@@ -251,7 +251,7 @@ export default function CreateManagerTrips() {
                                 control={control}
                                 name="end_mileage_image"
                                 multiple={false}
-                                isPaste={false}
+                                isPaste={true}
                                 hideClearable={true}
                             />
                         :   null}

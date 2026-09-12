@@ -549,7 +549,7 @@ function AddFinanceForm({
                 control={control}
                 name="receipt"
                 multiple={false}
-                isPaste={false}
+                isPaste={true}
                 hideClearable={true}
                 label="Chek (ixtiyoriy)"
             />
