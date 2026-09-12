@@ -6,7 +6,9 @@ import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
+import ParamInput from "@/components/as-params/input"
+import { ParamCombobox } from "@/components/as-params/combobox"
 
 type DriverRow = {
     id: number
@@ -27,6 +29,8 @@ type DriverRow = {
     total_distance_km: string | number
     total_fuel_liters: string | number
     fuel_per_100km: string | number
+    total_fuel_gas: string | number
+    fuel_gas_per_100km: string | number
     coverage: number
     balance_uzs: string | number
     latest_trip_id: number | null
@@ -109,6 +113,23 @@ const useCols = () =>
                 },
             },
             {
+                header: "Yoqilg‘i (m³/100km)",
+                accessorKey: "fuel_gas_per_100km",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const v = num(row.original.fuel_gas_per_100km)
+                    if (v <= 0)
+                        return (
+                            <span className="text-muted-foreground">—</span>
+                        )
+                    return (
+                        <span className="tabular-nums font-medium text-sky-500">
+                            {v.toFixed(1)}
+                        </span>
+                    )
+                },
+            },
+            {
                 header: "Qamrov (hudud)",
                 accessorKey: "coverage",
                 enableSorting: true,
@@ -165,6 +186,13 @@ const useCols = () =>
         [],
     )
 
+const TIER_OPTIONS = [
+    { id: "A", name: "A" },
+    { id: "B", name: "B" },
+    { id: "C", name: "C" },
+    { id: "D", name: "D" },
+]
+
 export default function HaydovchilarList() {
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as any
@@ -174,7 +202,22 @@ export default function HaydovchilarList() {
         params: { search: search.driver_search },
     })
 
-    const rows = data ?? []
+    const rows = useMemo(() => {
+        const all = data ?? []
+        return search.tier
+            ? all.filter((r) => r.tier === search.tier)
+            : all
+    }, [data, search.tier])
+
+    useEffect(() => {
+        if (!search.page_size) {
+            navigate({
+                search: { ...search, page_size: 25 },
+                replace: true,
+            })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const handleRowClick = (row: DriverRow) => {
         navigate({
@@ -189,16 +232,34 @@ export default function HaydovchilarList() {
             loading={isLoading}
             columns={cols}
             data={rows}
+            paginationProps={{
+                page_sizes: [25, 50, 100, 250, 500],
+            }}
             numeration
-            viewAll
             onRowClick={handleRowClick}
             head={
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <h1 className="text-xl font-semibold">Haydovchilar</h1>
                         <Badge className="text-sm">
                             {formatMoney(rows.length)}
                         </Badge>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <ParamInput
+                            searchKey="driver_search"
+                            placeholder="Qidirish (ism, familiya)..."
+                            className="w-full sm:w-64"
+                        />
+                        <ParamCombobox
+                            paramName="tier"
+                            options={TIER_OPTIONS}
+                            label="Reyting"
+                            addButtonProps={{
+                                className:
+                                    "!bg-background dark:!bg-secondary min-w-36 justify-start",
+                            }}
+                        />
                     </div>
                 </div>
             }
