@@ -131,6 +131,7 @@ export function DataTable<TData>({
         paramName = PAGE_KEY,
         pageSizeParamName = PAGE_SIZE_KEY,
         totalPages,
+        PageSize,
     } = paginationProps || {}
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
@@ -210,7 +211,9 @@ export function DataTable<TData>({
             pagination: {
                 pageIndex: search[paramName] ? +search[paramName] - 1 : 0,
                 pageSize:
-                    search[pageSizeParamName] ? +search[pageSizeParamName] : 10,
+                    search[pageSizeParamName] ?
+                        +search[pageSizeParamName]
+                    :   (PageSize ?? DEFAULT_PAGE_SIZE),
             },
         },
         manualPagination:

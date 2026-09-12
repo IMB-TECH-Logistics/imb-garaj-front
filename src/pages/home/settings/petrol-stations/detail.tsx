@@ -1,4 +1,5 @@
 import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamPagination from "@/components/as-params/pagination"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import TableActions from "@/components/custom/table-actions"
@@ -11,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
@@ -35,6 +37,8 @@ import {
 } from "lucide-react"
 import AddExpenseModal from "./add-expense-modal"
 import {
+    formatQuantity,
+    getAmountInUzs,
     type StationCashFlowRow,
     useStationCashFlowColumns,
 } from "./cashflow-cols"
@@ -126,7 +130,6 @@ const PetrolStationDetail = () => {
             string,
             {
                 vehicle_plate: string
-                is_income: boolean
                 driver_name: string
                 total_liters: number
                 total_gas: number
@@ -143,7 +146,6 @@ const PetrolStationDetail = () => {
             if (!groups[plate]) {
                 groups[plate] = {
                     vehicle_plate: plate,
-                    is_income: row.action === 1,
                     driver_name: row.driver_name || "-",
                     total_liters: 0,
                     total_gas: 0,
@@ -153,7 +155,9 @@ const PetrolStationDetail = () => {
             }
 
             groups[plate].items.push(row)
-            groups[plate].total_amount += Number(row.amount || 0)
+            const amountInUzs = getAmountInUzs(row)
+            groups[plate].total_amount +=
+                row.action === 1 ? amountInUzs : -amountInUzs
 
             if (row.unit === "m3") {
                 groups[plate].total_gas += Number(row.liters || 0)
@@ -349,7 +353,13 @@ const PetrolStationDetail = () => {
             </div>
 
             {/* Guruh: mashina raqami bo`yicha */}
-            {groupedVehicles.length > 0 ?
+            {isLoading ?
+                <Card className="p-4 space-y-3">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <Skeleton key={index} className="h-14 w-full" />
+                    ))}
+                </Card>
+            : groupedVehicles.length > 0 ?
                 <Card className="overflow-hidden">
                     <Accordion type="multiple">
                         {groupedVehicles.map((group) => (
@@ -383,24 +393,33 @@ const PetrolStationDetail = () => {
                                         <div className="flex items-center gap-2">
                                             {group.total_gas > 0 && (
                                                 <Badge className="hidden border-transparent bg-sky-500/10 text-sky-600 hover:bg-sky-500/10 sm:inline-flex">
-                                                    {group.total_gas} m³
+                                                    {formatQuantity(
+                                                        group.total_gas,
+                                                        "m3",
+                                                    )}
                                                 </Badge>
                                             )}
                                             {group.total_liters > 0 && (
                                                 <Badge className="hidden border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 sm:inline-flex">
-                                                    {group.total_liters} litr
+                                                    {formatQuantity(
+                                                        group.total_liters,
+                                                        "liter",
+                                                    )}
                                                 </Badge>
                                             )}
                                             <Badge
                                                 className={cn(
                                                     "border-transparent tabular-nums",
-                                                    group.is_income ?
+                                                    group.total_amount >= 0 ?
                                                         "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
                                                     :   "bg-rose-500/10 text-rose-600 hover:bg-rose-500/10",
                                                 )}
                                             >
-                                                {group.is_income ? "+" : "-"}
-                                                {formatMoney(group.total_amount)} so'm
+                                                {group.total_amount >= 0 ? "+" : "−"}
+                                                {formatMoney(
+                                                    Math.abs(group.total_amount),
+                                                )}{" "}
+                                                so'm
                                             </Badge>
                                         </div>
                                     </div>
@@ -409,6 +428,7 @@ const PetrolStationDetail = () => {
                                     <DataTable
                                         columns={columns}
                                         data={group.items}
+                                        viewAll
                                         numeration
                                         rowAction={
                                             hasControl ?
@@ -431,12 +451,19 @@ const PetrolStationDetail = () => {
                         ))}
                     </Accordion>
                 </Card>
-            :   !isLoading && (
-                    <div className="text-center py-10 text-muted-foreground border rounded-lg">
-                        Ma'lumotlar topilmadi
-                    </div>
-                )
+            :   <div className="text-center py-10 text-muted-foreground border rounded-lg">
+                    Ma'lumotlar topilmadi
+                </div>
             }
+
+            {!isLoading && groupedVehicles.length > 0 && (
+                <div className="flex justify-center pt-2">
+                    <ParamPagination
+                        totalPages={cashflows?.total_pages || 1}
+                        disabled={isLoading}
+                    />
+                </div>
+            )}
 
             <Modal
                 title="Kirim qo'shish"

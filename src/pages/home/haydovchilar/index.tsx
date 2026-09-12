@@ -6,7 +6,7 @@ import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import ParamInput from "@/components/as-params/input"
 import { ParamCombobox } from "@/components/as-params/combobox"
 
@@ -195,7 +195,7 @@ const TIER_OPTIONS = [
 
 export default function HaydovchilarList() {
     const navigate = useNavigate()
-    const search = useSearch({ strict: false }) as any
+    const search = useSearch({ strict: false })
     const cols = useCols()
 
     const { data, isLoading } = useGet<DriverRow[]>(DRIVERS_LIST, {
@@ -208,16 +208,6 @@ export default function HaydovchilarList() {
             ? all.filter((r) => r.tier === search.tier)
             : all
     }, [data, search.tier])
-
-    useEffect(() => {
-        if (!search.page_size) {
-            navigate({
-                search: { ...search, page_size: 25 },
-                replace: true,
-            })
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     const handleRowClick = (row: DriverRow) => {
         navigate({
@@ -234,6 +224,7 @@ export default function HaydovchilarList() {
             data={rows}
             paginationProps={{
                 page_sizes: [25, 50, 100, 250, 500],
+                PageSize: 25,
             }}
             numeration
             onRowClick={handleRowClick}

@@ -47,6 +47,7 @@ type SearchParams = {
     payment_type?:string
     expense_type?:string
     driver_search?:string
+    tier?:"A"|"B"|"C"|"D"
     customer_search?:string
     cargo_search?:string
     country_search?:string

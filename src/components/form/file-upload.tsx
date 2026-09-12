@@ -113,12 +113,21 @@ export default function FileUpload<TForm extends FieldValues>({
             setIsCompressing(true)
             try {
                 const compressedFiles = await Promise.all(
-                    imageFiles.map(async (img) => {
-                        const compressed = await compressImg(img)
-                        return compressed || img
-                    }),
+                    imageFiles.map((img) => compressImg(img)),
                 )
-                const resultFiles = [...compressedFiles, ...nonImageFiles]
+                const validFiles = compressedFiles.filter(
+                    (f): f is File => !!f,
+                )
+
+                if (validFiles.length < imageFiles.length) {
+                    toast.error(
+                        "Rasmni tayyorlab bo'lmadi. iPhone rasmi bo'lsa (HEIC), uni JPG yoki PNG formatda yuklang",
+                    )
+                }
+
+                const resultFiles = [...validFiles, ...nonImageFiles]
+                if (!resultFiles.length) return
+
                 onChange(
                     multiple ? [...resultFiles, ...fileArray] : resultFiles[0],
                 )
@@ -133,9 +142,16 @@ export default function FileUpload<TForm extends FieldValues>({
     }
 
     function onPaste(e: React.ClipboardEvent<HTMLDivElement>) {
-        if (e.clipboardData.files.length) {
-            handleOnChange([e.clipboardData.files[0]])
+        e.preventDefault()
+        if (!e.clipboardData.files.length) return
+
+        const fileObject = e.clipboardData.files[0]
+        if (!fileObject.type.startsWith("image/")) {
+            toast.error("Faqat rasm yuklashingiz mumkin")
+            return
         }
+
+        handleOnChange([fileObject])
     }
 
     return (
@@ -154,6 +170,7 @@ export default function FileUpload<TForm extends FieldValues>({
                 <Input
                     {...field}
                     onPaste={onPaste}
+                    readOnly
                     tabIndex={0}
                     placeholder="(CTRL+V)"
                     fullWidth

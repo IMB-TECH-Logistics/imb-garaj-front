@@ -46,10 +46,23 @@ const formatDateTime = (s?: string | null) => {
     })
 }
 
-const formatQuantity = (v: number | string | null, unit: string | null) => {
+export const formatQuantity = (
+    v: number | string | null,
+    unit: string | null,
+) => {
     if (v == null) return "—"
     const label = unit ? (UNIT_LABEL[unit] ?? unit) : ""
-    return `${Number(v).toLocaleString("uz-UZ")}${label ? ` ${label}` : ""}`
+    const formatted = Number(v).toLocaleString("uz-UZ", {
+        maximumFractionDigits: 2,
+    })
+    return `${formatted}${label ? ` ${label}` : ""}`
+}
+
+export const getAmountInUzs = (row: StationCashFlowRow) => {
+    const amount = Number(row.amount ?? 0)
+    return row.currency === 2 ?
+            amount * Number(row.currency_course ?? 0)
+        :   amount
 }
 
 export const useStationCashFlowColumns = () =>
@@ -121,11 +134,7 @@ export const useStationCashFlowColumns = () =>
                     const isIncome = row.original.action === 1
                     const amount = Number(row.original.amount ?? 0)
                     const currency = row.original.currency
-                    const inUzs =
-                        currency === 2
-                            ? amount *
-                              Number(row.original.currency_course ?? 0)
-                            : amount
+                    const inUzs = getAmountInUzs(row.original)
                     return (
                         <div className="flex flex-col">
                             <span
