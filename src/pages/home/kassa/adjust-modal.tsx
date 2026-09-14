@@ -8,6 +8,7 @@ import {
 } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
@@ -50,10 +51,14 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
     })
 
     const onSubmit = (values: FormValues) => {
-        mutate(url, {
-            amount: Number(values.amount),
-            comment: values.comment || null,
-        })
+        mutate(
+            url,
+            {
+                amount: Number(values.amount),
+                comment: values.comment || null,
+            },
+            { onError: (e) => handleFormError(e, form) },
+        )
     }
 
     return (
@@ -67,6 +72,10 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
                 thousandSeparator=" "
                 decimalScale={2}
                 allowNegative={false}
+                registerOptions={{
+                    validate: (v) =>
+                        Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                }}
             />
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <div className="flex justify-end mt-1">
