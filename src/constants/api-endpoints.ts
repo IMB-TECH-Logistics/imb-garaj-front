@@ -108,6 +108,7 @@ export const WAREHOUSE_STATS = "warehouse/stats"
 /** ===== CHECKOUT extras ===== */
 export const CHECKOUT_TOP_UP = "checkout/top-up"
 export const CHECKOUT_EXPENSE = "checkout/expense"
+export const CHECKOUT_TRANSACTIONS = "checkout/transactions"
 export const TRANSACTIONS = "transaction"
 export const PETROL_STATIONS_STATS = "petrol-stations/stats"
 

@@ -5,8 +5,10 @@ import {
     CHECKOUT_EXPENSE,
     CHECKOUT_MAIN,
     CHECKOUT_TOP_UP,
+    CHECKOUT_TRANSACTIONS,
 } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
+import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { handleFormError } from "@/lib/show-form-errors"
 import { useQueryClient } from "@tanstack/react-query"
@@ -19,12 +21,19 @@ type FormValues = {
     comment: string
 }
 
+export type CheckoutEditing = {
+    id: number
+    amount: string
+    comment: string | null
+}
+
 type Props = {
     modalKey: string
     kind: "income" | "expense"
+    editing?: CheckoutEditing
 }
 
-const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
+const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
     const queryClient = useQueryClient()
     const { closeModal, isOpen } = useModal(modalKey)
     const isIncome = kind === "income"
@@ -37,28 +46,32 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
 
     useEffect(() => {
         if (!isOpen) reset({ amount: "", comment: "" })
-    }, [isOpen, reset])
+        else if (editing)
+            reset({ amount: editing.amount, comment: editing.comment ?? "" })
+    }, [isOpen, editing, reset])
 
-    const { mutate, isPending } = usePost({
-        onSuccess: () => {
-            toast.success(
-                isIncome ? "Balans to'ldirildi" : "Chiqim qo'shildi",
-            )
-            queryClient.refetchQueries({ queryKey: [CHECKOUT_MAIN] })
-            queryClient.refetchQueries({ queryKey: ["transaction"] })
-            closeModal()
-        },
-    })
+    const onSuccess = () => {
+        toast.success(
+            editing ? "Yozuv yangilandi"
+            : isIncome ? "Balans to'ldirildi"
+            : "Chiqim qo'shildi",
+        )
+        queryClient.refetchQueries({ queryKey: [CHECKOUT_MAIN] })
+        queryClient.refetchQueries({ queryKey: ["transaction"] })
+        closeModal()
+    }
+
+    const { mutate: create, isPending: isCreating } = usePost({ onSuccess })
+    const { mutate: update, isPending: isUpdating } = usePatch({ onSuccess })
 
     const onSubmit = (values: FormValues) => {
-        mutate(
-            url,
-            {
-                amount: Number(values.amount),
-                comment: values.comment || null,
-            },
-            { onError: (e) => handleFormError(e, form) },
-        )
+        const payload = {
+            amount: Number(values.amount),
+            comment: values.comment || null,
+        }
+        const options = { onError: (e: unknown) => handleFormError(e, form) }
+        if (editing) update(`${CHECKOUT_TRANSACTIONS}/${editing.id}`, payload, options)
+        else create(url, payload, options)
     }
 
     return (
@@ -82,7 +95,7 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
                 <Button
                     className="min-w-32"
                     type="submit"
-                    loading={isPending}
+                    loading={isCreating || isUpdating}
                     variant={isIncome ? "default" : "destructive"}
                 >
                     Saqlash

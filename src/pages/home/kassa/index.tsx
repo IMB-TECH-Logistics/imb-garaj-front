@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ParamCombobox } from "@/components/as-params/combobox"
-import { CHECKOUT_MAIN, DRIVERS_BALANCE, TRANSACTIONS } from "@/constants/api-endpoints"
+import { CHECKOUT_MAIN, CHECKOUT_TRANSACTIONS, DRIVERS_BALANCE, TRANSACTIONS } from "@/constants/api-endpoints"
+import DeleteModal from "@/components/custom/delete-modal"
+import TableActions from "@/components/custom/table-actions"
 import Modal from "@/components/custom/modal"
 import CheckoutAdjustModal from "./adjust-modal"
 import { useGet } from "@/hooks/useGet"
@@ -17,7 +19,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useModal } from "@/hooks/useModal"
 import { Plus, X } from "lucide-react"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 
 type Transaction = {
     id: number
@@ -123,6 +125,9 @@ const Kassa = () => {
     const navigate = useNavigate()
     const { openModal: openTopUp } = useModal("checkout-top-up")
     const { openModal: openExpense } = useModal("checkout-expense")
+    const { openModal: openEdit } = useModal("checkout-edit")
+    const { openModal: openDelete } = useModal("checkout-delete")
+    const [selected, setSelected] = useState<Transaction | null>(null)
     const search = useSearch({ strict: false }) as any
     const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
     const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
@@ -294,6 +299,23 @@ const Kassa = () => {
                 <DataTable
                     numeration
                     manualSorting
+                    rowAction={
+                        hasControl ?
+                            (row: Transaction) =>
+                                row.through === "checkout" ?
+                                    <TableActions
+                                        onEdit={() => {
+                                            setSelected(row)
+                                            openEdit()
+                                        }}
+                                        onDelete={() => {
+                                            setSelected(row)
+                                            openDelete()
+                                        }}
+                                    />
+                                :   null
+                        :   undefined
+                    }
                     loading={transactionsLoading}
                     columns={transactionCols}
                     data={transactionsData?.results}
@@ -400,6 +422,23 @@ const Kassa = () => {
                     kind="expense"
                 />
             </Modal>
+            <Modal
+                modalKey="checkout-edit"
+                title="Yozuvni tahrirlash"
+                size="max-w-md"
+            >
+                <CheckoutAdjustModal
+                    modalKey="checkout-edit"
+                    kind={selected?.type === -1 ? "expense" : "income"}
+                    editing={selected ?? undefined}
+                />
+            </Modal>
+            <DeleteModal
+                modalKey="checkout-delete"
+                path={CHECKOUT_TRANSACTIONS}
+                id={selected?.id}
+                refetchKeys={[CHECKOUT_MAIN, TRANSACTIONS]}
+            />
         </div>
     )
 }
