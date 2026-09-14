@@ -1,4 +1,5 @@
 import { FormCombobox } from "@/components/form/combobox"
+import { FormDatePicker } from "@/components/form/date-picker"
 import FileUpload from "@/components/form/file-upload"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
@@ -59,6 +60,7 @@ type FormValues = {
     comment: string
     order: number | ""
     receipt: File | null
+    paid_at: string | null
 }
 
 const AddExpenseModal = ({ stationId }: { stationId: number }) => {
@@ -76,6 +78,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             comment: "",
             order: "",
             receipt: null,
+            paid_at: null,
         },
     })
     const { control, handleSubmit, watch, reset, setValue } = form
@@ -206,6 +209,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     : null,
             comment: values.comment || null,
             order: isOther ? null : values.order || null,
+            paid_at: values.paid_at ? new Date(values.paid_at).toISOString() : null,
         }
 
         if (values.receipt instanceof File) {
@@ -480,6 +484,13 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     decimalScale={0}
                 />
             )}
+            <FormDatePicker
+                control={control}
+                label="Sana (ixtiyoriy)"
+                name="paid_at"
+                placeholder="Sanani tanlang"
+                className="w-full"
+            />
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <FileUpload
                 control={control}
