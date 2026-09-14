@@ -45,6 +45,7 @@ const PetrolStationsPage = () => {
 
     const { data: stats } = useGet<PetrolStats>(
         `${SETTINGS_PETROL_STATIONS}/stats`,
+        { params: { search: search.petrol_search } },
     )
 
     const columns = usePetrolStationColumns()
@@ -107,7 +108,7 @@ const PetrolStationsPage = () => {
                                 Chiqim
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-rose-600">
-                                −{formatMoney(Number(stats?.total_outcomes ?? 0))}{" "}
+                                {Number(stats?.total_outcomes ?? 0) > 0 ? "−" : ""}{formatMoney(Number(stats?.total_outcomes ?? 0))}{" "}
                                 so'm
                             </div>
                         </div>
