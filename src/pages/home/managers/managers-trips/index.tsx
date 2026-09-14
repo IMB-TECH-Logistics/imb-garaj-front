@@ -138,7 +138,20 @@ export default function ManagersTrips() {
                                 <InlineBreadcrumb
                                     trailing={
                                         <>
-                                            <Badge>{formatMoney(data?.count)}</Badge>
+                                            <Badge>
+                                                {!isArchive && <>{data?.results?.length ?? 0} / </>}
+                                                {formatMoney(data?.count)}
+                                            </Badge>
+                                            {!isArchive &&
+                                                (data?.count ?? 0) > (data?.results?.length ?? 0) && (
+                                                    <Button
+                                                        variant="link"
+                                                        size="sm"
+                                                        onClick={() => setIsArchive(true)}
+                                                    >
+                                                        Hammasini ko'rish
+                                                    </Button>
+                                                )}
                                             <span className="text-muted-foreground">/</span>
                                             <span>{name || "nimadir"}</span>
                                         </>
