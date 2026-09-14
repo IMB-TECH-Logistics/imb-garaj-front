@@ -227,6 +227,16 @@ const defaultModules: Module[] = [
                     },
                 ],
             },
+            {
+                name: "Zapravkalar",
+                actions: [
+                    { name: "Ko'rish", key: "settings_petrol_stations_view" },
+                    {
+                        name: "To'liq boshqarish",
+                        key: "settings_petrol_stations_control",
+                    },
+                ],
+            },
         ],
     },
     // 2. Buxgalteriya
