@@ -6,7 +6,7 @@ import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-    MANAGERS_ORDERS,
+    MANAGERS_TRIPS,
     PETROL_STATIONS_OTHER_VEHICLES,
     SETTINGS_PETROL_STATIONS,
     VEHICLES,
@@ -17,6 +17,7 @@ import { useModal } from "@/hooks/useModal"
 import { useDelete } from "@/hooks/useDelete"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -35,10 +36,10 @@ type OtherVehicleOption = {
     fuel: "methane" | "diesel" | string
 }
 
-type OrderOption = {
+type TripOption = {
     id: number
-    loading_name?: string | null
-    unloading_name?: string | null
+    start?: string | null
+    driver_name?: string | null
 }
 
 // Har bir mashinaning yagona `fuel` turi bor — shu qiymatga qarab o'lchov birligi
@@ -58,25 +59,30 @@ type FormValues = {
     currency: 1 | 2
     currency_course: string | number | ""
     comment: string
-    order: number | ""
+    trip: number | ""
     receipt: File | null
     paid_at: string | null
 }
 
+const LAST_KEY = (id: number) => `petrol-last-expense-${id}`
+
 const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const queryClient = useQueryClient()
     const { closeModal } = useModal("petrol-expense")
+    const { getData, setData } = useGlobalStore()
+
+    const last = getData<{ vehicle: number | ""; other_vehicle: number | ""; isOther: boolean }>(LAST_KEY(stationId))
 
     const form = useForm<FormValues>({
         defaultValues: {
-            vehicle: "",
-            other_vehicle: "",
+            vehicle: last?.vehicle ?? "",
+            other_vehicle: last?.other_vehicle ?? "",
             amount: "",
             quantity: "",
             currency: 1,
             currency_course: "",
             comment: "",
-            order: "",
+            trip: "",
             receipt: null,
             paid_at: null,
         },
@@ -92,7 +98,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const { data: otherVehicles, refetch: refetchOtherVehicles } =
         useGet<OtherVehicleOption[]>(PETROL_STATIONS_OTHER_VEHICLES)
 
-    const [isOther, setIsOther] = useState(false)
+    const [isOther, setIsOther] = useState(last?.isOther ?? false)
     const [isAdding, setIsAdding] = useState(false)
     const [newNumber, setNewNumber] = useState("")
     const [newComment, setNewComment] = useState("")
@@ -119,20 +125,20 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             (isOther ? selectedOtherVehicle?.fuel : selectedVehicle?.fuel) ?? ""
         ] ?? "litr"
 
-    const { data: ordersData } = useGet<ListResponse<OrderOption>>(
-        MANAGERS_ORDERS,
+    const { data: tripsData } = useGet<ListResponse<TripOption>>(
+        MANAGERS_TRIPS,
         {
-            params: { trip__vehicle: vehicleId, page_size: 1000 },
-            enabled: !!vehicleId,
+            params: { vehicle: vehicleId, page_size: 1000 },
+            enabled: !!vehicleId && !isOther,
         },
     )
-    const orderOptions = (ordersData?.results ?? []).map((o) => ({
-        id: o.id,
-        name: `${o.loading_name ?? "?"} → ${o.unloading_name ?? "?"}`,
+    const tripOptions = (tripsData?.results ?? []).map((t) => ({
+        id: t.id,
+        name: `${t.start ? t.start.slice(0, 10) : "??"} — ${t.driver_name ?? "Haydovchi yo'q"}`,
     }))
 
     useEffect(() => {
-        setValue("order", "")
+        setValue("trip", "")
     }, [vehicleId, setValue])
 
     const closeVehiclePanel = (row: any) => {
@@ -186,7 +192,24 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const { mutate, isPending } = usePost({
         onSuccess: () => {
             toast.success("Chiqim qo'shildi")
-            reset()
+            const current = form.getValues()
+            setData(LAST_KEY(stationId), {
+                vehicle: current.vehicle,
+                other_vehicle: current.other_vehicle,
+                isOther,
+            })
+            reset({
+                vehicle: current.vehicle,
+                other_vehicle: current.other_vehicle,
+                amount: "",
+                quantity: "",
+                currency: 1,
+                currency_course: "",
+                comment: "",
+                trip: "",
+                receipt: null,
+                paid_at: null,
+            })
             queryClient.refetchQueries({
                 predicate: (q) =>
                     String(q.queryKey[0]).includes("petrol-stations"),
@@ -208,7 +231,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     ? Number(values.currency_course)
                     : null,
             comment: values.comment || null,
-            order: isOther ? null : values.order || null,
+            trip: isOther ? null : values.trip || null,
             paid_at: values.paid_at ? new Date(values.paid_at).toISOString() : null,
         }
 
@@ -241,7 +264,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                 setIsOther(choice.value)
                                 setValue("vehicle", "")
                                 setValue("other_vehicle", "")
-                                setValue("order", "")
+                                setValue("trip", "")
                             }}
                             className={cn(
                                 "px-3 py-1.5 rounded-md text-sm border transition-colors",
@@ -434,14 +457,14 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     />
                     <FormCombobox
                         control={control}
-                        label="Buyurtma (ixtiyoriy)"
-                        name="order"
-                        options={orderOptions}
+                        label="Aylanma (ixtiyoriy)"
+                        name="trip"
+                        options={tripOptions}
                         valueKey="id"
                         labelKey="name"
                         placeholder={
                             vehicleId ?
-                                "Buyurtmani tanlang"
+                                "Aylanmani tanlang"
                             :   "Avval mashina tanlang"
                         }
                     />
