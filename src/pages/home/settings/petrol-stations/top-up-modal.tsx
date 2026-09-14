@@ -78,7 +78,12 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
+                decimalScale={2}
+                allowNegative={false}
+                registerOptions={{
+                    validate: (v) =>
+                        Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                }}
             />
             {currency === 2 && (
                 <FormNumberInput
