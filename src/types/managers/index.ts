@@ -17,6 +17,7 @@ type ImageField = File | string | null
 interface ManagerTrips {
     income_uzs: string
     pending_order_count: string
+    completed_order_count: number
     driver_name: string
     id?: number
     vehicle?: number | string

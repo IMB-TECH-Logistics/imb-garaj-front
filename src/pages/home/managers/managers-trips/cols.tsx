@@ -67,7 +67,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: "Yakunlangan reyslar",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{(row.original as any).completed_order_count || "0"}</div>
+                    <div>{row.original.completed_order_count || "0"}</div>
                 ),
             },
             {
