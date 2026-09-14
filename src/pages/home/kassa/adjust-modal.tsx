@@ -65,7 +65,8 @@ const CheckoutAdjustModal = ({ modalKey, kind }: Props) => {
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
-                decimalScale={0}
+                decimalScale={2}
+                allowNegative={false}
             />
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <div className="flex justify-end mt-1">
