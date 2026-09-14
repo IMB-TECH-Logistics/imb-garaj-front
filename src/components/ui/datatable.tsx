@@ -27,7 +27,7 @@ import {
 import { DEFAULT_PAGE_SIZE, PAGE_KEY, PAGE_SIZE_KEY } from "@/constants/default"
 import { useHasAction } from "@/constants/useUser"
 import { cn } from "@/lib/utils"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
 import CursorPagination from "../as-params/cursor-pagination"
 import LimitOffsetPagination from "../as-params/limit-offset-pagination"
@@ -69,6 +69,7 @@ interface DataTableProps<TData> {
     head?: React.ReactNode
     viewCount?: number | boolean | undefined
     sortable?: boolean
+    manualSorting?: boolean
     stickyHeader?: boolean
     numeration?: boolean
     wrapperClassName?: string
@@ -108,6 +109,7 @@ export function DataTable<TData>({
     viewAll,
     head,
     numeration = false,
+    manualSorting = false,
     stickyHeader = false,
     wrapperClassName,
     actionMenuMode,
@@ -145,6 +147,16 @@ export function DataTable<TData>({
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const search: any = useSearch({ from: "/_main" })
+    const navigate = useNavigate()
+    const urlSorting: SortingState =
+        manualSorting && search.ordering ?
+            [
+                {
+                    id: String(search.ordering).replace(/^-/, ""),
+                    desc: String(search.ordering).startsWith("-"),
+                },
+            ]
+        :   []
 
     const orderedColumns = React.useMemo(() => {
         if (hasActions) return columns
@@ -192,7 +204,24 @@ export function DataTable<TData>({
     const table = useReactTable({
         data: data || [],
         columns: orderedColumns,
-        onSortingChange: setSorting,
+        onSortingChange:
+            manualSorting ?
+                (updater) => {
+                    const next =
+                        typeof updater === "function" ?
+                            updater(urlSorting)
+                        :   updater
+                    const s = next[0]
+                    navigate({
+                        search: (prev: any) => ({
+                            ...prev,
+                            ordering: s ? `${s.desc ? "-" : ""}${s.id}` : undefined,
+                            [paramName]: undefined,
+                        }),
+                    } as any)
+                }
+            :   setSorting,
+        manualSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel({
@@ -204,7 +233,7 @@ export function DataTable<TData>({
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         state: {
-            sorting,
+            sorting: manualSorting ? urlSorting : sorting,
             columnFilters,
             columnVisibility,
             rowSelection,

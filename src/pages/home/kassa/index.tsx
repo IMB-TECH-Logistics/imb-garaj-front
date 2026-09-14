@@ -146,6 +146,7 @@ const Kassa = () => {
         search: search.tx_search,
         type: typeFilter === "all" ? undefined : Number(typeFilter),
         currency: currencyFilter === "all" ? undefined : Number(currencyFilter),
+        ordering: search.ordering,
     }
     const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
         TRANSACTIONS,
@@ -292,6 +293,7 @@ const Kassa = () => {
             <div className="w-full min-w-0 md:h-full min-h-0">
                 <DataTable
                     numeration
+                    manualSorting
                     loading={transactionsLoading}
                     columns={transactionCols}
                     data={transactionsData?.results}
