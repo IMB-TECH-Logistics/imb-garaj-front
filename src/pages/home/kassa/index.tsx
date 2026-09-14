@@ -307,7 +307,7 @@ const Kassa = () => {
                     head={
                         <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h1 className="text-lg">Kiritilgan summa</h1>
+                                <h1 className="text-lg">Tranzaksiyalar</h1>
                                 <Badge>
                                     {formatMoney(transactionsData?.count)}
                                 </Badge>
