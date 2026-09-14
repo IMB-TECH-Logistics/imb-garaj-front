@@ -81,6 +81,7 @@ const AddExpenseModal = () => {
             <FormCombobox
                 required
                 label="Avtomobil"
+                hideError={false}
                 name="vehicle"
                 control={control}
                 options={vehicles || []}
@@ -91,6 +92,7 @@ const AddExpenseModal = () => {
             <FormCombobox
                 required
                 label="Xarajat turi"
+                hideError={false}
                 name="category"
                 control={control}
                 options={categories || []}
@@ -104,7 +106,13 @@ const AddExpenseModal = () => {
                 label="Summa"
                 control={control}
                 thousandSeparator=" "
-                placeholder="0"
+                decimalScale={2}
+                allowNegative={false}
+                registerOptions={{
+                    validate: (v) =>
+                        Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                }}
+                placeholder="Ex: 1 000 000"
             />
             <FormDatePicker
                 required
