@@ -38,6 +38,7 @@ const PetrolStationsPage = () => {
                 search: search.petrol_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: search.ordering,
             },
         },
     )
@@ -115,6 +116,7 @@ const PetrolStationsPage = () => {
             </div>
             <DataTable
                 loading={isLoading}
+                manualSorting
                 columns={columns}
                 data={data?.results}
                 onDelete={hasControl ? handleDelete : undefined}
