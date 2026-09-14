@@ -226,7 +226,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 no-scrollbar-x">
             <div className="flex flex-col gap-1.5">
                 <span className="font-medium text-sm">Mashina turi</span>
                 <div className="flex gap-2">
