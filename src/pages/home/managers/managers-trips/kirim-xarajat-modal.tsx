@@ -391,33 +391,27 @@ function AddFinanceForm({
     }
 
     const onSubmit = (data: any) => {
-        const payload: Record<string, any> = {
-            trip: tripId ?? null,
-            amount: Number(data.amount),
-            category: selectedCategoryId,
-            comment: data.comment || null,
-            payment_type: data.payment_type || null,
-            quantity: data.quantity ? String(data.quantity) : null,
-            action,
-            currency: data.currency || 1,
-            currency_course: data.currency === 2 ? data.currency_course || null : null,
-            petrol_station: isFuel && data.petrol_station ? data.petrol_station : null,
-        }
-        if (showOrderSelect && data.order) {
-            payload.order = data.order
-        }
-        if (isSalaryExpense) {
-            payload.from_region = data.from_region || null
-            payload.to_region = data.to_region || null
-            payload.deduct_from_balance = !!data.deduct_from_balance
-        }
+        const fd = new FormData()
+
+        if (tripId != null) fd.append("trip", String(tripId))
+        fd.append("amount", String(Number(data.amount)))
+        if (selectedCategoryId != null) fd.append("category", String(selectedCategoryId))
+        fd.append("action", String(action))
+        fd.append("currency", String(data.currency || 1))
+        if (data.comment) fd.append("comment", data.comment)
+        if (data.payment_type) fd.append("payment_type", String(data.payment_type))
+        if (data.quantity) fd.append("quantity", String(data.quantity))
+        if (data.currency === 2 && data.currency_course) fd.append("currency_course", String(data.currency_course))
+        if (isFuel && data.petrol_station) fd.append("petrol_station", String(data.petrol_station))
+        if (showOrderSelect && data.order) fd.append("order", String(data.order))
+        if (data.receipt instanceof File) fd.append("receipt", data.receipt)
 
         if (isEdit) {
-            patchMutate(`${MANAGERS_EXPENSES}/${editItem.id}`, payload, {
+            patchMutate(`${MANAGERS_EXPENSES}/${editItem.id}`, fd as any, {
                 onSuccess: handleSuccess,
             })
         } else {
-            postMutate(MANAGERS_CASHFLOW, payload, {
+            postMutate(MANAGERS_CASHFLOW, fd as any, {
                 onSuccess: handleSuccess,
             })
         }
