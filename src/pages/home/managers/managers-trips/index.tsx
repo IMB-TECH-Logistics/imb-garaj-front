@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
-import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS, VEHICLES } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -36,6 +36,14 @@ export default function ManagersTrips() {
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
     const { name } = useSearch({ strict: false }) as any
+    const { data: vehicle, error: vehicleError } = useGet<{ truck_number: string }>(
+        `${VEHICLES}/${id}`,
+        { enabled: !!id && !name, options: { retry: false } },
+    )
+    const vehicleLabel =
+        name ||
+        vehicle?.truck_number ||
+        (vehicleError?.response?.status === 404 ? "Transport topilmadi" : "—")
     const { driver_id } = useSearch({ strict: false }) as any
     const { from_date, to_date, moliya_trip_id } = search as any
     const moliyaOpen = !!moliya_trip_id
@@ -153,7 +161,7 @@ export default function ManagersTrips() {
                                                     </Button>
                                                 )}
                                             <span className="text-muted-foreground">/</span>
-                                            <span>{name || "nimadir"}</span>
+                                            <span>{vehicleLabel}</span>
                                         </>
                                     }
                                 />

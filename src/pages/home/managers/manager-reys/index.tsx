@@ -8,7 +8,7 @@ import {
     Dialog,
     DialogContent,
 } from "@/components/ui/dialog"
-import { MANAGERS_ORDERS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS, MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -28,6 +28,14 @@ export default function ManagerReys() {
     const { setData, getData, clearKey } = useGlobalStore()
     const item = getData(MANAGERS_VEHICLES)
     const { id } = useParams({ strict: false })
+    const { data: trip, error: tripError } = useGet<{ driver_name: string | null }>(
+        `${MANAGERS_TRIPS}/${id}`,
+        { enabled: !!id && !name, options: { retry: false } },
+    )
+    const tripLabel =
+        name ||
+        trip?.driver_name ||
+        (tripError?.response?.status === 404 ? "Reys topilmadi" : "—")
     const currentSelected = getData(MANAGERS_ORDERS)
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
         params: {
@@ -82,7 +90,7 @@ export default function ManagerReys() {
                                         <>
                                             <Badge>{formatMoney(data?.count)}</Badge>
                                             <span className="text-muted-foreground">/</span>
-                                            <span>{name || "nimadir"}</span>
+                                            <span>{tripLabel}</span>
                                         </>
                                     }
                                 />

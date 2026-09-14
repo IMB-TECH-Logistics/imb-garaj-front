@@ -28,7 +28,7 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "type",
-                header: "Transpost turi",
+                header: "Transport turi",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{row.original.type || "-"}</div>

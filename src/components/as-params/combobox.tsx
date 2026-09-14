@@ -70,7 +70,7 @@ export function ParamCombobox<T extends Record<string, any>>({
             navigate({
                 search: {
                     ...search,
-                    [paramName]: String(defaultOpt[valueKey]),
+                    [paramName]: defaultOpt[valueKey],
                 },
             })
         }
@@ -83,7 +83,7 @@ export function ParamCombobox<T extends Record<string, any>>({
             string,
             string | undefined
         >
-        updatedSearch[paramName] = String(returnValue)
+        updatedSearch[paramName] = returnValue
         updatedSearch["page"] = undefined
 
         asloClear.forEach((key) => {
