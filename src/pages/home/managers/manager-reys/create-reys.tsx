@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     COMMON_DIRECTIONS,
     MANAGERS_ORDERS,
+    SETTINGS_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINTS_PAYMENT_TYPE,
     TRIPS_ORDERS,
@@ -169,6 +170,11 @@ const AddTripOrders = () => {
         { params: { model_name: "client" } },
     )
 
+    const { data: cargoTypesResponse } = useGet<ListResponse<{ id: number; name: string }>>(
+        SETTINGS_CARGO_TYPE,
+        { params: { page_size: 1000 } },
+    )
+
     const isNaqd = !!watch("is_naqd")
     const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
     const selectedPaymentTypeIds = useMemo(
@@ -230,29 +236,9 @@ const AddTripOrders = () => {
     }, [directions, loadingValue, isNaqd])
 
     const cargoTypesData = useMemo(() => {
-        if (isNaqd) {
-            return [
-                { id: 0, name: "Yuksiz" },
-                ...distinctOptions(directions, (d) => ({
-                    id: d.cargo_type,
-                    name: d.cargo_type_name,
-                })),
-            ]
-        }
-        if (!loadingValue || !unloadingValue) return []
-        const rows = directions.filter(
-            (d) =>
-                d.load === Number(loadingValue) &&
-                d.unload === Number(unloadingValue),
-        )
-        return [
-            { id: 0, name: "Yuksiz" },
-            ...distinctOptions(rows, (d) => ({
-                id: d.cargo_type,
-                name: d.cargo_type_name,
-            })),
-        ]
-    }, [directions, loadingValue, unloadingValue, isNaqd])
+        const all = cargoTypesResponse?.results ?? []
+        return [{ id: 0, name: "Yuksiz" }, ...all]
+    }, [cargoTypesResponse])
 
     const matchedDirection = useMemo(() => {
         if (currentTripOrder?.direction) {
