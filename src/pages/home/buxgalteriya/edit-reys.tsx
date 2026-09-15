@@ -105,6 +105,7 @@ const EditReysModal = () => {
             status: current?.status ?? null,
             type: current?.type ?? null,
             out_of_contract: (current as any)?.out_of_contract ?? false,
+            nds_percent: String(current?.nds_percent ?? current?.pct ?? ""),
         },
     })
 
@@ -214,7 +215,14 @@ const EditReysModal = () => {
         if (values.status !== null) payload.status = values.status
         if (values.type !== null) payload.type = values.type
         if (values.date) payload.date = values.date
-        if (values?.nds_percent !== null) payload.nds_percent = values?.nds_percent
+        const percent =
+            values.nds_percent === "" || values.nds_percent == null ?
+                null
+            :   Number(values.nds_percent)
+        const inheritsPercent = current?.nds_percent == null
+        if (!(inheritsPercent && percent === current?.pct)) {
+            payload.nds_percent = percent
+        }
         payload.out_of_contract = values.out_of_contract
 
         mutate(`${MANAGERS_ORDERS}/${current.id}`, payload)
@@ -317,7 +325,9 @@ const EditReysModal = () => {
                 name="nds_percent"
                 label="Foiz"
                 control={control}
-                required
+                allowNegative={false}
+                decimalScale={0}
+                placeholder="Foiz"
             />
 
             <FormCheckbox

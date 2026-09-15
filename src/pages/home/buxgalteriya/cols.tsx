@@ -25,6 +25,7 @@ export interface ReysOrder {
     summa_s_nds: string | number
     naqd_amount: string | number
     pct: number
+    nds_percent: number | null
     our_share: string | number
     external_id: string | number
 }
