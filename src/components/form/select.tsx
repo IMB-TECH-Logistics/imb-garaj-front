@@ -1,4 +1,4 @@
-import { Controller, Control, FieldValues, Path } from "react-hook-form"
+import { Controller, Control, FieldValues, Path, useFormState } from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 import Select from "../ui/select"
@@ -24,7 +24,8 @@ export function FormSelect<
     placeholder,
     className,
 }: thisProps<TForm, T>) {
-    const error = getNestedValue(control._formState.errors, name)
+    const { errors } = useFormState({ control, name })
+    const error = getNestedValue(errors, name)
     return (
         <div className="w-full">
             {label && (
@@ -40,7 +41,7 @@ export function FormSelect<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: label ? `${label}ni kiriting` : "Bu maydonni tanlang" } : {}
                 }
                 render={({ field }) => (
                     <div className={label ? "pt-[2px]" : ""}>
@@ -68,7 +69,7 @@ export function FormSelect<
             />
             {!hideError && error && (
                 <FieldError>
-                    {control._formState.errors[name]?.message as string}
+                    {error?.message as string}
                 </FieldError>
             )}
         </div>

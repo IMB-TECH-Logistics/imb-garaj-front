@@ -70,7 +70,7 @@ export default function Select<T extends Record<string, any>>({
 
 interface thisProps<T extends Record<string, any>> {
     value: string | number | null
-    setValue: React.Dispatch<React.SetStateAction<number | null>>
+    setValue: (value: string) => void
     options: T[]
     label: string
     className?: ClassNameValue
