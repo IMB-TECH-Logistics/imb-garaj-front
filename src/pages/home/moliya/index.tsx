@@ -224,6 +224,7 @@ type FinanceSummary = {
     income_total: number
     income_vat: number
     expense_total: number
+    advance_total: number
     profit: number
 }
 
@@ -273,6 +274,7 @@ export default function MoliyaPage() {
                 <StatCard
                     label="Xarajat"
                     value={Number(summary?.expense_total ?? 0)}
+                    hint={`Avans: ${fmt(Number(summary?.advance_total ?? 0))} so'm (xarajatga kirmaydi)`}
                     icon={<ArrowDownIcon />}
                     color="red"
                 />

@@ -9,7 +9,7 @@ import { useTheme } from "@/layouts/theme"
 type Transaction = {
     date: string
     description: string
-    type: "kirim" | "chiqim"
+    type: "kirim" | "chiqim" | "avans"
     amount: number
     balance: number
     note: string
@@ -19,7 +19,7 @@ type LedgerItem = {
     id: number
     date: string
     description: string
-    type: "kirim" | "chiqim"
+    type: "kirim" | "chiqim" | "avans"
     amount: string | number
     balance: string | number
     note: string
@@ -32,6 +32,20 @@ type LedgerResponse = {
     descriptions: string[]
     results: LedgerItem[]
 }
+
+const TYPE_LABEL = { kirim: "Kirim", chiqim: "Chiqim", avans: "Avans" } as const
+
+const TYPE_BADGE = {
+    kirim: "text-emerald-500 bg-emerald-500/10",
+    chiqim: "text-red-500 bg-red-500/10",
+    avans: "text-amber-500 bg-amber-500/10",
+} as const
+
+const TYPE_TEXT = {
+    kirim: "text-emerald-500",
+    chiqim: "text-red-500",
+    avans: "text-amber-500",
+} as const
 
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
@@ -47,7 +61,7 @@ export default function TransactionLedger() {
     const search: any = useSearch({ strict: false })
     const navigate = useNavigate()
     const descFilter: string = search?.ledger_desc ?? ""
-    const typeFilter: "" | "kirim" | "chiqim" = search?.ledger_type ?? ""
+    const typeFilter: "" | "kirim" | "chiqim" | "avans" = search?.ledger_type ?? ""
 
     const setFilter = (key: "ledger_desc" | "ledger_type", value: string) => {
         navigate({
@@ -139,12 +153,14 @@ export default function TransactionLedger() {
                                         "border shadow-sm",
                                         typeFilter === "kirim" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold",
                                         typeFilter === "chiqim" && "border-red-500/30 bg-red-500/10 text-red-500 font-semibold",
+                                        typeFilter === "avans" && "border-amber-500/30 bg-amber-500/10 text-amber-500 font-semibold",
                                         !typeFilter && "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
                                     )}
                                 >
                                     <option value="">Tur</option>
                                     <option value="kirim">Kirim</option>
                                     <option value="chiqim">Chiqim</option>
+                                    <option value="avans">Avans</option>
                                 </select>
                             </th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor (NDS bilan)</th>
@@ -164,18 +180,16 @@ export default function TransactionLedger() {
                                     <span
                                         className={cn(
                                             "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded",
-                                            tx.type === "kirim"
-                                                ? "text-emerald-500 bg-emerald-500/10"
-                                                : "text-red-500 bg-red-500/10",
+                                            TYPE_BADGE[tx.type],
                                         )}
                                     >
-                                        {tx.type === "kirim" ? "Kirim" : "Chiqim"}
+                                        {TYPE_LABEL[tx.type]}
                                     </span>
                                 </td>
                                 <td
                                     className={cn(
                                         "px-2 py-2.5 text-right font-semibold whitespace-nowrap",
-                                        tx.type === "kirim" ? "text-emerald-500" : "text-red-500",
+                                        TYPE_TEXT[tx.type],
                                     )}
                                 >
                                     {tx.type === "kirim" ? "+" : "−"}{fmt(tx.amount)}
