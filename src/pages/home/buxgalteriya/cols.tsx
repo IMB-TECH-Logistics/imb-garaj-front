@@ -114,14 +114,14 @@ export const useAccountingCols = () => {
                 header: "%",
                 accessorKey: "pct",
                 size: 60,
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => <span>{row.original.pct}%</span>,
             },
             {
                 header: "Naqd",
                 accessorKey: "naqd_amount",
                 size: 120,
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => {
                     const v = toNum(row.original.naqd_amount)
                     return (

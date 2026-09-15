@@ -55,6 +55,7 @@ const BuxgalteriyaPage = () => {
                 loading: search?.loading,
                 unloading: search?.unloading,
                 cargo_type: search?.cargo_type,
+                ordering: search?.ordering,
             },
         },
     )
@@ -77,6 +78,7 @@ const BuxgalteriyaPage = () => {
                 loading={isLoading}
                 data={data?.results || []}
                 numeration
+                manualSorting
                 onEdit={handleEdit}
                 paginationProps={{
                     totalPages: data?.total_pages,
