@@ -82,8 +82,8 @@ export function FormInput<IForm extends FieldValues>({
                 )}
                 wrapperClassName={wrapperClassName as string}
             />
-            {!hideError && error.message && (
-                <FieldError>{error.message?.message as string}</FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </fieldset>
     )

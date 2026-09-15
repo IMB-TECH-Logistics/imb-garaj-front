@@ -37,7 +37,7 @@ export function FormDatePicker<TForm extends FieldValues>({
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: label ? `${label}ni kiriting` : "Sanani tanlang" } : {}
                 }
                 render={({ field, fieldState }) => (
                     <>

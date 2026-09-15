@@ -45,7 +45,7 @@ export function FormNumberInput<IForm extends FieldValues>({
         name,
         control,
         rules: {
-            required: required ? `${label || name}ni kiriting` : false,
+            required: required ? (label ? `${label}ni kiriting` : "Bu maydonni to'ldiring") : false,
             ...registerOptions,
         },
     })
