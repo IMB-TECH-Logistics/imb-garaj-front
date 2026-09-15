@@ -256,7 +256,7 @@ export default function MoliyaPage() {
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-3">
                 <StatCard
-                    label="Balans"
+                    label={search?.to_date ? "Balans (davr oxiriga)" : "Balans"}
                     value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
