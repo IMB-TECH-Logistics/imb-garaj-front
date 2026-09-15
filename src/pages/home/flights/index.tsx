@@ -59,6 +59,7 @@ export default function FlightsPage() {
             loading: search?.loading,
             unloading: search?.unloading,
             cargo_type: search?.cargo_type,
+            ordering: search?.ordering,
         },
     })
 
@@ -75,6 +76,7 @@ export default function FlightsPage() {
                 loading={isLoading}
                 data={data?.results || []}
                 numeration
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
