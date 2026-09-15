@@ -147,7 +147,7 @@ export default function TransactionLedger() {
                                     <option value="chiqim">Chiqim</option>
                                 </select>
                             </th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor (NDS bilan)</th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">Qoldiq</th>
                             <th className="text-left font-medium text-muted-foreground px-4 py-2">Izoh</th>
                         </tr>

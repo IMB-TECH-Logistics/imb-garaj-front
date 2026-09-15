@@ -199,7 +199,7 @@ function ArrowDownIcon() {
     )
 }
 
-function StatCard({ label, value, icon, color }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red" }) {
+function StatCard({ label, value, icon, color, hint }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string }) {
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",
@@ -213,6 +213,7 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <p className="text-sm font-semibold truncate">{fmt(value)} so'm</p>
+                {hint && <p className="text-[10px] text-muted-foreground truncate">{hint}</p>}
             </div>
         </div>
     )
@@ -221,6 +222,7 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
 type FinanceSummary = {
     balance: number
     income_total: number
+    income_vat: number
     expense_total: number
     profit: number
 }
@@ -262,8 +264,9 @@ export default function MoliyaPage() {
                     color="blue"
                 />
                 <StatCard
-                    label="Tushum"
+                    label="Tushum (NDSsiz)"
                     value={Number(summary?.income_total ?? 0)}
+                    hint={`NDS: ${fmt(Number(summary?.income_vat ?? 0))} so'm`}
                     icon={<ArrowUpIcon />}
                     color="emerald"
                 />
