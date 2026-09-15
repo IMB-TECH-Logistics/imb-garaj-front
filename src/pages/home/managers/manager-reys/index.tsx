@@ -19,6 +19,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { useState } from "react"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
+import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 
 export default function ManagerReys() {
     const search = useSearch({ strict: false })
@@ -42,6 +43,9 @@ export default function ManagerReys() {
             trip: id,
             page_size: search.page_size,
             page: search.page,
+            ...Object.fromEntries(
+                REYS_FILTER_KEYS.map((key) => [key, (search as any)[key]]),
+            ),
         },
     })
     const hasControl = useHasAction("manager_vehicles_control")
@@ -102,6 +106,7 @@ export default function ManagerReys() {
                                 </Button>
                             )}
                         </div>
+                        <ReysFilters />
                     </div>
                 }
             />

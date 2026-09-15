@@ -34,7 +34,7 @@ type Option = { id: number; name: string }
 
 type StatusOption = { id: string; name: string }
 
-const STATUS_OPTIONS: StatusOption[] = [
+export const STATUS_OPTIONS: StatusOption[] = [
     { id: "0", name: "Kutilmoqda" },
     { id: "1", name: "Boshlandi" },
     { id: "5", name: "Yuklanmoqda" },
@@ -45,7 +45,7 @@ const STATUS_OPTIONS: StatusOption[] = [
     { id: "4", name: "Arxivlangan" },
 ]
 
-const ACTIVITY_OPTIONS: StatusOption[] = [
+export const ACTIVITY_OPTIONS: StatusOption[] = [
     { id: "1", name: "Reys" },
     { id: "2", name: "Garajda" },
     { id: "3", name: "Ta'mirda" },
