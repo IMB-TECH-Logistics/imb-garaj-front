@@ -55,7 +55,26 @@ const VehicleTrips = () => {
             cargo_type_name: Array.from(new Set(trip.orders_trip?.map(o => o.cargo_type_name).filter(Boolean))).join(", "),
         })
 
-        return { id: trip.id, minDate, maxDate, rows }
+        return {
+            id: trip.id,
+            minDate,
+            maxDate,
+            start: trip.start,
+            end: trip.end,
+            hiddenOrderCount: trip.hidden_order_count || 0,
+            orderCount: trip.orders_trip?.length || 0,
+            rows,
+        }
+    }).filter((trip) => {
+        if (!trip.end) return true
+        const summary = trip.rows[trip.rows.length - 1]
+        const isEmpty =
+            trip.orderCount === 0 &&
+            !Number(summary?.income) &&
+            !Number(summary?.total_expense) &&
+            !Number(summary?.total_mileage) &&
+            !Number(summary?.fuel_consume)
+        return !isEmpty
     })
 
     if (isLoading) {
@@ -71,7 +90,13 @@ const VehicleTrips = () => {
             {trips.map((trip, index) => (
                 <div key={trip.id}>
                     <h3 className="text-left text-sm font-semibold text-muted-foreground mb-2">
-                        {index + 1}. Aylanma ({trip.minDate || "—"} — {trip.maxDate || "—"})
+                        {index + 1}. Aylanma ({trip.minDate || trip.start || "—"} —{" "}
+                        {trip.maxDate || trip.end || "davom etmoqda"})
+                        {trip.orderCount === 0 && trip.hiddenOrderCount > 0 && (
+                            <span className="ml-2 font-normal opacity-70">
+                                · {trip.hiddenOrderCount} ta buyurtma arxivlangan
+                            </span>
+                        )}
                     </h3>
                     <DataTable
                         columns={columns as any}

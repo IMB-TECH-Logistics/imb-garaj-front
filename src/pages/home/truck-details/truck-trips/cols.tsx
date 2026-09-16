@@ -18,6 +18,9 @@ export interface OrderTripType {
 
 export interface TripDailyStatisticType {
     id: number
+    start: string | null
+    end: string | null
+    hidden_order_count: number
     total_expense: number | null
     other_income: number | string | null
     total_mileage: number
