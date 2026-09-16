@@ -26,7 +26,7 @@ const TruckTripOrderMain = () => {
     const page = Number(search.page ?? 1)
     const expandedOrderId = search.order ? Number(search.order) : null
 
-    const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
+    const { data, isLoading, isError } = useGet<ListResponse<TripOrdersRow>>(
         MANAGERS_ORDERS,
         {
             params: {
@@ -80,6 +80,29 @@ const TruckTripOrderMain = () => {
                                     className="text-center py-6"
                                 >
                                     Yuklanmoqda...
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!isLoading && isError && (
+                            <TableRow className="border-none">
+                                <TableCell
+                                    colSpan={9}
+                                    className="text-center py-6 text-destructive"
+                                >
+                                    Ma‘lumotni yuklab bo‘lmadi. Sahifani
+                                    yangilang yoki keyinroq urinib ko‘ring.
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!isLoading && !isError && !data?.results?.length && (
+                            <TableRow className="border-none">
+                                <TableCell
+                                    colSpan={9}
+                                    className="text-center py-6 text-muted-foreground"
+                                >
+                                    Bu reysda buyurtma yo‘q
                                 </TableCell>
                             </TableRow>
                         )}
@@ -177,12 +200,14 @@ const TruckTripOrderMain = () => {
                 </Table>
             </div>
 
-            <div className="pt-4 flex justify-center">
-                <ParamPagination
-                    totalPages={data?.total_pages}
-                    disabled={isLoading}
-                />
-            </div>
+            {!!data?.results?.length && (
+                <div className="pt-4 flex justify-center">
+                    <ParamPagination
+                        totalPages={data?.total_pages}
+                        disabled={isLoading}
+                    />
+                </div>
+            )}
         </div>
     )
 }
