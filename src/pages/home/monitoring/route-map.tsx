@@ -9,7 +9,9 @@ import Map, {
     Source,
 } from "react-map-gl/maplibre"
 
-const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron"
+const MAP_STYLE_URL =
+    import.meta.env.VITE_MAP_STYLE_URL ||
+    "https://tiles.openfreemap.org/styles/positron"
 
 const LOCALIZED_TEXT_FIELD: any = [
     "coalesce",
