@@ -13,7 +13,11 @@ const TruckTripCashflowRow = () => {
     const { data, isLoading } = useGet<ListResponse<CashflowRow>>(
         ORDER_CASHFLOWS,
         {
-            params: { order: orderId },
+            params: {
+                order: orderId,
+                page: search.expense_page,
+                page_size: search.expense_page_size,
+            },
         },
     )
 
@@ -42,8 +46,11 @@ const TruckTripCashflowRow = () => {
                 data={data?.results}
                 numeration
                 onDelete={handleDelete}
+                viewAll={(data?.total_pages ?? 1) <= 1}
                 paginationProps={{
                     totalPages: data?.total_pages ?? 1,
+                    paramName: "expense_page",
+                    pageSizeParamName: "expense_page_size",
                 }}
             />
 

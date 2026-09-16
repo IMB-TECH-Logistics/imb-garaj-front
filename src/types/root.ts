@@ -46,6 +46,8 @@ type SearchParams = {
     first_name?:string
     payment_type?:string
     expense_type?:string
+    expense_page?: string | number
+    expense_page_size?: string | number
     driver_search?:string
     tier?:"A"|"B"|"C"|"D"
     customer_search?:string
