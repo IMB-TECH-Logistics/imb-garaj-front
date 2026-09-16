@@ -7,14 +7,15 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { TRIPS_ORDERS } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { format } from "date-fns"
 import { ChevronDown } from "lucide-react"
 import * as React from "react"
 
 import ParamPagination from "@/components/as-params/pagination"
+import { formatDate } from "@/lib/format-date"
+import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import TruckTripCashflowRow from "../truck-trip-cashflows"
 
@@ -26,10 +27,10 @@ const TruckTripOrderMain = () => {
     const expandedOrderId = search.order ? Number(search.order) : null
 
     const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
-        TRIPS_ORDERS,
+        MANAGERS_ORDERS,
         {
             params: {
-                order: params.id,
+                trip: params.id,
                 page:search.page,
                 page_size:search.page_size
             },
@@ -118,36 +119,29 @@ const TruckTripOrderMain = () => {
                                         </TableCell>
 
                                         <TableCell className="border-r border-secondary last:border-none font-semibold">
-                                            {order.payments?.[0]?.amount ?
-                                                Number(
-                                                    order.payments[0].amount,
-                                                ).toLocaleString("uz-UZ", {
-                                                    maximumFractionDigits: 2,
-                                                })
-                                            :   "—"}
-                                        </TableCell>
-
-                                        <TableCell className="border-r border-secondary last:border-none">
                                             {(
-                                                order.payments?.[0]
-                                                    ?.currency === 1
+                                                order.payment_amount_usd ||
+                                                order.payment_amount_uzs
                                             ) ?
-                                                "UZS"
-                                            : (
-                                                order.payments?.[0]
-                                                    ?.currency === 2
-                                            ) ?
-                                                "USD"
-                                            :   "—"}
-                                        </TableCell>
-
-                                        <TableCell className="border-r border-secondary last:border-none">
-                                            {order.created ?
-                                                format(
-                                                    new Date(order.created),
-                                                    "dd.MM.yyyy HH:mm",
+                                                formatMoney(
+                                                    order.payment_amount_usd ||
+                                                        order.payment_amount_uzs,
                                                 )
                                             :   "—"}
+                                        </TableCell>
+
+                                        <TableCell className="border-r border-secondary last:border-none">
+                                            {order.payment_amount_usd ?
+                                                "USD"
+                                            : order.payment_amount_uzs ?
+                                                "UZS"
+                                            :   "—"}
+                                        </TableCell>
+
+                                        <TableCell className="border-r border-secondary last:border-none">
+                                            {formatDate(
+                                                order.date as string,
+                                            ) || "—"}
                                         </TableCell>
 
                                         <TableCell

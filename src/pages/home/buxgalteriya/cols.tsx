@@ -1,4 +1,5 @@
 import { CopyButton } from "@/lib/copy-button"
+import { formatDate } from "@/lib/format-date"
 import { formatMoney } from "@/lib/format-money"
 import { toNum } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
@@ -65,6 +66,7 @@ export const useAccountingCols = () => {
                 accessorKey: "date",
                 size: 100,
                 enableSorting: true,
+                cell: ({ row }) => formatDate(row.original.date) || "—",
             },
             {
                 header: "Yuklash joyi",
