@@ -36,6 +36,8 @@ type DriverOverview = {
     total_distance_km: string | number
     total_fuel_liters: string | number
     fuel_per_100km: string | number
+    total_fuel_gas: string | number
+    fuel_gas_per_100km: string | number
     coverage: number
     last_trip: null | {
         id: number
@@ -67,6 +69,17 @@ type DriverTripRow = {
 }
 
 const num = (v: unknown) => Number(v ?? 0) || 0
+
+const fuelPer100kmText = (overview: DriverOverview) => {
+    const diesel = num(overview.fuel_per_100km)
+    const gas = num(overview.fuel_gas_per_100km)
+    if (diesel > 0 && gas > 0) {
+        return `${diesel.toFixed(1)} l + ${gas.toFixed(1)} m³/100km`
+    }
+    if (gas > 0) return `${gas.toFixed(1)} m³/100km`
+    if (diesel > 0) return `${diesel.toFixed(1)} l/100km`
+    return "—"
+}
 
 function formatMoneyText(n: number): string {
     const negative = n < 0
@@ -313,7 +326,7 @@ export default function HaydovchiDetail() {
                     />
                     <StatCard
                         label="Yoqilg'i"
-                        value={`${num(overview.fuel_per_100km).toFixed(1)} l/100km`}
+                        value={fuelPer100kmText(overview)}
                     />
                 </div>
             )}
