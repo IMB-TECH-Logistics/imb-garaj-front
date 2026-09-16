@@ -9,6 +9,8 @@ import {
     MANAGERS_RUNS,
     SETTINGS_SELECTABLE_CLIENT,
     VEHICLES,
+    SETTINGS_SELECTABLE_REGION,
+    SETTINGS_SELECTABLE_CARGO_TYPE,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -72,20 +74,15 @@ const ORDER_TYPE_OPTIONS: Option[] = [
     { id: 2, name: "Empty" },
 ]
 
-const distinctOptions = (
-    rows: Direction[],
-    picker: (d: Direction) => Option,
-): Option[] => {
-    const seen = new Set<number>()
-    const out: Option[] = []
-    for (const row of rows) {
-        const { id, name } = picker(row)
-        if (seen.has(id)) continue
-        seen.add(id)
-        out.push({ id, name })
-    }
-    return out.sort((a, b) => a.name.localeCompare(b.name))
-}
+
+const withCurrent = (
+    options: { id: number; name: string }[],
+    id?: number | null,
+    name?: string | null,
+) =>
+    id && !options.some((option) => option.id === id) ?
+        [...options, { id, name: `${name ?? id} (o'chirilgan)` }]
+    :   options
 
 const EditReysModal = () => {
     const queryClient = useQueryClient()
@@ -138,31 +135,33 @@ const EditReysModal = () => {
         [directions],
     )
 
+    const { data: regionsData } = useGet<{ id: number; name: string }[]>(
+        SETTINGS_SELECTABLE_REGION,
+    )
+
+    const { data: cargoTypesReference } = useGet<{ id: number; name: string }[]>(
+        SETTINGS_SELECTABLE_CARGO_TYPE,
+        { params: { model_name: "cargo-type" } },
+    )
+
     const loadsData = useMemo(
-        () =>
-            distinctOptions(directions, (d) => ({
-                id: d.load,
-                name: d.load_name,
-            })),
-        [directions],
+        () => withCurrent(regionsData ?? [], current?.loading, current?.loading_name),
+        [regionsData, current?.loading, current?.loading_name],
     )
 
     const unloadsData = useMemo(
-        () =>
-            distinctOptions(directions, (d) => ({
-                id: d.unload,
-                name: d.unload_name,
-            })),
-        [directions],
+        () => withCurrent(regionsData ?? [], current?.unloading, current?.unloading_name),
+        [regionsData, current?.unloading, current?.unloading_name],
     )
 
     const cargoTypesData = useMemo(
         () =>
-            distinctOptions(directions, (d) => ({
-                id: d.cargo_type,
-                name: d.cargo_type_name,
-            })),
-        [directions],
+            withCurrent(
+                cargoTypesReference ?? [],
+                current?.cargo_type,
+                current?.cargo_type_name,
+            ),
+        [cargoTypesReference, current?.cargo_type, current?.cargo_type_name],
     )
 
     const vehicleOptions = useMemo(
