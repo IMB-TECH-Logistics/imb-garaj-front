@@ -11,7 +11,6 @@ import {
     MANAGERS_ORDERS,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINTS_PAYMENT_TYPE,
-    TRIPS_ORDERS,
 } from "@/constants/api-endpoints"
 import {
     isNaqdPaymentTypeName,
@@ -322,7 +321,7 @@ const AddTripOrders = () => {
                 : "Buyurtma qo'shildi!",
         )
         reset()
-        clearKey(TRIPS_ORDERS)
+        clearKey(MANAGERS_ORDERS)
         closeModal()
         queryClient.refetchQueries({ queryKey: [MANAGERS_ORDERS] })
     }

@@ -78,8 +78,11 @@ const FinanceStatisticMain = () => {
     const totals = useMemo(() => {
         const data = statisticsData || []
         const round3 = (v: number) => Math.round(v * 1000) / 1000
-        const totalIncome = data.reduce((sum, item) => sum + (Number(item.income ?? 0) || 0), 0)
-        const totalExpense = data.reduce((sum, item) => sum + (Number(item.expense ?? 0) || 0), 0)
+        const toNum = (v: string | number | null | undefined) => Number(v ?? 0) || 0
+        const incomeOf = (item: OwnerStatistic) =>
+            toNum(item.income_with_vat) || toNum(item.income)
+        const totalIncome = data.reduce((sum, item) => sum + incomeOf(item), 0)
+        const totalExpense = data.reduce((sum, item) => sum + toNum(item.expense), 0)
         const totalProfit = totalIncome - totalExpense
         return {
             totalIncome: round3(totalIncome),

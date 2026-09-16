@@ -1,7 +1,7 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { Button } from "@/components/ui/button"
-import { SETTINGS_DRIVERS, TRIPS, VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_TRIPS, SETTINGS_DRIVERS, VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
@@ -18,7 +18,7 @@ const AddTrip = () => {
     const { data: vehicleData } = useGet<ListResponse<Truck>>(VEHICLES)
     const { data: driversData } = useGet<ListResponse<any>>(SETTINGS_DRIVERS)
 
-    const currentShift = getData<TripFormData & { id?: number }>(TRIPS)
+    const currentShift = getData<TripFormData & { id?: number }>(MANAGERS_TRIPS)
 
     const form = useForm<TripFormData>({
         defaultValues: {
@@ -35,9 +35,9 @@ const AddTrip = () => {
             currentShift?.id ? "Reys tahrirlandi!" : "Reys qo'shildi!",
         )
         reset()
-        clearKey(TRIPS)
+        clearKey(MANAGERS_TRIPS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [TRIPS] })
+        queryClient.refetchQueries({ queryKey: [MANAGERS_TRIPS] })
     }
 
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
@@ -51,9 +51,9 @@ const AddTrip = () => {
         }
 
         if (currentShift?.id) {
-            update(`${TRIPS}/${currentShift.id}`, formattedData)
+            update(`${MANAGERS_TRIPS}/${currentShift.id}`, formattedData)
         } else {
-            create(TRIPS, formattedData)
+            create(MANAGERS_TRIPS, formattedData)
         }
     }
 

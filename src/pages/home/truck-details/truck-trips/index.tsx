@@ -41,7 +41,8 @@ const VehicleTrips = () => {
             }
         })
 
-        const totalIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
+        const ordersIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
+        const totalIncome = ordersIncome + (Number(trip.other_income) || 0)
 
         rows.push({
             is_summary: true,

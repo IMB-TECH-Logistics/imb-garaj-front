@@ -1,7 +1,7 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
-import { TRIPS_ORDERS } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -25,10 +25,10 @@ const TripOrderMain = () => {
     const navigate = useNavigate()
 
     const parentId = params.parentId
-    const currentTripsOrder = getData<TripsOrders>(TRIPS_ORDERS)
+    const currentTripsOrder = getData<TripsOrders>(MANAGERS_ORDERS)
 
     const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
-        TRIPS_ORDERS,
+        MANAGERS_ORDERS,
         {
             params: {
                 trip: parentId,
@@ -38,17 +38,17 @@ const TripOrderMain = () => {
     )
 
     const handleCreate = () => {
-        clearKey(TRIPS_ORDERS)
+        clearKey(MANAGERS_ORDERS)
         openCreateModal()
     }
 
     const handleEdit = (order: TripOrdersRow) => {
-        setData(TRIPS_ORDERS, order)
+        setData(MANAGERS_ORDERS, order)
         openCreateModal()
     }
 
     const handleDelete = (order: TripOrdersRow) => {
-        setData(TRIPS_ORDERS, order)
+        setData(MANAGERS_ORDERS, order)
         openDeleteModal()
     }
 
@@ -68,7 +68,7 @@ const TripOrderMain = () => {
     // }
 
     const handleAdd = (order: TripOrdersRow) => {
-        setData(TRIPS_ORDERS, order)
+        setData(MANAGERS_ORDERS, order)
         AddExpenseModal()
     }
 
@@ -123,7 +123,7 @@ const TripOrderMain = () => {
                 <AddTripOrders />
             </Modal>
 
-            <DeleteModal path={TRIPS_ORDERS} id={currentTripsOrder?.id} />
+            <DeleteModal path={MANAGERS_ORDERS} id={currentTripsOrder?.id} />
             <Modal modalKey="add-expenses">
                 <AddCashflow/> </Modal>
         </div>

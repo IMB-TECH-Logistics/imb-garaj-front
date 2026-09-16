@@ -21,6 +21,8 @@ type TripRow = {
     vehicle_number: string | number
     driver_name: string | number
     orders_count: string | number
+    pending_order_count?: string | number
+    completed_order_count?: string | number
     id: number | string
     created: string
     updated: string
@@ -95,6 +97,13 @@ type TripOrdersRow = {
     status:number
     activity: number
     activity_display: string
+    incomes?: {
+        id?: number
+        payment_type: number | null
+        currency: number | null
+        currency_course: number | string | null
+        amount: number | string | null
+    }[]
     payments: [
         {
             currency: number | null

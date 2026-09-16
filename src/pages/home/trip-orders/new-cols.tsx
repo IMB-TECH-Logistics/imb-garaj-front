@@ -1,16 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
 import { useMemo } from "react"
 
+import { formatDate } from "@/lib/format-date"
 
-type Props = {
-  page: number
-  pageSize?: number
-  expandedOrderId: number | null
-  toggleExpand: (id: number) => void
-  handleEdit: (row: TripOrdersRow, e: React.MouseEvent) => void
-  handleDelete: (row: TripOrdersRow, e: React.MouseEvent) => void
-}
 
 export const useTripOrdersCols = () => {
       return useMemo<ColumnDef<TripOrdersRow>[]>(() => [
@@ -30,14 +22,11 @@ export const useTripOrdersCols = () => {
     },
     {
       header: "Yaratilgan sana",
-      accessorKey: "created",
-      cell: ({ getValue }) =>
-        getValue<string>()
-          ? format(new Date(getValue<string>()), "dd.MM.yyyy HH:mm")
-          : "—",
+      accessorKey: "date",
+      cell: ({ getValue }) => formatDate(getValue<string>()) || "—",
     },
 
 
     
-  ],)
+  ], [])
 }

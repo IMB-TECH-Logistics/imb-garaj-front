@@ -6,7 +6,7 @@ import {
     SETTINGS_SELECTABLE_CLIENT,
     SETTINGS_SELECTABLE_DISTRICT,
     SETTINGS_SELECTABLE_PAYMENT_TYPE,
-    TRIPS_ORDERS,
+    MANAGERS_ORDERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -29,7 +29,7 @@ const AddExpenses = () => {
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("add-expenses")
-    const currentTripOrder = getData<TripOrdersRow>(TRIPS_ORDERS)
+    const currentTripOrder = getData<TripOrdersRow>(MANAGERS_ORDERS)
     const { parentId } = useParams({ strict: false })
 
     const { data: districtsData } = useGet<DistrictType[]>(
@@ -58,8 +58,8 @@ const AddExpenses = () => {
             type: currentTripOrder?.type,
             client: currentTripOrder?.client,
             cargo_type: currentTripOrder?.cargo_type,
-            payments: currentTripOrder?.payments?.length
-                ? currentTripOrder.payments
+            incomes: currentTripOrder?.incomes?.length
+                ? currentTripOrder.incomes
                 : [
                     {
 
@@ -76,7 +76,7 @@ const AddExpenses = () => {
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: "payments",
+        name: "incomes",
     })
 
     const onSuccess = () => {
@@ -84,9 +84,9 @@ const AddExpenses = () => {
             currentTripOrder?.id ? "Buyurtma tahrirlandi!" : "Buyurtma qo'shildi!",
         )
         reset()
-        clearKey(TRIPS_ORDERS)
+        clearKey(MANAGERS_ORDERS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [TRIPS_ORDERS] })
+        queryClient.refetchQueries({ queryKey: [MANAGERS_ORDERS] })
     }
 
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
@@ -94,7 +94,7 @@ const AddExpenses = () => {
     const isPending = creating || updating
 
     const onSubmit = (data: TripOrdersRow) => {
-        const formattedPayments = data.payments.map((p: any) => {
+        const formattedIncomes = data.incomes!.map((p: any) => {
             const payment: any = {
                 currency: p.currency,
                 amount: String(p.amount),
@@ -114,13 +114,13 @@ const AddExpenses = () => {
             client: data.client,
             trip: parentId,
             cargo_type: data?.cargo_type,
-            payments: formattedPayments,
+            incomes: formattedIncomes,
         }
 
         if (currentTripOrder?.id) {
-            update(`${TRIPS_ORDERS}/${currentTripOrder.id}`, formattedData)
+            update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formattedData)
         } else {
-            create(TRIPS_ORDERS, formattedData)
+            create(MANAGERS_ORDERS, formattedData)
         }
     }
 
@@ -189,7 +189,7 @@ const AddExpenses = () => {
             />
             <div className="col-span-2 flex flex-col gap-4">
                 {fields.map((field, index) => {
-                    const selectedCurrency = watch(`payments.${index}.currency`)
+                    const selectedCurrency = watch(`incomes.${index}.currency`)
 
                     return (
                         <div
@@ -204,7 +204,7 @@ const AddExpenses = () => {
                             <FormCombobox
                                 required
                                 label="To'lov turi"
-                                name={`payments.${index}.payment_type`}
+                                name={`incomes.${index}.payment_type`}
                                 control={control}
                                 options={paymentType || undefined}
                                 valueKey="id"
@@ -214,7 +214,7 @@ const AddExpenses = () => {
                             <FormCombobox
                                 required
                                 label="Valyuta"
-                                name={`payments.${index}.currency`}
+                                name={`incomes.${index}.currency`}
                                 control={control}
                                 options={[
                                     { value: 1, label: "UZS - So'm" },
@@ -228,7 +228,7 @@ const AddExpenses = () => {
                                 <FormNumberInput
                                     required
                                     thousandSeparator=" "
-                                    name={`payments.${index}.currency_course`}
+                                    name={`incomes.${index}.currency_course`}
                                     label="Valyuta kursi"
                                     placeholder="12 206 UZS"
                                     control={control}
@@ -236,7 +236,7 @@ const AddExpenses = () => {
                             )}
                             <FormNumberInput
                                 required
-                                name={`payments.${index}.amount`}
+                                name={`incomes.${index}.amount`}
                                 thousandSeparator=" "
                                 label="To'lov miqdori"
                                 placeholder="12 206 000 UZS"
@@ -264,7 +264,6 @@ const AddExpenses = () => {
                     className="w-full"
                     onClick={() =>
                         append({
-                            cargo_type: null,
                             payment_type: null,
                             currency: null,
                             currency_course: null,

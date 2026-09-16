@@ -13,8 +13,6 @@ export const LOGIN = "auth/login"
 export const PROFILE = "profile"
 
 /** ===== TRIPS ===== */
-export const TRIPS = "trips"
-export const TRIPS_ORDERS = "trips/orders"
 export const TRIPS_ORDERS_PAYMENT = "trips/order-payments"
 export const TRIPS_DRIVER_STATS = "trips/driver-stats"
 
