@@ -1,4 +1,10 @@
 import { Button } from "@/components/ui/button"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Calendar, Truck } from "lucide-react"
 import VehicleTrips from "./truck-trips"
@@ -24,9 +30,18 @@ function ViewPage() {
                         <>
                             <Truck size={20} className="text-primary hidden sm:block" />
                             {search?.order_count_busy !== undefined && (
-                                <span className="text-xs sm:text-sm border py-0.5 px-2 rounded bg-muted font-medium">
-                                    {search.order_count_busy} / {search.order_count_empty || 0}
-                                </span>
+                                <TooltipProvider delayDuration={150}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="text-xs sm:text-sm border py-0.5 px-2 rounded bg-muted font-medium cursor-default">
+                                                {search.order_count_empty || 0} / {search.order_count_busy}
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            Yuksiz / Yukli reyslar
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             )}
                             {search?.truck_type_name} 
                             {search?.truck_number && <span className="text-muted-foreground font-medium">({search?.truck_number})</span>}
