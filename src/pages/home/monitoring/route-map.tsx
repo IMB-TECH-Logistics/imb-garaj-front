@@ -394,7 +394,7 @@ function DriverMarker({ marker }: { marker: LiveMarker }) {
             >
                 {marker.label}
             </div>
-            {marker.sub && (
+            {marker.sub && marker.sub !== marker.label && (
                 <div className="mt-px max-w-[180px] truncate rounded-sm bg-white/85 px-1.5 py-px font-mono text-[10px] font-medium text-slate-600 shadow-sm dark:bg-slate-900/85 dark:text-slate-400">
                     {marker.sub}
                 </div>

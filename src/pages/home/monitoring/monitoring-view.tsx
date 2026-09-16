@@ -191,8 +191,10 @@ export default function MonitoringView() {
                     id: d.user,
                     lat: d.lat as number,
                     lng: d.lng as number,
-                    label: d.vehicle_number ?? d.driver_name ?? `#${d.user}`,
-                    sub: d.driver_name ?? undefined,
+                    label: d.vehicle_number || d.driver_name || `#${d.user}`,
+                    sub: d.vehicle_number
+                        ? d.driver_name ?? undefined
+                        : undefined,
                     stale: d.seconds_since > 5 * 60,
                     selected: false,
                     onClick: () => selectDriver(d),
