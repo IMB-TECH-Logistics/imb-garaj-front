@@ -42,7 +42,20 @@ const VehicleTrips = () => {
         })
 
         const ordersIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
-        const totalIncome = ordersIncome + (Number(trip.other_income) || 0)
+        const ordersExpense = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.expense) || 0), 0) || 0
+        const residualIncome = Number(trip.other_income) || 0
+        const residualExpense = (Number(trip.total_expense) || 0) - ordersExpense
+        const totalIncome = ordersIncome + residualIncome
+
+        if (residualIncome || residualExpense) {
+            rows.push({
+                is_residual: true,
+                id: `residual-${trip.id}`,
+                trip_id: trip.id,
+                income: residualIncome,
+                expense: residualExpense,
+            })
+        }
 
         rows.push({
             is_summary: true,
@@ -59,6 +72,8 @@ const VehicleTrips = () => {
             id: trip.id,
             minDate,
             maxDate,
+            residualIncome,
+            residualExpense,
             start: trip.start,
             end: trip.end,
             hiddenOrderCount: trip.hidden_order_count || 0,
@@ -70,6 +85,8 @@ const VehicleTrips = () => {
         const summary = trip.rows[trip.rows.length - 1]
         const isEmpty =
             trip.orderCount === 0 &&
+            !trip.residualIncome &&
+            !trip.residualExpense &&
             !Number(summary?.income) &&
             !Number(summary?.total_expense) &&
             !Number(summary?.total_mileage) &&

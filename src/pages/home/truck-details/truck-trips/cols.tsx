@@ -6,8 +6,11 @@ import { Badge } from "@/components/ui/badge"
 // At most two figures after the decimal comma, trailing zeros trimmed.
 const round2 = (v: unknown) => Number((Number(v ?? 0) || 0).toFixed(2))
 
+const toNum = (v: unknown) => Number(v ?? 0) || 0
+
 export interface OrderTripType {
     date: string
+    expense: number | string | null
     loading_name: string
     unloading_name: string
     cargo_type_name: string | null
@@ -18,6 +21,7 @@ export interface OrderTripType {
 
 export interface TripDailyStatisticType {
     id: number
+    other_expense: number | string | null
     start: string | null
     end: string | null
     hidden_order_count: number
@@ -41,6 +45,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 cell: ({ row }) => {
                     const data = row.original;
                     if (data.is_summary) return <span className="font-bold text-white">Jami</span>
+                    if (data.is_residual) return <span className="text-muted-foreground">—</span>
                     return <span className="font-medium text-muted-foreground">{data.date}</span>
                 },
             },
@@ -52,6 +57,13 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 cell: ({ row }) => {
                     const data = row.original;
                     if (data.is_summary) return null;
+                    if (data.is_residual) {
+                        return (
+                            <span className="italic text-muted-foreground">
+                                Buyurtmaga bog‘lanmagan (reys darajasida)
+                            </span>
+                        )
+                    }
                     return (
                         <span>
                             {data.loading_name} - {data.unloading_name}
@@ -88,24 +100,24 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Masofa",
+                header: "Masofa (reys)",
                 accessorKey: "total_mileage",
                 size: 80,
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) return <span className="text-muted-foreground">—</span>;
                     return <span className="font-bold text-white">{round2(data.total_mileage)} km</span>
                 },
             },
             {
-                header: "Yoqilg'i sarfi",
+                header: "Yoqilg'i sarfi (reys)",
                 accessorKey: "fuel_consume",
                 size: 100,
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) return <span className="text-muted-foreground">—</span>;
                     return <span className="font-bold text-white">{round2(data.fuel_consume)}</span>
                 },
             },
@@ -116,7 +128,21 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
+                    if (!data.is_summary) {
+                        const value = toNum(data.expense)
+                        if (!value) {
+                            return <span className="text-muted-foreground">—</span>
+                        }
+                        return (
+                            <span className="font-medium text-red-600">
+                                -{formatMoney(value)}
+                            </span>
+                        )
+                    }
+                    const total = toNum(data.total_expense)
+                    if (!total) {
+                        return <span className="font-bold text-muted-foreground">—</span>
+                    }
                     return (
                         <span
                             className="font-bold text-red-500 underline cursor-pointer hover:text-primary"
@@ -125,7 +151,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                                 opts?.onExpenseClick?.(data.trip_id, data.total_expense)
                             }}
                         >
-                            - {formatMoney(data.total_expense ?? 0)}
+                            -{formatMoney(total)}
                         </span>
                     )
                 },
@@ -150,8 +176,15 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return null;
-                    const profit = (data.income || 0) - (data.total_expense || 0)
+                    const expense = data.is_summary ? toNum(data.total_expense) : toNum(data.expense)
+                    const profit = toNum(data.income) - expense
+                    if (!data.is_summary) {
+                        return (
+                            <span className={profit > 0 ? "font-medium text-green-600" : profit < 0 ? "font-medium text-red-600" : "text-muted-foreground"}>
+                                {formatMoney(profit)}
+                            </span>
+                        )
+                    }
                     return <span className={`font-bold ${profit > 0 ? "text-green-600" : profit < 0 ? "text-red-600" : "text-white"}`}>{formatMoney(profit)}</span>
                 },
             },
