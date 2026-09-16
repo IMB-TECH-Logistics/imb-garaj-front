@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
     MANAGERS_TRIPS,
+    MANAGERS_ORDERS,
     PETROL_STATIONS_OTHER_VEHICLES,
     SETTINGS_PETROL_STATIONS,
     VEHICLES,
@@ -42,6 +43,12 @@ type TripOption = {
     driver_name?: string | null
 }
 
+type OrderOption = {
+    id: number
+    loading_name?: string | null
+    unloading_name?: string | null
+}
+
 // Har bir mashinaning yagona `fuel` turi bor — shu qiymatga qarab o'lchov birligi
 // aniqlanadi, hech qachon hardcoded "litr" ishlatilmaydi.
 const UNIT_LABEL: Record<string, string> = { methane: "m³", diesel: "litr" }
@@ -60,6 +67,7 @@ type FormValues = {
     currency_course: string | number | ""
     comment: string
     trip: number | ""
+    order: number | ""
     receipt: File | null
     paid_at: string | null
 }
@@ -83,6 +91,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             currency_course: "",
             comment: "",
             trip: "",
+            order: "",
             receipt: null,
             paid_at: null,
         },
@@ -90,6 +99,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const { control, handleSubmit, watch, reset, setValue } = form
     const currency = watch("currency")
     const vehicleId = watch("vehicle")
+    const tripId = watch("trip")
 
     const { data: vehiclesData } = useGet<ListResponse<VehicleOption>>(
         VEHICLES,
@@ -137,9 +147,26 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
         name: `${t.start ? t.start.slice(0, 10) : "??"} — ${t.driver_name ?? "Haydovchi yo'q"}`,
     }))
 
+    const { data: ordersData } = useGet<ListResponse<OrderOption>>(
+        MANAGERS_ORDERS,
+        {
+            params: { trip: tripId, page_size: 1000 },
+            enabled: !!tripId && !isOther,
+        },
+    )
+    const orderOptions = (ordersData?.results ?? []).map((o) => ({
+        id: o.id,
+        name: `${o.loading_name ?? "?"} → ${o.unloading_name ?? "?"}`,
+    }))
+
     useEffect(() => {
         setValue("trip", "")
+        setValue("order", "")
     }, [vehicleId, setValue])
+
+    useEffect(() => {
+        setValue("order", "")
+    }, [tripId, setValue])
 
     const closeVehiclePanel = (row: any) => {
         setIsAdding(false)
@@ -207,6 +234,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 currency_course: "",
                 comment: "",
                 trip: "",
+                order: "",
                 receipt: null,
                 paid_at: null,
             })
@@ -232,6 +260,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     : null,
             comment: values.comment || null,
             trip: isOther ? null : values.trip || null,
+            order: isOther ? null : values.order || null,
             paid_at: values.paid_at ? new Date(values.paid_at).toISOString() : null,
         }
 
@@ -468,6 +497,21 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                             :   "Avval mashina tanlang"
                         }
                     />
+                    {!!tripId && !isOther && (
+                        <FormCombobox
+                            control={control}
+                            label="Reys (ixtiyoriy)"
+                            name="order"
+                            options={orderOptions}
+                            valueKey="id"
+                            labelKey="name"
+                            placeholder={
+                                orderOptions.length === 0
+                                    ? "Bu aylanmada reys yo'q"
+                                    : "Reysni tanlang"
+                            }
+                        />
+                    )}
                 </>
             }
             <FormNumberInput
