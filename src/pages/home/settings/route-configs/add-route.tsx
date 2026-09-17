@@ -168,6 +168,8 @@ const AddRouteConfigModal = () => {
             />
             <FormNumberInput
                 required
+                allowNegative={false}
+                decimalScale={2}
                 thousandSeparator=" "
                 name="price"
                 label="Summa"
