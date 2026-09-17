@@ -76,6 +76,7 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                     required
                     name="name"
                     label="Joylashuv nomi"
+                    maxLength={255}
                     methods={form}
                 />
 
