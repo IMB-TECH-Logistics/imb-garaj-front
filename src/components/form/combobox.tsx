@@ -39,7 +39,7 @@ export function FormCombobox<
     required,
     options,
     control,
-    hideError = true,
+    hideError = false,
     valueKey,
     labelKey,
     onAdd,
@@ -70,7 +70,7 @@ export function FormCombobox<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: label ? `${label}ni kiriting` : "Bu maydonni tanlang" } : {}
+                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
                 }
                 render={({ field, fieldState }) => (
                     <ShadcnCombobox

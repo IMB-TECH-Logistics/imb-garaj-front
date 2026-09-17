@@ -19,7 +19,7 @@ export function FormSelect<
     setValue,
     valueKey,
     labelKey,
-    hideError = true,
+    hideError = false,
     renderOption,
     placeholder,
     className,
@@ -41,7 +41,7 @@ export function FormSelect<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: label ? `${label}ni kiriting` : "Bu maydonni tanlang" } : {}
+                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
                 }
                 render={({ field }) => (
                     <div className={label ? "pt-[2px]" : ""}>
