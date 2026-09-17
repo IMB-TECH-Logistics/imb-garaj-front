@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { SETTINGS_COUNTRIES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
@@ -25,6 +26,7 @@ export const CountryRowTable = ({
     colSpan,
 }: CountryRowTableType) => {
     const search = useSearch({ strict: false })
+    const hasControl = useHasAction("settings_locations_control")
     const { setData } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("country-modal")
     const { openModal: openDeleteModal } = useModal("delete-country")
@@ -94,31 +96,33 @@ export const CountryRowTable = ({
                 ))}
 
                 <TableCell className="p-0 text-right w-[40px]">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={handleEdit}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Tahrirlash
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={handleDelete}
-                                className="text-destructive focus:text-destructive"
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                O'chirish
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    {hasControl && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={handleEdit}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Tahrirlash
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={handleDelete}
+                                    className="text-destructive focus:text-destructive"
+                                >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    O'chirish
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </TableCell>
 
                 <TableCell className="text-right p-0 w-[40px]">

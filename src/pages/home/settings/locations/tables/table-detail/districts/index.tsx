@@ -82,6 +82,7 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                         onDelete={handleDelete}
                         onEdit={({ original }) => handleEdit(original)}
                         numeration={true}
+                        actionPermissions={["settings_locations_control"]}
                         viewAll={true}
                         className="min-w-[400px]"
                     />

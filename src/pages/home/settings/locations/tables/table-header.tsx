@@ -1,6 +1,7 @@
 import ParamInput from "@/components/as-params/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useHasAction } from "@/constants/useUser"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { CirclePlus } from "lucide-react"
@@ -28,6 +29,7 @@ const TableHeaderLocation = ({
 }: TableHeaderProps) => {
     const { openModal: openCreateModal } = useModal(modalKey)
     const { clearKey } = useGlobalStore()
+    const hasControl = useHasAction("settings_locations_control")
 
     const handleAdd = () => {
         if (storeKey) {
@@ -63,14 +65,16 @@ const TableHeaderLocation = ({
                         pageKey={pageKey}
                     />
                 </div>
-                <Button
-                    className="flex items-center gap-2"
-                    onClick={handleAdd}
-                    disabled={disabled}
-                    icon={<CirclePlus size={18} />}
-                >
-                    Qo'shish
-                </Button>
+                {hasControl && (
+                    <Button
+                        className="flex items-center gap-2"
+                        onClick={handleAdd}
+                        disabled={disabled}
+                        icon={<CirclePlus size={18} />}
+                    >
+                        Qo'shish
+                    </Button>
+                )}
             </div>
         </div>
     )

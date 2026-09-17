@@ -75,6 +75,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                     onDelete={handleDelete}
                     className="min-w-[400px]"
                     numeration={true}
+                    actionPermissions={["settings_locations_control"]}
                     paginationProps={{
                         totalPages: data?.total_pages,
                         paramName: REGION_PAGE_KEY,

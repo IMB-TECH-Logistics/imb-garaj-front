@@ -140,7 +140,8 @@ export function DataTable<TData>({
         controlledRowSelection ?? {},
     )
 
-    const hasActions = actionPermissions && useHasAction(actionPermissions)
+    const hasActionPermission = useHasAction(actionPermissions ?? [])
+    const canUseActions = !actionPermissions || hasActionPermission
 
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
@@ -159,7 +160,7 @@ export function DataTable<TData>({
         :   []
 
     const orderedColumns = React.useMemo(() => {
-        if (hasActions) return columns
+        if (!canUseActions) return columns
 
         if (onDelete || onEdit || onUndo || onView || onRedo || rowAction) {
             return [
@@ -190,7 +191,7 @@ export function DataTable<TData>({
                 },
             ]
         } else return columns
-    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView, onFinished, rowAction, hasActions])
+    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView, onFinished, rowAction, canUseActions])
 
     React.useEffect(() => {
         if (
