@@ -103,6 +103,11 @@ const collectLeafPaths = (items: MenuItem[]): string[] =>
 const matches = (pathname: string, path: string) =>
     pathname === path || pathname.startsWith(path + "/")
 
+const GUARDED_EXTRA: Record<string, string> = {
+    "/trip": "manager_flights_view",
+    "/dashboard": "investor_view",
+}
+
 export const usePaths = () => {
     const { pathname } = useLocation()
     const { actions, data, isLoading } = useUser()
@@ -147,10 +152,16 @@ export const usePaths = () => {
         () => (pathname: string) => {
             if (isLoading || !data) return false
             if (isSuperuser) return false
+
+            const extra = Object.entries(GUARDED_EXTRA).find(([path]) =>
+                matches(pathname, path),
+            )
+            if (extra) return !safeActions.includes(extra[1])
+
             if (allowedPaths.some((path) => matches(pathname, path))) return false
             return deniedPaths.some((path) => matches(pathname, path))
         },
-        [allowedPaths, deniedPaths, isSuperuser, isLoading, data],
+        [allowedPaths, deniedPaths, isSuperuser, isLoading, data, safeActions],
     )
 
     return {
@@ -166,12 +177,6 @@ export const usePaths = () => {
 export const useItems = () =>
     useMemo<MenuItem[]>(
         () => [
-            // {
-            //     label: "Buyurtmalar",
-            //     icon: <ClipboardList size={18} />,
-            //     path: "/buyurtmalar",
-            //     alwaysShow: true,
-            // },
             {
                 label: "Meneger",
                 icon: <User size={18} />,

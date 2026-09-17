@@ -39,7 +39,6 @@ const MainKassaIndexLazyImport = createFileRoute('/_main/kassa/')()
 const MainHaydovchilarIndexLazyImport = createFileRoute(
   '/_main/haydovchilar/',
 )()
-const MainBuyurtmalarIndexLazyImport = createFileRoute('/_main/buyurtmalar/')()
 const MainBuxgalteriyaIndexLazyImport = createFileRoute(
   '/_main/buxgalteriya/',
 )()
@@ -180,13 +179,6 @@ const MainHaydovchilarIndexLazyRoute = MainHaydovchilarIndexLazyImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/haydovchilar/index.lazy').then((d) => d.Route),
-)
-
-const MainBuyurtmalarIndexLazyRoute = MainBuyurtmalarIndexLazyImport.update({
-  path: '/buyurtmalar/',
-  getParentRoute: () => MainRoute,
-} as any).lazy(() =>
-  import('./routes/_main/buyurtmalar/index.lazy').then((d) => d.Route),
 )
 
 const MainBuxgalteriyaIndexLazyRoute = MainBuxgalteriyaIndexLazyImport.update({
@@ -517,13 +509,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainBuxgalteriyaIndexLazyImport
       parentRoute: typeof MainImport
     }
-    '/_main/buyurtmalar/': {
-      id: '/_main/buyurtmalar/'
-      path: '/buyurtmalar'
-      fullPath: '/buyurtmalar'
-      preLoaderRoute: typeof MainBuyurtmalarIndexLazyImport
-      parentRoute: typeof MainImport
-    }
     '/_main/haydovchilar/': {
       id: '/_main/haydovchilar/'
       path: '/haydovchilar'
@@ -817,7 +802,6 @@ interface MainRouteChildren {
   MainHaydovchilarIdRoute: typeof MainHaydovchilarIdRouteWithChildren
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
   MainBuxgalteriyaIndexLazyRoute: typeof MainBuxgalteriyaIndexLazyRoute
-  MainBuyurtmalarIndexLazyRoute: typeof MainBuyurtmalarIndexLazyRoute
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
   MainKassaIndexLazyRoute: typeof MainKassaIndexLazyRoute
   MainMoliyaIndexLazyRoute: typeof MainMoliyaIndexLazyRoute
@@ -861,7 +845,6 @@ const MainRouteChildren: MainRouteChildren = {
   MainHaydovchilarIdRoute: MainHaydovchilarIdRouteWithChildren,
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
   MainBuxgalteriyaIndexLazyRoute: MainBuxgalteriyaIndexLazyRoute,
-  MainBuyurtmalarIndexLazyRoute: MainBuyurtmalarIndexLazyRoute,
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
   MainKassaIndexLazyRoute: MainKassaIndexLazyRoute,
   MainMoliyaIndexLazyRoute: MainMoliyaIndexLazyRoute,
@@ -917,7 +900,6 @@ export interface FileRoutesByFullPath {
   '/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/managers': typeof MainManagersManagersLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
-  '/buyurtmalar': typeof MainBuyurtmalarIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/kassa': typeof MainKassaIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
@@ -964,7 +946,6 @@ export interface FileRoutesByTo {
   '/': typeof MainIndexRoute
   '/managers': typeof MainManagersManagersLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
-  '/buyurtmalar': typeof MainBuyurtmalarIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/kassa': typeof MainKassaIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
@@ -1014,7 +995,6 @@ export interface FileRoutesById {
   '/_main/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
   '/_main/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
-  '/_main/buyurtmalar/': typeof MainBuyurtmalarIndexLazyRoute
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/_main/kassa/': typeof MainKassaIndexLazyRoute
   '/_main/moliya/': typeof MainMoliyaIndexLazyRoute
@@ -1064,7 +1044,6 @@ export interface FileRouteTypes {
     | '/haydovchilar/$id'
     | '/managers'
     | '/buxgalteriya'
-    | '/buyurtmalar'
     | '/haydovchilar'
     | '/kassa'
     | '/moliya'
@@ -1110,7 +1089,6 @@ export interface FileRouteTypes {
     | '/'
     | '/managers'
     | '/buxgalteriya'
-    | '/buyurtmalar'
     | '/haydovchilar'
     | '/kassa'
     | '/moliya'
@@ -1158,7 +1136,6 @@ export interface FileRouteTypes {
     | '/_main/haydovchilar/$id'
     | '/_main/_managers/managers'
     | '/_main/buxgalteriya/'
-    | '/_main/buyurtmalar/'
     | '/_main/haydovchilar/'
     | '/_main/kassa/'
     | '/_main/moliya/'
@@ -1239,7 +1216,6 @@ export const routeTree = rootRoute
         "/_main/haydovchilar/$id",
         "/_main/_managers/managers",
         "/_main/buxgalteriya/",
-        "/_main/buyurtmalar/",
         "/_main/haydovchilar/",
         "/_main/kassa/",
         "/_main/moliya/",
@@ -1303,10 +1279,6 @@ export const routeTree = rootRoute
     },
     "/_main/buxgalteriya/": {
       "filePath": "_main/buxgalteriya/index.lazy.tsx",
-      "parent": "/_main"
-    },
-    "/_main/buyurtmalar/": {
-      "filePath": "_main/buyurtmalar/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/haydovchilar/": {
