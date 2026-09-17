@@ -39,6 +39,8 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
     const { openModal: openDeleteModal } = useModal("delete-districts")
     const { openModal: openCreateModal } = useModal("create-districts")
     const columns = useColumnDestricts()
+    const shownCount = region_id ? (data?.results?.length ?? 0) : 0
+    const totalCount = region_id ? (data?.count ?? 0) : 0
 
     const handleDelete = (row: { original: SettingsDistrictType }) => {
         setData(SETTINGS_DISTRICTS, row.original)
@@ -65,6 +67,12 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                         count={region_id ? data?.count : 0}
                     />
                 </div>
+                {totalCount > shownCount && (
+                    <div className="px-3 pb-2 text-xs text-destructive">
+                        {totalCount} tadan {shownCount} tasi
+                        ko&apos;rsatilmoqda — qidiruvdan foydalaning.
+                    </div>
+                )}
                 <div className="flex-1 overflow-y-auto no-scrollbar-0 no-scrollbar-x ">
                     <DataTable
                         loading={isLoading}
@@ -76,9 +84,6 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                         numeration={true}
                         viewAll={true}
                         className="min-w-[400px]"
-                        paginationProps={{
-                            totalPages: 1,
-                        }}
                     />
                 </div>
                 <DeleteModal

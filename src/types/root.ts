@@ -40,6 +40,8 @@ type SearchParams = {
     selected_loading_place?: string
     country?: number
     region_search?: string
+    region_page?: string
+    region_page_size?: string
     district_search?:string
     order?:number|string
     user_search?:string
