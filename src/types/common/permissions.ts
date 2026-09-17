@@ -1,47 +1,11 @@
-type TPermissions =
-    // Meneger
-    | "manager_flights_view"
-    | "manager_flights_control"
-    | "manager_vehicles_view"
-    | "manager_vehicles_control"
-    | "manager_cashflow_view"
-    | "manager_cashflow_control"
-    | "manager_tech_check_view"
-    | "manager_tech_check_control"
-    // Buxgalteriya
-    | "accounting_view"
-    | "accounting_control"
-    // Investor
-    | "investor_view"
-    | "investor_control"
-    // Moliya
-    | "finance_view"
-    | "finance_control"
-    // Monitoring
-    | "monitoring_view"
-    | "monitoring_control"
-    // Sozlamalar
-    | "settings_locations_view"
-    | "settings_locations_control"
-    | "settings_directions_view"
-    | "settings_directions_control"
-    | "settings_users_view"
-    | "settings_users_control"
-    | "settings_drivers_view"
-    | "settings_drivers_control"
-    | "settings_roles_view"
-    | "settings_roles_control"
-    | "settings_customers_view"
-    | "settings_customers_control"
-    | "settings_vehicles_view"
-    | "settings_vehicles_control"
-    | "settings_vehicle_types_view"
-    | "settings_vehicle_types_control"
-    | "settings_cargo_types_view"
-    | "settings_cargo_types_control"
-    | "settings_payment_types_view"
-    | "settings_payment_types_control"
-    | "settings_expense_types_view"
-    | "settings_expense_types_control"
-    | "settings_petrol_stations_view"
-    | "settings_petrol_stations_control"
+import codes from "@/constants/permission-codes.json"
+
+/**
+ * Backend katalogidan olingan kodlar. Ro‘yxat qo‘lda yozilmaydi:
+ *   python manage.py permission_codes > src/constants/permission-codes.json
+ * `pnpm run check:permissions` esa UI‘dagi kalitlar shu ro‘yxatda borligini
+ * tekshiradi.
+ */
+type TPermissions = (typeof codes)[number]
+
+export type { TPermissions }

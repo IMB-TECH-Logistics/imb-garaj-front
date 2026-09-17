@@ -212,6 +212,7 @@ type UserType = {
     is_active: boolean
     role: number
     role_name: string
+    inherits_role: boolean
     actions: string[]
 }
 

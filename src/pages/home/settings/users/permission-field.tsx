@@ -1,5 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { USERS_PERMISSIONS } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { useFormContext, useWatch } from "react-hook-form"
 
 type Action = {
@@ -13,8 +15,15 @@ type Module = {
     actions: Action[]
 }
 
-export default function PermissionField() {
+export default function PermissionField({
+    inherited = [],
+}: {
+    /** Roldan meros qolgan kodlar: belgilangan va o‘zgartirib bo‘lmaydigan. */
+    inherited?: string[]
+}) {
     const form = useFormContext()
+    const inheritedSet = new Set(inherited)
+    const { data: modules = [], isLoading } = useGet<Module[]>(USERS_PERMISSIONS)
 
     const actions =
         (useWatch({
@@ -23,7 +32,10 @@ export default function PermissionField() {
             defaultValue: [],
         }) as string[]) || []
 
-    const isChecked = (code?: string) => !!code && actions?.includes(code)
+    const isChecked = (code?: string) =>
+        !!code && (actions?.includes(code) || inheritedSet.has(code))
+
+    const isInherited = (code?: string) => !!code && inheritedSet.has(code)
 
     const getAllCodes = (acts: Action[]): string[] =>
         acts
@@ -78,10 +90,18 @@ export default function PermissionField() {
         updateActions(updated)
     }
 
+    if (isLoading) {
+        return (
+            <div className="md:col-span-2 py-6 text-center text-sm text-muted-foreground">
+                Ruxsatlar ro'yxati yuklanmoqda...
+            </div>
+        )
+    }
+
     return (
         <div className="md:col-span-2">
             <div className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 gap-3">
-                {defaultModules.map((mod) => (
+                {modules.map((mod) => (
                     <div key={mod.name} className="bg-muted/50 rounded-xl p-4">
                         <Label className="flex items-center gap-2 font-semibold">
                             <Checkbox
@@ -91,6 +111,9 @@ export default function PermissionField() {
                                         a.actions?.some((sa) =>
                                             isChecked(sa.key),
                                         ),
+                                )}
+                                disabled={getAllCodes(mod.actions).every(
+                                    isInherited,
                                 )}
                                 onCheckedChange={(checked) =>
                                     handleParentChange(mod, !!checked)
@@ -112,13 +135,18 @@ export default function PermissionField() {
                                                     )
                                             }
                                             disabled={
-                                                act.key?.endsWith("_view") &&
-                                                actions.includes(
-                                                    act.key.replace(
-                                                        "_view",
-                                                        "_control",
-                                                    ),
-                                                )
+                                                (act.actions?.length
+                                                    ? getAllCodes(
+                                                          act.actions,
+                                                      ).every(isInherited)
+                                                    : isInherited(act.key)) ||
+                                                (act.key?.endsWith("_view") &&
+                                                    actions.includes(
+                                                        act.key.replace(
+                                                            "_view",
+                                                            "_control",
+                                                        ),
+                                                    ))
                                             }
                                             onCheckedChange={(checked) =>
                                                 act.actions?.length ?
@@ -147,15 +175,18 @@ export default function PermissionField() {
                                                             sub.key,
                                                         )}
                                                         disabled={
-                                                            sub.key?.endsWith(
+                                                            isInherited(
+                                                                sub.key,
+                                                            ) ||
+                                                            (sub.key?.endsWith(
                                                                 "_view",
                                                             ) &&
-                                                            actions.includes(
-                                                                sub.key.replace(
-                                                                    "_view",
-                                                                    "_control",
-                                                                ),
-                                                            )
+                                                                actions.includes(
+                                                                    sub.key.replace(
+                                                                        "_view",
+                                                                        "_control",
+                                                                    ),
+                                                                ))
                                                         }
                                                         onCheckedChange={(
                                                             checked,
@@ -181,210 +212,3 @@ export default function PermissionField() {
         </div>
     )
 }
-
-const defaultModules: Module[] = [
-    // 1. Meneger
-    {
-        name: "Meneger",
-        actions: [
-            {
-                name: "Transportlar",
-                actions: [
-                    { name: "Ko'rish", key: "manager_vehicles_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "manager_vehicles_control",
-                    },
-                ],
-            },
-            {
-                name: "Reyslar",
-                actions: [
-                    { name: "Ko'rish", key: "manager_flights_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "manager_flights_control",
-                    },
-                ],
-            },
-            {
-                name: "Kassa",
-                actions: [
-                    { name: "Ko'rish", key: "manager_cashflow_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "manager_cashflow_control",
-                    },
-                ],
-            },
-            {
-                name: "Texnik ko'rik",
-                actions: [
-                    { name: "Ko'rish", key: "manager_tech_check_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "manager_tech_check_control",
-                    },
-                ],
-            },
-            {
-                name: "Zapravkalar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_petrol_stations_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_petrol_stations_control",
-                    },
-                ],
-            },
-        ],
-    },
-    // 2. Buxgalteriya
-    {
-        name: "Buxgalteriya",
-        actions: [
-            { name: "Ko'rish", key: "accounting_view" },
-            { name: "To'liq boshqarish", key: "accounting_control" },
-        ],
-    },
-    // 3. Investor
-    {
-        name: "Investor",
-        actions: [
-            { name: "Ko'rish", key: "investor_view" },
-            { name: "To'liq boshqarish", key: "investor_control" },
-        ],
-    },
-    // 4. Moliya
-    {
-        name: "Moliya",
-        actions: [
-            { name: "Ko'rish", key: "finance_view" },
-            { name: "To'liq boshqarish", key: "finance_control" },
-        ],
-    },
-    // 5. Monitoring
-    {
-        name: "Monitoring",
-        actions: [
-            { name: "Ko'rish", key: "monitoring_view" },
-            { name: "To'liq boshqarish", key: "monitoring_control" },
-        ],
-    },
-    // 6. Sozlamalar
-    {
-        name: "Sozlamalar",
-        actions: [
-            {
-                name: "Manzillar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_locations_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_locations_control",
-                    },
-                ],
-            },
-            {
-                name: "Yo'nalishlar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_directions_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_directions_control",
-                    },
-                ],
-            },
-            {
-                name: "Foydalanuvchilar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_users_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_users_control",
-                    },
-                ],
-            },
-            {
-                name: "Haydovchilar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_drivers_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_drivers_control",
-                    },
-                ],
-            },
-            {
-                name: "Rollar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_roles_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_roles_control",
-                    },
-                ],
-            },
-            {
-                name: "Xaridorlar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_customers_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_customers_control",
-                    },
-                ],
-            },
-            {
-                name: "Avtomobillar",
-                actions: [
-                    { name: "Ko'rish", key: "settings_vehicles_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_vehicles_control",
-                    },
-                ],
-            },
-            {
-                name: "Mashina turlari",
-                actions: [
-                    { name: "Ko'rish", key: "settings_vehicle_types_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_vehicle_types_control",
-                    },
-                ],
-            },
-            {
-                name: "Yuk turi",
-                actions: [
-                    { name: "Ko'rish", key: "settings_cargo_types_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_cargo_types_control",
-                    },
-                ],
-            },
-            {
-                name: "To'lov turlari",
-                actions: [
-                    { name: "Ko'rish", key: "settings_payment_types_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_payment_types_control",
-                    },
-                ],
-            },
-            {
-                name: "Xarajat turlari",
-                actions: [
-                    { name: "Ko'rish", key: "settings_expense_types_view" },
-                    {
-                        name: "To'liq boshqarish",
-                        key: "settings_expense_types_control",
-                    },
-                ],
-            },
-        ],
-    },
-]

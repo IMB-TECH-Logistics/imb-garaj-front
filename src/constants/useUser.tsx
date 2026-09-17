@@ -1,5 +1,6 @@
 import { PROFILE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import type { TPermissions } from "@/types/common/permissions"
 
 export const useUser = () => {
     const { data, ...other } = useGet<User>(PROFILE)
@@ -13,7 +14,9 @@ export const useUser = () => {
     }
 }
 
-export function useHasAction(actionCodes: string | string[]): boolean {
+export function useHasAction(
+    actionCodes: TPermissions | TPermissions[],
+): boolean {
     const { actions, data } = useUser()
 
     if (data?.is_superuser) return true

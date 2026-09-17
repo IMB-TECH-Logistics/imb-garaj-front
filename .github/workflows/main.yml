@@ -31,6 +31,10 @@ jobs:
             - name: Install dependencies
               run: pnpm install --no-frozen-lockfile
 
+            # Ruxsat kodlari backend katalogi bilan mos kelishini tekshirish
+            - name: Check permission codes
+              run: pnpm run check:permissions
+
             # Build the app
             - name: Build the app
               run: pnpm run build

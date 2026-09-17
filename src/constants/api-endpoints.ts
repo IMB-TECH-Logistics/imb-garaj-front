@@ -29,6 +29,7 @@ export const CASHFLOW_STATISTICS = "checkout/cashflow-statistic"
 /** ===== USERS / DRIVERS / ROLES ===== */
 export const SETTINGS_USERS = "users"
 export const SETTINGS_ROLES = "users/roles"
+export const USERS_PERMISSIONS = "users/permissions"
 export const SETTINGS_DRIVERS = "users/drivers"
 export const DRIVERS_BALANCE = "users/drivers/balance"
 

@@ -86,9 +86,26 @@ const findChildPaths = (items: MenuItem[], pathname: string): MenuItem[] => {
     return []
 }
 
+const collectPaths = (items: MenuItem[]): string[] =>
+    items.flatMap((item) => [
+        item.path,
+        ...(item.extraPaths ?? []),
+        ...(item.items ? collectPaths(item.items) : []),
+    ])
+
+const collectLeafPaths = (items: MenuItem[]): string[] =>
+    items.flatMap((item) =>
+        item.items && item.items.length > 0
+            ? collectLeafPaths(item.items)
+            : [item.path],
+    )
+
+const matches = (pathname: string, path: string) =>
+    pathname === path || pathname.startsWith(path + "/")
+
 export const usePaths = () => {
     const { pathname } = useLocation()
-    const { actions, data } = useUser()
+    const { actions, data, isLoading } = useUser()
 
     const safeActions: string[] = actions ?? []
     const isSuperuser = data?.is_superuser
@@ -105,9 +122,44 @@ export const usePaths = () => {
         [filteredItems, pathname],
     )
 
+    const allowedPaths = useMemo(
+        () => collectPaths(filteredItems),
+        [filteredItems],
+    )
+
+    const deniedPaths = useMemo(
+        () =>
+            collectPaths(items).filter(
+                (path) => !allowedPaths.some((allowed) => allowed === path),
+            ),
+        [items, allowedPaths],
+    )
+
+    const firstAllowedPath = useMemo(
+        () => collectLeafPaths(filteredItems)[0],
+        [filteredItems],
+    )
+
+    // Faqat menyuda bor, lekin ruxsat berilmagan sahifalar to'siladi. Tafsilot
+    // sahifalari (masalan /truck-detail/9) menyuda yo'q — ularni API o'zi
+    // qo'riqlaydi, bu yerda ularni noto'g'ri to'sib qo'ymaymiz.
+    const isDeniedPath = useMemo(
+        () => (pathname: string) => {
+            if (isLoading || !data) return false
+            if (isSuperuser) return false
+            if (allowedPaths.some((path) => matches(pathname, path))) return false
+            return deniedPaths.some((path) => matches(pathname, path))
+        },
+        [allowedPaths, deniedPaths, isSuperuser, isLoading, data],
+    )
+
     return {
         childPaths,
         filteredItems,
+        allowedPaths,
+        firstAllowedPath,
+        isDeniedPath,
+        isLoadingPermissions: isLoading || !data,
     }
 }
 
@@ -170,13 +222,13 @@ export const useItems = () =>
                 label: "Haydovchilar",
                 icon: <Users width={18} />,
                 path: "/haydovchilar",
-                alwaysShow: true,
+                allowKey: "hr_drivers_view",
             },
             {
                 label: "Ombor",
                 icon: <Boxes width={18} />,
                 path: "/ombor",
-                alwaysShow: true,
+                allowKey: "warehouse_view",
             },
             {
                 label: "Moliya",
@@ -189,7 +241,6 @@ export const useItems = () =>
                 icon: <Activity width={18} />,
                 path: "/monitoring",
                 allowKey: "monitoring_view",
-                alwaysShow: true,
             },
             {
                 label: "Sozlamalar",
@@ -259,7 +310,7 @@ export const useItems = () =>
                     {
                         label: "Faoliyat jurnali",
                         path: "/logs",
-                        alwaysShow: true,
+                        allowKey: "logs_view",
                     },
                 ],
             },

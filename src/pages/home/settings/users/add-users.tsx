@@ -8,8 +8,9 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { FormProvider, useForm } from "react-hook-form"
+import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
+import { Switch } from "@/components/ui/switch"
 import PermissionField from "./permission-field"
 
 const AddUserModal = () => {
@@ -17,7 +18,7 @@ const AddUserModal = () => {
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
     const currentDriver = getData<UserType>(SETTINGS_USERS)
-    const { data: userRole } = useGet(SETTINGS_ROLES)
+    const { data: userRole } = useGet<{ results?: RolesType[] }>(SETTINGS_ROLES)
     const form = useForm<UserType>({
         defaultValues: {
             ...currentDriver,
@@ -25,6 +26,16 @@ const AddUserModal = () => {
             actions: currentDriver?.actions ?? [],
         },
     })
+
+    const selectedRole = useWatch({ control: form.control, name: "role" })
+    const inheritsRole =
+        useWatch({ control: form.control, name: "inherits_role" }) ?? true
+    const inheritedActions = !inheritsRole
+        ? []
+        :
+        (userRole?.results ?? []).find(
+            (r) => Number(r.id) === Number(selectedRole),
+        )?.actions ?? []
 
     const { handleSubmit, reset } = form
 
@@ -111,7 +122,27 @@ const AddUserModal = () => {
                         label="Foydalanuvchi roli"
                     />
 
-                    <PermissionField />
+                    <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
+                        <div>
+                            <p className="text-sm font-medium">
+                                Rol ruxsatlarini meros olsin
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                O‘chirilsa, xodimga faqat quyida belgilangan
+                                ruxsatlar amal qiladi.
+                            </p>
+                        </div>
+                        <Switch
+                            checked={inheritsRole}
+                            onCheckedChange={(checked) =>
+                                form.setValue("inherits_role", checked, {
+                                    shouldDirty: true,
+                                })
+                            }
+                        />
+                    </div>
+
+                    <PermissionField inherited={inheritedActions} />
 
                     <div className="md:col-span-2 flex justify-end pt-2">
                         <Button

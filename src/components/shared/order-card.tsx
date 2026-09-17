@@ -44,7 +44,7 @@ const OrderCard = ({
     const { openModal: openModalSend } = useModal("send-modal")
     const { openModal: openViewModal } = useModal("view-modal")
     const { setData } = useGlobalStore()
-    const orderBronDispatcher = useHasAction("dispatcher-control-order-bron")
+    const orderBronDispatcher = useHasAction("manager_flights_control")
     const { data: user_info } = useUser()
 
     const handleSendInfo = (data: string[]) => {
