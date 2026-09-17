@@ -84,10 +84,16 @@ export const CountryRowTable = ({
                 <TableCell>{index + 1}</TableCell>
 
                 {cols.map((cell, i) => (
-                    <TableCell key={i}>{cell?.value}</TableCell>
+                    <TableCell
+                        key={i}
+                        className="max-w-0 w-full truncate"
+                        title={cell?.value}
+                    >
+                        {cell?.value}
+                    </TableCell>
                 ))}
 
-                <TableCell className="p-0 text-right">
+                <TableCell className="p-0 text-right w-[40px]">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -115,7 +121,7 @@ export const CountryRowTable = ({
                     </DropdownMenu>
                 </TableCell>
 
-                <TableCell className="text-right p-0">
+                <TableCell className="text-right p-0 w-[40px]">
                     <Button
                         variant="ghost"
                         size="sm"

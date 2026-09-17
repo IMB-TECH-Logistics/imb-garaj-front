@@ -81,7 +81,14 @@ export default function DeleteModal({
                     {"Bu qaytarib bo'lmas jarayon!!!"}
                 </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
+            <DialogFooter className="gap-2">
+                <Button
+                    variant={"outline"}
+                    onClick={closeModal}
+                    disabled={isPending}
+                >
+                    {"Bekor qilish"}
+                </Button>
                 <Button
                     variant={"destructive"}
                     onClick={handleDelete}

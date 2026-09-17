@@ -31,7 +31,7 @@ const CountriesTable = () => {
 
     return (
         <div className="">
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -73,6 +73,11 @@ const CountriesTable = () => {
                 modalKey="delete-country"
                 path={SETTINGS_COUNTRIES}
                 id={selectedCountry?.id}
+                name={
+                    <span className="block font-medium mb-1 break-all">
+                        {selectedCountry?.name}
+                    </span>
+                }
             />
         </div>
     )
