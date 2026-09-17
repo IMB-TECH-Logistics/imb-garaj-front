@@ -31,9 +31,14 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
   } else if (isClientError) {
     const arrayErrors = Object.entries(data).filter(([key]) => key !== "detail")
     if (arrayErrors.length > 0) {
-      toast.error(arrayErrors.map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : String(value)}`).join("\n"), {
-        duration: 5000,
-      })
+      toast.error(
+        arrayErrors
+          .map(([, value]) =>
+            Array.isArray(value) ? value.join(", ") : String(value),
+          )
+          .join("\n"),
+        { duration: 5000 },
+      )
     } else if (msg) {
       toast.error(msg, { duration: 5000 })
     } else {
