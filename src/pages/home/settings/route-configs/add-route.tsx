@@ -35,9 +35,25 @@ type Direction = {
     valid_from: string | null
     current_price?: DirectionPrice | null
     prices?: DirectionPrice[]
+    owner_name?: string
+    load_name?: string
+    unload_name?: string
+    cargo_type_name?: string
 }
 
 type SelectItem = { id: number | string; name: string }
+
+const withCurrent = (
+    options: SelectItem[] | undefined,
+    id: number | null | undefined,
+    name?: string,
+): SelectItem[] => {
+    const list = options ?? []
+    if (id == null || list.some((o) => String(o.id) === String(id))) {
+        return list
+    }
+    return [{ id, name: name ? `${name} (o‘chirilgan)` : `#${id}` }, ...list]
+}
 
 const CURRENCY_OPTIONS = [
     { id: 1, name: "UZS - So'm" },
@@ -111,7 +127,7 @@ const AddRouteConfigModal = () => {
                 label="Yuklash manzili"
                 name="load"
                 control={control}
-                options={regionsData}
+                options={withCurrent(regionsData, current?.load, current?.load_name)}
                 valueKey="id"
                 labelKey="name"
                 placeholder="Hududni tanlang"
@@ -121,7 +137,7 @@ const AddRouteConfigModal = () => {
                 label="Yuk tushirish manzili"
                 name="unload"
                 control={control}
-                options={regionsData}
+                options={withCurrent(regionsData, current?.unload, current?.unload_name)}
                 valueKey="id"
                 labelKey="name"
                 placeholder="Hududni tanlang"
@@ -131,7 +147,7 @@ const AddRouteConfigModal = () => {
                 label="Yuk egasi"
                 name="owner"
                 control={control}
-                options={clientData}
+                options={withCurrent(clientData, current?.owner, current?.owner_name)}
                 labelKey="name"
                 valueKey="id"
                 placeholder="Yuk egasini tanlang"
@@ -141,7 +157,7 @@ const AddRouteConfigModal = () => {
                 label="Yuk turi"
                 name="cargo_type"
                 control={control}
-                options={cargoType}
+                options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name)}
                 valueKey="id"
                 labelKey="name"
                 placeholder="Yuk turini tanlang"
