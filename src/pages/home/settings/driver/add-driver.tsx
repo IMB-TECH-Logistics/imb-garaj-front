@@ -174,10 +174,11 @@ const AddDriverModal = () => {
 
                 <FormNumberInput
                     required
+                    allowNegative={false}
+                    decimalScale={1}
                     name="driver.experience"
                     label="Ish tajribasi (yil)"
                     control={form.control}
-                    min={0}
                     placeholder="Misol: 5"
                 />
 
