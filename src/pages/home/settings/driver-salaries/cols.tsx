@@ -12,24 +12,34 @@ export type SalaryFilterSourceKey =
     | "clients"
     | "cargo_types"
     | "payment_types"
+    | "owner_codes"
+    | "salary_amounts"
 
 export const SALARY_FILTER_COLUMNS: Array<{
     value: string
     label: string
     source?: SalaryFilterSourceKey
 }> = [
-    { value: "owner_code", label: "Firma kodi" },
+    { value: "owner_code", label: "Firma kodi", source: "owner_codes" },
     { value: "load", label: "Yuklash manzili", source: "regions" },
     { value: "unload", label: "Yuk tushirish manzili", source: "regions" },
     { value: "owner", label: "Yuk egasi", source: "clients" },
     { value: "cargo_type", label: "Yuk turi", source: "cargo_types" },
     { value: "payment_type", label: "To'lov turi", source: "payment_types" },
-    { value: "driver_salary_amount", label: "Beriladigan oylik (UZS)" },
+    {
+        value: "driver_salary_amount",
+        label: "Beriladigan oylik (UZS)",
+        source: "salary_amounts",
+    },
 ]
 
 export type SalaryFilterSources = Partial<
-    Record<SalaryFilterSourceKey, { id: number | string; name: string }[]>
->
+    Record<
+        "regions" | "clients" | "cargo_types" | "payment_types",
+        { id: number | string; name: string }[]
+    >
+> &
+    Partial<Record<"owner_codes" | "salary_amounts", string[]>>
 
 const stripDecZeros = (raw: string): string => {
     if (!raw.includes(".")) return raw
@@ -77,8 +87,19 @@ export const buildSalaryFilterOptions = (
     for (const col of SALARY_FILTER_COLUMNS) {
         const sourceItems = col.source ? sources[col.source] : undefined
         let items: SalaryFilterOption[]
-        if (sourceItems) {
-            items = sourceItems
+        if (sourceItems?.length && typeof sourceItems[0] === "string") {
+            items = (sourceItems as string[]).map((raw) => {
+                const value = stripDecZeros(String(raw))
+                return {
+                    value,
+                    label:
+                        col.value === "driver_salary_amount"
+                            ? formatPriceLabel(value)
+                            : value,
+                }
+            })
+        } else if (sourceItems?.length) {
+            items = (sourceItems as { id: number | string; name: string }[])
                 .filter((s) => s.name)
                 .map((s) => ({ value: String(s.id), label: s.name }))
         } else {

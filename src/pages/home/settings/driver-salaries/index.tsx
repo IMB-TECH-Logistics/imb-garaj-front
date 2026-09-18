@@ -15,7 +15,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useQueryClient } from "@tanstack/react-query"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Save, Wallet } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -53,20 +53,64 @@ type Direction = {
 
 type SelectItem = { id: number | string; name: string }
 
+const filterParam = (key: string) => `sf_${key}`
+
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
 const DriverSalariesPage = () => {
     const hasControl = useHasAction("settings_driver_salaries_control")
     const search = useSearch({ strict: false }) as Record<string, any>
+    const navigate = useNavigate()
 
     const { openModal: openBulkModal } = useModal("bulk-salary")
     const queryClient = useQueryClient()
 
-    const [filters, setFilters] = useState<Record<string, string[]>>({})
     const [selectedRows, setSelectedRows] = useState<DirectionRow[]>([])
     const [clearSelectionTick, setClearSelectionTick] = useState(0)
     const [priceEdits, setPriceEdits] = useState<Record<number, string>>({})
     const { mutateAsync: bulkUpdateAsync, isPending: isSaving } = usePatch()
+
+    const filters = useMemo(() => {
+        const out: Record<string, string[]> = {}
+        for (const col of SALARY_FILTER_COLUMNS) {
+            const raw = search[filterParam(col.value)]
+            if (raw) {
+                out[col.value] = String(raw).split(",").filter(Boolean)
+            }
+        }
+        return out
+    }, [search])
+
+    const setFilter = useCallback(
+        (key: string, vals: string[]) =>
+            navigate({
+                search: ((prev: Record<string, unknown>) => ({
+                    ...prev,
+                    [filterParam(key)]: vals.length ? vals.join(",") : undefined,
+                    page: undefined,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                })) as any,
+            }),
+        [navigate],
+    )
+
+    const clearFilters = useCallback(
+        () =>
+            navigate({
+                search: ((prev: Record<string, unknown>) => {
+                    const next: Record<string, unknown> = {
+                        ...prev,
+                        page: undefined,
+                    }
+                    for (const col of SALARY_FILTER_COLUMNS) {
+                        next[filterParam(col.value)] = undefined
+                    }
+                    return next
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                }) as any,
+            }),
+        [navigate],
+    )
 
     const serverFilters = useMemo(() => {
         const out: Record<string, string> = {}
@@ -105,6 +149,10 @@ const DriverSalariesPage = () => {
         SETTINGS_SELECTABLE_CARGO_TYPE,
         { params: { model_name: "cargo-type" } },
     )
+    const { data: filterSourceData } = useGet<{
+        owner_code: string[]
+        driver_salary_amount: string[]
+    }>(`${COMMON_DIRECTIONS}/filter-options`)
 
     const paymentMap = useMemo(
         () =>
@@ -145,8 +193,17 @@ const DriverSalariesPage = () => {
                 clients: clientData,
                 cargo_types: cargoTypeData,
                 payment_types: paymentTypeData,
+                owner_codes: filterSourceData?.owner_code,
+                salary_amounts: filterSourceData?.driver_salary_amount,
             }),
-        [enriched, regionData, clientData, cargoTypeData, paymentTypeData],
+        [
+            enriched,
+            regionData,
+            clientData,
+            cargoTypeData,
+            paymentTypeData,
+            filterSourceData,
+        ],
     )
 
     const activeFilterCount = Object.values(filters).filter(
@@ -277,10 +334,7 @@ const DriverSalariesPage = () => {
                                         options={filterOptions[col.value]}
                                         values={filters[col.value] ?? []}
                                         setValues={(vals: string[]) =>
-                                            setFilters((prev) => ({
-                                                ...prev,
-                                                [col.value]: vals ?? [],
-                                            }))
+                                            setFilter(col.value, vals ?? [])
                                         }
                                         labelKey="label"
                                         valueKey="value"
@@ -292,7 +346,7 @@ const DriverSalariesPage = () => {
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setFilters({})}
+                                    onClick={clearFilters}
                                 >
                                     Tozalash
                                 </Button>
