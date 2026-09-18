@@ -184,12 +184,10 @@ const PetrolStationDetail = () => {
     }, [cashflows?.results])
 
     const handleEditCashFlow = (row: StationCashFlowRow) => {
-        if (row.action !== 1) return
         editCashFlow.open(row)
     }
 
     const handleDeleteCashFlow = (row: StationCashFlowRow) => {
-        if (row.action !== 1) return
         setDeletingCashFlow(row)
         openDeleteCashFlow()
     }
@@ -432,17 +430,16 @@ const PetrolStationDetail = () => {
                                         numeration
                                         rowAction={
                                             hasControl ?
-                                                (row: StationCashFlowRow) =>
-                                                    row.action === 1 ?
-                                                        <TableActions
-                                                            onEdit={() =>
-                                                                handleEditCashFlow(row)
-                                                            }
-                                                            onDelete={() =>
-                                                                handleDeleteCashFlow(row)
-                                                            }
-                                                        />
-                                                    :   null
+                                                (row: StationCashFlowRow) => (
+                                                    <TableActions
+                                                        onEdit={() =>
+                                                            handleEditCashFlow(row)
+                                                        }
+                                                        onDelete={() =>
+                                                            handleDeleteCashFlow(row)
+                                                        }
+                                                    />
+                                                )
                                             :   undefined
                                         }
                                     />
@@ -480,7 +477,11 @@ const PetrolStationDetail = () => {
                 <AddExpenseModal stationId={stationId} />
             </Modal>
             <Modal
-                title="Kirimni tahrirlash"
+                title={
+                    editCashFlow.get()?.action === -1
+                        ? "Chiqimni tahrirlash"
+                        : "Kirimni tahrirlash"
+                }
                 modalKey="petrol-cash-flow-edit"
                 size="max-w-md"
             >
