@@ -37,7 +37,7 @@ export const useColumnsDriverTable = () => {
                 enableSorting: true,
             },
             {
-                header: "Passport seriyasi",
+                header: "Pasport seriyasi",
                 enableSorting: true,
                 accessorFn: (row) => row.driver?.passport_serial || "",
                 cell: ({ row }) => {
@@ -74,7 +74,7 @@ export const useColumnsDriverTable = () => {
                 id: "work_experience",
             },
             {
-                header: "Litsenziya muddati",
+                header: "Guvohnoma muddati",
                 enableSorting: true,
                 accessorFn: (row) => row.driver?.driver_license_date || "",
                 cell: ({ row }) => {

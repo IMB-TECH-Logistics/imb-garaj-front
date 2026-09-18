@@ -123,7 +123,7 @@ const AddDriverModal = () => {
                     control={form.control}
                     format="+998 ## ### ## ##"
                     required
-                    label={"Telefon"}
+                    label={"Telefon raqami"}
                     name={"driver.phone"}
                     placeholder="+998 __ ___ __ __"
                 />
@@ -139,7 +139,7 @@ const AddDriverModal = () => {
                     }}
                     uppercase={true}
                     name="driver.passport_serial"
-                    label="Pasport raqami"
+                    label="Pasport seriyasi"
                     methods={form}
                     placeholder="Misol: AA1234567"
                 />
@@ -158,7 +158,7 @@ const AddDriverModal = () => {
                     thousandSeparator={""}
                     required
                     name="driver.pinfl"
-                    label="PINFL"
+                    label="JShShIR"
                     control={form.control}
                     placeholder="Misol: 12345678901234"
                 />
@@ -180,15 +180,15 @@ const AddDriverModal = () => {
                         floatValue === undefined || floatValue <= 100
                     }
                     name="driver.experience"
-                    label="Ish tajribasi (yil)"
+                    label="Ish staji"
                     control={form.control}
-                    placeholder="Misol: 5"
+                    placeholder="Misol: 5 yil"
                 />
 
                 <FormDatePicker
                     required
                     name="driver.driver_license_date"
-                    label="Guvohnoma amal qilish muddati"
+                    label="Guvohnoma muddati"
                     control={form.control}
                     placeholder="Sanani tanlang"
                     calendarProps={
