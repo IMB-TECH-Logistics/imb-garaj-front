@@ -9,7 +9,7 @@ import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ArchiveRestore } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -20,6 +20,7 @@ import { useColumnsCargoTable } from "./cargo-cols"
 const CargoPage = () => {
     const hasControl = useHasAction("settings_cargo_types_control")
     const search = useSearch({ strict: false })
+    const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [showDeleted, setShowDeleted] = useState(false)
 
@@ -28,6 +29,8 @@ const CargoPage = () => {
         {
             params: {
                 search: search.cargo_search,
+                page: search.page,
+                page_size: search.page_size,
                 deleted: showDeleted || undefined,
             },
         },
@@ -81,6 +84,8 @@ const CargoPage = () => {
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
                 }}
                 head={
                     <TableHeader
@@ -105,7 +110,15 @@ const CargoPage = () => {
                                         showDeleted ? "secondary" : "outline"
                                     }
                                     icon={<ArchiveRestore size={18} />}
-                                    onClick={() => setShowDeleted((v) => !v)}
+                                    onClick={() => {
+                                        setShowDeleted((v) => !v)
+                                        navigate({
+                                            search: {
+                                                ...search,
+                                                page: undefined,
+                                            },
+                                        })
+                                    }}
                                 >
                                     {showDeleted ?
                                         "Faol yuk turlari"
