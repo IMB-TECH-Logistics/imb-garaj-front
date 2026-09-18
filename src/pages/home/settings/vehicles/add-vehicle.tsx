@@ -178,6 +178,10 @@ const AddVehicleSettingsModal = () => {
                     label="Yili"
                     control={control}
                     decimalScale={0}
+                    thousandSeparator={""}
+                    isAllowed={({ floatValue }) =>
+                        floatValue === undefined || floatValue <= 2100
+                    }
                 />
                 <FormNumberInput
                     name="consumption"
