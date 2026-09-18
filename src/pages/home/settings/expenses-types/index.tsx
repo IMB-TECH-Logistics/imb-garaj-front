@@ -65,7 +65,7 @@ const ExpensesTypePage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_EXPENSES} id={item?.id} />
+            <DeleteModal path={SETTINGS_EXPENSES} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
                     item?.id ?

@@ -64,7 +64,7 @@ const PaymenTypePage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} />
+            <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
                     item?.id ?
