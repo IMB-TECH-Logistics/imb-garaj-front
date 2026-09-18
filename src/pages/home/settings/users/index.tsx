@@ -17,6 +17,7 @@ const UsersPage = () => {
             search: search.first_name,
             page: search.page,
             page_size: search.page_size,
+            ordering: search.ordering,
         },
     })
     const { getData, setData } = useGlobalStore()
@@ -37,6 +38,7 @@ const UsersPage = () => {
         <>
             <DataTable
                 numeration
+                manualSorting
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
