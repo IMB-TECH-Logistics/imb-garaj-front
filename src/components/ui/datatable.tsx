@@ -178,12 +178,22 @@ export function DataTable<TData>({
                                 onDelete={
                                     onDelete ? () => onDelete?.(row) : undefined
                                 }
-                                onEdit={onEdit ? () => onEdit?.(row) : undefined}
-                                onUndo={onUndo ? () => onUndo?.(row) : undefined}
-                                onView={onView ? () => onView?.(row) : undefined}
-                                onRedo={onRedo ? () => onRedo?.(row) : undefined}
+                                onEdit={
+                                    onEdit ? () => onEdit?.(row) : undefined
+                                }
+                                onUndo={
+                                    onUndo ? () => onUndo?.(row) : undefined
+                                }
+                                onView={
+                                    onView ? () => onView?.(row) : undefined
+                                }
+                                onRedo={
+                                    onRedo ? () => onRedo?.(row) : undefined
+                                }
                                 onFinished={
-                                    onFinished ? () => onFinished?.(row) : undefined
+                                    onFinished ?
+                                        () => onFinished?.(row)
+                                    :   undefined
                                 }
                             />
                         </div>
@@ -191,7 +201,17 @@ export function DataTable<TData>({
                 },
             ]
         } else return columns
-    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView, onFinished, rowAction, canUseActions])
+    }, [
+        actionMenuMode,
+        columns,
+        onDelete,
+        onEdit,
+        onUndo,
+        onView,
+        onFinished,
+        rowAction,
+        canUseActions,
+    ])
 
     React.useEffect(() => {
         if (
@@ -216,7 +236,8 @@ export function DataTable<TData>({
                     navigate({
                         search: (prev: any) => ({
                             ...prev,
-                            ordering: s ? `${s.desc ? "-" : ""}${s.id}` : undefined,
+                            ordering:
+                                s ? `${s.desc ? "-" : ""}${s.id}` : undefined,
                             [paramName]: undefined,
                         }),
                     } as any)
@@ -354,7 +375,13 @@ export function DataTable<TData>({
                                         className="border-none "
                                     >
                                         {selecteds_row && (
-                                            <TableHead className={cn("w-8 px-2", stickyHeader && "sticky top-0 bg-card z-10")}>
+                                            <TableHead
+                                                className={cn(
+                                                    "w-8 px-2",
+                                                    stickyHeader &&
+                                                        "sticky top-0 bg-card z-10",
+                                                )}
+                                            >
                                                 <Checkbox
                                                     checked={
                                                         table.getIsAllPageRowsSelected() ||
@@ -375,7 +402,8 @@ export function DataTable<TData>({
                                                 className={cn(
                                                     " px-2  cursor-pointer",
                                                     index === 0 && "w-8",
-                                                    stickyHeader && "sticky top-0 bg-card z-10",
+                                                    stickyHeader &&
+                                                        "sticky top-0 bg-card z-10",
                                                 )}
                                             >
                                                 №
@@ -389,7 +417,9 @@ export function DataTable<TData>({
                                                 const hideSortIndicator = (
                                                     header.column.columnDef
                                                         .meta as
-                                                        | { hideSortIndicator?: boolean }
+                                                        | {
+                                                              hideSortIndicator?: boolean
+                                                          }
                                                         | undefined
                                                 )?.hideSortIndicator
                                                 const showSort =
@@ -401,9 +431,23 @@ export function DataTable<TData>({
                                                         key={header.id}
                                                         className={cn(
                                                             " px-2 cursor-pointer",
-                                                            stickyHeader && "sticky top-0 bg-card z-10",
+                                                            stickyHeader &&
+                                                                "sticky top-0 bg-card z-10",
                                                         )}
-                                                        style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}
+                                                        style={
+                                                            (
+                                                                header.column
+                                                                    .columnDef
+                                                                    .size
+                                                            ) ?
+                                                                {
+                                                                    width: header
+                                                                        .column
+                                                                        .columnDef
+                                                                        .size,
+                                                                }
+                                                            :   undefined
+                                                        }
                                                         onClick={
                                                             showSort ?
                                                                 header.column.getToggleSortingHandler()
@@ -503,25 +547,37 @@ export function DataTable<TData>({
                                             </TableCell>
                                         )}
 
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell
-                                                key={cell.id}
-                                                onClick={() => {
-                                                    onRowClick?.(
-                                                        cell.row.original,
-                                                    )
-                                                }}
-                                                className={cn(
-                                                    `cursor-pointer border-r   dark:border-secondary/50 border-secondary last:border-none 
-                                                         `,
-                                                )}
-                                            >
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext(),
-                                                )}
-                                            </TableCell>
-                                        ))}
+                                        {row.getVisibleCells().map((cell) => {
+                                            const clickable =
+                                                !!onRowClick &&
+                                                cell.column.id !== "action"
+
+                                            return (
+                                                <TableCell
+                                                    key={cell.id}
+                                                    onClick={
+                                                        clickable ?
+                                                            () =>
+                                                                onRowClick?.(
+                                                                    cell.row
+                                                                        .original,
+                                                                )
+                                                        :   undefined
+                                                    }
+                                                    className={cn(
+                                                        "border-r dark:border-secondary/50 border-secondary last:border-none",
+                                                        clickable &&
+                                                            "cursor-pointer",
+                                                    )}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef
+                                                            .cell,
+                                                        cell.getContext(),
+                                                    )}
+                                                </TableCell>
+                                            )
+                                        })}
                                     </TableRow>
                                 ))
                             :   <TableRow>
