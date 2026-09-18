@@ -190,7 +190,12 @@ const AddDriverModal = () => {
                     name="driver.driver_license_date"
                     label="Guvohnoma amal qilish muddati"
                     control={form.control}
-                    placeholder="15/12/2025"
+                    placeholder="Sanani tanlang"
+                    calendarProps={
+                        currentDriver?.id ?
+                            {}
+                        :   { disabled: { before: new Date() } }
+                    }
                 />
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button

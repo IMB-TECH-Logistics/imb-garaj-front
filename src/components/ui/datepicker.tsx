@@ -52,7 +52,9 @@ export function DatePicker({
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ?
                         format(date, "dd.MM.yyyy")
-                    :   <span>{placeholder || "Kunni tanlang"}</span>}
+                    :   <span className="text-muted-foreground">
+                            {placeholder || "Kunni tanlang"}
+                        </span>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
