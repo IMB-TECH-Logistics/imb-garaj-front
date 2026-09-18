@@ -11,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
+import { Switch } from "@/components/ui/switch"
 import PermissionField from "./permission-field"
 
 const UserFormPage = () => {
@@ -44,34 +45,15 @@ const UserFormPage = () => {
     )?.name
     const isDriver = selectedRoleName?.toLowerCase() === "driver"
 
-    // Rol tanlanganda o'sha rolning action'lari default belgilanadi.
-    // Tahrirlashda esa birinchi yuklashda foydalanuvchining saqlangan
-    // action'lari saqlanib qoladi (faqat rol qo'lda o'zgartirilganda
-    // yangi rolning default action'lari qo'yiladi).
-    const prevRoleRef = useRef<number | undefined>(undefined)
-    const keepSavedActionsRef = useRef<boolean>(!!id)
-
-    useEffect(() => {
-        if (!selectedRole || roles.length === 0) return
-        if (id && !userData) return
-
-        if (keepSavedActionsRef.current) {
-            keepSavedActionsRef.current = false
-            prevRoleRef.current = Number(selectedRole)
-            return
-        }
-
-        if (prevRoleRef.current === Number(selectedRole)) return
-        prevRoleRef.current = Number(selectedRole)
-
-        const role = roles.find(
-            (r) => Number(r.id) === Number(selectedRole),
-        )
-        form.setValue("actions", role?.actions ?? [], {
-            shouldDirty: true,
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedRole, userRole, userData, id])
+    // Rol ruxsatlari xodimga NUSXALANMAYDI: backend ularni `effective_actions`
+    // (rol ∪ shaxsiy) sifatida o'zi qo'shadi. Bu yerda ular faqat meros
+    // ko'rinishida — belgilangan va o'zgartirib bo'lmaydigan holatda — chiziladi,
+    // xodimga esa faqat qo'shimcha ruxsatlar yoziladi.
+    const inheritsRole = useWatch({ control, name: "inherits_role" }) ?? true
+    const inheritedActions = !inheritsRole
+        ? []
+        :
+        roles.find((r) => Number(r.id) === Number(selectedRole))?.actions ?? []
 
     const queryClient = useQueryClient()
 
@@ -158,8 +140,30 @@ const UserFormPage = () => {
                     />
 
                     {!isDriver && (
+                        <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
+                            <div>
+                                <p className="text-sm font-medium">
+                                    Rol ruxsatlarini meros olsin
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    O‘chirilsa, xodimga faqat quyida
+                                    belgilangan ruxsatlar amal qiladi.
+                                </p>
+                            </div>
+                            <Switch
+                                checked={inheritsRole}
+                                onCheckedChange={(checked) =>
+                                    form.setValue("inherits_role", checked, {
+                                        shouldDirty: true,
+                                    })
+                                }
+                            />
+                        </div>
+                    )}
+
+                    {!isDriver && (
                         <div className="md:col-span-2">
-                            <PermissionField />
+                            <PermissionField inherited={inheritedActions} />
                         </div>
                     )}
 

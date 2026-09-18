@@ -12,7 +12,6 @@ import {
     SETTINGS_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINTS_PAYMENT_TYPE,
-    TRIPS_ORDERS,
 } from "@/constants/api-endpoints"
 import {
     isNaqdPaymentTypeName,
@@ -35,7 +34,7 @@ type Option = { id: number; name: string }
 
 type StatusOption = { id: string; name: string }
 
-const STATUS_OPTIONS: StatusOption[] = [
+export const STATUS_OPTIONS: StatusOption[] = [
     { id: "0", name: "Kutilmoqda" },
     { id: "1", name: "Boshlandi" },
     { id: "5", name: "Yuklanmoqda" },
@@ -46,7 +45,7 @@ const STATUS_OPTIONS: StatusOption[] = [
     { id: "4", name: "Arxivlangan" },
 ]
 
-const ACTIVITY_OPTIONS: StatusOption[] = [
+export const ACTIVITY_OPTIONS: StatusOption[] = [
     { id: "1", name: "Reys" },
     { id: "2", name: "Garajda" },
     { id: "3", name: "Ta'mirda" },
@@ -308,7 +307,7 @@ const AddTripOrders = () => {
                 : "Buyurtma qo'shildi!",
         )
         reset()
-        clearKey(TRIPS_ORDERS)
+        clearKey(MANAGERS_ORDERS)
         closeModal()
         queryClient.refetchQueries({ queryKey: [MANAGERS_ORDERS] })
     }
@@ -424,6 +423,7 @@ const AddTripOrders = () => {
             >
                 <FormCombobox
                     required
+                    hideError={false}
                     label="Holat"
                     name="activity"
                     control={control}
@@ -449,6 +449,7 @@ const AddTripOrders = () => {
                         {!isNaqd && (
                             <FormCombobox
                                 required
+                                hideError={false}
                                 label="Yuk beruvchi"
                                 name="client"
                                 control={control}
@@ -478,6 +479,7 @@ const AddTripOrders = () => {
                                 <div className="flex flex-col gap-4 flex-1">
                                     <FormCombobox
                                         required
+                                        hideError={false}
                                         name="loading"
                                         control={control}
                                         options={loadsData}
@@ -490,6 +492,7 @@ const AddTripOrders = () => {
                                     />
                                     <FormCombobox
                                         required
+                                        hideError={false}
                                         name="unloading"
                                         control={control}
                                         options={unloadsData}
@@ -509,6 +512,7 @@ const AddTripOrders = () => {
                     <div className="rounded-lg border bg-card/50 p-4">
                         <FormCombobox
                             required
+                            hideError={false}
                             label="Shahar"
                             name="loading"
                             control={control}
@@ -540,6 +544,7 @@ const AddTripOrders = () => {
                     <div className="flex-1">
                         <FormDatePicker
                             required
+                            hideError={false}
                             label="Sana"
                             control={control}
                             name="date"

@@ -6,6 +6,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { DatePickerWithRange } from "../form/date-range-picker";
 import { useEffect } from "react";
 import { ButtonProps } from "../ui/button";
+import { toast } from "sonner";
 
 interface IProps {
     name?: string;
@@ -19,6 +20,13 @@ interface IProps {
     defaultValue?: DateRange | undefined;
     clearable?: boolean
      addButtonProps?: ButtonProps
+}
+
+export function isReversedRange(fromDate?: string, toDate?: string) {
+    if (!fromDate || !toDate) return false;
+    const start = new Date(fromDate).getTime();
+    const end = new Date(toDate).getTime();
+    return !Number.isNaN(start) && !Number.isNaN(end) && start > end;
 }
 
 export default function ParamDateRange({
@@ -41,9 +49,10 @@ export default function ParamDateRange({
 
     const fromDateString = search[from];
     const toDateString = search[to];
+    const isReversed = isReversedRange(fromDateString, toDateString);
 
     useEffect(() => {
-        if (defaultValue && !fromDateString && !toDateString) {
+        if (defaultValue && ((!fromDateString && !toDateString) || isReversed)) {
             navigate({
                 search: {
                     ...search,
@@ -53,9 +62,15 @@ export default function ParamDateRange({
                     [to]: defaultValue?.to
                         ? format(defaultValue.to, dateFormat)
                         : undefined,
+                    ...(isReversed ? { page: undefined } : {}),
                 },
                 replace: true,
             });
+            if (isReversed) {
+                toast.warning("Sana oralig'i noto'g'ri edi, joriy oy qo'yildi", {
+                    id: "reversed-date-range",
+                });
+            }
         }
     }, [fromDateString, toDateString]);
 

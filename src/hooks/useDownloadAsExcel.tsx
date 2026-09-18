@@ -5,6 +5,8 @@ import { toast } from "sonner"
 import { useModal } from "./useModal"
 import axiosInstance from "@/services/axios-instance"
 
+const normalizeUrl = (url?: string) => `/${(url ?? "").replace(/^\/+|\/+$/g, "")}/`
+
 export const useDownloadAsExcel = ({
     url,
     name,
@@ -25,7 +27,7 @@ export const useDownloadAsExcel = ({
     const trigger = async () => {
         setIsFetching(true)
         try {
-            const response = await axiosInstance.get(url, {
+            const response = await axiosInstance.get(normalizeUrl(url), {
                 responseType: "blob",
                 params,
             })
@@ -53,7 +55,7 @@ export const useDownloadAsExcel = ({
     ) => {
         setIsFetching(true)
         try {
-            const response = await axiosInstance.get(passwordUrl, {
+            const response = await axiosInstance.get(normalizeUrl(passwordUrl), {
                 responseType: "blob",
                 params: {
                     ...params,

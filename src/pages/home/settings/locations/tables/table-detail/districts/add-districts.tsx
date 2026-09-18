@@ -101,6 +101,7 @@ const AddDestrictsModal = ({
                     required
                     name="name"
                     label="Tuman nomi"
+                    maxLength={255}
                     methods={form}
                 />
                 <div className="space-y-2">

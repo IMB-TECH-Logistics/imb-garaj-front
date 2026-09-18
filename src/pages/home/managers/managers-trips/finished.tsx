@@ -223,6 +223,8 @@ export default function FinishManagerTrips() {
                     name="end_fuel"
                     label="Yoqilg‘i"
                     required
+                    decimalScale={2}
+                    allowNegative={false}
                     control={control}
                 />
 

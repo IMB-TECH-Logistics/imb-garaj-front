@@ -9,6 +9,9 @@ import { useSearch } from "@tanstack/react-router"
 import TableHeaderLocation from "../../table-header"
 import AddRegionsModal from "./add-regions"
 import { useColumnsRegionsTable } from "./regions-cols"
+const REGION_PAGE_KEY = "region_page"
+const REGION_PAGE_SIZE_KEY = "region_page_size"
+
 const RegionsTable = ({ country_id }: { country_id: number }) => {
     const search = useSearch({ strict: false })
 
@@ -18,8 +21,8 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             params: {
                 country: country_id,
                 search: search.region_search,
-                page: 1,
-                page_size: 1000,
+                page: search[REGION_PAGE_KEY],
+                page_size: search[REGION_PAGE_SIZE_KEY],
             },
         },
     )
@@ -58,7 +61,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                     modalKey="create-region"
                     name="Viloyatlar"
                     searchKey="region_search"
-                    pageKey="page"
+                    pageKey={REGION_PAGE_KEY}
                     title="Joylashuvlar"
                     count={data?.count}
                 />
@@ -72,8 +75,12 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                     onDelete={handleDelete}
                     className="min-w-[400px]"
                     numeration={true}
-                    viewAll={true}
-                    paginationProps={{ totalPages: 1 }}
+                    actionPermissions={["settings_locations_control"]}
+                    paginationProps={{
+                        totalPages: data?.total_pages,
+                        paramName: REGION_PAGE_KEY,
+                        pageSizeParamName: REGION_PAGE_SIZE_KEY,
+                    }}
                     wrapperClassName="!bg-transparent"
                 />
             </div>

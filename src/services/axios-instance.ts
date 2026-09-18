@@ -49,7 +49,12 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(error)
         }
         if (status === 403) {
-            toast.error("Sizga ruxsat berilmagan" + ": " + error?.config?.url)
+            console.warn("403:", error?.config?.method, error?.config?.url)
+            toast.error("Sizga ruxsat berilmagan", {
+                id: "forbidden",
+                description:
+                    "Bu amal uchun rolingizda ruxsat yo\u2018q. Administratorga murojaat qiling.",
+            })
         }
         return Promise.reject(error)
     },

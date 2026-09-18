@@ -6,6 +6,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import PermissionField from "../users/permission-field"
@@ -24,6 +25,13 @@ const AddRolesModal = () => {
     })
 
     const { handleSubmit, reset } = form
+
+    useEffect(() => {
+        reset({
+            name: currentRole?.name ?? "",
+            actions: currentRole?.actions ?? [],
+        })
+    }, [currentRole?.id, currentRole?.actions?.join(","), reset])
 
     const onSuccess = () => {
         toast.success(

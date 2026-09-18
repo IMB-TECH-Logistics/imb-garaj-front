@@ -13,8 +13,6 @@ export const LOGIN = "auth/login"
 export const PROFILE = "profile"
 
 /** ===== TRIPS ===== */
-export const TRIPS = "trips"
-export const TRIPS_ORDERS = "trips/orders"
 export const TRIPS_ORDERS_PAYMENT = "trips/order-payments"
 export const TRIPS_DRIVER_STATS = "trips/driver-stats"
 
@@ -31,6 +29,7 @@ export const CASHFLOW_STATISTICS = "checkout/cashflow-statistic"
 /** ===== USERS / DRIVERS / ROLES ===== */
 export const SETTINGS_USERS = "users"
 export const SETTINGS_ROLES = "users/roles"
+export const USERS_PERMISSIONS = "users/permissions"
 export const SETTINGS_DRIVERS = "users/drivers"
 export const DRIVERS_BALANCE = "users/drivers/balance"
 
@@ -60,6 +59,7 @@ export const SETTINGS_SELECTABLE_VEHICLE_TYPE = "selectable/vehicle-type"
 export const SETTINGS_SELECTABLE_USERS = "selectable/user"
 export const SETTINGS_SELECTABLE_CLIENT = "selectable/client"
 export const SETTINGS_SELECTABLE_DISTRICT = "selectable/district"
+export const SETTINGS_SELECTABLE_REGION = "selectable/region"
 export const SETTINGS_SELECTABLE_PAYMENT_TYPE = "selectable/payment-type"
 export const SETTINGS_SELECTABLE_CARGO_TYPE = "selectable/cargo-type"
 export const SETTINGS_SELECTABLE_EXPENSE_CATEGORY = "selectable/expense-category"
@@ -109,6 +109,7 @@ export const WAREHOUSE_STATS = "warehouse/stats"
 /** ===== CHECKOUT extras ===== */
 export const CHECKOUT_TOP_UP = "checkout/top-up"
 export const CHECKOUT_EXPENSE = "checkout/expense"
+export const CHECKOUT_TRANSACTIONS = "checkout/transactions"
 export const TRANSACTIONS = "transaction"
 export const PETROL_STATIONS_STATS = "petrol-stations/stats"
 

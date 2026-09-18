@@ -85,7 +85,7 @@ export default function MonitoringView() {
             trip: num(search?.trip),
             vehicle: num(search?.vehicle),
             fromDate: (search?.mdate as string) ?? "",
-            toDate: "",
+            toDate: (search?.mdate as string) ?? "",
         }),
         [
             search?.driver,
@@ -191,8 +191,10 @@ export default function MonitoringView() {
                     id: d.user,
                     lat: d.lat as number,
                     lng: d.lng as number,
-                    label: d.vehicle_number ?? d.driver_name ?? `#${d.user}`,
-                    sub: d.driver_name ?? undefined,
+                    label: d.vehicle_number || d.driver_name || `#${d.user}`,
+                    sub: d.vehicle_number
+                        ? d.driver_name ?? undefined
+                        : undefined,
                     stale: d.seconds_since > 5 * 60,
                     selected: false,
                     onClick: () => selectDriver(d),
@@ -652,7 +654,9 @@ function HistoricalSummary({
                     Bu davr uchun GPS yozuvi yo'q
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
-                    Boshqa filtr yoki sana oralig'ini sinab ko'ring
+                    {data.latest_at
+                        ? `Oxirgi ma'lumot: ${formatStamp(data.latest_at)}`
+                        : "Bu tanlov uchun GPS yozuvi umuman yo'q"}
                 </p>
             </div>
         )

@@ -88,6 +88,7 @@ export function Combobox<T extends Record<string, any>>({
                 <Button
                     variant={"outline"}
                     role="combobox"
+                    aria-invalid={isError || undefined}
                     className={cn(
                         "w-full justify-between relative   px-4 hover:bg-card font-normal ",
                         value && "font-medium text-foreground",

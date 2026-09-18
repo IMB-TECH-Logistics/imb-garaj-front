@@ -6,6 +6,9 @@ interface ImportMetaEnv {
     readonly VITE_SOCKET_URL: string;
     readonly VITE_HASHED_URL: string;
     readonly VITE_GOOGLE_MAPS_API_KEY: string;
+    readonly VITE_MAP_STYLE_URL: string;
+    readonly VITE_MAP_RASTER_TILES: string;
+    readonly VITE_GEOCODE_URL: string;
 }
 
 interface ImportMeta {

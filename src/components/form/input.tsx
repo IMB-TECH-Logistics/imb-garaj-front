@@ -35,7 +35,7 @@ export function FormInput<IForm extends FieldValues>({
     wrapperClassName,
     className,
     type = "text",
-    hideError = true,
+    hideError = false,
     uppercase = false,
     ...props
 }: IProps<IForm> & React.InputHTMLAttributes<HTMLInputElement>) {
@@ -47,7 +47,10 @@ export function FormInput<IForm extends FieldValues>({
     const error = getNestedValue(errors, name)
 
     const reg = register(name, {
-        required: required ? `${label}ni kiriting` : false,
+        required:
+            required ?
+                `${label || props.placeholder || "Ushbu maydon"}ni kiriting`
+            :   false,
         ...(uppercase && {
             setValueAs: (value: string) => String(value)?.toUpperCase(),
         }),
@@ -82,8 +85,8 @@ export function FormInput<IForm extends FieldValues>({
                 )}
                 wrapperClassName={wrapperClassName as string}
             />
-            {!hideError && error.message && (
-                <FieldError>{error.message?.message as string}</FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </fieldset>
     )

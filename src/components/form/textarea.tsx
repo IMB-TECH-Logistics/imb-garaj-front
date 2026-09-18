@@ -29,7 +29,7 @@ export function FormTextarea<IForm extends FieldValues>({
     registerOptions,
     wrapperClassName,
     className,
-    hideError = true,
+    hideError = false,
     uppercase = false,
     ...props
 }: IProps<IForm> & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
@@ -41,7 +41,7 @@ export function FormTextarea<IForm extends FieldValues>({
     const reg = register(name, {
         required: {
             value: required,
-            message: methods.formState.errors[name]?.message as any,
+            message: label ? `${label}ni kiriting` : "Bu maydonni to'ldiring",
         },
         ...(uppercase && {
             setValueAs: (value: string) => value?.toUpperCase(),

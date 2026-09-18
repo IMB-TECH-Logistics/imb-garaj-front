@@ -69,6 +69,7 @@ export type RoutePolyline = {
     distance_m: number
     first_at: string | null
     last_at: string | null
+    latest_at?: string | null
     bbox: [number, number, number, number] | null
     points: [number, number][]
 }

@@ -1,9 +1,11 @@
+import Forbidden from "@/components/custom/forbidden"
 import Header from "@/components/header"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import type { SEARCH_KEY } from "@/constants/default"
 import { cn } from "@/lib/utils"
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { usePaths } from "@/hooks/usePaths"
+import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_main")({
     component: MainLayout,
@@ -19,6 +21,10 @@ export const Route = createFileRoute("/_main")({
 })
 
 function MainLayout() {
+    const { pathname } = useLocation()
+    const { isDeniedPath } = usePaths()
+    const denied = isDeniedPath(pathname)
+
     return (
         <SidebarProvider defaultOpen={true}>
             <AppSidebar />
@@ -37,7 +43,7 @@ function MainLayout() {
                             "mx-auto p-4 h-full overflow-y-auto   pt-20 flex flex-col pb-10",
                         )}
                     >
-                        <Outlet />
+                        {denied ? <Forbidden /> : <Outlet />}
                     </main>
                 </div>
             </SidebarInset>

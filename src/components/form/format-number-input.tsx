@@ -33,7 +33,7 @@ export function FormFormatNumberInput<IForm extends FieldValues>({
     wrapperClassName,
     className,
     formatOptions,
-    hideError = true,
+    hideError = false,
     format = "",
     ...props
 }: IProps<IForm> & PatternFormatProps) {
@@ -44,7 +44,10 @@ export function FormFormatNumberInput<IForm extends FieldValues>({
         name,
         control,
         rules: {
-            required: { value: required, message: "Ushbu maydon majburiy" },
+            required: {
+                value: required,
+                message: label ? `${label}ni kiriting` : "Ushbu maydon majburiy",
+            },
         },
     });
 

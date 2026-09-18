@@ -3,7 +3,7 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { CASHFLOW_STATISTICS, TRIPS } from "@/constants/api-endpoints"
+import { CASHFLOW_STATISTICS, MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -20,9 +20,9 @@ const ShiftStatisticMain = () => {
     const { openModal: openCreateModal } = useModal("create")
     const { openModal: openDeleteModal } = useModal("delete")
 
-    const currentTrip = getData<TripRow>(TRIPS)
+    const currentTrip = getData<TripRow>(MANAGERS_TRIPS)
 
-    const { data, isLoading } = useGet<ListResponse<TripRow>>(TRIPS, {
+    const { data, isLoading } = useGet<ListResponse<TripRow>>(MANAGERS_TRIPS, {
         params: {
             search: search.driver_name,
             page: search.page,
@@ -39,17 +39,17 @@ const ShiftStatisticMain = () => {
     const columns = useCostCols()
 
     const handleCreate = () => {
-        clearKey(TRIPS)
+        clearKey(MANAGERS_TRIPS)
         openCreateModal()
     }
 
     const handleEdit = (item: TripRow) => {
-        setData(TRIPS, item)
+        setData(MANAGERS_TRIPS, item)
         openCreateModal()
     }
 
     const handleDelete = (row: { original: any }) => {
-        setData(TRIPS, row.original)
+        setData(MANAGERS_TRIPS, row.original)
         openDeleteModal()
     }
 
@@ -158,7 +158,7 @@ const ShiftStatisticMain = () => {
                 </div>
             </Modal>
 
-            <DeleteModal path={TRIPS} id={currentTrip?.id} />
+            <DeleteModal path={MANAGERS_TRIPS} id={currentTrip?.id} />
         </div>
     )
 }

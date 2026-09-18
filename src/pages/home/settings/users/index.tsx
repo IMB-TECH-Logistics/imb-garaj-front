@@ -17,6 +17,7 @@ const UsersPage = () => {
             search: search.first_name,
             page: search.page,
             page_size: search.page_size,
+            ordering: search.ordering,
         },
     })
     const { getData, setData } = useGlobalStore()
@@ -37,6 +38,7 @@ const UsersPage = () => {
         <>
             <DataTable
                 numeration
+                manualSorting
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
@@ -63,6 +65,11 @@ const UsersPage = () => {
                 path={SETTINGS_USERS}
                 refetchKeys={[SETTINGS_USERS]}
                 id={item?.id}
+                name={
+                    item ?
+                        `${item.first_name} ${item.last_name} (${item.username})`
+                    :   undefined
+                }
             />
         </>
     )

@@ -164,6 +164,7 @@ export default function CreateManagerTrips() {
                 <FormNumberInput
                     name="start_mileage"
                     required
+                    allowNegative={false}
                     label={`Boshlash probegi${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
                     control={control}
                 />
@@ -201,6 +202,7 @@ export default function CreateManagerTrips() {
                     label={`Boshlanishdagi yoqilg'i (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
                     control={control}
                     decimalScale={2}
+                    allowNegative={false}
                 />
                 {!item?.id && (
                     <FormNumberInput
@@ -209,6 +211,7 @@ export default function CreateManagerTrips() {
                         control={control}
                         thousandSeparator=" "
                         decimalScale={0}
+                        allowNegative={false}
                         placeholder="Ex: 5 000 000"
                     />
                 )}
@@ -222,6 +225,7 @@ export default function CreateManagerTrips() {
                         <FormNumberInput
                             name="end_mileage"
                             required
+                            allowNegative={false}
                             label="Tugash probegi"
                             control={control}
                         />

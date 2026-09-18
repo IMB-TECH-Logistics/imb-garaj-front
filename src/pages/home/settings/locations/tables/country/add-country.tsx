@@ -51,7 +51,13 @@ const AddCountriesModal = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <FormInput required name="name" label="Davlat" methods={form} />
+            <FormInput
+                required
+                name="name"
+                label="Davlat"
+                maxLength={255}
+                methods={form}
+            />
 
             <div className="flex items-center justify-end  mt-3">
                 <Button

@@ -123,7 +123,7 @@ const AddDriverModal = () => {
                     control={form.control}
                     format="+998 ## ### ## ##"
                     required
-                    label={"Telefon"}
+                    label={"Telefon raqami"}
                     name={"driver.phone"}
                     placeholder="+998 __ ___ __ __"
                 />
@@ -139,7 +139,7 @@ const AddDriverModal = () => {
                     }}
                     uppercase={true}
                     name="driver.passport_serial"
-                    label="Pasport raqami"
+                    label="Pasport seriyasi"
                     methods={form}
                     placeholder="Misol: AA1234567"
                 />
@@ -158,7 +158,7 @@ const AddDriverModal = () => {
                     thousandSeparator={""}
                     required
                     name="driver.pinfl"
-                    label="PINFL"
+                    label="JShShIR"
                     control={form.control}
                     placeholder="Misol: 12345678901234"
                 />
@@ -174,19 +174,28 @@ const AddDriverModal = () => {
 
                 <FormNumberInput
                     required
+                    allowNegative={false}
+                    decimalScale={1}
+                    isAllowed={({ floatValue }) =>
+                        floatValue === undefined || floatValue <= 100
+                    }
                     name="driver.experience"
-                    label="Ish tajribasi (yil)"
+                    label="Ish staji"
                     control={form.control}
-                    min={0}
-                    placeholder="Misol: 5"
+                    placeholder="Misol: 5 yil"
                 />
 
                 <FormDatePicker
                     required
                     name="driver.driver_license_date"
-                    label="Guvohnoma amal qilish muddati"
+                    label="Guvohnoma muddati"
                     control={form.control}
-                    placeholder="15/12/2025"
+                    placeholder="Sanani tanlang"
+                    calendarProps={
+                        currentDriver?.id ?
+                            {}
+                        :   { disabled: { before: new Date() } }
+                    }
                 />
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button

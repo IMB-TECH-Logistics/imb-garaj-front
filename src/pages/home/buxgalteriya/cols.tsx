@@ -1,4 +1,5 @@
 import { CopyButton } from "@/lib/copy-button"
+import { formatDate } from "@/lib/format-date"
 import { formatMoney } from "@/lib/format-money"
 import { toNum } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
@@ -25,6 +26,7 @@ export interface ReysOrder {
     summa_s_nds: string | number
     naqd_amount: string | number
     pct: number
+    nds_percent: number | null
     our_share: string | number
     external_id: string | number
 }
@@ -64,6 +66,7 @@ export const useAccountingCols = () => {
                 accessorKey: "date",
                 size: 100,
                 enableSorting: true,
+                cell: ({ row }) => formatDate(row.original.date) || "—",
             },
             {
                 header: "Yuklash joyi",
@@ -114,14 +117,14 @@ export const useAccountingCols = () => {
                 header: "%",
                 accessorKey: "pct",
                 size: 60,
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => <span>{row.original.pct}%</span>,
             },
             {
                 header: "Naqd",
                 accessorKey: "naqd_amount",
                 size: 120,
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => {
                     const v = toNum(row.original.naqd_amount)
                     return (

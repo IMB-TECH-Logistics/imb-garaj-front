@@ -48,7 +48,7 @@ export function FormDateTimePicker<TForm extends FieldValues>({
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni tanlang` } : {}
+                    required ? { required: label ? `${label}ni tanlang` : "Sana va vaqtni tanlang" } : {}
                 }
                 render={({ field }) => {
                     const value =

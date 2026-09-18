@@ -20,16 +20,24 @@ type Props = {
 
 const DEFAULT_CENTER: LatLng = { lat: 41.31115, lng: 69.27969 }
 
+const RASTER_TILES = (
+    import.meta.env.VITE_MAP_RASTER_TILES ||
+    "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png," +
+        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png," +
+        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png"
+)
+    .split(",")
+    .map((url) => url.trim())
+    .filter(Boolean)
+
+const GEOCODE_URL = import.meta.env.VITE_GEOCODE_URL
+
 const OSM_STYLE: maplibregl.StyleSpecification = {
     version: 8,
     sources: {
         osm: {
             type: "raster",
-            tiles: [
-                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            ],
+            tiles: RASTER_TILES,
             tileSize: 256,
             attribution: "© OpenStreetMap contributors",
         },
@@ -38,8 +46,11 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 }
 
 const reverseGeocode = async (loc: LatLng): Promise<LocationInfo> => {
+    if (!GEOCODE_URL) {
+        return { address: "", name: "" }
+    }
     try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loc.lat}&lon=${loc.lng}&accept-language=uz`
+        const url = `${GEOCODE_URL}?format=jsonv2&lat=${loc.lat}&lon=${loc.lng}&accept-language=uz`
         const res = await fetch(url, {
             headers: { Accept: "application/json" },
         })

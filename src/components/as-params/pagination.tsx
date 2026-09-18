@@ -161,7 +161,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
                         navigate({
                             search: {
                                 ...search,
-                                [pageSizeParamName]: value,
+                                [pageSizeParamName]: Number(value),
                                 [paramName]: 1,
                             },
                         })

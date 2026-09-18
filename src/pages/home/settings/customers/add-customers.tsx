@@ -1,5 +1,6 @@
 import { FormFormatNumberInput } from "@/components/form/format-number-input"
 import FormInput from "@/components/form/input"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
@@ -54,6 +55,15 @@ const AddCustomerModal = () => {
             return
         }
 
+        const phoneDigits = (values.phone_number || "").replace(/\D/g, "")
+        if (phoneDigits && phoneDigits.length !== 9) {
+            form.setError("phone_number", {
+                type: "manual",
+                message: "Telefon raqam to'liq emas",
+            })
+            return
+        }
+
         if (currentForwarder?.id) {
             updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, values)
         } else {
@@ -90,12 +100,17 @@ const AddCustomerModal = () => {
                         placeholder="+998 __ ___ __ __"
                     />
 
-                    <FormInput
+                    <FormNumberInput
                         required
                         name="nds_percent"
                         label="NDS foizi (%)"
-                        methods={form}
-                        type="number"
+                        control={form.control}
+                        allowNegative={false}
+                        decimalScale={0}
+                        thousandSeparator={""}
+                        isAllowed={({ floatValue }) =>
+                            floatValue === undefined || floatValue <= 100
+                        }
                         placeholder="Masalan: 12"
                     />
 

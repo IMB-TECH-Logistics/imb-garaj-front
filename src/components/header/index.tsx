@@ -26,6 +26,7 @@ const HEADER_SEARCH: { prefix: string; searchKey: string; placeholder: string }[
     { prefix: "/truck", searchKey: "search", placeholder: "Mashina raqami..." },
     { prefix: "/ombor", searchKey: "search", placeholder: "Mahsulot nomi..." },
     { prefix: "/monitoring", searchKey: "q", placeholder: "Mashina yoki haydovchi..." },
+    { prefix: "/flights", searchKey: "search", placeholder: "Mashina, mijoz yoki joy..." },
 ]
 
 const Header = () => {

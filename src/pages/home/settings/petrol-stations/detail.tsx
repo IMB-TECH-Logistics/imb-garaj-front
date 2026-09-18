@@ -21,6 +21,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { formatMoney } from "@/lib/format-money"
+import EmptyBox from "@/components/custom/empty-box"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { useMemo, useState } from "react"
@@ -78,9 +79,9 @@ const PetrolStationDetail = () => {
 
     const hasControl = useHasAction("settings_petrol_stations_control")
 
-    const { data: station } = useGet<PetrolStationRow>(
+    const { data: station, error: stationError } = useGet<PetrolStationRow>(
         `${SETTINGS_PETROL_STATIONS}/${stationId}`,
-        { enabled: !!stationId },
+        { enabled: !!stationId, options: { retry: false } },
     )
 
     const { data: stats } = useGet<StationStats>(
@@ -90,7 +91,7 @@ const PetrolStationDetail = () => {
                 from_date: search.from_date,
                 to_date: search.to_date,
             },
-            enabled: !!stationId,
+            enabled: !!station,
         },
     )
 
@@ -105,7 +106,7 @@ const PetrolStationDetail = () => {
             from_date: search.from_date,
             to_date: search.to_date,
         },
-        enabled: !!stationId,
+        enabled: !!station,
     })
 
     const { openModal: openTopUp } = useModal("petrol-top-up")
@@ -198,6 +199,23 @@ const PetrolStationDetail = () => {
         } as any)
     }
 
+    const notFound = !stationId || stationError?.response?.status === 404
+    if (notFound) {
+        return (
+            <div className="space-y-4 pb-6">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate({ to: "/petrol-stations" })}
+                >
+                    <ArrowLeft size={18} />
+                    Zapravkalar ro'yxatiga qaytish
+                </Button>
+                <h1 className="text-xl font-semibold">Zapravka topilmadi</h1>
+                <EmptyBox height="h-[50vh]" />
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-4 pb-6">
             <div className="flex items-center justify-between gap-3">
@@ -275,7 +293,7 @@ const PetrolStationDetail = () => {
                                 Chiqim
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-rose-600">
-                                −
+                                {Number(stats?.total_outcomes ?? 0) > 0 ? "−" : ""}
                                 {formatMoney(
                                     Number(stats?.total_outcomes ?? 0),
                                 )}{" "}

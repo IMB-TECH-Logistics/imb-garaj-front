@@ -27,7 +27,7 @@ import {
 import { DEFAULT_PAGE_SIZE, PAGE_KEY, PAGE_SIZE_KEY } from "@/constants/default"
 import { useHasAction } from "@/constants/useUser"
 import { cn } from "@/lib/utils"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
 import CursorPagination from "../as-params/cursor-pagination"
 import LimitOffsetPagination from "../as-params/limit-offset-pagination"
@@ -69,6 +69,7 @@ interface DataTableProps<TData> {
     head?: React.ReactNode
     viewCount?: number | boolean | undefined
     sortable?: boolean
+    manualSorting?: boolean
     stickyHeader?: boolean
     numeration?: boolean
     wrapperClassName?: string
@@ -108,6 +109,7 @@ export function DataTable<TData>({
     viewAll,
     head,
     numeration = false,
+    manualSorting = false,
     stickyHeader = false,
     wrapperClassName,
     actionMenuMode,
@@ -138,16 +140,27 @@ export function DataTable<TData>({
         controlledRowSelection ?? {},
     )
 
-    const hasActions = actionPermissions && useHasAction(actionPermissions)
+    const hasActionPermission = useHasAction(actionPermissions ?? [])
+    const canUseActions = !actionPermissions || hasActionPermission
 
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const search: any = useSearch({ from: "/_main" })
+    const navigate = useNavigate()
+    const urlSorting: SortingState =
+        manualSorting && search.ordering ?
+            [
+                {
+                    id: String(search.ordering).replace(/^-/, ""),
+                    desc: String(search.ordering).startsWith("-"),
+                },
+            ]
+        :   []
 
     const orderedColumns = React.useMemo(() => {
-        if (hasActions) return columns
+        if (!canUseActions) return columns
 
         if (onDelete || onEdit || onUndo || onView || onRedo || rowAction) {
             return [
@@ -165,12 +178,22 @@ export function DataTable<TData>({
                                 onDelete={
                                     onDelete ? () => onDelete?.(row) : undefined
                                 }
-                                onEdit={onEdit ? () => onEdit?.(row) : undefined}
-                                onUndo={onUndo ? () => onUndo?.(row) : undefined}
-                                onView={onView ? () => onView?.(row) : undefined}
-                                onRedo={onRedo ? () => onRedo?.(row) : undefined}
+                                onEdit={
+                                    onEdit ? () => onEdit?.(row) : undefined
+                                }
+                                onUndo={
+                                    onUndo ? () => onUndo?.(row) : undefined
+                                }
+                                onView={
+                                    onView ? () => onView?.(row) : undefined
+                                }
+                                onRedo={
+                                    onRedo ? () => onRedo?.(row) : undefined
+                                }
                                 onFinished={
-                                    onFinished ? () => onFinished?.(row) : undefined
+                                    onFinished ?
+                                        () => onFinished?.(row)
+                                    :   undefined
                                 }
                             />
                         </div>
@@ -178,7 +201,17 @@ export function DataTable<TData>({
                 },
             ]
         } else return columns
-    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView, onFinished, rowAction, hasActions])
+    }, [
+        actionMenuMode,
+        columns,
+        onDelete,
+        onEdit,
+        onUndo,
+        onView,
+        onFinished,
+        rowAction,
+        canUseActions,
+    ])
 
     React.useEffect(() => {
         if (
@@ -192,7 +225,25 @@ export function DataTable<TData>({
     const table = useReactTable({
         data: data || [],
         columns: orderedColumns,
-        onSortingChange: setSorting,
+        onSortingChange:
+            manualSorting ?
+                (updater) => {
+                    const next =
+                        typeof updater === "function" ?
+                            updater(urlSorting)
+                        :   updater
+                    const s = next[0]
+                    navigate({
+                        search: (prev: any) => ({
+                            ...prev,
+                            ordering:
+                                s ? `${s.desc ? "-" : ""}${s.id}` : undefined,
+                            [paramName]: undefined,
+                        }),
+                    } as any)
+                }
+            :   setSorting,
+        manualSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel({
@@ -204,7 +255,7 @@ export function DataTable<TData>({
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         state: {
-            sorting,
+            sorting: manualSorting ? urlSorting : sorting,
             columnFilters,
             columnVisibility,
             rowSelection,
@@ -324,7 +375,13 @@ export function DataTable<TData>({
                                         className="border-none "
                                     >
                                         {selecteds_row && (
-                                            <TableHead className={cn("w-8 px-2", stickyHeader && "sticky top-0 bg-card z-10")}>
+                                            <TableHead
+                                                className={cn(
+                                                    "w-8 px-2",
+                                                    stickyHeader &&
+                                                        "sticky top-0 bg-card z-10",
+                                                )}
+                                            >
                                                 <Checkbox
                                                     checked={
                                                         table.getIsAllPageRowsSelected() ||
@@ -345,7 +402,8 @@ export function DataTable<TData>({
                                                 className={cn(
                                                     " px-2  cursor-pointer",
                                                     index === 0 && "w-8",
-                                                    stickyHeader && "sticky top-0 bg-card z-10",
+                                                    stickyHeader &&
+                                                        "sticky top-0 bg-card z-10",
                                                 )}
                                             >
                                                 №
@@ -359,7 +417,9 @@ export function DataTable<TData>({
                                                 const hideSortIndicator = (
                                                     header.column.columnDef
                                                         .meta as
-                                                        | { hideSortIndicator?: boolean }
+                                                        | {
+                                                              hideSortIndicator?: boolean
+                                                          }
                                                         | undefined
                                                 )?.hideSortIndicator
                                                 const showSort =
@@ -371,16 +431,30 @@ export function DataTable<TData>({
                                                         key={header.id}
                                                         className={cn(
                                                             " px-2 cursor-pointer",
-                                                            stickyHeader && "sticky top-0 bg-card z-10",
+                                                            stickyHeader &&
+                                                                "sticky top-0 bg-card z-10",
                                                         )}
-                                                        style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}
+                                                        style={
+                                                            (
+                                                                header.column
+                                                                    .columnDef
+                                                                    .size
+                                                            ) ?
+                                                                {
+                                                                    width: header
+                                                                        .column
+                                                                        .columnDef
+                                                                        .size,
+                                                                }
+                                                            :   undefined
+                                                        }
                                                         onClick={
                                                             showSort ?
                                                                 header.column.getToggleSortingHandler()
                                                             :   undefined
                                                         }
                                                     >
-                                                        <div className="cursor-pointer flex items-center gap-1 select-none w-max">
+                                                        <div className="cursor-pointer flex items-center gap-1 select-none whitespace-normal">
                                                             {flexRender(
                                                                 header.column
                                                                     .columnDef
@@ -473,25 +547,37 @@ export function DataTable<TData>({
                                             </TableCell>
                                         )}
 
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell
-                                                key={cell.id}
-                                                onClick={() => {
-                                                    onRowClick?.(
-                                                        cell.row.original,
-                                                    )
-                                                }}
-                                                className={cn(
-                                                    `cursor-pointer border-r   dark:border-secondary/50 border-secondary last:border-none 
-                                                         `,
-                                                )}
-                                            >
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext(),
-                                                )}
-                                            </TableCell>
-                                        ))}
+                                        {row.getVisibleCells().map((cell) => {
+                                            const clickable =
+                                                !!onRowClick &&
+                                                cell.column.id !== "action"
+
+                                            return (
+                                                <TableCell
+                                                    key={cell.id}
+                                                    onClick={
+                                                        clickable ?
+                                                            () =>
+                                                                onRowClick?.(
+                                                                    cell.row
+                                                                        .original,
+                                                                )
+                                                        :   undefined
+                                                    }
+                                                    className={cn(
+                                                        "border-r dark:border-secondary/50 border-secondary last:border-none",
+                                                        clickable &&
+                                                            "cursor-pointer",
+                                                    )}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef
+                                                            .cell,
+                                                        cell.getContext(),
+                                                    )}
+                                                </TableCell>
+                                            )
+                                        })}
                                     </TableRow>
                                 ))
                             :   <TableRow>

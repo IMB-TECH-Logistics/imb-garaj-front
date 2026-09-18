@@ -16,6 +16,7 @@ export default function Managers() {
                 page_size:search.page_size,
                 page:search.page,
                 search:search.search,
+                ordering:(search as Record<string, any>).ordering,
             }
         })
     const navigate = useNavigate()
@@ -37,6 +38,7 @@ export default function Managers() {
         <>
             <DataTable
                 loading={isLoading}
+                manualSorting
                 numeration
                 data={data?.results}
                 columns={cols}
