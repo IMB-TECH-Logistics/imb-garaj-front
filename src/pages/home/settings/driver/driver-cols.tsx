@@ -11,7 +11,7 @@ export const useColumnsDriverTable = () => {
             },
             {
                 accessorKey: "last_name",
-                header: "Ism",
+                header: "Familiya",
                 enableSorting: true,
             },
             {
