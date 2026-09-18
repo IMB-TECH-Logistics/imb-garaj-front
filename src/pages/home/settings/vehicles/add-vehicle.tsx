@@ -119,6 +119,22 @@ const AddVehicleSettingsModal = () => {
                     label="Tex passport"
                     methods={form}
                 />
+                <FormNumberInput
+                    name="stir"
+                    label="STIR / JSHSHIR"
+                    control={control}
+                    thousandSeparator=""
+                    decimalScale={0}
+                    maxLength={14}
+                    registerOptions={{
+                        validate: (v: string) => {
+                            if (!v) return true
+                            if (!/^\d+$/.test(v)) return "Faqat raqam kiriting"
+                            if (v.length !== 9 && v.length !== 14) return "9 (STIR) yoki 14 (JSHSHIR) xonali bo'lishi kerak"
+                            return true
+                        },
+                    }}
+                />
                 <FormInput
                     name="trailer_number"
                     label="Tirkama raqami"

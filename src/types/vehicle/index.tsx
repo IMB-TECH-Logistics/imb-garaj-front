@@ -32,6 +32,7 @@ type VehicleDetailType = {
     updated: string
     truck_number: string
     truck_passport: string
+    stir?: string | null
     trailer_number: string
     fuel: string
     truck_type: number

@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge"
+import { ImageIcon } from "lucide-react"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { ImageIcon } from "lucide-react"
 import { useMemo } from "react"
 import { STATUS_TRIP } from "../managers-trips/cols"
 
@@ -60,9 +60,30 @@ export const useColumnsManagersOrders = (opts?: {
                 enableSorting: true,
             },
             {
+                accessorKey: "external_id",
+                header: "Yuk ID",
+                size: 120,
+                cell: ({ row }) => {
+                    const extId = row.original.external_id
+                    if (!extId) return <span className="text-muted-foreground">—</span>
+                    return (
+                        <Badge variant="outline" className="text-xs font-mono bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
+                            {extId}
+                        </Badge>
+                    )
+                },
+            },
+            {
+                accessorKey: "logistics_distributor_code",
+                header: "Firma kodi",
+                size: 110,
+                cell: ({ row }) => row.original.logistics_distributor_code || <span className="text-muted-foreground">—</span>,
+            },
+            {
                 accessorKey: "date",
                 header: "Yaratilagan sana",
                 enableSorting: true,
+                cell: ({ row }) => formatDateSafe(row.original.date),
             },
             {
                 accessorKey: "activity_display",
@@ -137,15 +158,9 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "pending_time",
-                header: "Pending vaqt",
+                header: "Boshlash vaqti",
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.pending_time)}</span>,
-            },
-            {
-                accessorKey: "started_time",
-                header: "Boshlangan vaqt",
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.started_time)}</span>,
             },
             {
                 accessorKey: "loading_time",
@@ -167,7 +182,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "completed_time",
-                header: "Yakunlangan",
+                header: "Tugash vaqti",
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.completed_time)}</span>,
             },

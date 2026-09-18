@@ -47,6 +47,7 @@ type ManagerOrdersPayments = {
 
 type ManagerOrders = {
     id: number
+    trip?: number
     loading: number
     loading_name: string
     unloading: number
@@ -72,6 +73,12 @@ type ManagerOrders = {
     canceled_time: string
     archived_time: string
     images?: { id: number; image: string }[]
+    external_id?: string | null
+    is_integration?: boolean
+    logistics_ttn?: string | null
+    logistics_product?: string | null
+    logistics_distributor?: string | null
+    logistics_distributor_code?: string | null
 }
 
 type ManagerExpenses = {

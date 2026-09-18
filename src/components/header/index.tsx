@@ -8,6 +8,8 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ThemeColorToggle } from "./color-toggle"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
+import { IntegrationNotification } from "./integration-notification"
+import { useHasAction } from "@/constants/useUser"
 
 // Per-section search box shown in the header. Settings ("Sozlamalar") routes are
 // intentionally excluded — they keep their own in-page search. Matched by pathname
@@ -44,6 +46,8 @@ const Header = () => {
         if (cfg.prefix === "/monitoring" && !search?.report) return undefined
         return cfg
     }, [pathname, search?.report])
+
+    const canSeeIntegration = useHasAction("manager_vehicles_view")
 
     const activeTab = useMemo(() => {
         // Find the matching tab for nested routes (e.g. /manager-trips/123 -> /managers)
@@ -110,6 +114,7 @@ const Header = () => {
                         }}
                     />
                 )}
+                {canSeeIntegration && <IntegrationNotification />}
                 <div className="flex sm:gap-2">
                     <ThemeColorToggle />
                 </div>
