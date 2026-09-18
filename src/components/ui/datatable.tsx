@@ -410,7 +410,7 @@ export function DataTable<TData>({
                                                             :   undefined
                                                         }
                                                     >
-                                                        <div className="cursor-pointer flex items-center gap-1 select-none w-max">
+                                                        <div className="cursor-pointer flex items-center gap-1 select-none whitespace-normal">
                                                             {flexRender(
                                                                 header.column
                                                                     .columnDef
