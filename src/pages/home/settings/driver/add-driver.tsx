@@ -176,6 +176,9 @@ const AddDriverModal = () => {
                     required
                     allowNegative={false}
                     decimalScale={1}
+                    isAllowed={({ floatValue }) =>
+                        floatValue === undefined || floatValue <= 100
+                    }
                     name="driver.experience"
                     label="Ish tajribasi (yil)"
                     control={form.control}
