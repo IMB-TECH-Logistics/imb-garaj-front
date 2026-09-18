@@ -10,6 +10,7 @@ type VehicleRoleType = {
     name: string
     type: string
     owner:number
+    flow_type?: number
 }
 
 type VehicleCashflowsType = {
