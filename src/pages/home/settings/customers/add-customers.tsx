@@ -54,6 +54,15 @@ const AddCustomerModal = () => {
             return
         }
 
+        const phoneDigits = (values.phone_number || "").replace(/\D/g, "")
+        if (phoneDigits && phoneDigits.length !== 9) {
+            form.setError("phone_number", {
+                type: "manual",
+                message: "Telefon raqam to'liq emas",
+            })
+            return
+        }
+
         if (currentForwarder?.id) {
             updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, values)
         } else {
