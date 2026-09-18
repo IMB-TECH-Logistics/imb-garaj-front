@@ -74,7 +74,11 @@ export default function DeleteModal({
         <Modal size="max-w-md" modalKey={modalKey}>
             <DialogHeader>
                 <DialogTitle className="font-normal max-w-sm">
-                    {name}
+                    {name ?
+                        <span className="block font-medium mb-1 break-all">
+                            {name}
+                        </span>
+                    :   null}
                     {`Siz haqiqatdan ham o'chirishni xohlaysizmi?`}
                 </DialogTitle>
                 <DialogDescription>

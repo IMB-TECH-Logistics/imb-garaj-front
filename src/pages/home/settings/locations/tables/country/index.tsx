@@ -73,11 +73,7 @@ const CountriesTable = () => {
                 modalKey="delete-country"
                 path={SETTINGS_COUNTRIES}
                 id={selectedCountry?.id}
-                name={
-                    <span className="block font-medium mb-1 break-all">
-                        {selectedCountry?.name}
-                    </span>
-                }
+                name={selectedCountry?.name}
             />
         </div>
     )

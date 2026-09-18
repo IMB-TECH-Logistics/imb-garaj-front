@@ -64,7 +64,11 @@ const Customers = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_CUSTOMERS} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_CUSTOMERS}
+                id={item?.id}
+                name={item?.name}
+            />
             <Modal
                 size="max-w-2xl"
                 title={`Mijoz ${item?.id ? "tahrirlash" : "qo'shish"}`}
