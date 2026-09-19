@@ -15,7 +15,8 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { PROFILE } from "@/constants/api-endpoints"
+import { LOGOUT, PROFILE } from "@/constants/api-endpoints"
+import axiosInstance from "@/services/axios-instance"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
@@ -31,7 +32,12 @@ export function NavUser() {
         user?.username ||
         "Super Admin"
 
-    const logOut = () => {
+    const logOut = async () => {
+        try {
+            await axiosInstance.post(`/${LOGOUT}/`)
+        } catch {
+            // token yaroqsiz bo‘lsa ham chiqaveramiz
+        }
         localStorage.clear()
         navigate({ to: "/auth" })
     }
