@@ -16,6 +16,7 @@ const STORE_KEY = "petrol-cash-flow"
 
 type FormValues = {
     amount: string | number | ""
+    quantity: string | number | ""
     currency: 1 | 2
     currency_course: string | number | ""
     comment: string
@@ -48,6 +49,7 @@ const EditCashFlowModal = () => {
     const form = useForm<FormValues>({
         defaultValues: {
             amount: current?.amount ?? "",
+            quantity: current?.liters ?? "",
             currency: (current?.currency as 1 | 2) ?? 1,
             currency_course: current?.currency_course ?? "",
             comment: current?.comment ?? "",
@@ -60,6 +62,7 @@ const EditCashFlowModal = () => {
         if (!current?.id) return
         reset({
             amount: current.amount ?? "",
+            quantity: current.liters ?? "",
             currency: (current.currency as 1 | 2) ?? 1,
             currency_course: current.currency_course ?? "",
             comment: current.comment ?? "",
@@ -83,6 +86,7 @@ const EditCashFlowModal = () => {
         if (!current?.id) return
         mutate(`${SETTINGS_PETROL_STATIONS}/cash-flows/${current.id}`, {
             amount: Number(values.amount),
+            ...(values.quantity !== "" && { quantity: Number(values.quantity) }),
             currency: values.currency,
             currency_course:
                 values.currency === 2 && values.currency_course !== ""
@@ -111,6 +115,16 @@ const EditCashFlowModal = () => {
                 thousandSeparator=" "
                 decimalScale={currency === 2 ? 2 : 0}
             />
+            {current?.liters != null && (
+                <FormNumberInput
+                    control={control}
+                    label="Miqdor (litr/kub)"
+                    name="quantity"
+                    placeholder="Ex: 50"
+                    thousandSeparator=" "
+                    decimalScale={2}
+                />
+            )}
             {currency === 2 && (
                 <FormNumberInput
                     required
