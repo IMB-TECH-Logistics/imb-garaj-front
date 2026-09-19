@@ -3,6 +3,7 @@ import { useModal } from "@/hooks/useModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { ReactNode, useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
+import { handleFormError } from "@/lib/show-form-errors"
 import { Button } from "../ui/button"
 import {
     DialogDescription,
@@ -63,6 +64,10 @@ export default function DeleteModal({
             if (url) {
                 navigate({ to: url })
             }
+        },
+        onError: (error) => {
+            handleFormError(error)
+            closeModal()
         },
     })
 

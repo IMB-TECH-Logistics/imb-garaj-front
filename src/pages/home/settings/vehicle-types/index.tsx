@@ -64,7 +64,7 @@ const VehicleTypePage = () => {
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_VEHICLE_TYPE} id={item?.id} />
+            <DeleteModal path={SETTINGS_VEHICLE_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
                     item?.id ?
