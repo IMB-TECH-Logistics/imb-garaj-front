@@ -118,7 +118,7 @@ const EditCashFlowModal = () => {
             {current?.liters != null && (
                 <FormNumberInput
                     control={control}
-                    label="Miqdor (litr/kub)"
+                    label={`Miqdor (${current.unit === "m3" ? "m³" : "litr"})`}
                     name="quantity"
                     placeholder="Ex: 50"
                     thousandSeparator=" "
