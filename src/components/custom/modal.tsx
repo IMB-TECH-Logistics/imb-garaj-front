@@ -19,6 +19,7 @@ type Props = {
     classNameTitle?: ClassNameValue
     classNameIcon?: ClassNameValue
     closable?:boolean
+    titleInChildren?: boolean
     size?:
         | "max-w-lg"
         | "max-w-xl"
@@ -45,6 +46,7 @@ const Modal = ({
     size = "max-w-lg",
     onClose,
     closable=true,
+    titleInChildren = false,
 }: Props) => {
     const { isOpen, closeModal } = useModal(modalKey)
 
@@ -70,7 +72,7 @@ const Modal = ({
                             {title}
                         </DialogTitle>
                     )}
-                    {!title && (
+                    {!title && !titleInChildren && (
                         <VisuallyHidden>
                             <DialogTitle>title</DialogTitle>
                         </VisuallyHidden>

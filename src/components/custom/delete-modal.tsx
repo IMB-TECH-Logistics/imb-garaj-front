@@ -76,7 +76,7 @@ export default function DeleteModal({
     }
 
     return (
-        <Modal size="max-w-md" modalKey={modalKey}>
+        <Modal size="max-w-md" modalKey={modalKey} titleInChildren>
             <DialogHeader>
                 <DialogTitle className="font-normal max-w-sm">
                     {name ?
