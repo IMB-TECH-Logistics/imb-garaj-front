@@ -31,7 +31,7 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import GpsList from "./gps-list"
 import { useGpsLiveSocket } from "./gps-socket"
-import { ReplayBar, TrackerHistoryPanel, useLiveTrails, useTrackerHistory } from "./tracker-history"
+import { TrackerHistoryPanel, useLiveTrails, useTrackerHistory } from "./tracker-history"
 import MonitoringFilterBar from "./filter-bar"
 import { LinkDeviceButton } from "./link-device-modal"
 import OrderList from "./order-list"
@@ -555,7 +555,6 @@ export default function MonitoringView() {
                                 pois={trackerImei ? history.map.pois : undefined}
                             />
                         </CardContent>
-                        {trackerImei && <ReplayBar history={history} />}
                     </Card>
                 </div>
 

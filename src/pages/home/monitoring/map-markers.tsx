@@ -104,22 +104,12 @@ export function DriverMarker({ marker }: { marker: LiveMarker }) {
 }
 
 export function PoiMarker({ poi }: { poi: MapPoi }) {
-    if (poi.kind === "stop") {
-        return (
-            <div
-                title={poi.title}
-                className="grid h-6 w-6 place-items-center rounded-md border-2 border-white bg-amber-500 font-mono text-[11px] font-bold text-amber-950 shadow-md"
-            >
-                P
-            </div>
-        )
-    }
     return (
         <div
             title={poi.title}
-            className="grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-sky-500 shadow-lg shadow-slate-900/40"
+            className="grid h-6 w-6 place-items-center rounded-md border-2 border-white bg-amber-500 font-mono text-[11px] font-bold text-amber-950 shadow-md"
         >
-            <Truck className="h-5 w-5 text-white" />
+            P
         </div>
     )
 }

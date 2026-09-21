@@ -46,7 +46,7 @@ export type MapPoi = {
     id: string | number
     lat: number
     lng: number
-    kind: "stop" | "replay"
+    kind: "stop"
     title?: string
 }
 
@@ -62,7 +62,7 @@ export type RouteMapProps = {
     lineColor?: string
     /** Draw the route as per-status colored sub-paths. Overrides the solid line. */
     segments?: ColoredSegment[]
-    /** Small markers drawn above the route: stops and the replay position. */
+    /** Small markers drawn above the route, such as stops. */
     pois?: MapPoi[]
 }
 
