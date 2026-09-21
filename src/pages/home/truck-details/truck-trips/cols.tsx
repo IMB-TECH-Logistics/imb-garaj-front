@@ -135,7 +135,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                         }
                         return (
                             <span className="font-medium text-red-600">
-                                -{formatMoney(value)}
+                                {formatMoney(value)}
                             </span>
                         )
                     }
@@ -151,7 +151,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                                 opts?.onExpenseClick?.(data.trip_id, data.total_expense)
                             }}
                         >
-                            -{formatMoney(total)}
+                            {formatMoney(total)}
                         </span>
                     )
                 },
