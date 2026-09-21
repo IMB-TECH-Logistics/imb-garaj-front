@@ -1,8 +1,10 @@
 import ParamPagination from "@/components/as-params/pagination"
 import DeleteModal from "@/components/custom/delete-modal"
+import EmptyBox from "@/components/custom/empty-box"
 import {
     Table,
     TableBody,
+    TableCell,
     TableHead,
     TableHeader,
     TableRow,
@@ -61,6 +63,13 @@ const CountriesTable = () => {
                                 colSpan={totalColumns}
                             />
                         ))}
+                        {data?.results.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={totalColumns}>
+                                    <EmptyBox height="h-40" />
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>
