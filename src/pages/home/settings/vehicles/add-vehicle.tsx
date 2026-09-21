@@ -15,6 +15,8 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+const MIN_VEHICLE_YEAR = 1950
+
 const IMAGE_FIELDS = [
     "truck_front",
     "truck_back",
@@ -198,12 +200,22 @@ const AddVehicleSettingsModal = () => {
                     isAllowed={({ floatValue }) =>
                         floatValue === undefined || floatValue <= 2100
                     }
+                    registerOptions={{
+                        validate: (v: string | number) => {
+                            if (v === "" || v === null || v === undefined) return true
+                            const maxYear = new Date().getFullYear() + 1
+                            const year = Number(v)
+                            return (year >= MIN_VEHICLE_YEAR && year <= maxYear) ||
+                                `Ishlab chiqarilgan yil ${MIN_VEHICLE_YEAR} va ${maxYear} orasida bo'lishi kerak.`
+                        },
+                    }}
                 />
                 <FormNumberInput
                     name="consumption"
                     label={consumptionLabel}
                     control={control}
                     decimalScale={0}
+                    allowNegative={false}
                 />
                 <FormDatePicker
                     name="registered_date"
