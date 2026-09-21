@@ -29,6 +29,7 @@ import { endOfMonth, startOfMonth } from "date-fns"
 import { useMemo } from "react"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
+import GpsList from "./gps-list"
 import MonitoringFilterBar from "./filter-bar"
 import { LinkDeviceButton } from "./link-device-modal"
 import OrderList from "./order-list"
@@ -342,9 +343,12 @@ export default function MonitoringView() {
               vehicle: "Faol moshinalar",
           } as const)[dimension]
 
+    // Hozircha "driver" ko'rinishida gps-backend trekerlari sanaladi.
+    // Eski hisob: liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
+    const gpsItems = gpsLive.data ?? []
     const freshCount =
         dimension === "driver"
-            ? liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
+            ? gpsItems.filter((g) => g.status === "online").length
             : null
 
     const ribbonDate = filters.fromDate
@@ -424,7 +428,7 @@ export default function MonitoringView() {
                     {mode === "map" &&
                         (freshCount != null ? (
                             <Badge variant="secondary">
-                                Onlayn · {freshCount} / {liveDrivers.length}
+                                Onlayn · {freshCount} / {gpsItems.length}
                             </Badge>
                         ) : (
                             <Badge variant="secondary">
@@ -543,7 +547,9 @@ export default function MonitoringView() {
                                         variant="outline"
                                         className="shrink-0"
                                     >
-                                        {activeList.data.length}
+                                        {dimension === "driver"
+                                            ? gpsItems.length
+                                            : activeList.data.length}
                                     </Badge>
                                 )}
                         </div>
@@ -596,11 +602,12 @@ export default function MonitoringView() {
                                 }
                             />
                         ) : dimension === "driver" ? (
-                            <DriverList
-                                items={liveDrivers}
-                                loading={drivers.isLoading}
-                                activeId={filters.driver}
-                                onSelect={selectDriver}
+                            // Hozircha faqat gps-backend trekerlari. Eski ro'yxat:
+                            // <DriverList items={liveDrivers} loading={drivers.isLoading}
+                            //     activeId={filters.driver} onSelect={selectDriver} />
+                            <GpsList
+                                items={gpsItems}
+                                loading={gpsLive.isLoading}
                             />
                         ) : dimension === "order" ? (
                             <OrderList
