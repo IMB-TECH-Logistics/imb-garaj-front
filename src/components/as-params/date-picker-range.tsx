@@ -22,6 +22,10 @@ interface IProps {
      addButtonProps?: ButtonProps
 }
 
+export function isValidDateParam(value?: string) {
+    return !!value && !Number.isNaN(new Date(value).getTime());
+}
+
 export function isReversedRange(fromDate?: string, toDate?: string) {
     if (!fromDate || !toDate) return false;
     const start = new Date(fromDate).getTime();
@@ -50,8 +54,30 @@ export default function ParamDateRange({
     const fromDateString = search[from];
     const toDateString = search[to];
     const isReversed = isReversedRange(fromDateString, toDateString);
+    const isInvalid =
+        (!!fromDateString && !isValidDateParam(fromDateString)) ||
+        (!!toDateString && !isValidDateParam(toDateString));
 
     useEffect(() => {
+        if (isInvalid) {
+            navigate({
+                search: {
+                    ...search,
+                    [from]: defaultValue?.from
+                        ? format(defaultValue.from, dateFormat)
+                        : undefined,
+                    [to]: defaultValue?.to
+                        ? format(defaultValue.to, dateFormat)
+                        : undefined,
+                    page: undefined,
+                },
+                replace: true,
+            });
+            toast.warning("Sana noto'g'ri formatda edi, standart oraliq qo'yildi", {
+                id: "invalid-date-range",
+            });
+            return;
+        }
         if (defaultValue && ((!fromDateString && !toDateString) || isReversed)) {
             navigate({
                 search: {
@@ -75,8 +101,8 @@ export default function ParamDateRange({
     }, [fromDateString, toDateString]);
 
     const parsedDate: DateRange | undefined = {
-        from: fromDateString ? new Date(fromDateString) : undefined,
-        to: toDateString ? new Date(toDateString) : undefined,
+        from: isValidDateParam(fromDateString) ? new Date(fromDateString) : undefined,
+        to: isValidDateParam(toDateString) ? new Date(toDateString) : undefined,
     };
 
     const handleOnChange = (range: DateRange | undefined) => {
