@@ -1,3 +1,4 @@
+import EmptyBox from "@/components/custom/empty-box"
 import { Button } from "@/components/ui/button"
 import {
     Tooltip,
@@ -5,13 +6,36 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useNavigate, useSearch } from "@tanstack/react-router"
+import { VEHICLES } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Calendar, Truck } from "lucide-react"
 import VehicleTrips from "./truck-trips"
 
 function ViewPage() {
     const navigate = useNavigate()
     const search: any = useSearch({ strict: false })
+    const { id } = useParams({ strict: false }) as { id?: string }
+    const { error: vehicleError } = useGet(`${VEHICLES}/${id}`, {
+        enabled: !!id,
+        options: { retry: false },
+    })
+
+    const goBack = () =>
+        navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })
+
+    if (!id || (vehicleError as any)?.response?.status === 404) {
+        return (
+            <div className="space-y-4 pb-6">
+                <Button variant="ghost" onClick={goBack}>
+                    <ArrowLeft size={18} />
+                    Transportlar ro'yxatiga qaytish
+                </Button>
+                <h1 className="text-xl font-semibold">Transport topilmadi</h1>
+                <EmptyBox height="h-[50vh]" />
+            </div>
+        )
+    }
 
     return (
         <div className="pb-4">
@@ -19,7 +43,7 @@ function ViewPage() {
                 className="flex flex-wrap items-center gap-3 mb-4"
             >
                 <Button
-                    onClick={() => navigate({ to: "/truck", search: { from_date: search?.from_date, to_date: search?.to_date } })}
+                    onClick={goBack}
                     className="shrink-0"
                 >
                     <ArrowLeft className="h-4" />
