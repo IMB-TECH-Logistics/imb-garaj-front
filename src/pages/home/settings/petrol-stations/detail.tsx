@@ -278,7 +278,7 @@ const PetrolStationDetail = () => {
                                 so'm
                             </div>
                             <div className="text-[11px] text-muted-foreground">
-                                {stats?.top_up_count ?? 0} ta operatsiya
+                                {stats?.top_up_count ? `${stats.top_up_count} ta operatsiya` : "—"}
                             </div>
                         </div>
                     </CardContent>

@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { DatePickerWithRange } from "../form/date-range-picker";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ButtonProps } from "../ui/button";
 import { toast } from "sonner";
 
@@ -57,6 +57,7 @@ export default function ParamDateRange({
     const isInvalid =
         (!!fromDateString && !isValidDateParam(fromDateString)) ||
         (!!toDateString && !isValidDateParam(toDateString));
+    const initialApplied = useRef(false);
 
     useEffect(() => {
         if (isInvalid) {
@@ -78,25 +79,31 @@ export default function ParamDateRange({
             });
             return;
         }
-        if (defaultValue && ((!fromDateString && !toDateString) || isReversed)) {
+        if (isReversed && defaultValue) {
             navigate({
                 search: {
                     ...search,
-                    [from]: defaultValue?.from
-                        ? format(defaultValue.from, dateFormat)
-                        : undefined,
-                    [to]: defaultValue?.to
-                        ? format(defaultValue.to, dateFormat)
-                        : undefined,
-                    ...(isReversed ? { page: undefined } : {}),
+                    [from]: defaultValue?.from ? format(defaultValue.from, dateFormat) : undefined,
+                    [to]: defaultValue?.to ? format(defaultValue.to, dateFormat) : undefined,
+                    page: undefined,
                 },
                 replace: true,
             });
-            if (isReversed) {
-                toast.warning("Sana oralig'i noto'g'ri edi, joriy oy qo'yildi", {
-                    id: "reversed-date-range",
-                });
-            }
+            toast.warning("Sana oralig'i noto'g'ri edi, joriy oy qo'yildi", {
+                id: "reversed-date-range",
+            });
+            return;
+        }
+        if (defaultValue && !fromDateString && !toDateString && !initialApplied.current) {
+            initialApplied.current = true;
+            navigate({
+                search: {
+                    ...search,
+                    [from]: defaultValue?.from ? format(defaultValue.from, dateFormat) : undefined,
+                    [to]: defaultValue?.to ? format(defaultValue.to, dateFormat) : undefined,
+                },
+                replace: true,
+            });
         }
     }, [fromDateString, toDateString]);
 

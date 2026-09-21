@@ -341,9 +341,20 @@ export default function AylanmaDetail() {
     const { openModal } = useModal("aylanma-pay-salary")
 
     const ordersUrl = `${DRIVERS_OVERVIEW}/${id}/trips/${tripId}/orders`
-    const { data: orders, isLoading } = useGet<OrderRow[]>(ordersUrl, {
+    const { data: rawOrders, isLoading } = useGet<OrderRow[]>(ordersUrl, {
         enabled: !!tripId,
     })
+
+    const orders = useMemo(() => {
+        if (!rawOrders) return []
+        const from = search?.start ? new Date(search.start) : null
+        const to = search?.end ? new Date(search.end) : null
+        if (!from && !to) return rawOrders
+        return rawOrders.filter((o) => {
+            const d = new Date(o.date)
+            return (!from || d >= from) && (!to || d <= to)
+        })
+    }, [rawOrders, search?.start, search?.end])
 
     const orderCols = useOrderCols()
 

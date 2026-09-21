@@ -128,11 +128,11 @@ export const useDirectionColumns = () =>
             { accessorKey: "unload_name", header: "Yuk tushirish manzili", enableSorting: true },
             { accessorKey: "owner_name", header: "Yuk egasi", enableSorting: true },
             { accessorKey: "cargo_type_name", header: "Yuk turi", enableSorting: true },
-            { accessorKey: "payment_type_name", header: "To'lov turi", enableSorting: true },
+            { accessorKey: "payment_type_name", header: "To'lov turi", enableSorting: false },
             {
                 accessorKey: "current_price",
                 header: "Summa",
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         <span>

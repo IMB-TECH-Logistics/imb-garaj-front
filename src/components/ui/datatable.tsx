@@ -534,8 +534,10 @@ export function DataTable<TData>({
                                         )}
                                         {numeration && (
                                             <TableCell className="w-8 ">
-                                                {((search[paramName] || 1) -
-                                                    1) *
+                                                {(Math.min(
+                                                    search[paramName] || 1,
+                                                    totalPages ?? 1
+                                                ) - 1) *
                                                     (search[
                                                         pageSizeParamName
                                                     ] ||

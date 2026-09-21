@@ -21,6 +21,7 @@ const VehiclesPage = () => {
                 search: search.vehicles_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -44,6 +45,7 @@ const VehiclesPage = () => {
         <>
             <DataTable
                 loading={isLoading}
+                manualSorting
                 columns={columns}
                 data={data?.results}
                 onDelete={hasControl ? handleDelete : undefined}

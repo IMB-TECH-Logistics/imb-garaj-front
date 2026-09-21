@@ -78,12 +78,12 @@ const useCols = () =>
             },
             {
                 header: "Reyslar",
-                accessorKey: "completed_trips",
+                accessorKey: "completed_orders",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="tabular-nums">
-                        {row.original.completed_trips} /{" "}
-                        {row.original.total_trips}
+                        {row.original.completed_orders} /{" "}
+                        {row.original.total_orders}
                     </span>
                 ),
             },

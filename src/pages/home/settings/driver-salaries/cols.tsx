@@ -147,6 +147,7 @@ const InlinePriceCell = ({
     return (
         <NumericFormat
             thousandSeparator=" "
+            allowNegative={false}
             value={value}
             disabled={opts.disabled}
             onValueChange={(v) => opts.onChange(row.id, v.value)}

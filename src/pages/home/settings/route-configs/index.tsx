@@ -52,6 +52,7 @@ const RouteConfigsPage = () => {
                 search: search.route_configs_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: search.ordering,
             },
         },
     )
@@ -107,6 +108,7 @@ const RouteConfigsPage = () => {
         <>
             <DataTable
                 loading={isLoading}
+                manualSorting
                 columns={columns}
                 data={enriched}
                 onDelete={hasControl ? handleDelete : undefined}

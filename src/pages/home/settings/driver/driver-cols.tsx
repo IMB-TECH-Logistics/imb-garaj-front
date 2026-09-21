@@ -17,19 +17,12 @@ export const useColumnsDriverTable = () => {
             {
                 accessorKey: "phone_number",
                 header: "Telefon raqami",
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => (
                     <div className="min-w-[180px] w-[220px] truncate">
                         {formatPhoneNumber(row.original?.driver?.phone || "Mavjud emas")}
                     </div>
                 ),
-                sortingFn: (rowA, rowB, columnId) => {
-                    const phoneA = rowA.getValue(columnId) as string
-                    const phoneB = rowB.getValue(columnId) as string
-                    const digitsA = (phoneA || "").replace(/\D/g, "")
-                    const digitsB = (phoneB || "").replace(/\D/g, "")
-                    return digitsA.localeCompare(digitsB)
-                },
             },
             {
                 accessorKey: "username",
@@ -38,7 +31,7 @@ export const useColumnsDriverTable = () => {
             },
             {
                 header: "Pasport seriyasi",
-                enableSorting: true,
+                enableSorting: false,
                 accessorFn: (row) => row.driver?.passport_serial || "",
                 cell: ({ row }) => {
                     return row.getValue("passport_number") || "-"
@@ -47,7 +40,7 @@ export const useColumnsDriverTable = () => {
             },
             {
                 header: "JShShIR",
-                enableSorting: true,
+                enableSorting: false,
                 accessorFn: (row) => row.driver?.pinfl || "",
                 cell: ({ row }) => {
                     return row.getValue("pinfl") || "-"
@@ -56,7 +49,7 @@ export const useColumnsDriverTable = () => {
             },
             {
                 header: "Haydovchilik guvohnomasi",
-                enableSorting: true,
+                enableSorting: false,
                 accessorFn: (row) => row.driver?.driver_license || "",
                 cell: ({ row }) => {
                     return row.getValue("driver_license") || "-"
@@ -65,7 +58,7 @@ export const useColumnsDriverTable = () => {
             },
             {
                 header: "Ish staji",
-                enableSorting: true,
+                enableSorting: false,
                 accessorFn: (row) => row.driver?.experience || 0,
                 cell: ({ row }) => {
                     const value = row.getValue("work_experience")
@@ -75,7 +68,7 @@ export const useColumnsDriverTable = () => {
             },
             {
                 header: "Guvohnoma muddati",
-                enableSorting: true,
+                enableSorting: false,
                 accessorFn: (row) => row.driver?.driver_license_date || "",
                 cell: ({ row }) => {
                     const dateValue = row.getValue("license_expiry") as string

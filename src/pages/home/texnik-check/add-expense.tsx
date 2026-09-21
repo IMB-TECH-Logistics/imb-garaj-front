@@ -123,6 +123,7 @@ const AddExpenseModal = () => {
                 className="w-full"
             />
             <FormDatePicker
+                required
                 label="Amal muddati"
                 control={control}
                 name="lifespan"

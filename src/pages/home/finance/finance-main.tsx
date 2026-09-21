@@ -32,6 +32,9 @@ const FinanceStatisticMain = () => {
         ? { from: startOfMonth, to: endOfMonth } 
         : undefined;
 
+    const isValidRange = (!search?.from_date && !search?.to_date) ||
+        (!!search?.from_date && !!search?.to_date && new Date(search.from_date) <= new Date(search.to_date))
+
     const { data: statisticsData, isLoading } = useGet<OwnerStatistic[]>(
         OWNER_MAIN_STATISTIC,
         {
@@ -40,6 +43,7 @@ const FinanceStatisticMain = () => {
                 from_date: search?.from_date,
                 to_date: search?.to_date,
             },
+            enabled: isValidRange,
         },
     )
 

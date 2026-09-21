@@ -27,6 +27,7 @@ const Drivers = () => {
                 search: search.driver_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -68,6 +69,7 @@ const Drivers = () => {
         <>
             <DataTable
                 loading={isLoading}
+                manualSorting
                 numeration
                 columns={columns}
                 data={data?.results}

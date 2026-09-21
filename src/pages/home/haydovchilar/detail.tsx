@@ -214,7 +214,7 @@ export default function HaydovchiDetail() {
     const search = useSearch({ strict: false }) as any
     const driverId = Number(id)
 
-    const { data: overview } = useGet<DriverOverview>(
+    const { data: overview, isError: overviewError, isLoading: overviewLoading } = useGet<DriverOverview>(
         `${DRIVERS_OVERVIEW}/${driverId}/overview`,
         { enabled: !!driverId },
     )
@@ -225,6 +225,22 @@ export default function HaydovchiDetail() {
     )
 
     const aylanmaCols = useAylanmaCols()
+
+    if (overviewLoading) {
+        return <div className="py-20 flex justify-center text-muted-foreground">Yuklanmoqda...</div>
+    }
+
+    if (overviewError) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
+                <p className="text-lg font-medium">Ma'lumot topilmadi</p>
+                <Button variant="outline" onClick={() => navigate({ to: "/haydovchilar" })}>
+                    <ArrowLeft size={16} className="mr-2" />
+                    Ro'yxatga qaytish
+                </Button>
+            </div>
+        )
+    }
 
     const handleAylanmaClick = (row: DriverTripRow) => {
         navigate({
