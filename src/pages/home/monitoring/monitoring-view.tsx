@@ -276,10 +276,10 @@ export default function MonitoringView() {
         vehicles.data,
     ])
 
-    const mapMarkers = useMemo(
-        () => [...liveMarkers, ...gpsMarkers],
-        [liveMarkers, gpsMarkers],
-    )
+    // Hozircha xaritada faqat gps-backend trekerlari ko'rsatiladi.
+    // Haydovchi/buyurtma/reys markerlarini qaytarish uchun liveMarkers'ni qo'shing:
+    // () => [...liveMarkers, ...gpsMarkers], [liveMarkers, gpsMarkers]
+    const mapMarkers = useMemo(() => [...gpsMarkers], [gpsMarkers])
 
     function selectDriver(d: LiveDriver) {
         setFilters({
