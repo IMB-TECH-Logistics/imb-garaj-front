@@ -140,3 +140,21 @@ export type GpsLiveVehicle = {
     ignition: boolean | null
     fix_time: string | null
 }
+
+export type GpsDay = {
+    date: string
+    points: number
+    first: string
+    last: string
+    distance_km: number
+    max_speed: number
+}
+
+export type GpsPosition = {
+    id: number
+    fix_time: string
+    latitude: number
+    longitude: number
+    speed: number | null
+    course: number | null
+}

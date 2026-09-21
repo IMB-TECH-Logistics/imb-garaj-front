@@ -26,10 +26,12 @@ import {
     RefreshCcw,
 } from "lucide-react"
 import { endOfMonth, startOfMonth } from "date-fns"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import GpsList from "./gps-list"
+import { useGpsLiveSocket } from "./gps-socket"
+import { ReplayBar, TrackerHistoryPanel, useLiveTrails, useTrackerHistory } from "./tracker-history"
 import MonitoringFilterBar from "./filter-bar"
 import { LinkDeviceButton } from "./link-device-modal"
 import OrderList from "./order-list"
@@ -57,6 +59,7 @@ import VehicleList from "./vehicle-list"
 
 const LIVE_REFRESH_MS = 30_000
 const GPS_REFRESH_MS = 10_000
+const GPS_FALLBACK_MS = 60_000
 
 export default function MonitoringView() {
     const navigate = useNavigate()
@@ -134,9 +137,14 @@ export default function MonitoringView() {
     const selectedId =
         filters.driver ?? filters.order ?? filters.trip ?? filters.vehicle
 
+    const liveConnected = useGpsLiveSocket(!historical)
     const gpsLive = useGet<GpsLiveVehicle[]>(MONITORING_GPS_LIVE, {
         options: {
-            refetchInterval: historical ? false : GPS_REFRESH_MS,
+            refetchInterval: historical
+                ? false
+                : liveConnected
+                  ? GPS_FALLBACK_MS
+                  : GPS_REFRESH_MS,
             refetchIntervalInBackground: false,
         },
     })
@@ -194,6 +202,9 @@ export default function MonitoringView() {
 
     const polylineData = polyline.data
 
+    const [trackerImei, setTrackerImei] = useState<string | null>(null)
+    const history = useTrackerHistory(trackerImei)
+
     const gpsMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
         return (gpsLive.data ?? [])
@@ -208,8 +219,11 @@ export default function MonitoringView() {
                         ? `${Math.round(g.speed)} km/h`
                         : g.driver_name ?? undefined,
                 stale: g.status !== "online",
+                icon: "truck" as const,
+                selected: g.imei === trackerImei,
+                onClick: () => setTrackerImei(g.imei),
             }))
-    }, [gpsLive.data, historical])
+    }, [gpsLive.data, historical, trackerImei])
 
     const liveMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
@@ -346,6 +360,8 @@ export default function MonitoringView() {
     // Hozircha "driver" ko'rinishida gps-backend trekerlari sanaladi.
     // Eski hisob: liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
     const gpsItems = gpsLive.data ?? []
+    const selectedTracker = gpsItems.find((g) => g.imei === trackerImei) ?? null
+    const liveTrails = useLiveTrails(gpsItems, !historical && !trackerImei)
     const freshCount =
         dimension === "driver"
             ? gpsItems.filter((g) => g.status === "online").length
@@ -427,9 +443,20 @@ export default function MonitoringView() {
                     </h1>
                     {mode === "map" &&
                         (freshCount != null ? (
-                            <Badge variant="secondary">
-                                Onlayn · {freshCount} / {gpsItems.length}
-                            </Badge>
+                            <>
+                                <Badge variant="secondary">
+                                    Onlayn · {freshCount} / {gpsItems.length}
+                                </Badge>
+                                {liveConnected && (
+                                    <Badge
+                                        variant="outline"
+                                        className="gap-1.5 border-emerald-500/40 text-emerald-500"
+                                    >
+                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                        Jonli
+                                    </Badge>
+                                )}
+                            </>
                         ) : (
                             <Badge variant="secondary">
                                 {activeList.data?.length ?? 0} ta
@@ -499,24 +526,36 @@ export default function MonitoringView() {
                             : "opacity-100",
                     )}
                 >
-                    <Card className="overflow-hidden">
+                    <Card className="relative overflow-hidden">
                         <CardContent className="p-0">
                             <RouteMap
                                 height="calc(100vh - 200px)"
                                 markers={mapMarkers}
-                                segments={routeSegments}
+                                segments={
+                                    trackerImei
+                                        ? history.map.segments
+                                        : historical
+                                          ? routeSegments
+                                          : liveTrails
+                                }
                                 points={
-                                    historical
-                                        ? polylineData?.points
-                                        : undefined
+                                    trackerImei
+                                        ? history.map.points
+                                        : historical
+                                          ? polylineData?.points
+                                          : undefined
                                 }
                                 bbox={
-                                    historical
-                                        ? (polylineData?.bbox ?? null)
-                                        : null
+                                    trackerImei
+                                        ? history.map.bbox
+                                        : historical
+                                          ? (polylineData?.bbox ?? null)
+                                          : null
                                 }
+                                pois={trackerImei ? history.map.pois : undefined}
                             />
                         </CardContent>
+                        {trackerImei && <ReplayBar history={history} />}
                     </Card>
                 </div>
 
@@ -605,10 +644,20 @@ export default function MonitoringView() {
                             // Hozircha faqat gps-backend trekerlari. Eski ro'yxat:
                             // <DriverList items={liveDrivers} loading={drivers.isLoading}
                             //     activeId={filters.driver} onSelect={selectDriver} />
-                            <GpsList
-                                items={gpsItems}
-                                loading={gpsLive.isLoading}
-                            />
+                            selectedTracker ? (
+                                <TrackerHistoryPanel
+                                    tracker={selectedTracker}
+                                    history={history}
+                                    onBack={() => setTrackerImei(null)}
+                                />
+                            ) : (
+                                <GpsList
+                                    items={gpsItems}
+                                    loading={gpsLive.isLoading}
+                                    activeImei={trackerImei}
+                                    onSelect={(item) => setTrackerImei(item.imei)}
+                                />
+                            )
                         ) : dimension === "order" ? (
                             <OrderList
                                 items={orders.data ?? []}

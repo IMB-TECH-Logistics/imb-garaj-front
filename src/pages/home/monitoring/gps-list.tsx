@@ -11,6 +11,8 @@ import type { GpsLiveVehicle } from "./types"
 type Props = {
     items: GpsLiveVehicle[]
     loading?: boolean
+    activeImei?: string | null
+    onSelect?: (item: GpsLiveVehicle) => void
 }
 
 function secondsSince(value: string | null) {
@@ -19,7 +21,7 @@ function secondsSince(value: string | null) {
         : null
 }
 
-export default function GpsList({ items, loading }: Props) {
+export default function GpsList({ items, loading, activeImei, onSelect }: Props) {
     if (loading && items.length === 0) {
         return <DimensionListSkeleton />
     }
@@ -38,6 +40,8 @@ export default function GpsList({ items, loading }: Props) {
                 <DimensionRow
                     key={item.imei}
                     index={i}
+                    active={item.imei === activeImei}
+                    onClick={() => onSelect?.(item)}
                     secondsSince={secondsSince(item.last_update)}
                     primary={
                         <span className="inline-flex min-w-0 items-center gap-1.5">

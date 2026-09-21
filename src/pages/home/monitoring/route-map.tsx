@@ -8,6 +8,8 @@ import Map, {
     NavigationControl,
     Source,
 } from "react-map-gl/maplibre"
+import GoogleRouteMap from "./google-route-map"
+import { DriverMarker, EndpointDot, PoiMarker } from "./map-markers"
 
 const MAP_STYLE_URL =
     import.meta.env.VITE_MAP_STYLE_URL ||
@@ -19,6 +21,8 @@ const LOCALIZED_TEXT_FIELD: any = [
     ["get", "name:en"],
     ["get", "name"],
 ]
+
+const MAP_PROVIDER = import.meta.env.VITE_MAP_PROVIDER
 
 const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 
@@ -34,10 +38,19 @@ export type LiveMarker = {
     sub?: string
     stale?: boolean
     selected?: boolean
+    icon?: "truck"
     onClick?: () => void
 }
 
-type Props = {
+export type MapPoi = {
+    id: string | number
+    lat: number
+    lng: number
+    kind: "stop" | "replay"
+    title?: string
+}
+
+export type RouteMapProps = {
     points?: MapPoint[]
     bbox?: [number, number, number, number] | null
     markers?: LiveMarker[]
@@ -49,9 +62,19 @@ type Props = {
     lineColor?: string
     /** Draw the route as per-status colored sub-paths. Overrides the solid line. */
     segments?: ColoredSegment[]
+    /** Small markers drawn above the route: stops and the replay position. */
+    pois?: MapPoi[]
 }
 
-export default function RouteMap({
+export default function RouteMap(props: RouteMapProps) {
+    return MAP_PROVIDER === "google" ? (
+        <GoogleRouteMap {...props} />
+    ) : (
+        <MapLibreRouteMap {...props} />
+    )
+}
+
+function MapLibreRouteMap({
     points,
     bbox,
     markers,
@@ -60,7 +83,8 @@ export default function RouteMap({
     gradient = false,
     lineColor,
     segments,
-}: Props) {
+    pois,
+}: RouteMapProps) {
     const mapRef = useRef<MapRef | null>(null)
 
     const segmentFeatures = useMemo(() => {
@@ -303,102 +327,16 @@ export default function RouteMap({
                         <DriverMarker marker={m} />
                     </Marker>
                 ))}
+
+                {pois?.map((p) => (
+                    <Marker key={p.id} latitude={p.lat} longitude={p.lng} anchor="center">
+                        <PoiMarker poi={p} />
+                    </Marker>
+                ))}
             </Map>
 
             {/* edge vignette — subtle dark fade for a 'screen' feel */}
             <div className="pointer-events-none absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_55%,rgba(8,14,28,0.18)_100%)] mix-blend-multiply dark:[background:radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.45)_100%)]" />
         </div>
-    )
-}
-
-function EndpointDot({
-    variant,
-    label,
-}: {
-    variant: "start" | "end"
-    label: string
-}) {
-    const color =
-        variant === "start"
-            ? "bg-emerald-500"
-            : "bg-rose-500"
-    const ring =
-        variant === "start"
-            ? "ring-emerald-500/30"
-            : "ring-rose-500/30"
-    return (
-        <div className="group relative flex items-center justify-center">
-            <div className={cn("h-3 w-3 rounded-full ring-4", color, ring)} />
-            <div
-                className={cn(
-                    "pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white opacity-0 shadow-md transition-opacity group-hover:opacity-100",
-                    variant === "start" ? "bg-emerald-600" : "bg-rose-600",
-                )}
-            >
-                {label}
-            </div>
-        </div>
-    )
-}
-
-function DriverMarker({ marker }: { marker: LiveMarker }) {
-    const fresh = !marker.stale
-    return (
-        <button
-            type="button"
-            onClick={marker.onClick}
-            className="group relative flex flex-col items-center transition will-change-transform hover:-translate-y-0.5 hover:scale-[1.04]"
-        >
-            {/* pulse */}
-            {fresh && (
-                <>
-                    <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[140%] h-10 w-10 rounded-full bg-emerald-500/30 animate-ping" />
-                    <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[140%] h-7 w-7 rounded-full bg-emerald-500/40 animate-pulse" />
-                </>
-            )}
-
-            {/* pin head */}
-            <div
-                className={cn(
-                    "relative z-10 flex h-9 w-9 -mt-1 items-center justify-center rounded-full border-2 shadow-lg shadow-slate-900/30 backdrop-blur",
-                    fresh
-                        ? "border-emerald-500 bg-white/95 dark:bg-slate-900/95"
-                        : "border-slate-400/60 bg-slate-200/85 dark:border-slate-600 dark:bg-slate-800/85",
-                    marker.selected && "ring-4 ring-primary/40",
-                )}
-            >
-                <span
-                    className={cn(
-                        "h-2 w-2 rounded-full",
-                        fresh ? "bg-emerald-500" : "bg-slate-500",
-                    )}
-                />
-            </div>
-
-            {/* pin tail */}
-            <span
-                className={cn(
-                    "z-0 -mt-0.5 h-2 w-0.5",
-                    fresh ? "bg-emerald-500" : "bg-slate-400",
-                )}
-            />
-
-            {/* label */}
-            <div
-                className={cn(
-                    "mt-0.5 max-w-[180px] truncate rounded-md px-1.5 py-0.5 text-[11px] font-semibold shadow-md backdrop-blur-md transition",
-                    fresh
-                        ? "bg-white/95 text-slate-900 dark:bg-slate-900/95 dark:text-white"
-                        : "bg-slate-200/85 text-slate-700 dark:bg-slate-800/85 dark:text-slate-300",
-                )}
-            >
-                {marker.label}
-            </div>
-            {marker.sub && marker.sub !== marker.label && (
-                <div className="mt-px max-w-[180px] truncate rounded-sm bg-white/85 px-1.5 py-px font-mono text-[10px] font-medium text-slate-600 shadow-sm dark:bg-slate-900/85 dark:text-slate-400">
-                    {marker.sub}
-                </div>
-            )}
-        </button>
     )
 }
