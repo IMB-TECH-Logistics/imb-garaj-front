@@ -13,6 +13,7 @@ import {
     MONITORING_STATUS_ROUTE,
     MONITORING_TRIPS_TRACKING,
     MONITORING_VEHICLES,
+    MONITORING_GPS_LIVE,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
@@ -29,6 +30,7 @@ import { useMemo } from "react"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import MonitoringFilterBar from "./filter-bar"
+import { LinkDeviceButton } from "./link-device-modal"
 import OrderList from "./order-list"
 import RouteMap, { type LiveMarker } from "./route-map"
 import StatusReport from "./status"
@@ -47,11 +49,13 @@ import type {
     RoutePolyline,
     TripTracking,
     VehicleTracking,
+    GpsLiveVehicle,
 } from "./types"
 import { EMPTY_FILTERS, isHistoricalView, todayIso } from "./types"
 import VehicleList from "./vehicle-list"
 
 const LIVE_REFRESH_MS = 30_000
+const GPS_REFRESH_MS = 10_000
 
 export default function MonitoringView() {
     const navigate = useNavigate()
@@ -129,6 +133,13 @@ export default function MonitoringView() {
     const selectedId =
         filters.driver ?? filters.order ?? filters.trip ?? filters.vehicle
 
+    const gpsLive = useGet<GpsLiveVehicle[]>(MONITORING_GPS_LIVE, {
+        options: {
+            refetchInterval: historical ? false : GPS_REFRESH_MS,
+            refetchIntervalInBackground: false,
+        },
+    })
+
     const drivers = useGet<LiveDriver[]>(MONITORING_LIVE_TRACKING, {
         params: { include_stale: true },
         enabled: dimension === "driver",
@@ -181,6 +192,23 @@ export default function MonitoringView() {
     )
 
     const polylineData = polyline.data
+
+    const gpsMarkers: LiveMarker[] = useMemo(() => {
+        if (historical) return []
+        return (gpsLive.data ?? [])
+            .filter((g) => g.lat != null && g.lng != null)
+            .map((g) => ({
+                id: `gps-${g.imei}`,
+                lat: g.lat as number,
+                lng: g.lng as number,
+                label: g.vehicle_number || g.tracker_name || g.imei,
+                sub:
+                    g.speed != null
+                        ? `${Math.round(g.speed)} km/h`
+                        : g.driver_name ?? undefined,
+                stale: g.status !== "online",
+            }))
+    }, [gpsLive.data, historical])
 
     const liveMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
@@ -247,6 +275,11 @@ export default function MonitoringView() {
         trips.data,
         vehicles.data,
     ])
+
+    const mapMarkers = useMemo(
+        () => [...liveMarkers, ...gpsMarkers],
+        [liveMarkers, gpsMarkers],
+    )
 
     function selectDriver(d: LiveDriver) {
         setFilters({
@@ -401,6 +434,7 @@ export default function MonitoringView() {
                 </div>
                 {mode === "map" && (
                     <div className="flex items-center gap-2">
+                        <LinkDeviceButton />
                         <MonitoringFilterBar
                             value={filters}
                             onChange={setFilters}
@@ -465,7 +499,7 @@ export default function MonitoringView() {
                         <CardContent className="p-0">
                             <RouteMap
                                 height="calc(100vh - 200px)"
-                                markers={liveMarkers}
+                                markers={mapMarkers}
                                 segments={routeSegments}
                                 points={
                                     historical

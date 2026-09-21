@@ -124,3 +124,19 @@ export function todayIso(): string {
     const day = String(d.getDate()).padStart(2, "0")
     return `${y}-${m}-${day}`
 }
+
+export type GpsLiveVehicle = {
+    imei: string
+    tracker_name: string
+    vehicle: number | null
+    vehicle_number: string | null
+    driver_name: string | null
+    status: "online" | "offline" | "unknown"
+    last_update: string | null
+    lat: number | null
+    lng: number | null
+    speed: number | null
+    course: number | null
+    ignition: boolean | null
+    fix_time: string | null
+}
