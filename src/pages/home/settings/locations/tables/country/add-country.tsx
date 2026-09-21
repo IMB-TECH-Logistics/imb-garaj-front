@@ -55,7 +55,7 @@ const AddCountriesModal = () => {
                 required
                 name="name"
                 label="Davlat"
-                maxLength={255}
+                maxLength={20}
                 methods={form}
             />
 
