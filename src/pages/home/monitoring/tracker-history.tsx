@@ -72,12 +72,10 @@ function metres(a: Point, b: Point) {
     return 2 * 6371000 * Math.asin(Math.sqrt(h))
 }
 
+const SPEED_LIMIT_KMH = 60
+
 function speedColor(speed: number) {
-    if (speed < 5) return "#64748b"
-    if (speed < 30) return "#2dd4bf"
-    if (speed < 60) return "#10b981"
-    if (speed < 90) return "#f59e0b"
-    return "#f43f5e"
+    return speed < SPEED_LIMIT_KMH ? "#10b981" : "#f43f5e"
 }
 
 function summarize(points: Point[]) {
