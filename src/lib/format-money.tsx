@@ -6,7 +6,7 @@ export function formatMoney(
     suffix?: boolean,
 ) {
     const numeric = Number(amount)
-    // Round doubles to at most two figures after the comma, trimming trailing zeros.
+    // Round to two figures after the comma; a fractional value always shows both, integers show none.
     const rounded = Number.isFinite(numeric)
         ? Math.round(numeric * 100) / 100
         : 0
@@ -14,7 +14,7 @@ export function formatMoney(
     const newIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
     const sign = rounded < 0 ? "-" : ""
     const text =
-        sign + newIntegerPart + (decimalPart ? `.${decimalPart}` : "")
+        sign + newIntegerPart + (decimalPart ? `.${decimalPart.padEnd(2, "0")}` : "")
     return (
         <span className={`${className} text-nowrap`}>
             {text} {suffix ? " so'm" : ""}
