@@ -205,10 +205,12 @@ const AddTripOrders = () => {
         setValue,
     ])
 
-    const directions = useMemo(
-        () => directionsResponse?.results ?? [],
-        [directionsResponse],
-    )
+    const clientValue = watch("client")
+    const directions = useMemo(() => {
+        const all = directionsResponse?.results ?? []
+        if (isNaqd || !clientValue) return all
+        return all.filter((d) => d.owner === Number(clientValue))
+    }, [directionsResponse, isNaqd, clientValue])
 
     const loadsData = useMemo(
         () =>

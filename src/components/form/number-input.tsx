@@ -72,6 +72,7 @@ export function FormNumberInput<IForm extends FieldValues>({
                     )}
                     thousandSeparator={thousandSeparator}
                     decimalSeparator={decimalSeparator}
+                    allowedDecimalSeparators={[".", ","]}
                     getInputRef={ref}
                     {...props}
                     {...field}
