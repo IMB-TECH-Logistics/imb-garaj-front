@@ -12,6 +12,7 @@ import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { startOfDay } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { FormDatePicker } from "@/components/form/date-picker"
@@ -45,7 +46,9 @@ const AddExpenseModal = () => {
         },
     })
 
-    const { handleSubmit, control, reset } = form
+    const { handleSubmit, control, reset, watch } = form
+    const dateValue = watch("date")
+    const minLifespan = dateValue ? startOfDay(new Date(dateValue)) : undefined
 
     const { data: vehicles } = useGet<SelectItem[]>("selectable/vehicle", {
         params: { model_name: "vehicle" },
@@ -128,6 +131,7 @@ const AddExpenseModal = () => {
                 control={control}
                 name="lifespan"
                 placeholder="Muddatni tanlang"
+                calendarProps={minLifespan ? { disabled: { before: minLifespan } } : undefined}
                 className="w-full"
             />
             <FormInput
