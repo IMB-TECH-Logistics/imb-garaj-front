@@ -14,6 +14,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { IS_READY } from "@/store/ready-mode"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams } from "@tanstack/react-router"
+import { startOfDay } from "date-fns"
 import { AlertTriangle, X } from "lucide-react"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -41,6 +42,10 @@ export default function FinishManagerTrips() {
     })
 
     const { handleSubmit, reset, control, watch, setValue } = form
+
+    const today = startOfDay(new Date())
+    const tripStart = item?.start ? startOfDay(new Date(item.start)) : today
+    const minEndDate = tripStart > today ? tripStart : today
 
     const { data: drivers } = useGet(SETTINGS_DRIVERS, {
         params: { page_size: 10000 },
@@ -176,6 +181,7 @@ export default function FinishManagerTrips() {
                         required
                         name="end"
                         label="Tugatish sanasi"
+                        calendarProps={{ disabled: { before: minEndDate } }}
                     />
                 )}
                 <FormNumberInput

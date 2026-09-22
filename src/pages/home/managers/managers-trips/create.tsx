@@ -12,6 +12,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { IS_READY } from "@/store/ready-mode"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
+import { startOfDay } from "date-fns"
 import { X } from "lucide-react"
 import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -72,6 +73,8 @@ export default function CreateManagerTrips() {
     const startMileage = watch("start_mileage")
     const endMileage = watch("end_mileage")
     const startFuel = watch("start_fuel")
+    const startValue = watch("start")
+    const minEndDate = startValue ? startOfDay(new Date(startValue)) : undefined
 
     const mileageDiffers = !isEdit && startData?.end_mileage != null && Number(startMileage) !== Number(startData.end_mileage)
     const fuelDiffers = !isEdit && startData?.end_fuel != null && Number(startFuel) !== Number(startData.end_fuel)
@@ -221,6 +224,7 @@ export default function CreateManagerTrips() {
                             control={control}
                             name="end"
                             label="Tugatish sanasi"
+                            calendarProps={minEndDate ? { disabled: { before: minEndDate } } : undefined}
                         />
                         <FormNumberInput
                             name="end_mileage"
