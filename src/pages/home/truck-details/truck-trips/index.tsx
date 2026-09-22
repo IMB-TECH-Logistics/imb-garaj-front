@@ -107,8 +107,8 @@ const VehicleTrips = () => {
             {trips.map((trip, index) => (
                 <div key={trip.id}>
                     <h3 className="text-left text-sm font-semibold text-muted-foreground mb-2">
-                        {index + 1}. Aylanma ({trip.minDate || trip.start || "—"} —{" "}
-                        {trip.maxDate || trip.end || "davom etmoqda"})
+                        {index + 1}. Aylanma ({trip.start || trip.minDate || "—"} —{" "}
+                        {trip.end || "davom etmoqda"})
                         {trip.orderCount === 0 && trip.hiddenOrderCount > 0 && (
                             <span className="ml-2 font-normal opacity-70">
                                 · {trip.hiddenOrderCount} ta buyurtma arxivlangan
