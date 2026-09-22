@@ -7,7 +7,6 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
-    SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -49,25 +48,6 @@ export function NavMain() {
         <SidebarGroup className={"h-full"}>
             <SidebarGroupContent className="flex flex-col gap-2">
                 <SidebarMenu>
-                    <SidebarMenuItem className="mb-3 lg:hidden">
-                        <div className="flex  items-center min-w-[180px]">
-                            <SidebarTrigger className="text-gray-500 dark:text-white" />
-                            <Link
-                                className="flex justify-start  items-center gap-1"
-                                color="foreground"
-                                to="/"
-                            >
-                                <img
-                                    alt="logo"
-                                    src="/images/logo.png"
-                                    width={40}
-                                />
-                                <p className="font-bold text-inherit whitespace-nowrap">
-                                    IMB HR
-                                </p>
-                            </Link>
-                        </div>
-                    </SidebarMenuItem>
                     {filteredItems.map(({ label, icon, path, pending, ...item }) => {
                         const isParentActive = hasActivePathDeep(
                             { label, icon, path, ...item },
