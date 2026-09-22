@@ -51,27 +51,27 @@ type ReysFormValues = {
     vehicle: number | null
     date: string
     direction: number | null
-    status: number | null
+    status: string | null
     type: number | null
     out_of_contract: boolean
     nds_percent?: string | null
 }
 
-const ORDER_STATUS_OPTIONS: Option[] = [
-    { id: -1, name: "Draft" },
-    { id: 0, name: "Pending" },
-    { id: 1, name: "Started" },
-    { id: 5, name: "Loading" },
-    { id: 6, name: "In Transit" },
-    { id: 7, name: "Unloading" },
-    { id: 2, name: "Completed" },
-    { id: 3, name: "Canceled" },
-    { id: 4, name: "Archived" },
+const ORDER_STATUS_OPTIONS: { id: string; name: string }[] = [
+    { id: "-1", name: "Qoralama" },
+    { id: "0", name: "Kutilmoqda" },
+    { id: "1", name: "Boshlandi" },
+    { id: "5", name: "Yuklanmoqda" },
+    { id: "6", name: "Yo'lda" },
+    { id: "7", name: "Tushirilmoqda" },
+    { id: "2", name: "Tugallandi" },
+    { id: "3", name: "Bekor qilindi" },
+    { id: "4", name: "Arxivlangan" },
 ]
 
 const ORDER_TYPE_OPTIONS: Option[] = [
-    { id: 1, name: "Busy" },
-    { id: 2, name: "Empty" },
+    { id: 1, name: "Yukli" },
+    { id: 2, name: "Yuksiz" },
 ]
 
 
@@ -99,7 +99,7 @@ const EditReysModal = () => {
             vehicle: null,
             date: current?.date ?? "",
             direction: (current as any)?.direction ?? null,
-            status: current?.status ?? null,
+            status: current?.status != null ? String(current.status) : null,
             type: current?.type ?? null,
             out_of_contract: (current as any)?.out_of_contract ?? false,
             nds_percent: String(current?.nds_percent ?? current?.pct ?? ""),
@@ -211,7 +211,7 @@ const EditReysModal = () => {
         if (values.unloading !== null) payload.unloading = values.unloading
         if (values.cargo_type !== null) payload.cargo_type = values.cargo_type
         if (values.direction !== null) payload.direction = values.direction
-        if (values.status !== null) payload.status = values.status
+        if (values.status !== null) payload.status = Number(values.status)
         if (values.type !== null) payload.type = values.type
         if (values.date) payload.date = values.date
         const percent =

@@ -23,6 +23,7 @@ export type OrderCashflow = {
     order: number
     action: number
     amount: number | string
+    gross_amount?: number | string | null
     payment_type: number
     currency: number
     currency_course: string | number | null
@@ -67,7 +68,7 @@ const TushumRow = ({
 
     const form = useForm<RowValues>({
         defaultValues: {
-            amount: initial?.amount ?? "",
+            amount: initial?.gross_amount ?? initial?.amount ?? "",
             payment_type: initial?.payment_type ?? null,
             currency: initial?.currency ?? 1,
         },
