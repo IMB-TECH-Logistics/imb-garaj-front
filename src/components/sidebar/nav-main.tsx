@@ -4,6 +4,9 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
@@ -11,6 +14,8 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { MenuItem, usePaths } from "@/hooks/usePaths"
 import { Link, useLocation } from "@tanstack/react-router"
 import { Badge } from "@/components/ui/badge"
+import { ChevronDown } from "lucide-react"
+import { Fragment, useState } from "react"
 
 export function NavMain() {
     const { toggleSidebar, open: sidebarOpen } = useSidebar()
@@ -20,6 +25,7 @@ export function NavMain() {
     const pathname = location.pathname
 
     const { filteredItems } = usePaths()
+    const [openGroup, setOpenGroup] = useState<string | null>(null)
 
     const hasActivePathDeep = (item: MenuItem, pathname: string): boolean => {
         if (pathname.includes(item.path)) {
@@ -67,6 +73,9 @@ export function NavMain() {
                             { label, icon, path, ...item },
                             pathname,
                         )
+                        const isGroup = mobile && !!item.items?.length
+                        const isGroupOpen =
+                            isGroup && (openGroup ?? (isParentActive ? label : null)) === label
 
                         const content = (
                             <SidebarMenuItem>
@@ -78,11 +87,21 @@ export function NavMain() {
                                             e.preventDefault()
                                             return
                                         }
+                                        if (isGroup) {
+                                            setOpenGroup(isGroupOpen ? "" : label)
+                                            return
+                                        }
                                         if (mobile) toggleSidebar()
                                     }}
                                 >
                                     <span>{icon}</span>
                                     <span>{label}</span>
+                                    {isGroup && (
+                                        <ChevronDown
+                                            size={16}
+                                            className={`ml-auto transition-transform ${isGroupOpen ? "rotate-180" : ""}`}
+                                        />
+                                    )}
                                     
                                     {pending && (
                                         <Badge variant="secondary" className="ml-auto text-[10px] bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 leading-none py-0 px-2 border-none font-bold">
@@ -97,10 +116,23 @@ export function NavMain() {
                             return <div key={label}>{content}</div>
                         }
 
+                        const children = isGroupOpen ? item.items ?? [] : []
+
                         return (
+                            <Fragment key={label}>
+                            {isGroup ? (
+                                <div
+                                    className={`rounded-lg ${
+                                        isParentActive ?
+                                            "[&_button]:bg-primary/10  text-primary "
+                                        :   ""
+                                    }`}
+                                >
+                                    {content}
+                                </div>
+                            ) : (
                             <Link
                                 to={path}
-                                key={label}
                                 activeProps={{
                                     className:
                                         "[&_button]:bg-primary/10   hover:[&_button]:bg-primary/10  hover:[&_button]:text-primary  text-primary ",
@@ -113,6 +145,31 @@ export function NavMain() {
                             >
                                 {content}
                             </Link>
+                            )}
+                            {children.length > 0 && (
+                                <SidebarMenuItem>
+                                    <SidebarMenuSub>
+                                        {children.map((child) => (
+                                            <SidebarMenuSubItem key={child.path}>
+                                                <SidebarMenuSubButton
+                                                    asChild
+                                                    isActive={hasActivePathDeep(child, pathname)}
+                                                >
+                                                    <Link
+                                                        to={child.path}
+                                                        onClick={() => {
+                                                            if (mobile) toggleSidebar()
+                                                        }}
+                                                    >
+                                                        <span>{child.label}</span>
+                                                    </Link>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        ))}
+                                    </SidebarMenuSub>
+                                </SidebarMenuItem>
+                            )}
+                            </Fragment>
                         )
                     })}
                 </SidebarMenu>
