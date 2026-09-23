@@ -45,6 +45,7 @@ export default function ManagerReys() {
             trip: id,
             page_size: search.page_size,
             page: search.page,
+            ordering: (search as any).ordering,
             ...Object.fromEntries(
                 REYS_FILTER_KEYS.map((key) => [key, (search as any)[key]]),
             ),
@@ -80,6 +81,7 @@ export default function ManagerReys() {
             <DataTable
                 columns={cols}
                 data={data?.results || []}
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",

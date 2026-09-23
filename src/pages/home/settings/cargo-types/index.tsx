@@ -34,6 +34,7 @@ const CargoPage = () => {
                 page: search.page,
                 page_size: search.page_size,
                 deleted: showDeleted || undefined,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -83,6 +84,7 @@ const CargoPage = () => {
                 onUndo={
                     hasControl && showDeleted ? handleRestore : undefined
                 }
+                manualSorting
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,

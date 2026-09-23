@@ -51,6 +51,7 @@ export const TexnikCheck = () => {
                 page: search?.page,
                 page_size: search?.page_size,
                 search: search?.vehicle_search,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -84,6 +85,7 @@ export const TexnikCheck = () => {
                 loading={isLoading}
                 data={data?.results || []}
                 numeration
+                manualSorting
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 paginationProps={{

@@ -23,6 +23,7 @@ const VehicleTypePage = () => {
                 search: search.vehicle_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -50,6 +51,7 @@ const VehicleTypePage = () => {
                 onDelete={hasControl ? handleDelete : undefined}
                 onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 numeration
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",

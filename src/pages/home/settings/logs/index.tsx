@@ -39,7 +39,7 @@ export default function LogsPage() {
     const search = useSearch({ strict: false }) as Record<string, unknown>
 
     const { data: logs, isLoading } = useGet<ListResponse<LogItem>>(LOGS_LIST, {
-        params: search,
+        params: { ...search, ordering: (search as any).ordering },
     })
 
     const { section: _section, ...sectionParams } = search as any
@@ -136,6 +136,7 @@ export default function LogsPage() {
                     data={logs?.results || []}
                     loading={isLoading}
                     numeration
+                    manualSorting
                     paginationProps={{
                         totalPages: logs?.total_pages,
                         paramName: "page",

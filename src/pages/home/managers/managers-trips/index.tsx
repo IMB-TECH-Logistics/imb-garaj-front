@@ -63,6 +63,7 @@ export default function ManagersTrips() {
                 ...(isArchive && from_date ? { from_date } : {}),
                 ...(isArchive && to_date ? { to_date } : {}),
                 ...(isArchive ? { page_size: search.page_size, page: search.page } : {}),
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -130,6 +131,7 @@ export default function ManagersTrips() {
             <DataTable
                 loading={isLoading}
                 numeration
+                manualSorting
                 data={data?.results}
                 columns={cols}
                 viewAll={!isArchive}

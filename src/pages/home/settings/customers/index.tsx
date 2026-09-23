@@ -23,6 +23,7 @@ const Customers = () => {
                 search: search.customer_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -49,6 +50,7 @@ const Customers = () => {
                 data={data?.results}
                 onDelete={hasControl ? handleDelete : undefined}
                 onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                manualSorting={true}
                 numeration={true}
                 paginationProps={{
                     totalPages: data?.total_pages,
