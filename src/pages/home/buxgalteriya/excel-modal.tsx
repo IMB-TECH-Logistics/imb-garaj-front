@@ -12,6 +12,7 @@ import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { DateRange } from "react-day-picker"
 import { Download } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 const EXCEL_MODAL_KEY = "buxgalteriya-excel"
 
@@ -77,16 +78,17 @@ const BuxgalteriyaExcelModal = () => {
         closeModal()
     }
 
+    const { t } = useTranslation()
     return (
         <Modal
             modalKey={EXCEL_MODAL_KEY}
-            title="Excel yuklab olish"
+            title={`Excel ${t("actions.download")}`}
             size="max-w-2xl"
         >
             <div className="space-y-3 pt-2">
                 <div className="grid grid-cols-2 gap-3">
                     <Combobox
-                        label="Firma nomi"
+                        label={t("form.company_name")}
                         options={clientOptions}
                         value={client}
                         setValue={(v: any) => setClient(toStr(v))}
@@ -94,7 +96,7 @@ const BuxgalteriyaExcelModal = () => {
                         valueKey="id"
                     />
                     <Combobox
-                        label="Yuk turi"
+                        label={t("form.cargo_type")}
                         options={cargoTypeOptions}
                         value={cargoType}
                         setValue={(v: any) => setCargoType(toStr(v))}
@@ -102,7 +104,7 @@ const BuxgalteriyaExcelModal = () => {
                         valueKey="id"
                     />
                     <Combobox
-                        label="Yuklash joyi"
+                        label={t("form.loading_location")}
                         options={loadingOptions}
                         value={loading}
                         setValue={(v: any) => setLoading(toStr(v))}
@@ -110,7 +112,7 @@ const BuxgalteriyaExcelModal = () => {
                         valueKey="id"
                     />
                     <Combobox
-                        label="Tushirish joyi"
+                        label={t("form.unloading_location")}
                         options={unloadingOptions}
                         value={unloading}
                         setValue={(v: any) => setUnloading(toStr(v))}
@@ -129,14 +131,14 @@ const BuxgalteriyaExcelModal = () => {
                 />
                 <div className="flex justify-end gap-2 pt-2">
                     <Button variant="outline" onClick={closeModal} type="button">
-                        Bekor qilish
+                        {t("actions.cancel")}
                     </Button>
                     <Button
                         onClick={handleDownload}
                         loading={isFetching}
                         icon={<Download width={16} />}
                     >
-                        Yuklab olish
+                        {t("actions.download")}
                     </Button>
                 </div>
             </div>

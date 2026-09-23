@@ -6,6 +6,7 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { PlusCircle } from "lucide-react"
 import { ReactNode, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
 interface TableHeaderProps {
     fileName: string
@@ -29,6 +30,7 @@ const TableHeader = ({
     extraTitle,
     extraRight,
 }: TableHeaderProps) => {
+    const { t } = useTranslation()
     const { openModal: openCreateModal } = useModal("create")
     const { clearKey } = useGlobalStore()
 
@@ -91,7 +93,7 @@ const TableHeader = ({
                         onClick={handleAdd}
                         icon={<PlusCircle size={18} />}
                     >
-                        Qo'shish
+                        {t("actions.add")}
                     </Button>
                 )}
 

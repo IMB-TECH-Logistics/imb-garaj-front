@@ -12,6 +12,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Phone } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 type DriverOverview = {
     id: number
@@ -102,16 +103,17 @@ function formatDate(s?: string | null) {
 }
 
 function statusBadge(s: DriverTripRow["status"]) {
-    if (s === "completed") return { label: "Yakunlandi", variant: "default" as const }
-    if (s === "ongoing") return { label: "Yo'lda", variant: "outline" as const }
-    return { label: "Kutilmoqda", variant: "secondary" as const }
+    if (s === "completed") return { labelKey: "status.done", variant: "default" as const }
+    if (s === "ongoing") return { labelKey: "status.on_road", variant: "outline" as const }
+    return { labelKey: "status.pending", variant: "secondary" as const }
 }
 
-const useAylanmaCols = () =>
-    useMemo<ColumnDef<DriverTripRow>[]>(
+const useAylanmaCols = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<DriverTripRow>[]>(
         () => [
             {
-                header: "Aylanma",
+                header: t("page.turnover_detail"),
                 id: "trip_range",
                 cell: ({ row }) => {
                     const s = row.original.start
@@ -126,7 +128,7 @@ const useAylanmaCols = () =>
                 },
             },
             {
-                header: "Yo'nalish",
+                header: t("form.direction"),
                 id: "route",
                 cell: ({ row }) => (
                     <span className="block break-words">
@@ -136,7 +138,7 @@ const useAylanmaCols = () =>
                 ),
             },
             {
-                header: "Avto",
+                header: t("table.auto_short"),
                 accessorKey: "vehicle_plate",
                 cell: ({ row }) =>
                     row.original.vehicle_plate || (
@@ -144,7 +146,7 @@ const useAylanmaCols = () =>
                     ),
             },
             {
-                header: "Reyslar",
+                header: t("page.trips"),
                 accessorKey: "orders_count",
                 cell: ({ row }) => (
                     <span className="tabular-nums">
@@ -162,15 +164,15 @@ const useAylanmaCols = () =>
                 ),
             },
             {
-                header: "Holat",
+                header: t("table.status"),
                 id: "status",
                 cell: ({ row }) => {
                     const s = statusBadge(row.original.status)
-                    return <Badge variant={s.variant}>{s.label}</Badge>
+                    return <Badge variant={s.variant}>{t(s.labelKey)}</Badge>
                 },
             },
             {
-                header: "Haydovchi daromadi",
+                header: t("table.driver_income"),
                 accessorKey: "driver_earnings",
                 cell: ({ row }) => {
                     const v = num(row.original.driver_earnings)
@@ -184,8 +186,9 @@ const useAylanmaCols = () =>
                 },
             },
         ],
-        [],
+        [t],
     )
+}
 
 const StatCard = ({
     label,
@@ -209,6 +212,7 @@ const StatCard = ({
 )
 
 export default function HaydovchiDetail() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const { id } = useParams({ strict: false }) as { id: string }
     const search = useSearch({ strict: false }) as any
@@ -227,16 +231,16 @@ export default function HaydovchiDetail() {
     const aylanmaCols = useAylanmaCols()
 
     if (overviewLoading) {
-        return <div className="py-20 flex justify-center text-muted-foreground">Yuklanmoqda...</div>
+        return <div className="py-20 flex justify-center text-muted-foreground">{t("messages.loading")}</div>
     }
 
     if (overviewError) {
         return (
             <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
-                <p className="text-lg font-medium">Ma'lumot topilmadi</p>
+                <p className="text-lg font-medium">{t("page.not_found")}</p>
                 <Button variant="outline" onClick={() => navigate({ to: "/haydovchilar" })}>
                     <ArrowLeft size={16} className="mr-2" />
-                    Ro'yxatga qaytish
+                    {t("page.back_to_list")}
                 </Button>
             </div>
         )
@@ -279,7 +283,7 @@ export default function HaydovchiDetail() {
                 </Button>
                 <div className="flex-1 min-w-0">
                     <h1 className="text-xl font-semibold leading-tight">
-                        {fullName || "Haydovchi"}
+                        {fullName || t("form.driver")}
                     </h1>
                     {overview?.phone && (
                         <a
@@ -293,7 +297,7 @@ export default function HaydovchiDetail() {
                 </div>
                 <div className="text-right shrink-0">
                     <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
-                        Balans
+                        {t("form.balance")}
                     </div>
                     <div
                         className={`text-lg font-semibold tabular-nums ${balanceColor}`}
@@ -313,7 +317,7 @@ export default function HaydovchiDetail() {
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                                        Aylanmalar
+                                        {t("page.turnovers")}
                                     </div>
                                     <div className="text-lg font-semibold tabular-nums">
                                         {`${overview.completed_trips}/${overview.total_trips}`}
@@ -321,7 +325,7 @@ export default function HaydovchiDetail() {
                                 </div>
                                 <div>
                                     <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                                        Reyslar
+                                        {t("page.trips")}
                                     </div>
                                     <div className="text-lg font-semibold tabular-nums">
                                         {`${overview.completed_orders}/${overview.total_orders}`}
@@ -331,17 +335,17 @@ export default function HaydovchiDetail() {
                         </CardContent>
                     </Card>
                     <StatCard
-                        label="Olib kelgan (UZS)"
+                        label={t("form.revenue_uzs")}
                         value={formatMoneyText(num(overview.revenue_uzs))}
                         accent="text-green-600"
                     />
                     <StatCard
-                        label="Oylik berildi (UZS)"
+                        label={`${t("form.give_salary")} (UZS)`}
                         value={formatMoneyText(num(overview.salary_paid_uzs))}
                         accent="text-rose-600"
                     />
                     <StatCard
-                        label="Yoqilg'i"
+                        label={t("table.fuel_l")}
                         value={fuelPer100kmText(overview)}
                     />
                 </div>
@@ -350,7 +354,7 @@ export default function HaydovchiDetail() {
             <Card>
                 <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
-                        <h3 className="font-medium">Aylanmalar ro'yxati</h3>
+                        <h3 className="font-medium">{t("page.turnovers")}</h3>
                         <Badge>{trips?.length ?? 0}</Badge>
                     </div>
                     <DataTable

@@ -1,6 +1,7 @@
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export type VehicleExpenseRow = {
     id: number
@@ -18,10 +19,11 @@ export type VehicleExpenseRow = {
 }
 
 export const useExpenseCols = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<VehicleExpenseRow>[]>(
         () => [
             {
-                header: "Avto raqam",
+                header: t("table.truck_plate"),
                 accessorKey: "vehicle_name",
                 size: 120,
                 enableSorting: true,
@@ -30,13 +32,13 @@ export const useExpenseCols = () => {
                 ),
             },
             {
-                header: "Xarajat turi",
+                header: t("form.expense_type"),
                 accessorKey: "category_name",
                 size: 150,
                 enableSorting: true,
             },
             {
-                header: "Summa",
+                header: t("form.amount"),
                 accessorKey: "amount",
                 size: 130,
                 enableSorting: true,
@@ -46,19 +48,19 @@ export const useExpenseCols = () => {
                 },
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "date",
                 size: 110,
                 enableSorting: true,
             },
             {
-                header: "Amal muddati",
+                header: t("form.lifespan"),
                 accessorKey: "lifespan",
                 size: 110,
                 enableSorting: true,
             },
             {
-                header: "Mas'ul",
+                header: t("table.responsible"),
                 accessorKey: "executor_name",
                 size: 140,
                 enableSorting: true,
@@ -67,7 +69,7 @@ export const useExpenseCols = () => {
                 ),
             },
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "comment",
                 size: 200,
                 enableSorting: false,
@@ -76,6 +78,6 @@ export const useExpenseCols = () => {
                 ),
             },
         ],
-        [],
+        [t],
     )
 }

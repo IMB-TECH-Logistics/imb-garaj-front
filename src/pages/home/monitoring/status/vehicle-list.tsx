@@ -11,6 +11,7 @@ import {
     startOfMonth,
 } from "date-fns"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import {
     ACTIVE_STATUSES,
     type ApiStatusVehicle,
@@ -36,6 +37,7 @@ export default function VehicleList({
     onSelect: (v: VehicleRow) => void
     onStatusSelect: (v: VehicleRow, status: number) => void
 }) {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false }) as Record<string, string>
     const q = search.q ?? ""
     const today = new Date()
@@ -128,7 +130,7 @@ export default function VehicleList({
                 id: "truck_number",
                 accessorFn: (row) => row.truck_number,
                 enableSorting: true,
-                header: "Mashina",
+                header: t("form.truck"),
                 cell: ({ row }) => (
                     <span className="font-medium whitespace-nowrap">
                         {row.original.truck_number}
@@ -139,7 +141,7 @@ export default function VehicleList({
                 id: "driver_name",
                 accessorFn: (row) => row.driver_name,
                 enableSorting: true,
-                header: "Haydovchi",
+                header: t("form.driver"),
                 cell: ({ row }) => (
                     <div className="whitespace-nowrap">
                         <div>{row.original.driver_name}</div>
@@ -151,7 +153,7 @@ export default function VehicleList({
             },
             ...statusCols,
         ]
-    }, [onStatusSelect, rows])
+    }, [onStatusSelect, rows, t])
 
     return (
         <div className="flex flex-col gap-3">

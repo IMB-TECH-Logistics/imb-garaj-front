@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const MIN_VEHICLE_YEAR = 1950
 
@@ -32,12 +33,13 @@ const FUEL_OPTIONS = [
 ]
 
 const STATUS_OPTIONS = [
-    { value: 1, label: "Yukli" },
-    { value: 2, label: "Yuksiz" },
-    { value: 3, label: "Ta'mirda" },
+    { value: 1, label: "status.loaded" },
+    { value: 2, label: "status.empty" },
+    { value: 3, label: "status.repair" },
 ]
 
 const AddVehicleSettingsModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -62,7 +64,7 @@ const AddVehicleSettingsModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Avtomobil muvaffaqiyatli ${current?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            current?.id ? t("toast.truck_updated") : t("toast.truck_added"),
         )
         reset()
         clearKey(VEHICLES)
@@ -113,17 +115,17 @@ const AddVehicleSettingsModal = () => {
                 <FormInput
                     required
                     name="truck_number"
-                    label="Avtomobil raqami"
+                    label={t("form.vehicle_number")}
                     methods={form}
                 />
                 <FormInput
                     name="truck_passport"
-                    label="Tex passport"
+                    label={t("form.tech_passport")}
                     methods={form}
                 />
                 <FormNumberInput
                     name="stir"
-                    label="STIR / JSHSHIR"
+                    label={t("form.tax_id")}
                     control={control}
                     thousandSeparator=""
                     decimalScale={0}
@@ -131,7 +133,7 @@ const AddVehicleSettingsModal = () => {
                     registerOptions={{
                         validate: (v: string) => {
                             if (!v) return true
-                            if (!/^\d+$/.test(v)) return "Faqat raqam kiriting"
+                            if (!/^\d+$/.test(v)) return t("validation.numbers_only")
                             if (v.length !== 9 && v.length !== 14) return "9 (STIR) yoki 14 (JSHSHIR) xonali bo'lishi kerak"
                             return true
                         },
@@ -139,13 +141,13 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormInput
                     name="trailer_number"
-                    label="Tirkama raqami"
+                    label={t("form.trailer_number")}
                     methods={form}
                 />
                 <FormCombobox
                     required
                     name="truck_type"
-                    label="Avtomobil turi"
+                    label={t("form.vehicle_type")}
                     options={vehicleTypes?.results ?? []}
                     control={control}
                     labelKey="name"
@@ -153,7 +155,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormCombobox
                     name="trailer_type"
-                    label="Tirkama turi"
+                    label={t("form.trailer_type")}
                     options={vehicleTypes?.results ?? []}
                     control={control}
                     labelKey="name"
@@ -161,7 +163,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormCombobox
                     name="driver"
-                    label="Haydovchi"
+                    label={t("form.driver")}
                     options={drivers?.results ?? []}
                     control={control}
                     labelKey="first_name"
@@ -169,7 +171,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormCombobox
                     name="owner"
-                    label="Egasi"
+                    label={t("form.owner")}
                     options={owners ?? []}
                     control={control}
                     labelKey="first_name"
@@ -177,7 +179,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormCombobox
                     name="fuel"
-                    label="Yoqilg'i turi"
+                    label={t("form.fuel_type")}
                     options={FUEL_OPTIONS}
                     control={control}
                     labelKey="label"
@@ -185,7 +187,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormCombobox
                     name="status"
-                    label="Status"
+                    label={t("table.status")}
                     options={STATUS_OPTIONS}
                     control={control}
                     labelKey="label"
@@ -193,7 +195,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormNumberInput
                     name="year"
-                    label="Yili"
+                    label={t("form.year")}
                     control={control}
                     decimalScale={0}
                     thousandSeparator={""}
@@ -219,7 +221,7 @@ const AddVehicleSettingsModal = () => {
                 />
                 <FormDatePicker
                     name="registered_date"
-                    label="Ro'yxatdan o'tgan sana"
+                    label={t("form.registration_date")}
                     control={control}
                     fullWidth
                 />
@@ -227,37 +229,37 @@ const AddVehicleSettingsModal = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:col-span-2 pt-4">
                     <FormImagePicker
                         name="truck_front"
-                        label="Avtomobil old"
+                        label={t("form.vehicle") + " " + t("actions.save").toLowerCase()}
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
                     <FormImagePicker
                         name="truck_back"
-                        label="Avtomobil orqa"
+                        label={t("form.vehicle_number") + " (back)"}
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
                     <FormImagePicker
                         name="license_front"
-                        label="Tex passport old"
+                        label={t("form.tech_passport") + " (front)"}
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
                     <FormImagePicker
                         name="license_back"
-                        label="Tex passport orqa"
+                        label={t("form.tech_passport") + " (back)"}
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
                     <FormImagePicker
                         name="trailer_front"
-                        label="Tirkama old"
+                        label={t("form.trailer_number") + " (front)"}
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
                     <FormImagePicker
                         name="trailer_back"
-                        label="Tirkama orqa"
+                        label={t("form.trailer_number") + " (back)"}
                         methods={form}
                         className="w-full h-28 object-cover rounded-md border"
                     />
@@ -269,7 +271,7 @@ const AddVehicleSettingsModal = () => {
                         type="submit"
                         loading={isPending}
                     >
-                        Saqlash
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

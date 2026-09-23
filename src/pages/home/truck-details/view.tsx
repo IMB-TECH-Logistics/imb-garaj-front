@@ -10,9 +10,11 @@ import { VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Calendar, Truck } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import VehicleTrips from "./truck-trips"
 
 function ViewPage() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const search: any = useSearch({ strict: false })
     const { id } = useParams({ strict: false }) as { id?: string }
@@ -29,9 +31,9 @@ function ViewPage() {
             <div className="space-y-4 pb-6">
                 <Button variant="ghost" onClick={goBack}>
                     <ArrowLeft size={18} />
-                    Transportlar ro'yxatiga qaytish
+                    {t("page.back_to_list")}
                 </Button>
-                <h1 className="text-xl font-semibold">Transport topilmadi</h1>
+                <h1 className="text-xl font-semibold">{t("messages.not_found")}</h1>
                 <EmptyBox height="h-[50vh]" />
             </div>
         )
@@ -62,17 +64,17 @@ function ViewPage() {
                                             </span>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            Yuksiz / Yukli reyslar
+                                            {t("table.trips_ratio")}
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
                             )}
                             {search?.truck_type_name} 
                             {search?.truck_number && <span className="text-muted-foreground font-medium">({search?.truck_number})</span>}
-                            <span className="hidden sm:inline font-normal"> - Reyslar ma'lumoti</span>
+                            <span className="hidden sm:inline font-normal"> - {t("page.trips")}</span>
                         </>
                     ) : (
-                        "Reyslar ma'lumoti"
+                        t("page.trips")
                     )}
                 </h1>
 

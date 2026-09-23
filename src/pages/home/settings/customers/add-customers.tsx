@@ -10,8 +10,10 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddCustomerModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -28,7 +30,7 @@ const AddCustomerModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Mijoz muvaffaqiyatli ${currentForwarder?.id ? "tahrirlandi!" : "qo'shildi"} `,
+            currentForwarder?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
 
         reset()
@@ -51,7 +53,7 @@ const AddCustomerModal = () => {
         const isValid = await form.trigger()
 
         if (!isValid) {
-            toast.error("Iltimos, barcha maydonlarni to'g'ri to'ldiring")
+            toast.error(t("toast.error_fields"))
             return
         }
 
@@ -81,13 +83,13 @@ const AddCustomerModal = () => {
                     <FormInput
                         required
                         name="name"
-                        label="Firma nomi"
+                        label={t("form.company_name")}
                         methods={form}
                     />
 
                     <FormInput
                         name="code"
-                        label="Firma kodi"
+                        label={t("form.company_code")}
                         methods={form}
                         placeholder="Masalan: 100A"
                     />
@@ -95,7 +97,7 @@ const AddCustomerModal = () => {
                     <FormFormatNumberInput
                         control={form.control}
                         format="+998 ## ### ## ##"
-                        label={"Telefon"}
+                        label={t("form.phone")}
                         name={"phone_number"}
                         placeholder="+998 __ ___ __ __"
                     />
@@ -103,7 +105,7 @@ const AddCustomerModal = () => {
                     <FormNumberInput
                         required
                         name="nds_percent"
-                        label="NDS foizi (%)"
+                        label={t("form.nds")}
                         control={form.control}
                         allowNegative={false}
                         decimalScale={0}
@@ -120,7 +122,7 @@ const AddCustomerModal = () => {
                             type="submit"
                             loading={isPending}
                         >
-                            {"Saqlash"}
+                            {t("actions.save")}
                         </Button>
                     </div>
                 </form>

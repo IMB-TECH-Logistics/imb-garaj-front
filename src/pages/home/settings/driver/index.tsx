@@ -12,10 +12,12 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { PlusCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import AddDriverModal from "./add-driver"
 import { useColumnsDriverTable } from "./driver-cols"
 
 const Drivers = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_drivers_control")
     const navigate = useNavigate()
     const search = useSearch({ strict: false })
@@ -84,7 +86,7 @@ const Drivers = () => {
                     <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                         <div className="flex items-center gap-2">
                             <h1 className="text-lg font-semibold">
-                                Haydovchilar
+                                {t("nav.drivers")}
                             </h1>
 
                             <Badge className="text-sm">
@@ -104,7 +106,7 @@ const Drivers = () => {
                                     onClick={handleAdd}
                                     icon={<PlusCircle size={18} />}
                                 >
-                                    Qo'shish
+                                    {t("actions.add")}
                                 </Button>
                             )}
                         </div>
@@ -126,7 +128,7 @@ const Drivers = () => {
             <Modal
                 size="max-w-2xl"
                 title={
-                    item?.id ? " Haydovchini tahrirlash" : " Haydovchi qo'shish"
+                    item?.id ? t("actions.edit") + " " + t("nav.drivers").toLowerCase() : t("actions.add") + " " + t("nav.drivers").toLowerCase()
                 }
                 modalKey="create"
             >

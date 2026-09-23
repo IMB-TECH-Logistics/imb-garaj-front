@@ -4,6 +4,8 @@ import { CopyButton } from "@/lib/copy-button"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 
 type TruckIncome = {
     order_id: string
@@ -24,6 +26,7 @@ type TruckIncome = {
 }
 
 export const TruckTabsOne = () => {
+    const { t } = useTranslation()
     const data: TruckIncome[] = [
         {
             order_id: "277AH",
@@ -122,12 +125,12 @@ export const TruckTabsOne = () => {
         <div>
             <DataTable
                 numeration
-                columns={cols()}
+                columns={cols(t)}
                 data={allData}
                 head={
                     <div className="flex items-center gap-3 mb-3">
                         <h1 className="text-xl font-semibold">
-                            {`Reyslar ro'yxati`}
+                            {t("page.trip_list")}
                         </h1>
                         <Badge className="text-sm">{formatMoney(25)}</Badge>
                     </div>
@@ -140,11 +143,11 @@ export const TruckTabsOne = () => {
     )
 }
 
-const cols = () => {
+const cols = (t: TFunction) => {
     return useMemo<ColumnDef<TruckIncome>[]>(
         () => [
             {
-                header: "Sana",
+                header: t("form.date"),
                 enableSorting: true,
                 accessorKey: "date",
                 cell: () => (
@@ -152,7 +155,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Buyurtma ID",
+                header: t("table.order_id"),
                 enableSorting: true,
                 accessorKey: "order_id",
                 cell: ({ row }) => (
@@ -162,7 +165,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Yuk egasi",
+                header: t("table.owner"),
                 enableSorting: true,
                 accessorKey: "owner",
                 cell: () => (
@@ -172,7 +175,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Yuk turi",
+                header: t("form.cargo_type"),
                 enableSorting: true,
                 accessorKey: "owner",
                 cell: () => (
@@ -180,7 +183,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Qayerdan",
+                header: t("form.loading_location"),
                 enableSorting: true,
                 accessorKey: "from",
                 cell: () => (
@@ -188,7 +191,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Qayerga",
+                header: t("form.unloading_location"),
                 enableSorting: true,
                 accessorKey: "to",
                 cell: () => (
@@ -196,7 +199,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Haydovchi",
+                header: t("form.driver"),
                 enableSorting: true,
                 accessorKey: "driver_name",
                 cell: ({ row }) => (
@@ -206,7 +209,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Motosoat",
+                header: t("table.mileage_km"),
                 enableSorting: true,
                 accessorKey: "date",
                 cell: () => (
@@ -215,7 +218,7 @@ const cols = () => {
             },
 
             {
-                header: "Bosilgan masofa",
+                header: t("table.distance_km"),
                 enableSorting: true,
                 accessorKey: "date",
                 cell: () => (
@@ -223,7 +226,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Jami tushum",
+                header: t("table.total_income"),
                 enableSorting: true,
                 accessorKey: "income",
                 cell: ({ row }) => (
@@ -233,7 +236,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Reys ",
+                header: t("page.trips"),
                 enableSorting: true,
                 accessorKey: "income",
                 cell: ({ row }) => (
@@ -243,7 +246,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Boshqa ",
+                header: t("page.all_income"),
                 enableSorting: true,
                 accessorKey: "other_income",
                 cell: ({ row }) => (
@@ -253,7 +256,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Jami xarajat",
+                header: t("table.total_expense"),
                 enableSorting: true,
                 accessorKey: "advance",
                 cell: ({ row }) => (
@@ -263,7 +266,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Yoqilg'i ",
+                header: t("form.fuel_type"),
                 enableSorting: true,
                 accessorKey: "advance",
                 cell: ({ row }) => (
@@ -273,7 +276,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Oylik",
+                header: t("table.monthly_salary"),
                 enableSorting: true,
                 accessorKey: "salary",
                 cell: ({ row }) => (
@@ -283,7 +286,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Kunlik",
+                header: t("form.amount_per_order"),
                 enableSorting: true,
                 accessorKey: "daily_expense",
                 cell: ({ row }) => (
@@ -293,7 +296,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Boshqa ",
+                header: t("page.all_expense"),
                 enableSorting: true,
                 accessorKey: "other_expense",
                 cell: ({ row }) => (
@@ -303,7 +306,7 @@ const cols = () => {
                 ),
             },
               {
-                header: "Foyda",
+                header: t("table.profit"),
                 enableSorting: true,
                 accessorKey: "advance",
                 cell: ({ row }) => (
@@ -313,7 +316,7 @@ const cols = () => {
                 ),
             },
             {
-                header: "Avans",
+                header: t("form.advance"),
                 enableSorting: true,
                 accessorKey: "advance",
                 cell: ({ row }) => (
@@ -323,12 +326,12 @@ const cols = () => {
                 ),
             },
             {
-                header: "To'lov turi",
+                header: t("form.payment_type"),
                 enableSorting: true,
                 accessorKey: "payment_type",
                 cell: ({ row }) => <Badge>Naqt</Badge>,
             },
         ],
-        [],
+        [t],
     )
 }

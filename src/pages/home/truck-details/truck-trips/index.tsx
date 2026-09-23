@@ -3,10 +3,12 @@ import { OWNER_TRIP_DAILY_STATISTIC } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useParams, useSearch } from "@tanstack/react-router"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useOrderCols, TripDailyStatisticType } from "./cols"
 import ExpenseDialog from "./expense-dialog"
 
 const VehicleTrips = () => {
+    const { t } = useTranslation()
     const params = useParams({ strict: false })
     const search: any = useSearch({ strict: false })
     const [expenseTrip, setExpenseTrip] = useState<{ id: number; total: number | null } | null>(null)
@@ -107,11 +109,11 @@ const VehicleTrips = () => {
             {trips.map((trip, index) => (
                 <div key={trip.id}>
                     <h3 className="text-left text-sm font-semibold text-muted-foreground mb-2">
-                        {index + 1}. Aylanma ({trip.start || trip.minDate || "—"} —{" "}
-                        {trip.end || "davom etmoqda"})
+                        {index + 1}. {t("page.turnover_detail")} ({trip.minDate || trip.start || "—"} —{" "}
+                        {trip.maxDate || trip.end || t("status.on_road")})
                         {trip.orderCount === 0 && trip.hiddenOrderCount > 0 && (
                             <span className="ml-2 font-normal opacity-70">
-                                · {trip.hiddenOrderCount} ta buyurtma arxivlangan
+                                · {trip.hiddenOrderCount} {t("status.archived")}
                             </span>
                         )}
                     </h3>
@@ -124,7 +126,7 @@ const VehicleTrips = () => {
                 </div>
             ))}
             {!isLoading && trips.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">Ma'lumot topilmadi</p>
+                <p className="text-center text-muted-foreground py-8">{t("page.not_found")}</p>
             )}
 
             <ExpenseDialog

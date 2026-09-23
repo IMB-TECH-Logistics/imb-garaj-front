@@ -12,8 +12,10 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddDriverModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -30,7 +32,7 @@ const AddDriverModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Haydovchi muvaffaqiyatli ${currentDriver?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentDriver?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_DRIVERS)
@@ -52,7 +54,7 @@ const AddDriverModal = () => {
         const isValid = await form.trigger()
 
         if (!isValid) {
-            toast.error("Iltimos, barcha maydonlarni to'g'ri to'ldiring")
+            toast.error(t("toast.error_fields"))
             return
         }
 
@@ -64,7 +66,7 @@ const AddDriverModal = () => {
                 type: "manual",
                 message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
             })
-            toast.error("Telefon raqam to'liq emas")
+            toast.error(t("toast.error_phone"))
             return
         }
 
@@ -87,35 +89,35 @@ const AddDriverModal = () => {
                 <FormInput
                     required
                     name="first_name"
-                    label="Ism"
+                    label={t("form.first_name")}
                     methods={form}
-                    placeholder="Misol: Ali "
+                    placeholder={`${t("form.example")}: Ali`}
                 />
                 <FormInput
                     required
                     name="last_name"
-                    label="Familiya"
+                    label={t("form.last_name")}
                     methods={form}
-                    placeholder="Misol: Karimov"
+                    placeholder={`${t("form.example")}: Karimov`}
                 />
                 <FormInput
                     required
                     name="username"
-                    label="Login"
+                    label={t("auth.username")}
                     methods={form}
-                    placeholder="Misol: ali.karimov"
+                    placeholder={`${t("form.example")}: ali.karimov`}
                 />
 
                 <FormInput
                     required={!currentDriver?.id}
                     type="password"
                     name="password"
-                    label="Parol"
+                    label={t("auth.password")}
                     methods={form}
                     placeholder={
                         currentDriver?.id ?
-                            "O'zgartirish uchun kiriting"
-                        :   "Misol: SecurePass123!"
+                            t("form.enter_to_change")
+                        :   `${t("form.example")}: SecurePass123!`
                     }
                 />
 
@@ -123,7 +125,7 @@ const AddDriverModal = () => {
                     control={form.control}
                     format="+998 ## ### ## ##"
                     required
-                    label={"Telefon raqami"}
+                    label={t("form.phone")}
                     name={"driver.phone"}
                     placeholder="+998 __ ___ __ __"
                 />
@@ -139,9 +141,9 @@ const AddDriverModal = () => {
                     }}
                     uppercase={true}
                     name="driver.passport_serial"
-                    label="Pasport seriyasi"
+                    label={t("form.passport")}
                     methods={form}
-                    placeholder="Misol: AA1234567"
+                    placeholder={`${t("form.example")}: AA1234567`}
                 />
 
                 <FormNumberInput
@@ -158,18 +160,18 @@ const AddDriverModal = () => {
                     thousandSeparator={""}
                     required
                     name="driver.pinfl"
-                    label="JShShIR"
+                    label={t("form.jshshir")}
                     control={form.control}
-                    placeholder="Misol: 12345678901234"
+                    placeholder={`${t("form.example")}: 12345678901234`}
                 />
 
                 <FormInput
                     required
                     uppercase={true}
                     name="driver.driver_license"
-                    label="Haydovchilik guvohnomasi"
+                    label={t("form.license_number")}
                     methods={form}
-                    placeholder="Misol: ABC1234567"
+                    placeholder={`${t("form.example")}: ABC1234567`}
                 />
 
                 <FormNumberInput
@@ -180,17 +182,17 @@ const AddDriverModal = () => {
                         floatValue === undefined || floatValue <= 100
                     }
                     name="driver.experience"
-                    label="Ish staji"
+                    label={t("form.experience")}
                     control={form.control}
-                    placeholder="Misol: 5 yil"
+                    placeholder="5"
                 />
 
                 <FormDatePicker
                     required
                     name="driver.driver_license_date"
-                    label="Guvohnoma muddati"
+                    label={t("form.license_expiry")}
                     control={form.control}
-                    placeholder="Sanani tanlang"
+                    placeholder={t("form.select_date")}
                     calendarProps={
                         currentDriver?.id ?
                             {}
@@ -203,7 +205,7 @@ const AddDriverModal = () => {
                         type="submit"
                         loading={isPending}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

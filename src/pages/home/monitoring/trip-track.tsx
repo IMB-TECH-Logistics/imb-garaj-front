@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
 import RouteMap from "./route-map"
 import type { RoutePolyline } from "./types"
+import { useTranslation } from "react-i18next"
 
 type TripDetail = {
     id: number
@@ -44,6 +45,7 @@ export default function TripTrackPage() {
             ? trip.data.end_mileage - trip.data.start_mileage
             : null
 
+    const { t } = useTranslation()
     return (
         <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -56,7 +58,7 @@ export default function TripTrackPage() {
                 <div className="flex flex-col">
                     <div className="flex items-baseline gap-2">
                         <h1 className="text-xl font-semibold">
-                            Reys marshruti
+                            {t("page.trips")}
                         </h1>
                         <span className="text-sm text-muted-foreground tabular-nums">
                             #{tripId}
@@ -92,7 +94,7 @@ export default function TripTrackPage() {
                     <Card>
                         <CardHeader className="py-3">
                             <CardTitle className="text-sm font-semibold">
-                                Bosib o'tilgan masofa
+                                {t("table.distance_km")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-0">
@@ -110,16 +112,16 @@ export default function TripTrackPage() {
                     <Card>
                         <CardHeader className="py-3">
                             <CardTitle className="text-sm font-semibold">
-                                Ma'lumotlar
+                                {t("page.details")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-2 pt-0">
                             <Row
-                                label="Haydovchi"
+                                label={t("form.driver")}
                                 value={trip.data?.driver_name ?? "—"}
                             />
                             <Row
-                                label="Mashina"
+                                label={t("form.truck")}
                                 value={
                                     trip.data?.vehicle != null
                                         ? `#${trip.data.vehicle}`
@@ -127,21 +129,21 @@ export default function TripTrackPage() {
                                 }
                             />
                             <Row
-                                label="Boshlanish"
+                                label={t("table.start_time")}
                                 value={formatStamp(polylineData?.first_at)}
                             />
                             <Row
-                                label="Tugash"
+                                label={t("table.end_time")}
                                 value={formatStamp(polylineData?.last_at)}
                             />
                             <Row
-                                label="Nuqtalar"
+                                label={t("table.points")}
                                 value={(
                                     polylineData?.count ?? 0
                                 ).toLocaleString()}
                             />
                             <Row
-                                label="Davomiyligi"
+                                label={t("table.duration")}
                                 value={formatDuration(
                                     polylineData?.first_at ?? null,
                                     polylineData?.last_at ?? null,
@@ -149,13 +151,13 @@ export default function TripTrackPage() {
                             />
                             {totalMileage != null && (
                                 <Row
-                                    label="Probeg"
+                                    label={t("table.mileage_km")}
                                     value={`${totalMileage}`}
                                 />
                             )}
                             {trip.data?.start_mileage != null && (
                                 <Row
-                                    label="Boshl. probeg"
+                                    label={t("table.start_mileage")}
                                     value={`${trip.data.start_mileage}`}
                                 />
                             )}

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { NumericFormat } from "react-number-format"
+import { useTranslation } from "react-i18next"
 import {
     useDirectionColumns,
     type DirectionRow,
@@ -167,6 +168,7 @@ const InlinePriceCell = ({
 }
 
 export const useSalaryColumns = (opts?: EditableOpts) => {
+    const { t } = useTranslation()
     const base = useDirectionColumns()
     return useMemo<ColumnDef<DirectionRow>[]>(
         () =>
@@ -176,7 +178,7 @@ export const useSalaryColumns = (opts?: EditableOpts) => {
                     if ((c as any).accessorKey !== "current_price") return c
                     const patched: ColumnDef<DirectionRow> = {
                         ...c,
-                        header: "Beriladigan oylik (UZS)",
+                        header: t("table.salary_monthly_uzs"),
                     }
                     if (opts?.editable) {
                         patched.cell = ({ row }) => (
@@ -193,6 +195,6 @@ export const useSalaryColumns = (opts?: EditableOpts) => {
                     }
                     return patched
                 }),
-        [base, opts?.editable, opts?.disabled, opts?.getEdit, opts?.onChange],
+        [base, opts?.editable, opts?.disabled, opts?.getEdit, opts?.onChange, t],
     )
 }

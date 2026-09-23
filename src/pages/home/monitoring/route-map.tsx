@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import "maplibre-gl/dist/maplibre-gl.css"
 import { useEffect, useMemo, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import Map, {
     Layer,
     type MapRef,
@@ -85,6 +86,7 @@ function MapLibreRouteMap({
     segments,
     pois,
 }: RouteMapProps) {
+    const { t } = useTranslation()
     const mapRef = useRef<MapRef | null>(null)
 
     const segmentFeatures = useMemo(() => {
@@ -300,7 +302,7 @@ function MapLibreRouteMap({
                         longitude={startPoint[0]}
                         anchor="center"
                     >
-                        <EndpointDot variant="start" label="Boshlanish" />
+                        <EndpointDot variant="start" label={t("actions.start")} />
                     </Marker>
                 )}
                 {endPoint && (
@@ -309,7 +311,7 @@ function MapLibreRouteMap({
                         longitude={endPoint[0]}
                         anchor="center"
                     >
-                        <EndpointDot variant="end" label="Tugash" />
+                        <EndpointDot variant="end" label={t("actions.finish")} />
                     </Marker>
                 )}
 

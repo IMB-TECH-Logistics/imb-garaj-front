@@ -28,10 +28,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useTranslation } from "react-i18next"
 
 type Stats = { total_balance: string | number; product_count: number }
 
 const Ombor = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { openModal: openCreate } = useModal("ombor-create")
     const { openModal: openWithdraw } = useModal("ombor-withdraw")
@@ -51,7 +53,7 @@ const Ombor = () => {
 
     const { mutate: deleteMutate, isPending: deleting } = useDelete({
         onSuccess: () => {
-            toast.success("O'chirildi")
+            toast.success(t("toast.deleted"))
             queryClient.refetchQueries({ queryKey: [WAREHOUSE_PRODUCTS] })
             queryClient.refetchQueries({ queryKey: [WAREHOUSE_STATS] })
             setToDelete(null)
@@ -86,7 +88,7 @@ const Ombor = () => {
                     <Card className="bg-muted/60">
                         <CardHeader className="space-y-0">
                             <CardTitle className="font-medium text-lg">
-                                Ombor balansi
+                                {t("page.warehouse_balance")}
                             </CardTitle>
                             <span>
                                 <span className="text-xl font-semibold">
@@ -98,7 +100,7 @@ const Ombor = () => {
                         <CardContent className="pt-0 space-y-3">
                             <div className="border-t pt-3">
                                 <p className="text-sm font-medium text-muted-foreground mb-2">
-                                    Batafsil
+                                    {t("page.details")}
                                 </p>
                                 <div className="space-y-1">
                                     {items.map((cat, i) => (
@@ -139,7 +141,7 @@ const Ombor = () => {
                         head={
                             <div className="flex justify-between items-center gap-3 mb-3">
                                 <div className="flex items-center gap-2">
-                                    <h1 className="text-lg">Ombor mahsulotlari</h1>
+                                    <h1 className="text-lg">{t("page.warehouse_products")}</h1>
                                     <Badge>{items.length}</Badge>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -148,7 +150,7 @@ const Ombor = () => {
                                         name="Ombor"
                                     />
                                     <Button onClick={handleAdd} icon={<Plus size={18} />}>
-                                        Qo'shish
+                                        {t("actions.add")}
                                     </Button>
                                 </div>
                             </div>
@@ -158,7 +160,7 @@ const Ombor = () => {
 
                 <Modal
                     modalKey="ombor-create"
-                    title={editing ? "Mahsulotni tahrirlash" : "Mahsulot qo'shish"}
+                    title={editing ? t("actions.edit") : t("actions.add")}
                     size="max-w-md"
                 >
                     <OmborAddEdit current={editing} />
@@ -166,7 +168,7 @@ const Ombor = () => {
 
                 <Modal
                     modalKey="ombor-withdraw"
-                    title="Ombordan chiqarish"
+                    title={t("page.issue_from_warehouse")}
                     size="max-w-md"
                 >
                     <OmborWithdraw product={withdrawing} />
@@ -178,13 +180,13 @@ const Ombor = () => {
                 >
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>O'chirishni tasdiqlang</AlertDialogTitle>
+                            <AlertDialogTitle>{t("page.delete_confirm")}</AlertDialogTitle>
                             <AlertDialogDescription>
                                 "{toDelete?.name}" mahsulotini o'chirmoqchimisiz?
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+                            <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
                             <AlertDialogAction
                                 disabled={deleting}
                                 onClick={() => {
@@ -194,7 +196,7 @@ const Ombor = () => {
                                         )
                                 }}
                             >
-                                O'chirish
+                                {t("actions.delete")}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

@@ -20,6 +20,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useModal } from "@/hooks/useModal"
 import { Plus, X } from "lucide-react"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 type Transaction = {
     id: number
@@ -43,10 +44,11 @@ type DriverRow = {
 }
 
 const useTransactionCols = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<Transaction>[]>(
         () => [
             {
-                header: "Summa",
+                header: t("form.amount"),
                 accessorKey: "amount",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -57,27 +59,27 @@ const useTransactionCols = () => {
                 ),
             },
             {
-                header: "Avtomobil",
+                header: t("form.vehicle"),
                 accessorKey: "vehicle_plate",
                 cell: ({ row }) => row.original.vehicle_plate || "—",
             },
             {
-                header: "Haydovchi",
+                header: t("form.driver"),
                 accessorKey: "driver_name",
                 cell: ({ row }) => row.original.driver_name || "—",
             },
             {
-                header: "Manba",
+                header: t("table.source"),
                 accessorKey: "source",
                 cell: ({ row }) => row.original.source || "—",
             },
             {
-                header: "Ma'sul",
+                header: t("table.responsible"),
                 accessorKey: "executor_name",
                 enableSorting: true,
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "created",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -93,12 +95,12 @@ const useTransactionCols = () => {
                 },
             },
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "comment",
                 enableSorting: true,
             },
             {
-                header: "Turi",
+                header: t("table.type"),
                 accessorKey: "type",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -109,17 +111,18 @@ const useTransactionCols = () => {
                                 : "default"
                         }
                     >
-                        {row.original.type === -1 ? "Chiqim" : "Tushum"}
+                        {row.original.type === -1 ? t("form.expense") : t("form.income")}
                     </Badge>
                 ),
             },
         ],
-        [],
+        [t],
     )
 }
 
 
 const Kassa = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("manager_cashflow_control")
     const transactionCols = useTransactionCols()
     const navigate = useNavigate()
@@ -214,13 +217,13 @@ const Kassa = () => {
                 <Card className="bg-muted/60 md:h-full flex flex-col overflow-hidden">
                     <CardHeader className="space-y-0 shrink-0">
                         <CardTitle className="font-medium text-lg">
-                            Asosiy Balans
+                            {t("page.main_balance")}
                         </CardTitle>
                         <span>
                             <span className="text-xl font-semibold">
                                 {formatMoney(Number(checkout?.balance ?? 0))}
                             </span>{" "}
-                            <span className="text-base">so'm</span>
+                            <span className="text-base">{t("page.som")}</span>
                         </span>
                     </CardHeader>
                     <CardContent className="pt-0 space-y-3 flex-1 min-h-0 flex flex-col">
@@ -233,7 +236,7 @@ const Kassa = () => {
                                     onClick={openExpense}
                                 >
                                     <Plus size={20} />
-                                    Chiqim
+                                    {t("actions.add_expense_btn")}
                                 </Button>
                                 <Button
                                     type="button"
@@ -241,23 +244,23 @@ const Kassa = () => {
                                     onClick={openTopUp}
                                 >
                                     <Plus size={20} />
-                                    Balans To'ldirish
+                                    {t("page.top_up_balance")}
                                 </Button>
                             </div>
                         )}
 
                         <div className="border-t pt-3 shrink-0">
                             <p className="text-sm text-muted-foreground">
-                                Haydovchilar balansi
+                                {t("page.drivers_balance")}
                             </p>
                             <p className="text-xl font-semibold mt-0.5">
-                                {formatMoney(driversTotal)} so'm
+                                {formatMoney(driversTotal)} {t("page.som")}
                             </p>
                         </div>
 
                         <div className="border-t pt-3 flex-1 min-h-0 flex flex-col">
                             <p className="text-sm font-medium text-muted-foreground mb-2 shrink-0">
-                                Batafsil
+                                {t("page.details")}
                             </p>
                             <div className="space-y-1 flex-1 min-h-0 overflow-y-auto pr-1">
                                 {drivers.map((driver, i) => {
@@ -276,11 +279,11 @@ const Kassa = () => {
                                                     : "hover:bg-muted/80",
                                             )}
                                         >
-                                            <span className="text-sm flex items-center gap-2">
+                                            <span className="text-sm flex items-center gap-2 min-w-0">
                                                 <span className="text-xs text-muted-foreground w-4 text-right">
                                                     {i + 1}
                                                 </span>
-                                                {driver.full_name}
+                                                <span className="truncate">{driver.full_name}</span>
                                             </span>
                                             <span className="text-sm font-medium">
                                                 {formatMoney(Number(driver.balance ?? 0))}
@@ -329,7 +332,7 @@ const Kassa = () => {
                     head={
                         <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h1 className="text-lg">Tranzaksiyalar</h1>
+                                <h1 className="text-lg">{t("page.transactions")}</h1>
                                 <Badge>
                                     {formatMoney(transactionsData?.count)}
                                 </Badge>
@@ -338,12 +341,12 @@ const Kassa = () => {
                                         variant="outline"
                                         className="gap-1 pr-1"
                                     >
-                                        Haydovchi: {selectedDriver.full_name}
+                                        {t("form.driver")}: {selectedDriver.full_name}
                                         <button
                                             type="button"
                                             onClick={clearDriverFilter}
                                             className="ml-1 p-0.5 rounded hover:bg-muted"
-                                            aria-label="Filterni tozalash"
+                                            aria-label={t("page.clear_filters")}
                                         >
                                             <X size={12} />
                                         </button>
@@ -354,7 +357,7 @@ const Kassa = () => {
                                 <ParamCombobox
                                     paramName="vehicle"
                                     options={vehicles}
-                                    label="Avtomobil"
+                                    label={t("form.vehicle")}
                                     addButtonProps={{
                                         className: "!bg-background dark:!bg-secondary min-w-40 justify-start",
                                     }}
@@ -377,13 +380,13 @@ const Kassa = () => {
                                 >
                                     <TabsList className="h-9">
                                         <TabsTrigger value="all">
-                                            Hammasi
+                                            {t("status.all")}
                                         </TabsTrigger>
                                         <TabsTrigger value="1">
-                                            Tushum
+                                            {t("form.income")}
                                         </TabsTrigger>
                                         <TabsTrigger value="-1">
-                                            Chiqim
+                                            {t("form.expense")}
                                         </TabsTrigger>
                                     </TabsList>
                                 </Tabs>
@@ -404,7 +407,7 @@ const Kassa = () => {
 
             <Modal
                 modalKey="checkout-top-up"
-                title="Balans to'ldirish"
+                title={t("page.top_up_balance")}
                 size="max-w-md"
             >
                 <CheckoutAdjustModal
@@ -414,7 +417,7 @@ const Kassa = () => {
             </Modal>
             <Modal
                 modalKey="checkout-expense"
-                title="Chiqim qo'shish"
+                title={t("page.add_expense")}
                 size="max-w-md"
             >
                 <CheckoutAdjustModal
@@ -424,7 +427,7 @@ const Kassa = () => {
             </Modal>
             <Modal
                 modalKey="checkout-edit"
-                title="Yozuvni tahrirlash"
+                title={t("page.edit_record")}
                 size="max-w-md"
             >
                 <CheckoutAdjustModal

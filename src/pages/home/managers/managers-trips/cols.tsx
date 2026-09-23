@@ -6,12 +6,8 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
-export const STATUS_LABELS: any = {
-    1: "Yukli",
-    2: "Yuksiz",
-    3: "Ta'mirda",
-}
 
 export const STATUS_TRIP: Record<number, string> = {
     0: "Kutilmoqda",
@@ -29,10 +25,11 @@ export const useColumnsManagersTrips = (opts?: {
     onEdit?: (item: ManagerTrips) => void
     onDelete?: (item: ManagerTrips) => void
 }) => {
+    const { t } = useTranslation()
     const { onMoliya, onEdit, onDelete } = opts || {}
     const hasControl = useHasAction("manager_vehicles_control")
     const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
-    const { setData, getData } = useGlobalStore()
+    const { setData } = useGlobalStore()
     const handleFinished = (item: ManagerTrips) => {
         setData("finished", item)
         openFinished()
@@ -42,7 +39,7 @@ export const useColumnsManagersTrips = (opts?: {
         () => [
             {
                 accessorKey: "start",
-                header: "Boshlanish vaqti",
+                header: t("table.start_time"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="">{row.original.start || "-"}</div>
@@ -50,7 +47,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "end",
-                header: "Tugallangan vaqti",
+                header: t("table.end_time"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="">{row.original.end || "-"}</div>
@@ -58,13 +55,13 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "driver_name",
-                header: "Haydovchi",
+                header: t("form.driver"),
                 enableSorting: true,
                 cell: ({ row }) => <div>{row.original.driver_name || "-"}</div>,
             },
             {
                 accessorKey: "completed_order_count",
-                header: "Yakunlangan reyslar",
+                header: t("page.trips"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{row.original.completed_order_count || "0"}</div>
@@ -72,7 +69,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "pending_order_count",
-                header: "Kutilayotgan reyslar",
+                header: t("table.pending_trips"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{row.original.pending_order_count || "0"}</div>
@@ -90,7 +87,7 @@ export const useColumnsManagersTrips = (opts?: {
 
             {
                 accessorKey: "start_mileage",
-                header: "Boshlash probegi",
+                header: t("table.start_mileage"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     return <div>{formatMoney(row.original.start_mileage)}</div>
@@ -98,7 +95,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "end_mileage",
-                header: "Tugash probegi",
+                header: t("table.end_mileage"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     return <div>{formatMoney(row.original.end_mileage)}</div>
@@ -106,7 +103,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "start_fuel",
-                header: "Boshlang'ich yoqilg'i",
+                header: t("table.fuel_l"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney((row.original as any).start_fuel)}</div>
@@ -114,7 +111,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "end_fuel",
-                header: "Yakuniy yoqilg'i",
+                header: t("table.fuel_l"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney((row.original as any).end_fuel)}</div>
@@ -122,7 +119,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 id: "fuel_per_100km",
-                header: "100 km ga sarf (l)",
+                header: t("table.fuel_per_km"),
                 enableSorting: true,
                 accessorFn: (row) => {
                     const startFuel = Number((row as any).start_fuel ?? 0)
@@ -145,7 +142,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "income_uzs",
-                header: "Tushum (uzs)",
+                header: `${t("form.income")} (uzs)`,
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.income_uzs)}</div>
@@ -153,7 +150,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "income_usd",
-                header: "Tushum (usd)",
+                header: `${t("form.income")} (usd)`,
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.income_usd)}</div>
@@ -161,7 +158,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "cash_flow_sum",
-                header: "Xarajat",
+                header: t("form.expense"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney(row.original.cash_flow_sum)}</div>
@@ -183,7 +180,7 @@ export const useColumnsManagersTrips = (opts?: {
                                 }}
                             >
                                 <CheckCircle size={14} />
-                                Tugatish
+                                {t("actions.finish")}
                             </Button>
                         )}
                         <Button
@@ -224,6 +221,6 @@ export const useColumnsManagersTrips = (opts?: {
                 ),
             },
         ],
-        [onMoliya, onEdit, onDelete],
+        [onMoliya, onEdit, onDelete, t],
     )
 }

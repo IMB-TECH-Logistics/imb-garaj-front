@@ -1,6 +1,7 @@
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export type PetrolStationRow = {
     id: number
@@ -11,14 +12,15 @@ export type PetrolStationRow = {
     balance: string | number | null
 }
 
-export const usePetrolStationColumns = () =>
-    useMemo<ColumnDef<PetrolStationRow>[]>(
+export const usePetrolStationColumns = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<PetrolStationRow>[]>(
         () => [
-            { accessorKey: "name", header: "Nomi", enableSorting: true },
-            { accessorKey: "address", header: "Manzili", enableSorting: true },
+            { accessorKey: "name", header: t("form.name"), enableSorting: true },
+            { accessorKey: "address", header: t("form.address"), enableSorting: true },
             {
                 accessorKey: "balance",
-                header: "Balans",
+                header: t("form.balance"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="tabular-nums">
@@ -27,5 +29,7 @@ export const usePetrolStationColumns = () =>
                 ),
             },
         ],
-        [],
+        [t],
     )
+
+}

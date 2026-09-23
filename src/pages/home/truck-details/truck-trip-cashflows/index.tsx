@@ -5,9 +5,11 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { useCostCols } from "./cols"
 
 const TruckTripCashflowRow = () => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const orderId = Number(search.order)
     const { data, isLoading } = useGet<ListResponse<CashflowRow>>(
@@ -36,7 +38,7 @@ const TruckTripCashflowRow = () => {
         <div className="space-y-3 border-t p-4">
             <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-medium">Xarajatlar ro'yxati</h3>
+                    <h3 className="text-lg font-medium">{t("page.expense_list")}</h3>
                 </div>
             </div>
 

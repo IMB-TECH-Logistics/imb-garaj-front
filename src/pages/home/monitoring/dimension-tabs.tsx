@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Package, Route as RouteIcon, Truck, User2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { Dimension } from "./types"
 
 type Tab = {
@@ -22,10 +23,11 @@ type Props = {
 }
 
 export default function DimensionTabs({ value, onChange, counts }: Props) {
+    const { t } = useTranslation()
     return (
         <div
             role="tablist"
-            aria-label="Monitoring kesimi"
+            aria-label={t("nav.monitoring")}
             className="inline-flex h-9 items-center gap-0.5 rounded-md border bg-muted/30 p-0.5"
         >
             {TABS.map((tab) => {

@@ -1,6 +1,7 @@
 import { FormNumberInput } from "@/components/form/number-input"
 import { useEffect, useRef } from "react"
 import { UseFormReturn } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 export type PaymentType = { id: number; name: string }
 
@@ -42,12 +43,14 @@ export const NaqdAmountField = ({
         }
     }, [isNaqd, amount, matchedDirection, setValue])
 
+    const { t } = useTranslation()
+
     if (!isNaqd) return null
 
     return (
         <FormNumberInput
             required
-            label="Summa"
+            label={t("form.amount")}
             name="amount"
             control={control}
             thousandSeparator=" "

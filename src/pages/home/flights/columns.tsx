@@ -3,6 +3,7 @@ import { formatMoney } from "@/lib/format-money"
 import { toNum } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export interface ReysOrder {
     id: number
@@ -30,10 +31,11 @@ export interface ReysOrder {
 }
 
 export const useFlightsColumns = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<ReysOrder>[]>(
         () => [
             {
-                header: "Buyurtma ID",
+                header: t("table.order_id"),
                 accessorKey: "external_id",
                 size: 140,
                 enableSorting: true,
@@ -48,37 +50,37 @@ export const useFlightsColumns = () => {
                 },
             },
             {
-                header: "Firma kodi",
+                header: t("form.company_code"),
                 accessorKey: "client_code",
                 size: 140,
                 enableSorting: true,
             },
             {
-                header: "Firma nomi",
+                header: t("form.company_name"),
                 accessorKey: "client_name",
                 size: 140,
                 enableSorting: true,
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "date",
                 size: 100,
                 enableSorting: true,
             },
             {
-                header: "Yuklash joyi",
+                header: t("form.loading_location"),
                 accessorKey: "loading_name",
                 size: 130,
                 enableSorting: true,
             },
             {
-                header: "Tushirish joyi",
+                header: t("form.unloading_location"),
                 accessorKey: "unloading_name",
                 size: 130,
                 enableSorting: true,
             },
             {
-                header: "Avto turi",
+                header: t("form.vehicle_type"),
                 accessorKey: "vehicle_type",
                 size: 100,
                 enableSorting: true,
@@ -89,19 +91,19 @@ export const useFlightsColumns = () => {
                 ),
             },
             {
-                header: "Davlat raqami",
+                header: t("table.truck_number"),
                 accessorKey: "truck_number",
                 size: 120,
                 enableSorting: true,
             },
             {
-                header: "Yuk turi",
+                header: t("form.cargo_type"),
                 accessorKey: "cargo_type_name",
                 size: 110,
                 enableSorting: true,
             },
             {
-                header: "Summa S NDS",
+                header: t("form.amount_with_nds"),
                 accessorKey: "summa_s_nds",
                 size: 130,
                 enableSorting: true,
@@ -111,6 +113,6 @@ export const useFlightsColumns = () => {
                 },
             },
         ],
-        [],
+        [t],
     )
 }

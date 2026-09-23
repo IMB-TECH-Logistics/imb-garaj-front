@@ -11,6 +11,7 @@ import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddRouteConfigModal from "./add-route"
 import { type DirectionPrice, type DirectionRow, useDirectionColumns } from "./cols"
@@ -37,6 +38,7 @@ type Direction = {
 type SelectItem = { id: number | string; name: string }
 
 const RouteConfigsPage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_directions_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const { getData, setData } = useGlobalStore()
@@ -137,7 +139,7 @@ const RouteConfigsPage = () => {
             />
             <Modal
                 title={
-                    item?.id ? "Yo'nalishni tahrirlash" : "Yo'nalish qo'shish"
+                    item?.id ? t("actions.edit") + " " + t("nav.directions").toLowerCase() : t("actions.add") + " " + t("nav.directions").toLowerCase()
                 }
                 modalKey="create"
                 size="max-w-2xl"

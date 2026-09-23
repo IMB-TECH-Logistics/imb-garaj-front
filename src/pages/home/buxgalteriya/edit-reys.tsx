@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { ReysOrder } from "./cols"
 import TushumList from "./tushum-list"
+import { useTranslation } from "react-i18next"
 
 type Option = { id: number; name: string }
 
@@ -85,6 +86,7 @@ const withCurrent = (
     :   options
 
 const EditReysModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("edit-reys")
     const { getData, clearKey } = useGlobalStore()
@@ -191,7 +193,7 @@ const EditReysModal = () => {
     }, [vehiclesData, current?.truck_number, setValue])
 
     const onSuccess = () => {
-        toast.success("Muvaffaqiyatli tahrirlandi!")
+        toast.success(t("messages.success_edit"))
         clearKey(MANAGERS_RUNS)
         closeModal()
         queryClient.refetchQueries({ queryKey: [MANAGERS_RUNS] })
@@ -201,7 +203,7 @@ const EditReysModal = () => {
 
     const onSubmit = (values: ReysFormValues) => {
         if (!current?.id) {
-            toast.error("Order ID topilmadi")
+            toast.error(t("page.order_id_not_found"))
             return
         }
 
@@ -233,25 +235,25 @@ const EditReysModal = () => {
             className="grid grid-cols-2 gap-4"
         >
             <FormCombobox
-                label="Firma"
+                label={t("form.company_name")}
                 name="client"
                 control={control}
                 options={clientsData ?? []}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Firmani tanlang"
+                placeholder={t("form.company_name")}
             />
 
             <FormDatePicker
-                label="Sana"
+                label={t("form.date")}
                 control={control}
                 name="date"
-                placeholder="Sanani tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
 
             <FormCombobox
-                label="Yo'nalish"
+                label={t("form.direction")}
                 name="direction"
                 control={control}
                 options={directionOptions}
@@ -261,78 +263,78 @@ const EditReysModal = () => {
             />
 
             <FormCombobox
-                label="Status"
+                label={t("table.status")}
                 name="status"
                 control={control}
                 options={ORDER_STATUS_OPTIONS}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Statusni tanlang"
+                placeholder={t("table.status")}
             />
 
             <FormCombobox
-                label="Yuklash joyi"
+                label={t("form.loading_location")}
                 name="loading"
                 control={control}
                 options={loadsData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Yuklash joyini tanlang"
+                placeholder={t("form.loading_location")}
             />
 
             <FormCombobox
-                label="Tushirish joyi"
+                label={t("form.unloading_location")}
                 name="unloading"
                 control={control}
                 options={unloadsData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Tushirish joyini tanlang"
+                placeholder={t("form.unloading_location")}
             />
 
             <FormCombobox
-                label="Yuk turi"
+                label={t("form.cargo_type")}
                 name="cargo_type"
                 control={control}
                 options={cargoTypesData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Yuk turini tanlang"
+                placeholder={t("form.cargo_type")}
             />
 
             <FormCombobox
-                label="Reys turi"
+                label={t("form.trip_type")}
                 name="type"
                 control={control}
                 options={ORDER_TYPE_OPTIONS}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Reys turini tanlang"
+                placeholder={t("form.trip_type")}
             />
 
             <FormCombobox
-                label="Mashina"
+                label={t("form.truck")}
                 name="vehicle"
                 control={control}
                 options={vehicleOptions}
                 valueKey="id"
                 labelKey="label"
-                placeholder="Mashina tanlang"
+                placeholder={t("form.truck")}
             />
 
             <FormNumberInput
                 name="nds_percent"
-                label="Foiz"
+                label={t("form.rate_percent")}
                 control={control}
                 allowNegative={false}
                 decimalScale={0}
-                placeholder="Foiz"
+                placeholder={t("form.rate_percent")}
             />
 
             <FormCheckbox
                 control={control}
                 name="out_of_contract"
-                label="Shartnomadan tashqari"
+                label={t("form.out_of_contract")}
             />
 
             {current?.id ?
@@ -341,7 +343,7 @@ const EditReysModal = () => {
 
             <div className="col-span-2 flex justify-end pt-2">
                 <Button type="submit" loading={isPending} className="min-w-36">
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

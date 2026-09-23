@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import { useRef, useState } from "react"
 import { FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { Input } from "../ui/input"
 import { formatCarNumber } from "./car-number"
 
@@ -20,6 +21,7 @@ export default function TruckIdSelect<IForm extends FieldValues>({
     onSearchChange,
     handleSelect,
 }: Props<IForm>) {
+    const { t } = useTranslation()
     const rf = useRef<NodeJS.Timeout>()
     type Value = PathValue<IForm, Path<IForm>>
     const [open, setOpen] = useState(false)
@@ -52,7 +54,7 @@ export default function TruckIdSelect<IForm extends FieldValues>({
     return (
         <div className="w-full relative">
             <Input
-                placeholder="Mashina raqamini kiriting"
+                placeholder={t("form.enter_vehicle_number")}
                 onFocus={() => setOpen(true)}
                 fullWidth
                 {...reg}

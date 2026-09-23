@@ -13,11 +13,13 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ArchiveRestore } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddCargoModal from "./add-cargo"
 import { useColumnsCargoTable } from "./cargo-cols"
 
 const CargoPage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_cargo_types_control")
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
@@ -45,7 +47,7 @@ const CargoPage = () => {
 
     const { mutate: restoreCargo } = usePost({
         onSuccess: () => {
-            toast.success("Yuk turi tiklandi", { icon: "✅" })
+            toast.success(t("toast.restored"))
             queryClient.refetchQueries({ queryKey: [SETTINGS_CARGO_TYPE] })
         },
     })
@@ -121,8 +123,8 @@ const CargoPage = () => {
                                     }}
                                 >
                                     {showDeleted ?
-                                        "Faol yuk turlari"
-                                    :   "O'chirilganlar"}
+                                        t("status.active")
+                                    :   t("status.archive")}
                                 </Button>
                             :   undefined
                         }
@@ -134,7 +136,7 @@ const CargoPage = () => {
 
             <Modal
                 title={
-                    item?.id ? "Yuk turini tahrirlash" : " Yuk turini  qo'shish"
+                    item?.id ? t("actions.edit") + " " + t("nav.cargo_types").toLowerCase() : t("actions.add") + " " + t("nav.cargo_types").toLowerCase()
                 }
                 modalKey="create"
             >

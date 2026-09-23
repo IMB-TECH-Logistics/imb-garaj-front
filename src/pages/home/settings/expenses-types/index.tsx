@@ -7,11 +7,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddExpensesModal from "./add-expenses"
 import { useColumnsExpensesTable } from "./expenses-cols"
 
 const ExpensesTypePage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_expense_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
@@ -69,8 +71,8 @@ const ExpensesTypePage = () => {
             <Modal
                 title={
                     item?.id ?
-                        "Xarajat turinni tahrirlash"
-                    :   " Xarajat qo'shish"
+                        t("actions.edit") + " " + t("nav.expense_types").toLowerCase()
+                    :   t("actions.add") + " " + t("nav.expense_types").toLowerCase()
                 }
                 modalKey="create"
             >

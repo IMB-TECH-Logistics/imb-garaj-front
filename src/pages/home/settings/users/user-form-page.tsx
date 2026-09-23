@@ -13,8 +13,10 @@ import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { Switch } from "@/components/ui/switch"
 import PermissionField from "./permission-field"
+import { useTranslation } from "react-i18next"
 
 const UserFormPage = () => {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
 
@@ -71,7 +73,7 @@ const UserFormPage = () => {
             }
             queryClient.removeQueries({ queryKey: [SETTINGS_USERS] })
             toast.success(
-                id ? "Foydalanuvchi tahrirlandi!" : "Foydalanuvchi qo'shildi!",
+                id ? t("messages.success_edit") : t("messages.success_add"),
             )
             navigate({ to: "/users" })
         } catch { }
@@ -88,7 +90,7 @@ const UserFormPage = () => {
                     <ArrowLeft className="h-4" />
                 </Button>
                 <h1 className="text-xl font-semibold">
-                    {id ? "Foydalanuvchini tahrirlash" : "Yangi foydalanuvchi"}
+                    {id ? t("actions.edit") + " " + t("nav.users").toLowerCase() : t("nav.users")}
                 </h1>
             </div>
 
@@ -100,34 +102,34 @@ const UserFormPage = () => {
                     <FormInput
                         required
                         name="first_name"
-                        label="Ism"
+                        label={t("form.first_name")}
                         methods={form}
-                        placeholder="Misol: Ali"
+                        placeholder={`${t("form.example")}: Ali`}
                     />
                     <FormInput
                         required
                         name="last_name"
-                        label="Familiya"
+                        label={t("form.last_name")}
                         methods={form}
-                        placeholder="Misol: Aliyev"
+                        placeholder={`${t("form.example")}: Aliyev`}
                     />
                     <FormInput
                         required
                         name="username"
-                        label="Login"
+                        label={t("auth.username")}
                         methods={form}
-                        placeholder="Misol: ali1"
+                        placeholder={`${t("form.example")}: ali1`}
                     />
                     <FormInput
                         required={!id}
                         type="password"
                         name="password"
-                        label="Parol"
+                        label={t("auth.password")}
                         methods={form}
                         placeholder={
                             id
-                                ? "O'zgartirish uchun kiriting"
-                                : "Misol: SecurePass123!"
+                                ? t("form.enter_to_change")
+                                : `${t("form.example")}: SecurePass123!`
                         }
                     />
                     <FormCombobox
@@ -136,7 +138,7 @@ const UserFormPage = () => {
                         control={form.control}
                         labelKey="name"
                         valueKey="id"
-                        label="Foydalanuvchi roli"
+                        label={t("form.user_role")}
                     />
 
                     {!isDriver && (
@@ -173,7 +175,7 @@ const UserFormPage = () => {
                             type="submit"
                             loading={isPending}
                         >
-                            Saqlash
+                            {t("actions.save")}
                         </Button>
                     </div>
                 </form>

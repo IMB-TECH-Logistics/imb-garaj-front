@@ -12,16 +12,20 @@ import { useMemo, useState } from "react"
 import { useLogsCols } from "./cols"
 import LogDetailSheet from "./log-detail"
 import { getSectionLabel } from "./sections"
+import { useTranslation } from "react-i18next"
 
-const ACTION_OPTIONS = [
-    { value: "1", label: "Yaratildi" },
-    { value: "2", label: "Yangilandi" },
-    { value: "3", label: "O'chirildi" },
-    { value: "4", label: "Kirish" },
-    { value: "5", label: "Chiqish" },
-    { value: "6", label: "Eksport qilindi" },
-    { value: "7", label: "Import qilindi" },
-]
+const useActionOptions = () => {
+    const { t } = useTranslation()
+    return [
+        { value: "1", label: t("log.created") },
+        { value: "2", label: t("log.updated") },
+        { value: "3", label: t("log.deleted") },
+        { value: "4", label: t("log.login") },
+        { value: "5", label: t("log.logout") },
+        { value: "6", label: t("log.exported") },
+        { value: "7", label: t("log.imported") },
+    ]
+}
 
 const DEVICE_OPTIONS = [
     { value: "Desktop", label: "Desktop" },
@@ -30,6 +34,8 @@ const DEVICE_OPTIONS = [
 ]
 
 export default function LogsPage() {
+    const { t } = useTranslation()
+    const ACTION_OPTIONS = useActionOptions()
     const search = useSearch({ strict: false }) as Record<string, unknown>
 
     const { data: logs, isLoading } = useGet<ListResponse<LogItem>>(LOGS_LIST, {
@@ -59,13 +65,13 @@ export default function LogsPage() {
 
     const tabOptions = useMemo(
         () => [
-            { value: "", label: "Barchasi" },
+            { value: "", label: t("page.all_label") },
             ...((logs_sections as LogSection[]) || []).map((item) => ({
                 value: item.section,
                 label: `${getSectionLabel(item.section)} (${item.count})`,
             })),
         ],
-        [logs_sections],
+        [logs_sections, t],
     )
 
     return (
@@ -73,7 +79,7 @@ export default function LogsPage() {
             <div className="space-y-3">
                 <div className="my-3 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-xl">Faoliyat jurnali</h1>
+                        <h1 className="text-xl">{t("nav.activity_log")}</h1>
                         <Badge>{formatMoney(logs?.count ?? 0)}</Badge>
                     </div>
 
@@ -87,7 +93,7 @@ export default function LogsPage() {
                         <ParamCombobox
                             paramName="user"
                             options={userOptions}
-                            label="Foydalanuvchi"
+                            label={t("table.user_col")}
                             className="w-56"
                             labelKey="label"
                             valueKey="value"
@@ -100,7 +106,7 @@ export default function LogsPage() {
                         <ParamCombobox
                             paramName="action"
                             options={ACTION_OPTIONS}
-                            label="Harakat turi"
+                            label={t("form.action_type")}
                             className="w-48"
                             labelKey="label"
                             valueKey="value"
@@ -113,7 +119,7 @@ export default function LogsPage() {
                         <ParamCombobox
                             paramName="device"
                             options={DEVICE_OPTIONS}
-                            label="Qurilma"
+                            label={t("form.device")}
                             labelKey="label"
                             valueKey="value"
                             className="w-48"

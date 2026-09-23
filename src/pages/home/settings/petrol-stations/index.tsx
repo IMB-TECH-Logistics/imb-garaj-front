@@ -16,6 +16,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Download, Wallet } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddPetrolStationModal from "./add-petrol"
 import { type PetrolStationRow, usePetrolStationColumns } from "./cols"
@@ -28,6 +29,7 @@ type PetrolStats = {
 }
 
 const PetrolStationsPage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_petrol_stations_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
@@ -48,7 +50,7 @@ const PetrolStationsPage = () => {
         const isFuture = reportYear > now.getFullYear() ||
             (reportYear === now.getFullYear() && monthIdx > now.getMonth())
         if (isFuture) {
-            toast.warning("Kelajakdagi oy uchun ma'lumot yo'q")
+            toast.warning(t("page.no_data_period"))
             return
         }
         const month = `${reportYear}-${String(monthIdx + 1).padStart(2, "0")}`
@@ -115,7 +117,7 @@ const PetrolStationsPage = () => {
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Umumiy balans
+                                {t("page.total_balance")}
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate">
                                 {formatMoney(Number(stats?.total_balance ?? 0))}{" "}
@@ -134,7 +136,7 @@ const PetrolStationsPage = () => {
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Kirim
+                                {t("page.add_income")}
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-emerald-600">
                                 +{formatMoney(Number(stats?.total_top_ups ?? 0))}{" "}
@@ -150,7 +152,7 @@ const PetrolStationsPage = () => {
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Chiqim
+                                {t("page.add_expense")}
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-rose-600">
                                 {Number(stats?.total_outcomes ?? 0) > 0 ? "−" : ""}{formatMoney(Number(stats?.total_outcomes ?? 0))}{" "}
@@ -165,7 +167,7 @@ const PetrolStationsPage = () => {
                     <PopoverTrigger asChild>
                         <Button size="sm" variant="outline" disabled={isDownloading} loading={isDownloading}>
                             <Download size={16} className="mr-1" />
-                            Yuklab olish
+                            {t("actions.download")}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[280px] p-3" align="end">
@@ -249,7 +251,7 @@ const PetrolStationsPage = () => {
             />
             <Modal
                 title={
-                    item?.id ? "Zapravkani tahrirlash" : "Zapravka qo'shish"
+                    item?.id ? t("actions.edit") + " " + t("nav.petrol").toLowerCase() : t("actions.add") + " " + t("nav.petrol").toLowerCase()
                 }
                 modalKey="create"
                 size="max-w-2xl"

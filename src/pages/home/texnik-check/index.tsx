@@ -16,6 +16,7 @@ import { useSearch } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { useExpenseCols, type VehicleExpenseRow } from "./cols"
 import AddExpenseModal from "./add-expense"
+import { useTranslation } from "react-i18next"
 
 type SelectItem = { id: number | string; name: string }
 
@@ -75,6 +76,7 @@ export const TexnikCheck = () => {
         className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
     }
 
+    const { t } = useTranslation()
     return (
         <div className="space-y-3">
             <DataTable
@@ -93,14 +95,14 @@ export const TexnikCheck = () => {
                 head={
                     <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-lg font-semibold">Xarajatlar</h1>
+                            <h1 className="text-lg font-semibold">{t("page.expense_list")}</h1>
                             <Badge>{data?.count ?? 0}</Badge>
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">
                             <ParamCombobox
                                 paramName="category"
                                 options={expenseCategories || []}
-                                label="Xarajat turi"
+                                label={t("form.expense_type")}
                                 addButtonProps={comboStyle}
                             />
                             <ParamDateRange
@@ -113,7 +115,7 @@ export const TexnikCheck = () => {
                             />
                             <Button onClick={handleAdd}>
                                 <Plus size={16} />
-                                Qo'shish
+                                {t("actions.add")}
                             </Button>
                         </div>
                     </div>
@@ -122,7 +124,7 @@ export const TexnikCheck = () => {
 
             <Modal
                 modalKey="add-expense"
-                title={current?.id ? "Xarajat tahrirlash" : "Xarajat qo'shish"}
+                title={current?.id ? t("page.edit_expense_modal") : t("page.add_expense_modal")}
                 size="max-w-xl"
             >
                 <AddExpenseModal />

@@ -12,6 +12,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { X } from "lucide-react"
 import { useState } from "react"
 import { ACTIVITY_OPTIONS, STATUS_OPTIONS } from "./create-reys"
+import { useTranslation } from "react-i18next"
 
 type Option = { id: number | string; name: string }
 
@@ -29,11 +30,6 @@ export const REYS_FILTER_KEYS = [
     "to_date",
 ] as const
 
-const TYPE_OPTIONS: Option[] = [
-    { id: "1", name: "Yukli" },
-    { id: "2", name: "Yuksiz" },
-]
-
 const CONTRACT_OPTIONS: Option[] = [
     { id: "false", name: "Shartnoma bo'yicha" },
     { id: "true", name: "Shartnomadan tashqari" },
@@ -46,9 +42,15 @@ const filterButtonProps = {
 }
 
 export default function ReysFilters() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
     const [resetKey, setResetKey] = useState(0)
+
+    const TYPE_OPTIONS: Option[] = [
+        { id: "1", name: t("status.loaded") },
+        { id: "2", name: t("status.empty") },
+    ]
 
     const { data: regions } = useGet<Option[]>(SETTINGS_SELECTABLE_REGION)
     const { data: cargoTypes } = useGet<Option[]>(SETTINGS_SELECTABLE_CARGO_TYPE, {
@@ -72,7 +74,6 @@ export default function ReysFilters() {
         } as any)
         setResetKey((key) => key + 1)
     }
-
     return (
         <div className="mt-3 flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -91,14 +92,14 @@ export default function ReysFilters() {
                 {hasActiveFilters && (
                     <Button onClick={clearAllFilters} className="flex items-center gap-2">
                         <X size={16} />
-                        Filtrlarni tozalash
+                        {t("page.clear_filters")}
                     </Button>
                 )}
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
                 <ParamCombobox
                     paramName="loading"
-                    label="Yuklash joyi"
+                    label={t("form.loading_location")}
                     options={regions ?? []}
                     valueKey="id"
                     labelKey="name"
@@ -106,7 +107,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="unloading"
-                    label="Tushirish joyi"
+                    label={t("form.unloading_location")}
                     options={regions ?? []}
                     valueKey="id"
                     labelKey="name"
@@ -114,7 +115,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="cargo_type"
-                    label="Yuk turi"
+                    label={t("form.cargo_type")}
                     options={cargoTypes ?? []}
                     valueKey="id"
                     labelKey="name"
@@ -122,7 +123,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="client"
-                    label="Yuk beruvchi"
+                    label={t("form.cargo_owner")}
                     options={clients ?? []}
                     valueKey="id"
                     labelKey="name"
@@ -130,7 +131,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="activity"
-                    label="Holat"
+                    label={t("table.status")}
                     options={ACTIVITY_OPTIONS}
                     valueKey="id"
                     labelKey="name"
@@ -139,7 +140,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="type"
-                    label="Holati"
+                    label={t("table.status")}
                     options={TYPE_OPTIONS}
                     valueKey="id"
                     labelKey="name"
@@ -148,7 +149,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="status"
-                    label="Status"
+                    label={t("table.status")}
                     options={LIST_STATUS_OPTIONS}
                     valueKey="id"
                     labelKey="name"
@@ -157,7 +158,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="out_of_contract"
-                    label="Shartnoma"
+                    label={t("form.contract")}
                     options={CONTRACT_OPTIONS}
                     valueKey="id"
                     labelKey="name"

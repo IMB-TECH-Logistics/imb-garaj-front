@@ -29,10 +29,36 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useController, useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { FormNumberInput } from "@/components/form/number-input"
+import { useTranslation } from "react-i18next"
 
 type Option = { id: number; name: string }
 
 type StatusOption = { id: string; name: string }
+
+export const useStatusOptions = (): StatusOption[] => {
+    const { t } = useTranslation()
+    return [
+        { id: "0", name: t("status.pending") },
+        { id: "1", name: t("status.started") },
+        { id: "5", name: t("status.loading_status") },
+        { id: "6", name: t("status.on_road") },
+        { id: "7", name: t("status.unloading_status") },
+        { id: "2", name: t("status.done") },
+        { id: "3", name: t("status.cancelled") },
+        { id: "4", name: t("status.archived") },
+    ]
+}
+
+export const useActivityOptions = (): StatusOption[] => {
+    const { t } = useTranslation()
+    return [
+        { id: "1", name: t("nav.flights") },
+        { id: "2", name: t("status.in_garage") },
+        { id: "3", name: t("status.repair") },
+        { id: "4", name: t("status.idle_stop") },
+        { id: "5", name: t("status.in_queue") },
+    ]
+}
 
 export const STATUS_OPTIONS: StatusOption[] = [
     { id: "0", name: "Kutilmoqda" },
@@ -84,6 +110,9 @@ const distinctOptions = (
 }
 
 const AddTripOrders = () => {
+    const { t } = useTranslation()
+    const STATUS_OPTIONS = useStatusOptions()
+    const ACTIVITY_OPTIONS_TRANSLATED = useActivityOptions()
     const { id } = useParams({ strict: false })
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
@@ -238,7 +267,7 @@ const AddTripOrders = () => {
 
     const cargoTypesData = useMemo(() => {
         const all = cargoTypesResponse?.results ?? []
-        return [{ id: 0, name: "Yuksiz" }, ...all]
+        return [{ id: 0, name: t("status.empty") }, ...all]
     }, [cargoTypesResponse])
 
     const matchedDirection = useMemo(() => {
@@ -305,8 +334,8 @@ const AddTripOrders = () => {
     const onSuccess = () => {
         toast.success(
             currentTripOrder?.id ?
-                "Buyurtma tahrirlandi!"
-                : "Buyurtma qo'shildi!",
+                t("messages.success_edit")
+                : t("messages.success_add"),
         )
         reset()
         clearKey(MANAGERS_ORDERS)
@@ -325,9 +354,7 @@ const AddTripOrders = () => {
         const isNaqdSel = !!data.is_naqd
 
         if (isReysSel && !isNaqdSel && !matchedDirection) {
-            toast.error(
-                "Tanlangan yo'nalish uchun sozlama topilmadi. Avval Yo'nalishlar sozlamasida yaratib oling.",
-            )
+            toast.error(t("page.direction_config_not_found"))
             return
         }
 
@@ -426,13 +453,13 @@ const AddTripOrders = () => {
                 <FormCombobox
                     required
                     hideError={false}
-                    label="Holat"
+                    label={t("table.status")}
                     name="activity"
                     control={control}
-                    options={ACTIVITY_OPTIONS}
+                    options={ACTIVITY_OPTIONS_TRANSLATED}
                     valueKey="id"
                     labelKey="name"
-                    placeholder="Holatni tanlang"
+                    placeholder={t("table.status")}
                 />
 
                 {isReysActivity && (
@@ -443,8 +470,8 @@ const AddTripOrders = () => {
                             onValueChange={(v) => setValue("is_naqd", v === "naqd")}
                         >
                             <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="perech">Shartnoma</TabsTrigger>
-                                <TabsTrigger value="naqd">Bir martalik</TabsTrigger>
+                                <TabsTrigger value="perech">{t("form.contract")}</TabsTrigger>
+                                <TabsTrigger value="naqd">{t("status.cash")}</TabsTrigger>
                             </TabsList>
                         </Tabs>
 
@@ -452,13 +479,13 @@ const AddTripOrders = () => {
                             <FormCombobox
                                 required
                                 hideError={false}
-                                label="Yuk beruvchi"
+                                label={t("form.cargo_owner")}
                                 name="client"
                                 control={control}
                                 options={clientsData ?? []}
                                 valueKey="id"
                                 labelKey="name"
-                                placeholder="Yuk beruvchini tanlang"
+                                placeholder={t("form.cargo_owner")}
                             />
                         )}
 
@@ -487,7 +514,7 @@ const AddTripOrders = () => {
                                         options={loadsData}
                                         valueKey="id"
                                         labelKey="name"
-                                        placeholder="Qayerdan"
+                                        placeholder={t("form.loading_location")}
                                         addButtonProps={{
                                             disabled: !isNaqd && !watch("client"),
                                         }}
@@ -500,7 +527,7 @@ const AddTripOrders = () => {
                                         options={unloadsData}
                                         valueKey="id"
                                         labelKey="name"
-                                        placeholder="Qayerga"
+                                        placeholder={t("form.unloading_location")}
                                         addButtonProps={{ disabled: !loadingValue }}
                                     />
                                 </div>
@@ -515,13 +542,13 @@ const AddTripOrders = () => {
                         <FormCombobox
                             required
                             hideError={false}
-                            label="Shahar"
+                            label={t("form.loading_location")}
                             name="loading"
                             control={control}
                             options={loadsData}
                             valueKey="id"
                             labelKey="name"
-                            placeholder="Shaharni tanlang"
+                            placeholder={t("form.loading_location")}
                         />
                     </div>
                 )}
@@ -530,13 +557,13 @@ const AddTripOrders = () => {
                     {isReysActivity && (
                         <div className="flex-1">
                             <FormCombobox
-                                label="Mahsulot turi"
+                                label={t("form.cargo_type")}
                                 name="cargo_type"
                                 control={control}
                                 options={cargoTypesData}
                                 valueKey="id"
                                 labelKey="name"
-                                placeholder="Yuksiz"
+                                placeholder={t("status.empty")}
                                 addButtonProps={{
                                     disabled: !loadingValue || !unloadingValue,
                                 }}
@@ -547,10 +574,10 @@ const AddTripOrders = () => {
                         <FormDatePicker
                             required
                             hideError={false}
-                            label="Sana"
+                            label={t("form.date")}
                             control={control}
                             name="date"
-                            placeholder="Sanani tanlang"
+                            placeholder={t("form.select_date")}
                             className="w-full"
                         />
                     </div>
@@ -567,19 +594,19 @@ const AddTripOrders = () => {
                                 <FormCombobox
                                     control={control}
                                     name={`incomes.${index}.payment_type`}
-                                    label={index === 0 ? "To'lov turi" : ""}
+                                    label={index === 0 ? t("form.payment_type") : ""}
                                     options={allPaymentTypes.filter(
                                         (pt) => !selectedPaymentTypeIds.has(pt.id) || pt.id === incomes[index]?.payment_type,
                                     )}
                                     valueKey="id"
                                     labelKey="name"
-                                    placeholder="Tanlang"
+                                    placeholder={t("form.select_type")}
                                 />
 
                                 <FormNumberInput
                                     control={control}
                                     name={`incomes.${index}.amount`}
-                                    placeholder="Summa"
+                                    placeholder={t("form.amount")}
                                 />
 
                                 {incomeFields.length > 1 && (
@@ -588,7 +615,7 @@ const AddTripOrders = () => {
                                         variant="destructive"
                                         onClick={() => removeIncome(index)}
                                     >
-                                        O'chirish
+                                        {t("actions.delete")}
                                     </Button>
                                 )}
                             </div>
@@ -605,20 +632,20 @@ const AddTripOrders = () => {
                                 })
                             }
                         >
-                            + Qo'shish
+                            + {t("actions.add")}
                         </Button>
                     </div>
                 )}
 
                 {currentTripOrder?.id && (
                     <FormCombobox
-                        label="Holati"
+                        label={t("table.status")}
                         name="status"
                         control={control}
                         options={STATUS_OPTIONS}
                         valueKey="id"
                         labelKey="name"
-                        placeholder="Holatni tanlang"
+                        placeholder={t("table.status")}
                     />
                 )}
 
@@ -691,10 +718,10 @@ const AddTripOrders = () => {
                     <div className="flex flex-col items-center justify-center gap-2 py-7 text-muted-foreground group-hover:text-primary transition-colors">
                         <ImageIcon size={28} strokeWidth={1.5} />
                         <span className="text-sm font-medium">
-                            Rasm yuklash yoki bu yerga tashlang
+                            {t("form.upload_image")}
                         </span>
                         <span className="text-xs">
-                            Probeg / TTN rasmini yuklang
+                            {t("form.upload_image_hint")}
                         </span>
                     </div>
                 </div>
@@ -714,7 +741,7 @@ const AddTripOrders = () => {
 
                 <div className="flex justify-end pt-1">
                     <Button type="submit" loading={isPending} disabled={isPending}>
-                        Saqlash
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

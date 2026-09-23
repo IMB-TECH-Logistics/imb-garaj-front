@@ -7,11 +7,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddVehicleModal from "./add-vehicle"
 import { useColumnsVehicleTable } from "./vehicle-cols"
 
 const VehicleTypePage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_vehicle_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
@@ -68,8 +70,8 @@ const VehicleTypePage = () => {
             <Modal
                 title={
                     item?.id ?
-                        "Avtomobil turinni tahrirlash"
-                    :   " Avtomobil qo'shish"
+                        t("actions.edit") + " " + t("nav.truck_types").toLowerCase()
+                    :   t("actions.add") + " " + t("nav.truck_types").toLowerCase()
                 }
                 modalKey="create"
             >

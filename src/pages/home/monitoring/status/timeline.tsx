@@ -13,6 +13,7 @@ import {
 } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import {
     ACTIVE_STATUSES,
     type ApiStatusSegment,
@@ -86,6 +87,7 @@ export default function VehicleTimeline({
     const toggle = (k: number) =>
         setActive((prev) => (prev === k ? null : k))
 
+    const { t } = useTranslation()
     return (
         <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -147,7 +149,7 @@ export default function VehicleTimeline({
                     <div className="flex max-h-[calc(100vh-320px)] flex-col overflow-y-auto">
                         {days.length === 0 ? (
                             <div className="py-10 text-center text-sm text-muted-foreground">
-                                Sana oralig'ini tanlang
+                                {t("form.select_date")}
                             </div>
                         ) : (
                             days.map((day, i) => (

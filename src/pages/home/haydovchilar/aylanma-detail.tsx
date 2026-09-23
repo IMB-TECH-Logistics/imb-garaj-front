@@ -16,6 +16,7 @@ import { ArrowLeft } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type OrderRow = {
     id: number
@@ -35,18 +36,15 @@ type OrderRow = {
 
 const num = (v: unknown) => Number(v ?? 0) || 0
 
-const ORDER_STATUS_LABEL: Record<
-    number,
-    { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
-> = {
-    0: { label: "Kutilmoqda", variant: "secondary" },
-    1: { label: "Boshlandi", variant: "outline" },
-    2: { label: "Yakunlandi", variant: "default" },
-    3: { label: "Bekor qilindi", variant: "destructive" },
-    4: { label: "Arxivlandi", variant: "secondary" },
-    5: { label: "Yuklanmoqda", variant: "outline" },
-    6: { label: "Yo’lda", variant: "outline" },
-    7: { label: "Tushirilmoqda", variant: "outline" },
+const ORDER_STATUS_KEY: Record<number, string> = {
+    0: "status.pending",
+    1: "status.started",
+    2: "status.done",
+    3: "status.cancelled",
+    4: "status.archived",
+    5: "status.loading_status",
+    6: "status.transit",
+    7: "status.unloading_status",
 }
 
 function formatDate(s?: string | null) {
@@ -60,11 +58,12 @@ function formatDate(s?: string | null) {
     })
 }
 
-const useOrderCols = () =>
-    useMemo<ColumnDef<OrderRow>[]>(
+const useOrderCols = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<OrderRow>[]>(
         () => [
             {
-                header: "Yo’nalish",
+                header: t("form.direction"),
                 id: "route",
                 cell: ({ row }) => (
                     <span className="block break-words">
@@ -74,7 +73,7 @@ const useOrderCols = () =>
                 ),
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "date",
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
@@ -83,24 +82,24 @@ const useOrderCols = () =>
                 ),
             },
             {
-                header: "Yuk turi",
+                header: t("form.cargo_type"),
                 accessorKey: "cargo_type_name",
                 cell: ({ row }) => row.original.cargo_type_name || "—",
             },
             {
-                header: "Holat",
+                header: t("table.status"),
                 accessorKey: "status",
                 cell: ({ row }) => {
-                    const s = ORDER_STATUS_LABEL[row.original.status]
-                    return s ? (
-                        <Badge variant={s.variant}>{s.label}</Badge>
+                    const key = ORDER_STATUS_KEY[row.original.status]
+                    return key ? (
+                        <Badge>{t(key)}</Badge>
                     ) : (
                         "—"
                     )
                 },
             },
             {
-                header: "Reys narxi (UZS)",
+                header: t("table.trip_price_uzs"),
                 accessorKey: "payment_amount_uzs",
                 cell: ({ row }) => {
                     const v = num(row.original.payment_amount_uzs)
@@ -114,19 +113,19 @@ const useOrderCols = () =>
                 },
             },
             {
-                header: "Tarif (UZS)",
+                header: t("table.tariff_uzs"),
                 accessorKey: "salary_tariff_uzs",
                 cell: ({ row }) => {
                     const v = row.original.salary_tariff_uzs
                     if (v == null)
-                        return <span className="text-amber-500">tarif yo‘q</span>
+                        return <span className="text-amber-500">{t("form.tariff_no")}</span>
                     return (
                         <span className="tabular-nums">{formatMoney(num(v))}</span>
                     )
                 },
             },
             {
-                header: "Oylik",
+                header: t("table.monthly_salary"),
                 accessorKey: "salary_paid_uzs",
                 cell: ({ row }) => {
                     const paid = num(row.original.salary_paid_uzs)
@@ -138,22 +137,23 @@ const useOrderCols = () =>
                 },
             },
             {
-                header: "Status",
+                header: t("table.status"),
                 id: "salary_status",
                 cell: ({ row }) =>
                     row.original.salary_given ? (
                         <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 w-fit">
-                            Berildi
+                            {t("status.given")}
                         </Badge>
                     ) : (
                         <Badge className="bg-amber-500/15 text-amber-500 hover:bg-amber-500/20 w-fit">
-                            Berilmadi
+                            {t("status.not_given")}
                         </Badge>
                     ),
             },
         ],
-        [],
+        [t],
     )
+}
 
 type PayoutForm = {
     amount_per_order: number | string | ""
@@ -171,6 +171,7 @@ function SalaryPayoutModal({
     pending: OrderRow[]
     refetchKey: string
 }) {
+    const { t } = useTranslation()
     const qc = useQueryClient()
     const { closeModal, isOpen } = useModal("aylanma-pay-salary")
 
@@ -212,7 +213,7 @@ function SalaryPayoutModal({
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success("Oylik berildi")
+            toast.success(t("toast.advance_given"))
             qc.refetchQueries({ queryKey: [refetchKey] })
             qc.refetchQueries({
                 predicate: (q) =>
@@ -228,7 +229,7 @@ function SalaryPayoutModal({
     const onSubmit = (data: PayoutForm) => {
         const amt = Number(data.amount_per_order)
         if (!Number.isFinite(amt) || amt <= 0) {
-            toast.error("To’g’ri summa kiriting")
+            toast.error(t("toast.error_amount"))
             return
         }
         mutate(`${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/pay-salary`, {
@@ -242,14 +243,14 @@ function SalaryPayoutModal({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
             <div className="rounded-md bg-muted/40 border p-3 text-sm flex flex-col gap-1">
                 <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tanlangan reys</span>
+                    <span className="text-muted-foreground">{t("page.selected_trip")}</span>
                     <span className="font-medium tabular-nums">
                         {pending.length} ta
                     </span>
                 </div>
                 {sameTariff != null ? (
                     <div className="flex justify-between text-emerald-600">
-                        <span>Sozlangan tariff (mos)</span>
+                        <span>{t("form.amount_per_order")} ({t("actions.confirm")})</span>
                         <span className="font-medium tabular-nums">
                             {formatMoney(sameTariff)} UZS
                         </span>
@@ -273,7 +274,7 @@ function SalaryPayoutModal({
                 required
                 control={control}
                 name="amount_per_order"
-                label="Har bir reys uchun summa (UZS)"
+                label={t("form.amount_per_order")}
                 placeholder="Ex: 500 000"
                 thousandSeparator=" "
                 decimalScale={0}
@@ -287,18 +288,18 @@ function SalaryPayoutModal({
                         setValue("amount_per_order", sameTariff as any)
                     }
                 >
-                    Tarif summasidan foydalanish ({formatMoney(sameTariff)})
+                    {t("form.amount")} ({formatMoney(sameTariff)})
                 </button>
             )}
 
             <FormTextarea
                 methods={form}
-                label="Izoh (ixtiyoriy)"
+                label={t("form.optional_comment")}
                 name="comment"
             />
 
             <div className="rounded-md border border-dashed p-2 text-sm flex justify-between">
-                <span className="text-muted-foreground">Jami chiqim</span>
+                <span className="text-muted-foreground">{t("form.expense")}</span>
                 <span className="font-semibold tabular-nums">
                     {formatMoney(total)} UZS
                 </span>
@@ -311,14 +312,14 @@ function SalaryPayoutModal({
                     onClick={closeModal}
                     disabled={isPending}
                 >
-                    Bekor qilish
+                    {t("actions.cancel")}
                 </Button>
                 <Button
                     type="submit"
                     loading={isPending}
                     className="min-w-32"
                 >
-                    Tasdiqlash
+                    {t("actions.confirm")}
                 </Button>
             </div>
         </form>
@@ -326,6 +327,7 @@ function SalaryPayoutModal({
 }
 
 export default function AylanmaDetail() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const { id, tripId } = useParams({ strict: false }) as {
         id: string
@@ -387,7 +389,7 @@ export default function AylanmaDetail() {
                 </Button>
                 <div className="flex-1 min-w-0">
                     <h1 className="text-xl font-semibold leading-tight">
-                        Aylanma (ID:{tripId})
+                        {t("page.turnover_detail")} (ID:{tripId})
                     </h1>
                     <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
                         {driverName && <span>{driverName}</span>}
@@ -410,7 +412,7 @@ export default function AylanmaDetail() {
                 head={
                     <div className="mb-3 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                            <h3 className="font-medium">Reyslar</h3>
+                            <h3 className="font-medium">{t("page.trips")}</h3>
                             <Badge>{orders?.length ?? 0}</Badge>
                         </div>
                         <Button
@@ -418,7 +420,7 @@ export default function AylanmaDetail() {
                             disabled={pendingSelected.length === 0}
                             onClick={openModal}
                         >
-                            Oylik berish
+                            {t("actions.give_salary_btn")}
                             {pendingSelected.length > 0 &&
                                 ` (${pendingSelected.length})`}
                         </Button>
@@ -428,7 +430,7 @@ export default function AylanmaDetail() {
 
             <Modal
                 modalKey="aylanma-pay-salary"
-                title="Oylik berish"
+                title={t("actions.give_salary_btn")}
                 size="max-w-md"
             >
                 <SalaryPayoutModal

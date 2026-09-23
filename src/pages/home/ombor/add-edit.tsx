@@ -12,6 +12,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { UNIT_OPTIONS, type OmborProduct } from "./cols"
+import { useTranslation } from "react-i18next"
 
 type FormValues = {
     name: string
@@ -22,6 +23,7 @@ type FormValues = {
 }
 
 const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("ombor-create")
 
@@ -53,14 +55,14 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
 
     const { mutate: postMutate, isPending: creating } = usePost({
         onSuccess: () => {
-            toast.success("Mahsulot qo'shildi")
+            toast.success(t("toast.product_added"))
             refetch()
             closeModal()
         },
     })
     const { mutate: patchMutate, isPending: updating } = usePatch({
         onSuccess: () => {
-            toast.success("Mahsulot tahrirlandi")
+            toast.success(t("toast.product_updated"))
             refetch()
             closeModal()
         },
@@ -86,14 +88,14 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
             <FormInput
                 required
                 name="name"
-                label="Nomi"
+                label={t("form.name")}
                 methods={form}
                 placeholder="Solyarka balon"
             />
             <FormCombobox
                 required
                 control={control}
-                label="Birlik"
+                label={t("form.unit")}
                 name="unit"
                 options={UNIT_OPTIONS}
                 valueKey="id"
@@ -102,7 +104,7 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
             <FormNumberInput
                 required
                 name="unit_price"
-                label="Birlik narxi (so'm)"
+                label={t("form.unit_price")}
                 control={control}
                 thousandSeparator=" "
                 placeholder="Ex: 850 000"
@@ -110,16 +112,16 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
             <FormNumberInput
                 required
                 name="quantity"
-                label="Miqdori"
+                label={t("form.quantity")}
                 control={control}
                 thousandSeparator=" "
                 placeholder="Ex: 100"
             />
             <FormDatePicker
-                label="Tahminiy eskirish sanasi (ixtiyoriy)"
+                label={t("form.expiry_date_optional")}
                 control={control}
                 name="expiry_date"
-                placeholder="Sana tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
             <div className="flex justify-end pt-2">
@@ -128,7 +130,7 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
                     loading={creating || updating}
                     className="min-w-32"
                 >
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

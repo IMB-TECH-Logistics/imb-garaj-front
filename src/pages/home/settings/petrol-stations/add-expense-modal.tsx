@@ -23,6 +23,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type VehicleOption = {
     id: number
@@ -75,6 +76,7 @@ type FormValues = {
 const LAST_KEY = (id: number) => `petrol-last-expense-${id}`
 
 const AddExpenseModal = ({ stationId }: { stationId: number }) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("petrol-expense")
     const { getData, setData } = useGlobalStore()
@@ -180,45 +182,43 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
 
     const { mutate: deleteOtherVehicle, isPending: isDeleting } = useDelete({
         onSuccess: () => {
-            toast.success("Mashina o'chirildi")
+            toast.success(t("toast.truck_deleted"))
             setIsAdding(false)
             setEditingId(null)
             setAddError("")
             refetchOtherVehicles().then(() => setValue("other_vehicle", ""))
         },
         onError: (error: any) => {
-            // The server refuses while refuels still point at the car and says
-            // why; showing that beats a generic failure.
             setAddError(
-                error?.response?.data?.detail || "O'chirib bo'lmadi",
+                error?.response?.data?.detail || t("messages.error"),
             )
         },
     })
 
     const { mutate: updateOtherVehicle, isPending: isUpdating } = usePatch({
         onSuccess: (row: any) => {
-            toast.success("Mashina yangilandi")
+            toast.success(t("toast.truck_updated"))
             closeVehiclePanel(row)
         },
         onError: (error: any) => {
             const data = error?.response?.data
-            setAddError(data?.number?.[0] || data?.fuel?.[0] || "Saqlab bo'lmadi")
+            setAddError(data?.number?.[0] || data?.fuel?.[0] || t("messages.error"))
         },
     })
 
     const { mutate: createOtherVehicle, isPending: isCreating } = usePost({
         onSuccess: (row: any) => {
-            toast.success("Mashina qo'shildi")
+            toast.success(t("toast.truck_added"))
             closeVehiclePanel(row)
         },
         onError: (error: any) => {
-            setAddError(error?.response?.data?.number?.[0] || "Saqlab bo'lmadi")
+            setAddError(error?.response?.data?.number?.[0] || t("messages.error"))
         },
     })
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success("Chiqim qo'shildi")
+            toast.success(t("toast.expense_added"))
             const current = form.getValues()
             setData(LAST_KEY(stationId), {
                 vehicle: current.vehicle,
@@ -280,7 +280,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 no-scrollbar-x">
             <div className="flex flex-col gap-1.5">
-                <span className="font-medium text-sm">Mashina turi</span>
+                <span className="font-medium text-sm">{t("form.vehicle_type")}</span>
                 <div className="flex gap-2">
                     {[
                         { value: false, label: "Garaj furasi" },
@@ -313,7 +313,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     <FormCombobox
                         required
                         control={control}
-                        label="Mashina raqami"
+                        label={t("form.truck_number")}
                         name="other_vehicle"
                         options={(otherVehicles ?? []).map((v) => ({
                             ...v,
@@ -321,14 +321,14 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                         }))}
                         valueKey="id"
                         labelKey="label"
-                        placeholder="Raqamni tanlang"
+                        placeholder={t("form.truck_number")}
                     />
                     {isAdding ?
                         <div className="flex flex-col gap-2 rounded-md border p-3">
                             <Input
                                 fullWidth
                                 autoFocus
-                                placeholder="Masalan: 01 777 AAA"
+                                placeholder="01 777 AAA"
                                 value={newNumber}
                                 onChange={(event) => {
                                     setNewNumber(event.target.value)
@@ -337,7 +337,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                             />
                             <div className="flex flex-col gap-1">
                                 <span className="text-sm font-medium">
-                                    Yoqilg'i turi
+                                    {t("form.fuel_type")}
                                 </span>
                                 <div className="flex gap-2">
                                     {[
@@ -392,7 +392,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                             )
                                         }
                                     >
-                                        O'chirish
+                                        {t("actions.delete")}
                                     </Button>
                                 )}
                                 <Button
@@ -404,7 +404,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                         setAddError("")
                                     }}
                                 >
-                                    Bekor qilish
+                                    {t("actions.cancel")}
                                 </Button>
                                 <Button
                                     type="button"
@@ -431,7 +431,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                         }
                                     }}
                                 >
-                                    {editingId ? "Saqlash" : "Qo'shish"}
+                                    {editingId ? t("actions.save") : t("actions.add")}
                                 </Button>
                             </div>
                         </div>
@@ -467,7 +467,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                     }}
                                     className="text-sm text-muted-foreground w-max hover:underline"
                                 >
-                                    Tahrirlash
+                                    {t("actions.edit")}
                                 </button>
                             )}
                         </div>
@@ -477,38 +477,38 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                     <FormCombobox
                         required
                         control={control}
-                        label="Mashina"
+                        label={t("form.truck")}
                         name="vehicle"
                         options={vehicleOptions}
                         valueKey="id"
                         labelKey="name"
-                        placeholder="Mashinani tanlang"
+                        placeholder={t("form.truck")}
                     />
                     <FormCombobox
                         control={control}
-                        label="Aylanma (ixtiyoriy)"
+                        label={t("form.trip_optional")}
                         name="trip"
                         options={tripOptions}
                         valueKey="id"
                         labelKey="name"
                         placeholder={
                             vehicleId ?
-                                "Aylanmani tanlang"
-                            :   "Avval mashina tanlang"
+                                t("form.select_trip")
+                            :   t("form.select_vehicle_first")
                         }
                     />
                     {!!tripId && !isOther && (
                         <FormCombobox
                             control={control}
-                            label="Reys (ixtiyoriy)"
+                            label={t("form.order_optional")}
                             name="order"
                             options={orderOptions}
                             valueKey="id"
                             labelKey="name"
                             placeholder={
                                 orderOptions.length === 0
-                                    ? "Bu aylanmada reys yo'q"
-                                    : "Reysni tanlang"
+                                    ? t("form.no_trips_in_turnover")
+                                    : t("form.select_order")
                             }
                         />
                     )}
@@ -517,7 +517,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             <FormNumberInput
                 required
                 control={control}
-                label={`Miqdori (${unitLabel})`}
+                label={`${t("form.quantity")} (${unitLabel})`}
                 name="quantity"
                 placeholder="Ex: 120.5"
                 thousandSeparator=" "
@@ -525,7 +525,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             />
             <FormCombobox
                 control={control}
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 options={CURRENCY_OPTIONS}
                 valueKey="id"
@@ -534,7 +534,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
@@ -544,7 +544,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 <FormNumberInput
                     required
                     control={control}
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
@@ -553,23 +553,23 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             )}
             <FormDatePicker
                 control={control}
-                label="Sana (ixtiyoriy)"
+                label={t("form.date_optional")}
                 name="paid_at"
-                placeholder="Sanani tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
-            <FormTextarea label="Izoh" name="comment" methods={form} />
+            <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             <FileUpload
                 control={control}
                 name="receipt"
                 multiple={false}
                 isPaste={true}
                 hideClearable={true}
-                label="Chek (ixtiyoriy)"
+                label={t("form.receipt_optional")}
             />
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

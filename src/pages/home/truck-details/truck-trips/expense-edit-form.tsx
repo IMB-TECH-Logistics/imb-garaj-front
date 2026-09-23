@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 export const EXPENSE_EDIT_MODAL_KEY = "trip-expense-edit"
 export const EXPENSE_EDIT_STORE_KEY = "trip-expense-edit-row"
@@ -31,6 +32,7 @@ type EditFormValues = {
 }
 
 export default function ExpenseEditForm() {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal(EXPENSE_EDIT_MODAL_KEY)
@@ -95,7 +97,7 @@ export default function ExpenseEditForm() {
 
         update(`${MANAGERS_EXPENSES}/${editItem.id}`, payload, {
             onSuccess: () => {
-                toast.success("Xarajat tahrirlandi")
+                toast.success(t("toast.expense_updated"))
                 queryClient.invalidateQueries({ queryKey: [MANAGERS_CASHFLOW] })
                 clearKey(EXPENSE_EDIT_STORE_KEY)
                 closeModal()
@@ -107,7 +109,7 @@ export default function ExpenseEditForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
             <FormCombobox
                 control={control}
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 options={[
                     { id: 1, name: "UZS" },
@@ -119,7 +121,7 @@ export default function ExpenseEditForm() {
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 123 000"
                 thousandSeparator=" "
@@ -129,7 +131,7 @@ export default function ExpenseEditForm() {
                 <FormNumberInput
                     required
                     control={control}
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
@@ -139,7 +141,7 @@ export default function ExpenseEditForm() {
             <FormCombobox
                 required
                 control={control}
-                label="Kategoriya"
+                label={t("table.category")}
                 name="category"
                 options={categoryData}
                 valueKey="id"
@@ -147,15 +149,15 @@ export default function ExpenseEditForm() {
             />
             <FormCombobox
                 control={control}
-                label="To'lov turi"
+                label={t("form.payment_type")}
                 name="payment_type"
                 options={paymentTypes?.results ?? []}
                 valueKey="id"
                 labelKey="name"
             />
-            <FormTextarea label="Izoh" methods={form} name="comment" />
+            <FormTextarea label={t("form.comment")} methods={form} name="comment" />
             <Button type="submit" loading={isPending} disabled={isPending} className="w-full">
-                Saqlash
+                {t("actions.save")}
             </Button>
         </form>
     )

@@ -7,11 +7,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddPaymentTypeModal from "./add-payment"
 import { useColumnsPaymentTable } from "./payment-cols"
 
 const PaymenTypePage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_payment_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<RolesType>>(
@@ -68,8 +70,8 @@ const PaymenTypePage = () => {
             <Modal
                 title={
                     item?.id ?
-                        "To'lov turini tahrirlash"
-                    :   " To'lov turini qo'shish"
+                        t("actions.edit") + " " + t("nav.payment_types").toLowerCase()
+                    :   t("actions.add") + " " + t("nav.payment_types").toLowerCase()
                 }
                 modalKey="create"
             >

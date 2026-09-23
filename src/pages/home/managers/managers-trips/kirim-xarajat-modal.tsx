@@ -26,6 +26,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { DRIVER_SALARIES, MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINGS_REGIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
+import { useTranslation } from "react-i18next"
 
 // ──── Types ────
 
@@ -87,6 +88,7 @@ function CategoryTabs({
     onAdd: () => void
     prefix?: string
 }) {
+    const { t } = useTranslation()
     return (
         <div className="flex items-stretch gap-3 overflow-x-auto no-scrollbar">
             {categories.map((cat, idx) => {
@@ -131,6 +133,7 @@ function CategoryTabs({
 // ──── Add category form ────
 
 function AddCategoryForm({ flowType, modalKey = "add-category" }: { flowType: 1 | -1; modalKey?: string }) {
+    const { t } = useTranslation()
     const { closeModal } = useModal(modalKey)
     const form = useForm<{ name: string }>()
     const { handleSubmit, control, reset } = form
@@ -144,7 +147,7 @@ function AddCategoryForm({ flowType, modalKey = "add-category" }: { flowType: 1 
             flow_type: flowType,
         }, {
             onSuccess: () => {
-                toast.success("Kategoriya muvaffaqiyatli qo'shildi")
+                toast.success(t("toast.category_added"))
                 queryClient.invalidateQueries({ queryKey: [MANAGERS_EXPENSE_CATEGORIES] })
                 reset()
                 closeModal()
@@ -157,12 +160,12 @@ function AddCategoryForm({ flowType, modalKey = "add-category" }: { flowType: 1 
             <FormInput
                 required
                 methods={form}
-                label="Nomi"
+                label={t("form.name")}
                 name="name"
-                placeholder="Kategoriya nomi"
+                placeholder={t("form.category_label")}
             />
             <Button className="w-full" type="submit" disabled={isPending}>
-                Saqlash
+                {t("actions.save")}
             </Button>
         </form>
     )
@@ -178,6 +181,7 @@ type PetrolStationOption = {
 }
 
 function PetrolStationField({ control }: { control: any }) {
+    const { t } = useTranslation()
     const { data } = useGet<ListResponse<PetrolStationOption>>(
         SETTINGS_PETROL_STATIONS,
         { params: { page_size: 1000 } },
@@ -198,12 +202,12 @@ function PetrolStationField({ control }: { control: any }) {
         <FormCombobox
             required
             control={control}
-            label="Zapravka"
+            label={t("nav.petrol")}
             name="petrol_station"
             options={options}
             valueKey="id"
             labelKey="name"
-            placeholder="Zapravkani tanlang"
+            placeholder={t("nav.petrol")}
         />
     )
 }
@@ -227,6 +231,7 @@ function AddFinanceForm({
     selectedCategoryCode: string | null
     action: 1 | -1
 }) {
+    const { t } = useTranslation()
     const { closeModal } = useModal("kirim-xarajat-add")
     const { getData, clearKey } = useGlobalStore()
     const queryClient = useQueryClient()
@@ -376,10 +381,8 @@ function AddFinanceForm({
 
     const handleSuccess = () => {
         const msg = isEdit
-            ? "Muvaffaqiyatli yangilandi"
-            : type === "tushum"
-                ? "Tushum muvaffaqiyatli qo'shildi"
-                : "Xarajat muvaffaqiyatli qo'shildi"
+            ? t("messages.success_edit")
+            : t("messages.success_add")
         toast.success(msg)
         queryClient.invalidateQueries({
             predicate: (q) => String(q.queryKey[0]).includes("cashflow"),
@@ -424,7 +427,7 @@ function AddFinanceForm({
         >
             <FormCombobox
                 control={control}
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 options={[
                     { id: 1, name: "UZS" },
@@ -436,7 +439,7 @@ function AddFinanceForm({
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 123 000"
                 thousandSeparator=" "
@@ -446,7 +449,7 @@ function AddFinanceForm({
                 <FormNumberInput
                     required
                     control={control}
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
@@ -461,21 +464,21 @@ function AddFinanceForm({
                     <div className="grid grid-cols-2 gap-2">
                         <FormCombobox
                             control={control}
-                            label="Qaerdan"
+                            label={t("form.loading_location")}
                             name="from_region"
                             options={regionOptions}
                             valueKey="id"
                             labelKey="name"
-                            placeholder="Region tanlang"
+                            placeholder={t("form.region")}
                         />
                         <FormCombobox
                             control={control}
-                            label="Qayerga"
+                            label={t("form.unloading_location")}
                             name="to_region"
                             options={regionOptions}
                             valueKey="id"
                             labelKey="name"
-                            placeholder="Region tanlang"
+                            placeholder={t("form.region")}
                         />
                     </div>
                     {salaryLookup?.results?.[0]?.current_amount?.amount ? (
@@ -514,7 +517,7 @@ function AddFinanceForm({
                     options={orderOptions}
                     valueKey="id"
                     labelKey="label"
-                    placeholder="Buyurtmani tanlang"
+                    placeholder={t("form.order_type")}
                 />
             )}
             {isFuel && (
@@ -522,7 +525,7 @@ function AddFinanceForm({
                     <FormNumberInput
                         required
                         control={control}
-                        label="Miqdori (litr)"
+                        label={`${t("form.quantity")} (litr)`}
                         name="quantity"
                         placeholder="Ex: 120.5"
                         decimalScale={2}
@@ -532,23 +535,23 @@ function AddFinanceForm({
             )}
             <FormCombobox
                 control={control}
-                label="To'lov turi"
+                label={t("form.payment_type")}
                 name="payment_type"
                 options={paymentTypes?.results ?? []}
                 valueKey="id"
                 labelKey="name"
             />
-            <FormTextarea required label="Izoh" methods={form} name="comment" />
+            <FormTextarea required label={t("form.comment")} methods={form} name="comment" />
             <FileUpload
                 control={control}
                 name="receipt"
                 multiple={false}
                 isPaste={true}
                 hideClearable={true}
-                label="Chek (ixtiyoriy)"
+                label={t("form.receipt_optional")}
             />
             <Button className="w-full" type="submit" disabled={isPending}>
-                {isPending ? "Saqlanmoqda..." : "Saqlash"}
+                {isPending ? t("messages.loading") : t("actions.save")}
             </Button>
         </form>
     )
@@ -557,26 +560,27 @@ function AddFinanceForm({
 // ──── Columns ────
 
 const useIncomeCols = (opts?: { withCategory?: boolean }) => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             {
-                header: "Yuklash",
+                header: t("table.loading"),
                 accessorKey: "loading_name",
                 cell: ({ row }) => row.original.order ? <span>{row.original.loading_name || "-"}</span> : null,
             },
             {
-                header: "Tushirish",
+                header: t("table.unloading_short"),
                 accessorKey: "unloading_name",
                 cell: ({ row }) => row.original.order ? <span>{row.original.unloading_name || "-"}</span> : null,
             },
             ...(opts?.withCategory ? [{
-                header: "Kategoriya",
+                header: t("table.category"),
                 accessorKey: "category_name",
                 enableSorting: true,
                 cell: ({ row }: { row: any }) => row.original.category_name || <span className="text-muted-foreground">—</span>,
             }] : []),
             {
-                header: "Summa",
+                header: t("form.amount"),
                 accessorKey: "amount",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -585,26 +589,27 @@ const useIncomeCols = (opts?: { withCategory?: boolean }) => {
                     </span>
                 ),
             },
-            { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
-            { header: "Izoh", accessorKey: "comment", enableSorting: true },
-            { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
+            { header: t("form.payment_type"), accessorKey: "payment_type_name", enableSorting: true },
+            { header: t("form.comment"), accessorKey: "comment", enableSorting: true },
+            { header: t("table.created_at"), accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
         ],
-        [opts?.withCategory],
+        [opts?.withCategory, t],
     )
 }
 
 const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             ...(opts?.withCategory ? [{
-                header: "Kategoriya",
+                header: t("table.category"),
                 accessorKey: "category_name",
                 enableSorting: true,
                 cell: ({ row }: { row: any }) => row.original.category_name || <span className="text-muted-foreground">—</span>,
             }] : []),
-            { header: "Izoh", accessorKey: "comment", enableSorting: true },
+            { header: t("form.comment"), accessorKey: "comment", enableSorting: true },
             {
-                header: "Summa",
+                header: t("form.amount"),
                 accessorKey: "amount",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -614,7 +619,7 @@ const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => 
                 ),
             },
             ...(opts?.isFuel ? [{
-                header: "Miqdori (litr)",
+                header: t("form.quantity"),
                 accessorKey: "quantity",
                 enableSorting: true,
                 cell: ({ row }: { row: any }) => {
@@ -622,16 +627,17 @@ const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => 
                     return q ? <span className="font-medium">{q}</span> : <span className="text-muted-foreground">—</span>
                 },
             }] : []),
-            { header: "To'lov turi", accessorKey: "payment_type_name", enableSorting: true },
-            { header: "Yaratilgan sana", accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
+            { header: t("form.payment_type"), accessorKey: "payment_type_name", enableSorting: true },
+            { header: t("table.created_at"), accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
         ],
-        [opts?.isFuel, opts?.withCategory],
+        [opts?.isFuel, opts?.withCategory, t],
     )
 }
 
 // ──── Tab content components ────
 
 function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCodeChange }: { tripId?: number; onCategoryChange: (name: string | null) => void; onCategoryIdChange: (id: number | null) => void; onCategoryCodeChange: (code: string | null) => void }) {
+    const { t } = useTranslation()
     const { setData, clearKey } = useGlobalStore()
     const { openModal } = useModal("kirim-xarajat-add")
     const { openModal: openDeleteModal } = useModal(`${MANAGERS_EXPENSES}-delete`)
@@ -704,12 +710,12 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
-                                <h1 className="text-xl">Tushum tarixi</h1>
+                                <h1 className="text-xl">{t("page.income_history")}</h1>
                                 <Badge className="text-sm">{rows.length}</Badge>
                             </div>
                             <Button onClick={handleAdd}>
                                 <Plus size={18} />
-                                Tushum qo'shish
+                                {t("page.add_income")}
                             </Button>
                         </div>
                     }
@@ -721,7 +727,7 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                 modalKey={`${MANAGERS_EXPENSES}-delete`}
                 refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES]}
             />
-            <Modal modalKey="add-category" title="Kategoriya qo'shish" size="max-w-sm">
+            <Modal modalKey="add-category" title={`${t("actions.add")} ${t("table.category")}`} size="max-w-sm">
                 <AddCategoryForm flowType={1} />
             </Modal>
         </div>
@@ -729,6 +735,7 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
 }
 
 function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?: number; onCategoryChange: (name: string | null) => void; onCategoryIdChange: (id: number | null) => void }) {
+    const { t } = useTranslation()
     const { setData, clearKey } = useGlobalStore()
     const { openModal } = useModal("kirim-xarajat-add")
     const { openModal: openDeleteModal } = useModal(`${MANAGERS_EXPENSES}-xarajat-delete`)
@@ -801,12 +808,12 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
-                                <h1 className="text-xl">Xarajatlar tarixi</h1>
+                                <h1 className="text-xl">{t("page.expense_history")}</h1>
                                 <Badge className="text-sm">{rows.length}</Badge>
                             </div>
                             <Button onClick={handleAdd}>
                                 <Plus size={18} />
-                                Xarajat qo'shish
+                                {t("page.add_expense")}
                             </Button>
                         </div>
                     }
@@ -818,7 +825,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                 modalKey={`${MANAGERS_EXPENSES}-xarajat-delete`}
                 refetchKeys={[MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES]}
             />
-            <Modal modalKey="add-category-expense" title="Kategoriya qo'shish" size="max-w-sm">
+            <Modal modalKey="add-category-expense" title={`${t("actions.add")} ${t("table.category")}`} size="max-w-sm">
                 <AddCategoryForm flowType={-1} modalKey="add-category-expense" />
             </Modal>
         </div>
@@ -828,6 +835,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
 // ──── Avans form ────
 
 function AvansForm({ tripId }: { tripId?: number }) {
+    const { t } = useTranslation()
     const { closeModal } = useModal("avans-berish")
     const form = useForm({ defaultValues: { amount: "", payment_type: "", comment: "", date: "", currency: 1, currency_course: "" } })
     const { handleSubmit, control, reset, watch, setValue } = form
@@ -862,7 +870,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
             currency_course: data.currency === 2 ? data.currency_course || null : null,
         }, {
             onSuccess: () => {
-                toast.success("Avans muvaffaqiyatli berildi")
+                toast.success(t("toast.advance_given"))
                 queryClient.invalidateQueries({
                     predicate: (q) => String(q.queryKey[0]).includes("cashflow"),
                 })
@@ -876,7 +884,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
             <FormCombobox
                 control={control}
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 options={[
                     { id: 1, name: "UZS" },
@@ -888,7 +896,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 5 000 000"
                 thousandSeparator=" "
@@ -898,7 +906,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
                 <FormNumberInput
                     required
                     control={control}
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
@@ -912,17 +920,17 @@ function AvansForm({ tripId }: { tripId?: number }) {
                 valueKey="id"
                 name="payment_type"
                 options={paymentTypes?.results ?? []}
-                label="To'lov turi"
+                label={t("form.payment_type")}
             />
             <FormDatePicker
                 required
-                label="Sana"
+                label={t("form.date")}
                 control={control}
                 name="date"
             />
-            <FormTextarea label="Izoh" methods={form} name="comment" />
+            <FormTextarea label={t("form.comment")} methods={form} name="comment" />
             <Button className="w-full" type="submit" disabled={isPending}>
-                {isPending ? "Saqlanmoqda..." : "Saqlash"}
+                {isPending ? t("messages.loading") : t("actions.save")}
             </Button>
         </form>
     )
@@ -937,6 +945,7 @@ function ModeToggle({
     mode: "aylanma" | "haydovchi"
     onToggle: (mode: "aylanma" | "haydovchi") => void
 }) {
+    const { t } = useTranslation()
     const isHaydovchi = mode === "haydovchi"
     return (
         <div className="w-full max-w-sm mx-auto">
@@ -957,7 +966,7 @@ function ModeToggle({
                     )}
                 >
                     <Truck size={16} />
-                    Aylanmalar
+                    {t("page.turnovers")}
                 </button>
                 <button
                     onClick={() => onToggle("haydovchi")}
@@ -969,7 +978,7 @@ function ModeToggle({
                     )}
                 >
                     <User size={16} />
-                    Haydovchilar
+                    {t("nav.drivers")}
                 </button>
             </div>
         </div>
@@ -1032,6 +1041,7 @@ function SummaryCard({
 // ──── T hisob tab ────
 
 function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number }) {
+    const { t } = useTranslation()
     const { openModal: openAvansModal } = useModal("avans-berish")
     const { setData } = useGlobalStore()
     const { openModal: openDeleteIncomeModal } = useModal(`${MANAGERS_INCOMES}-thisob-delete`)
@@ -1100,14 +1110,14 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                 {/* Summary row */}
                 <div className="flex items-center justify-between gap-3">
                     <div className="flex items-stretch gap-3 overflow-x-auto no-scrollbar">
-                        <SummaryCard label="Jami kirim" amountUzs={incomeUzs} amountUsd={incomeUsd} variant="income" />
-                        <SummaryCard label="Jami chiqim" amountUzs={expenseUzs} amountUsd={expenseUsd} variant="expense" />
-                        <SummaryCard label={mode === "haydovchi" ? "Balans" : "Foyda"} amountUzs={balanceUzs} amountUsd={balanceUsd} variant="balance" />
+                        <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} amountUsd={incomeUsd} variant="income" />
+                        <SummaryCard label={t("page.all_expense")} amountUzs={expenseUzs} amountUsd={expenseUsd} variant="expense" />
+                        <SummaryCard label={mode === "haydovchi" ? t("form.balance") : t("table.profit")} amountUzs={balanceUzs} amountUsd={balanceUsd} variant="balance" />
                         {mode === "haydovchi" && driverStat && (
                             <>
-                                <SummaryCard label="Yoqilg'i summasi" amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)} amountUsd={Number(driverStat.return_fuel_amount_usd ?? 0)} variant="balance" />
+                                <SummaryCard label={`${t("form.fuel_type")} ${t("form.amount")}`} amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)} amountUsd={Number(driverStat.return_fuel_amount_usd ?? 0)} variant="balance" />
                                 {Number(driverStat.return_fuel ?? 0) > 0 && (
-                                    <SummaryCard label="Yoqilg'i (litr)" amountUzs={Number(driverStat.return_fuel)} variant="balance" unitUzs="" />
+                                    <SummaryCard label={`${t("form.fuel_type")} (litr)`} amountUzs={Number(driverStat.return_fuel)} variant="balance" unitUzs="" />
                                 )}
                             </>
                         )}
@@ -1119,7 +1129,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                             className="gap-1.5 shrink-0"
                         >
                             <Plus size={16} />
-                            Avans berish
+                            {t("actions.give_advance")}
                         </Button>
                     )}
                 </div>
@@ -1135,7 +1145,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         onDelete={({ original }) => handleDeleteIncome(original)}
                         head={
                             <div className="flex mb-3 items-center gap-3">
-                                <h1 className="text-xl text-green-600">Kirim</h1>
+                                <h1 className="text-xl text-green-600">{t("form.income")}</h1>
                                 <Badge className="text-sm">{incomeRows.length}</Badge>
                             </div>
                         }
@@ -1150,7 +1160,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         onDelete={({ original }) => handleDeleteExpense(original)}
                         head={
                             <div className="flex mb-3 items-center gap-3">
-                                <h1 className="text-xl text-red-600">Chiqim</h1>
+                                <h1 className="text-xl text-red-600">{t("form.expense")}</h1>
                                 <Badge className="text-sm">{expenseRows.length}</Badge>
                             </div>
                         }
@@ -1158,7 +1168,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                 </div>
             </div>
 
-            <Modal modalKey="avans-berish" title="Avans berish" size="max-w-md">
+            <Modal modalKey="avans-berish" title={t("actions.give_advance")} size="max-w-md">
                 <AvansForm tripId={tripId} />
             </Modal>
             <DeleteModal
@@ -1190,6 +1200,7 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
 // ──── Main export ────
 
 export default function KirimXarajatContent() {
+    const { t } = useTranslation()
     const { getData } = useGlobalStore()
     const search = useSearch({ strict: false }) as any
     const tripItem = getData(`${MANAGERS_TRIPS}-moliya`)
@@ -1231,12 +1242,12 @@ export default function KirimXarajatContent() {
                 options={[
                     {
                         value: "tushum",
-                        label: "Tushum",
+                        label: t("page.income_list"),
                         content: <IncomeTab tripId={tripId} onCategoryChange={handleCategoryChange} onCategoryIdChange={handleCategoryIdChange} onCategoryCodeChange={handleCategoryCodeChange} />,
                     },
                     {
                         value: "xarajat",
-                        label: "Xarajat",
+                        label: t("page.expense_list"),
                         content: <ExpenseTab tripId={tripId} onCategoryChange={handleCategoryChange} onCategoryIdChange={handleCategoryIdChange} />,
                     },
                     {
@@ -1249,7 +1260,7 @@ export default function KirimXarajatContent() {
 
             <Modal
                 modalKey="kirim-xarajat-add"
-                title={currentType === "tushum" ? "Tushum qo'shish" : "Xarajat qo'shish"}
+                title={currentType === "tushum" ? t("page.add_income") : t("page.add_expense")}
                 size="max-w-md"
             >
                 <AddFinanceForm

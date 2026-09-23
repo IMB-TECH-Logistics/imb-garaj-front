@@ -12,6 +12,7 @@ import {
   CrosshairMode,
 } from 'lightweight-charts';
 import { useSearch } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { useGet } from '@/hooks/useGet';
 import { FINANCE_BALANCE } from '@/constants/api-endpoints';
 import './candlestick-chart.css';
@@ -235,6 +236,7 @@ function formatDateDisplay(dateStr: string): string {
 }
 
 export default function CandlestickChart() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -640,7 +642,7 @@ export default function CandlestickChart() {
     <div className="tv-layout">
       {/* Title */}
       <div style={{ padding: '10px 14px 0', fontSize: 12, fontWeight: 600, color: 'var(--tv-text-strong)', fontFamily: 'var(--sans)' }}>
-        Balans
+        {t("form.balance")}
       </div>
       {/* OHLC overlay */}
       <div className="tv-ohlc-overlay">

@@ -12,6 +12,7 @@ import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ChevronDown } from "lucide-react"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import ParamPagination from "@/components/as-params/pagination"
 import { formatDate } from "@/lib/format-date"
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils"
 import TruckTripCashflowRow from "../truck-trip-cashflows"
 
 const TruckTripOrderMain = () => {
+    const { t } = useTranslation()
     const params = useParams({ strict: false })
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
@@ -52,7 +54,7 @@ const TruckTripOrderMain = () => {
             <div className="flex justify-end"></div>
 
             <div className="flex items-center gap-3">
-                <h1 className="text-xl">Buyurtmalar ro‘yxati</h1>
+                <h1 className="text-xl">{t("page.list")}</h1>
             </div>
 
             {/* TABLE WRAPPER (same as DataTable) */}
@@ -61,12 +63,12 @@ const TruckTripOrderMain = () => {
                     <TableHeader>
                         <TableRow className="border-none">
                             <TableHead>#</TableHead>
-                            <TableHead>Yuklash joyi</TableHead>
-                            <TableHead>Tushirish joyi</TableHead>
-                            <TableHead>Yuk turi</TableHead>
-                            <TableHead>To‘lov miqdori</TableHead>
-                            <TableHead>Valyuta</TableHead>
-                            <TableHead>Yaratilgan sana</TableHead>
+                            <TableHead>{t("form.loading_location")}</TableHead>
+                            <TableHead>{t("form.unloading_location")}</TableHead>
+                            <TableHead>{t("form.cargo_type")}</TableHead>
+                            <TableHead>{t("form.amount")}</TableHead>
+                            <TableHead>{t("form.currency")}</TableHead>
+                            <TableHead>{t("table.created_at")}</TableHead>
                             <TableHead className="text-right" />
                             <TableHead className="text-right" />
                         </TableRow>
@@ -79,7 +81,7 @@ const TruckTripOrderMain = () => {
                                     colSpan={9}
                                     className="text-center py-6"
                                 >
-                                    Yuklanmoqda...
+                                    {t("messages.loading")}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -90,8 +92,7 @@ const TruckTripOrderMain = () => {
                                     colSpan={9}
                                     className="text-center py-6 text-destructive"
                                 >
-                                    Ma‘lumotni yuklab bo‘lmadi. Sahifani
-                                    yangilang yoki keyinroq urinib ko‘ring.
+                                    {t("messages.error")}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -102,7 +103,7 @@ const TruckTripOrderMain = () => {
                                     colSpan={9}
                                     className="text-center py-6 text-muted-foreground"
                                 >
-                                    Bu reysda buyurtma yo‘q
+                                    {t("page.not_found")}
                                 </TableCell>
                             </TableRow>
                         )}

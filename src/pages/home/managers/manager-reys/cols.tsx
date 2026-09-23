@@ -4,12 +4,8 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { STATUS_TRIP } from "../managers-trips/cols"
-
-const HOLAT_LABELS: Record<number, string> = {
-    1: "Yukli",
-    2: "Yuksiz",
-}
 
 const HOLAT_COLORS: Record<number, string> = {
     1: "bg-green-500/10 text-green-600 border-transparent",
@@ -30,11 +26,17 @@ const isGarajOrTamirActivity = (activity?: number) =>
 export const useColumnsManagersOrders = (opts?: {
     onImageClick?: (images: { id: number; image: string }[]) => void
 }) => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<ManagerOrders>[]>(
-        () => [
+        () => {
+            const holatLabels: Record<number, string> = {
+                1: t("table.status_loaded"),
+                2: t("table.status_empty"),
+            }
+            return [
             {
                 accessorKey: "loading_name",
-                header: "Yuklash joyi",
+                header: t("form.loading_location"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     if (isGarajOrTamirActivity(row.original?.activity)) {
@@ -45,7 +47,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "unloading_name",
-                header: "Tushirish joyi",
+                header: t("form.unloading_location"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     if (isGarajOrTamirActivity(row.original?.activity)) {
@@ -56,12 +58,12 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "cargo_type_name",
-                header: "Yuk turi",
+                header: t("form.cargo_type"),
                 enableSorting: true,
             },
             {
                 accessorKey: "external_id",
-                header: "Yuk ID",
+                header: t("table.cargo_id"),
                 size: 120,
                 cell: ({ row }) => {
                     const extId = row.original.external_id
@@ -75,19 +77,19 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "logistics_distributor_code",
-                header: "Firma kodi",
+                header: t("form.company_code"),
                 size: 110,
                 cell: ({ row }) => row.original.logistics_distributor_code || <span className="text-muted-foreground">—</span>,
             },
             {
                 accessorKey: "date",
-                header: "Yaratilagan sana",
+                header: t("table.created_at"),
                 enableSorting: true,
                 cell: ({ row }) => formatDateSafe(row.original.date),
             },
             {
                 accessorKey: "activity_display",
-                header: "Holat",
+                header: t("table.status"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const activity = row.original?.activity
@@ -103,21 +105,21 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "type",
-                header: "Holati",
+                header: t("table.status"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const type = row.original?.type
                     const colorClass = HOLAT_COLORS[type] || "bg-gray-500/10 text-gray-500 border-gray-200"
                     return (
                         <Badge variant="outline" className={colorClass}>
-                            {HOLAT_LABELS[type] || "-"}
+                            {holatLabels[type] || "-"}
                         </Badge>
                     )
                 },
             },
             {
                 accessorKey: "payment_amount_uzs",
-                header: "Tushum (uzs / usd)",
+                header: `${t("form.income")} (uzs / usd)`,
                 enableSorting: true,
                 cell: ({ row }) => {
                     const moneyUzs = row.original?.payment_amount_uzs
@@ -136,7 +138,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 id: "images",
-                header: "Rasm",
+                header: t("table.image_col"),
                 size: 60,
                 cell: ({ row }) => {
                     const images = row.original?.images
@@ -158,57 +160,58 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "pending_time",
-                header: "Boshlash vaqti",
+                header: t("table.start_time"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.pending_time)}</span>,
             },
             {
                 accessorKey: "loading_time",
-                header: "Yuklash vaqti",
+                header: t("table.loading"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.loading_time)}</span>,
             },
             {
                 accessorKey: "in_transit_time",
-                header: "Yo'lda",
+                header: t("status.transit"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.in_transit_time)}</span>,
             },
             {
                 accessorKey: "unloading_time",
-                header: "Tushirish vaqti",
+                header: t("table.unloading_short"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.unloading_time)}</span>,
             },
             {
                 accessorKey: "completed_time",
-                header: "Tugash vaqti",
+                header: t("table.end_time"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.completed_time)}</span>,
             },
             {
                 accessorKey: "canceled_time",
-                header: "Bekor qilingan",
+                header: t("status.cancelled"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.canceled_time)}</span>,
             },
             {
                 accessorKey: "archived_time",
-                header: "Arxivlangan",
+                header: t("status.archived"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.archived_time)}</span>,
             },
             {
                 accessorKey: "status",
-                header: "Status",
+                header: t("table.status"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
                     return <div>{STATUS_TRIP[status] || "-"}</div>
                 },
             },
-        ],
-        [opts?.onImageClick],
+            ]
+        },
+        [opts?.onImageClick, t],
     )
 }
 

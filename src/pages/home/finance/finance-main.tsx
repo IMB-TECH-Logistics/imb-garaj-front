@@ -14,8 +14,10 @@ import { useMemo } from "react"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import { useCostCols, OwnerStatistic } from "./cols"
 import AddTransport from "./create"
+import { useTranslation } from "react-i18next"
 
 const FinanceStatisticMain = () => {
+    const { t } = useTranslation()
     const search: any = useSearch({ strict: false })
     const navigate = useNavigate()
     const params = useParams({ strict: false })
@@ -196,7 +198,7 @@ const FinanceStatisticMain = () => {
                 modalKey="create"
                 size="max-w-2xl"
                 classNameTitle="font-medium text-xl"
-                title={`Transport ${currentTrip?.id ? "tahrirlash" : "qo'shish"}`}
+                title={currentTrip?.id ? t("form.edit_vehicle") : t("form.add_vehicle")}
             >
                 <div className="max-h-[80vh] overflow-y-auto p-0.5">
                     <AddTransport />

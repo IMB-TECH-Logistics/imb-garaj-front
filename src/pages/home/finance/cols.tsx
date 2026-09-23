@@ -1,6 +1,7 @@
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export interface OwnerStatistic {
     id: number
@@ -32,10 +33,11 @@ const unitFor = (fuel?: string | null) =>
     UNIT_LABEL[(fuel ?? "").toLowerCase()] ?? "litr"
 
 export const useCostCols = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<OwnerStatistic>[]>(
         () => [
             {
-                header: "Rusumi",
+                header: t("table.trip_type_name"),
                 accessorKey: "truck_type_name",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -45,17 +47,15 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: "Avto raqam",
+                header: t("table.truck_plate"),
                 accessorKey: "truck_number",
                 enableSorting: true,
-                cell: ({ row }) => {
-                    return (
-                        <span>{row.original.truck_number || "Noma'lum"}</span>
-                    )
-                },
+                cell: ({ row }) => (
+                    <span>{row.original.truck_number || "—"}</span>
+                ),
             },
             {
-                header: "Reys (Yuksiz/Yukli)",
+                header: t("table.trips_ratio"),
                 accessorKey: "order_count_empty",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -65,13 +65,13 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: "Probeg km",
+                header: t("table.mileage_km"),
                 accessorKey: "total_mileage",
                 enableSorting: true,
                 cell: ({ row }) => <span>{row.original.total_mileage != null ? round3(row.original.total_mileage) : "—"}</span>,
             },
             {
-                header: "Yoqilg'i turi",
+                header: t("form.fuel_type"),
                 accessorKey: "fuel",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -81,7 +81,7 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: "Yoqilg'i sarfi",
+                header: t("table.fuel_consumption"),
                 accessorKey: "fuel_consume",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -95,7 +95,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Yuk turi",
+                header: t("form.cargo_type"),
                 accessorKey: "cargo_type_name",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -103,7 +103,7 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: "Sarfi / km",
+                header: t("table.fuel_per_km"),
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -118,7 +118,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Xarajat",
+                header: t("form.expense"),
                 accessorKey: "expense",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -127,7 +127,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Tushum",
+                header: t("form.income"),
                 accessorKey: "income_with_vat",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -136,7 +136,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Foyda",
+                header: t("table.profit"),
                 id: "profit",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -145,6 +145,6 @@ export const useCostCols = () => {
                 },
             },
         ],
-        [],
+        [t],
     )
 }

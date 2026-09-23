@@ -7,6 +7,7 @@ import {
 } from "react-hook-form"
 import { cn } from "@/lib/utils"
 import { NumericFormat, NumericFormatProps } from "react-number-format"
+import { useTranslation } from "react-i18next"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 
@@ -38,6 +39,7 @@ export function FormNumberInput<IForm extends FieldValues>({
     ...props
 }: IProps<IForm> & NumericFormatProps) {
 
+    const { t } = useTranslation()
     const {
         field: { onChange, ref, ...field },
         fieldState,
@@ -45,7 +47,7 @@ export function FormNumberInput<IForm extends FieldValues>({
         name,
         control,
         rules: {
-            required: required ? (label ? `${label}ni kiriting` : "Bu maydonni to'ldiring") : false,
+            required: required ? (label ? t("validation.required_field", { field: label }) : t("validation.required")) : false,
             ...registerOptions,
         },
     })

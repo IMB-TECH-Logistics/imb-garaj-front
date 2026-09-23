@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatMoney } from "@/lib/format-money"
 import { Badge } from "@/components/ui/badge"
+import { useTranslation } from "react-i18next"
 
 // At most two figures after the decimal comma, trailing zeros trimmed.
 const round2 = (v: unknown) => Number((Number(v ?? 0) || 0).toFixed(2))
@@ -35,10 +36,11 @@ export interface TripDailyStatisticType {
 }
 
 export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExpense?: number | null) => void }) => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<any>[]>(
         () => [
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "date",
                 size: 100,
                 enableSorting: false,
@@ -50,7 +52,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Marshrut",
+                header: t("table.direction"),
                 accessorKey: "route",
                 size: 200,
                 enableSorting: false,
@@ -60,7 +62,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                     if (data.is_residual) {
                         return (
                             <span className="italic text-muted-foreground">
-                                Buyurtmaga bog‘lanmagan (reys darajasida)
+                                {t("page.turnover_detail")}
                             </span>
                         )
                     }
@@ -72,7 +74,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Yuk turi",
+                header: t("form.cargo_type"),
                 accessorKey: "cargo_type_name",
                 size: 100,
                 enableSorting: false,
@@ -80,7 +82,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                     const data = row.original;
                     if (data.is_summary) return null;
                     if (data.type === 2) {
-                        return <Badge variant="secondary">Yuksiz</Badge>
+                        return <Badge variant="secondary">{t("table.status_empty")}</Badge>
                     }
                     if (data.type === 1 && !data.cargo_type_name) {
                         return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">Yukli</Badge>
@@ -89,7 +91,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Firma (Mijoz)",
+                header: t("table.firm"),
                 accessorKey: "client_name",
                 size: 120,
                 enableSorting: false,
@@ -100,7 +102,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Masofa (reys)",
+                header: t("table.distance_km"),
                 accessorKey: "total_mileage",
                 size: 80,
                 enableSorting: false,
@@ -111,7 +113,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Yoqilg'i sarfi (reys)",
+                header: t("table.fuel_consumption"),
                 accessorKey: "fuel_consume",
                 size: 100,
                 enableSorting: false,
@@ -122,7 +124,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Xarajat",
+                header: t("table.total_expense"),
                 accessorKey: "total_expense",
                 size: 120,
                 enableSorting: false,
@@ -157,7 +159,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Tushum",
+                header: t("table.total_income"),
                 accessorKey: "income",
                 size: 120,
                 enableSorting: false,
@@ -170,7 +172,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
             {
-                header: "Foyda",
+                header: t("table.profit"),
                 id: "profit",
                 size: 120,
                 enableSorting: false,
@@ -189,7 +191,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 },
             },
         ],
-        [opts?.onExpenseClick],
+        [t, opts?.onExpenseClick],
     )
 }
 

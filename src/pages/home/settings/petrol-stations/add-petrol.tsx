@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { type PetrolStationRow } from "./cols"
 import LocationPicker, { type LatLng } from "./location-picker"
+import { useTranslation } from "react-i18next"
 
 type FormValues = {
     name: string
@@ -19,6 +20,7 @@ type FormValues = {
 }
 
 const AddPetrolStationModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -52,7 +54,7 @@ const AddPetrolStationModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Zapravka muvaffaqiyatli ${current?.id ? "tahrirlandi!" : "qo'shildi!"}`,
+            current?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_PETROL_STATIONS)
@@ -89,8 +91,8 @@ const AddPetrolStationModal = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormInput required name="name" label="Nomi" methods={form} />
-            <FormInput required name="address" label="Manzili" methods={form} />
+            <FormInput required name="name" label={t("form.name")} methods={form} />
+            <FormInput required name="address" label={t("form.address")} methods={form} />
 
             <LocationPicker value={pickerValue} onChange={handlePick} />
             <p className="text-xs text-muted-foreground -mt-2">
@@ -100,7 +102,7 @@ const AddPetrolStationModal = () => {
 
             <div className="flex items-center justify-end mt-1">
                 <Button className="min-w-36" type="submit" loading={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

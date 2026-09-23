@@ -12,8 +12,10 @@ import { DataTable } from "@/components/ui/datatable"
 import { useTripOrdersCols } from "./new-cols"
 import AddExpenses from "./create/expense"
 import AddCashflow from "./cashfow/add-cashflow"
+import { useTranslation } from "react-i18next"
 
 const TripOrderMain = () => {
+    const { t } = useTranslation()
     const params = useParams({ strict: false })
     const search = useSearch({ strict: false })
     const page = Number(search.page ?? 1)
@@ -89,12 +91,12 @@ const TripOrderMain = () => {
                     <Button>
                         <ArrowLeft size={16} />
                     </Button>
-                    <h1 className="font-bold">Reyslar ro‘yxati</h1>
+                    <h1 className="font-bold">{t("page.trip_list")}</h1>
                 </div>
                 <div className="flex justify-end">
                     <Button onClick={handleCreate}>
                         <CirclePlus size={18} />
-                        Qo'shish
+                        {t("actions.add")}
                     </Button>
                 </div>
             </div>
@@ -117,8 +119,7 @@ const TripOrderMain = () => {
             <Modal
                 modalKey="create"
                 size="max-w-2xl"
-                title={`Buyurtma ${currentTripsOrder?.id ? "tahrirlash" : "qo‘shish"
-                    }`}
+                title={`${t("page.order_detail")} ${currentTripsOrder?.id ? t("actions.edit") : t("actions.add")}`}
             >
                 <AddTripOrders />
             </Modal>

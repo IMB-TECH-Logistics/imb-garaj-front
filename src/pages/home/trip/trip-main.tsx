@@ -12,8 +12,10 @@ import { CirclePlus, TrendingDown, CreditCard } from "lucide-react"
 import { useCostCols } from "./cols"
 import AddTrip from "./create"
 import { formatMoney } from "@/lib/format-money"
+import { useTranslation } from "react-i18next"
 
 const ShiftStatisticMain = () => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
     const { getData, setData, clearKey } = useGlobalStore()
@@ -75,7 +77,7 @@ const ShiftStatisticMain = () => {
                     </div>
 
                     <div className="flex items-start justify-between relative z-10">
-                                             <span className="text-orange-200 text-sm font-medium">Jami Xarajatlar</span>
+                                             <span className="text-orange-200 text-sm font-medium">{t("table.total_expense")}</span>
                         <div className="w-8 h-8 rounded-full bg-orange-700/60 flex items-center justify-center">
                             <TrendingDown size={16} className="text-orange-300" />
                         </div>
@@ -96,7 +98,7 @@ const ShiftStatisticMain = () => {
                     </div>
 
                     <div className="flex items-start justify-between relative z-10">
-                        <span className="text-blue-200 text-sm font-medium">Hisob Balansi</span>
+                        <span className="text-blue-200 text-sm font-medium">{t("page.main_balance")}</span>
                         <div className="w-8 h-8 rounded-full bg-blue-700/60 flex items-center justify-center">
                             <CreditCard size={16} className="text-blue-300" />
                         </div>
@@ -123,7 +125,7 @@ const ShiftStatisticMain = () => {
                     onClick={handleCreate}
                 >
                     <CirclePlus size={18} />
-                    Qo'shish
+                    {t("actions.add")}
                 </Button>
             </div>
 
@@ -137,7 +139,7 @@ const ShiftStatisticMain = () => {
                 onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center gap-3 mb-3">
-                        <h1 className="text-xl">Aylanmalar ro'yxati</h1>
+                        <h1 className="text-xl">{t("page.turnovers")}</h1>
                     </div>
                 }
                 paginationProps={{
@@ -151,7 +153,7 @@ const ShiftStatisticMain = () => {
                 modalKey="create"
                 size="max-w-2xl"
                 classNameTitle="font-medium text-xl"
-                title={`Reys ${currentTrip?.id ? "tahrirlash" : "qo'shish"}`}
+                title={`${t("page.trips")} ${currentTrip?.id ? t("actions.edit") : t("actions.add")}`}
             >
                 <div className="max-h-[80vh] overflow-y-auto p-0.5">
                     <AddTrip />

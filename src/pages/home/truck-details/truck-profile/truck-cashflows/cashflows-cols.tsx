@@ -1,26 +1,28 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export const useColumnsCashflowsTable = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<VehicleCashflowsType>[]>(
         () => [
             {
                 accessorKey: "vehicle_number",
-                header: "Avtomobil raqami",
+                header: t("form.truck_number"),
                 enableSorting: true,
             },
             {
                 accessorKey: "category_name",
-                header: "Xarajat turi",
+                header: t("form.expense_type"),
                 enableSorting: true,
             },
             {
                 accessorKey: "comment",
-                header: "Eslatmalar",
+                header: t("form.comment"),
                 enableSorting: true,
             },
                {
-                header: "Miqdor",
+                header: t("table.amount"),
                 accessorKey: "amount",
                 cell: ({ getValue }) => {
                     const value = getValue<string>()
@@ -37,6 +39,6 @@ export const useColumnsCashflowsTable = () => {
                 },
             },
         ],
-        [],
+        [t],
     )
 }

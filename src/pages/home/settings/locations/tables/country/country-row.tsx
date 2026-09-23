@@ -12,6 +12,7 @@ import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ChevronDown, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { CountriesDetailRow } from "../table-detail"
 
 interface CountryRowTableType {
@@ -25,6 +26,7 @@ export const CountryRowTable = ({
     index,
     colSpan,
 }: CountryRowTableType) => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const hasControl = useHasAction("settings_locations_control")
     const { setData } = useGlobalStore()
@@ -111,14 +113,14 @@ export const CountryRowTable = ({
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={handleEdit}>
                                     <Pencil className="mr-2 h-4 w-4" />
-                                    Tahrirlash
+                                    {t("actions.edit")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={handleDelete}
                                     className="text-destructive focus:text-destructive"
                                 >
                                     <Trash2 className="mr-2 h-4 w-4" />
-                                    O'chirish
+                                    {t("actions.delete")}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

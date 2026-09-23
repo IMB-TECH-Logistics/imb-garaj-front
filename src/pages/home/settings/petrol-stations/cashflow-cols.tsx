@@ -1,6 +1,7 @@
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export type StationCashFlowRow = {
     id: number
@@ -65,17 +66,17 @@ export const getAmountInUzs = (row: StationCashFlowRow) => {
         :   amount
 }
 
-export const useStationCashFlowColumns = () =>
-    useMemo<ColumnDef<StationCashFlowRow>[]>(
-        () => [
+export const useStationCashFlowColumns = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<StationCashFlowRow>[]>(() => [
             {
                 accessorKey: "created",
-                header: "Vaqt",
+                header: t("table.time_col"),
                 cell: ({ row }) => formatDateTime(row.original.created),
             },
             {
                 accessorKey: "driver_name",
-                header: "Haydovchi",
+                header: t("form.driver"),
                 cell: ({ row }) => {
                     if (!row.original.driver_name) return "—"
                     return (
@@ -94,7 +95,7 @@ export const useStationCashFlowColumns = () =>
             },
             {
                 accessorKey: "liters",
-                header: "Miqdori",
+                header: t("form.quantity"),
                 cell: ({ row }) => (
                     <span className="tabular-nums">
                         {formatQuantity(
@@ -106,7 +107,7 @@ export const useStationCashFlowColumns = () =>
             },
             {
                 accessorKey: "price_per_liter",
-                header: "Narxi",
+                header: t("table.price_col"),
                 cell: ({ row }) =>
                     row.original.price_per_liter == null ? (
                         "—"
@@ -119,17 +120,17 @@ export const useStationCashFlowColumns = () =>
             },
             {
                 accessorKey: "comment",
-                header: "Izoh",
+                header: t("form.comment"),
                 cell: ({ row }) => row.original.comment || "—",
             },
             {
                 accessorKey: "executor_name",
-                header: "Kim",
+                header: t("table.executor"),
                 cell: ({ row }) => row.original.executor_name ?? "—",
             },
             {
                 accessorKey: "amount",
-                header: "Summa",
+                header: t("form.amount"),
                 cell: ({ row }) => {
                     const isIncome = row.original.action === 1
                     const amount = Number(row.original.amount ?? 0)
@@ -163,5 +164,6 @@ export const useStationCashFlowColumns = () =>
                 },
             },
         ],
-        [],
+        [t],
     )
+}

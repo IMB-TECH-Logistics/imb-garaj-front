@@ -9,8 +9,10 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddPaymentTypeModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -30,7 +32,7 @@ const AddPaymentTypeModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `To'lov turi muvaffaqiyatli ${currentPayment?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentPayment?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINTS_PAYMENT_TYPE)
@@ -64,19 +66,19 @@ const AddPaymentTypeModal = () => {
             <FormInput
                 required
                 name="name"
-                label="To'lov turi"
+                label={t("form.payment_type")}
                 methods={form}
             />
 
             <FormCombobox
                 required
                 name="method"
-                label="Usul"
+                label={t("form.method")}
                 control={control}
                 options={methodOptions}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Usulni tanlang"
+                placeholder={t("form.method")}
             />
 
             <div className="flex items-center justify-end">
@@ -85,7 +87,7 @@ const AddPaymentTypeModal = () => {
                     type="submit"
                     loading={isPending}
                 >
-                    {"Saqlash"}
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

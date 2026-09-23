@@ -7,11 +7,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddCustomersModal from "./add-customers"
 import { useColumnsCustomersTable } from "./customers-cols"
 
 const Customers = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_customers_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<CustomersType>>(
@@ -71,7 +73,7 @@ const Customers = () => {
             />
             <Modal
                 size="max-w-2xl"
-                title={`Mijoz ${item?.id ? "tahrirlash" : "qo'shish"}`}
+                title={item?.id ? t("actions.edit") + " " + t("nav.customers").toLowerCase() : t("actions.add") + " " + t("nav.customers").toLowerCase()}
                 modalKey={"create"}
             >
                 <AddCustomersModal />

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { useQueries } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
 
@@ -284,6 +285,7 @@ type PanelProps = {
 }
 
 export function TrackerHistoryPanel({ tracker, history, onBack }: PanelProps) {
+    const { t } = useTranslation()
     const { days, selected, summary } = history
     const online = tracker.status === "online"
     const today = dayKey(Date.now())
@@ -297,7 +299,7 @@ export function TrackerHistoryPanel({ tracker, history, onBack }: PanelProps) {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={onBack} aria-label="Ro'yxatga qaytish">
+                <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={onBack} aria-label={t("page.back_to_list")}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <div className="min-w-0">
@@ -335,7 +337,7 @@ export function TrackerHistoryPanel({ tracker, history, onBack }: PanelProps) {
             </div>
 
             <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Kunlar</span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("table.days")}</span>
                 <span className="flex-1" />
                 {quick.map((q) => (
                     <Button

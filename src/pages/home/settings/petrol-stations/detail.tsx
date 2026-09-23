@@ -36,6 +36,7 @@ import {
     Truck,
     Wallet,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import AddExpenseModal from "./add-expense-modal"
 import {
     formatQuantity,
@@ -68,6 +69,7 @@ const TABS: { key: string; label: string; action: number | null }[] = [
 ]
 
 const PetrolStationDetail = () => {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { id } = useParams({ strict: false }) as { id: string }
@@ -210,7 +212,7 @@ const PetrolStationDetail = () => {
                     <ArrowLeft size={18} />
                     Zapravkalar ro'yxatiga qaytish
                 </Button>
-                <h1 className="text-xl font-semibold">Zapravka topilmadi</h1>
+                <h1 className="text-xl font-semibold">{t("page.petrol_not_found")}</h1>
                 <EmptyBox height="h-[50vh]" />
             </div>
         )
@@ -358,11 +360,11 @@ const PetrolStationDetail = () => {
                     <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={openExpense}>
                             <Plus size={16} className="mr-1" />
-                            Chiqim qo'shish
+                            {t("page.add_expense")}
                         </Button>
                         <Button onClick={openTopUp}>
                             <Plus size={16} className="mr-1" />
-                            Kirim qo'shish
+                            {t("page.add_income")}
                         </Button>
                     </div>
                 )}
@@ -481,14 +483,14 @@ const PetrolStationDetail = () => {
             )}
 
             <Modal
-                title="Kirim qo'shish"
+                title={t("page.add_income")}
                 modalKey="petrol-top-up"
                 size="max-w-md"
             >
                 <TopUpModal stationId={stationId} />
             </Modal>
             <Modal
-                title="Chiqim qo'shish"
+                title={t("page.add_expense")}
                 modalKey="petrol-expense"
                 size="max-w-md"
             >
@@ -497,8 +499,8 @@ const PetrolStationDetail = () => {
             <Modal
                 title={
                     editCashFlow.get()?.action === -1
-                        ? "Chiqimni tahrirlash"
-                        : "Kirimni tahrirlash"
+                        ? t("actions.edit") + " " + t("form.expense").toLowerCase()
+                        : t("actions.edit") + " " + t("form.income").toLowerCase()
                 }
                 modalKey="petrol-cash-flow-edit"
                 size="max-w-md"

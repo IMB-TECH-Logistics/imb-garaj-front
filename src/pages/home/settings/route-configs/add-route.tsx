@@ -16,6 +16,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type DirectionPrice = {
     id: number
@@ -61,6 +62,7 @@ const CURRENCY_OPTIONS = [
 ]
 
 const AddRouteConfigModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -99,7 +101,7 @@ const AddRouteConfigModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Yo'nalish muvaffaqiyatli ${current?.id ? "tahrirlandi!" : "qo'shildi!"}`,
+            current?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(COMMON_DIRECTIONS)
@@ -124,63 +126,63 @@ const AddRouteConfigModal = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
             <FormCombobox
                 required
-                label="Yuklash manzili"
+                label={t("form.loading_address")}
                 name="load"
                 control={control}
                 options={withCurrent(regionsData, current?.load, current?.load_name)}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Hududni tanlang"
+                placeholder={t("form.region")}
             />
             <FormCombobox
                 required
-                label="Yuk tushirish manzili"
+                label={t("form.unloading_address")}
                 name="unload"
                 control={control}
                 options={withCurrent(regionsData, current?.unload, current?.unload_name)}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Hududni tanlang"
+                placeholder={t("form.region")}
             />
             <FormCombobox
                 required
-                label="Yuk egasi"
+                label={t("form.cargo_owner")}
                 name="owner"
                 control={control}
                 options={withCurrent(clientData, current?.owner, current?.owner_name)}
                 labelKey="name"
                 valueKey="id"
-                placeholder="Yuk egasini tanlang"
+                placeholder={t("form.cargo_owner")}
             />
             <FormCombobox
                 required
-                label="Yuk turi"
+                label={t("form.cargo_type")}
                 name="cargo_type"
                 control={control}
                 options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name)}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Yuk turini tanlang"
+                placeholder={t("form.cargo_type")}
             />
             <FormCombobox
                 required
-                label="To'lov turi"
+                label={t("form.payment_type")}
                 name="payment_type"
                 control={control}
                 options={paymentType}
                 valueKey="id"
                 labelKey="name"
-                placeholder="To'lov turini tanlang"
+                placeholder={t("form.payment_type")}
             />
             <FormCombobox
                 required
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 control={control}
                 options={CURRENCY_OPTIONS}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Valyutani tanlang"
+                placeholder={t("form.select_currency")}
             />
             <FormNumberInput
                 required
@@ -188,22 +190,22 @@ const AddRouteConfigModal = () => {
                 decimalScale={2}
                 thousandSeparator=" "
                 name="price"
-                label="Summa"
+                label={t("form.amount")}
                 placeholder="12 206 000"
                 control={control}
             />
             <FormDatePicker
                 required
-                label="Qaysi sanadan amal qiladi"
+                label={t("page.valid_from")}
                 control={control}
                 name="valid_from"
-                placeholder="Sanani tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
 
             <div className="col-span-2 flex items-center justify-end mt-3">
                 <Button className="min-w-36" type="submit" loading={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

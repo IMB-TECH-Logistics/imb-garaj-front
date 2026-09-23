@@ -19,6 +19,7 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Plus, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type ClientType = {
     id: number | string
@@ -26,6 +27,7 @@ type ClientType = {
 }
 
 const AddExpenses = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("add-expenses")
@@ -81,7 +83,7 @@ const AddExpenses = () => {
 
     const onSuccess = () => {
         toast.success(
-            currentTripOrder?.id ? "Buyurtma tahrirlandi!" : "Buyurtma qo'shildi!",
+            currentTripOrder?.id ? t("toast.updated") : t("toast.added"),
         )
         reset()
         clearKey(MANAGERS_ORDERS)
@@ -128,7 +130,7 @@ const AddExpenses = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto no-scrollbar-x">
             <FormCombobox
                 required
-                label="Buyurtma turi"
+                label={t("form.order_type")}
                 name="type"
                 control={control}
                 options={[
@@ -137,55 +139,55 @@ const AddExpenses = () => {
                 ]}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Buyurtmani tanlang"
+                placeholder={t("form.order_type")}
             />
             <FormDatePicker
                 required
-                label="Sana"
+                label={t("form.date")}
                 control={control}
                 name="date"
-                placeholder="Sanani tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
             <FormCombobox
                 required
-                label="Yuk egasi"
+                label={t("form.cargo_owner")}
                 name="client"
                 control={control}
                 options={clientData}
                 labelKey="name"
                 valueKey="id"
-                placeholder="Yuk egasini tanlang"
+                placeholder={t("form.cargo_owner")}
             />
             <FormCombobox
                 required
-                label="Yuklash manzili"
+                label={t("form.loading_address")}
                 name="loading"
                 control={control}
                 options={districtsData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Hududni tanlang"
+                placeholder={t("form.region")}
             />
             <FormCombobox
                 required
-                label="Yuk tushirish manzili"
+                label={t("form.unloading_address")}
                 name="unloading"
                 control={control}
                 options={districtsData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Hududni tanlang"
+                placeholder={t("form.region")}
             />
             <FormCombobox
                 required
-                label="Yuk turi"
+                label={t("form.cargo_type")}
                 name={`cargo_type`}
                 control={control}
                 options={cargoType}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Yuk turini tanlang"
+                placeholder={t("form.cargo_type")}
             />
             <div className="col-span-2 flex flex-col gap-4">
                 {fields.map((field, index) => {
@@ -203,7 +205,7 @@ const AddExpenses = () => {
 
                             <FormCombobox
                                 required
-                                label="To'lov turi"
+                                label={t("form.payment_type")}
                                 name={`incomes.${index}.payment_type`}
                                 control={control}
                                 options={paymentType || undefined}
@@ -213,7 +215,7 @@ const AddExpenses = () => {
                             />
                             <FormCombobox
                                 required
-                                label="Valyuta"
+                                label={t("form.currency")}
                                 name={`incomes.${index}.currency`}
                                 control={control}
                                 options={[
@@ -222,14 +224,14 @@ const AddExpenses = () => {
                                 ]}
                                 valueKey="value"
                                 labelKey="label"
-                                placeholder="Valyutani tanlang"
+                                placeholder={t("form.select_currency")}
                             />
                             {selectedCurrency === 2 && (
                                 <FormNumberInput
                                     required
                                     thousandSeparator=" "
                                     name={`incomes.${index}.currency_course`}
-                                    label="Valyuta kursi"
+                                    label={t("form.currency_rate")}
                                     placeholder="12 206 UZS"
                                     control={control}
                                 />
@@ -238,7 +240,7 @@ const AddExpenses = () => {
                                 required
                                 name={`incomes.${index}.amount`}
                                 thousandSeparator=" "
-                                label="To'lov miqdori"
+                                label={t("table.amount")}
                                 placeholder="12 206 000 UZS"
                                 control={control}
                             />
@@ -272,13 +274,13 @@ const AddExpenses = () => {
                     }
                 >
                     <Plus className="w-4 h-4 mr-2" />
-                    To'lov qo'shish
+                    {t("actions.add")}
                 </Button>
             </div>
 
             <div className="col-span-2 flex justify-end gap-4 pt-4">
                 <Button type="submit" loading={isPending} disabled={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

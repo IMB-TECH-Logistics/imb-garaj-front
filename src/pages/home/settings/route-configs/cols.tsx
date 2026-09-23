@@ -7,6 +7,8 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { Clock } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
 
 export type SelectableItem = { id: number; name: string }
 
@@ -66,12 +68,13 @@ const PriceHistoryPopover = ({ prices }: { prices?: DirectionPrice[] }) => {
     const sorted = [...(prices ?? [])].sort((a, b) =>
         (b.valid_from ?? "").localeCompare(a.valid_from ?? ""),
     )
+    const { t } = useTranslation()
     return (
         <Popover>
             <PopoverTrigger
                 onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center justify-center rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-accent"
-                aria-label="Narx tarixi"
+                aria-label={t("page.price_history")}
             >
                 <Clock size={16} />
             </PopoverTrigger>
@@ -120,18 +123,19 @@ const CURRENCY_LABELS: Record<number, string> = {
 }
 
 
-export const useDirectionColumns = () =>
-    useMemo<ColumnDef<DirectionRow>[]>(
+export const useDirectionColumns = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<DirectionRow>[]>(
         () => [
-            { accessorKey: "owner_code", header: "Firma kodi", enableSorting: true, size: 100 },
-            { accessorKey: "load_name", header: "Yuklash manzili", enableSorting: true },
-            { accessorKey: "unload_name", header: "Yuk tushirish manzili", enableSorting: true },
-            { accessorKey: "owner_name", header: "Yuk egasi", enableSorting: true },
-            { accessorKey: "cargo_type_name", header: "Yuk turi", enableSorting: true },
-            { accessorKey: "payment_type_name", header: "To'lov turi", enableSorting: false },
+            { accessorKey: "owner_code", header: t("form.company_code"), enableSorting: true, size: 100 },
+            { accessorKey: "load_name", header: t("form.loading_address"), enableSorting: true },
+            { accessorKey: "unload_name", header: t("form.unloading_address"), enableSorting: true },
+            { accessorKey: "owner_name", header: t("form.cargo_owner"), enableSorting: true },
+            { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
+            { accessorKey: "payment_type_name", header: t("form.payment_type"), enableSorting: false },
             {
                 accessorKey: "current_price",
-                header: "Summa",
+                header: t("form.amount"),
                 enableSorting: false,
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
@@ -148,11 +152,12 @@ export const useDirectionColumns = () =>
             },
             {
                 accessorKey: "currency",
-                header: "Valyuta",
+                header: t("form.currency"),
                 enableSorting: true,
                 cell: ({ row }) =>
                     CURRENCY_LABELS[row.original.currency] ?? "-",
             },
         ],
-        [],
+        [t],
     )
+}

@@ -8,6 +8,7 @@ import { endOfMonth, format, startOfMonth } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import RouteMap from "../route-map"
 import { type ApiStatusRoute, STATUS_META, type VehicleRow } from "./data"
+import { useTranslation } from "react-i18next"
 
 function fmtDur(mins: number): string {
     const total = Math.round(mins)
@@ -47,6 +48,7 @@ export default function RouteView({
     const durationMin = data?.duration_min ?? 0
     const km = ((data?.distance_m ?? 0) / 1000).toFixed(2)
 
+    const { t } = useTranslation()
     return (
         <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -94,7 +96,7 @@ export default function RouteView({
                     <Card>
                         <CardHeader className="py-3">
                             <CardTitle className="text-sm font-semibold">
-                                Bosib o'tilgan masofa
+                                {t("table.distance_km")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-0">
@@ -112,23 +114,23 @@ export default function RouteView({
                     <Card>
                         <CardHeader className="py-3">
                             <CardTitle className="text-sm font-semibold">
-                                Ma'lumotlar
+                                {t("page.details")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-2 pt-0">
-                            <Row label="Holat" value={meta.label} />
+                            <Row label={t("table.status")} value={meta.label} />
                             <Row
-                                label="Haydovchi"
+                                label={t("form.driver")}
                                 value={vehicle.driver_name}
                             />
-                            <Row label="Mashina" value={vehicle.truck_number} />
-                            <Row label="Turi" value={vehicle.type} />
+                            <Row label={t("form.truck")} value={vehicle.truck_number} />
+                            <Row label={t("form.vehicle")} value={vehicle.type} />
                             <Row
-                                label="Davomiyligi"
+                                label={t("table.duration")}
                                 value={fmtDur(durationMin)}
                             />
                             <Row
-                                label="Nuqtalar"
+                                label={t("table.points")}
                                 value={points.length.toLocaleString()}
                             />
                         </CardContent>

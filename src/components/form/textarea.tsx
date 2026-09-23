@@ -6,6 +6,7 @@ import {
     UseFormReturn,
 } from "react-hook-form"
 import { ClassNameValue } from "tailwind-merge"
+import { useTranslation } from "react-i18next"
 import { Textarea } from "../ui/textarea"
 import FieldError from "./form-error"
 import FieldLabel from "./form-label"
@@ -33,6 +34,7 @@ export function FormTextarea<IForm extends FieldValues>({
     uppercase = false,
     ...props
 }: IProps<IForm> & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+    const { t } = useTranslation()
     const {
         register,
         formState: { errors },
@@ -41,7 +43,7 @@ export function FormTextarea<IForm extends FieldValues>({
     const reg = register(name, {
         required: {
             value: required,
-            message: label ? `${label}ni kiriting` : "Bu maydonni to'ldiring",
+            message: label ? t("validation.required_field", { field: label }) : t("validation.required"),
         },
         ...(uppercase && {
             setValueAs: (value: string) => value?.toUpperCase(),

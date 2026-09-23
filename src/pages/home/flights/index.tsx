@@ -13,8 +13,10 @@ import BuxgalteriyaExcelModal, {
 } from "../buxgalteriya/excel-modal"
 import { useRunFilterOptions } from "../buxgalteriya/loading-options"
 import { ReysOrder, useFlightsColumns } from "./columns"
+import { useTranslation } from "react-i18next"
 
 export default function FlightsPage() {
+    const { t } = useTranslation()
     const search: any = useSearch({ strict: false })
 
     const { openModal: openExcelModal } = useBuxgalteriyaExcelModal()
@@ -91,7 +93,7 @@ export default function FlightsPage() {
                     <div className="space-y-3 mb-3">
                         <div className="flex items-center justify-between gap-3 flex-wrap">
                             <div className="flex items-center gap-2">
-                                <h1 className="text-lg">Reyslar</h1>
+                                <h1 className="text-lg">{t("nav.flights")}</h1>
                                 <Badge>{formatMoney(data?.count ?? 0)}</Badge>
                             </div>
 
@@ -99,28 +101,28 @@ export default function FlightsPage() {
                                 <ParamCombobox
                                     paramName="client"
                                     options={clientOptions}
-                                    label="Firma nomi"
+                                    label={t("form.company_name")}
                                     addButtonProps={comboStyle}
                                 />
 
                                 <ParamCombobox
                                     paramName="loading"
                                     options={loadingOptions}
-                                    label="Yuklash joyi"
+                                    label={t("form.loading_location")}
                                     addButtonProps={comboStyle}
                                 />
 
                                 <ParamCombobox
                                     paramName="unloading"
                                     options={unloadingOptions}
-                                    label="Tushirish joyi"
+                                    label={t("form.unloading_location")}
                                     addButtonProps={comboStyle}
                                 />
 
                                 <ParamCombobox
                                     paramName="cargo_type"
                                     options={cargoTypeOptions}
-                                    label="Yuk turi"
+                                    label={t("form.cargo_type")}
                                     addButtonProps={comboStyle}
                                 />
 

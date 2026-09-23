@@ -15,6 +15,7 @@ import { Plus, Trash2, X } from "lucide-react"
 import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type PaymentType = { id: number; name: string }
 
@@ -63,6 +64,7 @@ const TushumRow = ({
     onDone: () => void
     onCancelDraft?: () => void
 }) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const isNew = !initial
 
@@ -81,7 +83,7 @@ const TushumRow = ({
 
     const { mutate: create, isPending: creating } = usePost({
         onSuccess: () => {
-            toast.success("Tushum qo'shildi")
+            toast.success(t("toast.income_added"))
             refresh()
             onDone()
         },
@@ -89,7 +91,7 @@ const TushumRow = ({
 
     const { mutate: update, isPending: updating } = usePatch({
         onSuccess: () => {
-            toast.success("Tushum yangilandi")
+            toast.success(t("toast.income_updated"))
             refresh()
             onDone()
         },
@@ -97,19 +99,19 @@ const TushumRow = ({
 
     const { mutate: remove, isPending: removing } = useDelete({
         onSuccess: () => {
-            toast.success("Tushum o'chirildi")
+            toast.success(t("toast.income_deleted"))
             refresh()
         },
     })
 
     const submit = (v: RowValues) => {
         if (v.payment_type == null) {
-            toast.error("To'lov turini tanlang")
+            toast.error(t("toast.error_select_payment"))
             return
         }
 
         if (!Number(v.amount)) {
-            toast.error("Summani kiriting")
+            toast.error(t("toast.error_enter_amount"))
             return
         }
 
@@ -153,7 +155,7 @@ const TushumRow = ({
                     options={paymentTypes}
                     valueKey="id"
                     labelKey="name"
-                    placeholder="To'lov turi"
+                    placeholder={t("form.payment_type")}
                 />
             </div>
 
@@ -175,7 +177,7 @@ const TushumRow = ({
                     name="comment"
                     methods={form}
                     required
-                    placeholder="Izoh"
+                    placeholder={t("form.comment")}
                 />
             </div>
 
@@ -185,7 +187,7 @@ const TushumRow = ({
                 loading={pending}
                 onClick={handleSubmit(submit)}
             >
-                Saqlash
+                {t("actions.save")}
             </Button>
 
             {!isNew && (
@@ -195,7 +197,7 @@ const TushumRow = ({
                     variant="ghost"
                     onClick={() => remove(`${ORDER_CASHFLOWS}/${initial!.id}`)}
                     disabled={pending}
-                    title="O'chirish"
+                    title={t("actions.delete")}
                 >
                     <Trash2 size={16} className="text-destructive" />
                 </Button>
@@ -208,7 +210,7 @@ const TushumRow = ({
                     variant="ghost"
                     onClick={onCancelDraft}
                     disabled={pending}
-                    title="Bekor qilish"
+                    title={t("actions.cancel")}
                 >
                     <X size={16} />
                 </Button>
@@ -218,6 +220,7 @@ const TushumRow = ({
 }
 
 const TushumList = ({ orderId }: { orderId: number }) => {
+    const { t } = useTranslation()
     const { data: paymentTypes } = useGet<ListResponse<PaymentType>>(
         SETTINTS_PAYMENT_TYPE,
         { params: { page_size: 1000 } },
@@ -249,7 +252,7 @@ const TushumList = ({ orderId }: { orderId: number }) => {
     return (
         <div className="col-span-2 flex flex-col gap-3 rounded-lg border bg-card/50 p-3">
             <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Tushumlar</span>
+                <span className="text-sm font-medium">{t("page.income_list")}</span>
                 <Button
                     type="button"
                     size="sm"
@@ -257,19 +260,19 @@ const TushumList = ({ orderId }: { orderId: number }) => {
                     onClick={addDraft}
                 >
                     <Plus size={14} className="mr-1" />
-                    Tushum qo'shish
+                    {t("actions.add_income_btn")}
                 </Button>
             </div>
 
             {isLoading && (
                 <div className="text-sm text-muted-foreground">
-                    Yuklanmoqda...
+                    {t("messages.loading")}
                 </div>
             )}
 
             {!isLoading && rows.length === 0 && draftIds.length === 0 && (
                 <div className="text-sm text-muted-foreground">
-                    Bu reys uchun tushumlar yo'q
+                    {t("status.no_record")}
                 </div>
             )}
 

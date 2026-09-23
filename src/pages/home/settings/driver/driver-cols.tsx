@@ -1,22 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatPhoneNumber } from "../customers/phone-number"
+import { useTranslation } from "react-i18next"
 export const useColumnsDriverTable = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<DriversType>[]>(
         () => [
             {
                 accessorKey: "first_name",
-                header: "Ism",
+                header: t("form.first_name"),
                 enableSorting: true,
             },
             {
                 accessorKey: "last_name",
-                header: "Familiya",
+                header: t("form.last_name"),
                 enableSorting: true,
             },
             {
                 accessorKey: "phone_number",
-                header: "Telefon raqami",
+                header: t("form.phone"),
                 enableSorting: false,
                 cell: ({ row }) => (
                     <div className="min-w-[180px] w-[220px] truncate">
@@ -26,11 +28,11 @@ export const useColumnsDriverTable = () => {
             },
             {
                 accessorKey: "username",
-                header: "Login",
+                header: t("auth.username"),
                 enableSorting: true,
             },
             {
-                header: "Pasport seriyasi",
+                header: t("form.passport"),
                 enableSorting: false,
                 accessorFn: (row) => row.driver?.passport_serial || "",
                 cell: ({ row }) => {
@@ -39,7 +41,7 @@ export const useColumnsDriverTable = () => {
                 id: "passport_number",
             },
             {
-                header: "JShShIR",
+                header: t("form.jshshir"),
                 enableSorting: false,
                 accessorFn: (row) => row.driver?.pinfl || "",
                 cell: ({ row }) => {
@@ -48,7 +50,7 @@ export const useColumnsDriverTable = () => {
                 id: "pinfl",
             },
             {
-                header: "Haydovchilik guvohnomasi",
+                header: t("form.license_number"),
                 enableSorting: false,
                 accessorFn: (row) => row.driver?.driver_license || "",
                 cell: ({ row }) => {
@@ -57,17 +59,17 @@ export const useColumnsDriverTable = () => {
                 id: "driver_license",
             },
             {
-                header: "Ish staji",
+                header: t("form.experience"),
                 enableSorting: false,
                 accessorFn: (row) => row.driver?.experience || 0,
                 cell: ({ row }) => {
-                    const value = row.getValue("work_experience")
+                    const value = row.getValue("work_experience") as number
                     return value ? `${value} yil` : "-"
                 },
                 id: "work_experience",
             },
             {
-                header: "Guvohnoma muddati",
+                header: t("form.license_expiry"),
                 enableSorting: false,
                 accessorFn: (row) => row.driver?.driver_license_date || "",
                 cell: ({ row }) => {
@@ -89,6 +91,6 @@ export const useColumnsDriverTable = () => {
             //     },
             // },
         ],
-        [],
+        [t],
     )
 }

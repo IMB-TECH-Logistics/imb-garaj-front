@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 interface CashflowForm {
     currency: number
@@ -26,6 +27,7 @@ interface CashflowForm {
 }
 
 const AddPayment = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("create-order-payment")
@@ -54,7 +56,7 @@ const AddPayment = () => {
 
     const onSuccess = () => {
         toast.success(
-            currentCashflow?.id ? "To'lov tahrirlandi!" : "To'lov qo'shildi!",
+            currentCashflow?.id ? t("toast.updated") : t("toast.added"),
         )
         reset()
         clearKey(TRIPS_ORDERS_PAYMENT)
@@ -98,7 +100,7 @@ const AddPayment = () => {
             {/* Row 2 */}
             <FormCombobox
                 required
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 control={control}
                 options={[
@@ -107,14 +109,14 @@ const AddPayment = () => {
                 ]}
                 valueKey="value"
                 labelKey="label"
-                placeholder="Valyutani tanlang"
+                placeholder={t("form.select_currency")}
             />
             {selectedCurrency === 2 && (
                 <FormNumberInput
                     required
                     thousandSeparator=" "
                     name="currency_course"
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     placeholder="12 206 UZS"
                     control={control}
                 />
@@ -124,7 +126,7 @@ const AddPayment = () => {
             <FormNumberInput
                 required
                 name="amount"
-                label="Miqdor"
+                label={t("table.amount")}
                 thousandSeparator=" "
                 control={control}
                 placeholder="0 UZS"
@@ -132,14 +134,14 @@ const AddPayment = () => {
             <FormNumberInput
                 required
                 name="currency_amount"
-                label="Valyuta miqdori"
+                label={t("form.currency_amount")}
                 thousandSeparator=" "
                 control={control}
             />
 
             <FormCombobox
                 required
-                label="To'lov turi"
+                label={t("form.payment_type")}
                 name="payment_type"
                 control={control}
                 options={expensetypes?.results}
@@ -154,7 +156,7 @@ const AddPayment = () => {
                     loading={creating || updating}
                     disabled={creating || updating}
                 >
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

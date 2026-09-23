@@ -9,7 +9,9 @@ import { useParams, useSearch } from "@tanstack/react-router"
 import TableHeaderTripsOrders from "../trip-table-header"
 import AddPayment from "./add-payments"
 import { useColumnsOrderPayment } from "./payments-cols"
+import { useTranslation } from "react-i18next"
 const TripDetailPayment = () => {
+    const { t } = useTranslation()
     const { getData, setData, clearKey } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("create-order-payment")
     const { openModal: openDeleteModal } = useModal("delete-order-payment")
@@ -64,7 +66,7 @@ const orderId = Number(childId)
                         <TableHeaderTripsOrders
                             modalKey="create-order-payment"
                             storeKey={TRIPS_ORDERS_PAYMENT}
-                            heading="To'lovlar ro'yxati"
+                            heading={t("page.transactions")}
                         />
                     }
                 />
@@ -74,8 +76,7 @@ const orderId = Number(childId)
                 modalKey="create-order-payment"
                 size="max-w-2xl"
                 classNameTitle="font-medium text-xl"
-                title={`To'lov ${currentPayment?.id ? "tahrirlash" : "qo‘shish"
-                    }`}
+                title={`${t("actions.pay")} ${currentPayment?.id ? t("actions.edit") : t("actions.add")}`}
             >
                 <div className="max-h-[80vh] overflow-y-auto p-0.5">
                     <AddPayment />

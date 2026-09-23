@@ -7,11 +7,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddRolesModal from "./add-roles"
 import { useColumnsRolesTable } from "./roles-cols"
 
 const RolesPage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_roles_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<RolesType>>(
@@ -70,7 +72,7 @@ const RolesPage = () => {
                 name={item?.name}
             />
             <Modal
-                title={`Rol ${item?.id ? "tahrirlash" : "qo'shish"}`}
+                title={item?.id ? t("actions.edit") + " " + t("nav.roles").toLowerCase() : t("actions.add") + " " + t("nav.roles").toLowerCase()}
                 modalKey="create"
                 size="max-w-5xl"
             >

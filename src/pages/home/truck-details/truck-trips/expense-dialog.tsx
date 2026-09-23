@@ -13,6 +13,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import ExpenseEditForm, {
     EXPENSE_EDIT_MODAL_KEY,
     EXPENSE_EDIT_STORE_KEY,
@@ -47,15 +48,16 @@ function formatAmount(row: ExpenseRow) {
 }
 
 const useExpenseViewCols = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<ExpenseRow>[]>(
         () => [
             {
-                header: "Kategoriya",
+                header: t("table.category"),
                 accessorKey: "category_name",
                 enableSorting: true,
             },
             {
-                header: "Summa",
+                header: t("form.amount"),
                 accessorKey: "amount",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -65,12 +67,12 @@ const useExpenseViewCols = () => {
                 ),
             },
             {
-                header: "To'lov turi",
+                header: t("form.payment_type"),
                 accessorKey: "payment_type_name",
                 enableSorting: true,
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "created",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -78,7 +80,7 @@ const useExpenseViewCols = () => {
                 ),
             },
         ],
-        [],
+        [t],
     )
 }
 
@@ -90,6 +92,7 @@ interface ExpenseDialogProps {
 }
 
 export default function ExpenseDialog({ tripId, totalExpense, open, onClose }: ExpenseDialogProps) {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const search: any = useSearch({ strict: false })
     const canControl = useHasAction("manager_cashflow_control")
@@ -152,13 +155,13 @@ export default function ExpenseDialog({ tripId, totalExpense, open, onClose }: E
                 >
                     <DialogHeader className="px-6 py-4 border-b bg-muted/40">
                         <DialogTitle className="flex flex-wrap items-center gap-3 pr-10">
-                            <span className="text-lg font-semibold">Xarajatlar ro'yxati</span>
+                            <span className="text-lg font-semibold">{t("page.expense_list")}</span>
                             <Badge variant="secondary" className="text-sm">
                                 {totalCount} ta
                             </Badge>
                             {totalExpense != null && (
                                 <span className="ml-auto text-sm font-normal text-muted-foreground">
-                                    Jami:{" "}
+                                    {t("page.total")}:{" "}
                                     <span className="text-red-500 font-semibold">
                                         - {formatMoney(totalExpense)} UZS
                                     </span>
@@ -193,7 +196,7 @@ export default function ExpenseDialog({ tripId, totalExpense, open, onClose }: E
                         modalKey={EXPENSE_EDIT_MODAL_KEY}
                         size="max-w-2xl"
                         classNameTitle="font-medium text-xl"
-                        title="Xarajatni tahrirlash"
+                        title={t("page.edit_record")}
                     >
                         <div className="max-h-[80vh] overflow-y-auto p-0.5">
                             <ExpenseEditForm />

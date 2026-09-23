@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import { endOfMonth, startOfMonth } from "date-fns"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import GpsList from "./gps-list"
@@ -62,6 +63,7 @@ const GPS_REFRESH_MS = 10_000
 const GPS_FALLBACK_MS = 60_000
 
 export default function MonitoringView() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const search = useSearch({ strict: false }) as any
@@ -349,12 +351,12 @@ export default function MonitoringView() {
         historical ? polyline.refetch() : activeList.refetch()
 
     const panelTitle = historical
-        ? "Marshrut sharhi"
+        ? t("page.turnover_detail")
         : ({
-              driver: "Faol avtomobillar",
-              order: "Faol orderlar",
-              trip: "Faol reyslar",
-              vehicle: "Faol moshinalar",
+              driver: t("nav.drivers"),
+              order: t("nav.manager"),
+              trip: t("page.trips"),
+              vehicle: t("nav.vehicles"),
           } as const)[dimension]
 
     // Hozircha "driver" ko'rinishida gps-backend trekerlari sanaladi.
@@ -439,13 +441,13 @@ export default function MonitoringView() {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <h1 className="text-xl font-semibold">
-                        {mode === "report" ? "Status hisoboti" : "Monitoring"}
+                        {mode === "report" ? t("table.status") : t("nav.monitoring")}
                     </h1>
                     {mode === "map" &&
                         (freshCount != null ? (
                             <>
                                 <Badge variant="secondary">
-                                    Onlayn · {freshCount} / {gpsItems.length}
+                                    {t("status.online")} · {freshCount} / {gpsItems.length}
                                 </Badge>
                                 {liveConnected && (
                                     <Badge
@@ -453,7 +455,7 @@ export default function MonitoringView() {
                                         className="gap-1.5 border-emerald-500/40 text-emerald-500"
                                     >
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                        Jonli
+                                        {t("page.live")}
                                     </Badge>
                                 )}
                             </>
@@ -475,7 +477,7 @@ export default function MonitoringView() {
                             size="icon"
                             onClick={handleRefresh}
                             disabled={refreshing}
-                            aria-label="Yangilash"
+                            aria-label={t("actions.refresh")}
                             className="h-9 w-9 shrink-0"
                         >
                             <RefreshCcw
@@ -565,7 +567,7 @@ export default function MonitoringView() {
                                 <button
                                     type="button"
                                     onClick={() => setFilters(EMPTY_FILTERS)}
-                                    aria-label="Ro'yxatga qaytish"
+                                    aria-label={t("page.back_to_list")}
                                     className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-background text-muted-foreground transition hover:bg-muted hover:text-foreground"
                                 >
                                     <ArrowLeft className="h-3.5 w-3.5" />
@@ -573,7 +575,7 @@ export default function MonitoringView() {
                             )}
                             <CardTitle className="truncate text-sm font-semibold">
                                 {mode === "report"
-                                    ? "Avtomobillar holati"
+                                    ? t("table.truck_status")
                                     : selectedId != null && selectedDriverName
                                       ? selectedDriverName
                                       : panelTitle}
@@ -606,8 +608,8 @@ export default function MonitoringView() {
                                     }
                                     aria-label={
                                         mode === "report"
-                                            ? "Kichraytirish"
-                                            : "Kengaytirish"
+                                            ? t("actions.cancel")
+                                            : t("page.details")
                                     }
                                     className={cn(
                                         "group grid h-7 w-7 place-items-center rounded-md border transition-colors",
@@ -717,6 +719,7 @@ function HistoricalSummary({
     loading?: boolean
     onOpenTrip?: (tripId: number) => void
 }) {
+    const { t } = useTranslation()
     if (loading) {
         return (
             <div className="space-y-2">
@@ -732,7 +735,7 @@ function HistoricalSummary({
     if (!data) {
         return (
             <div className="py-10 text-center text-sm text-muted-foreground">
-                Filtr asosida ma'lumot topilmadi.
+                {t("page.not_found")}
             </div>
         )
     }
@@ -740,12 +743,12 @@ function HistoricalSummary({
         return (
             <div className="py-10 text-center">
                 <p className="text-sm text-muted-foreground">
-                    Bu davr uchun GPS yozuvi yo'q
+                    {t("page.no_gps")}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
                     {data.latest_at
-                        ? `Oxirgi ma'lumot: ${formatStamp(data.latest_at)}`
-                        : "Bu tanlov uchun GPS yozuvi umuman yo'q"}
+                        ? `${formatStamp(data.latest_at)}`
+                        : t("page.no_data_period")}
                 </p>
             </div>
         )
@@ -757,17 +760,17 @@ function HistoricalSummary({
     return (
         <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
-                <Stat label="Masofa" value={km} unit="km" />
+                <Stat label={t("form.distance")} value={km} unit="km" />
                 <Stat
-                    label="Davomiyligi"
+                    label={t("table.duration")}
                     value={durMin != null ? String(durMin) : "—"}
                     unit={durMin != null ? "min" : undefined}
                 />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-                <Row label="Boshlanish" value={formatStamp(data.first_at)} />
-                <Row label="Tugash" value={formatStamp(data.last_at)} />
+                <Row label={t("table.start_time")} value={formatStamp(data.first_at)} />
+                <Row label={t("table.end_time")} value={formatStamp(data.last_at)} />
             </div>
 
             {data.trip != null && onOpenTrip && (
@@ -777,7 +780,7 @@ function HistoricalSummary({
                     onClick={() => onOpenTrip(data.trip!)}
                     className="mt-1 w-full justify-between"
                 >
-                    <span>Reys batafsil · #{data.trip}</span>
+                    <span>{t("page.trip_list")} · #{data.trip}</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
                 </Button>
             )}
@@ -830,10 +833,11 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function StatStrip({ data }: { data: RoutePolyline }) {
+    const { t } = useTranslation()
     return (
         <div className="flex flex-wrap gap-2">
             {data.trip != null && (
-                <Pill label="Reys" value={`#${data.trip}`} />
+                <Pill label={t("page.trips")} value={`#${data.trip}`} />
             )}
             {data.order != null && (
                 <Pill label="Order" value={`#${data.order}`} />

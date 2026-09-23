@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { VehicleExpenseRow } from "./cols"
+import { useTranslation } from "react-i18next"
 
 type SelectItem = { id: number | string; name: string }
 
@@ -30,6 +31,7 @@ type ExpenseForm = {
 }
 
 const AddExpenseModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("add-expense")
     const { getData, clearKey } = useGlobalStore()
@@ -60,7 +62,7 @@ const AddExpenseModal = () => {
     const categories = categoriesData?.results
 
     const onSuccess = () => {
-        toast.success(current?.id ? "Xarajat tahrirlandi!" : "Xarajat qo'shildi!")
+        toast.success(current?.id ? t("messages.success_edit") : t("messages.success_add"))
         reset()
         clearKey(TECHNICAL_INSPECT)
         closeModal()
@@ -83,30 +85,30 @@ const AddExpenseModal = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
             <FormCombobox
                 required
-                label="Avtomobil"
+                label={t("form.vehicle")}
                 hideError={false}
                 name="vehicle"
                 control={control}
                 options={vehicles || []}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Avtomobilni tanlang"
+                placeholder={t("form.vehicle")}
             />
             <FormCombobox
                 required
-                label="Xarajat turi"
+                label={t("form.expense_type")}
                 hideError={false}
                 name="category"
                 control={control}
                 options={categories || []}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Xarajat turini tanlang"
+                placeholder={t("form.expense_type")}
             />
             <FormNumberInput
                 required
                 name="amount"
-                label="Summa"
+                label={t("form.amount")}
                 control={control}
                 thousandSeparator=" "
                 decimalScale={2}
@@ -119,31 +121,31 @@ const AddExpenseModal = () => {
             />
             <FormDatePicker
                 required
-                label="Sana"
+                label={t("form.date")}
                 control={control}
                 name="date"
-                placeholder="Sanani tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
             <FormDatePicker
                 required
-                label="Amal muddati"
+                label={t("form.lifespan")}
                 control={control}
                 name="lifespan"
-                placeholder="Muddatni tanlang"
+                placeholder={t("form.select_date")}
                 calendarProps={minLifespan ? { disabled: { before: minLifespan } } : undefined}
                 className="w-full"
             />
             <FormInput
                 name="comment"
-                label="Izoh"
+                label={t("form.comment")}
                 methods={form}
                 placeholder="Qo'shimcha izoh..."
             />
 
             <div className="col-span-2 flex justify-end pt-2">
                 <Button type="submit" loading={isPending} className="min-w-36">
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

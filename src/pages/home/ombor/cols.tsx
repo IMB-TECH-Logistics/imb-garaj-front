@@ -10,6 +10,7 @@ import {
     Trash2,
 } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export type ExpiryStatus = "none" | "ok" | "soon" | "expired"
 
@@ -48,6 +49,7 @@ export const expiryRowClass = (status: ExpiryStatus) => {
 }
 
 const ExpiryBadge = ({ p }: { p: OmborProduct }) => {
+    const { t } = useTranslation()
     if (p.expiry_status === "none" || p.days_to_expiry == null) return null
     const isExpired = p.expiry_status === "expired"
     const isSoon = p.expiry_status === "soon"
@@ -81,10 +83,11 @@ export const useOmborCols = (opts: {
     onWithdraw: (item: OmborProduct) => void
 }) => {
     const { onEdit, onDelete, onWithdraw } = opts
+    const { t } = useTranslation()
     return useMemo<ColumnDef<OmborProduct>[]>(
         () => [
             {
-                header: "Nomi",
+                header: t("form.name"),
                 accessorKey: "name",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -95,12 +98,12 @@ export const useOmborCols = (opts: {
                 ),
             },
             {
-                header: "Birlik",
+                header: t("form.unit"),
                 accessorKey: "unit_display",
                 enableSorting: true,
             },
             {
-                header: "Birlik narxi",
+                header: t("form.unit_price"),
                 accessorKey: "unit_price",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -108,7 +111,7 @@ export const useOmborCols = (opts: {
                 ),
             },
             {
-                header: "Miqdori",
+                header: t("form.quantity"),
                 accessorKey: "quantity",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -120,7 +123,7 @@ export const useOmborCols = (opts: {
             },
             {
                 id: "total",
-                header: "Jami summa",
+                header: t("form.total_amount"),
                 enableSorting: true,
                 accessorFn: (row) =>
                     Number(row.unit_price) * Number(row.quantity),
@@ -135,7 +138,7 @@ export const useOmborCols = (opts: {
                 ),
             },
             {
-                header: "Eskirish",
+                header: t("table.depreciation"),
                 accessorKey: "expiry_date",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -181,7 +184,7 @@ export const useOmborCols = (opts: {
                             size="sm"
                             variant="ghost"
                             className="p-0 h-3"
-                            title="Ombordan chiqarish"
+                            title={t("page.issue_from_warehouse")}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onWithdraw(row.original)
@@ -211,6 +214,6 @@ export const useOmborCols = (opts: {
                 ),
             },
         ],
-        [onEdit, onDelete, onWithdraw],
+        [onEdit, onDelete, onWithdraw, t],
     )
 }

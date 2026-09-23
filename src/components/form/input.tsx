@@ -6,6 +6,7 @@ import {
     UseFormReturn,
 } from "react-hook-form"
 import { ClassNameValue } from "tailwind-merge"
+import { useTranslation } from "react-i18next"
 import { Input } from "../ui/input"
 import FieldError from "./form-error"
 import FieldLabel from "./form-label"
@@ -39,6 +40,7 @@ export function FormInput<IForm extends FieldValues>({
     uppercase = false,
     ...props
 }: IProps<IForm> & React.InputHTMLAttributes<HTMLInputElement>) {
+    const { t } = useTranslation()
     const {
         register,
         formState: { errors },
@@ -49,7 +51,7 @@ export function FormInput<IForm extends FieldValues>({
     const reg = register(name, {
         required:
             required ?
-                `${label || props.placeholder || "Ushbu maydon"}ni kiriting`
+                t("validation.required_field", { field: label || props.placeholder || t("validation.required") })
             :   false,
         ...(uppercase && {
             setValueAs: (value: string) => String(value)?.toUpperCase(),

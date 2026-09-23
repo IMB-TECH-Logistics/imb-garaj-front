@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type FormValues = {
     amount: string | number | ""
@@ -34,6 +35,7 @@ type Props = {
 }
 
 const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal, isOpen } = useModal(modalKey)
     const isIncome = kind === "income"
@@ -52,9 +54,9 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
 
     const onSuccess = () => {
         toast.success(
-            editing ? "Yozuv yangilandi"
-            : isIncome ? "Balans to'ldirildi"
-            : "Chiqim qo'shildi",
+            editing ? t("toast.record_updated")
+            : isIncome ? t("toast.balance_topped_up")
+            : t("toast.expense_added"),
         )
         queryClient.refetchQueries({ queryKey: [CHECKOUT_MAIN] })
         queryClient.refetchQueries({ queryKey: ["transaction"] })
@@ -79,7 +81,7 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
@@ -90,7 +92,7 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
                         Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
                 }}
             />
-            <FormTextarea label="Izoh" name="comment" methods={form} />
+            <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             <div className="flex justify-end mt-1">
                 <Button
                     className="min-w-32"
@@ -98,7 +100,7 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
                     loading={isCreating || isUpdating}
                     variant={isIncome ? "default" : "destructive"}
                 >
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

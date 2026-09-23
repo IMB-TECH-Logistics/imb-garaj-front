@@ -8,6 +8,7 @@ import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type FormValues = {
     amount: string | number | ""
@@ -22,6 +23,7 @@ const CURRENCY_OPTIONS = [
 ]
 
 const TopUpModal = ({ stationId }: { stationId: number }) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("petrol-top-up")
 
@@ -38,7 +40,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success("Kirim qo'shildi")
+            toast.success(t("toast.income_added"))
             reset()
             queryClient.refetchQueries({ queryKey: [SETTINGS_PETROL_STATIONS] })
             queryClient.refetchQueries({
@@ -65,7 +67,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
             <FormCombobox
                 control={control}
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 options={CURRENCY_OPTIONS}
                 valueKey="id"
@@ -74,7 +76,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
@@ -89,17 +91,17 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                 <FormNumberInput
                     required
                     control={control}
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
                     decimalScale={0}
                 />
             )}
-            <FormTextarea label="Izoh" name="comment" methods={form} />
+            <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

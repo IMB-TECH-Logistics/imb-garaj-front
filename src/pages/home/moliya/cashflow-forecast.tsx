@@ -10,6 +10,7 @@ import {
     ReferenceLine,
     ReferenceArea,
 } from "recharts"
+import { useTranslation } from "react-i18next"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_FORECAST } from "@/constants/api-endpoints"
 
@@ -47,6 +48,7 @@ function ForecastTooltip({ active, payload, label }: any) {
 }
 
 export default function CashflowForecast() {
+    const { t } = useTranslation()
     const { data: raw } = useGet<ForecastPoint[]>(FINANCE_FORECAST)
 
     const data = useMemo(
@@ -124,7 +126,7 @@ export default function CashflowForecast() {
                         <Area
                             type="monotone"
                             dataKey="income"
-                            name="Tushum"
+                            name={t("form.income")}
                             stroke="#26a69a"
                             strokeWidth={2}
                             fill="url(#forecastIncome)"
@@ -133,7 +135,7 @@ export default function CashflowForecast() {
                         <Area
                             type="monotone"
                             dataKey="expense"
-                            name="Xarajat"
+                            name={t("form.expense")}
                             stroke="#ef5350"
                             strokeWidth={2}
                             fill="url(#forecastExpense)"
@@ -142,7 +144,7 @@ export default function CashflowForecast() {
                         <Area
                             type="monotone"
                             dataKey="balance"
-                            name="Balans"
+                            name={t("form.balance")}
                             stroke="#3b82f6"
                             strokeWidth={2.5}
                             fill="url(#forecastBalance)"

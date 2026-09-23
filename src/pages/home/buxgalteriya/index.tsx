@@ -16,6 +16,7 @@ import BuxgalteriyaExcelModal, {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Download } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 const BuxgalteriyaPage = () => {
     const search: any = useSearch({ strict: false })
@@ -71,6 +72,7 @@ const BuxgalteriyaPage = () => {
         openModal()
     }
 
+    const { t } = useTranslation()
     return (
         <div className="space-y-3">
             <DataTable
@@ -90,32 +92,32 @@ const BuxgalteriyaPage = () => {
                     <div className="space-y-3 mb-3">
                         <div className="flex items-center justify-between gap-3 flex-wrap">
                             <div className="flex items-center gap-2">
-                                <h1 className="text-lg">Reyslar</h1>
+                                <h1 className="text-lg">{t("page.trips")}</h1>
                                 <Badge>{data?.count ?? 0}</Badge>
                             </div>
                             <div className="flex items-center justify-end gap-3 flex-wrap">
                             <ParamCombobox
                                 paramName="client"
                                 options={clientOptions}
-                                label="Firma nomi"
+                                label={t("form.company_name")}
                                 addButtonProps={comboStyle}
                             />
                             <ParamCombobox
                                 paramName="loading"
                                 options={loadingOptions}
-                                label="Yuklash joyi"
+                                label={t("form.loading_location")}
                                 addButtonProps={comboStyle}
                             />
                             <ParamCombobox
                                 paramName="unloading"
                                 options={unloadingOptions}
-                                label="Tushirish joyi"
+                                label={t("form.unloading_location")}
                                 addButtonProps={comboStyle}
                             />
                             <ParamCombobox
                                 paramName="cargo_type"
                                 options={cargoTypeOptions}
-                                label="Yuk turi"
+                                label={t("form.cargo_type")}
                                 addButtonProps={comboStyle}
                             />
                             <ParamDateRange
@@ -140,7 +142,7 @@ const BuxgalteriyaPage = () => {
 
             <Modal
                 modalKey="edit-reys"
-                title="Reys tahrirlash"
+                title={t("page.trips")}
                 size="max-w-4xl"
             >
                 <EditReysModal />

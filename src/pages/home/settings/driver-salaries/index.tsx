@@ -19,6 +19,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Save, Wallet } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import {
     type DirectionPrice,
@@ -58,6 +59,7 @@ const filterParam = (key: string) => `sf_${key}`
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
 const DriverSalariesPage = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_driver_salaries_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
@@ -278,13 +280,13 @@ const DriverSalariesPage = () => {
         )
 
         if (okRows > 0) {
-            toast.success(`${okRows} ta yo'nalish oyligi yangilandi`)
+            toast.success(t("page.directions_salary_updated", { count: okRows }))
             await queryClient.invalidateQueries({
                 queryKey: [COMMON_DIRECTIONS],
             })
         }
         if (failedGroups > 0)
-            toast.error(`${failedGroups} ta guruh yangilanmadi`)
+            toast.error(t("page.groups_not_updated", { count: failedGroups }))
         setPriceEdits({})
     }
 
@@ -348,7 +350,7 @@ const DriverSalariesPage = () => {
                                     size="sm"
                                     onClick={clearFilters}
                                 >
-                                    Tozalash
+                                    {t("actions.reset")}
                                 </Button>
                             )}
                             {hasControl && selectedIds.length > 0 ? (
@@ -357,7 +359,7 @@ const DriverSalariesPage = () => {
                                     onClick={openBulkModal}
                                     icon={<Wallet size={16} />}
                                 >
-                                    Beriladigan oylik
+                                    {t("actions.give_salary_btn")}
                                 </Button>
                             ) : pendingEdits.length > 0 ? (
                                 <Button
@@ -366,7 +368,7 @@ const DriverSalariesPage = () => {
                                     loading={isSaving}
                                     icon={<Save size={16} />}
                                 >
-                                    Saqlash ({pendingEdits.length})
+                                    {t("actions.save")} ({pendingEdits.length})
                                 </Button>
                             ) : null}
                         </div>
@@ -374,7 +376,7 @@ const DriverSalariesPage = () => {
                 }
             />
             <Modal
-                title="Beriladigan oylikni tayinlash"
+                title={t("actions.give_salary_btn")}
                 modalKey="bulk-salary"
                 size="max-w-md"
             >

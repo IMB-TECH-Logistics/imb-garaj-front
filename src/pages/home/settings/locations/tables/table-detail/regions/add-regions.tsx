@@ -9,12 +9,14 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 interface AddRegionsModalProps {
     country_id: number
 }
 
 const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create-region")
     const { getData, clearKey } = useGlobalStore()
@@ -34,7 +36,7 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
 
     const onSuccess = () => {
         toast.success(
-            `Viloyat muvaffaqiyatli ${currentRegion?.id ? "tahrirlandi!" : "qo'shildi"} `,
+            currentRegion?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
 
         reset()
@@ -75,14 +77,14 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                 <FormInput
                     required
                     name="name"
-                    label="Joylashuv nomi"
+                    label={t("form.region")}
                     maxLength={255}
                     methods={form}
                 />
 
  
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Davlat</label>
+                    <label className="text-sm font-medium">{t("form.country")}</label>
 
                     <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
                         {countries?.results?.find(
@@ -103,7 +105,7 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                         type="submit"
                         loading={isPending}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

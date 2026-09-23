@@ -6,6 +6,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type FormValues = { amount: string | null }
 
@@ -17,6 +18,7 @@ interface Props {
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
 const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("bulk-salary")
     const form = useForm<FormValues>({ defaultValues: { amount: null } })
@@ -33,7 +35,7 @@ const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
                 valid_from: todayIso(),
             })
             toast.success(
-                `${selectedIds.length} ta yo'nalishga oylik tayinlandi`,
+                t("page.directions_salary_assigned", { count: selectedIds.length }),
             )
             await queryClient.invalidateQueries({
                 queryKey: [COMMON_DIRECTIONS],
@@ -49,20 +51,19 @@ const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
-                Tanlangan {selectedIds.length} ta yo'nalishga bir xil oylik
-                tayinlanadi.
+                {t("page.bulk_salary_hint", { count: selectedIds.length })}
             </p>
             <FormNumberInput
                 required
                 thousandSeparator=" "
                 name="amount"
-                label="Beriladigan oylik"
+                label={t("form.give_salary")}
                 placeholder="12 206 000"
                 control={control}
             />
             <div className="flex items-center justify-end mt-2">
                 <Button className="min-w-36" type="submit" loading={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

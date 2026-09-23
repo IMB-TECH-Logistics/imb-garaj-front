@@ -9,6 +9,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { createContext, KeyboardEvent, ReactNode, useState } from "react"
+import { useTranslation } from "react-i18next"
 import CodeConfirmForm from "./code-confirm-form"
 
 interface ConfirmContextProps {
@@ -27,6 +28,7 @@ interface UseConfirmProps {
 export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
+    const { t } = useTranslation()
     const [isOpen, setIsOpen] = useState(false)
     const [resolvePromise, setResolvePromise] = useState<
         (value: boolean) => void
@@ -64,7 +66,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
             <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
                 <AlertDialogContent onKeyDown={handleKeyDown}>
                     <AlertDialogTitle>
-                        {dialogProps.title || "Tasdiqlash"}
+                        {dialogProps.title || t("messages.confirm_dialog_title")}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                         {dialogProps.description}
@@ -74,13 +76,13 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
                             onClick={handleCancel}
                             className="m-0 w-full"
                         >
-                            Bekor qilish
+                            {t("actions.cancel")}
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleConfirm}
                             className="w-full"
                         >
-                            Tasdiqlash
+                            {t("actions.confirm")}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -88,7 +90,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
 
             <Modal
                 modalKey="confim-download"
-                title="Yuklab olish uchun parol talab qilinadi"
+                title={t("messages.download_password")}
             >
                 <CodeConfirmForm />
             </Modal>

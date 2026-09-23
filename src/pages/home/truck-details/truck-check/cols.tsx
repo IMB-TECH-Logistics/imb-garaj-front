@@ -2,27 +2,29 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export const useTechnicInspect = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<TechnicInspect>[]>(
         () => [
             {
-                header: "Avtomobil",
+                header: t("form.truck"),
                 accessorKey: "vehicle_name",
                 enableSorting: true,
             },
             {
-                header: "Kategoriya",
+                header: t("table.category"),
                 accessorKey: "category_name",
                 enableSorting: true,
             },
             {
-                header: "Davomiyligi",
+                header: t("table.duration"),
                 accessorKey: "lifespan",
                 enableSorting: true,
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "date",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -30,7 +32,7 @@ export const useTechnicInspect = () => {
                 ),
             },
             {
-                header: "Miqdor",
+                header: t("table.amount"),
                 accessorKey: "amount",
                 cell: ({ getValue }) => {
                     const v = Number(getValue<string>() ?? 0) || 0
@@ -38,11 +40,11 @@ export const useTechnicInspect = () => {
                 },
             },
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "comment",
                 enableSorting: true,
             },
         ],
-        [],
+        [t],
     )
 }

@@ -19,6 +19,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { Check, Edit, Plus, Trash } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type ExpensesManager = {
     backendId?: number
@@ -39,6 +40,7 @@ type Props = {
 }
 
 export default function ExpensesModal({ expenses }: Props) {
+    const { t } = useTranslation()
     const { getData } = useGlobalStore()
     const currentSelected = getData("expense-id")
     const queryClient = useQueryClient()
@@ -85,7 +87,7 @@ export default function ExpensesModal({ expenses }: Props) {
         if (backendId) {
             deleteExpense(`${MANAGERS_EXPENSES}/${backendId}`, {
                 onSuccess: () => {
-                    toast.success("O'chirildi")
+                    toast.success(t("toast.deleted"))
                     queryClient.invalidateQueries({
                         queryKey: [MANAGERS_EXPENSES],
                     })
@@ -112,7 +114,7 @@ export default function ExpensesModal({ expenses }: Props) {
         if (expense.backendId) {
             editExpense(`${MANAGERS_EXPENSES}/${expense.backendId}`, payload, {
                 onSuccess: () => {
-                    toast.success("Yangilandi")
+                    toast.success(t("toast.updated"))
                     update(index, { ...expense, editable: false })
                     queryClient.invalidateQueries({
                         queryKey: [MANAGERS_EXPENSES],
@@ -125,7 +127,7 @@ export default function ExpensesModal({ expenses }: Props) {
                 { trip: currentSelected?.id, ...payload },
                 {
                     onSuccess: () => {
-                        toast.success("Qo'shildi")
+                        toast.success(t("toast.added"))
                         update(index, { ...expense, editable: false })
                         queryClient.invalidateQueries({
                             queryKey: [MANAGERS_EXPENSES],
@@ -140,14 +142,14 @@ export default function ExpensesModal({ expenses }: Props) {
         <div className="space-y-4">
             <div className="flex justify-end">
                 <Button onClick={handleAdd} size="sm">
-                    <Plus className="h-4 w-4 mr-2" /> Qo'shish
+                    <Plus className="h-4 w-4 mr-2" /> {t("actions.add")}
                 </Button>
             </div>
 
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 no-scrollbar-x">
                 {fields.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">
-                        Xarajat mavjud emas
+                        {t("page.no_expenses")}
                     </p>
                 )}
 
@@ -157,7 +159,7 @@ export default function ExpensesModal({ expenses }: Props) {
                             <FormNumberInput
                                 control={control}
                                 name={`expenses.${index}.amount`}
-                                label="Sum"
+                                label={t("form.amount")}
                                 disabled={!field.editable}
                                 thousandSeparator=" "
                                 decimalScale={0}
@@ -168,7 +170,7 @@ export default function ExpensesModal({ expenses }: Props) {
                                 className={`pointer-events-${field.editable ? "auto" : "none"} opacity-${field.editable ? "100" : "60"}`}
                             >
                                 <FormCombobox
-                                    label="Kategoriya"
+                                    label={t("table.category")}
                                     control={control}
                                     name={`expenses.${index}.category`}
                                     options={category?.results}
@@ -182,7 +184,7 @@ export default function ExpensesModal({ expenses }: Props) {
                                 className={`pointer-events-${field.editable ? "auto" : "none"} opacity-${field.editable ? "100" : "60"}`}
                             >
                                 <FormCombobox
-                                    label="To'lov turi"
+                                    label={t("form.payment_type")}
                                     control={control}
                                     name={`expenses.${index}.payment_type`}
                                     options={payments?.results}
@@ -195,7 +197,7 @@ export default function ExpensesModal({ expenses }: Props) {
                             <FormInput
                                 methods={form}
                                 name={`expenses.${index}.comment`}
-                                label="Izoh"
+                                label={t("form.comment")}
                                 readOnly={!field.editable}
                                 disabled={!field.editable}
                             />
@@ -227,7 +229,7 @@ export default function ExpensesModal({ expenses }: Props) {
                                     size="sm"
                                     onClick={() => handleSave(index)}
                                 >
-                                    <Check className="h-4 w-4 mr-1" /> Saqlash
+                                    <Check className="h-4 w-4 mr-1" /> {t("actions.save")}
                                 </Button>
                             )}
                         </div>

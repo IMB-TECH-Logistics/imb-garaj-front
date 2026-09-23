@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_CATEGORIES } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
@@ -108,6 +109,7 @@ function buildTree(
 }
 
 export default function FlowChart() {
+    const { t } = useTranslation()
     const [mode, setMode] = useState<"tushum" | "xarajat">("tushum")
     const [expanded, setExpanded] = useState<Set<string>>(new Set(["total"]))
     const containerRef = useRef<HTMLDivElement>(null)
@@ -138,12 +140,12 @@ export default function FlowChart() {
                 ? mapNode(apiRoot, true)
                 : {
                       id: "total",
-                      label: mode === "tushum" ? "Tushum" : "Xarajat",
+                      label: mode === "tushum" ? t("form.income") : t("form.expense"),
                       value: 0,
                       color: mode === "tushum" ? "#00e5a0" : "#f43f5e",
                       children: [],
                   },
-        [apiRoot, mode],
+        [apiRoot, mode, t],
     )
     const { nodes, links } = useMemo(() => buildTree(root, expanded), [root, expanded])
 
@@ -223,13 +225,13 @@ export default function FlowChart() {
         <div className="flex flex-col h-full overflow-hidden">
             <div className="flex items-center gap-2 px-3 pt-2 shrink-0 flex-wrap">
                 <div className="flex items-center gap-1">
-                    <button onClick={() => setMode("tushum")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-all", mode === "tushum" ? "bg-emerald-500/15 text-emerald-500" : "text-muted-foreground hover:text-foreground")}>Tushum</button>
-                    <button onClick={() => setMode("xarajat")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-all", mode === "xarajat" ? "bg-rose-500/15 text-rose-500" : "text-muted-foreground hover:text-foreground")}>Xarajat</button>
+                    <button onClick={() => setMode("tushum")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-all", mode === "tushum" ? "bg-emerald-500/15 text-emerald-500" : "text-muted-foreground hover:text-foreground")}>{t("form.income")}</button>
+                    <button onClick={() => setMode("xarajat")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-all", mode === "xarajat" ? "bg-rose-500/15 text-rose-500" : "text-muted-foreground hover:text-foreground")}>{t("form.expense")}</button>
                 </div>
                 <div className="w-px h-4 bg-border" />
                 <div className="flex items-center gap-1">
-                    <button onClick={expandAll} className="px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all">Hammasi</button>
-                    <button onClick={collapseAll} className="px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all">Yig'ish</button>
+                    <button onClick={expandAll} className="px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all">{t("status.all")}</button>
+                    <button onClick={collapseAll} className="px-2 py-1 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted transition-all">{t("actions.close")}</button>
                 </div>
                 <div className="w-px h-4 bg-border" />
                 <div className="flex items-center gap-1">

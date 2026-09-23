@@ -4,6 +4,7 @@ import { SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useMemo } from "react"
 import type { DriverOption, MonitoringFilters } from "./types"
+import { useTranslation } from "react-i18next"
 
 type Props = {
     value: MonitoringFilters
@@ -30,6 +31,7 @@ export default function MonitoringFilterBar({ value, onChange }: Props) {
         [drivers],
     )
 
+    const { t } = useTranslation()
     return (
         <div className="flex flex-wrap items-center gap-2">
             <Combobox<VehicleOption>
@@ -44,7 +46,7 @@ export default function MonitoringFilterBar({ value, onChange }: Props) {
                         vehicle: null,
                     })
                 }
-                label="Haydovchi"
+                label={t("form.driver")}
                 valueKey="id"
                 labelKey="label"
                 className="h-9 w-auto min-w-[140px]"
@@ -55,7 +57,7 @@ export default function MonitoringFilterBar({ value, onChange }: Props) {
                 setDate={(d: string) =>
                     onChange({ ...value, fromDate: d, toDate: d })
                 }
-                placeholder="Sana"
+                placeholder={t("form.date")}
                 defaultValue={new Date()}
                 className="h-9 w-auto min-w-[120px]"
                 calendarProps={{ disabled: { after: new Date() } }}

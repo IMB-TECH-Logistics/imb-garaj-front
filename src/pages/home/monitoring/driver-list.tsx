@@ -7,6 +7,7 @@ import {
     DimensionRow,
 } from "./dimension-row"
 import type { LiveDriver } from "./types"
+import { useTranslation } from "react-i18next"
 
 type Props = {
     items: LiveDriver[]
@@ -21,14 +22,15 @@ export default function DriverList({
     activeId,
     onSelect,
 }: Props) {
+    const { t } = useTranslation()
     if (loading && items.length === 0) {
         return <DimensionListSkeleton />
     }
     if (!loading && items.length === 0) {
         return (
             <DimensionEmpty
-                title="Hozir efirda avtomobil yo'q"
-                hint="Yangi signal kelganda bu yerda paydo bo'ladi"
+                title={t("page.no_vehicles_online")}
+                hint={t("page.signal_hint")}
             />
         )
     }

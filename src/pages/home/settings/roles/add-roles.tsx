@@ -10,8 +10,10 @@ import { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import PermissionField from "../users/permission-field"
+import { useTranslation } from "react-i18next"
 
 const AddRolesModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -35,7 +37,7 @@ const AddRolesModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Rol muvaffaqiyatli ${currentRole?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentRole?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_ROLES)
@@ -67,7 +69,7 @@ const AddRolesModal = () => {
                 <FormInput
                     required
                     name="name"
-                    label="Rol turi"
+                    label={t("form.user_role")}
                     methods={form}
                 />
 
@@ -82,7 +84,7 @@ const AddRolesModal = () => {
                         loading={isPending}
                         disabled={isPending}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

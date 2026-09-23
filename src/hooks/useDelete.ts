@@ -1,4 +1,4 @@
-import { handleFormError } from "@/lib/show-form-errors"
+import { handleFormError } from "@/lib/onError"
 import axiosInstance from "@/services/axios-instance"
 import { useMutation, UseMutationOptions } from "@tanstack/react-query"
 import { AxiosRequestConfig } from "axios"

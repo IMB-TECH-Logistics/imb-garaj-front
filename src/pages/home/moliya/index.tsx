@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, ReactNode, CSSProperties } from "react"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_SUMMARY } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
@@ -229,6 +230,7 @@ type FinanceSummary = {
 }
 
 export default function MoliyaPage() {
+    const { t } = useTranslation()
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const pageRef = useRef<HTMLDivElement>(null)
     const search: any = useSearch({ strict: false })
@@ -259,20 +261,20 @@ export default function MoliyaPage() {
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-3">
                 <StatCard
-                    label={search?.to_date ? "Balans (davr oxiriga)" : "Balans"}
+                    label={search?.to_date ? `${t("form.balance")} (davr oxiriga)` : t("form.balance")}
                     value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
                 />
                 <StatCard
-                    label="Tushum (NDSsiz)"
+                    label={`${t("form.income")} (NDSsiz)`}
                     value={Number(summary?.income_total ?? 0)}
                     hint={`NDS: ${fmt(Number(summary?.income_vat ?? 0))} so'm`}
                     icon={<ArrowUpIcon />}
                     color="emerald"
                 />
                 <StatCard
-                    label="Xarajat"
+                    label={t("form.expense")}
                     value={Number(summary?.expense_total ?? 0)}
                     hint={`Avans: ${fmt(Number(summary?.advance_total ?? 0))} so'm (xarajatga kirmaydi)`}
                     icon={<ArrowDownIcon />}

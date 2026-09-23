@@ -2,30 +2,31 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export const useCostCols = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<CashflowRow>[]>(
         () => [
             {
-                header: "Amal",
+                header: t("table.action"),
                 accessorKey: "action",
                 enableSorting: true,
                 cell: ({ getValue }) => {
                     const value = getValue<number>()
-
                     return (
                         <span>
                             {value === 1 ?
-                                "Haydovchidan Menejerga (D2M)"
+                                t("table.action_d2m")
                             : value === 2 ?
-                                "Menejerdan Haydovchiga (M2D)"
+                                t("table.action_m2d")
                             :   "—"}
                         </span>
                     )
                 },
             },
             {
-                header: "Miqdor",
+                header: t("table.amount"),
                 accessorKey: "amount",
                 cell: ({ getValue }) => {
                     const v = Number(getValue<string>() ?? 0) || 0
@@ -33,18 +34,18 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "To'lov turi",
+                header: t("form.payment_type"),
                 accessorKey: "payment_type_name",
                 enableSorting: true,
             },
 
             {
-                header: "Kategoriya",
+                header: t("table.category"),
                 accessorKey: "category_name",
                 cell: ({ getValue }) => <span>{getValue<number>()}</span>,
             },
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "comment",
                 cell: ({ getValue }) => (
                     <span className=" ">{getValue<string>() || "—"}</span>
@@ -52,7 +53,7 @@ export const useCostCols = () => {
             },
 
             {
-                header: "Yaratilgan sana",
+                header: t("table.created_at"),
                 accessorKey: "created",
                 enableSorting: true,
                 cell: ({ getValue }) => (
@@ -67,6 +68,6 @@ export const useCostCols = () => {
                 ),
             },
         ],
-        [],
+        [t],
     )
 }

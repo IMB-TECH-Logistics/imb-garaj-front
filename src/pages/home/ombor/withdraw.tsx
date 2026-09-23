@@ -17,6 +17,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { type OmborProduct } from "./cols"
+import { useTranslation } from "react-i18next"
 
 type FormValues = {
     quantity: number | string
@@ -27,6 +28,7 @@ type FormValues = {
 type SelectItem = { id: number | string; name: string }
 
 const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("ombor-withdraw")
 
@@ -49,7 +51,7 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success("Ombordan chiqarildi")
+            toast.success(t("toast.warehouse_out"))
             queryClient.refetchQueries({ queryKey: [WAREHOUSE_PRODUCTS] })
             queryClient.refetchQueries({ queryKey: [WAREHOUSE_STATS] })
             queryClient.refetchQueries({ queryKey: [WAREHOUSE_WITHDRAWALS] })
@@ -80,7 +82,7 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
                     </div>
                 </div>
                 <div className="text-right">
-                    <div className="text-xs text-muted-foreground">Mavjud</div>
+                    <div className="text-xs text-muted-foreground">{t("form.available")}</div>
                     <div className="font-medium tabular-nums">
                         {formatMoney(Number(product.quantity))}{" "}
                         {product.unit_display}
@@ -98,15 +100,15 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
             />
             <FormCombobox
                 control={control}
-                label="Avtomobil (ixtiyoriy)"
+                label={t("form.vehicle_optional")}
                 name="vehicle"
                 options={vehicles || []}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Mashina tanlang yoki bo'sh qoldiring"
+                placeholder={t("form.truck")}
             />
             <FormTextarea
-                label="Izoh"
+                label={t("form.comment")}
                 name="comment"
                 methods={form}
                 placeholder="Nima uchun ishlatildi..."
@@ -115,7 +117,7 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
             {qty > 0 && (
                 <div className="rounded-md border border-dashed p-2 text-sm flex justify-between">
                     <span className="text-muted-foreground">
-                        Jami chiqim summasi
+                        {t("table.total_expense")}
                     </span>
                     <span className="font-semibold tabular-nums">
                         {formatMoney(lineTotal)} so'm
@@ -130,7 +132,7 @@ const OmborWithdraw = ({ product }: { product: OmborProduct | null }) => {
                     variant="destructive"
                     className="min-w-32"
                 >
-                    Chiqarish
+                    {t("actions.issue_warehouse")}
                 </Button>
             </div>
         </form>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react"
 import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import ParamPagination from "@/components/as-params/pagination"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_LEDGER } from "@/constants/api-endpoints"
@@ -56,6 +57,7 @@ const formatDate = (iso: string) => {
 }
 
 export default function TransactionLedger() {
+    const { t } = useTranslation()
     const { theme } = useTheme()
     const scheme = theme === "dark" ? "dark" : "light"
     const search: any = useSearch({ strict: false })
@@ -116,14 +118,14 @@ export default function TransactionLedger() {
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
-                <h3 className="text-xs font-semibold">Kirim-Chiqim tarixi</h3>
+                <h3 className="text-xs font-semibold">{t("page.transactions")}</h3>
                 <span className="text-[10px] text-muted-foreground">{data?.count ?? 0} ta</span>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0">
                 <table className="w-full text-xs">
                     <thead className="sticky top-0 bg-card z-10">
                         <tr className="border-b border-border">
-                            <th className="text-left font-medium text-muted-foreground px-4 py-2">Sana</th>
+                            <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.date")}</th>
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={descFilter}
@@ -137,7 +139,7 @@ export default function TransactionLedger() {
                                             : "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
                                     )}
                                 >
-                                    <option value="">Tavsif</option>
+                                    <option value="">{t("form.description")}</option>
                                     {DESCRIPTIONS.map((d) => (
                                         <option key={d} value={d}>{d}</option>
                                     ))}
@@ -157,15 +159,15 @@ export default function TransactionLedger() {
                                         !typeFilter && "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
                                     )}
                                 >
-                                    <option value="">Tur</option>
+                                    <option value="">{t("table.type")}</option>
                                     <option value="kirim">Kirim</option>
-                                    <option value="chiqim">Chiqim</option>
+                                    <option value="chiqim">{t("form.expense")}</option>
                                     <option value="avans">Avans</option>
                                 </select>
                             </th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor (NDS bilan)</th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Qoldiq</th>
-                            <th className="text-left font-medium text-muted-foreground px-4 py-2">Izoh</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_with_nds")}</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.balance")}</th>
+                            <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.comment")}</th>
                         </tr>
                     </thead>
                     <tbody>

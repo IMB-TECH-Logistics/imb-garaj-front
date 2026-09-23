@@ -12,8 +12,10 @@ import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { Switch } from "@/components/ui/switch"
 import PermissionField from "./permission-field"
+import { useTranslation } from "react-i18next"
 
 const AddUserModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -41,7 +43,7 @@ const AddUserModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Foydalanuvchi muvaffaqiyatli ${currentDriver?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentDriver?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_USERS)
@@ -81,35 +83,35 @@ const AddUserModal = () => {
                     <FormInput
                         required
                         name="first_name"
-                        label="Ism"
+                        label={t("form.first_name")}
                         methods={form}
-                        placeholder="Misol: Ali"
+                        placeholder={`${t("form.example")}: Ali`}
                     />
                     <FormInput
                         required
                         name="last_name"
-                        label="Familiya"
+                        label={t("form.last_name")}
                         methods={form}
-                        placeholder="Misol: Aliyev"
+                        placeholder={`${t("form.example")}: Aliyev`}
                     />
 
                     <FormInput
                         required
                         name="username"
-                        label="Login"
+                        label={t("auth.username")}
                         methods={form}
-                        placeholder="Misol: ali1"
+                        placeholder={`${t("form.example")}: ali1`}
                     />
                     <FormInput
                         required={!currentDriver?.id}
                         type="password"
                         name="password"
-                        label="Parol"
+                        label={t("auth.password")}
                         methods={form}
                         placeholder={
                             currentDriver?.id ?
-                                "O'zgartirish uchun kiriting"
-                            :   "Misol: SecurePass123!"
+                                t("form.enter_to_change")
+                            :   `${t("form.example")}: SecurePass123!`
                         }
                     />
 
@@ -119,7 +121,7 @@ const AddUserModal = () => {
                         control={form.control}
                         labelKey="name"
                         valueKey="id"
-                        label="Foydalanuvchi roli"
+                        label={t("form.user_role")}
                     />
 
                     <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
@@ -150,7 +152,7 @@ const AddUserModal = () => {
                             type="submit"
                             loading={isPending}
                         >
-                            Saqlash
+                            {t("actions.save")}
                         </Button>
                     </div>
                 </form>

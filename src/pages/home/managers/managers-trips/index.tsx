@@ -18,6 +18,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useColumnsManagersTrips } from "./cols"
 import CreateManagerTrips from "./create"
 import ExpensesModal from "./create-expenses"
@@ -25,6 +26,7 @@ import FinishedManagerTrips from "./finished"
 import KirimXarajatContent from "./kirim-xarajat-modal"
 
 export default function ManagersTrips() {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal: createTripModal } = useModal(MANAGERS_TRIPS)
@@ -174,7 +176,7 @@ export default function ManagersTrips() {
                                     />
                                 )}
                                 <div className="flex items-center gap-2">
-                                    <Label htmlFor="archive-switch" className="text-sm cursor-pointer">Arxiv</Label>
+                                    <Label htmlFor="archive-switch" className="text-sm cursor-pointer">{t("status.archive")}</Label>
                                     <Switch
                                         id="archive-switch"
                                         checked={isArchive}
@@ -184,7 +186,7 @@ export default function ManagersTrips() {
                                 {hasControl && (
                                     <Button onClick={handleAdd} disabled={hasOngoingTrip}>
                                         <Plus size={16} />
-                                        Boshlash
+                                        {t("actions.start")}
                                     </Button>
                                 )}
                             </div>
@@ -195,15 +197,15 @@ export default function ManagersTrips() {
 
             <Modal
                 modalKey={MANAGERS_TRIPS}
-                title={item?.id ? "Aylanmani tahrirlash" : "Aylanma boshlash"}
+                title={item?.id ? t("page.turnover_detail") : t("page.turnovers")}
             >
                 <CreateManagerTrips />
             </Modal>
 
-            <Modal modalKey={MANAGERS_EXPENSES} title="Xarajat qo'shish">
+            <Modal modalKey={MANAGERS_EXPENSES} title={t("page.add_expense")}>
                 <ExpensesModal expenses={expenses?.results} />
             </Modal>
-            <Modal modalKey={`${MANAGERS_TRIPS}-finished`} title="Tugatish">
+            <Modal modalKey={`${MANAGERS_TRIPS}-finished`} title={t("actions.finish")}>
                 <FinishedManagerTrips />
             </Modal>
             <DeleteModal

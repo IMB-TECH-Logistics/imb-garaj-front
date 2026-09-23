@@ -16,6 +16,7 @@ import {
     ListFilter,
 } from "lucide-react"
 import { useMemo, useState, type ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
 // Excel-style column header: title + a funnel popover with sort + a searchable
 // checkbox list of the column's distinct values.
@@ -31,6 +32,7 @@ export function ColumnFilter<T>({
     // "duration" columns sort by magnitude (most → least) instead of A–Z.
     sortType?: "text" | "duration"
 }) {
+    const { t } = useTranslation()
     const [q, setQ] = useState("")
     const selected = (column.getFilterValue() as string[] | undefined) ?? []
     const active = selected.length > 0
@@ -93,7 +95,7 @@ export function ColumnFilter<T>({
                                     onClick={() => column.toggleSorting(true)}
                                 >
                                     <ArrowDownWideNarrow className="h-3.5 w-3.5" />
-                                    Ko'p → kam
+                                    {t("table.duration")} ↓
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -102,7 +104,7 @@ export function ColumnFilter<T>({
                                     onClick={() => column.toggleSorting(false)}
                                 >
                                     <ArrowUpNarrowWide className="h-3.5 w-3.5" />
-                                    Kam → ko'p
+                                    {t("table.duration")} ↑
                                 </Button>
                             </>
                         ) : (
@@ -132,19 +134,19 @@ export function ColumnFilter<T>({
                     <Input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        placeholder="Qidirish..."
+                        placeholder={t("actions.search")}
                         className="mb-2 h-8"
                     />
 
                     <label className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs font-medium">
                         <Checkbox checked={allChecked} onCheckedChange={toggleAll} />
-                        Barchasi
+                        {t("status.all")}
                     </label>
 
                     <div className="max-h-48 overflow-y-auto">
                         {visible.length === 0 ? (
                             <div className="py-3 text-center text-xs text-muted-foreground">
-                                Topilmadi
+                                {t("messages.not_found")}
                             </div>
                         ) : (
                             visible.map((o) => (
@@ -169,7 +171,7 @@ export function ColumnFilter<T>({
                             className="mt-1 h-7 w-full text-xs text-muted-foreground"
                             onClick={() => column.setFilterValue(undefined)}
                         >
-                            Tozalash
+                            {t("actions.reset")}
                         </Button>
                     )}
                 </PopoverContent>

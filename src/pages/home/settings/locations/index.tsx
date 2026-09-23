@@ -10,10 +10,12 @@ import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import { CirclePlus, Plus, PlusCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import CountriesTable from "./tables/country"
 import AddCountriesModal from "./tables/country/add-country"
 
 const Locations = () => {
+    const { t } = useTranslation()
     const hasControl = useHasAction("settings_locations_control")
     const { openModal } = useModal("country-modal")
     const { clearKey } = useGlobalStore()
@@ -38,7 +40,7 @@ const Locations = () => {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-2">
                             <CardTitle className="text-xl font-semibold tracking-tight">
-                                Davlatlar
+                                {t("form.country")}
                             </CardTitle>
                             {data?.count !== undefined && (
                                 <Badge className="text-sm">{data.count}</Badge>
@@ -48,7 +50,7 @@ const Locations = () => {
                             <div className="w-full sm:w-[360px]">
                                 <ParamInput
                                     fullWidth
-                                    placeholder="Qidirish..."
+                                    placeholder={`${t("actions.search")}...`}
                                     searchKey="country_search"
                                     pageKey="page"
                                 />
@@ -59,7 +61,7 @@ const Locations = () => {
                                     onClick={handleCountyModalOpen}
                                 >
                                     <CirclePlus size={18} />
-                                    Qo'shish
+                                    {t("actions.add")}
                                 </Button>
                             )}
                         </div>
@@ -75,7 +77,7 @@ const Locations = () => {
             </Card>
             <Modal
                 size="max-w-xl"
-                title="Davlat qo'shish"
+                title={t("actions.add") + " " + t("form.country").toLowerCase()}
                 modalKey="country-modal"
             >
                 <AddCountriesModal />

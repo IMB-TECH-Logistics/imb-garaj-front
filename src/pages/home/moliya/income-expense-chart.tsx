@@ -10,6 +10,7 @@ import {
     Tooltip,
 } from "recharts"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_INCOME_EXPENSE } from "@/constants/api-endpoints"
 import { useGlobalStore } from "@/store/global-store"
@@ -58,6 +59,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function IncomeExpenseChart() {
+    const { t } = useTranslation()
     const search: any = useSearch({ strict: false })
     const { getData } = useGlobalStore()
     const paletteIdx = getData<number>(PALETTE_STORE_KEY) ?? 0
@@ -104,7 +106,7 @@ export default function IncomeExpenseChart() {
             {/* Title + Legend */}
             <div className="flex items-center justify-between shrink-0">
                 <span className="text-xs font-semibold">
-                    Tushum va Xarajat
+                    {t("form.income")} va {t("form.expense")}
                     <span className="text-muted-foreground font-normal ml-1.5">
                         {isDaily ? `${MONTHS_UZ[selectedMonth!]} ${selectedYear} — kunlik` : "oylik"}
                     </span>
@@ -113,17 +115,17 @@ export default function IncomeExpenseChart() {
             <div className="flex items-center gap-4 text-xs shrink-0">
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.income }} />
-                    <span className="text-muted-foreground">Tushum:</span>
+                    <span className="text-muted-foreground">{t("form.income")}:</span>
                     <span className="font-semibold transition-colors" style={{ color: p.income }}>{formatCompact(totals.income)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.expense }} />
-                    <span className="text-muted-foreground">Xarajat:</span>
+                    <span className="text-muted-foreground">{t("form.expense")}:</span>
                     <span className="font-semibold transition-colors" style={{ color: p.expense }}>{formatCompact(totals.expense)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.profit }} />
-                    <span className="text-muted-foreground">Foyda:</span>
+                    <span className="text-muted-foreground">{t("table.profit")}:</span>
                     <span className="font-semibold transition-colors" style={{ color: p.profit }}>{formatCompact(totals.profit)}</span>
                 </div>
             </div>
@@ -173,13 +175,13 @@ export default function IncomeExpenseChart() {
                             content={<CustomTooltip />}
                             cursor={{ fill: "hsl(var(--foreground))", opacity: 0.05 }}
                         />
-                        <Bar yAxisId="left" dataKey="tushum" name="Tushum" fill={p.income} opacity={0.85} radius={[3, 3, 0, 0]} />
-                        <Bar yAxisId="left" dataKey="xarajat" name="Xarajat" fill={p.expense} opacity={0.85} radius={[3, 3, 0, 0]} />
+                        <Bar yAxisId="left" dataKey="tushum" name={t("form.income")} fill={p.income} opacity={0.85} radius={[3, 3, 0, 0]} />
+                        <Bar yAxisId="left" dataKey="xarajat" name={t("form.expense")} fill={p.expense} opacity={0.85} radius={[3, 3, 0, 0]} />
                         <Area
                             yAxisId="right"
                             type="monotone"
                             dataKey="foyda"
-                            name="Foyda"
+                            name={t("table.profit")}
                             stroke={p.profit}
                             strokeWidth={2.5}
                             fill="url(#profitGradient)"

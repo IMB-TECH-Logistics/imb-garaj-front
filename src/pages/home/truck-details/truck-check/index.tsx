@@ -6,11 +6,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useParams, useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../../settings/table-header"
 import { useTechnicInspect } from "./cols"
 import CreateTechnicInspect from "./create"
 
 const TruckCheck = () => {
+    const { t } = useTranslation()
     const { id } = useParams({ strict: false })
     const { data: inspect, isLoading } = useGet<ListResponse<TechnicInspect>>(
         `${TECHNICAL_INSPECT}`,
@@ -64,8 +66,8 @@ const TruckCheck = () => {
                 modalKey="create"
                 title={
                     item?.id ?
-                        "Texnik ko'rikni tahrirlash"
-                    :   "Texnik ko'rik qo'shish"
+                        `${t("nav.tech_check")} ${t("actions.edit")}`
+                    :   `${t("nav.tech_check")} ${t("actions.add")}`
                 }
             >
                 <CreateTechnicInspect />

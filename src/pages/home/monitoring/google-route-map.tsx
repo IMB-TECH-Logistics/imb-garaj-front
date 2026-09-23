@@ -7,6 +7,7 @@ import {
     useJsApiLoader,
 } from "@react-google-maps/api"
 import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { DriverMarker, EndpointDot, PoiMarker } from "./map-markers"
 import type { MapPoint, RouteMapProps } from "./route-map"
 
@@ -37,6 +38,7 @@ export default function GoogleRouteMap({
     segments,
     pois,
 }: RouteMapProps) {
+    const { t } = useTranslation()
     const { isLoaded, loadError } = useJsApiLoader({
         id: "google-map-script",
         googleMapsApiKey: API_KEY,
@@ -127,7 +129,7 @@ export default function GoogleRouteMap({
                             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                             getPixelPositionOffset={centerOnPoint}
                         >
-                            <EndpointDot variant="start" label="Boshlanish" />
+                            <EndpointDot variant="start" label={t("actions.start")} />
                         </OverlayViewF>
                     )}
                     {endPoint && (
@@ -136,7 +138,7 @@ export default function GoogleRouteMap({
                             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                             getPixelPositionOffset={centerOnPoint}
                         >
-                            <EndpointDot variant="end" label="Tugash" />
+                            <EndpointDot variant="end" label={t("actions.finish")} />
                         </OverlayViewF>
                     )}
 

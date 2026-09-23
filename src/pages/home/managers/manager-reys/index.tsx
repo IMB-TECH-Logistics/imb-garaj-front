@@ -17,11 +17,13 @@ import { useGlobalStore } from "@/store/global-store"
 import { useParams, useSearch } from "@tanstack/react-router"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 
 export default function ManagerReys() {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const { name } = search as any
     const { openModal: openTripModal } = useModal(MANAGERS_ORDERS)
@@ -102,7 +104,7 @@ export default function ManagerReys() {
                             {hasControl && (
                                 <Button onClick={handleAdd}>
                                     <Plus size={16} />
-                                    Qo'shish
+                                    {t("actions.add")}
                                 </Button>
                             )}
                         </div>
@@ -114,7 +116,7 @@ export default function ManagerReys() {
             <Modal
                 modalKey={MANAGERS_ORDERS}
                 title={
-                    currentSelected?.id ? "Reys tahrirlash" : "Reys qo'shish"
+                    currentSelected?.id ? t("page.trip_list") : t("page.trips")
                 }
             >
                 <AddTripOrders />

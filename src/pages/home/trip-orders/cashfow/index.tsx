@@ -9,8 +9,10 @@ import { useParams, useSearch } from "@tanstack/react-router"
 import TableHeaderTripsOrders from "../trip-table-header"
 import AddCashflow from "./add-cashflow"
 import { useCostCols } from "./cols"
+import { useTranslation } from "react-i18next"
 
 const TripOrderDetailRow = () => {
+    const { t } = useTranslation()
     const { getData, setData, clearKey } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("create-order-cashflow")
     const { openModal: openDeleteModal } = useModal("delete-order-cashflow")
@@ -65,7 +67,7 @@ const TripOrderDetailRow = () => {
                         <TableHeaderTripsOrders
                             modalKey="create-order-cashflow"
                             storeKey={ORDER_CASHFLOWS}
-                            heading="Xarajatlar ro'yxati"
+                            heading={t("page.expense_list")}
                         />
                     }
                 />
@@ -75,8 +77,7 @@ const TripOrderDetailRow = () => {
                 modalKey="create-order-cashflow"
                 size="max-w-2xl"
                 classNameTitle="font-medium text-xl"
-                title={`Xarajat ${currentCashflow?.id ? "tahrirlash" : "qo‘shish"
-                    }`}
+                title={`${t("form.expense")} ${currentCashflow?.id ? t("actions.edit") : t("actions.add")}`}
             >
                 <div className="max-h-[80vh] overflow-y-auto p-0.5">
                     <AddCashflow />

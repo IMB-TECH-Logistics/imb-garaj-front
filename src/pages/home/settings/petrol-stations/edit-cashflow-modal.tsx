@@ -11,6 +11,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { type StationCashFlowRow } from "./cashflow-cols"
+import { useTranslation } from "react-i18next"
 
 const STORE_KEY = "petrol-cash-flow"
 
@@ -41,6 +42,7 @@ export const useEditCashFlowStore = () => {
 }
 
 const EditCashFlowModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("petrol-cash-flow-edit")
     const { getData, clearKey } = useGlobalStore()
@@ -71,7 +73,7 @@ const EditCashFlowModal = () => {
 
     const { mutate, isPending } = usePatch({
         onSuccess: () => {
-            toast.success("Yangilandi")
+            toast.success(t("toast.updated"))
             queryClient.refetchQueries({ queryKey: [SETTINGS_PETROL_STATIONS] })
             queryClient.refetchQueries({
                 predicate: (q) =>
@@ -100,7 +102,7 @@ const EditCashFlowModal = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
             <FormCombobox
                 control={control}
-                label="Valyuta"
+                label={t("form.currency")}
                 name="currency"
                 options={CURRENCY_OPTIONS}
                 valueKey="id"
@@ -109,7 +111,7 @@ const EditCashFlowModal = () => {
             <FormNumberInput
                 required
                 control={control}
-                label="Summa"
+                label={t("form.amount")}
                 name="amount"
                 placeholder="Ex: 1 000 000"
                 thousandSeparator=" "
@@ -129,17 +131,17 @@ const EditCashFlowModal = () => {
                 <FormNumberInput
                     required
                     control={control}
-                    label="Valyuta kursi"
+                    label={t("form.currency_rate")}
                     name="currency_course"
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
                     decimalScale={0}
                 />
             )}
-            <FormTextarea label="Izoh" name="comment" methods={form} />
+            <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

@@ -12,8 +12,10 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 export default function CreateTechnicInspect() {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData } = useGlobalStore()
     const currentTech = getData(TECHNICAL_INSPECT)
@@ -29,8 +31,8 @@ export default function CreateTechnicInspect() {
     function onSuccess() {
         toast.success(
             currentTech?.id ?
-                "Muvaffaqiyatli tahrirlandi!"
-            :   "Muvaffaqiyatli qo'shildi!",
+                t("messages.success_edit")
+            :   t("messages.success_add"),
         )
         queryClient.invalidateQueries({ queryKey: [TECHNICAL_INSPECT] })
         closeModal()
@@ -58,7 +60,7 @@ export default function CreateTechnicInspect() {
             <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
                 <FormCombobox
                     options={expenses?.results}
-                    label="Avtomobil"
+                    label={t("form.truck")}
                     control={form.control}
                     name="vehicle"
                     labelKey="name"
@@ -67,7 +69,7 @@ export default function CreateTechnicInspect() {
                 />
                 <FormCombobox
                     options={expenses?.results}
-                    label="Xarajat turi"
+                    label={t("form.expense_type")}
                     control={form.control}
                     name="category"
                     labelKey="name"
@@ -77,14 +79,14 @@ export default function CreateTechnicInspect() {
                 <div className="grid grid-cols-2 gap-2">
                     <FormDatePicker
                         name="date"
-                        label="Sana"
+                        label={t("form.date")}
                         control={form.control}
                         fullWidth
                         required
                     />
                     <FormDatePicker
                         name="lifespan"
-                        label="Muddat"
+                        label={t("form.license_expiry")}
                         control={form.control}
                         fullWidth
                         required
@@ -92,7 +94,7 @@ export default function CreateTechnicInspect() {
                 </div>
                 <FormNumberInput
                     control={form.control}
-                    label="Summa"
+                    label={t("form.amount")}
                     name="amount"
                     thousandSeparator=" "
                     decimalScale={0}
@@ -101,12 +103,12 @@ export default function CreateTechnicInspect() {
                 <FormTextarea
                     methods={form}
                     name="comment"
-                    label="Izoh"
+                    label={t("form.comment")}
                     required
-                    placeholder="Izoh yozing"
+                    placeholder={t("form.comment")}
                 />
                 <div className="flex items-center justify-end">
-                    <Button>Saqlash</Button>
+                    <Button>{t("actions.save")}</Button>
                 </div>
             </form>
         </>

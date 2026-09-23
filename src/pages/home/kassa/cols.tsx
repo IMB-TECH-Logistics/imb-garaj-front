@@ -2,26 +2,27 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export const useCostCols = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<any>[]>(
         () => [
-               {
-                header: "Summa",
+            {
+                header: t("form.amount"),
                 accessorKey: "amount",
                 cell: ({ getValue }) => {
                     const v = Number(getValue<string>() ?? 0) || 0
                     return <span>{formatMoney(v)}</span>
                 },
             },
-              {
-                header: "Ma'sul",
+            {
+                header: t("table.responsible"),
                 accessorKey: "owner",
-                cell: ({ getValue }) => <span>{getValue<number>()}</span>,
+                cell: ({ getValue }) => <span>{getValue<string>() || "—"}</span>,
             },
-      
-         {
-                header: "Sana",
+            {
+                header: t("form.date"),
                 accessorKey: "created",
                 enableSorting: true,
                 cell: ({ getValue }) => (
@@ -35,18 +36,13 @@ export const useCostCols = () => {
                     </span>
                 ),
             },
-          
-         
-
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "desc",
-                cell: ({ getValue }) => <span>{getValue<number>()}</span>,
+                cell: ({ getValue }) => <span>{getValue<string>() || "—"}</span>,
             },
-      
-          
         ],
-        [],
+        [t],
     )
 }
 

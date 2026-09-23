@@ -16,6 +16,7 @@ import { Link2 } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const LINK_MODAL = "gps-link"
 const ADD_DEVICE_MODAL = "gps-add-device"
@@ -47,6 +48,7 @@ type DeviceForm = {
 export function LinkDeviceButton() {
     const { openModal } = useModal(LINK_MODAL)
 
+    const { t } = useTranslation()
     return (
         <>
             <Button
@@ -119,7 +121,7 @@ function LinkDeviceForm() {
             { vehicle: data.vehicle, imei: data.imei },
             {
                 onSuccess: () => {
-                    toast.success("GPS qurilma mashinaga biriktirildi")
+                    toast.success(t("toast.device_linked"))
                     queryClient.invalidateQueries({ queryKey: [VEHICLES] })
                     queryClient.invalidateQueries({
                         queryKey: [MONITORING_GPS_DEVICES],
@@ -148,8 +150,8 @@ function LinkDeviceForm() {
                     required
                     control={control}
                     name="vehicle"
-                    label="Mashina"
-                    placeholder="Mashinani tanlang"
+                    label={t("form.truck")}
+                    placeholder={t("form.truck")}
                     options={vehicleOptions}
                     valueKey="id"
                     labelKey="label"
@@ -160,8 +162,8 @@ function LinkDeviceForm() {
                     required
                     control={control}
                     name="imei"
-                    label="GPS qurilma"
-                    placeholder="IMEI yoki nomi bo'yicha qidiring"
+                    label={t("form.device")}
+                    placeholder={t("form.device")}
                     options={deviceOptions}
                     valueKey="imei"
                     labelKey="label"
@@ -170,7 +172,7 @@ function LinkDeviceForm() {
                     onAdd={openAddDevice}
                 />
                 <Button type="submit" className="w-full" disabled={isPending}>
-                    Biriktirish
+                    {t("actions.attach")}
                 </Button>
             </form>
             <Modal
@@ -189,6 +191,7 @@ function AddDeviceForm({
 }: {
     onCreated: (device: DeviceOption) => void
 }) {
+    const { t } = useTranslation()
     const { closeModal } = useModal(ADD_DEVICE_MODAL)
     const queryClient = useQueryClient()
     const form = useForm<DeviceForm>()
@@ -202,7 +205,7 @@ function AddDeviceForm({
             { imei, name: data.name?.trim() || imei },
             {
                 onSuccess: (device: DeviceOption) => {
-                    toast.success("GPS qurilma qo'shildi")
+                    toast.success(t("toast.device_added"))
                     queryClient.invalidateQueries({
                         queryKey: [MONITORING_GPS_DEVICES],
                     })
@@ -226,11 +229,11 @@ function AddDeviceForm({
             <FormInput
                 methods={form}
                 name="name"
-                label="Nomi"
+                label={t("form.name")}
                 placeholder="Masalan, Isuzu 01 A 123 BC"
             />
             <Button type="submit" className="w-full" disabled={isPending}>
-                Saqlash
+                {t("actions.save")}
             </Button>
         </form>
     )

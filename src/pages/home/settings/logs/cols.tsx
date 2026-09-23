@@ -4,18 +4,19 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { Eye, Laptop, Smartphone, Tablet } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { getSectionLabel } from "./sections"
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "orange"
 
-const ACTION_MAP: Record<number, { label: string; variant: BadgeVariant }> = {
-    1: { label: "Yaratildi", variant: "default" },
-    2: { label: "Yangilandi", variant: "secondary" },
-    3: { label: "O'chirildi", variant: "destructive" },
-    4: { label: "Kirish", variant: "outline" },
-    5: { label: "Chiqish", variant: "orange" },
-    6: { label: "Eksport qilindi", variant: "outline" },
-    7: { label: "Import qilindi", variant: "outline" },
+const ACTION_VARIANTS: Record<number, BadgeVariant> = {
+    1: "default",
+    2: "secondary",
+    3: "destructive",
+    4: "outline",
+    5: "orange",
+    6: "outline",
+    7: "outline",
 }
 
 const DeviceIcon = ({ device }: { device: string | null }) => {
@@ -28,47 +29,56 @@ const DeviceIcon = ({ device }: { device: string | null }) => {
 }
 
 export const useLogsCols = (onView: (log: LogItem) => void) => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<LogItem>[]>(
         () => [
             {
-                header: "Bo'lim",
+                header: t("page.section"),
                 accessorKey: "section",
                 size: 140,
                 enableSorting: true,
                 cell: ({ row }) => getSectionLabel(row.original.section),
             },
             {
-                header: "Model",
+                header: t("table.model"),
                 accessorKey: "model",
                 size: 120,
             },
             {
-                header: "Obyekt ID",
+                header: t("table.object_id"),
                 accessorKey: "obj_id",
                 size: 80,
             },
             {
-                header: "Tavsif",
+                header: t("form.description"),
                 accessorKey: "comment",
                 size: 260,
             },
             {
-                header: "Harakat",
+                header: t("table.action_log"),
                 accessorKey: "action",
                 size: 130,
                 enableSorting: true,
                 cell: ({ row }) => {
                     const action = row.original.action
-                    const config = ACTION_MAP[action]
+                    const ACTION_LABEL_MAP: Record<number, string> = {
+                        1: t("log.created"),
+                        2: t("log.updated"),
+                        3: t("log.deleted"),
+                        4: t("log.login"),
+                        5: t("log.logout"),
+                        6: t("log.exported"),
+                        7: t("log.imported"),
+                    }
                     return (
-                        <Badge variant={config?.variant ?? "default"}>
-                            {config?.label ?? "Noma'lum"}
+                        <Badge variant={ACTION_VARIANTS[action] ?? "default"}>
+                            {ACTION_LABEL_MAP[action] ?? t("log.unknown")}
                         </Badge>
                     )
                 },
             },
             {
-                header: "Foydalanuvchi",
+                header: t("table.user_col"),
                 accessorKey: "full_name",
                 size: 150,
                 cell: ({ row }) => {
@@ -77,13 +87,13 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 },
             },
             {
-                header: "Lavozim",
+                header: t("table.position"),
                 accessorKey: "role_name",
                 size: 120,
                 cell: ({ row }) => row.original.role_name || "—",
             },
             {
-                header: "Qurilma",
+                header: t("form.device"),
                 accessorKey: "device",
                 size: 100,
                 cell: ({ row }) => (
@@ -94,13 +104,13 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 ),
             },
             {
-                header: "IP manzil",
+                header: t("table.ip_address"),
                 accessorKey: "ip_address",
                 size: 130,
                 cell: ({ row }) => row.original.ip_address || "—",
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "created",
                 size: 150,
                 enableSorting: true,
@@ -110,7 +120,7 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                         : "—",
             },
             {
-                header: "Tafsilot",
+                header: t("page.details"),
                 id: "actions",
                 size: 80,
                 cell: ({ row }) => (
@@ -125,6 +135,6 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 ),
             },
         ],
-        [onView],
+        [onView, t],
     )
 }

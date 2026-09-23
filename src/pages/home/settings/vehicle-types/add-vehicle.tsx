@@ -9,6 +9,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const vehicleTypeOptions = [
     { value: "truck", label: "Avtomobil" },
@@ -16,6 +17,7 @@ const vehicleTypeOptions = [
 ]
 
 const AddVehicleModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -29,7 +31,7 @@ const AddVehicleModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Mashina turi muvaffaqiyatli ${currentRole?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentRole?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_VEHICLE_TYPE)
@@ -64,13 +66,13 @@ const AddVehicleModal = () => {
                 <FormInput
                     required
                     name="name"
-                    label="Avtomobil nomi"
+                    label={t("form.name")}
                     methods={form}
                 />
                 <FormCombobox
                     required
                     name="type"
-                    label="Avtomobil turi"
+                    label={t("form.vehicle_type")}
                     options={vehicleTypeOptions}
                     control={form.control}
                     labelKey="label"
@@ -83,7 +85,7 @@ const AddVehicleModal = () => {
                         type="submit"
                         loading={isPending}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

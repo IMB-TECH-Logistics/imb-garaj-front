@@ -4,6 +4,8 @@ import { DataTable } from "@/components/ui/datatable"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 
 type TruckStats = {
     zapchast: number
@@ -32,6 +34,7 @@ const options = [
 ]
 
 export const TruckTabsTwo = () => {
+    const { t } = useTranslation()
     const data: TruckStats[] = [
         {
             zapchast: 450_000,
@@ -67,13 +70,13 @@ export const TruckTabsTwo = () => {
         <div>
             <DataTable
                 numeration
-                columns={cols()}
+                columns={cols(t)}
                 data={allData}
                 head={
                     <div className="mb-3">
                         <div className="flex items-center gap-3 ">
                             <h1 className="text-xl font-semibold">
-                                {`Texnik statistika ro'yxati`}
+                                {t("page.trip_list")}
                             </h1>
                             <Badge className="text-sm">25</Badge>
                         </div>
@@ -92,82 +95,82 @@ export const TruckTabsTwo = () => {
     )
 }
 
-const cols = () => {
+const cols = (t: TFunction) => {
     return useMemo<ColumnDef<TruckStats>[]>(
         () => [
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "zapchast",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.zapchast)} so‘m
+                        {formatMoney(row.original.zapchast)} so’m
                     </span>
                 ),
             },
             {
-                header: "Probeg",
+                header: t("table.mileage_km"),
                 accessorKey: "oil_change",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.oil_change)} so‘m
+                        {formatMoney(row.original.oil_change)} so’m
                     </span>
                 ),
             },
             {
-                header: "Haydovchi",
+                header: t("form.driver"),
                 accessorKey: "tire_change",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.tire_change)} so‘m
+                        {formatMoney(row.original.tire_change)} so’m
                     </span>
                 ),
             },
             {
-                header: "Tovar nomi",
+                header: t("form.name"),
                 accessorKey: "repair_cost",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.repair_cost)} so‘m
+                        {formatMoney(row.original.repair_cost)} so’m
                     </span>
                 ),
             },
             {
-                header: "Foydalanish muddati",
+                header: t("form.license_expiry"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
 
             {
-                header: "Olingan joyi",
+                header: t("form.source"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
             {
-                header: " Qayerga o'rnatilishi",
+                header: t("form.unloading_location"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
             {
-                header: "Balon joyi",
+                header: t("form.loading_location"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -177,57 +180,57 @@ const cols = () => {
                 ),
             },
             {
-                header: "To'lov turi",
+                header: t("form.payment_type"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
             {
-                header: "Birlik narxi",
+                header: t("form.unit_price"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
             {
-                header: "Miqdori",
+                header: t("form.quantity"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
             {
-                header: "Umumiy summa",
+                header: t("form.total_amount"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
 
             {
-                header: "Rasmi",
+                header: t("form.description"),
                 accessorKey: "other_expenses",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so‘m
+                        {formatMoney(row.original.other_expenses)} so’m
                     </span>
                 ),
             },
         ],
-        [],
+        [t],
     )
 }

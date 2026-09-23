@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 import { Button, buttonVariants } from "../ui/button"
 import { DialogClose } from "../ui/dialog"
 
@@ -14,9 +15,12 @@ export default function FormAction({
     loading,
     disabled,
     className,
-    submitName = "Saqlash",
+    submitName,
     hideSubmit = false,
 }: Props) {
+    const { t } = useTranslation()
+    const label = submitName ?? t("actions.save")
+
     return (
         <div
             className={cn(
@@ -26,12 +30,12 @@ export default function FormAction({
         >
             <DialogClose disabled={disabled || loading}>
                 <div className={cn(buttonVariants({ variant: "outline" }))}>
-                    Orqaga
+                    {t("actions.back")}
                 </div>
             </DialogClose>
             {!hideSubmit && (
                 <Button loading={loading} type="submit" disabled={disabled}>
-                    {submitName}
+                    {label}
                 </Button>
             )}
         </div>

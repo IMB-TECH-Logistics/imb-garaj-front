@@ -17,8 +17,10 @@ import { X } from "lucide-react"
 import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 export default function CreateManagerTrips() {
+    const { t } = useTranslation()
     const { id } = useParams({ strict: false })
     const { closeModal } = useModal(MANAGERS_TRIPS)
     const queryClient = useQueryClient()
@@ -87,8 +89,8 @@ export default function CreateManagerTrips() {
         queryClient.invalidateQueries({ queryKey: [MANAGERS_TRIPS] })
         toast.success(
             item?.id ?
-                "Muvaffaqiyatli tahrirlandi!"
-            :   "Muvaffaqiyatli qo'shildi!",
+                t("messages.success_edit")
+            :   t("messages.success_add"),
         )
         closeModal()
         reset()
@@ -152,7 +154,7 @@ export default function CreateManagerTrips() {
                     options={drivers}
                     labelKey="full_name"
                     valueKey="id"
-                    label="Haydovchi"
+                    label={t("form.driver")}
                 />
 
                 {(!IS_READY || isEdit) && (
@@ -160,7 +162,7 @@ export default function CreateManagerTrips() {
                         control={control}
                         required
                         name="start"
-                        label="Boshlash sanasi"
+                        label={t("form.start_date")}
                     />
                 )}
 
@@ -168,7 +170,7 @@ export default function CreateManagerTrips() {
                     name="start_mileage"
                     required
                     allowNegative={false}
-                    label={`Boshlash probegi${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
+                    label={`${t("table.start_mileage")}${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
                     control={control}
                 />
 
@@ -202,7 +204,7 @@ export default function CreateManagerTrips() {
 
                 <FormNumberInput
                     name="start_fuel"
-                    label={`Boshlanishdagi yoqilg'i (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
+                    label={`${t("form.fuel_type")} (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
                     control={control}
                     decimalScale={2}
                     allowNegative={false}
@@ -210,7 +212,7 @@ export default function CreateManagerTrips() {
                 {!item?.id && (
                     <FormNumberInput
                         name="advance"
-                        label="Avans"
+                        label={t("form.advance")}
                         control={control}
                         thousandSeparator=" "
                         decimalScale={0}
@@ -223,14 +225,14 @@ export default function CreateManagerTrips() {
                         <FormDatePicker
                             control={control}
                             name="end"
-                            label="Tugatish sanasi"
+                            label={t("form.end_date")}
                             calendarProps={minEndDate ? { disabled: { before: minEndDate } } : undefined}
                         />
                         <FormNumberInput
                             name="end_mileage"
                             required
                             allowNegative={false}
-                            label="Tugash probegi"
+                            label={t("table.end_mileage")}
                             control={control}
                         />
 
@@ -268,7 +270,7 @@ export default function CreateManagerTrips() {
                 )}
 
                 <div className="flex justify-end">
-                    <Button loading={isPending}>Saqlash</Button>
+                    <Button loading={isPending}>{t("actions.save")}</Button>
                 </div>
             </form>
         </div>

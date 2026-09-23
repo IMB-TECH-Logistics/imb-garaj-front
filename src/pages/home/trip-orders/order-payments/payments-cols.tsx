@@ -1,16 +1,18 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export const useColumnsOrderPayment = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<OrderPaymentType>[]>(
         () => [
             {
-                header: "To'lov turi",
+                header: t("form.payment_type"),
                 accessorKey: "payment_type_name",
                 enableSorting: true,
             },
             {
-                header: "Pul birligi",
+                header: t("form.currency"),
                 accessorKey: "currency",
                 cell: ({ getValue }) => {
                     const currencyValue = getValue<number>()
@@ -34,7 +36,7 @@ export const useColumnsOrderPayment = () => {
                 },
             },
             {
-                header: "Miqdor",
+                header: t("table.amount"),
                 accessorKey: "amount",
                 cell: ({ getValue }) => {
                     const value = getValue<string>()
@@ -52,7 +54,7 @@ export const useColumnsOrderPayment = () => {
             },
 
             {
-                header: "Pul birligi kursi",
+                header: t("form.currency_rate"),
                 accessorKey: "currency_course",
                 cell: ({ getValue }) => {
                     const value = getValue<number | string>()
@@ -80,6 +82,6 @@ export const useColumnsOrderPayment = () => {
                 },
             },
         ],
-        [],
+        [t],
     )
 }

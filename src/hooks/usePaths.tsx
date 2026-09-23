@@ -11,6 +11,7 @@ import {
     Wallet,
 } from "lucide-react"
 import { ReactNode, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export interface MenuItem {
     label: string
@@ -174,151 +175,153 @@ export const usePaths = () => {
     }
 }
 
-export const useItems = () =>
-    useMemo<MenuItem[]>(
+export const useItems = () => {
+    const { t } = useTranslation()
+    return useMemo<MenuItem[]>(
         () => [
             {
-                label: "Meneger",
+                label: t("nav.manager"),
                 icon: <User size={18} />,
                 path: "/managers",
                 extraPaths: ["/manager-trips"],
                 items: [
                     {
-                        label: "Transportlar",
+                        label: t("nav.vehicles"),
                         path: "/managers",
                         extraPaths: ["/manager-trips"],
                         allowKey: "manager_vehicles_view",
                     },
                     {
-                        label: "Reyslar",
+                        label: t("nav.flights"),
                         path: "/flights",
                         allowKey: "manager_flights_view",
                     },
                     {
-                        label: "Kassa",
+                        label: t("nav.kassa"),
                         path: "/kassa",
                         allowKey: "manager_cashflow_view",
                     },
                     {
-                        label: "Texnik ko'rik",
+                        label: t("nav.tech_check"),
                         path: "/technic-check",
                         allowKey: "manager_tech_check_view",
                     },
                     {
-                        label: "Zapravkalar",
+                        label: t("nav.petrol"),
                         path: "/petrol-stations",
                         allowKey: "settings_petrol_stations_view",
                     },
                 ],
             },
             {
-                label: "Buxgalteriya",
+                label: t("nav.accounting"),
                 icon: <Wallet width={18} />,
                 path: "/buxgalteriya",
                 allowKey: "accounting_view",
             },
             {
-                label: "Investor",
+                label: t("nav.investor"),
                 icon: <Truck width={18} />,
                 path: "/truck",
                 allowKey: "investor_view",
             },
             {
-                label: "Haydovchilar",
+                label: t("nav.drivers"),
                 icon: <Users width={18} />,
                 path: "/haydovchilar",
                 allowKey: "hr_drivers_view",
             },
             {
-                label: "Ombor",
-                icon: <Boxes width={18} />,
-                path: "/ombor",
-                allowKey: "warehouse_view",
-            },
-            {
-                label: "Moliya",
-                icon: <Coins width={18} />,
-                path: "/moliya",
-                allowKey: "finance_view",
-            },
-            {
-                label: "Monitoring",
+                label: t("nav.monitoring"),
                 icon: <Activity width={18} />,
                 path: "/monitoring",
                 allowKey: "monitoring_view",
             },
             {
-                label: "Sozlamalar",
+                label: t("nav.warehouse"),
+                icon: <Boxes width={18} />,
+                path: "/ombor",
+                allowKey: "warehouse_view",
+            },
+            {
+                label: t("nav.finance"),
+                icon: <Coins width={18} />,
+                path: "/moliya",
+                allowKey: "finance_view",
+            },
+            {
+                label: t("nav.settings"),
                 icon: <Settings width={18} />,
                 path: "/locations",
                 items: [
                     {
-                        label: "Manzillar",
+                        label: t("nav.locations"),
                         path: "/locations",
                         allowKey: "settings_locations_view",
                     },
                     {
-                        label: "Yo'nalishlar",
+                        label: t("nav.directions"),
                         path: "/route-configs",
                         allowKey: "settings_directions_view",
                     },
                     {
-                        label: "Haydovchilar",
+                        label: t("nav.drivers"),
                         path: "/drivers",
                         allowKey: "settings_drivers_view",
                     },
                     {
-                        label: "Avtomobillar",
+                        label: t("nav.trucks"),
                         path: "/vehicles",
                         allowKey: "settings_vehicles_view",
                     },
                     {
-                        label: "Foydalanuvchilar",
+                        label: t("nav.users"),
                         path: "/users",
                         allowKey: "settings_users_view",
                     },
                     {
-                        label: "Rollar",
+                        label: t("nav.roles"),
                         path: "/roles",
                         allowKey: "settings_roles_view",
                     },
                     {
-                        label: "Mijozlar",
+                        label: t("nav.customers"),
                         path: "/customers",
                         allowKey: "settings_customers_view",
                     },
                     {
-                        label: "Mashina turlari",
+                        label: t("nav.truck_types"),
                         path: "/vehicle-types",
                         allowKey: "settings_vehicle_types_view",
                     },
                     {
-                        label: "Yuk turi",
+                        label: t("nav.cargo_types"),
                         path: "/cargo-types",
                         allowKey: "settings_cargo_types_view",
                     },
                     {
-                        label: "To'lov turlari",
+                        label: t("nav.payment_types"),
                         path: "/payment-types",
                         allowKey: "settings_payment_types_view",
                     },
                     {
-                        label: "Xarajat turlari",
+                        label: t("nav.expense_types"),
                         path: "/expense-types",
                         allowKey: "settings_expense_types_view",
                     },
                     {
-                        label: "Oylik tariflar",
+                        label: t("nav.monthly_rates"),
                         path: "/driver-salaries",
                         allowKey: "settings_driver_salaries_view",
                     },
                     {
-                        label: "Faoliyat jurnali",
+                        label: t("nav.activity_log"),
                         path: "/logs",
                         allowKey: "logs_view",
                     },
                 ],
             },
         ],
-        [],
+        [t],
     )
+}

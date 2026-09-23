@@ -9,6 +9,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useMemo } from "react"
 import ParamInput from "@/components/as-params/input"
 import { ParamCombobox } from "@/components/as-params/combobox"
+import { useTranslation } from "react-i18next"
 
 type DriverRow = {
     id: number
@@ -48,11 +49,12 @@ const TIER_STYLES: Record<DriverRow["tier"], string> = {
     D: "bg-rose-500/15 text-rose-500 border-rose-500/30",
 }
 
-const useCols = () =>
-    useMemo<ColumnDef<DriverRow>[]>(
+const useCols = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<DriverRow>[]>(
         () => [
             {
-                header: "Ism",
+                header: t("form.first_name"),
                 accessorKey: "first_name",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -62,13 +64,13 @@ const useCols = () =>
                 ),
             },
             {
-                header: "Telefon",
+                header: t("form.phone"),
                 accessorKey: "phone",
                 cell: ({ row }) =>
                     formatPhoneNumber(row.original.phone || "—"),
             },
             {
-                header: "Tajriba",
+                header: t("table.experience"),
                 accessorKey: "experience",
                 enableSorting: true,
                 cell: ({ row }) =>
@@ -77,7 +79,7 @@ const useCols = () =>
                         : "-",
             },
             {
-                header: "Reyslar",
+                header: t("page.trips"),
                 accessorKey: "completed_orders",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -88,7 +90,7 @@ const useCols = () =>
                 ),
             },
             {
-                header: "Yoqilg‘i (l/100km)",
+                header: "Yoqilg’i (l/100km)",
                 accessorKey: "fuel_per_100km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -113,7 +115,7 @@ const useCols = () =>
                 },
             },
             {
-                header: "Yoqilg‘i (m³/100km)",
+                header: "Yoqilg’i (m³/100km)",
                 accessorKey: "fuel_gas_per_100km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -140,17 +142,17 @@ const useCols = () =>
                 ),
             },
             {
-                header: "Olib kelgan summa",
+                header: t("table.revenue"),
                 accessorKey: "revenue_uzs",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="tabular-nums font-medium">
-                        {formatMoney(num(row.original.revenue_uzs))} so’m
+                        {formatMoney(num(row.original.revenue_uzs))} {t("page.som")}
                     </span>
                 ),
             },
             {
-                header: "Balans",
+                header: t("form.balance"),
                 accessorKey: "balance_uzs",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -165,13 +167,13 @@ const useCols = () =>
                                       : ""
                             }
                         >
-                            {formatMoney(v)} so’m
+                            {formatMoney(v)} {t("page.som")}
                         </span>
                     )
                 },
             },
             {
-                header: "Reyting",
+                header: t("table.rating"),
                 accessorKey: "score",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -183,8 +185,9 @@ const useCols = () =>
                 ),
             },
         ],
-        [],
+        [t],
     )
+}
 
 const TIER_OPTIONS = [
     { id: "A", name: "A" },
@@ -194,6 +197,7 @@ const TIER_OPTIONS = [
 ]
 
 export default function HaydovchilarList() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false })
     const cols = useCols()
@@ -231,7 +235,7 @@ export default function HaydovchilarList() {
             head={
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                        <h1 className="text-xl font-semibold">Haydovchilar</h1>
+                        <h1 className="text-xl font-semibold">{t("nav.drivers")}</h1>
                         <Badge className="text-sm">
                             {formatMoney(rows.length)}
                         </Badge>
@@ -239,13 +243,13 @@ export default function HaydovchilarList() {
                     <div className="flex flex-wrap items-center gap-3">
                         <ParamInput
                             searchKey="driver_search"
-                            placeholder="Qidirish (ism, familiya)..."
+                            placeholder={`${t("actions.search")} (ism, familiya)...`}
                             className="w-full sm:w-64"
                         />
                         <ParamCombobox
                             paramName="tier"
                             options={TIER_OPTIONS}
-                            label="Reyting"
+                            label={t("table.rating")}
                             addButtonProps={{
                                 className:
                                     "!bg-background dark:!bg-secondary min-w-36 justify-start",

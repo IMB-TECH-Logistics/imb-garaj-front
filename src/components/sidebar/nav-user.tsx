@@ -21,11 +21,13 @@ import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
 import { EllipsisVertical, LogOut } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 export function NavUser() {
     const navigate = useNavigate()
     const { data: user } = useGet<User>(PROFILE)
     const { isMobile } = useSidebar()
+    const { t } = useTranslation()
 
     const fullName =
         [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
@@ -113,7 +115,7 @@ export function NavUser() {
                             className="text-destructive"
                         >
                             <LogOut size={16} />
-                            <span className="ml-2">Chiqish</span>
+                            <span className="ml-2">{t("actions.logout")}</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

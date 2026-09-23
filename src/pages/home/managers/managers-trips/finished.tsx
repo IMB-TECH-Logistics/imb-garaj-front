@@ -19,6 +19,7 @@ import { AlertTriangle, X } from "lucide-react"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 type TripOrder = {
     id: number
@@ -26,6 +27,7 @@ type TripOrder = {
 }
 
 export default function FinishManagerTrips() {
+    const { t } = useTranslation()
     const { id } = useParams({ strict: false })
     const navigate = useNavigate()
     const { closeModal } = useModal(`${MANAGERS_TRIPS}-finished`)
@@ -88,8 +90,8 @@ export default function FinishManagerTrips() {
         queryClient.invalidateQueries({ queryKey: [MANAGERS_TRIPS] })
         toast.success(
             item?.id
-                ? "Muvaffaqiyatli tahrirlandi!"
-                : "Muvaffaqiyatli qo’shildi!",
+                ? t("messages.success_edit")
+                : t("messages.success_add"),
         )
         closeModal()
         reset()
@@ -180,14 +182,14 @@ export default function FinishManagerTrips() {
                         control={control}
                         required
                         name="end"
-                        label="Tugatish sanasi"
+                        label={t("form.end_date")}
                         calendarProps={{ disabled: { before: minEndDate } }}
                     />
                 )}
                 <FormNumberInput
                     name="end_mileage"
                     required
-                    label="Tugash probegi"
+                    label={t("table.end_mileage")}
                     control={control}
                     registerOptions={{
                         min: {
@@ -227,7 +229,7 @@ export default function FinishManagerTrips() {
 
                 <FormNumberInput
                     name="end_fuel"
-                    label="Yoqilg‘i"
+                    label={t("form.fuel_type")}
                     required
                     decimalScale={2}
                     allowNegative={false}
@@ -236,7 +238,7 @@ export default function FinishManagerTrips() {
 
                 <div className="flex justify-end">
                     <Button loading={isEditing} disabled={!canFinish}>
-                        Saqlash
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

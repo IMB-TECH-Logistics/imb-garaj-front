@@ -5,6 +5,7 @@ import { useHasAction } from "@/constants/useUser"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { CirclePlus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface TableHeaderProps {
     storeKey?: string
@@ -27,6 +28,7 @@ const TableHeaderLocation = ({
     title,
     count,
 }: TableHeaderProps) => {
+    const { t } = useTranslation()
     const { openModal: openCreateModal } = useModal(modalKey)
     const { clearKey } = useGlobalStore()
     const hasControl = useHasAction("settings_locations_control")
@@ -72,7 +74,7 @@ const TableHeaderLocation = ({
                         disabled={disabled}
                         icon={<CirclePlus size={18} />}
                     >
-                        Qo'shish
+                        {t("actions.add")}
                     </Button>
                 )}
             </div>

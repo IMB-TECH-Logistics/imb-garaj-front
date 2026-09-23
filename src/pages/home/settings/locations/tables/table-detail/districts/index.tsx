@@ -6,6 +6,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeaderLocation from "../../table-header"
 import AddDestrictsModal from "./add-districts"
 import { useColumnDestricts } from "./districts-cols"
@@ -16,6 +17,7 @@ interface DistrictsTableProps {
 }
 
 const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<SettingsDistrictType>>(
         SETTINGS_DISTRICTS,
@@ -63,7 +65,7 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                         pageKey="page"
                         name="tumanlar"
                         searchKey="district_search"
-                        title="Tumanlar"
+                        title={t("page.districts")}
                         count={region_id ? data?.count : 0}
                     />
                 </div>
@@ -94,7 +96,7 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                 />
                 <Modal
                     size="max-w-2xl"
-                    title={`Tuman ${item?.id ? "tahrirlash" : "qo'shish"}`}
+                    title={item?.id ? t("actions.edit") + " " + t("nav.locations").toLowerCase() : t("actions.add") + " " + t("nav.locations").toLowerCase()}
                     modalKey={"create-districts"}
                 >
                     <AddDestrictsModal
