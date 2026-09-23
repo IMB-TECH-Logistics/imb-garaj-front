@@ -20,7 +20,7 @@ i18n
         defaultNS: "common",
         fallbackLng: "uz",
         detection: {
-            order: ["localStorage", "navigator"],
+            order: ["localStorage"],
             caches: ["localStorage"],
             lookupLocalStorage: "garage_lang",
         },
