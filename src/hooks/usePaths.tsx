@@ -4,6 +4,7 @@ import {
     Activity,
     Boxes,
     Coins,
+    CreditCard,
     Settings,
     Truck,
     User,
@@ -197,11 +198,6 @@ export const useItems = () => {
                         allowKey: "manager_flights_view",
                     },
                     {
-                        label: t("nav.kassa"),
-                        path: "/kassa",
-                        allowKey: "manager_cashflow_view",
-                    },
-                    {
                         label: t("nav.tech_check"),
                         path: "/technic-check",
                         allowKey: "manager_tech_check_view",
@@ -212,6 +208,12 @@ export const useItems = () => {
                         allowKey: "settings_petrol_stations_view",
                     },
                 ],
+            },
+            {
+                label: t("nav.kassa"),
+                icon: <CreditCard width={18} />,
+                path: "/kassa",
+                allowKey: "manager_cashflow_view",
             },
             {
                 label: t("nav.accounting"),

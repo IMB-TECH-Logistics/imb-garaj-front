@@ -90,7 +90,7 @@ export const useColumnsManagersOrders = (opts?: {
             {
                 accessorKey: "activity_display",
                 header: t("table.status"),
-                enableSorting: true,
+                enableSorting: false,
                 cell: ({ row }) => {
                     const activity = row.original?.activity
                     const colorClass =
