@@ -7,6 +7,9 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -20,14 +23,21 @@ import axiosInstance from "@/services/axios-instance"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
-import { EllipsisVertical, LogOut } from "lucide-react"
+import { EllipsisVertical, Globe, LogOut } from "lucide-react"
 import { useTranslation } from "react-i18next"
+
+const LANGS = [
+    { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+    { code: "ru", label: "Русский", flag: "🇷🇺" },
+    { code: "en", label: "English", flag: "🇬🇧" },
+    { code: "ja", label: "日本語", flag: "🇯🇵" },
+]
 
 export function NavUser() {
     const navigate = useNavigate()
     const { data: user } = useGet<User>(PROFILE)
     const { isMobile } = useSidebar()
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
 
     const fullName =
         [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
@@ -38,11 +48,14 @@ export function NavUser() {
         try {
             await axiosInstance.post(`/${LOGOUT}/`)
         } catch {
-            // token yaroqsiz bo‘lsa ham chiqaveramiz
+            // token yaroqsiz bo'lsa ham chiqaveramiz
         }
         localStorage.clear()
         navigate({ to: "/auth" })
     }
+
+    const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
+    const currentLang = LANGS.find((l) => l.code === langCode) ?? LANGS[0]
 
     return (
         <SidebarMenu>
@@ -109,6 +122,25 @@ export function NavUser() {
                                 </div>
                             </div>
                         </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="gap-2">
+                                <Globe size={16} />
+                                <span>{currentLang.flag} {currentLang.label}</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="min-w-40">
+                                {LANGS.map((lang) => (
+                                    <DropdownMenuItem
+                                        key={lang.code}
+                                        onClick={() => i18n.changeLanguage(lang.code)}
+                                        className={langCode === lang.code ? "bg-accent" : ""}
+                                    >
+                                        <span className="mr-2">{lang.flag}</span>
+                                        {lang.label}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuSubContent>
+                        </DropdownMenuSub>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={logOut}
