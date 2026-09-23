@@ -10,6 +10,51 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
 import { IntegrationNotification } from "./integration-notification"
 import { useHasAction } from "@/constants/useUser"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Globe } from "lucide-react"
+import { useTranslation } from "react-i18next"
+
+const LANGS = [
+    { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+    { code: "ru", label: "Русский", flag: "🇷🇺" },
+    { code: "en", label: "English", flag: "🇬🇧" },
+    { code: "ja", label: "日本語", flag: "🇯🇵" },
+]
+
+function LangButton() {
+    const { i18n } = useTranslation()
+    const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
+    const current = LANGS.find((l) => l.code === langCode) ?? LANGS[0]
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="relative" title={current.label}>
+                    <Globe size={18} />
+                    <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">{current.flag}</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-36">
+                {LANGS.map((lang) => (
+                    <DropdownMenuItem
+                        key={lang.code}
+                        onClick={() => i18n.changeLanguage(lang.code)}
+                        className={langCode === lang.code ? "bg-accent" : ""}
+                    >
+                        <span className="mr-2">{lang.flag}</span>
+                        {lang.label}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
 
 // Per-section search box shown in the header. Settings ("Sozlamalar") routes are
 // intentionally excluded — they keep their own in-page search. Matched by pathname
@@ -116,7 +161,8 @@ const Header = () => {
                     />
                 )}
                 {canSeeIntegration && <IntegrationNotification />}
-                <div className="flex sm:gap-2">
+                <div className="flex items-center sm:gap-2">
+                    <LangButton />
                     <ThemeColorToggle />
                 </div>
                 {isMobile && <NavUser />}
