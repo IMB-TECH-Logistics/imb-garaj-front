@@ -71,6 +71,7 @@ export function LinkDeviceButton() {
 }
 
 function LinkDeviceForm() {
+    const { t } = useTranslation()
     const { closeModal } = useModal(LINK_MODAL)
     const { openModal: openAddDevice } = useModal(ADD_DEVICE_MODAL)
     const queryClient = useQueryClient()
