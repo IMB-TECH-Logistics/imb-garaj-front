@@ -2,9 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterProvider, createRouter } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
-import { I18nextProvider } from "react-i18next"
 import "./main.css"
-import i18n from "@/i18n/i18n"
 import { routeTree } from "./routeTree.gen"
 
 const RELOAD_KEY = "vite:chunk-reload"
@@ -57,11 +55,9 @@ const rootElement = document.getElementById("app")!
 if (!rootElement.innerHTML) {
     const root = ReactDOM.createRoot(rootElement)
     root.render(
-        <I18nextProvider i18n={i18n}>
-            <QueryClientProvider client={queryClient}>
-                <RouterProvider router={router} />
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </I18nextProvider>,
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>,
     )
 }

@@ -1,4 +1,3 @@
-import { handleFormError } from "@/lib/onError"
 import axiosInstance from "@/services/axios-instance"
 import {
     MutateOptions,
@@ -31,8 +30,6 @@ export const usePatch = <P = any, D = any>(
     options?: Partial<UseMutationOptions<D, any, { url: string; payload: P }>>,
     config?: AxiosRequestConfig,
 ) => {
-
-
     const mutation = useMutation<D, any, { url: string; payload: P }>({
         mutationFn: ({ url, payload }) => patchRequest(url, payload, config),
         ...(options || {}),
@@ -48,16 +45,7 @@ export const usePatch = <P = any, D = any>(
             unknown
         >,
     ) => {
-        mutation.mutate({ url, payload }, {
-            ...mutateOptions,
-            onError: (error, variables, context) => {
-                if (mutateOptions?.onError) {
-                    mutateOptions.onError(error, variables, context);
-                } else {
-                    handleFormError(error);
-                }
-            },
-        })
+        mutation.mutate({ url, payload }, mutateOptions)
     }
 
     const mutateAsync = (
@@ -69,16 +57,7 @@ export const usePatch = <P = any, D = any>(
             { url: string; payload: P },
             unknown
         >,
-    ) => mutation.mutateAsync({ url, payload }, {
-        ...mutateOptions,
-        onError: (error, variables, context) => {
-            if (mutateOptions?.onError) {
-                mutateOptions.onError(error, variables, context);
-            } else {
-                handleFormError(error);
-            }
-        },
-    })
+    ) => mutation.mutateAsync({ url, payload }, mutateOptions)
 
     return { ...mutation, mutate, mutateAsync }
 }

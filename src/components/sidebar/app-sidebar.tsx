@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/sidebar"
 import { Link } from "@tanstack/react-router"
 import * as React from "react"
-import { LangSwitcher } from "./lang-switcher"
 import { NavMain } from "./nav-main"
 import { NavUser } from "./nav-user"
 
@@ -28,7 +27,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarContent>
 
             <SidebarFooter>
-                <LangSwitcher />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
