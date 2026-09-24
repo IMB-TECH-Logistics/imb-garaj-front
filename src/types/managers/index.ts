@@ -19,6 +19,7 @@ interface ManagerTrips {
     pending_order_count: string
     completed_order_count: number
     driver_name: string
+    vehicle_number?: string | null
     id?: number
     vehicle?: number | string
     income_usd: string

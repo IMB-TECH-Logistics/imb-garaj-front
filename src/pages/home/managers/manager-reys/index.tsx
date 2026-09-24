@@ -42,6 +42,7 @@ export default function ManagerReys() {
     const { id } = useParams({ strict: false })
     const { data: trip, error: tripError } = useGet<{
         driver_name: string | null
+        vehicle_number: string | null
         vehicle?: number
     }>(`${MANAGERS_TRIPS}/${id}`, {
         enabled: !!id && !name,
@@ -54,7 +55,7 @@ export default function ManagerReys() {
     }, [trip?.vehicle, setData])
     const tripLabel =
         name ||
-        trip?.driver_name ||
+        [trip?.vehicle_number, trip?.driver_name].filter(Boolean).join(" - ") ||
         (tripError?.response?.status === 404 ? "Reys topilmadi" : "—")
     const currentSelected = getData(MANAGERS_ORDERS)
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {

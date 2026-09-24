@@ -87,7 +87,7 @@ export default function ManagersTrips() {
             to: "/manager-trips/manager-reys/$id",
             params: { id: tripId.toString() },
             search: {
-                name: item?.driver_name,
+                name: [item?.vehicle_number, item?.driver_name].filter(Boolean).join(" - "),
             } as any,
         })
     }
