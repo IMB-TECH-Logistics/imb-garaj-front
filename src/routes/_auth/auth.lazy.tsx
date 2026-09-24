@@ -31,7 +31,7 @@ const LANGS = [
 ]
 
 function AuthComponent() {
-    const { mutate, isPending } = usePost()
+    const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
     const { t, i18n } = useTranslation()
     const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
     const current = LANGS.find((l) => l.code === langCode) ?? LANGS[0]

@@ -1,10 +1,11 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterProvider, createRouter } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
 import { I18nextProvider } from "react-i18next"
 import "./main.css"
 import i18n from "@/i18n/i18n"
+import { handleFormError } from "@/lib/show-form-errors"
 import { routeTree } from "./routeTree.gen"
 
 const RELOAD_KEY = "vite:chunk-reload"
@@ -33,6 +34,15 @@ window.addEventListener("unhandledrejection", (event) => {
 })
 
 const queryClient = new QueryClient({
+    mutationCache: new MutationCache({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any, _variables, _context, mutation) => {
+            const status = error?.response?.status
+            if (status === 401 || status === 403) return
+            if (mutation.options.onError || mutation.meta?.skipGlobalError) return
+            handleFormError(error)
+        },
+    }),
     defaultOptions: {
         queries: {
             refetchOnWindowFocus: false,

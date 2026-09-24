@@ -63,8 +63,8 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
         closeModal()
     }
 
-    const { mutate: create, isPending: isCreating } = usePost({ onSuccess })
-    const { mutate: update, isPending: isUpdating } = usePatch({ onSuccess })
+    const { mutate: create, isPending: isCreating } = usePost({ onSuccess, meta: { skipGlobalError: true } })
+    const { mutate: update, isPending: isUpdating } = usePatch({ onSuccess, meta: { skipGlobalError: true } })
 
     const onSubmit = (values: FormValues) => {
         const payload = {
