@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     COMMON_DIRECTIONS,
     MANAGERS_ORDERS,
+    MANAGERS_ORDERS_INTEGRATION_COUNT,
     SETTINGS_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINTS_PAYMENT_TYPE,
@@ -132,7 +133,7 @@ const AddTripOrders = () => {
                     ? String(currentTripOrder.activity)
                     : "1",
             status:
-                currentTripOrder?.status != null
+                currentTripOrder?.status != null && currentTripOrder.status !== -1
                     ? String(currentTripOrder.status)
                     : "0",
             is_naqd: false,
@@ -331,21 +332,47 @@ const AddTripOrders = () => {
         }
     }, [unloadingValue, setValue])
 
-    const onSuccess = () => {
+    const isDraft = currentTripOrder?.status === -1
+
+    const finalize = (approved: boolean) => {
         toast.success(
-            currentTripOrder?.id ?
-                t("messages.success_edit")
-                : t("messages.success_add"),
+            approved
+                ? "Reys tasdiqlandi"
+                : currentTripOrder?.id
+                  ? t("messages.success_edit")
+                  : t("messages.success_add"),
         )
         reset()
         clearKey(MANAGERS_ORDERS)
         closeModal()
         queryClient.refetchQueries({ queryKey: [MANAGERS_ORDERS] })
+        queryClient.invalidateQueries({
+            queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT],
+        })
     }
 
+    const onSuccess = () => finalize(false)
+
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
-    const { mutate: update, isPending: updating } = usePatch({ onSuccess })
-    const isPending = creating || updating
+    const { mutate: update, isPending: updating } = usePatch({})
+    const { mutate: approve, isPending: approving } = usePost({})
+    const isPending = creating || updating || approving
+
+    const runApprove = (orderId: number) => {
+        approve(
+            `${MANAGERS_ORDERS}/${orderId}/approve`,
+            {},
+            {
+                onSuccess: () => finalize(true),
+                onError: () => toast.error("Tasdiqlashda xatolik"),
+            },
+        )
+    }
+
+    const approveOnly = () => {
+        if (!currentTripOrder?.id) return
+        runApprove(currentTripOrder.id)
+    }
 
     const onSubmit = (data: any) => {
         const activity = Number(data.activity) || 1
@@ -404,8 +431,18 @@ const AddTripOrders = () => {
         )
 
         if (currentTripOrder?.id) {
-            formData.append("status", String(Number(data.status)))
-            update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formData)
+            if (!isDraft) {
+                formData.append("status", String(Number(data.status)))
+            }
+            update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formData, {
+                onSuccess: () => {
+                    if (isDraft) {
+                        runApprove(currentTripOrder.id)
+                    } else {
+                        finalize(false)
+                    }
+                },
+            })
         } else {
             create(MANAGERS_ORDERS, formData)
         }
@@ -637,7 +674,7 @@ const AddTripOrders = () => {
                     </div>
                 )}
 
-                {currentTripOrder?.id && (
+                {currentTripOrder?.id && !isDraft && (
                     <FormCombobox
                         label={t("table.status")}
                         name="status"
@@ -739,9 +776,20 @@ const AddTripOrders = () => {
                     }}
                 />
 
-                <div className="flex justify-end pt-1">
+                <div className="flex justify-end gap-2 pt-1">
+                    {isDraft && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            loading={approving}
+                            disabled={isPending}
+                            onClick={approveOnly}
+                        >
+                            Tasdiqlash
+                        </Button>
+                    )}
                     <Button type="submit" loading={isPending} disabled={isPending}>
-                        {t("actions.save")}
+                        {isDraft ? t("actions.save") + " + Tasdiqlash" : t("actions.save")}
                     </Button>
                 </div>
             </form>

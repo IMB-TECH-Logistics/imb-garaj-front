@@ -59,7 +59,7 @@ const nestedBreadcrumbs: { prefix: string; trail: BreadcrumbEntry[] }[] = [
 export function useBreadcrumbs() {
     const { pathname } = useLocation()
     const items = useItems()
-    const { getData } = useGlobalStore()
+    const dataMap = useGlobalStore((state) => state.dataMap)
 
     return useMemo(() => {
         // Check explicit nested configs first (most specific prefix wins)
@@ -70,7 +70,7 @@ export function useBreadcrumbs() {
             ) {
                 return config.trail.map((entry) => {
                     if (entry.buildPath && entry.storeKey) {
-                        const storedValue = getData(entry.storeKey)
+                        const storedValue = dataMap[entry.storeKey]
                         const resolved = entry.buildPath(storedValue)
                         return { ...entry, path: resolved }
                     }
@@ -102,7 +102,7 @@ export function useBreadcrumbs() {
         }
 
         return []
-    }, [pathname, items, getData])
+    }, [pathname, items, dataMap])
 }
 
 /**
