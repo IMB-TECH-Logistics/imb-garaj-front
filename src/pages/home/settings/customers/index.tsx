@@ -2,15 +2,19 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddCustomersModal from "./add-customers"
 import { useColumnsCustomersTable } from "./customers-cols"
 
 const Customers = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_customers_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<CustomersType>>(
         SETTINGS_CUSTOMERS,
@@ -19,6 +23,7 @@ const Customers = () => {
                 search: search.customer_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -43,8 +48,9 @@ const Customers = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                manualSorting={true}
                 numeration={true}
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -55,16 +61,21 @@ const Customers = () => {
                     <TableHeader
                         fileName="Mijozlar"
                         url="excel"
-                        storeKey={SETTINGS_CUSTOMERS}
+                        storeKey={hasControl ? SETTINGS_CUSTOMERS : undefined}
                         pageKey="page"
                         searchKey="customer_search"
+                        count={data?.count}
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_CUSTOMERS} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_CUSTOMERS}
+                id={item?.id}
+                name={item?.name}
+            />
             <Modal
                 size="max-w-2xl"
-                title={`Mijoz ${item?.id ? "tahrirlash" : "qo'shish"}`}
+                title={item?.id ? t("actions.edit") + " " + t("nav.customers").toLowerCase() : t("actions.add") + " " + t("nav.customers").toLowerCase()}
                 modalKey={"create"}
             >
                 <AddCustomersModal />

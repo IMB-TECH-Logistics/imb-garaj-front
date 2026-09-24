@@ -1,4 +1,4 @@
-import { Controller, Control, FieldValues, Path } from "react-hook-form"
+import { Controller, Control, FieldValues, Path, useFormState } from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 import { Combobox as ShadcnCombobox } from "@/components/ui/combobox"
@@ -39,7 +39,7 @@ export function FormCombobox<
     required,
     options,
     control,
-    hideError = true,
+    hideError = false,
     valueKey,
     labelKey,
     onAdd,
@@ -52,7 +52,8 @@ export function FormCombobox<
     isSearch = true,
     wrapperClassName,
 }: ComboboxProps<TForm, T>) {
-    const error = getNestedValue(control._formState.errors, name)
+    const { errors } = useFormState({ control, name })
+    const error = getNestedValue(errors, name)
 
     return (
         <fieldset className={cn("flex flex-col w-full", wrapperClassName)}>
@@ -69,7 +70,7 @@ export function FormCombobox<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
                 }
                 render={({ field, fieldState }) => (
                     <ShadcnCombobox
@@ -96,7 +97,7 @@ export function FormCombobox<
             />
             {!hideError && error && (
                 <FieldError>
-                    {control._formState.errors[name]?.message as string}
+                    {error?.message as string}
                 </FieldError>
             )}
         </fieldset>

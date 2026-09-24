@@ -43,6 +43,7 @@ export function NumberInput<IForm extends FieldValues>({
                 id={props.name || label}
                 thousandSeparator={thousandSeparator}
                 decimalSeparator={decimalSeparator}
+                allowedDecimalSeparators={[".", ","]}
                 {...props}
                 placeholder={props.placeholder || label}
             />

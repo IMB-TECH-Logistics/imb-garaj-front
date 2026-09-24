@@ -1,29 +1,30 @@
 import DeleteModal from "@/components/custom/delete-modal"
-import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { useSearch } from "@tanstack/react-router"
+import { useHasAction } from "@/constants/useUser"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import TableHeader from "../table-header"
-import AddUserModal from "./add-users"
 import { useColumnsUsersTable } from "./users-cols"
 
 const UsersPage = () => {
     const search = useSearch({ strict: false })
+    const navigate = useNavigate()
     const { data, isLoading } = useGet<ListResponse<UserType>>(SETTINGS_USERS, {
         params: {
             search: search.first_name,
             page: search.page,
             page_size: search.page_size,
+            ordering: search.ordering,
         },
     })
     const { getData, setData } = useGlobalStore()
     const item = getData<UserType>(SETTINGS_USERS)
 
     const { openModal: openDeleteModal } = useModal("delete")
-    const { openModal: openCreateModal } = useModal(`create`)
+    const hasControl = useHasAction("settings_users_control")
     const columns = useColumnsUsersTable()
 
     const handleDelete = (row: { original: UserType }) => {
@@ -31,18 +32,18 @@ const UsersPage = () => {
         openDeleteModal()
     }
     const handleEdit = (item: UserType) => {
-        setData(SETTINGS_USERS, item)
-        openCreateModal()
+        navigate({ to: `/users/${item.id}/edit` })
     }
     return (
         <>
             <DataTable
                 numeration
+                manualSorting
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -50,11 +51,13 @@ const UsersPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Haydovchilar"
+                        fileName="Foydalanuvchilar"
                         url="excel"
                         storeKey={SETTINGS_USERS}
                         searchKey="first_name"
                         pageKey="page"
+                        onAdd={hasControl ? () => navigate({ to: "/users/create" }) : undefined}
+                        count={data?.count}
                     />
                 }
             />
@@ -62,18 +65,12 @@ const UsersPage = () => {
                 path={SETTINGS_USERS}
                 refetchKeys={[SETTINGS_USERS]}
                 id={item?.id}
-            />
-            <Modal
-                size="max-w-2xl"
-                title={
-                    item?.id ?
-                        " Foydalanuvchi tahrirlash"
-                    :   " Foydalanuvchi qo'shish"
+                name={
+                    item ?
+                        `${item.first_name} ${item.last_name} (${item.username})`
+                    :   undefined
                 }
-                modalKey="create"
-            >
-                <AddUserModal />
-            </Modal>
+            />
         </>
     )
 }

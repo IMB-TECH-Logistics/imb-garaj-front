@@ -1,18 +1,27 @@
+import ParamInput from "@/components/as-params/input"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import TableHeader from "../table-header"
+import { PlusCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import AddDriverModal from "./add-driver"
 import { useColumnsDriverTable } from "./driver-cols"
 
 const Drivers = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_drivers_control")
     const navigate = useNavigate()
     const search = useSearch({ strict: false })
+
     const { data, isLoading } = useGet<ListResponse<DriversType>>(
         SETTINGS_DRIVERS,
         {
@@ -20,10 +29,12 @@ const Drivers = () => {
                 search: search.driver_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
-    const { getData, setData } = useGlobalStore()
+
+    const { getData, setData, clearKey } = useGlobalStore()
     const item = getData<DriversType>(SETTINGS_DRIVERS)
 
     const { openModal: openDeleteModal } = useModal("delete")
@@ -34,10 +45,17 @@ const Drivers = () => {
         setData(SETTINGS_DRIVERS, row.original)
         openDeleteModal()
     }
+
     const handleEdit = (item: DriversType) => {
         setData(SETTINGS_DRIVERS, item)
         openCreateModal()
     }
+
+    const handleAdd = () => {
+        clearKey(SETTINGS_DRIVERS)
+        openCreateModal()
+    }
+
     const handleRowClick = (item: DriversType) => {
         navigate({
             to: "/manager-trips/$id",
@@ -48,23 +66,51 @@ const Drivers = () => {
             } as any,
         })
     }
+
     return (
         <>
             <DataTable
                 loading={isLoading}
+                manualSorting
+                numeration
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={
+                    hasControl ?
+                        ({ original }) => handleEdit(original)
+                    :   undefined
+                }
                 onRowClick={handleRowClick}
                 head={
-                    <TableHeader
-                        fileName="Haydovchilar"
-                        url="excel"
-                        storeKey={SETTINGS_DRIVERS}
-                        pageKey="page"
-                        searchKey="driver_search"
-                    />
+                    <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-lg font-semibold">
+                                {t("nav.drivers")}
+                            </h1>
+
+                            <Badge className="text-sm">
+                                {formatMoney(data?.count ?? 0)}
+                            </Badge>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <ParamInput
+                                searchKey="driver_search"
+                                pageKey="page"
+                            />
+
+                            {hasControl && (
+                                <Button
+                                    className="flex items-center gap-2"
+                                    onClick={handleAdd}
+                                    icon={<PlusCircle size={18} />}
+                                >
+                                    {t("actions.add")}
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 }
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -72,15 +118,17 @@ const Drivers = () => {
                     pageSizeParamName: "page_size",
                 }}
             />
+
             <DeleteModal
                 path={SETTINGS_DRIVERS}
                 refetchKeys={[SETTINGS_DRIVERS]}
                 id={item?.id}
             />
+
             <Modal
                 size="max-w-2xl"
                 title={
-                    item?.id ? " Haydovchini tahrirlash" : " Haydovchi qo'shish"
+                    item?.id ? t("actions.edit") + " " + t("nav.drivers").toLowerCase() : t("actions.add") + " " + t("nav.drivers").toLowerCase()
                 }
                 modalKey="create"
             >

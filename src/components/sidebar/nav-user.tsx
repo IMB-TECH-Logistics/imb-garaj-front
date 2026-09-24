@@ -7,6 +7,9 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -15,21 +18,44 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { PROFILE } from "@/constants/api-endpoints"
+import { LOGOUT, PROFILE } from "@/constants/api-endpoints"
+import axiosInstance from "@/services/axios-instance"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
-import { EllipsisVertical, LogOut } from "lucide-react"
+import { EllipsisVertical, Globe, LogOut } from "lucide-react"
+import { useTranslation } from "react-i18next"
+
+const LANGS = [
+    { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+    { code: "ru", label: "Русский", flag: "🇷🇺" },
+    { code: "en", label: "English", flag: "🇬🇧" },
+    { code: "ja", label: "日本語", flag: "🇯🇵" },
+]
 
 export function NavUser() {
     const navigate = useNavigate()
     const { data: user } = useGet<User>(PROFILE)
     const { isMobile } = useSidebar()
+    const { t, i18n } = useTranslation()
 
-    const logOut = () => {
+    const fullName =
+        [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
+        user?.username ||
+        "Super Admin"
+
+    const logOut = async () => {
+        try {
+            await axiosInstance.post(`/${LOGOUT}/`)
+        } catch {
+            // token yaroqsiz bo'lsa ham chiqaveramiz
+        }
         localStorage.clear()
         navigate({ to: "/auth" })
     }
+
+    const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
+    const currentLang = LANGS.find((l) => l.code === langCode) ?? LANGS[0]
 
     return (
         <SidebarMenu>
@@ -48,20 +74,20 @@ export function NavUser() {
                             >
                                 <AvatarImage
                                     src={undefined}
-                                    alt={user?.full_name}
+                                    alt={fullName}
                                 />
                                 <AvatarFallback className="rounded-lg uppercase">
-                                    {user?.full_name?.slice(0, 2) || "SA"}
+                                    {fullName.slice(0, 2) || "SA"}
                                 </AvatarFallback>
                             </Avatar>
                             {!isMobile && (
                                 <>
                                     <div className="lg:grid hidden flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-medium">
-                                            {user?.full_name || "Super Admin"}
+                                            {fullName}
                                         </span>
                                         <span className="text-muted-foreground truncate text-xs">
-                                            {user?.phone}
+                                            {user?.role_name}
                                         </span>
                                     </div>
                                     <EllipsisVertical className="ml-auto size-4" />
@@ -80,29 +106,48 @@ export function NavUser() {
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage
                                         src={undefined}
-                                        alt={user?.full_name}
+                                        alt={fullName}
                                     />
                                     <AvatarFallback className="rounded-lg uppercase">
-                                        {user?.full_name?.slice(0, 2)}
+                                        {fullName.slice(0, 2)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">
-                                        {user?.full_name || "Super Admin"}
+                                        {fullName}
                                     </span>
                                     <span className="text-muted-foreground truncate text-xs">
-                                        {user?.phone}
+                                        {user?.role_name}
                                     </span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger className="gap-2">
+                                <Globe size={16} />
+                                <span>{currentLang.flag} {currentLang.label}</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="min-w-40">
+                                {LANGS.map((lang) => (
+                                    <DropdownMenuItem
+                                        key={lang.code}
+                                        onClick={() => i18n.changeLanguage(lang.code)}
+                                        className={langCode === lang.code ? "bg-accent" : ""}
+                                    >
+                                        <span className="mr-2">{lang.flag}</span>
+                                        {lang.label}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuSubContent>
+                        </DropdownMenuSub>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             onClick={logOut}
                             className="text-destructive"
                         >
                             <LogOut size={16} />
-                            <span className="ml-2">Chiqish</span>
+                            <span className="ml-2">{t("actions.logout")}</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

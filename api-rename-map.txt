@@ -1,0 +1,75 @@
+# API endpoint o'zgarishlari — eski → yangi
+# Format: OLD_PATH  ->  NEW_PATH
+
+# =========================================================
+# /common/* dan domain-specific yo'llarga ko'chirildi
+# =========================================================
+
+# Places (Country, Region, District)
+common/countries/                              ->  places/countries/
+common/countries/<int:pk>/                     ->  places/countries/<int:pk>/
+common/regions/                                ->  places/regions/
+common/regions/<int:pk>/                       ->  places/regions/<int:pk>/
+common/districts/                              ->  places/districts/
+common/districts/<int:pk>/                     ->  places/districts/<int:pk>/
+
+# Petrol Stations
+common/petrol-stations/                        ->  petrol-stations/
+common/petrol-stations/<int:pk>/               ->  petrol-stations/<int:pk>/
+common/petrol-stations/<int:pk>/top-up/        ->  petrol-stations/<int:pk>/top-up/
+common/petrol-stations/<int:pk>/cash-flows/    ->  petrol-stations/<int:pk>/cash-flows/
+common/petrol-stations/cash-flows/<int:pk>/    ->  petrol-stations/cash-flows/<int:pk>/
+common/petrol-stations/cash-flows/<int:pk>/delete/  ->  petrol-stations/cash-flows/<int:pk>/delete/
+
+# Clients (customers)
+common/clients/                                ->  clients/
+common/clients/<int:pk>/                       ->  clients/<int:pk>/
+
+# Routes (was Directions in common)
+common/directions/                             ->  routes/
+common/directions/create/                      ->  routes/create/
+common/directions/<int:pk>/                    ->  routes/<int:pk>/
+common/directions/<int:pk>/update/             ->  routes/<int:pk>/update/
+common/directions/<int:pk>/delete/             ->  routes/<int:pk>/delete/
+
+# Reference Data
+common/cargo-types/                            ->  cargo-types/
+common/cargo-types/<int:pk>/                   ->  cargo-types/<int:pk>/
+common/vehicle-types/                          ->  vehicle-types/
+common/vehicle-types/<int:pk>/                 ->  vehicle-types/<int:pk>/
+common/payment-types/                          ->  payment-types/
+common/payment-types/<int:pk>/                 ->  payment-types/<int:pk>/
+common/expense-types/                          ->  expense-categories/
+common/expense-types/<int:pk>/                 ->  expense-categories/<int:pk>/
+
+# Selectable helpers (cross-domain dropdown utilities)
+common/selectable/user/                        ->  selectable/user/
+common/selectable/vehicle/                     ->  selectable/vehicle/
+common/selectable/vehicle-type/                ->  selectable/vehicle-type/
+common/selectable/<str:model_name>/            ->  selectable/<str:model_name>/
+
+# =========================================================
+# /owner/ → /dashboard/  (statistika)
+# =========================================================
+owner/main-statistic/                          ->  dashboard/main-statistic/
+owner/trip-daily-statistic/                    ->  dashboard/trip-daily-statistic/
+
+# =========================================================
+# Uzbekcha → Inglizcha qayta nomlash
+# =========================================================
+manager/reys/                                  ->  manager/runs/
+
+# =========================================================
+# O'zgarmaydigan endpointlar (saqlanadi)
+# =========================================================
+# /auth/login/                                 unchanged
+# /auth/mobile/login/                          unchanged
+# /profile/                                    unchanged
+# /users/...                                   unchanged
+# /trips/...                                   unchanged
+# /vehicles/...                                unchanged
+# /checkout/...                                unchanged
+# /transaction/...                             unchanged
+# /manager/...                                 unchanged  (BFF aggregator)
+# /mobile/...                                  unchanged  (driver app)
+# /logs/...                                    unchanged

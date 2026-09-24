@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 import { useGet } from "@/hooks/useGet"
+import { useTranslation } from "react-i18next"
 
 //    const params = useParams({ strict: false })
 //     const id = params.id
@@ -24,6 +25,7 @@ import { useGet } from "@/hooks/useGet"
 
 
 const AddTransport = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("create")
@@ -64,8 +66,8 @@ const AddTransport = () => {
     const onSuccess = () => {
         toast.success(
             currentTruck?.id
-                ? "Transport tahrirlandi!"
-                : "Yangi transport qo'shildi!"
+                ? t("messages.success_edit")
+                : t("messages.success_add")
         )
         reset()
         clearKey(VEHICLES)
@@ -103,36 +105,36 @@ const AddTransport = () => {
             <FormInput
                 required
                 name="truck_number"
-                label="Avtoraqam"
+                label={t("form.truck_number_plate")}
                 methods={form}
-                placeholder="Misol: 01A345AD"
+                placeholder="01A345AD"
                 uppercase
             />
 
             <FormInput
                 required
                 name="truck_passport"
-                label="Tex. passport raqami"
+                label={t("form.tech_passport_num")}
                 methods={form}
-                placeholder="Misol: AS02131234131"
+                placeholder="AS02131234131"
                 uppercase
             />
 
             <FormCombobox
                 required
-                label="Haydovchi"
+                label={t("form.driver")}
                 name="driver"
                 control={form.control}
                 options={driversData}
                 valueKey="id"
                 labelKey="first_name"
-                placeholder="Haydovchi tanlang"
+                placeholder={t("form.select_driver")}
             />
 
 
             <FormCombobox
                 required
-                label="Yoqilg'i turi"
+                label={t("form.fuel_type")}
                 name="fuel"
                 control={form.control}
                 options={[
@@ -141,39 +143,43 @@ const AddTransport = () => {
                 ]}
                 valueKey="value"
                 labelKey="label"
-                placeholder="Yoqilg'i turi"
+                placeholder={t("form.fuel_type")}
             />
 
 
             <FormCombobox
                 required
-                label="Avtomobil turi"
+                label={t("form.vehicle_type")}
                 name="truck_type"
                 control={form.control}
                 options={truckType}
-                placeholder="Avtomobil turi"
+                valueKey="id"
+                labelKey="name"
+                placeholder={t("form.vehicle_type")}
             />
 
             <FormCombobox
                 required
-                label="Tirkama turi"
+                label={t("form.trailer_type")}
                 name="trailer_type"
                 control={form.control}
                 options={trailerType}
-                placeholder="Tirkama turi"
+                valueKey="id"
+                labelKey="name"
+                placeholder={t("form.trailer_type")}
             />
 
             <FormNumberInput
                 name="trailer_number"
-                label="Tirkama raqami"
+                label={t("form.trailer_number")}
                 control={control}
-                placeholder="Misol: 1"
+                placeholder={`${t("form.example")}: 1`}
             />
 
             <div className="col-span-2 flex justify-end gap-4 pt-4">
 
                 <Button type="submit" loading={isPending} disabled={isPending}>
-                    {currentTruck?.id ? "Yangilash" : "Qo'shish"}
+                    {currentTruck?.id ? t("actions.edit") : t("actions.add")}
                 </Button>
             </div>
         </form>

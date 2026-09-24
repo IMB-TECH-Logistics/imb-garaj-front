@@ -2,15 +2,19 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddPaymentTypeModal from "./add-payment"
 import { useColumnsPaymentTable } from "./payment-cols"
 
 const PaymenTypePage = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_payment_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<RolesType>>(
         SETTINTS_PAYMENT_TYPE,
@@ -19,6 +23,7 @@ const PaymenTypePage = () => {
                 search: search.payment_type,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -43,8 +48,9 @@ const PaymenTypePage = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                manualSorting
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -55,18 +61,19 @@ const PaymenTypePage = () => {
                     <TableHeader
                         fileName="To'lov turlari"
                         url="excel"
-                        storeKey={SETTINTS_PAYMENT_TYPE}
+                        storeKey={hasControl ? SETTINTS_PAYMENT_TYPE : undefined}
                         pageKey="page"
                         searchKey="payment_type"
+                        count={data?.count}
                     />
                 }
             />
-            <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} />
+            <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
                     item?.id ?
-                        "To'lov turini tahrirlash"
-                    :   " To'lov turini qo'shish"
+                        t("actions.edit") + " " + t("nav.payment_types").toLowerCase()
+                    :   t("actions.add") + " " + t("nav.payment_types").toLowerCase()
                 }
                 modalKey="create"
             >

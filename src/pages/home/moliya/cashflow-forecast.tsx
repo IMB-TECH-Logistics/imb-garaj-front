@@ -10,17 +10,16 @@ import {
     ReferenceLine,
     ReferenceArea,
 } from "recharts"
+import { useTranslation } from "react-i18next"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_FORECAST } from "@/constants/api-endpoints"
 
-const MONTHS = ["Apr", "May", "Iyn", "Iyl", "Avg", "Sen"]
-
-function generateForecast() {
-    let balance = 15_780_000
-    return MONTHS.map((month) => {
-        const income = Math.round((Math.random() * 30 + 20) * 1_000_000)
-        const expense = Math.round((Math.random() * 25 + 15) * 1_000_000)
-        balance = balance + income - expense
-        return { month, income, expense, balance, net: income - expense }
-    })
+type ForecastPoint = {
+    month: string
+    income: string | number
+    expense: string | number
+    balance: string | number
+    net: string | number
 }
 
 const fmt = (v: number) => {
@@ -49,9 +48,22 @@ function ForecastTooltip({ active, payload, label }: any) {
 }
 
 export default function CashflowForecast() {
-    const data = useMemo(() => generateForecast(), [])
+    const { t } = useTranslation()
+    const { data: raw } = useGet<ForecastPoint[]>(FINANCE_FORECAST)
 
-    const minBalance = Math.min(...data.map((d) => d.balance))
+    const data = useMemo(
+        () =>
+            (raw ?? []).map((d) => ({
+                month: d.month,
+                income: Number(d.income),
+                expense: Number(d.expense),
+                balance: Number(d.balance),
+                net: Number(d.net),
+            })),
+        [raw],
+    )
+
+    const minBalance = data.length ? Math.min(...data.map((d) => d.balance)) : 0
     const hasCashGap = minBalance < 5_000_000
 
     const cashGapMonths = data.filter((d) => d.balance < 5_000_000)
@@ -114,7 +126,7 @@ export default function CashflowForecast() {
                         <Area
                             type="monotone"
                             dataKey="income"
-                            name="Tushum"
+                            name={t("form.income")}
                             stroke="#26a69a"
                             strokeWidth={2}
                             fill="url(#forecastIncome)"
@@ -123,7 +135,7 @@ export default function CashflowForecast() {
                         <Area
                             type="monotone"
                             dataKey="expense"
-                            name="Xarajat"
+                            name={t("form.expense")}
                             stroke="#ef5350"
                             strokeWidth={2}
                             fill="url(#forecastExpense)"
@@ -132,7 +144,7 @@ export default function CashflowForecast() {
                         <Area
                             type="monotone"
                             dataKey="balance"
-                            name="Balans"
+                            name={t("form.balance")}
                             stroke="#3b82f6"
                             strokeWidth={2.5}
                             fill="url(#forecastBalance)"

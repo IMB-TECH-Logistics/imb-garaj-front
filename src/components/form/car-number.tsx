@@ -10,7 +10,7 @@ export function FormCarNumber({
     placeholder,
     disabled,
     required,
-    hideError = true,
+    hideError = false,
     control,
     className,
     wrapperClassName,

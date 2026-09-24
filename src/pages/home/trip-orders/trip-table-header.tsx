@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { CirclePlus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface TableHeaderProps {
     storeKey?: string
@@ -15,6 +16,7 @@ const TableHeaderTripsOrders = ({
     modalKey,
     heading,
 }: TableHeaderProps) => {
+    const { t } = useTranslation()
     const { openModal: openCreateModal } = useModal(modalKey)
     const { clearKey } = useGlobalStore()
 
@@ -34,7 +36,7 @@ const TableHeaderTripsOrders = ({
                     onClick={handleAdd}
                     icon={<CirclePlus size={18} />}
                 >
-                    Qo'shish
+                    {t("actions.add")}
                 </Button>
             </div>
         </div>

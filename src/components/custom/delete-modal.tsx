@@ -3,6 +3,7 @@ import { useModal } from "@/hooks/useModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { ReactNode, useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
+import { handleFormError } from "@/lib/show-form-errors"
 import { Button } from "../ui/button"
 import {
     DialogDescription,
@@ -64,6 +65,10 @@ export default function DeleteModal({
                 navigate({ to: url })
             }
         },
+        onError: (error) => {
+            handleFormError(error)
+            closeModal()
+        },
     })
 
     const handleDelete = () => {
@@ -71,17 +76,28 @@ export default function DeleteModal({
     }
 
     return (
-        <Modal size="max-w-md" modalKey={modalKey}>
+        <Modal size="max-w-md" modalKey={modalKey} titleInChildren>
             <DialogHeader>
                 <DialogTitle className="font-normal max-w-sm">
-                    {name}
+                    {name ?
+                        <span className="block font-medium mb-1 break-all">
+                            {name}
+                        </span>
+                    :   null}
                     {`Siz haqiqatdan ham o'chirishni xohlaysizmi?`}
                 </DialogTitle>
                 <DialogDescription>
                     {"Bu qaytarib bo'lmas jarayon!!!"}
                 </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
+            <DialogFooter className="gap-2">
+                <Button
+                    variant={"outline"}
+                    onClick={closeModal}
+                    disabled={isPending}
+                >
+                    {"Bekor qilish"}
+                </Button>
                 <Button
                     variant={"destructive"}
                     onClick={handleDelete}

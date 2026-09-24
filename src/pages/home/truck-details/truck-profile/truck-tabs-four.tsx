@@ -4,6 +4,8 @@ import { CopyButton } from "@/lib/copy-button"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 
 type TruckStats = {
     order_id: string
@@ -20,6 +22,7 @@ type TruckStats = {
 
 
 export const TruckTabsFour = () => {
+    const { t } = useTranslation()
     const data: TruckStats[] = [
         {
             order_id: "277AH",
@@ -94,12 +97,12 @@ export const TruckTabsFour = () => {
         <div>
             <DataTable
                 numeration
-                columns={cols()}
+                columns={cols(t)}
                 data={allData}
                 head={
                     <div className="flex items-center gap-3 mb-3">
                         <h1 className="text-xl font-semibold">
-                            {`Texnik statistika ro'yxati`}
+                            {t("page.trip_list")}
                         </h1>
                         <Badge className="text-sm">
                             {`${totalDistance} km umumiy masofa`}
@@ -132,11 +135,11 @@ export const TruckTabsFour = () => {
     )
 }
 
-const cols = () => {
+const cols = (t: TFunction) => {
     return useMemo<ColumnDef<TruckStats>[]>(
         () => [
             {
-                header: "Buyurtma ID",
+                header: t("table.order_id"),
                 accessorKey: "order_id",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -144,55 +147,55 @@ const cols = () => {
                 ),
             },
             {
-                header: "Avtoraqam",
+                header: t("table.truck_number"),
                 accessorKey: "truck_number",
                 enableSorting: true,
                 cell: ({ row }) => <span>{row.original.truck_number}</span>,
             },
             {
-                header: "Tirkama Raqam",
+                header: t("form.trailer_number"),
                 accessorKey: "trailer_number",
                 enableSorting: true,
                 cell: ({ row }) => <span>{row.original.trailer_number}</span>,
             },
             {
-                header: "Haydovchi",
+                header: t("form.driver"),
                 accessorKey: "driver_name",
                 enableSorting: true,
                 cell: ({ row }) => <span>{row.original.driver_name}</span>,
             },
              {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "driver_name",
                 enableSorting: true,
                 cell: ({ row }) => <span className="whitespace-nowrap">{"2025-14-10"}</span>,
             },
             {
-                header: "Masofa",
+                header: t("table.distance_km"),
                 accessorKey: "distance_km",
                 cell: ({ row }) => <span>{row.original.distance_km} km</span>,
             },
             {
-                header: "100 km / litr",
+                header: t("table.fuel_per_km"),
                 accessorKey: "fuel_per_100km",
                 cell: ({ row }) => (
                     <span>{row.original.fuel_per_100km} litr</span>
                 ),
             },
             {
-                header: "O‘rtacha tezlik",
+                header: t("table.mileage_km"),
                 accessorKey: "avg_speed",
                 cell: ({ row }) => (
                     <span>{row.original.avg_speed} km/soat</span>
                 ),
             },
             {
-                header: "Zavat holatida qancha turgani",
+                header: t("table.duration"),
                 accessorKey: "idle_hours",
                 cell: ({ row }) => <span>{row.original.idle_hours} soat</span>,
             },
             {
-                header: "Zavat holatida vaqti / litr",
+                header: t("table.fuel_consumption"),
                 accessorKey: "idle_fuel",
                 cell: ({ row }) => (
                     <span>
@@ -202,6 +205,6 @@ const cols = () => {
                 ),
             },
         ],
-        [],
+        [t],
     )
 }

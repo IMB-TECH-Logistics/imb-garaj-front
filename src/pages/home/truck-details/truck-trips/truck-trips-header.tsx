@@ -1,15 +1,17 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
 import ParamDateRange from "@/components/as-params/date-picker-range"
-import { Button } from "@/components/ui/button" // Import Button
+import { Button } from "@/components/ui/button"
 import {
     COMMON_SELECTABLE_VEHICLE_TYPE,
     SETTINGS_SELECTABLE_USERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { X } from "lucide-react" // Import clear icon
+import { X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 const TruckTripsHeader = () => {
+    const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false })
 
@@ -49,7 +51,7 @@ const TruckTripsHeader = () => {
 
     return (
         <div className="flex items-center gap-3 mb-3">
-            <h1 className="text-xl">Reyslar ro'yxati</h1>
+            <h1 className="text-xl">{t("page.trip_list")}</h1>
             <div className="flex flex-1 justify-end items-center gap-3">
                 {hasActiveFilters && (
                     <Button
@@ -57,7 +59,7 @@ const TruckTripsHeader = () => {
                         className="flex items-center gap-2 "
                     >
                         <X size={16} />
-                        Filtrlarni tozalash
+                        {t("page.clear_filters")}
                     </Button>
                 )}
                 <ParamCombobox
@@ -65,7 +67,7 @@ const TruckTripsHeader = () => {
                     options={driversData ?? []}
                     valueKey="id"
                     labelKey="first_name"
-                    label="Haydovchilar"
+                    label={t("nav.drivers")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",
@@ -77,7 +79,7 @@ const TruckTripsHeader = () => {
                     options={vehicleData?.results ?? []}
                     valueKey="id"
                     labelKey="type"
-                    label="Transportlar"
+                    label={t("nav.trucks")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",

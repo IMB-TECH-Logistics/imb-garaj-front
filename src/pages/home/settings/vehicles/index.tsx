@@ -1,0 +1,88 @@
+import DeleteModal from "@/components/custom/delete-modal"
+import Modal from "@/components/custom/modal"
+import { DataTable } from "@/components/ui/datatable"
+import { VEHICLES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
+import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
+import { useGlobalStore } from "@/store/global-store"
+import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
+import TableHeader from "../table-header"
+import AddVehicleSettingsModal from "./add-vehicle"
+import { useColumnsVehiclesTable } from "./vehicles-cols"
+
+const VehiclesPage = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_vehicles_control")
+    const search = useSearch({ strict: false })
+    const { data, isLoading } = useGet<ListResponse<VehicleDetailType>>(
+        VEHICLES,
+        {
+            params: {
+                search: search.vehicles_search,
+                page: search.page,
+                page_size: search.page_size,
+                ordering: (search as any).ordering,
+            },
+        },
+    )
+    const { getData, setData } = useGlobalStore()
+    const item = getData<VehicleDetailType>(VEHICLES)
+
+    const { openModal: openDeleteModal } = useModal("delete")
+    const { openModal: openCreateModal } = useModal("create")
+    const columns = useColumnsVehiclesTable()
+
+    const handleDelete = (row: { original: VehicleDetailType }) => {
+        setData(VEHICLES, row.original)
+        openDeleteModal()
+    }
+    const handleEdit = (item: VehicleDetailType) => {
+        setData(VEHICLES, item)
+        openCreateModal()
+    }
+
+    return (
+        <>
+            <DataTable
+                loading={isLoading}
+                manualSorting
+                columns={columns}
+                data={data?.results}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                numeration
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                }}
+                head={
+                    <TableHeader
+                        fileName="Avtomobillar"
+                        url="excel"
+                        storeKey={hasControl ? VEHICLES : undefined}
+                        searchKey="vehicles_search"
+                        pageKey="page"
+                        count={data?.count}
+                    />
+                }
+            />
+            <DeleteModal path={VEHICLES} id={item?.id} />
+            <Modal
+                title={
+                    item?.id
+                        ? t("actions.edit") + " " + t("nav.trucks").toLowerCase()
+                        : t("actions.add") + " " + t("nav.trucks").toLowerCase()
+                }
+                modalKey="create"
+                size="max-w-3xl"
+            >
+                <AddVehicleSettingsModal />
+            </Modal>
+        </>
+    )
+}
+
+export default VehiclesPage

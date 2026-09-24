@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Truck, MapPin } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 interface TruckRoute {
   id: string
@@ -22,6 +23,7 @@ declare global {
 }
 
 const TruckRoutesMap: React.FC = () => {
+  const { t } = useTranslation()
   const [routes, setRoutes] = useState<TruckRoute[]>([
     {
       id: "1",
@@ -201,7 +203,7 @@ const TruckRoutesMap: React.FC = () => {
           <div className="absolute inset-0 flex items-center justify-center bg-slate-800 text-white">
             <div className="text-center">
               <p className="text-xl mb-2">Xarita yuklanmoqda...</p>
-              <p className="text-sm">Iltimos kuting</p>
+              <p className="text-sm">{t("messages.loading")}</p>
             </div>
           </div>
         )}
@@ -211,7 +213,7 @@ const TruckRoutesMap: React.FC = () => {
       <div className="w-96 bg-slate-800 border-l border-slate-700 p-6 overflow-y-auto">
         <div className="flex items-center gap-2 mb-6">
           <Truck className="text-green-500" size={24} />
-          <h1 className="text-2xl font-bold text-white">Yuk reyslari</h1>
+          <h1 className="text-2xl font-bold text-white">{t("page.trips_cargo")}</h1>
         </div>
 
         <h2 className="text-lg font-semibold text-green-400 mb-4">
@@ -249,7 +251,7 @@ const TruckRoutesMap: React.FC = () => {
 
         {selectedRoute && (
           <div className="mt-6 p-4 bg-slate-700 rounded-lg border border-green-500">
-            <h3 className="text-green-400 font-bold mb-2">Tanlangan reys</h3>
+            <h3 className="text-green-400 font-bold mb-2">{t("page.selected_trip")}</h3>
             <p className="text-white text-sm">
               {
                 routes.find((r) => r.id === selectedRoute)?.from

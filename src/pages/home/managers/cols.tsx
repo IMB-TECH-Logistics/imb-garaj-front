@@ -2,20 +2,22 @@ import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowRight } from "lucide-react"
 import { useMemo } from "react"
-import { STATUS_LABELS } from "./managers-trips/cols"
+import { useTranslation } from "react-i18next"
 
 const STATUS_COLORS: Record<number, string> = {
-    1: "bg-green-500/10 text-green-600 border-transparent",    // Band
-    2: "bg-gray-500/10 text-gray-500 border-transparent",       // Bo'sh
-    3: "bg-orange-500/10 text-orange-600 border-transparent",  // Ta'mirda
+    1: "bg-green-500/10 text-green-600 border-transparent",
+    2: "bg-gray-500/10 text-gray-500 border-transparent",
+    3: "bg-orange-500/10 text-orange-600 border-transparent",
 }
 
 export const useColumnsManagersVehicles = () => {
+    const { t } = useTranslation()
+
     return useMemo<ColumnDef<ManagerVehicles>[]>(
         () => [
             {
                 accessorKey: "truck_number",
-                header: "Avto raqami",
+                header: t("table.truck_number"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{row.original.truck_number || "-"}</div>
@@ -23,7 +25,7 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "type",
-                header: "Transpost turi",
+                header: t("table.truck_type"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{row.original.type || "-"}</div>
@@ -31,7 +33,7 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "driver_name",
-                header: "Haydovchi",
+                header: t("table.driver"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{row.original.driver_name || "-"}</div>
@@ -39,31 +41,30 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "status",
-                header: "Aylanma statusi",
+                header: t("table.truck_status"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
                     const colorClass = STATUS_COLORS[status] || "bg-gray-500/10 text-gray-500 border-gray-200"
+                    const statusLabels: Record<number, string> = {
+                        1: t("table.status_loaded"),
+                        2: t("table.status_empty"),
+                        3: t("table.status_repair"),
+                    }
                     return (
                         <Badge variant="outline" className={colorClass}>
-                            {STATUS_LABELS[status] || "-"}
+                            {statusLabels[status] || "-"}
                         </Badge>
                     )
                 },
             },
             {
                 accessorKey: "loading_name",
-                header: "Joylashuv",
+                header: t("table.location"),
                 enableSorting: false,
                 cell: ({ row }) => {
-                    const { loading_name, unloading_name, status } = row.original
+                    const { loading_name, unloading_name } = row.original
 
-                    // Bo'sh (2) or Ta'mirda (3) → no active route
-                    if (status === 2 || status === 3) {
-                        return <span className="text-muted-foreground">-</span>
-                    }
-
-                    // Band (1) → from → to
                     if (loading_name && unloading_name) {
                         return (
                             <div className="flex items-center gap-1.5">
@@ -79,10 +80,10 @@ export const useColumnsManagersVehicles = () => {
             },
             {
                 accessorKey: "pending_orders",
-                header: "Kutilayotgan reyslar",
+                header: t("table.pending_trips"),
                 enableSorting: true,
             },
         ],
-        [],
+        [t],
     )
 }

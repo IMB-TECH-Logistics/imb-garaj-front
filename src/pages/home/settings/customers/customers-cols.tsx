@@ -1,13 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatPhoneNumber } from "./phone-number"
+import { useTranslation } from "react-i18next"
 
 export const useColumnsCustomersTable = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<CustomersType>[]>(
         () => [
             {
+                accessorKey: "code",
+                header: t("form.company_code"),
+                size: 80,
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span>{row.original.code || "—"}</span>
+                ),
+            },
+            {
                 accessorKey: "name",
-                header: "F.I.O",
+                header: t("form.company_name"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="min-w-[180px] w-[220px] truncate">
@@ -17,7 +28,7 @@ export const useColumnsCustomersTable = () => {
             },
             {
                 accessorKey: "phone_number",
-                header: "Telefon raqami",
+                header: t("form.phone"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="min-w-[180px] w-[220px] truncate">
@@ -32,7 +43,15 @@ export const useColumnsCustomersTable = () => {
                     return digitsA.localeCompare(digitsB)
                 },
             },
+            {
+                accessorKey: "nds_percent",
+                header: t("form.nds"),
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span>{row.original.nds_percent ?? "—"} %</span>
+                ),
+            },
         ],
-        [],
+        [t],
     )
 }

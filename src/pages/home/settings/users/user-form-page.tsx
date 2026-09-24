@@ -1,0 +1,187 @@
+import { FormCombobox } from "@/components/form/combobox"
+import FormInput from "@/components/form/input"
+import { Button } from "@/components/ui/button"
+import { SETTINGS_ROLES, SETTINGS_USERS } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
+import { usePatch } from "@/hooks/usePatch"
+import { usePost } from "@/hooks/usePost"
+import { useNavigate, useParams } from "@tanstack/react-router"
+import { ArrowLeft } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useRef } from "react"
+import { FormProvider, useForm, useWatch } from "react-hook-form"
+import { toast } from "sonner"
+import { Switch } from "@/components/ui/switch"
+import PermissionField from "./permission-field"
+import { useTranslation } from "react-i18next"
+
+const UserFormPage = () => {
+    const { t } = useTranslation()
+    const navigate = useNavigate()
+    const { id } = useParams({ strict: false })
+
+    const { data: userData } = useGet<UserType>(
+        id ? `${SETTINGS_USERS}/${id}` : "",
+        { enabled: !!id },
+    )
+    const { data: userRole } = useGet(SETTINGS_ROLES)
+
+    const form = useForm<UserType>({
+        values: id && userData ? { ...userData, password: "" } : undefined,
+        defaultValues: {
+            first_name: "",
+            last_name: "",
+            username: "",
+            password: "",
+            role: 2,
+            actions: [],
+        },
+    })
+
+    const { handleSubmit, control } = form
+
+    const selectedRole = useWatch({ control, name: "role" })
+    const roles = (userRole?.results as RolesType[]) ?? []
+    const selectedRoleName = roles.find(
+        (r) => Number(r.id) === Number(selectedRole),
+    )?.name
+    const isDriver = selectedRoleName?.toLowerCase() === "driver"
+
+    // Rol ruxsatlari xodimga NUSXALANMAYDI: backend ularni `effective_actions`
+    // (rol ∪ shaxsiy) sifatida o'zi qo'shadi. Bu yerda ular faqat meros
+    // ko'rinishida — belgilangan va o'zgartirib bo'lmaydigan holatda — chiziladi,
+    // xodimga esa faqat qo'shimcha ruxsatlar yoziladi.
+    const inheritsRole = useWatch({ control, name: "inherits_role" }) ?? true
+    const inheritedActions = !inheritsRole
+        ? []
+        :
+        roles.find((r) => Number(r.id) === Number(selectedRole))?.actions ?? []
+
+    const queryClient = useQueryClient()
+
+    const { mutateAsync: postMutate, isPending: isPendingCreate } = usePost()
+    const { mutateAsync: updateMutate, isPending: isPendingUpdate } = usePatch()
+    const isPending = isPendingCreate || isPendingUpdate
+
+    const onSubmit = async (values: UserType) => {
+        try {
+            if (id) {
+                const { password, ...rest } = values
+                await updateMutate(`${SETTINGS_USERS}/${id}`, password ? values : rest)
+            } else {
+                await postMutate(SETTINGS_USERS, values)
+            }
+            queryClient.removeQueries({ queryKey: [SETTINGS_USERS] })
+            toast.success(
+                id ? t("messages.success_edit") : t("messages.success_add"),
+            )
+            navigate({ to: "/users" })
+        } catch { }
+    }
+
+    return (
+        <div className="p-4">
+            <div className="flex items-center gap-3 mb-6">
+                <Button
+                    size="icon"
+                    onClick={() => navigate({ to: "/users" })}
+                    className="shrink-0"
+                >
+                    <ArrowLeft className="h-4" />
+                </Button>
+                <h1 className="text-xl font-semibold">
+                    {id ? t("actions.edit") + " " + t("nav.users").toLowerCase() : t("nav.users")}
+                </h1>
+            </div>
+
+            <FormProvider {...form}>
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                >
+                    <FormInput
+                        required
+                        name="first_name"
+                        label={t("form.first_name")}
+                        methods={form}
+                        placeholder={`${t("form.example")}: Ali`}
+                    />
+                    <FormInput
+                        required
+                        name="last_name"
+                        label={t("form.last_name")}
+                        methods={form}
+                        placeholder={`${t("form.example")}: Aliyev`}
+                    />
+                    <FormInput
+                        required
+                        name="username"
+                        label={t("auth.username")}
+                        methods={form}
+                        placeholder={`${t("form.example")}: ali1`}
+                    />
+                    <FormInput
+                        required={!id}
+                        type="password"
+                        name="password"
+                        label={t("auth.password")}
+                        methods={form}
+                        placeholder={
+                            id
+                                ? t("form.enter_to_change")
+                                : `${t("form.example")}: SecurePass123!`
+                        }
+                    />
+                    <FormCombobox
+                        options={userRole?.results ?? []}
+                        name="role"
+                        control={form.control}
+                        labelKey="name"
+                        valueKey="id"
+                        label={t("form.user_role")}
+                    />
+
+                    {!isDriver && (
+                        <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
+                            <div>
+                                <p className="text-sm font-medium">
+                                    Rol ruxsatlarini meros olsin
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    O‘chirilsa, xodimga faqat quyida
+                                    belgilangan ruxsatlar amal qiladi.
+                                </p>
+                            </div>
+                            <Switch
+                                checked={inheritsRole}
+                                onCheckedChange={(checked) =>
+                                    form.setValue("inherits_role", checked, {
+                                        shouldDirty: true,
+                                    })
+                                }
+                            />
+                        </div>
+                    )}
+
+                    {!isDriver && (
+                        <div className="md:col-span-2">
+                            <PermissionField inherited={inheritedActions} />
+                        </div>
+                    )}
+
+                    <div className="md:col-span-2 flex justify-end pt-4">
+                        <Button
+                            className="min-w-36"
+                            type="submit"
+                            loading={isPending}
+                        >
+                            {t("actions.save")}
+                        </Button>
+                    </div>
+                </form>
+            </FormProvider>
+        </div>
+    )
+}
+
+export default UserFormPage

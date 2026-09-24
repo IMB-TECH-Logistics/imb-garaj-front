@@ -5,8 +5,10 @@ import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { useColumnsManagersVehicles } from "./cols"
 export default function Managers() {
+    const { t } = useTranslation()
     const search = useSearch({strict:false})
     const { setData, getData } = useGlobalStore()
     const cols = useColumnsManagersVehicles()
@@ -15,6 +17,8 @@ export default function Managers() {
             params:{
                 page_size:search.page_size,
                 page:search.page,
+                search:search.search,
+                ordering:(search as Record<string, any>).ordering,
             }
         })
     const navigate = useNavigate()
@@ -36,6 +40,7 @@ export default function Managers() {
         <>
             <DataTable
                 loading={isLoading}
+                manualSorting
                 numeration
                 data={data?.results}
                 columns={cols}
@@ -48,7 +53,7 @@ export default function Managers() {
                 head={
                     <div className="p-3">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl ">Ro'yxat</h1>
+                            <h1 className="text-2xl ">{t("page.list")}</h1>
                             <Badge>{formatMoney(data?.count)}</Badge>
                         </div>
                     </div>

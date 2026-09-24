@@ -10,6 +10,7 @@ type VehicleRoleType = {
     name: string
     type: string
     owner:number
+    flow_type?: number
 }
 
 type VehicleCashflowsType = {
@@ -26,16 +27,29 @@ type VehicleCashflowsType = {
 type VehicleDetailType = {
     id: number
     driver_name: string
+    trailer_type_name: string
+    truck_type_name: string
     created: string
     updated: string
     truck_number: string
     truck_passport: string
+    stir?: string | null
     trailer_number: string
     fuel: string
     truck_type: number
     trailer_type: number
     driver: number
-    consumption:number
+    owner: number
+    year: number
+    status: number
+    registered_date: string
+    consumption: number
+    truck_front: string | File | null
+    truck_back: string | File | null
+    license_front: string | File | null
+    license_back: string | File | null
+    trailer_front: string | File | null
+    trailer_back: string | File | null
 }
 type VehicleCashFlowAdd = {
     id: number

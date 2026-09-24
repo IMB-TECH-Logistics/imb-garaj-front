@@ -9,18 +9,32 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 export enum ExpenseTypeEnum {
     TRUCK = 1,
     ORDER = 2,
+    TRIP = 3,
 }
 
 export const EXPENSE_TYPE_OPTIONS = [
     { label: "Yuk mashinasi uchun", value: ExpenseTypeEnum.TRUCK },
     { label: "Buyurtma uchun", value: ExpenseTypeEnum.ORDER },
+    { label: "Reys uchun", value: ExpenseTypeEnum.TRIP },
+]
+
+export enum FlowTypeEnum {
+    EXPENSE = -1,
+    INCOME = 1,
+}
+
+export const FLOW_TYPE_OPTIONS = [
+    { label: "Chiqim", value: FlowTypeEnum.EXPENSE },
+    { label: "Kirim", value: FlowTypeEnum.INCOME },
 ]
 
 const AddExpensesModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -34,7 +48,7 @@ const AddExpensesModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Xarajat muvaffaqiyatli ${currentRole?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentRole?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_EXPENSES)
@@ -56,6 +70,7 @@ const AddExpensesModal = () => {
         const payload = {
             ...values,
             type: Number(String(values.type).replaceAll('"', "")),
+            flow_type: Number(String(values.flow_type).replaceAll('"', "")),
         }
 
         if (currentRole?.id) {
@@ -74,14 +89,23 @@ const AddExpensesModal = () => {
                 <FormInput
                     required
                     name="name"
-                    label="Xarajat nomi"
+                    label={t("form.expense_type")}
                     methods={form}
                 />
                 <FormCombobox
                     required
                     name="type"
-                    label="Xarajat turi"
+                    label={t("form.expense_type")}
                     options={EXPENSE_TYPE_OPTIONS}
+                    control={form.control}
+                    labelKey="label"
+                    valueKey="value"
+                />
+                <FormCombobox
+                    required
+                    name="flow_type"
+                    label={t("form.direction")}
+                    options={FLOW_TYPE_OPTIONS}
                     control={form.control}
                     labelKey="label"
                     valueKey="value"
@@ -93,7 +117,7 @@ const AddExpensesModal = () => {
                         type="submit"
                         loading={isPending}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

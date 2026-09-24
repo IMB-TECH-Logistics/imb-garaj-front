@@ -28,14 +28,21 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
     if (!hasValidFieldError && msg) {
       toast.error(msg)
     }
-  } else if (isClientError && msg) {
+  } else if (isClientError) {
     const arrayErrors = Object.entries(data).filter(([key]) => key !== "detail")
     if (arrayErrors.length > 0) {
-      toast.error(arrayErrors.map(([_, value]) => String(value)).join("\n"), {
-        duration: 5000,
-      })
-    } else {
+      toast.error(
+        arrayErrors
+          .map(([, value]) =>
+            Array.isArray(value) ? value.join(", ") : String(value),
+          )
+          .join("\n"),
+        { duration: 5000 },
+      )
+    } else if (msg) {
       toast.error(msg, { duration: 5000 })
+    } else {
+      toast.error("Xatolik yuz berdi", { duration: 5000 })
     }
   } else {
     toast.error("Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")

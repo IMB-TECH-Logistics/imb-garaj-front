@@ -1,0 +1,169 @@
+import { formatMoney } from "@/lib/format-money"
+import { ColumnDef } from "@tanstack/react-table"
+import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+export type StationCashFlowRow = {
+    id: number
+    action: number
+    amount: string | number
+    currency: number
+    currency_course: string | number | null
+    comment: string | null
+    petrol_station: number
+    petrol_station_name: string | null
+    executor: number
+    executor_name: string | null
+    driver: number | null
+    driver_name: string | null
+    vehicle_plate: string | null
+    liters: number | string | null
+    price_per_liter: number | string | null
+    unit: "liter" | "m3" | null
+    running_balance: number | null
+    created: string
+}
+
+const CURRENCY_LABEL: Record<number, string> = {
+    1: "UZS",
+    2: "USD",
+}
+
+// `unit` — "liter" yoki "m3" (yoki null, kirim yozuvlarida yoki mashina/FuelLog
+// bo'lmagan chiqimlarda). Bu doim mashina/yozuvning `fuel`iga qarab aniqlanadi —
+// hardcoded "litr" ishlatilmaydi.
+const UNIT_LABEL: Record<string, string> = { liter: "litr", m3: "m³" }
+
+const formatDateTime = (s?: string | null) => {
+    if (!s) return "—"
+    const d = new Date(s)
+    if (isNaN(d.getTime())) return s
+    return d.toLocaleString("uz-UZ", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+    })
+}
+
+export const formatQuantity = (
+    v: number | string | null,
+    unit: string | null,
+) => {
+    if (v == null) return "—"
+    const label = unit ? (UNIT_LABEL[unit] ?? unit) : ""
+    const formatted = Number(v).toLocaleString("uz-UZ", {
+        maximumFractionDigits: 2,
+    })
+    return `${formatted}${label ? ` ${label}` : ""}`
+}
+
+export const getAmountInUzs = (row: StationCashFlowRow) => {
+    const amount = Number(row.amount ?? 0)
+    return row.currency === 2 ?
+            amount * Number(row.currency_course ?? 0)
+        :   amount
+}
+
+export const useStationCashFlowColumns = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<StationCashFlowRow>[]>(() => [
+            {
+                accessorKey: "created",
+                header: t("table.time_col"),
+                cell: ({ row }) => formatDateTime(row.original.created),
+            },
+            {
+                accessorKey: "driver_name",
+                header: t("form.driver"),
+                cell: ({ row }) => {
+                    if (!row.original.driver_name) return "—"
+                    return (
+                        <div className="flex flex-col">
+                            <span className="font-medium">
+                                {row.original.driver_name}
+                            </span>
+                            {row.original.vehicle_plate && (
+                                <span className="text-[11px] text-muted-foreground">
+                                    {row.original.vehicle_plate}
+                                </span>
+                            )}
+                        </div>
+                    )
+                },
+            },
+            {
+                accessorKey: "liters",
+                header: t("form.quantity"),
+                cell: ({ row }) => (
+                    <span className="tabular-nums">
+                        {formatQuantity(
+                            row.original.liters,
+                            row.original.unit,
+                        )}
+                    </span>
+                ),
+            },
+            {
+                accessorKey: "price_per_liter",
+                header: t("table.price_col"),
+                cell: ({ row }) =>
+                    row.original.price_per_liter == null ? (
+                        "—"
+                    ) : (
+                        <span className="tabular-nums text-muted-foreground">
+                            {formatMoney(Number(row.original.price_per_liter))}{" "}
+                            so'm
+                        </span>
+                    ),
+            },
+            {
+                accessorKey: "comment",
+                header: t("form.comment"),
+                cell: ({ row }) => row.original.comment || "—",
+            },
+            {
+                accessorKey: "executor_name",
+                header: t("table.executor"),
+                cell: ({ row }) => row.original.executor_name ?? "—",
+            },
+            {
+                accessorKey: "amount",
+                header: t("form.amount"),
+                cell: ({ row }) => {
+                    const isIncome = row.original.action === 1
+                    const amount = Number(row.original.amount ?? 0)
+                    const currency = row.original.currency
+                    const inUzs = getAmountInUzs(row.original)
+                    return (
+                        <div className="flex flex-col">
+                            <span
+                                className={`tabular-nums font-medium ${
+                                    isIncome
+                                        ? "text-emerald-600"
+                                        : "text-rose-600"
+                                }`}
+                            >
+                                {isIncome ? "+" : "−"}
+                                {formatMoney(inUzs)} so'm
+                            </span>
+                            {currency === 2 && (
+                                <span className="text-[11px] text-muted-foreground tabular-nums">
+                                    {formatMoney(amount)}{" "}
+                                    {CURRENCY_LABEL[currency]} ×{" "}
+                                    {formatMoney(
+                                        Number(
+                                            row.original.currency_course ?? 0,
+                                        ),
+                                    )}
+                                </span>
+                            )}
+                        </div>
+                    )
+                },
+            },
+        ],
+        [t],
+    )
+}

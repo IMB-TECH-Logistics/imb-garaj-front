@@ -1,26 +1,32 @@
-import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
+import { FormCombobox } from "@/components/form/combobox"
 import FileUpload from "@/components/form/file-upload"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
-import { MANAGERS_TRIPS, SETTINGS_DRIVERS } from "@/constants/api-endpoints"
+import { MANAGERS_TRIPS, MANAGERS_TRIPS_START_DATA, SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
+import { IS_READY } from "@/store/ready-mode"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
+import { startOfDay } from "date-fns"
 import { X } from "lucide-react"
+import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 export default function CreateManagerTrips() {
+    const { t } = useTranslation()
     const { id } = useParams({ strict: false })
     const { closeModal } = useModal(MANAGERS_TRIPS)
     const queryClient = useQueryClient()
     const { getData } = useGlobalStore()
     const item = getData(MANAGERS_TRIPS)
+    const isEdit = !!item?.id
 
     const form = useForm<any>({
         defaultValues: {
@@ -32,15 +38,48 @@ export default function CreateManagerTrips() {
 
     const { handleSubmit, reset, control, watch, setValue } = form
 
-    const { data: drivers } = useGet(SETTINGS_DRIVERS, {
+    const { data: startData } = useGet(MANAGERS_TRIPS_START_DATA, {
+        params: { vehicle_id: id },
+        enabled: !isEdit && !!id,
+        options: { staleTime: 0, gcTime: 0, refetchOnMount: "always" },
+    })
+
+    useEffect(() => {
+        if (startData && !isEdit) {
+            if (startData.end_mileage != null) {
+                setValue("start_mileage", startData.end_mileage)
+            }
+            if (startData.end_fuel != null) {
+                setValue("start_fuel", startData.end_fuel)
+            }
+            if (startData.end_mileage_image) {
+                setValue("start_mileage_image", startData.end_mileage_image)
+            }
+        }
+    }, [startData, isEdit, setValue])
+
+    const { data: driversData } = useGet(SETTINGS_DRIVERS, {
         params: { page_size: 10000 },
     })
+    const drivers = useMemo(() =>
+        driversData?.results?.map((d: any) => ({
+            ...d,
+            full_name: `${d.first_name} ${d.last_name || ""}`.trim(),
+        })) ?? [],
+        [driversData],
+    )
 
     const startImage = watch("start_mileage_image") as File | string | null
     const endImage = watch("end_mileage_image") as File | string | null
 
     const startMileage = watch("start_mileage")
     const endMileage = watch("end_mileage")
+    const startFuel = watch("start_fuel")
+    const startValue = watch("start")
+    const minEndDate = startValue ? startOfDay(new Date(startValue)) : undefined
+
+    const mileageDiffers = !isEdit && startData?.end_mileage != null && Number(startMileage) !== Number(startData.end_mileage)
+    const fuelDiffers = !isEdit && startData?.end_fuel != null && Number(startFuel) !== Number(startData.end_fuel)
 
     function removeImage(name: "start_mileage_image" | "end_mileage_image") {
         setValue(name, null)
@@ -50,22 +89,18 @@ export default function CreateManagerTrips() {
         queryClient.invalidateQueries({ queryKey: [MANAGERS_TRIPS] })
         toast.success(
             item?.id ?
-                "Muvaffaqiyatli tahrirlandi!"
-            :   "Muvaffaqiyatli qo'shildi!",
+                t("messages.success_edit")
+            :   t("messages.success_add"),
         )
         closeModal()
         reset()
     }
 
-    const headers = { "Content-Type": "multipart/form-data" }
-
     const { mutate: createTrip, isPending: isCreating } = usePost(
         { onSuccess },
-        { headers },
     )
     const { mutate: editTrip, isPending: isEditing } = usePatch(
         { onSuccess },
-        { headers },
     )
 
     function onSubmit(values: any) {
@@ -116,16 +151,26 @@ export default function CreateManagerTrips() {
                     control={control}
                     required
                     name="driver"
-                    options={drivers?.results}
-                    labelKey="first_name"
+                    options={drivers}
+                    labelKey="full_name"
                     valueKey="id"
-                    label="Haydovchi"
+                    label={t("form.driver")}
                 />
+
+                {(!IS_READY || isEdit) && (
+                    <FormDatePicker
+                        control={control}
+                        required
+                        name="start"
+                        label={t("form.start_date")}
+                    />
+                )}
 
                 <FormNumberInput
                     name="start_mileage"
                     required
-                    label="Kirish probegi"
+                    allowNegative={false}
+                    label={`${t("table.start_mileage")}${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
                     control={control}
                 />
 
@@ -152,36 +197,42 @@ export default function CreateManagerTrips() {
                         control={control}
                         name="start_mileage_image"
                         multiple={false}
-                        isPaste={false}
+                        isPaste={true}
                         hideClearable={true}
                     />
                 :   null}
 
+                <FormNumberInput
+                    name="start_fuel"
+                    label={`${t("form.fuel_type")} (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
+                    control={control}
+                    decimalScale={2}
+                    allowNegative={false}
+                />
                 {!item?.id && (
-                    <>
-                        <FormNumberInput
-                            name="start_fuel"
-                            label="Bakdagi yoqilg'i (litr)"
-                            control={control}
-                            decimalScale={2}
-                        />
-                        <FormNumberInput
-                            name="advance"
-                            label="Avans"
-                            control={control}
-                            thousandSeparator=" "
-                            decimalScale={0}
-                            placeholder="Ex: 5 000 000"
-                        />
-                    </>
+                    <FormNumberInput
+                        name="advance"
+                        label={t("form.advance")}
+                        control={control}
+                        thousandSeparator=" "
+                        decimalScale={0}
+                        allowNegative={false}
+                        placeholder="Ex: 5 000 000"
+                    />
                 )}
-
                 {item?.id && (
                     <>
+                        <FormDatePicker
+                            control={control}
+                            name="end"
+                            label={t("form.end_date")}
+                            calendarProps={minEndDate ? { disabled: { before: minEndDate } } : undefined}
+                        />
                         <FormNumberInput
                             name="end_mileage"
                             required
-                            label="Chiqish probegi"
+                            allowNegative={false}
+                            label={t("table.end_mileage")}
                             control={control}
                         />
 
@@ -210,40 +261,16 @@ export default function CreateManagerTrips() {
                                 control={control}
                                 name="end_mileage_image"
                                 multiple={false}
-                                isPaste={false}
+                                isPaste={true}
                                 hideClearable={true}
                             />
                         :   null}
 
-                        <FormNumberInput
-                            name="end_fuel"
-                            label="Bakdagi yoqilg'i (litr)"
-                            control={control}
-                            decimalScale={2}
-                        />
-
-                        <FormDatePicker
-                            name="end"
-                            required
-                            fullWidth
-                            label="Tugallangan"
-                            control={control}
-                        />
                     </>
                 )}
 
-                {item?.id && (
-                    <FormDatePicker
-                        name="start"
-                        required
-                        fullWidth
-                        label="Chiqib ketgan"
-                        control={control}
-                    />
-                )}
-
                 <div className="flex justify-end">
-                    <Button loading={isPending}>Saqlash</Button>
+                    <Button loading={isPending}>{t("actions.save")}</Button>
                 </div>
             </form>
         </div>

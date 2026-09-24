@@ -11,7 +11,7 @@ import { NavUser } from "./nav-user"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
-        <Sidebar collapsible="icon" {...props}>
+        <Sidebar collapsible="offcanvas" {...props}>
             <div
                 className={
                     "flex lg:hidden items-center gap-3 transition-all duration-300 min-w-0 pt-4"

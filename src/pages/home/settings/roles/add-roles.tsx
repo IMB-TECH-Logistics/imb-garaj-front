@@ -6,24 +6,38 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm } from "react-hook-form"
+import { useEffect } from "react"
+import { FormProvider, useForm } from "react-hook-form"
 import { toast } from "sonner"
+import PermissionField from "../users/permission-field"
+import { useTranslation } from "react-i18next"
 
-const  AddRolesModal = () => {
+const AddRolesModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
     const currentRole = getData<RolesType>(SETTINGS_ROLES)
 
     const form = useForm<RolesType>({
-        defaultValues: currentRole,
+        defaultValues: {
+            name: currentRole?.name ?? "",
+            actions: currentRole?.actions ?? [],
+        },
     })
 
     const { handleSubmit, reset } = form
 
+    useEffect(() => {
+        reset({
+            name: currentRole?.name ?? "",
+            actions: currentRole?.actions ?? [],
+        })
+    }, [currentRole?.id, currentRole?.actions?.join(","), reset])
+
     const onSuccess = () => {
         toast.success(
-            `Rol muvaffaqiyatli ${currentRole?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentRole?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_ROLES)
@@ -50,20 +64,32 @@ const  AddRolesModal = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <FormInput required name="name" label="Rol turi" methods={form} />
+        <FormProvider {...form}>
+            <form onSubmit={handleSubmit(onSubmit)} className="p-1">
+                <FormInput
+                    required
+                    name="name"
+                    label={t("form.user_role")}
+                    methods={form}
+                />
 
-            <div className="flex items-center justify-end  mt-3">
-                <Button
-                    className="min-w-36 w-full md:w-max"
-                    type="submit"
-                    loading={isPending}
-                >
-                    {"Saqlash"}
-                </Button>
-            </div>
-        </form>
+                <div className="mt-4 max-h-[60vh] overflow-y-auto pr-1">
+                    <PermissionField />
+                </div>
+
+                <div className="flex items-center justify-end  mt-3">
+                    <Button
+                        className="min-w-36 w-full md:w-max"
+                        type="submit"
+                        loading={isPending}
+                        disabled={isPending}
+                    >
+                        {t("actions.save")}
+                    </Button>
+                </div>
+            </form>
+        </FormProvider>
     )
 }
 
-export default  AddRolesModal
+export default AddRolesModal

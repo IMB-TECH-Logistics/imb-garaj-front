@@ -21,6 +21,8 @@ type TripRow = {
     vehicle_number: string | number
     driver_name: string | number
     orders_count: string | number
+    pending_order_count?: string | number
+    completed_order_count?: string | number
     id: number | string
     created: string
     updated: string
@@ -82,6 +84,7 @@ type TripOrdersRow = {
     unloading: number
     trip: number
     cargo_type: string | number
+    direction: number | null
     date: string | number
     client: string
     payment_type: string | number
@@ -92,6 +95,15 @@ type TripOrdersRow = {
     payment_amount_uzs: string
     payment_amount_usd: string
     status:number
+    activity: number
+    activity_display: string
+    incomes?: {
+        id?: number
+        payment_type: number | null
+        currency: number | null
+        currency_course: number | string | null
+        amount: number | string | null
+    }[]
     payments: [
         {
             currency: number | null
@@ -100,6 +112,7 @@ type TripOrdersRow = {
             payment_type: number | null
         },
     ]
+    images?: { id: number; image: string }[]
 }
 
 type CashflowRow = {

@@ -82,18 +82,16 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     {...props}
                     hidden={props.hidden}
                 />
-                {type === "password" &&
-                    (hide ?
-                        <Eye
-                            width={18}
-                            className="absolute right-1 top-1 text-muted-foreground p-1 box-content cursor-pointer backdrop-blur z-2"
-                            onClick={() => setHide(false)}
-                        />
-                    :   <EyeOff
-                            width={18}
-                            className="absolute right-1 top-1 text-muted-foreground p-1 box-content cursor-pointer backdrop-blur z-2"
-                            onClick={() => setHide(true)}
-                        />)}
+                {type === "password" && (
+                    <button
+                        type="button"
+                        aria-label={hide ? "Parolni ko'rsatish" : "Parolni yashirish"}
+                        onClick={() => setHide(!hide)}
+                        className="absolute right-1 top-1 text-muted-foreground p-1 box-content cursor-pointer backdrop-blur z-2"
+                    >
+                        {hide ? <Eye width={18} /> : <EyeOff width={18} />}
+                    </button>
+                )}
                 {!!suffix && (
                     <span
                         className={`absolute right-1 top-1 text-muted-foreground p-1 box-content cursor-pointer backdrop-blur z-1 ${props.disabled && "pointer-events-none cursor-not-allowed opacity-50"}`}

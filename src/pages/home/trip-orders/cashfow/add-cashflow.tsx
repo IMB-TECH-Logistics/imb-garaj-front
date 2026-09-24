@@ -16,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 interface CashflowForm {
     payment_type: any
@@ -28,6 +29,7 @@ interface CashflowForm {
 }
 
 const AddCashflow = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("create-order-cashflow")
@@ -61,9 +63,7 @@ const AddCashflow = () => {
 
     const onSuccess = () => {
         toast.success(
-            currentCashflow?.id ?
-                "Cashflow tahrirlandi!"
-            :   "Cashflow qo‘shildi!",
+            currentCashflow?.id ? t("toast.updated") : t("toast.added"),
         )
         reset()
         clearKey(ORDER_CASHFLOWS)
@@ -112,19 +112,19 @@ const AddCashflow = () => {
         >
             <FormCombobox
                 required
-                label="Amal turi"
+                label={t("form.action_type")}
                 name="action"
                 control={control}
                 options={[
-                    { id: 1, name: "Haydovchidan Menejerga" },
-                    { id: 2, name: "Menejerdan Haydovchiga" },
+                    { id: 1, name: t("form.driver_to_manager") },
+                    { id: 2, name: t("form.manager_to_driver") },
                 ]}
                 valueKey="id"
                 labelKey="name"
             />
             <FormCombobox
                 required
-                label="Xarajat turi"
+                label={t("form.expense_type")}
                 name="category"
                 control={control}
                 options={categoryData}
@@ -133,24 +133,24 @@ const AddCashflow = () => {
             />
             <FormCombobox
                 required
-                label="To'lov turi"
+                label={t("form.payment_type")}
                 name="payment_type"
                 control={control}
                 options={paymentTypes?.results}
                 valueKey="id"
                 labelKey="name"
-                placeholder="To'lov turini tanlang"
+                placeholder={t("form.select_type")}
             />
 
             <FormNumberInput
                 required
                 name="amount"
-                label="Miqdor"
+                label={t("table.amount")}
                 thousandSeparator=" "
                 control={control}
                 placeholder="0 UZS"
             />
-            <FormInput required name="comment" label="Izoh" methods={form} />
+            <FormInput required name="comment" label={t("form.comment")} methods={form} />
 
             <div className="col-span-2 flex justify-end pt-4">
                 <Button
@@ -158,7 +158,7 @@ const AddCashflow = () => {
                     loading={creating || updating}
                     disabled={creating || updating}
                 >
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

@@ -1,17 +1,32 @@
 import ParamInput from "@/components/as-params/input"
 import Modal from "@/components/custom/modal"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { SETTINGS_COUNTRIES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
+import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
+import { useSearch } from "@tanstack/react-router"
 import { CirclePlus, Plus, PlusCircle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import CountriesTable from "./tables/country"
 import AddCountriesModal from "./tables/country/add-country"
 
 const Locations = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_locations_control")
     const { openModal } = useModal("country-modal")
     const { clearKey } = useGlobalStore()
+    const search = useSearch({ strict: false })
+    const { data } = useGet<ListResponse<RolesType>>(SETTINGS_COUNTRIES, {
+        params: {
+            search: search.country_search,
+            page: search.page,
+            page_size: search.page_size,
+        },
+    })
 
     const handleCountyModalOpen = () => {
         clearKey(SETTINGS_COUNTRIES)
@@ -20,28 +35,35 @@ const Locations = () => {
 
     return (
         <>
-            <Card className="max-w-[3]">
+            <Card>
                 <CardHeader className="pb-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <CardTitle className="text-xl font-semibold tracking-tight">
-                            Davlatlar
-                        </CardTitle>
+                        <div className="flex items-center gap-2">
+                            <CardTitle className="text-xl font-semibold tracking-tight">
+                                {t("form.country")}
+                            </CardTitle>
+                            {data?.count !== undefined && (
+                                <Badge className="text-sm">{data.count}</Badge>
+                            )}
+                        </div>
                         <div className="flex items-center  gap-4">
                             <div className="w-full sm:w-[360px]">
                                 <ParamInput
                                     fullWidth
-                                    placeholder="Qidirish..."
+                                    placeholder={`${t("actions.search")}...`}
                                     searchKey="country_search"
                                     pageKey="page"
                                 />
                             </div>
-                            <Button
-                                className="flex items-center gap-2"
-                                onClick={handleCountyModalOpen}
-                            >
-                                <CirclePlus size={18} />
-                                Qo'shish
-                            </Button>
+                            {hasControl && (
+                                <Button
+                                    className="flex items-center gap-2"
+                                    onClick={handleCountyModalOpen}
+                                >
+                                    <CirclePlus size={18} />
+                                    {t("actions.add")}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </CardHeader>
@@ -55,7 +77,7 @@ const Locations = () => {
             </Card>
             <Modal
                 size="max-w-xl"
-                title="Davlat qo'shish"
+                title={t("actions.add") + " " + t("form.country").toLowerCase()}
                 modalKey="country-modal"
             >
                 <AddCountriesModal />

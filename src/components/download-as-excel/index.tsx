@@ -11,6 +11,7 @@ type Props = {
     variant?: ButtonVariant
     className?: string
     fileType?: string
+    params?: Record<string, any>
 }
 
 const DownloadAsExcel = ({
@@ -21,8 +22,14 @@ const DownloadAsExcel = ({
     variant = "secondary",
     className,
     fileType,
+    params,
 }: Props) => {
-    const { trigger, isFetching } = useDownloadAsExcel({ url, name, fileType })
+    const { trigger, isFetching } = useDownloadAsExcel({
+        url,
+        name,
+        fileType,
+        params,
+    })
     return (
         <Button
             variant={variant}

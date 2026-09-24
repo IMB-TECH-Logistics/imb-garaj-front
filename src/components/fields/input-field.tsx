@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils"
 import { useEffect } from "react"
 import { FieldValues, Path, UseFormReturn } from "react-hook-form"
 import { ClassNameValue } from "tailwind-merge"
+import { useTranslation } from "react-i18next"
 import FieldError from "../form/form-error"
 import FieldLabel from "../form/form-label"
 import { Input, InputProps } from "../ui/input"
@@ -24,6 +25,7 @@ export default function InputField<IForm extends FieldValues>({
     required = false,
     ...props
 }: IProps<IForm> & InputProps) {
+    const { t } = useTranslation()
     const {
         register,
         formState: { errors },
@@ -32,7 +34,7 @@ export default function InputField<IForm extends FieldValues>({
     const reg = register(name, {
         required: {
             value: required,
-            message: `${label}ni kiriting`,
+            message: label ? t("validation.required_field", { field: label }) : t("validation.required"),
         },
     })
 

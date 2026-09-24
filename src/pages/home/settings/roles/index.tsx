@@ -2,15 +2,19 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_ROLES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddRolesModal from "./add-roles"
 import { useColumnsRolesTable } from "./roles-cols"
 
 const RolesPage = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_roles_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<RolesType>>(
         SETTINGS_ROLES,
@@ -19,6 +23,7 @@ const RolesPage = () => {
                 search: search.roles_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -43,9 +48,10 @@ const RolesPage = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 numeration
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -55,16 +61,22 @@ const RolesPage = () => {
                     <TableHeader
                         fileName="Rollar"
                         url="excel"
-                        storeKey={SETTINGS_ROLES}
+                        storeKey={hasControl ? SETTINGS_ROLES : undefined}
                         searchKey="roles_search"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_ROLES} id={item?.id} />
+            <DeleteModal
+                path={SETTINGS_ROLES}
+                id={item?.id}
+                name={item?.name}
+            />
             <Modal
-                title={item?.id ? "Rolllarni tahrirlash" : " Rollarni qo'shish"}
+                title={item?.id ? t("actions.edit") + " " + t("nav.roles").toLowerCase() : t("actions.add") + " " + t("nav.roles").toLowerCase()}
                 modalKey="create"
+                size="max-w-5xl"
             >
                 <AddRolesModal />
             </Modal>

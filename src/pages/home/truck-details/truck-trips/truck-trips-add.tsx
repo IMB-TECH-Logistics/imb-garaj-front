@@ -1,7 +1,7 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { Button } from "@/components/ui/button"
-import { SETTINGS_DRIVERS, TRIPS, VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_TRIPS, SETTINGS_DRIVERS, VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
@@ -10,15 +10,17 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddTrip = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("post-trips")
     const { data: vehicleData } = useGet<ListResponse<Truck>>(VEHICLES)
     const { data: driversData } = useGet<ListResponse<any>>(SETTINGS_DRIVERS)
 
-    const currentShift = getData<TripFormData & { id?: number }>(TRIPS)
+    const currentShift = getData<TripFormData & { id?: number }>(MANAGERS_TRIPS)
 
     const form = useForm<TripFormData>({
         defaultValues: {
@@ -32,12 +34,12 @@ const AddTrip = () => {
 
     const onSuccess = () => {
         toast.success(
-            currentShift?.id ? "Reys tahrirlandi!" : "Reys qo'shildi!",
+            currentShift?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
-        clearKey(TRIPS)
+        clearKey(MANAGERS_TRIPS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [TRIPS] })
+        queryClient.refetchQueries({ queryKey: [MANAGERS_TRIPS] })
     }
 
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
@@ -51,9 +53,9 @@ const AddTrip = () => {
         }
 
         if (currentShift?.id) {
-            update(`${TRIPS}/${currentShift.id}`, formattedData)
+            update(`${MANAGERS_TRIPS}/${currentShift.id}`, formattedData)
         } else {
-            create(TRIPS, formattedData)
+            create(MANAGERS_TRIPS, formattedData)
         }
     }
 
@@ -62,40 +64,40 @@ const AddTrip = () => {
             <div className="grid grid-cols-1 gap-4">
                 <FormCombobox
                     required
-                    label="Mashina"
+                    label={t("form.truck")}
                     name="vehicle"
                     control={control}
                     options={vehicleData?.results}
                     valueKey="id"
                     labelKey="truck_number"
-                    placeholder="Mashina tanlang"
+                    placeholder={t("form.truck")}
                 />
 
                 <FormCombobox
                     required
-                    label="Haydovchi"
+                    label={t("form.driver")}
                     name="driver"
                     control={control}
                     options={driversData?.results}
                     valueKey="id"
                     labelKey="first_name"
-                    placeholder="Haydovchi tanlang"
+                    placeholder={t("form.select_driver")}
                 />
                 <div className="grid grid-cols-2 gap-2">
                     <FormDatePicker
                         required
-                        label="Boshlanish sanasi"
+                        label={t("form.start_date")}
                         control={control}
                         name="start"
-                        placeholder="Sanani tanlang"
+                        placeholder={t("form.select_date")}
                         className="w-full"
                     />
                     <FormDatePicker
                         required
-                        label="Tugash sanasi"
+                        label={t("form.end_date")}
                         control={control}
                         name="start"
-                        placeholder="Sanani tanlang"
+                        placeholder={t("form.select_date")}
                         className="w-full"
                     />
                 </div>
@@ -103,7 +105,7 @@ const AddTrip = () => {
 
             <div className="col-span-2 flex justify-end gap-4 pt-4">
                 <Button type="submit" loading={isPending} disabled={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

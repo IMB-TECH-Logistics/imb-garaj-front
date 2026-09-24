@@ -1,7 +1,7 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
-import { TRIPS_ORDERS } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -12,8 +12,10 @@ import { DataTable } from "@/components/ui/datatable"
 import { useTripOrdersCols } from "./new-cols"
 import AddExpenses from "./create/expense"
 import AddCashflow from "./cashfow/add-cashflow"
+import { useTranslation } from "react-i18next"
 
 const TripOrderMain = () => {
+    const { t } = useTranslation()
     const params = useParams({ strict: false })
     const search = useSearch({ strict: false })
     const page = Number(search.page ?? 1)
@@ -25,10 +27,10 @@ const TripOrderMain = () => {
     const navigate = useNavigate()
 
     const parentId = params.parentId
-    const currentTripsOrder = getData<TripsOrders>(TRIPS_ORDERS)
+    const currentTripsOrder = getData<TripsOrders>(MANAGERS_ORDERS)
 
     const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
-        TRIPS_ORDERS,
+        MANAGERS_ORDERS,
         {
             params: {
                 trip: parentId,
@@ -38,17 +40,17 @@ const TripOrderMain = () => {
     )
 
     const handleCreate = () => {
-        clearKey(TRIPS_ORDERS)
+        clearKey(MANAGERS_ORDERS)
         openCreateModal()
     }
 
     const handleEdit = (order: TripOrdersRow) => {
-        setData(TRIPS_ORDERS, order)
+        setData(MANAGERS_ORDERS, order)
         openCreateModal()
     }
 
     const handleDelete = (order: TripOrdersRow) => {
-        setData(TRIPS_ORDERS, order)
+        setData(MANAGERS_ORDERS, order)
         openDeleteModal()
     }
 
@@ -68,7 +70,7 @@ const TripOrderMain = () => {
     // }
 
     const handleAdd = (order: TripOrdersRow) => {
-        setData(TRIPS_ORDERS, order)
+        setData(MANAGERS_ORDERS, order)
         AddExpenseModal()
     }
 
@@ -89,12 +91,12 @@ const TripOrderMain = () => {
                     <Button>
                         <ArrowLeft size={16} />
                     </Button>
-                    <h1 className="font-bold">Reyslar ro‘yxati</h1>
+                    <h1 className="font-bold">{t("page.trip_list")}</h1>
                 </div>
                 <div className="flex justify-end">
                     <Button onClick={handleCreate}>
                         <CirclePlus size={18} />
-                        Qo'shish
+                        {t("actions.add")}
                     </Button>
                 </div>
             </div>
@@ -117,13 +119,12 @@ const TripOrderMain = () => {
             <Modal
                 modalKey="create"
                 size="max-w-2xl"
-                title={`Buyurtma ${currentTripsOrder?.id ? "tahrirlash" : "qo‘shish"
-                    }`}
+                title={`${t("page.order_detail")} ${currentTripsOrder?.id ? t("actions.edit") : t("actions.add")}`}
             >
                 <AddTripOrders />
             </Modal>
 
-            <DeleteModal path={TRIPS_ORDERS} id={currentTripsOrder?.id} />
+            <DeleteModal path={MANAGERS_ORDERS} id={currentTripsOrder?.id} />
             <Modal modalKey="add-expenses">
                 <AddCashflow/> </Modal>
         </div>

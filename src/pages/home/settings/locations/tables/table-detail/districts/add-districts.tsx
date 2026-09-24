@@ -9,6 +9,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 interface AddDestrictsModalProps {
     region_id?: string | number
@@ -19,6 +20,7 @@ const AddDestrictsModal = ({
     region_id,
     country_id,
 }: AddDestrictsModalProps) => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create-districts")
     const { getData, clearKey } = useGlobalStore()
@@ -43,7 +45,7 @@ const AddDestrictsModal = ({
 
     const onSuccess = () => {
         toast.success(
-            `Tuman muvaffaqiyatli ${currentDistrict?.id ? "tahrirlandi!" : "qo'shildi"} `,
+            currentDistrict?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
 
         reset()
@@ -78,7 +80,7 @@ const AddDestrictsModal = ({
             )
         } else {
             if (!region_id) {
-                toast.error("Iltimos, avval viloyat tanlang")
+                toast.error(t("toast.error_select_region"))
                 return
             }
             postMutate(SETTINGS_DISTRICTS, formData)
@@ -100,11 +102,12 @@ const AddDestrictsModal = ({
                 <FormInput
                     required
                     name="name"
-                    label="Tuman nomi"
+                    label={t("form.name")}
+                    maxLength={255}
                     methods={form}
                 />
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Viloyat</label>
+                    <label className="text-sm font-medium">{t("form.region")}</label>
 
                     <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
                         {selectedRegion?.name ||
@@ -127,7 +130,7 @@ const AddDestrictsModal = ({
                         loading={isPending}
                         disabled={!region_id && !currentDistrict?.id}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

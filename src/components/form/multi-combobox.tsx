@@ -35,7 +35,7 @@ export function FormMultiCombobox<
     placeholder,
     required,
     control,
-    hideError = true,
+    hideError = false,
     valueKey="id",
     labelKey="name",
     onAdd,
@@ -66,7 +66,7 @@ export function FormMultiCombobox<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: `${label || name}ni kiriting` } : {}
+                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
                 }
                 render={({ field }) => (
                     <div className="pt-0.5">

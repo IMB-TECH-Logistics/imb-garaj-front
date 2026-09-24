@@ -10,8 +10,18 @@ import {
     Tooltip,
 } from "recharts"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_INCOME_EXPENSE } from "@/constants/api-endpoints"
 import { useGlobalStore } from "@/store/global-store"
 import { PALETTES, PALETTE_STORE_KEY } from "./palettes"
+
+type IncomeExpensePoint = {
+    date: string
+    tushum: string | number
+    xarajat: string | number
+    foyda: string | number
+}
 
 const formatCompact = (v: number) => {
     const abs = Math.abs(v)
@@ -25,31 +35,6 @@ const formatFull = (v: number) =>
     new Intl.NumberFormat("uz-UZ").format(Math.round(v)) + " so'm"
 
 const MONTHS_UZ = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"]
-
-function generateMonthlyData() {
-    const data = []
-    const now = new Date()
-    for (let i = 11; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-        const month = MONTHS_UZ[d.getMonth()]
-        const yr = String(d.getFullYear()).slice(2)
-        const tushum = Math.round((Math.random() * 60 + 20) * 1_000_000)
-        const xarajat = Math.round((Math.random() * 40 + 10) * 1_000_000)
-        data.push({ name: `${month}'${yr}`, tushum, xarajat, foyda: Math.max(0, tushum - xarajat) })
-    }
-    return data
-}
-
-function generateDailyData(year: number, month: number) {
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const data = []
-    for (let day = 1; day <= daysInMonth; day++) {
-        const tushum = Math.round((Math.random() * 8 + 1) * 1_000_000)
-        const xarajat = Math.round((Math.random() * 5 + 0.5) * 1_000_000)
-        data.push({ name: String(day), tushum, xarajat, foyda: Math.max(0, tushum - xarajat) })
-    }
-    return data
-}
 
 function isMonthRange(from?: string, to?: string) {
     if (!from || !to) return false
@@ -74,6 +59,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function IncomeExpenseChart() {
+    const { t } = useTranslation()
     const search: any = useSearch({ strict: false })
     const { getData } = useGlobalStore()
     const paletteIdx = getData<number>(PALETTE_STORE_KEY) ?? 0
@@ -83,10 +69,25 @@ export default function IncomeExpenseChart() {
     const selectedMonth = isDaily ? new Date(search.from_date).getMonth() : null
     const selectedYear = isDaily ? new Date(search.from_date).getFullYear() : null
 
+    const { data: raw } = useGet<IncomeExpensePoint[]>(FINANCE_INCOME_EXPENSE, {
+        params: { from_date: search?.from_date, to_date: search?.to_date },
+    })
+
     const chartData = useMemo(() => {
-        if (isDaily && selectedYear != null && selectedMonth != null) return generateDailyData(selectedYear, selectedMonth)
-        return generateMonthlyData()
-    }, [isDaily, selectedYear, selectedMonth])
+        const rows = raw ?? []
+        return rows.map((r) => {
+            const d = new Date(r.date)
+            const name = isDaily
+                ? String(d.getDate())
+                : `${MONTHS_UZ[d.getMonth()]}'${String(d.getFullYear()).slice(2)}`
+            return {
+                name,
+                tushum: Number(r.tushum),
+                xarajat: Number(r.xarajat),
+                foyda: Number(r.foyda),
+            }
+        })
+    }, [raw, isDaily])
 
     const totals = useMemo(() => ({
         income: chartData.reduce((s, i) => s + i.tushum, 0),
@@ -105,7 +106,7 @@ export default function IncomeExpenseChart() {
             {/* Title + Legend */}
             <div className="flex items-center justify-between shrink-0">
                 <span className="text-xs font-semibold">
-                    Tushum va Xarajat
+                    {t("form.income")} va {t("form.expense")}
                     <span className="text-muted-foreground font-normal ml-1.5">
                         {isDaily ? `${MONTHS_UZ[selectedMonth!]} ${selectedYear} — kunlik` : "oylik"}
                     </span>
@@ -114,17 +115,17 @@ export default function IncomeExpenseChart() {
             <div className="flex items-center gap-4 text-xs shrink-0">
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.income }} />
-                    <span className="text-muted-foreground">Tushum:</span>
+                    <span className="text-muted-foreground">{t("form.income")}:</span>
                     <span className="font-semibold transition-colors" style={{ color: p.income }}>{formatCompact(totals.income)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.expense }} />
-                    <span className="text-muted-foreground">Xarajat:</span>
+                    <span className="text-muted-foreground">{t("form.expense")}:</span>
                     <span className="font-semibold transition-colors" style={{ color: p.expense }}>{formatCompact(totals.expense)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.profit }} />
-                    <span className="text-muted-foreground">Foyda:</span>
+                    <span className="text-muted-foreground">{t("table.profit")}:</span>
                     <span className="font-semibold transition-colors" style={{ color: p.profit }}>{formatCompact(totals.profit)}</span>
                 </div>
             </div>
@@ -174,13 +175,13 @@ export default function IncomeExpenseChart() {
                             content={<CustomTooltip />}
                             cursor={{ fill: "hsl(var(--foreground))", opacity: 0.05 }}
                         />
-                        <Bar yAxisId="left" dataKey="tushum" name="Tushum" fill={p.income} opacity={0.85} radius={[3, 3, 0, 0]} />
-                        <Bar yAxisId="left" dataKey="xarajat" name="Xarajat" fill={p.expense} opacity={0.85} radius={[3, 3, 0, 0]} />
+                        <Bar yAxisId="left" dataKey="tushum" name={t("form.income")} fill={p.income} opacity={0.85} radius={[3, 3, 0, 0]} />
+                        <Bar yAxisId="left" dataKey="xarajat" name={t("form.expense")} fill={p.expense} opacity={0.85} radius={[3, 3, 0, 0]} />
                         <Area
                             yAxisId="right"
                             type="monotone"
                             dataKey="foyda"
-                            name="Foyda"
+                            name={t("table.profit")}
                             stroke={p.profit}
                             strokeWidth={2.5}
                             fill="url(#profitGradient)"

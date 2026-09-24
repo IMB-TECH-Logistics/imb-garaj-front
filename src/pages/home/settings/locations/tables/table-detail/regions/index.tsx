@@ -5,16 +5,17 @@ import { SETTINGS_REGIONS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useEffect } from "react"
+import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeaderLocation from "../../table-header"
 import AddRegionsModal from "./add-regions"
 import { useColumnsRegionsTable } from "./regions-cols"
+const REGION_PAGE_KEY = "region_page"
+const REGION_PAGE_SIZE_KEY = "region_page_size"
+
 const RegionsTable = ({ country_id }: { country_id: number }) => {
-    const navigate = useNavigate()
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
-    const selectedRegionId =
-        search.region != null ? Number(search.region) : undefined
 
     const { data, isLoading } = useGet<ListResponse<RegionsType>>(
         `${SETTINGS_REGIONS}`,
@@ -22,8 +23,8 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             params: {
                 country: country_id,
                 search: search.region_search,
-                page: 1,
-                page_size: 1000,
+                page: search[REGION_PAGE_KEY],
+                page_size: search[REGION_PAGE_SIZE_KEY],
             },
         },
     )
@@ -43,39 +44,30 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
         openDeleteModal()
     }
 
-    const handleRowClick = (row: RegionsType) => {
-        const isCurrentlySelected = search.region === row.id
-
-        const updateSearch = (prev: typeof search): Partial<typeof search> => ({
-            ...prev,
-            region: isCurrentlySelected ? undefined : row.id,
-        })
-
-        navigate({
-            search: updateSearch as any,
-        })
-    }
-
-    useEffect(() => {
-        if (data?.results?.length && !search.region && country_id) {
-            const firstRegion = data.results[0]
-
-            const updateSearch = (
-                prev: typeof search,
-            ): Partial<typeof search> => ({
-                ...prev,
-                region: firstRegion.id,
-            })
-
-            navigate({
-                search: updateSearch as any,
-            })
-        }
-    }, [data, search.region, country_id, navigate])
+    // const handleRowClick = (row: RegionsType) => {
+    //     const isCurrentlySelected = search.region === row.id
+    //     const updateSearch = (prev: typeof search): Partial<typeof search> => ({
+    //         ...prev,
+    //         region: isCurrentlySelected ? undefined : row.id,
+    //     })
+    //     navigate({ search: updateSearch as any })
+    // }
 
     const simpleColumns = useColumnsRegionsTable()
     return (
         <div className="h-[500px] flex flex-col   overflow-hidden bg-background">
+            <div className="px-3 pt-3">
+                <TableHeaderLocation
+                    disabled={!country_id}
+                    storeKey={SETTINGS_REGIONS}
+                    modalKey="create-region"
+                    name="Viloyatlar"
+                    searchKey="region_search"
+                    pageKey={REGION_PAGE_KEY}
+                    title={t("page.locations_title")}
+                    count={data?.count}
+                />
+            </div>
             <div className="flex-1 overflow-y-auto no-scrollbar-x ">
                 <DataTable
                     loading={isLoading}
@@ -83,37 +75,15 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                     data={data?.results}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
-                    onRowClick={handleRowClick}
                     className="min-w-[400px]"
                     numeration={true}
-                    head={
-                        <TableHeaderLocation
-                            disabled={!country_id}
-                            storeKey={SETTINGS_REGIONS}
-                            modalKey="create-region"
-                            name="Viloyatlar"
-                            searchKey="region_search"
-                            pageKey="page"
-                        />
-                    }
-
-                    viewAll={true}
-                    paginationProps={{ totalPages: 1 }}
-                    wrapperClassName="!bg-transparent"
-                    rowColor={(r: any) => {
-                        const rowId = Number(r?.original?.id ?? r?.id)
-                        const isSelected = selectedRegionId === rowId
-
-                        return isSelected ?
-                                [
-                                    "[&>td]:!bg-primary/10",
-                                    "hover:[&>td]:!bg-primary/15",
-                                    "[&>td]:border-y-2 [&>td]:border-primary/60",
-                                    "[&>td:first-child]:border-l-2 [&>td:last-child]:border-r-2",
-                                    "[&>td]:!rounded-none",
-                                ].join(" ")
-                            :   ""
+                    actionPermissions={["settings_locations_control"]}
+                    paginationProps={{
+                        totalPages: data?.total_pages,
+                        paramName: REGION_PAGE_KEY,
+                        pageSizeParamName: REGION_PAGE_SIZE_KEY,
                     }}
+                    wrapperClassName="!bg-transparent"
                 />
             </div>
             <DeleteModal
@@ -123,7 +93,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             />
             <Modal
                 size="max-w-2xl"
-                title={`Viloyat ${item?.id ? "tahrirlash" : "qo'shish"}`}
+                title={item?.id ? t("actions.edit") + " " + t("form.region").toLowerCase() : t("actions.add") + " " + t("form.region").toLowerCase()}
                 modalKey={"create-region"}
             >
                 <AddRegionsModal country_id={country_id} />

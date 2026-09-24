@@ -8,8 +8,10 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddCountriesModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("country-modal")
     const { getData, clearKey } = useGlobalStore()
@@ -23,7 +25,7 @@ const AddCountriesModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Davlat muvaffaqiyatli ${currentRole?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentRole?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(SETTINGS_COUNTRIES)
@@ -51,7 +53,13 @@ const AddCountriesModal = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <FormInput required name="name" label="Davlat" methods={form} />
+            <FormInput
+                required
+                name="name"
+                label={t("form.country")}
+                maxLength={20}
+                methods={form}
+            />
 
             <div className="flex items-center justify-end  mt-3">
                 <Button
@@ -59,7 +67,7 @@ const AddCountriesModal = () => {
                     type="submit"
                     loading={isPending}
                 >
-                    {"Saqlash"}
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

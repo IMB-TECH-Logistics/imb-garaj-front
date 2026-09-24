@@ -15,8 +15,10 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddVehicleCashflowModal = () => {
+    const { t } = useTranslation()
     const params = useParams({ strict: false })
     const id = params.id || ""
     const queryClient = useQueryClient()
@@ -40,7 +42,7 @@ const AddVehicleCashflowModal = () => {
 
     const onSuccess = () => {
         toast.success(
-            `Xarajat muvaffaqiyatli ${currentVehicleCashflow?.id ? "tahrirlandi!" : "qo'shildi"}`,
+            currentVehicleCashflow?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
         clearKey(VEHICLES_CASHFLOWS)
@@ -77,7 +79,7 @@ const AddVehicleCashflowModal = () => {
             >
                 <FormCombobox
                     required
-                    label="Xarajat turi"
+                    label={t("form.expense_type")}
                     name="category"
                     control={form.control}
                     options={categoryData}
@@ -87,13 +89,13 @@ const AddVehicleCashflowModal = () => {
                 <FormInput
                     required
                     name="comment"
-                    label="Izoh"
+                    label={t("form.comment")}
                     methods={form}
                 />
                 <FormNumberInput
                     required
                     name="amount"
-                    label="Miqdor"
+                    label={t("table.amount")}
                     thousandSeparator=" "
                     control={form.control}
                     placeholder="0"
@@ -104,7 +106,7 @@ const AddVehicleCashflowModal = () => {
                         type="submit"
                         loading={isPending}
                     >
-                        {"Saqlash"}
+                        {t("actions.save")}
                     </Button>
                 </div>
             </form>

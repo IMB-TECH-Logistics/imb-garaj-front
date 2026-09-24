@@ -19,6 +19,7 @@ type Props = {
     classNameTitle?: ClassNameValue
     classNameIcon?: ClassNameValue
     closable?:boolean
+    titleInChildren?: boolean
     size?:
         | "max-w-lg"
         | "max-w-xl"
@@ -45,6 +46,7 @@ const Modal = ({
     size = "max-w-lg",
     onClose,
     closable=true,
+    titleInChildren = false,
 }: Props) => {
     const { isOpen, closeModal } = useModal(modalKey)
 
@@ -63,14 +65,14 @@ const Modal = ({
                     closable && e.preventDefault()
                 }}
                     classNameIcon={classNameIcon}
-                    className={cn(size, className)}
+                    className={cn(size, "min-w-0 overflow-hidden", className)}
                 >
                     {title && (
                         <DialogTitle className={cn(classNameTitle)}>
                             {title}
                         </DialogTitle>
                     )}
-                    {!title && (
+                    {!title && !titleInChildren && (
                         <VisuallyHidden>
                             <DialogTitle>title</DialogTitle>
                         </VisuallyHidden>
@@ -78,7 +80,7 @@ const Modal = ({
                     {description && (
                         <DialogDescription>{description}</DialogDescription>
                     )}
-                    {children}
+                    <div className="min-w-0 overflow-x-auto">{children}</div>
                 </DialogContent>
             )}
         </Dialog>

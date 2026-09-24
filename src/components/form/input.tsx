@@ -6,6 +6,7 @@ import {
     UseFormReturn,
 } from "react-hook-form"
 import { ClassNameValue } from "tailwind-merge"
+import { useTranslation } from "react-i18next"
 import { Input } from "../ui/input"
 import FieldError from "./form-error"
 import FieldLabel from "./form-label"
@@ -35,10 +36,11 @@ export function FormInput<IForm extends FieldValues>({
     wrapperClassName,
     className,
     type = "text",
-    hideError = true,
+    hideError = false,
     uppercase = false,
     ...props
 }: IProps<IForm> & React.InputHTMLAttributes<HTMLInputElement>) {
+    const { t } = useTranslation()
     const {
         register,
         formState: { errors },
@@ -47,7 +49,10 @@ export function FormInput<IForm extends FieldValues>({
     const error = getNestedValue(errors, name)
 
     const reg = register(name, {
-        required: required ? `${label}ni kiriting` : false,
+        required:
+            required ?
+                t("validation.required_field", { field: label || props.placeholder || t("validation.required") })
+            :   false,
         ...(uppercase && {
             setValueAs: (value: string) => String(value)?.toUpperCase(),
         }),
@@ -82,8 +87,8 @@ export function FormInput<IForm extends FieldValues>({
                 )}
                 wrapperClassName={wrapperClassName as string}
             />
-            {!hideError && error.message && (
-                <FieldError>{error.message?.message as string}</FieldError>
+            {!hideError && error?.message && (
+                <FieldError>{error.message as string}</FieldError>
             )}
         </fieldset>
     )

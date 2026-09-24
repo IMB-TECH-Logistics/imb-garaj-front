@@ -1,21 +1,23 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 const vehicleTypeOptions = [
     { value: "truck", label: "Avtomobil" },
     { value: "trailer", label: "Tirkama" },
 ]
 export const useColumnsVehicleTable = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<VehicleRoleType>[]>(
         () => [
             {
                 accessorKey: "name",
-                header: " Avtomobil nomi",
+                header: t("form.name"),
                 enableSorting: true,
             },
             {
                 accessorKey: "type",
-                header: "Avtomobil turi",
+                header: t("form.vehicle_type"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const typeValue = row.getValue("type")
@@ -28,6 +30,6 @@ export const useColumnsVehicleTable = () => {
                 },
             },
         ],
-        [],
+        [t],
     )
 }

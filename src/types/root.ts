@@ -40,13 +40,18 @@ type SearchParams = {
     selected_loading_place?: string
     country?: number
     region_search?: string
+    region_page?: string
+    region_page_size?: string
     district_search?:string
     order?:number|string
     user_search?:string
     first_name?:string
     payment_type?:string
     expense_type?:string
+    expense_page?: string | number
+    expense_page_size?: string | number
     driver_search?:string
+    tier?:"A"|"B"|"C"|"D"
     customer_search?:string
     cargo_search?:string
     country_search?:string
@@ -61,5 +66,7 @@ type SearchParams = {
     cashflow_search?:string
     driver?:string
     vehicle?:string
+    route_configs_search?:string
+    ordering?: string
 }
 

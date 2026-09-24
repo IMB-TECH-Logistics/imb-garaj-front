@@ -6,7 +6,7 @@ import {
     SETTINGS_SELECTABLE_CLIENT,
     SETTINGS_SELECTABLE_DISTRICT,
     SETTINGS_SELECTABLE_PAYMENT_TYPE,
-    TRIPS_ORDERS,
+    MANAGERS_ORDERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -19,6 +19,7 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Plus, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type ClientType = {
     id: number | string
@@ -26,10 +27,11 @@ type ClientType = {
 }
 
 const AddExpenses = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { getData, clearKey } = useGlobalStore()
     const { closeModal } = useModal("add-expenses")
-    const currentTripOrder = getData<TripOrdersRow>(TRIPS_ORDERS)
+    const currentTripOrder = getData<TripOrdersRow>(MANAGERS_ORDERS)
     const { parentId } = useParams({ strict: false })
 
     const { data: districtsData } = useGet<DistrictType[]>(
@@ -58,8 +60,8 @@ const AddExpenses = () => {
             type: currentTripOrder?.type,
             client: currentTripOrder?.client,
             cargo_type: currentTripOrder?.cargo_type,
-            payments: currentTripOrder?.payments?.length
-                ? currentTripOrder.payments
+            incomes: currentTripOrder?.incomes?.length
+                ? currentTripOrder.incomes
                 : [
                     {
 
@@ -76,17 +78,17 @@ const AddExpenses = () => {
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: "payments",
+        name: "incomes",
     })
 
     const onSuccess = () => {
         toast.success(
-            currentTripOrder?.id ? "Buyurtma tahrirlandi!" : "Buyurtma qo'shildi!",
+            currentTripOrder?.id ? t("toast.updated") : t("toast.added"),
         )
         reset()
-        clearKey(TRIPS_ORDERS)
+        clearKey(MANAGERS_ORDERS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [TRIPS_ORDERS] })
+        queryClient.refetchQueries({ queryKey: [MANAGERS_ORDERS] })
     }
 
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
@@ -94,7 +96,7 @@ const AddExpenses = () => {
     const isPending = creating || updating
 
     const onSubmit = (data: TripOrdersRow) => {
-        const formattedPayments = data.payments.map((p: any) => {
+        const formattedIncomes = data.incomes!.map((p: any) => {
             const payment: any = {
                 currency: p.currency,
                 amount: String(p.amount),
@@ -114,13 +116,13 @@ const AddExpenses = () => {
             client: data.client,
             trip: parentId,
             cargo_type: data?.cargo_type,
-            payments: formattedPayments,
+            incomes: formattedIncomes,
         }
 
         if (currentTripOrder?.id) {
-            update(`${TRIPS_ORDERS}/${currentTripOrder.id}`, formattedData)
+            update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formattedData)
         } else {
-            create(TRIPS_ORDERS, formattedData)
+            create(MANAGERS_ORDERS, formattedData)
         }
     }
 
@@ -128,68 +130,68 @@ const AddExpenses = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto no-scrollbar-x">
             <FormCombobox
                 required
-                label="Buyurtma turi"
+                label={t("form.order_type")}
                 name="type"
                 control={control}
                 options={[
-                    { id: 1, name: "Band" },
-                    { id: 2, name: "Bo'sh" },
+                    { id: 1, name: "Yukli" },
+                    { id: 2, name: "Yuksiz" },
                 ]}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Buyurtmani tanlang"
+                placeholder={t("form.order_type")}
             />
             <FormDatePicker
                 required
-                label="Sana"
+                label={t("form.date")}
                 control={control}
                 name="date"
-                placeholder="Sanani tanlang"
+                placeholder={t("form.select_date")}
                 className="w-full"
             />
             <FormCombobox
                 required
-                label="Yuk egasi"
+                label={t("form.cargo_owner")}
                 name="client"
                 control={control}
                 options={clientData}
                 labelKey="name"
                 valueKey="id"
-                placeholder="Yuk egasini tanlang"
+                placeholder={t("form.cargo_owner")}
             />
             <FormCombobox
                 required
-                label="Yuklash manzili"
+                label={t("form.loading_address")}
                 name="loading"
                 control={control}
                 options={districtsData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Hududni tanlang"
+                placeholder={t("form.region")}
             />
             <FormCombobox
                 required
-                label="Yuk tushirish manzili"
+                label={t("form.unloading_address")}
                 name="unloading"
                 control={control}
                 options={districtsData}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Hududni tanlang"
+                placeholder={t("form.region")}
             />
             <FormCombobox
                 required
-                label="Yuk turi"
+                label={t("form.cargo_type")}
                 name={`cargo_type`}
                 control={control}
                 options={cargoType}
                 valueKey="id"
                 labelKey="name"
-                placeholder="Yuk turini tanlang"
+                placeholder={t("form.cargo_type")}
             />
             <div className="col-span-2 flex flex-col gap-4">
                 {fields.map((field, index) => {
-                    const selectedCurrency = watch(`payments.${index}.currency`)
+                    const selectedCurrency = watch(`incomes.${index}.currency`)
 
                     return (
                         <div
@@ -203,8 +205,8 @@ const AddExpenses = () => {
 
                             <FormCombobox
                                 required
-                                label="To'lov turi"
-                                name={`payments.${index}.payment_type`}
+                                label={t("form.payment_type")}
+                                name={`incomes.${index}.payment_type`}
                                 control={control}
                                 options={paymentType || undefined}
                                 valueKey="id"
@@ -213,8 +215,8 @@ const AddExpenses = () => {
                             />
                             <FormCombobox
                                 required
-                                label="Valyuta"
-                                name={`payments.${index}.currency`}
+                                label={t("form.currency")}
+                                name={`incomes.${index}.currency`}
                                 control={control}
                                 options={[
                                     { value: 1, label: "UZS - So'm" },
@@ -222,23 +224,23 @@ const AddExpenses = () => {
                                 ]}
                                 valueKey="value"
                                 labelKey="label"
-                                placeholder="Valyutani tanlang"
+                                placeholder={t("form.select_currency")}
                             />
                             {selectedCurrency === 2 && (
                                 <FormNumberInput
                                     required
                                     thousandSeparator=" "
-                                    name={`payments.${index}.currency_course`}
-                                    label="Valyuta kursi"
+                                    name={`incomes.${index}.currency_course`}
+                                    label={t("form.currency_rate")}
                                     placeholder="12 206 UZS"
                                     control={control}
                                 />
                             )}
                             <FormNumberInput
                                 required
-                                name={`payments.${index}.amount`}
+                                name={`incomes.${index}.amount`}
                                 thousandSeparator=" "
-                                label="To'lov miqdori"
+                                label={t("table.amount")}
                                 placeholder="12 206 000 UZS"
                                 control={control}
                             />
@@ -264,7 +266,6 @@ const AddExpenses = () => {
                     className="w-full"
                     onClick={() =>
                         append({
-                            cargo_type: null,
                             payment_type: null,
                             currency: null,
                             currency_course: null,
@@ -273,13 +274,13 @@ const AddExpenses = () => {
                     }
                 >
                     <Plus className="w-4 h-4 mr-2" />
-                    To'lov qo'shish
+                    {t("actions.add")}
                 </Button>
             </div>
 
             <div className="col-span-2 flex justify-end gap-4 pt-4">
                 <Button type="submit" loading={isPending} disabled={isPending}>
-                    Saqlash
+                    {t("actions.save")}
                 </Button>
             </div>
         </form>

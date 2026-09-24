@@ -1,6 +1,7 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { SETTINGS_SELECTABLE_VEHICLE_TYPE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useTranslation } from "react-i18next"
 
 
 
@@ -45,6 +46,7 @@ export const monthOnly = String(new Date().getMonth() + 1).padStart(2, "0")
 export const yearOnly = new Date().getFullYear()
 
 export default function ReportsFilter() {
+    const { t } = useTranslation()
 
     const { data: vehicleType } = useGet(SETTINGS_SELECTABLE_VEHICLE_TYPE, {
         params: {
@@ -71,7 +73,7 @@ export default function ReportsFilter() {
                     isSearch={false}
                     labelKey={"name"}
                     valueKey={"id"}
-                    label="Transport turi"
+                    label={t("nav.truck_types")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",
@@ -83,7 +85,7 @@ export default function ReportsFilter() {
                     isSearch={false}
                     valueKey="key"
                     labelKey="name"
-                    label="Status"
+                    label={t("table.status")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",
@@ -158,8 +160,8 @@ export default function ReportsFilter() {
 // ]
 
 const statusFilter = [
-    { key: 1, name: "Band" },
-    { key: 2, name: "Bo'sh" },
+    { key: 1, name: "Yukli" },
+    { key: 2, name: "Yuksiz" },
     { key: 3, name: "Ta'mirda" },
 
 ]

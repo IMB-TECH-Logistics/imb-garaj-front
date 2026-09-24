@@ -2,23 +2,28 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_EXPENSES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddExpensesModal from "./add-expenses"
 import { useColumnsExpensesTable } from "./expenses-cols"
 
 const ExpensesTypePage = () => {
+    const { t } = useTranslation()
+    const hasControl = useHasAction("settings_expense_types_control")
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<VehicleRoleType>>(
         SETTINGS_EXPENSES,
         {
             params: {
                 search: search.expense_type,
-                page: search.page , 
-                page_size: search.page_size 
+                page: search.page ,
+                page_size: search.page_size,
+                ordering: (search as any).ordering
             },
         },
     )
@@ -43,9 +48,10 @@ const ExpensesTypePage = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onDelete={handleDelete}
-                onEdit={({ original }) => handleEdit(original)}
+                onDelete={hasControl ? handleDelete : undefined}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
                 numeration
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page", 
@@ -54,20 +60,21 @@ const ExpensesTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Xarajatlar"
+                        fileName="Xarajat turlari"
                         url="excel"
-                        storeKey={SETTINGS_EXPENSES}
+                        storeKey={hasControl ? SETTINGS_EXPENSES : undefined}
                         searchKey="expense_type"
                         pageKey="page"
+                        count={data?.count}
                     />
                 }
             />
-            <DeleteModal path={SETTINGS_EXPENSES} id={item?.id} />
+            <DeleteModal path={SETTINGS_EXPENSES} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
                     item?.id ?
-                        "Xarajat turinni tahrirlash"
-                    :   " Xarajat qo'shish"
+                        t("actions.edit") + " " + t("nav.expense_types").toLowerCase()
+                    :   t("actions.add") + " " + t("nav.expense_types").toLowerCase()
                 }
                 modalKey="create"
             >

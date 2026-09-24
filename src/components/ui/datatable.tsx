@@ -27,7 +27,7 @@ import {
 import { DEFAULT_PAGE_SIZE, PAGE_KEY, PAGE_SIZE_KEY } from "@/constants/default"
 import { useHasAction } from "@/constants/useUser"
 import { cn } from "@/lib/utils"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
 import CursorPagination from "../as-params/cursor-pagination"
 import LimitOffsetPagination from "../as-params/limit-offset-pagination"
@@ -69,6 +69,8 @@ interface DataTableProps<TData> {
     head?: React.ReactNode
     viewCount?: number | boolean | undefined
     sortable?: boolean
+    manualSorting?: boolean
+    stickyHeader?: boolean
     numeration?: boolean
     wrapperClassName?: string
     actionMenuMode?: boolean
@@ -78,6 +80,7 @@ interface DataTableProps<TData> {
     onView?: (data: Row<TData>) => void
     onRedo?: (data: Row<TData>) => void
     onFinished?: (data: Row<TData>) => void
+    rowAction?: (data: TData) => React.ReactNode
     tableWrapperClassName?: string
     skeletonRowCount?: number
     onSelectedRowsChange?: (rows: TData[]) => void
@@ -106,6 +109,8 @@ export function DataTable<TData>({
     viewAll,
     head,
     numeration = false,
+    manualSorting = false,
+    stickyHeader = false,
     wrapperClassName,
     actionMenuMode,
     onEdit,
@@ -114,6 +119,7 @@ export function DataTable<TData>({
     onView,
     onFinished,
     onRedo,
+    rowAction,
     tableWrapperClassName,
     onSelectedRowsChange,
     skeletonRowCount = 15,
@@ -127,49 +133,85 @@ export function DataTable<TData>({
         paramName = PAGE_KEY,
         pageSizeParamName = PAGE_SIZE_KEY,
         totalPages,
+        PageSize,
     } = paginationProps || {}
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
         controlledRowSelection ?? {},
     )
 
-    const hasActions = actionPermissions && useHasAction(actionPermissions)
+    const hasActionPermission = useHasAction(actionPermissions ?? [])
+    const canUseActions = !actionPermissions || hasActionPermission
 
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const search: any = useSearch({ from: "/_main" })
+    const navigate = useNavigate()
+    const urlSorting: SortingState =
+        manualSorting && search.ordering ?
+            [
+                {
+                    id: String(search.ordering).replace(/^-/, ""),
+                    desc: String(search.ordering).startsWith("-"),
+                },
+            ]
+        :   []
 
     const orderedColumns = React.useMemo(() => {
-        if (hasActions) return columns
+        if (!canUseActions) return columns
 
-        if (onDelete || onEdit || onUndo || onView || onRedo) {
+        if (onDelete || onEdit || onUndo || onView || onRedo || rowAction) {
             return [
                 ...columns,
                 {
                     header: " ",
                     accessorKey: "action",
                     enableSorting: false,
+                    size: 120,
                     cell: ({ row }) => (
-                        <TableActions
-                            menuMode={actionMenuMode}
-                            onDelete={
-                                onDelete ? () => onDelete?.(row) : undefined
-                            }
-                            onEdit={onEdit ? () => onEdit?.(row) : undefined}
-                            onUndo={onUndo ? () => onUndo?.(row) : undefined}
-                            onView={onView ? () => onView?.(row) : undefined}
-                            onRedo={onRedo ? () => onRedo?.(row) : undefined}
-                            onFinished={
-                                onFinished ? () => onFinished?.(row) : undefined
-                            }
-                        />
+                        <div className="flex items-center justify-end gap-2 pr-2">
+                            {rowAction?.(row.original)}
+                            <TableActions
+                                menuMode={actionMenuMode}
+                                onDelete={
+                                    onDelete ? () => onDelete?.(row) : undefined
+                                }
+                                onEdit={
+                                    onEdit ? () => onEdit?.(row) : undefined
+                                }
+                                onUndo={
+                                    onUndo ? () => onUndo?.(row) : undefined
+                                }
+                                onView={
+                                    onView ? () => onView?.(row) : undefined
+                                }
+                                onRedo={
+                                    onRedo ? () => onRedo?.(row) : undefined
+                                }
+                                onFinished={
+                                    onFinished ?
+                                        () => onFinished?.(row)
+                                    :   undefined
+                                }
+                            />
+                        </div>
                     ),
                 },
             ]
         } else return columns
-    }, [actionMenuMode, columns, onDelete, onEdit, onUndo, onView,onFinished, hasActions])
+    }, [
+        actionMenuMode,
+        columns,
+        onDelete,
+        onEdit,
+        onUndo,
+        onView,
+        onFinished,
+        rowAction,
+        canUseActions,
+    ])
 
     React.useEffect(() => {
         if (
@@ -183,7 +225,25 @@ export function DataTable<TData>({
     const table = useReactTable({
         data: data || [],
         columns: orderedColumns,
-        onSortingChange: setSorting,
+        onSortingChange:
+            manualSorting ?
+                (updater) => {
+                    const next =
+                        typeof updater === "function" ?
+                            updater(urlSorting)
+                        :   updater
+                    const s = next[0]
+                    navigate({
+                        search: (prev: any) => ({
+                            ...prev,
+                            ordering:
+                                s ? `${s.desc ? "-" : ""}${s.id}` : undefined,
+                            [paramName]: undefined,
+                        }),
+                    } as any)
+                }
+            :   setSorting,
+        manualSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel({
@@ -195,14 +255,16 @@ export function DataTable<TData>({
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         state: {
-            sorting,
+            sorting: manualSorting ? urlSorting : sorting,
             columnFilters,
             columnVisibility,
             rowSelection,
             pagination: {
                 pageIndex: search[paramName] ? +search[paramName] - 1 : 0,
                 pageSize:
-                    search[pageSizeParamName] ? +search[pageSizeParamName] : 10,
+                    search[pageSizeParamName] ?
+                        +search[pageSizeParamName]
+                    :   (PageSize ?? DEFAULT_PAGE_SIZE),
             },
         },
         manualPagination:
@@ -252,7 +314,8 @@ export function DataTable<TData>({
 
             <div
                 className={cn(
-                    "relative overflow-x-auto overflow-y-hidden no-scollbar-x   rounded-md ",
+                    "relative overflow-x-auto no-scollbar-x   rounded-md ",
+                    !stickyHeader && "overflow-y-hidden",
                     tableWrapperClassName,
                 )}
             >
@@ -301,6 +364,7 @@ export function DataTable<TData>({
                 {data?.length ?
                     <Table
                         className={`${className} select-text  bg-card rounded-md`}
+                        style={{ tableLayout: "fixed" }}
                     >
                         <TableHeader>
                             {table
@@ -311,7 +375,13 @@ export function DataTable<TData>({
                                         className="border-none "
                                     >
                                         {selecteds_row && (
-                                            <TableHead>
+                                            <TableHead
+                                                className={cn(
+                                                    "w-8 px-2",
+                                                    stickyHeader &&
+                                                        "sticky top-0 bg-card z-10",
+                                                )}
+                                            >
                                                 <Checkbox
                                                     checked={
                                                         table.getIsAllPageRowsSelected() ||
@@ -332,6 +402,8 @@ export function DataTable<TData>({
                                                 className={cn(
                                                     " px-2  cursor-pointer",
                                                     index === 0 && "w-8",
+                                                    stickyHeader &&
+                                                        "sticky top-0 bg-card z-10",
                                                 )}
                                             >
                                                 №
@@ -340,23 +412,49 @@ export function DataTable<TData>({
 
                                         {headerGroup.headers.map(
                                             (header, index) => {
+                                                // Columns can opt out of the built-in sort chevron + header-click
+                                                // sorting (e.g. when an external popover drives sorting).
+                                                const hideSortIndicator = (
+                                                    header.column.columnDef
+                                                        .meta as
+                                                        | {
+                                                              hideSortIndicator?: boolean
+                                                          }
+                                                        | undefined
+                                                )?.hideSortIndicator
+                                                const showSort =
+                                                    header.column.columnDef
+                                                        .enableSorting &&
+                                                    !hideSortIndicator
                                                 return (
                                                     <TableHead
                                                         key={header.id}
                                                         className={cn(
                                                             " px-2 cursor-pointer",
+                                                            stickyHeader &&
+                                                                "sticky top-0 bg-card z-10",
                                                         )}
-                                                        onClick={
+                                                        style={
                                                             (
                                                                 header.column
                                                                     .columnDef
-                                                                    .enableSorting
+                                                                    .size
                                                             ) ?
+                                                                {
+                                                                    width: header
+                                                                        .column
+                                                                        .columnDef
+                                                                        .size,
+                                                                }
+                                                            :   undefined
+                                                        }
+                                                        onClick={
+                                                            showSort ?
                                                                 header.column.getToggleSortingHandler()
                                                             :   undefined
                                                         }
                                                     >
-                                                        <div className="cursor-pointer flex items-center gap-1 select-none w-max">
+                                                        <div className="cursor-pointer flex items-center gap-1 select-none whitespace-normal">
                                                             {flexRender(
                                                                 header.column
                                                                     .columnDef
@@ -364,11 +462,7 @@ export function DataTable<TData>({
                                                                 header.getContext(),
                                                             )}
 
-                                                            {(
-                                                                header.column
-                                                                    .columnDef
-                                                                    .enableSorting
-                                                            ) ?
+                                                            {showSort ?
                                                                 ({
                                                                     asc: (
                                                                         <ChevronUp
@@ -440,35 +534,52 @@ export function DataTable<TData>({
                                         )}
                                         {numeration && (
                                             <TableCell className="w-8 ">
-                                                {((search[paramName] || 1) -
-                                                    1) *
+                                                {(Math.min(
+                                                    search[paramName] || 1,
+                                                    totalPages ?? 1
+                                                ) - 1) *
                                                     (search[
                                                         pageSizeParamName
-                                                    ] || DEFAULT_PAGE_SIZE) +
+                                                    ] ||
+                                                        paginationProps
+                                                            ?.page_sizes?.[0] ||
+                                                        DEFAULT_PAGE_SIZE) +
                                                     index +
                                                     1}
                                             </TableCell>
                                         )}
 
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell
-                                                key={cell.id}
-                                                onClick={() => {
-                                                    onRowClick?.(
-                                                        cell.row.original,
-                                                    )
-                                                }}
-                                                className={cn(
-                                                    `cursor-pointer border-r   dark:border-secondary/50 border-secondary last:border-none 
-                                                         `,
-                                                )}
-                                            >
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext(),
-                                                )}
-                                            </TableCell>
-                                        ))}
+                                        {row.getVisibleCells().map((cell) => {
+                                            const clickable =
+                                                !!onRowClick &&
+                                                cell.column.id !== "action"
+
+                                            return (
+                                                <TableCell
+                                                    key={cell.id}
+                                                    onClick={
+                                                        clickable ?
+                                                            () =>
+                                                                onRowClick?.(
+                                                                    cell.row
+                                                                        .original,
+                                                                )
+                                                        :   undefined
+                                                    }
+                                                    className={cn(
+                                                        "border-r dark:border-secondary/50 border-secondary last:border-none",
+                                                        clickable &&
+                                                            "cursor-pointer",
+                                                    )}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef
+                                                            .cell,
+                                                        cell.getContext(),
+                                                    )}
+                                                </TableCell>
+                                            )
+                                        })}
                                     </TableRow>
                                 ))
                             :   <TableRow>

@@ -7,29 +7,32 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { TRIPS_ORDERS } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { format } from "date-fns"
 import { ChevronDown } from "lucide-react"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import ParamPagination from "@/components/as-params/pagination"
+import { formatDate } from "@/lib/format-date"
+import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import TruckTripCashflowRow from "../truck-trip-cashflows"
 
 const TruckTripOrderMain = () => {
+    const { t } = useTranslation()
     const params = useParams({ strict: false })
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
     const page = Number(search.page ?? 1)
     const expandedOrderId = search.order ? Number(search.order) : null
 
-    const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
-        TRIPS_ORDERS,
+    const { data, isLoading, isError } = useGet<ListResponse<TripOrdersRow>>(
+        MANAGERS_ORDERS,
         {
             params: {
-                order: params.id,
+                trip: params.id,
                 page:search.page,
                 page_size:search.page_size
             },
@@ -51,7 +54,7 @@ const TruckTripOrderMain = () => {
             <div className="flex justify-end"></div>
 
             <div className="flex items-center gap-3">
-                <h1 className="text-xl">Buyurtmalar ro‘yxati</h1>
+                <h1 className="text-xl">{t("page.list")}</h1>
             </div>
 
             {/* TABLE WRAPPER (same as DataTable) */}
@@ -60,12 +63,12 @@ const TruckTripOrderMain = () => {
                     <TableHeader>
                         <TableRow className="border-none">
                             <TableHead>#</TableHead>
-                            <TableHead>Yuklash joyi</TableHead>
-                            <TableHead>Tushirish joyi</TableHead>
-                            <TableHead>Yuk turi</TableHead>
-                            <TableHead>To‘lov miqdori</TableHead>
-                            <TableHead>Valyuta</TableHead>
-                            <TableHead>Yaratilgan sana</TableHead>
+                            <TableHead>{t("form.loading_location")}</TableHead>
+                            <TableHead>{t("form.unloading_location")}</TableHead>
+                            <TableHead>{t("form.cargo_type")}</TableHead>
+                            <TableHead>{t("form.amount")}</TableHead>
+                            <TableHead>{t("form.currency")}</TableHead>
+                            <TableHead>{t("table.created_at")}</TableHead>
                             <TableHead className="text-right" />
                             <TableHead className="text-right" />
                         </TableRow>
@@ -78,7 +81,29 @@ const TruckTripOrderMain = () => {
                                     colSpan={9}
                                     className="text-center py-6"
                                 >
-                                    Yuklanmoqda...
+                                    {t("messages.loading")}
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!isLoading && isError && (
+                            <TableRow className="border-none">
+                                <TableCell
+                                    colSpan={9}
+                                    className="text-center py-6 text-destructive"
+                                >
+                                    {t("messages.error")}
+                                </TableCell>
+                            </TableRow>
+                        )}
+
+                        {!isLoading && !isError && !data?.results?.length && (
+                            <TableRow className="border-none">
+                                <TableCell
+                                    colSpan={9}
+                                    className="text-center py-6 text-muted-foreground"
+                                >
+                                    {t("page.not_found")}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -118,34 +143,29 @@ const TruckTripOrderMain = () => {
                                         </TableCell>
 
                                         <TableCell className="border-r border-secondary last:border-none font-semibold">
-                                            {order.payments?.[0]?.amount ?
-                                                Number(
-                                                    order.payments[0].amount,
-                                                ).toLocaleString("uz-UZ")
-                                            :   "—"}
-                                        </TableCell>
-
-                                        <TableCell className="border-r border-secondary last:border-none">
                                             {(
-                                                order.payments?.[0]
-                                                    ?.currency === 1
+                                                order.payment_amount_usd ||
+                                                order.payment_amount_uzs
                                             ) ?
-                                                "UZS"
-                                            : (
-                                                order.payments?.[0]
-                                                    ?.currency === 2
-                                            ) ?
-                                                "USD"
-                                            :   "—"}
-                                        </TableCell>
-
-                                        <TableCell className="border-r border-secondary last:border-none">
-                                            {order.created ?
-                                                format(
-                                                    new Date(order.created),
-                                                    "dd.MM.yyyy HH:mm",
+                                                formatMoney(
+                                                    order.payment_amount_usd ||
+                                                        order.payment_amount_uzs,
                                                 )
                                             :   "—"}
+                                        </TableCell>
+
+                                        <TableCell className="border-r border-secondary last:border-none">
+                                            {order.payment_amount_usd ?
+                                                "USD"
+                                            : order.payment_amount_uzs ?
+                                                "UZS"
+                                            :   "—"}
+                                        </TableCell>
+
+                                        <TableCell className="border-r border-secondary last:border-none">
+                                            {formatDate(
+                                                order.date as string,
+                                            ) || "—"}
                                         </TableCell>
 
                                         <TableCell
@@ -181,12 +201,14 @@ const TruckTripOrderMain = () => {
                 </Table>
             </div>
 
-            <div className="pt-4 flex justify-center">
-                <ParamPagination
-                    totalPages={data?.total_pages}
-                    disabled={isLoading}
-                />
-            </div>
+            {!!data?.results?.length && (
+                <div className="pt-4 flex justify-center">
+                    <ParamPagination
+                        totalPages={data?.total_pages}
+                        disabled={isLoading}
+                    />
+                </div>
+            )}
         </div>
     )
 }

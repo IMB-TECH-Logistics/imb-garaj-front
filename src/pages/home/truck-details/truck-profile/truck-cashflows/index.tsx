@@ -6,11 +6,13 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useParams, useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import AddVehicleCashflowModal from "./add-cashflows"
 import { useColumnsCashflowsTable } from "./cashflows-cols"
 import TableTruckHeader from "./truck-header"
 
 const VehicleCashflows = () => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const params = useParams({ strict: false })
     const id = params.id
@@ -75,8 +77,8 @@ const VehicleCashflows = () => {
                 size="max-w-2xl"
                 title={
                     item?.id ?
-                        " Xarajatlarni tahrirlash"
-                    :   " Xarajatlarni qo'shish"
+                        t("page.edit_record")
+                    :   t("page.add_expense")
                 }
                 modalKey="create-vehicle-cashflow"
             >

@@ -1,7 +1,18 @@
 import { useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
-import { Settings, Truck, User, Wallet, Coins, Activity } from "lucide-react"
+import {
+    Activity,
+    Boxes,
+    Coins,
+    CreditCard,
+    Settings,
+    Truck,
+    User,
+    Users,
+    Wallet,
+} from "lucide-react"
 import { ReactNode, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export interface MenuItem {
     label: string
@@ -9,6 +20,9 @@ export interface MenuItem {
     path: string
     items?: MenuItem[]
     pending?: boolean
+    allowKey?: string
+    alwaysShow?: boolean
+    extraPaths?: string[]
 }
 
 const filterMenuItems = (
@@ -25,7 +39,15 @@ const filterMenuItems = (
             }
         }
 
-        acc.push(filteredItem)
+        const isAllowed =
+            item.alwaysShow ||
+            (item.allowKey && allowedModules.includes(item.allowKey)) ||
+            (filteredItem.items && filteredItem.items.length > 0)
+
+        if (isAllowed) {
+            acc.push(filteredItem)
+        }
+
         return acc
     }, [])
 }
@@ -49,8 +71,8 @@ const findChildPaths = (items: MenuItem[], pathname: string): MenuItem[] => {
         }
 
         if (item.items) {
-            const hasMatchingChild = item.items.some(
-                (subItem) => matchesPath(pathname, subItem),
+            const hasMatchingChild = item.items.some((subItem) =>
+                matchesPath(pathname, subItem),
             )
             if (hasMatchingChild) {
                 return item.items
@@ -66,17 +88,40 @@ const findChildPaths = (items: MenuItem[], pathname: string): MenuItem[] => {
     return []
 }
 
+const collectPaths = (items: MenuItem[]): string[] =>
+    items.flatMap((item) => [
+        item.path,
+        ...(item.extraPaths ?? []),
+        ...(item.items ? collectPaths(item.items) : []),
+    ])
+
+const collectLeafPaths = (items: MenuItem[]): string[] =>
+    items.flatMap((item) =>
+        item.items && item.items.length > 0
+            ? collectLeafPaths(item.items)
+            : [item.path],
+    )
+
+const matches = (pathname: string, path: string) =>
+    pathname === path || pathname.startsWith(path + "/")
+
+const GUARDED_EXTRA: Record<string, string> = {
+    "/trip": "manager_flights_view",
+    "/dashboard": "investor_view",
+}
+
 export const usePaths = () => {
     const { pathname } = useLocation()
-    const { actions } = useUser()
+    const { actions, data, isLoading } = useUser()
 
     const safeActions: string[] = actions ?? []
+    const isSuperuser = data?.is_superuser
 
     const items = useItems()
 
     const filteredItems = useMemo(
-        () => filterMenuItems(items, safeActions),
-        [items, safeActions],
+        () => (isSuperuser ? items : filterMenuItems(items, safeActions)),
+        [items, safeActions, isSuperuser],
     )
 
     const childPaths = useMemo(
@@ -84,95 +129,201 @@ export const usePaths = () => {
         [filteredItems, pathname],
     )
 
+    const allowedPaths = useMemo(
+        () => collectPaths(filteredItems),
+        [filteredItems],
+    )
+
+    const deniedPaths = useMemo(
+        () =>
+            collectPaths(items).filter(
+                (path) => !allowedPaths.some((allowed) => allowed === path),
+            ),
+        [items, allowedPaths],
+    )
+
+    const firstAllowedPath = useMemo(
+        () => collectLeafPaths(filteredItems)[0],
+        [filteredItems],
+    )
+
+    // Faqat menyuda bor, lekin ruxsat berilmagan sahifalar to'siladi. Tafsilot
+    // sahifalari (masalan /truck-detail/9) menyuda yo'q — ularni API o'zi
+    // qo'riqlaydi, bu yerda ularni noto'g'ri to'sib qo'ymaymiz.
+    const isDeniedPath = useMemo(
+        () => (pathname: string) => {
+            if (isLoading || !data) return false
+            if (isSuperuser) return false
+
+            const extra = Object.entries(GUARDED_EXTRA).find(([path]) =>
+                matches(pathname, path),
+            )
+            if (extra) return !safeActions.includes(extra[1])
+
+            if (allowedPaths.some((path) => matches(pathname, path))) return false
+            return deniedPaths.some((path) => matches(pathname, path))
+        },
+        [allowedPaths, deniedPaths, isSuperuser, isLoading, data, safeActions],
+    )
+
     return {
         childPaths,
         filteredItems,
+        allowedPaths,
+        firstAllowedPath,
+        isDeniedPath,
+        isLoadingPermissions: isLoading || !data,
     }
 }
 
-export const useItems = () =>
-    useMemo<MenuItem[]>(
+export const useItems = () => {
+    const { t } = useTranslation()
+    return useMemo<MenuItem[]>(
         () => [
             {
-                label: "Meneger",
+                label: t("nav.manager"),
                 icon: <User size={18} />,
                 path: "/managers",
                 extraPaths: ["/manager-trips"],
                 items: [
-                    { label: "Transportlar", path: "/managers", extraPaths: ["/manager-trips"] },
-                    { label: "Kassa", path: "/kassa" },
                     {
-                        label: "Texnik ko'rik",
+                        label: t("nav.vehicles"),
+                        path: "/managers",
+                        extraPaths: ["/manager-trips"],
+                        allowKey: "manager_vehicles_view",
+                    },
+                    {
+                        label: t("nav.flights"),
+                        path: "/flights",
+                        allowKey: "manager_flights_view",
+                    },
+                    {
+                        label: t("nav.tech_check"),
                         path: "/technic-check",
+                        allowKey: "manager_tech_check_view",
+                    },
+                    {
+                        label: t("nav.petrol"),
+                        path: "/petrol-stations",
+                        allowKey: "settings_petrol_stations_view",
                     },
                 ],
             },
             {
-                label: "Investor",
-                icon: <Truck width={18} />,
-                path: "/truck",
+                label: t("nav.kassa"),
+                icon: <CreditCard width={18} />,
+                path: "/kassa",
+                allowKey: "manager_cashflow_view",
             },
             {
-                label: "Buxgalteriya",
+                label: t("nav.accounting"),
                 icon: <Wallet width={18} />,
                 path: "/buxgalteriya",
-                pending: true,
+                allowKey: "accounting_view",
             },
             {
-                label: "Moliya",
-                icon: <Coins width={18} />,
-                path: "/moliya",
+                label: t("nav.investor"),
+                icon: <Truck width={18} />,
+                path: "/truck",
+                allowKey: "investor_view",
             },
             {
-                label: "Monitoring",
+                label: t("nav.drivers"),
+                icon: <Users width={18} />,
+                path: "/haydovchilar",
+                allowKey: "hr_drivers_view",
+            },
+            {
+                label: t("nav.monitoring"),
                 icon: <Activity width={18} />,
                 path: "/monitoring",
-                pending: true,
+                allowKey: "monitoring_view",
             },
             {
-                label: "Sozlamalar",
+                label: t("nav.warehouse"),
+                icon: <Boxes width={18} />,
+                path: "/ombor",
+                allowKey: "warehouse_view",
+            },
+            {
+                label: t("nav.finance"),
+                icon: <Coins width={18} />,
+                path: "/moliya",
+                allowKey: "finance_view",
+            },
+            {
+                label: t("nav.settings"),
                 icon: <Settings width={18} />,
                 path: "/locations",
                 items: [
                     {
-                        label: "Manzillar",
+                        label: t("nav.locations"),
                         path: "/locations",
+                        allowKey: "settings_locations_view",
                     },
                     {
-                        label: "Foydalanuvchilar",
-                        path: "/users",
+                        label: t("nav.directions"),
+                        path: "/route-configs",
+                        allowKey: "settings_directions_view",
                     },
                     {
-                        label: "Haydovchilar",
+                        label: t("nav.drivers"),
                         path: "/drivers",
+                        allowKey: "settings_drivers_view",
                     },
                     {
-                        label: "Rollar",
+                        label: t("nav.trucks"),
+                        path: "/vehicles",
+                        allowKey: "settings_vehicles_view",
+                    },
+                    {
+                        label: t("nav.users"),
+                        path: "/users",
+                        allowKey: "settings_users_view",
+                    },
+                    {
+                        label: t("nav.roles"),
                         path: "/roles",
+                        allowKey: "settings_roles_view",
                     },
                     {
-                        label: "Xaridorlar",
+                        label: t("nav.customers"),
                         path: "/customers",
+                        allowKey: "settings_customers_view",
                     },
                     {
-                        label: "Mashina turlari",
+                        label: t("nav.truck_types"),
                         path: "/vehicle-types",
+                        allowKey: "settings_vehicle_types_view",
                     },
-
                     {
-                        label: "Yuk turi",
+                        label: t("nav.cargo_types"),
                         path: "/cargo-types",
+                        allowKey: "settings_cargo_types_view",
                     },
                     {
-                        label: "To'lov turlari",
+                        label: t("nav.payment_types"),
                         path: "/payment-types",
+                        allowKey: "settings_payment_types_view",
                     },
                     {
-                        label: "Xarajat turlari",
+                        label: t("nav.expense_types"),
                         path: "/expense-types",
+                        allowKey: "settings_expense_types_view",
+                    },
+                    {
+                        label: t("nav.monthly_rates"),
+                        path: "/driver-salaries",
+                        allowKey: "settings_driver_salaries_view",
+                    },
+                    {
+                        label: t("nav.activity_log"),
+                        path: "/logs",
+                        allowKey: "logs_view",
                     },
                 ],
             },
         ],
-        [],
+        [t],
     )
+}

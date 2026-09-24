@@ -1,5 +1,6 @@
 import { FormFormatNumberInput } from "@/components/form/format-number-input"
 import FormInput from "@/components/form/input"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
@@ -9,22 +10,27 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 
 const AddCustomerModal = () => {
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
 
     const currentForwarder = getData<CustomersType>(SETTINGS_CUSTOMERS)
     const form = useForm<CustomersType>({
-        defaultValues: currentForwarder,
+        defaultValues: {
+            ...currentForwarder,
+            phone_number: currentForwarder?.phone_number?.replace(/^\+?998/, "") || "",
+        },
     })
 
     const { handleSubmit, reset } = form
 
     const onSuccess = () => {
         toast.success(
-            `Mijoz muvaffaqiyatli ${currentForwarder?.id ? "tahrirlandi!" : "qo'shildi"} `,
+            currentForwarder?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
 
         reset()
@@ -47,19 +53,16 @@ const AddCustomerModal = () => {
         const isValid = await form.trigger()
 
         if (!isValid) {
-            toast.error("Iltimos, barcha maydonlarni to'g'ri to'ldiring")
+            toast.error(t("toast.error_fields"))
             return
         }
 
-        const phoneValue = values.phone_number || ""
-        const digitsOnly = phoneValue.replace(/\D/g, "")
-
-        if (digitsOnly.length !== 9) {
+        const phoneDigits = (values.phone_number || "").replace(/\D/g, "")
+        if (phoneDigits && phoneDigits.length !== 9) {
             form.setError("phone_number", {
                 type: "manual",
-                message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+                message: "Telefon raqam to'liq emas",
             })
-            toast.error("Telefon raqam to'liq emas")
             return
         }
 
@@ -80,17 +83,37 @@ const AddCustomerModal = () => {
                     <FormInput
                         required
                         name="name"
-                        label="F.I.O"
+                        label={t("form.company_name")}
                         methods={form}
+                    />
+
+                    <FormInput
+                        name="code"
+                        label={t("form.company_code")}
+                        methods={form}
+                        placeholder="Masalan: 100A"
                     />
 
                     <FormFormatNumberInput
                         control={form.control}
                         format="+998 ## ### ## ##"
-                        required
-                        label={"Telefon"}
+                        label={t("form.phone")}
                         name={"phone_number"}
                         placeholder="+998 __ ___ __ __"
+                    />
+
+                    <FormNumberInput
+                        required
+                        name="nds_percent"
+                        label={t("form.nds")}
+                        control={form.control}
+                        allowNegative={false}
+                        decimalScale={0}
+                        thousandSeparator={""}
+                        isAllowed={({ floatValue }) =>
+                            floatValue === undefined || floatValue <= 100
+                        }
+                        placeholder="Masalan: 12"
                     />
 
                     <div className="flex items-center justify-end gap-2 md:col-span-2">
@@ -99,7 +122,7 @@ const AddCustomerModal = () => {
                             type="submit"
                             loading={isPending}
                         >
-                            {"Saqlash"}
+                            {t("actions.save")}
                         </Button>
                     </div>
                 </form>

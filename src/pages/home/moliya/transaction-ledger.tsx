@@ -1,66 +1,135 @@
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
+import ParamPagination from "@/components/as-params/pagination"
+import { useGet } from "@/hooks/useGet"
+import { FINANCE_LEDGER } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/layouts/theme"
 
 type Transaction = {
     date: string
     description: string
-    type: "kirim" | "chiqim"
+    type: "kirim" | "chiqim" | "avans"
     amount: number
     balance: number
     note: string
 }
 
-const TRANSACTIONS: Transaction[] = [
-    { date: "01.03.2026", description: "Oylik maosh", type: "kirim", amount: 5_000_000, balance: 5_000_000, note: "Fevral oyi uchun" },
-    { date: "02.03.2026", description: "Yoqilg'i xarajati", type: "chiqim", amount: 350_000, balance: 4_650_000, note: "Diesel AI-92" },
-    { date: "03.03.2026", description: "Yo'l to'lovi", type: "chiqim", amount: 200_000, balance: 4_450_000, note: "Toshkent—Samarqand" },
-    { date: "05.03.2026", description: "Yuk tashish", type: "kirim", amount: 3_200_000, balance: 7_650_000, note: "Buxoro reysi" },
-    { date: "06.03.2026", description: "Shinalar almashtirish", type: "chiqim", amount: 1_800_000, balance: 5_850_000, note: "Old 2ta shina" },
-    { date: "08.03.2026", description: "Shartnoma to'lov", type: "kirim", amount: 4_500_000, balance: 10_350_000, note: "Artel — oylik" },
-    { date: "10.03.2026", description: "Mexanik ish haqi", type: "chiqim", amount: 2_000_000, balance: 8_350_000, note: "Mart oyi" },
-    { date: "12.03.2026", description: "Farg'ona yuk", type: "kirim", amount: 2_800_000, balance: 11_150_000, note: "Yuk tashish xizmati" },
-    { date: "14.03.2026", description: "Moy almashtirish", type: "chiqim", amount: 450_000, balance: 10_700_000, note: "Dvigatel moyi" },
-    { date: "15.03.2026", description: "Avans", type: "kirim", amount: 1_500_000, balance: 12_200_000, note: "Haydovchiga avans" },
-    { date: "18.03.2026", description: "Parkovka", type: "chiqim", amount: 120_000, balance: 12_080_000, note: "Toshkent markazi" },
-    { date: "20.03.2026", description: "Nestle shartnoma", type: "kirim", amount: 6_000_000, balance: 18_080_000, note: "Oylik shartnoma" },
-    { date: "22.03.2026", description: "Haydovchi maoshi", type: "chiqim", amount: 3_500_000, balance: 14_580_000, note: "Mart oyi" },
-    { date: "25.03.2026", description: "Express yetkazish", type: "kirim", amount: 1_200_000, balance: 15_780_000, note: "Farg'ona—Toshkent" },
-]
+type LedgerItem = {
+    id: number
+    date: string
+    description: string
+    type: "kirim" | "chiqim" | "avans"
+    amount: string | number
+    balance: string | number
+    note: string
+}
+
+type LedgerResponse = {
+    count: number
+    total_pages: number
+    page_size: number
+    descriptions: string[]
+    results: LedgerItem[]
+}
+
+const TYPE_LABEL = { kirim: "Kirim", chiqim: "Chiqim", avans: "Avans" } as const
+
+const TYPE_BADGE = {
+    kirim: "text-emerald-500 bg-emerald-500/10",
+    chiqim: "text-red-500 bg-red-500/10",
+    avans: "text-amber-500 bg-amber-500/10",
+} as const
+
+const TYPE_TEXT = {
+    kirim: "text-emerald-500",
+    chiqim: "text-red-500",
+    avans: "text-amber-500",
+} as const
 
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
-const DESCRIPTIONS = [...new Set(TRANSACTIONS.map((t) => t.description))]
+const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    const pad = (n: number) => String(n).padStart(2, "0")
+    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`
+}
 
 export default function TransactionLedger() {
+    const { t } = useTranslation()
     const { theme } = useTheme()
     const scheme = theme === "dark" ? "dark" : "light"
-    const [descFilter, setDescFilter] = useState<string>("")
-    const [typeFilter, setTypeFilter] = useState<"" | "kirim" | "chiqim">("")
+    const search: any = useSearch({ strict: false })
+    const navigate = useNavigate()
+    const descFilter: string = search?.ledger_desc ?? ""
+    const typeFilter: "" | "kirim" | "chiqim" | "avans" = search?.ledger_type ?? ""
 
-    const filtered = useMemo(() => {
-        return TRANSACTIONS.filter((tx) => {
-            if (descFilter && tx.description !== descFilter) return false
-            if (typeFilter && tx.type !== typeFilter) return false
-            return true
-        })
-    }, [descFilter, typeFilter])
+    const setFilter = (key: "ledger_desc" | "ledger_type", value: string) => {
+        navigate({
+            search: (prev: any) => ({
+                ...prev,
+                [key]: value || undefined,
+                ledger_page: undefined,
+            }),
+        } as any)
+    }
+
+    const { data } = useGet<LedgerResponse>(FINANCE_LEDGER, {
+        params: {
+            from_date: search?.from_date,
+            to_date: search?.to_date,
+            page: search?.ledger_page,
+            page_size: search?.ledger_page_size ?? 100,
+            type: typeFilter || undefined,
+            description: descFilter || undefined,
+        },
+    })
+
+    const rangeKey = `${search?.from_date ?? ""}|${search?.to_date ?? ""}`
+    const previousRange = useRef(rangeKey)
+
+    useEffect(() => {
+        if (previousRange.current === rangeKey) return
+        previousRange.current = rangeKey
+        if (search?.ledger_page) {
+            navigate({
+                search: (prev: any) => ({ ...prev, ledger_page: undefined }),
+                replace: true,
+            } as any)
+        }
+    }, [rangeKey])
+
+    const rows: Transaction[] = useMemo(
+        () =>
+            (data?.results ?? []).map((r) => ({
+                date: formatDate(r.date),
+                description: r.description,
+                type: r.type,
+                amount: Number(r.amount),
+                balance: Number(r.balance),
+                note: r.note,
+            })),
+        [data],
+    )
+
+    const DESCRIPTIONS = data?.descriptions ?? []
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
-                <h3 className="text-xs font-semibold">Kirim-Chiqim tarixi</h3>
-                <span className="text-[10px] text-muted-foreground">{filtered.length} ta</span>
+                <h3 className="text-xs font-semibold">{t("page.transactions")}</h3>
+                <span className="text-[10px] text-muted-foreground">{data?.count ?? 0} ta</span>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0">
                 <table className="w-full text-xs">
                     <thead className="sticky top-0 bg-card z-10">
                         <tr className="border-b border-border">
-                            <th className="text-left font-medium text-muted-foreground px-4 py-2">Sana</th>
+                            <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.date")}</th>
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={descFilter}
-                                    onChange={(e) => setDescFilter(e.target.value)}
+                                    onChange={(e) => setFilter("ledger_desc", e.target.value)}
                                     style={{ colorScheme: scheme }}
                                     className={cn(
                                         "h-7 rounded-lg px-2.5 pr-6 text-[11px] outline-none cursor-pointer transition-all",
@@ -70,7 +139,7 @@ export default function TransactionLedger() {
                                             : "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
                                     )}
                                 >
-                                    <option value="">Tavsif</option>
+                                    <option value="">{t("form.description")}</option>
                                     {DESCRIPTIONS.map((d) => (
                                         <option key={d} value={d}>{d}</option>
                                     ))}
@@ -79,28 +148,30 @@ export default function TransactionLedger() {
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={typeFilter}
-                                    onChange={(e) => setTypeFilter(e.target.value as any)}
+                                    onChange={(e) => setFilter("ledger_type", e.target.value)}
                                     style={{ colorScheme: scheme }}
                                     className={cn(
                                         "h-7 rounded-lg px-2.5 pr-6 text-[11px] outline-none cursor-pointer transition-all",
                                         "border shadow-sm",
                                         typeFilter === "kirim" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold",
                                         typeFilter === "chiqim" && "border-red-500/30 bg-red-500/10 text-red-500 font-semibold",
+                                        typeFilter === "avans" && "border-amber-500/30 bg-amber-500/10 text-amber-500 font-semibold",
                                         !typeFilter && "border-border bg-secondary text-muted-foreground font-medium hover:border-primary/20",
                                     )}
                                 >
-                                    <option value="">Tur</option>
+                                    <option value="">{t("table.type")}</option>
                                     <option value="kirim">Kirim</option>
-                                    <option value="chiqim">Chiqim</option>
+                                    <option value="chiqim">{t("form.expense")}</option>
+                                    <option value="avans">Avans</option>
                                 </select>
                             </th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Miqdor</th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">Qoldiq</th>
-                            <th className="text-left font-medium text-muted-foreground px-4 py-2">Izoh</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_with_nds")}</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.balance")}</th>
+                            <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.comment")}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filtered.map((tx, i) => (
+                        {rows.map((tx, i) => (
                             <tr
                                 key={i}
                                 className="border-b border-border/50 hover:bg-muted/30 transition-colors"
@@ -111,18 +182,16 @@ export default function TransactionLedger() {
                                     <span
                                         className={cn(
                                             "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded",
-                                            tx.type === "kirim"
-                                                ? "text-emerald-500 bg-emerald-500/10"
-                                                : "text-red-500 bg-red-500/10",
+                                            TYPE_BADGE[tx.type],
                                         )}
                                     >
-                                        {tx.type === "kirim" ? "Kirim" : "Chiqim"}
+                                        {TYPE_LABEL[tx.type]}
                                     </span>
                                 </td>
                                 <td
                                     className={cn(
                                         "px-2 py-2.5 text-right font-semibold whitespace-nowrap",
-                                        tx.type === "kirim" ? "text-emerald-500" : "text-red-500",
+                                        TYPE_TEXT[tx.type],
                                     )}
                                 >
                                     {tx.type === "kirim" ? "+" : "−"}{fmt(tx.amount)}
@@ -134,6 +203,17 @@ export default function TransactionLedger() {
                     </tbody>
                 </table>
             </div>
+            {!!data?.count && (
+                <div className="shrink-0 border-t border-border px-2 py-1.5">
+                    <ParamPagination
+                        totalPages={data?.total_pages}
+                        paramName="ledger_page"
+                        pageSizeParamName="ledger_page_size"
+                        page_sizes={[50, 100, 500]}
+                        PageSize={100}
+                    />
+                </div>
+            )}
         </div>
     )
 }

@@ -1,27 +1,30 @@
+import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 export const useTechnicInspect = () => {
+    const { t } = useTranslation()
     return useMemo<ColumnDef<TechnicInspect>[]>(
         () => [
             {
-                header: "Avtomobil",
+                header: t("form.truck"),
                 accessorKey: "vehicle_name",
                 enableSorting: true,
             },
             {
-                header: "Kategoriya",
+                header: t("table.category"),
                 accessorKey: "category_name",
                 enableSorting: true,
             },
             {
-                header: "Davomiyligi",
+                header: t("table.duration"),
                 accessorKey: "lifespan",
                 enableSorting: true,
             },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "date",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -29,28 +32,19 @@ export const useTechnicInspect = () => {
                 ),
             },
             {
-                header: "Miqdor",
+                header: t("table.amount"),
                 accessorKey: "amount",
                 cell: ({ getValue }) => {
-                    const value = getValue<string>()
-                    if (!value) return <span className="">—</span>
-
-                    const num = Number(value)
-                    if (isNaN(num)) return <span className="">{value}</span>
-
-                    return (
-                        <div className="min-w-[100px]">
-                            {num.toLocaleString("uz-UZ").replace(/,/g, " ")}
-                        </div>
-                    )
+                    const v = Number(getValue<string>() ?? 0) || 0
+                    return <span>{formatMoney(v)}</span>
                 },
             },
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "comment",
                 enableSorting: true,
             },
         ],
-        [],
+        [t],
     )
 }

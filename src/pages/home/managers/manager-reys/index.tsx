@@ -4,17 +4,34 @@ import { InlineBreadcrumb } from "@/components/header/breadcrumbs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { MANAGERS_ORDERS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
+import {
+    Dialog,
+    DialogContent,
+} from "@/components/ui/dialog"
+import {
+    MANAGERS_ORDERS,
+    MANAGERS_ORDERS_INTEGRATION_COUNT,
+    MANAGERS_TRIPS,
+    MANAGERS_VEHICLES,
+} from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
+import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
+import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 
 export default function ManagerReys() {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const { name } = search as any
     const { openModal: openTripModal } = useModal(MANAGERS_ORDERS)
@@ -22,15 +39,72 @@ export default function ManagerReys() {
     const { setData, getData, clearKey } = useGlobalStore()
     const item = getData(MANAGERS_VEHICLES)
     const { id } = useParams({ strict: false })
+    const { data: trip, error: tripError } = useGet<{
+        driver_name: string | null
+        vehicle?: number
+    }>(`${MANAGERS_TRIPS}/${id}`, {
+        enabled: !!id && !name,
+        options: { retry: false },
+    })
+    useEffect(() => {
+        if (trip?.vehicle) {
+            setData("manager-trips-vehicle-id", trip.vehicle)
+        }
+    }, [trip?.vehicle, setData])
+    const tripLabel =
+        name ||
+        trip?.driver_name ||
+        (tripError?.response?.status === 404 ? "Reys topilmadi" : "—")
     const currentSelected = getData(MANAGERS_ORDERS)
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
         params: {
             trip: id,
             page_size: search.page_size,
             page: search.page,
+            ordering: (search as any).ordering,
+            ...Object.fromEntries(
+                REYS_FILTER_KEYS.map((key) => [key, (search as any)[key]]),
+            ),
         },
     })
-    const cols = useColumnsManagersOrders()
+    const hasControl = useHasAction("manager_vehicles_control")
+    const queryClient = useQueryClient()
+    const { mutate: approve } = usePost({})
+    const [approvingId, setApprovingId] = useState<number | null>(null)
+
+    const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
+    const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+
+    const handleApprove = (order: ManagerOrders) => {
+        setApprovingId(order.id)
+        approve(
+            `${MANAGERS_ORDERS}/${order.id}/approve`,
+            {},
+            {
+                onSuccess: () => {
+                    toast.success("Reys tasdiqlandi")
+                    queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS] })
+                    queryClient.invalidateQueries({
+                        queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT],
+                    })
+                },
+                onError: () => {
+                    toast.error("Tasdiqlashda xatolik")
+                },
+                onSettled: () => {
+                    setApprovingId(null)
+                },
+            },
+        )
+    }
+
+    const cols = useColumnsManagersOrders({
+        onImageClick: (images) => {
+            setPreviewImages(images)
+            setPreviewIndex(0)
+        },
+    })
+
     const handleEdit = (value: ManagerOrders) => {
         setData(MANAGERS_ORDERS, value)
         openTripModal()
@@ -49,13 +123,33 @@ export default function ManagerReys() {
             <DataTable
                 columns={cols}
                 data={data?.results || []}
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
                     pageSizeParamName: "page_size",
                 }}
-                onDelete={(row) => handleDelete(row.original)}
-                onEdit={(row) => handleEdit(row.original)}
+                onDelete={hasControl ? (row) => handleDelete(row.original) : undefined}
+                onEdit={hasControl ? (row) => handleEdit(row.original) : undefined}
+                rowAction={
+                    hasControl
+                        ? (order) =>
+                              order.status === -1 ? (
+                                  <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-3 p-0"
+                                      loading={approvingId === order.id}
+                                      disabled={approvingId === order.id}
+                                      icon={<Check className="text-green-600" size={16} />}
+                                      onClick={(e) => {
+                                          e.stopPropagation()
+                                          if (approvingId !== order.id) handleApprove(order)
+                                      }}
+                                  />
+                              ) : null
+                        : undefined
+                }
                 head={
                     <div className="mb-4">
                         <div className="flex items-center justify-between">
@@ -65,16 +159,19 @@ export default function ManagerReys() {
                                         <>
                                             <Badge>{formatMoney(data?.count)}</Badge>
                                             <span className="text-muted-foreground">/</span>
-                                            <span>{name || "nimadir"}</span>
+                                            <span>{tripLabel}</span>
                                         </>
                                     }
                                 />
                             </div>
-                            <Button onClick={handleAdd}>
-                                <Plus size={16} />
-                                Qo'shish
-                            </Button>
+                            {hasControl && (
+                                <Button onClick={handleAdd}>
+                                    <Plus size={16} />
+                                    {t("actions.add")}
+                                </Button>
+                            )}
                         </div>
+                        <ReysFilters />
                     </div>
                 }
             />
@@ -82,7 +179,7 @@ export default function ManagerReys() {
             <Modal
                 modalKey={MANAGERS_ORDERS}
                 title={
-                    currentSelected?.id ? "Reys tahrirlash" : "Reys qo'shish"
+                    currentSelected?.id ? t("page.trip_list") : t("page.trips")
                 }
             >
                 <AddTripOrders />
@@ -93,6 +190,53 @@ export default function ManagerReys() {
                 modalKey={`${MANAGERS_ORDERS}-delete`}
                 id={currentSelected?.id}
             />
+
+            <Dialog
+                open={previewIndex !== null}
+                onOpenChange={() => setPreviewIndex(null)}
+            >
+                <DialogContent className="max-w-3xl p-2">
+                    {previewIndex !== null && previewImages[previewIndex] && (
+                        <div className="relative flex items-center justify-center">
+                            {previewImages.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPreviewIndex(
+                                            (previewIndex - 1 + previewImages.length) %
+                                                previewImages.length,
+                                        )
+                                    }
+                                    className="absolute left-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                            )}
+                            <img
+                                src={previewImages[previewIndex].image.replace("http://", "https://")}
+                                alt="preview"
+                                className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                            />
+                            {previewImages.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPreviewIndex(
+                                            (previewIndex + 1) % previewImages.length,
+                                        )
+                                    }
+                                    className="absolute right-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            )}
+                            <span className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm text-sm px-3 py-1 rounded-full">
+                                {previewIndex + 1} / {previewImages.length}
+                            </span>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     )
 }
