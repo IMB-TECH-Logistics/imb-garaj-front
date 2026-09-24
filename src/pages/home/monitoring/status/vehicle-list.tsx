@@ -1,24 +1,13 @@
+import { DataTable } from "@/components/ui/datatable"
 import { MONITORING_STATUS_VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { DataTable } from "@/components/ui/datatable"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
-import {
-    eachDayOfInterval,
-    endOfMonth,
-    format,
-    startOfMonth,
-} from "date-fns"
+import { endOfMonth, format, startOfMonth } from "date-fns"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import {
-    ACTIVE_STATUSES,
-    type ApiStatusVehicle,
-    IDLE,
-    STATUS_META,
-    type VehicleRow,
-} from "./data"
+import { type ApiStatusVehicle, type GpsSummary, type VehicleRow } from "./data"
 
 function fmtDur(mins: number): string {
     const total = Math.round(mins)
@@ -28,28 +17,27 @@ function fmtDur(mins: number): string {
     return m ? `${h}s ${m}m` : `${h}s`
 }
 
-type Row = VehicleRow & { totals: Record<number, number> }
+type Row = VehicleRow & { gps: GpsSummary | null }
+
+type GpsColumn = {
+    id: string
+    header: string
+    value: (gps: GpsSummary) => number
+    format: (value: number) => string
+}
 
 export default function VehicleList({
     onSelect,
-    onStatusSelect,
 }: {
     onSelect: (v: VehicleRow) => void
-    onStatusSelect: (v: VehicleRow, status: number) => void
 }) {
     const { t } = useTranslation()
     const search = useSearch({ strict: false }) as Record<string, string>
     const q = search.q ?? ""
     const today = new Date()
-    const from = search.from_date
-        ? new Date(search.from_date)
-        : startOfMonth(today)
+    const from =
+        search.from_date ? new Date(search.from_date) : startOfMonth(today)
     const to = search.to_date ? new Date(search.to_date) : endOfMonth(today)
-
-    const dayCount = useMemo(() => {
-        if (from > to) return 0
-        return eachDayOfInterval({ start: from, end: to }).slice(0, 62).length
-    }, [from.getTime(), to.getTime()])
 
     const { data: vehicles = [] } = useGet<ApiStatusVehicle[]>(
         MONITORING_STATUS_VEHICLES,
@@ -64,67 +52,61 @@ export default function VehicleList({
     const rows = useMemo<Row[]>(() => {
         const s = q.trim().toLowerCase()
         return vehicles
-            .map<Row>((v) => {
-                const totals: Record<number, number> = { ...v.totals }
-                const active = ACTIVE_STATUSES.reduce(
-                    (a, k) => a + (totals[k] ?? 0),
-                    0,
-                )
-                totals[IDLE] = Math.max(0, dayCount * 1440 - active)
-                return {
-                    id: v.id,
-                    truck_number: v.truck_number,
-                    driver_name: v.driver_name ?? "—",
-                    type: v.type ?? "—",
-                    current_status: v.current_status,
-                    totals,
-                }
-            })
+            .map<Row>((v) => ({
+                id: v.id,
+                truck_number: v.truck_number,
+                driver_name: v.driver_name ?? "—",
+                type: v.type ?? "—",
+                current_status: v.current_status,
+                gps: v.gps,
+            }))
             .filter(
                 (v) =>
                     !s ||
                     v.truck_number.toLowerCase().includes(s) ||
                     v.driver_name.toLowerCase().includes(s),
             )
-    }, [vehicles, q, dayCount])
+    }, [vehicles, q])
 
     const columns = useMemo<ColumnDef<Row>[]>(() => {
-        const statusCols: ColumnDef<Row>[] = [...ACTIVE_STATUSES, IDLE].map(
-            (k) => {
-                const id = `status_${k}`
-                return {
-                    id,
-                    accessorFn: (row) => fmtDur(row.totals[k] ?? 0),
-                    enableSorting: true,
-                    sortingFn: (a, b) =>
-                        (a.original.totals[k] ?? 0) -
-                        (b.original.totals[k] ?? 0),
-                    header: () => (
-                        <span className="flex items-center gap-1.5 whitespace-nowrap">
-                            <span
-                                className={cn(
-                                    "h-2.5 w-2.5 rounded-sm",
-                                    STATUS_META[k].dot,
-                                )}
-                            />
-                            {STATUS_META[k].label}
-                        </span>
-                    ),
-                    cell: ({ row }) => (
-                        <button
-                            type="button"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onStatusSelect(row.original, k)
-                            }}
-                            className="tabular-nums cursor-pointer rounded px-1.5 py-0.5 hover:bg-muted hover:underline"
-                        >
-                            {fmtDur(row.original.totals[k] ?? 0)}
-                        </button>
-                    ),
-                }
+        const gpsColumns: GpsColumn[] = [
+            {
+                id: "distance_km",
+                header: t("table.distance_km"),
+                value: (gps) => gps.distance_km,
+                format: (km) => `${km.toFixed(1)} km`,
             },
-        )
+            {
+                id: "moving_minutes",
+                header: t("table.moving_time"),
+                value: (gps) => gps.moving_minutes,
+                format: fmtDur,
+            },
+            {
+                id: "stop_minutes",
+                header: t("table.stop_time"),
+                value: (gps) => gps.stop_minutes,
+                format: fmtDur,
+            },
+        ]
+        const gpsCols: ColumnDef<Row>[] = gpsColumns.map((col) => ({
+            id: col.id,
+            accessorFn: (row) => (row.gps ? col.value(row.gps) : -1),
+            enableSorting: true,
+            header: col.header,
+            cell: ({ row }) => (
+                <span
+                    className={cn(
+                        "tabular-nums whitespace-nowrap",
+                        !row.original.gps && "text-muted-foreground",
+                    )}
+                >
+                    {row.original.gps ?
+                        col.format(col.value(row.original.gps))
+                    :   "—"}
+                </span>
+            ),
+        }))
         return [
             {
                 id: "truck_number",
@@ -151,9 +133,9 @@ export default function VehicleList({
                     </div>
                 ),
             },
-            ...statusCols,
+            ...gpsCols,
         ]
-    }, [onStatusSelect, rows, t])
+    }, [t])
 
     return (
         <div className="flex flex-col gap-3">

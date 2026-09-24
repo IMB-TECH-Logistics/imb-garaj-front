@@ -81,10 +81,7 @@ export default function StatusReport({
     if (sv != null && vehId != null && vehicle == null) {
         if (isLoading) return null
         return (
-            <VehicleList
-                onSelect={openTimeline}
-                onStatusSelect={(v, status) => openRoute(v, status, "list")}
-            />
+            <VehicleList onSelect={openTimeline} />
         )
     }
 
@@ -115,9 +112,6 @@ export default function StatusReport({
         )
 
     return (
-        <VehicleList
-            onSelect={openTimeline}
-            onStatusSelect={(v, status) => openRoute(v, status, "list")}
-        />
+        <VehicleList onSelect={openTimeline} />
     )
 }

@@ -94,6 +94,13 @@ export type ApiStatusVehicle = {
     type: string | null
     current_status: number
     totals: Record<number, number>
+    gps: GpsSummary | null
+}
+
+export type GpsSummary = {
+    distance_km: number
+    moving_minutes: number
+    stop_minutes: number
 }
 
 export type ApiStatusSegment = {

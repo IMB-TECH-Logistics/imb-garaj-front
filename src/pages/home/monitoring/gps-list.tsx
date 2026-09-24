@@ -1,6 +1,18 @@
+import { Button } from "@/components/ui/button"
+import {
+    MONITORING_GPS_DEVICES,
+    MONITORING_GPS_LINK,
+    MONITORING_GPS_LIVE,
+    VEHICLES,
+} from "@/constants/api-endpoints"
+import { useConfirm } from "@/hooks/useConfirm"
+import { usePost } from "@/hooks/usePost"
 import { cn } from "@/lib/utils"
+import { useQueryClient } from "@tanstack/react-query"
 import { format, isToday, parseISO } from "date-fns"
-import { Clock } from "lucide-react"
+import { Clock, Unlink } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import {
     DimensionEmpty,
     DimensionListSkeleton,
@@ -22,6 +34,36 @@ function secondsSince(value: string | null) {
 }
 
 export default function GpsList({ items, loading, activeImei, onSelect }: Props) {
+    const { t } = useTranslation()
+    const confirm = useConfirm()
+    const queryClient = useQueryClient()
+    const { mutate, isPending } = usePost()
+
+    const unlink = async (item: GpsLiveVehicle) => {
+        const ok = await confirm({
+            title: t("messages.confirm_unlink_device", {
+                vehicle: item.vehicle_number,
+            }),
+        })
+        if (!ok) return
+        mutate(
+            MONITORING_GPS_LINK,
+            { vehicle: item.vehicle, imei: "" },
+            {
+                onSuccess: () => {
+                    toast.success(t("toast.device_unlinked"))
+                    queryClient.invalidateQueries({ queryKey: [VEHICLES] })
+                    queryClient.invalidateQueries({
+                        queryKey: [MONITORING_GPS_DEVICES],
+                    })
+                    queryClient.invalidateQueries({
+                        queryKey: [MONITORING_GPS_LIVE],
+                    })
+                },
+            },
+        )
+    }
+
     if (loading && items.length === 0) {
         return <DimensionListSkeleton />
     }
@@ -42,6 +84,22 @@ export default function GpsList({ items, loading, activeImei, onSelect }: Props)
                     index={i}
                     active={item.imei === activeImei}
                     onClick={() => onSelect?.(item)}
+                    action={
+                        item.vehicle ? (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                disabled={isPending}
+                                aria-label={t("actions.delete")}
+                                title={t("actions.delete")}
+                                onClick={() => unlink(item)}
+                                className="h-auto w-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                            >
+                                <Unlink className="h-4 w-4" />
+                            </Button>
+                        ) : undefined
+                    }
                     secondsSince={secondsSince(item.last_update)}
                     primary={
                         <span className="inline-flex min-w-0 items-center gap-1.5">

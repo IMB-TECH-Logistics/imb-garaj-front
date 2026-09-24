@@ -67,6 +67,7 @@
         "success_edit": "Успешно изменено!",
         "success_delete": "Успешно удалено",
         "confirm_delete": "Вы уверены?",
+        "confirm_unlink_device": "Отвязать GPS устройство от машины {{vehicle}}?",
         "confirm_dialog_title": "Подтверждение",
         "download_password": "Для скачивания требуется пароль",
         "not_found": "Не найдено",
@@ -227,6 +228,7 @@
         "warehouse_out": "Выдано со склада",
         "device_added": "GPS устройство добавлено",
         "device_linked": "GPS устройство привязано к машине",
+        "device_unlinked": "GPS устройство отвязано от машины",
         "restored": "Восстановлено"
     },
     "status": {
@@ -362,6 +364,8 @@
         "status": "Статус",
         "order_id": "ID заказа",
         "distance_km": "Расстояние (км)",
+        "moving_time": "В движении",
+        "stop_time": "Время остановок",
         "duration": "Длительность",
         "start_time": "Время начала",
         "end_time": "Время окончания",

@@ -67,6 +67,7 @@
         "success_edit": "正常に更新されました！",
         "success_delete": "正常に削除されました",
         "confirm_delete": "よろしいですか？",
+        "confirm_unlink_device": "{{vehicle}} からGPSデバイスの連携を解除しますか？",
         "confirm_dialog_title": "確認",
         "download_password": "ダウンロードにはパスワードが必要です",
         "not_found": "見つかりません",
@@ -227,6 +228,7 @@
         "warehouse_out": "倉庫から出庫されました",
         "device_added": "GPSデバイスが追加されました",
         "device_linked": "GPSデバイスが車両に連携されました",
+        "device_unlinked": "GPSデバイスの連携を解除しました",
         "restored": "復元されました"
     },
     "status": {
@@ -362,6 +364,8 @@
         "status": "ステータス",
         "order_id": "注文ID",
         "distance_km": "距離 (km)",
+        "moving_time": "走行時間",
+        "stop_time": "停車時間",
         "duration": "期間",
         "start_time": "開始時刻",
         "end_time": "終了時刻",

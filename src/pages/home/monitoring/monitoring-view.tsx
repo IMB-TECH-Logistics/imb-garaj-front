@@ -21,6 +21,8 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
     ArrowLeft,
     ArrowUpRight,
+    ChevronLeft,
+    ChevronRight,
     Maximize2,
     Minimize2,
     RefreshCcw,
@@ -205,6 +207,7 @@ export default function MonitoringView() {
     const polylineData = polyline.data
 
     const [trackerImei, setTrackerImei] = useState<string | null>(null)
+    const [panelOpen, setPanelOpen] = useState(true)
     const history = useTrackerHistory(trackerImei)
 
     const gpsMarkers: LiveMarker[] = useMemo(() => {
@@ -514,12 +517,34 @@ export default function MonitoringView() {
                 swaps between the live lists and the status report. */}
             <div
                 className={cn(
-                    "grid grid-cols-1 gap-3 transition-[grid-template-columns] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                    "relative grid grid-cols-1 gap-3 transition-[grid-template-columns] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
                     mode === "report"
-                        ? "lg:grid-cols-[0fr_1fr]"
-                        : "lg:grid-cols-[5fr_2fr]",
+                        ? "lg:grid-cols-[minmax(0,0fr)_minmax(320px,1fr)]"
+                        : panelOpen
+                          ? "lg:grid-cols-[minmax(0,4fr)_minmax(280px,1fr)]"
+                          : "lg:grid-cols-[minmax(0,1fr)_minmax(0,0fr)]",
                 )}
             >
+                {mode === "map" && (
+                    <button
+                        type="button"
+                        onClick={() => setPanelOpen((v) => !v)}
+                        aria-label={panelTitle}
+                        title={panelTitle}
+                        className={cn(
+                            "absolute top-1/2 z-20 hidden h-16 w-6 -translate-y-1/2 items-center justify-center rounded-md border border-primary bg-primary text-primary-foreground shadow-lg shadow-black/30 transition-[right,color,background-color] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:brightness-110 lg:flex",
+                            panelOpen
+                                ? "right-[calc(max(280px,(100%_-_12px)/5)_-_6px)]"
+                                : "right-[-6px]",
+                        )}
+                    >
+                        {panelOpen ? (
+                            <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
+                        ) : (
+                            <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
+                        )}
+                    </button>
+                )}
                 <div
                     className={cn(
                         "min-w-0 overflow-hidden transition-opacity duration-500",
@@ -560,7 +585,14 @@ export default function MonitoringView() {
                     </Card>
                 </div>
 
-                <Card className="flex h-full max-h-[calc(100vh-200px)] min-w-0 flex-col">
+                <Card
+                    className={cn(
+                        "flex h-full max-h-[calc(100vh-200px)] min-w-0 flex-col transition-opacity duration-500",
+                        mode === "map" &&
+                            !panelOpen &&
+                            "lg:pointer-events-none lg:invisible lg:overflow-hidden lg:border-0 lg:opacity-0",
+                    )}
+                >
                     <CardHeader className="flex flex-row items-center justify-between gap-2 py-3">
                         <div className="flex min-w-0 items-center gap-2">
                             {mode === "map" && selectedId != null && (

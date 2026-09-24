@@ -22,6 +22,7 @@ type DimensionRowProps = {
     onClick?: () => void
     index?: number
     badge?: ReactNode
+    action?: ReactNode
 }
 
 export function DimensionRow({
@@ -33,6 +34,7 @@ export function DimensionRow({
     onClick,
     index = 0,
     badge,
+    action,
 }: DimensionRowProps) {
     const stale =
         secondsSince == null || secondsSince > STALE_THRESHOLD_SECONDS
@@ -40,13 +42,13 @@ export function DimensionRow({
     return (
         <li
             style={{ animationDelay: `${index * 35}ms` }}
-            className="opacity-0 animate-[slide-in_320ms_cubic-bezier(.2,.7,.2,1)_forwards]"
+            className="flex items-stretch gap-1 opacity-0 animate-[slide-in_320ms_cubic-bezier(.2,.7,.2,1)_forwards]"
         >
             <button
                 type="button"
                 onClick={onClick}
                 className={cn(
-                    "group relative flex w-full flex-col gap-0.5 overflow-hidden rounded-lg border bg-card py-2 pl-3.5 pr-3 text-left transition",
+                    "group relative flex w-full min-w-0 flex-col gap-0.5 overflow-hidden rounded-lg border bg-card py-2 pl-3.5 pr-3 text-left transition",
                     "hover:border-primary/40 hover:bg-accent/40",
                     active
                         ? "border-primary/60 ring-1 ring-primary/20"
@@ -91,6 +93,7 @@ export function DimensionRow({
                     </div>
                 )}
             </button>
+            {action}
         </li>
     )
 }

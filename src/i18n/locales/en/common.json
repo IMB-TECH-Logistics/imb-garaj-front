@@ -67,6 +67,7 @@
         "success_edit": "Updated successfully!",
         "success_delete": "Deleted successfully",
         "confirm_delete": "Are you sure?",
+        "confirm_unlink_device": "Unlink the GPS device from {{vehicle}}?",
         "confirm_dialog_title": "Confirm",
         "download_password": "Password required to download",
         "not_found": "Not found",
@@ -227,6 +228,7 @@
         "warehouse_out": "Issued from warehouse",
         "device_added": "GPS device added",
         "device_linked": "GPS device linked to vehicle",
+        "device_unlinked": "GPS device unlinked from vehicle",
         "restored": "Restored"
     },
     "status": {
@@ -362,6 +364,8 @@
         "status": "Status",
         "order_id": "Order ID",
         "distance_km": "Distance (km)",
+        "moving_time": "Driving time",
+        "stop_time": "Stop time",
         "duration": "Duration",
         "start_time": "Start Time",
         "end_time": "End Time",

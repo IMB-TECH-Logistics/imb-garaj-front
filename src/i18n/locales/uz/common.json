@@ -67,6 +67,7 @@
         "success_edit": "Muvaffaqiyatli tahrirlandi!",
         "success_delete": "Muvaffaqiyatli o'chirildi",
         "confirm_delete": "O'chirmoqchimisiz?",
+        "confirm_unlink_device": "{{vehicle}} mashinasidan GPS qurilma ajratilsinmi?",
         "confirm_dialog_title": "Tasdiqlash",
         "download_password": "Yuklab olish uchun parol talab qilinadi",
         "not_found": "Topilmadi",
@@ -236,6 +237,7 @@
         "warehouse_out": "Ombordan chiqarildi",
         "device_added": "GPS qurilma qo'shildi",
         "device_linked": "GPS qurilma mashinaga biriktirildi",
+        "device_unlinked": "GPS qurilma mashinadan ajratildi",
         "restored": "Tiklandi"
     },
     "status": {
@@ -394,6 +396,8 @@
         "status": "Holat",
         "order_id": "Buyurtma ID",
         "distance_km": "Masofa (km)",
+        "moving_time": "Harakatda",
+        "stop_time": "To'xtash vaqti",
         "duration": "Davomiyligi",
         "start_time": "Boshlash vaqti",
         "end_time": "Tugash vaqti",
