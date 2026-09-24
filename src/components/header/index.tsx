@@ -64,6 +64,7 @@ const HEADER_SEARCH: { prefix: string; searchKey: string; placeholder: string }[
     { prefix: "/buxgalteriya", searchKey: "search", placeholder: "Davlat raqami..." },
     { prefix: "/haydovchilar", searchKey: "driver_search", placeholder: "Haydovchi..." },
     { prefix: "/managers", searchKey: "search", placeholder: "Mashina raqami..." },
+    { prefix: "/manager-trips/manager-reys", searchKey: "search", placeholder: "Joy, yuk turi, yuk beruvchi yoki ID..." },
     { prefix: "/kassa", searchKey: "tx_search", placeholder: "Izoh / ma'sul..." },
     { prefix: "/texnik-check", searchKey: "vehicle_search", placeholder: "Mashina raqami..." },
     { prefix: "/technic-check", searchKey: "vehicle_search", placeholder: "Mashina raqami..." },

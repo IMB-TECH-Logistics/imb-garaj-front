@@ -1,6 +1,4 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
-import ParamDateRange from "@/components/as-params/date-picker-range"
-import ParamInput from "@/components/as-params/input"
 import { Button } from "@/components/ui/button"
 import {
     SETTINGS_SELECTABLE_CARGO_TYPE,
@@ -10,7 +8,6 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { X } from "lucide-react"
-import { useState } from "react"
 import { ACTIVITY_OPTIONS, STATUS_OPTIONS } from "./create-reys"
 import { useTranslation } from "react-i18next"
 
@@ -45,7 +42,6 @@ export default function ReysFilters() {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
-    const [resetKey, setResetKey] = useState(0)
 
     const TYPE_OPTIONS: Option[] = [
         { id: "1", name: t("status.loaded") },
@@ -72,30 +68,17 @@ export default function ReysFilters() {
                 page: undefined,
             },
         } as any)
-        setResetKey((key) => key + 1)
     }
     return (
         <div className="mt-3 flex flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-                <ParamInput
-                    key={resetKey}
-                    placeholder="Joy, yuk turi, yuk beruvchi yoki ID bo'yicha qidirish..."
-                    className="w-full sm:w-80"
-                />
-                <ParamDateRange
-                    from="from_date"
-                    to="to_date"
-                    addButtonProps={{
-                        className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
-                    }}
-                />
-                {hasActiveFilters && (
+            {hasActiveFilters && (
+                <div className="flex flex-wrap items-center gap-2">
                     <Button onClick={clearAllFilters} className="flex items-center gap-2">
                         <X size={16} />
                         {t("page.clear_filters")}
                     </Button>
-                )}
-            </div>
+                </div>
+            )}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
                 <ParamCombobox
                     paramName="loading"

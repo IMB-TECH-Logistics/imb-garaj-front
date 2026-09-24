@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 
 export default function ManagerReys() {
     const { t } = useTranslation()
@@ -103,12 +104,21 @@ export default function ManagerReys() {
                                     }
                                 />
                             </div>
-                            {hasControl && (
-                                <Button onClick={handleAdd}>
-                                    <Plus size={16} />
-                                    {t("actions.add")}
-                                </Button>
-                            )}
+                            <div className="flex items-center gap-2">
+                                <ParamDateRange
+                                    from="from_date"
+                                    to="to_date"
+                                    addButtonProps={{
+                                        className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
+                                    }}
+                                />
+                                {hasControl && (
+                                    <Button onClick={handleAdd}>
+                                        <Plus size={16} />
+                                        {t("actions.add")}
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                         <ReysFilters />
                     </div>
