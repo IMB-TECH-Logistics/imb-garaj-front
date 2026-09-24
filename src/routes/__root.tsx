@@ -60,7 +60,7 @@ function RootComponent() {
                             </PromptWithCauseProvider>
                         </PromptProvider>
                     </ConfirmProvider>
-                    <Toaster />
+                    <Toaster position="top-center" />
                 </ThemeDataProvider>
             </ThemeProvider>
             <ScrollRestoration getKey={(location) => location.pathname} />
