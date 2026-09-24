@@ -8,16 +8,24 @@ import {
     Dialog,
     DialogContent,
 } from "@/components/ui/dialog"
-import { MANAGERS_ORDERS, MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
+import {
+    MANAGERS_ORDERS,
+    MANAGERS_ORDERS_INTEGRATION_COUNT,
+    MANAGERS_TRIPS,
+    MANAGERS_VEHICLES,
+} from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
+import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
-import { useState } from "react"
+import { Check, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
@@ -31,10 +39,18 @@ export default function ManagerReys() {
     const { setData, getData, clearKey } = useGlobalStore()
     const item = getData(MANAGERS_VEHICLES)
     const { id } = useParams({ strict: false })
-    const { data: trip, error: tripError } = useGet<{ driver_name: string | null }>(
-        `${MANAGERS_TRIPS}/${id}`,
-        { enabled: !!id && !name, options: { retry: false } },
-    )
+    const { data: trip, error: tripError } = useGet<{
+        driver_name: string | null
+        vehicle?: number
+    }>(`${MANAGERS_TRIPS}/${id}`, {
+        enabled: !!id && !name,
+        options: { retry: false },
+    })
+    useEffect(() => {
+        if (trip?.vehicle) {
+            setData("manager-trips-vehicle-id", trip.vehicle)
+        }
+    }, [trip?.vehicle, setData])
     const tripLabel =
         name ||
         trip?.driver_name ||
@@ -52,9 +68,35 @@ export default function ManagerReys() {
         },
     })
     const hasControl = useHasAction("manager_vehicles_control")
+    const queryClient = useQueryClient()
+    const { mutate: approve } = usePost({})
+    const [approvingId, setApprovingId] = useState<number | null>(null)
 
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
     const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+
+    const handleApprove = (order: ManagerOrders) => {
+        setApprovingId(order.id)
+        approve(
+            `${MANAGERS_ORDERS}/${order.id}/approve`,
+            {},
+            {
+                onSuccess: () => {
+                    toast.success("Reys tasdiqlandi")
+                    queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS] })
+                    queryClient.invalidateQueries({
+                        queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT],
+                    })
+                },
+                onError: () => {
+                    toast.error("Tasdiqlashda xatolik")
+                },
+                onSettled: () => {
+                    setApprovingId(null)
+                },
+            },
+        )
+    }
 
     const cols = useColumnsManagersOrders({
         onImageClick: (images) => {
@@ -89,6 +131,25 @@ export default function ManagerReys() {
                 }}
                 onDelete={hasControl ? (row) => handleDelete(row.original) : undefined}
                 onEdit={hasControl ? (row) => handleEdit(row.original) : undefined}
+                rowAction={
+                    hasControl
+                        ? (order) =>
+                              order.status === -1 ? (
+                                  <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-3 p-0"
+                                      loading={approvingId === order.id}
+                                      disabled={approvingId === order.id}
+                                      icon={<Check className="text-green-600" size={16} />}
+                                      onClick={(e) => {
+                                          e.stopPropagation()
+                                          if (approvingId !== order.id) handleApprove(order)
+                                      }}
+                                  />
+                              ) : null
+                        : undefined
+                }
                 head={
                     <div className="mb-4">
                         <div className="flex items-center justify-between">

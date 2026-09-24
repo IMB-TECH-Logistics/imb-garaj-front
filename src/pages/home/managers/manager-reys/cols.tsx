@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
-import { ImageIcon } from "lucide-react"
+import { Copy, ImageIcon } from "lucide-react"
+import { toast } from "sonner"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -69,9 +70,17 @@ export const useColumnsManagersOrders = (opts?: {
                     const extId = row.original.external_id
                     if (!extId) return <span className="text-muted-foreground">—</span>
                     return (
-                        <Badge variant="outline" className="text-xs font-mono bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
+                        <span
+                            className="group inline-flex items-center gap-1 cursor-pointer transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                navigator.clipboard.writeText(String(extId))
+                                toast.success(`${extId} nusxaga olindi`)
+                            }}
+                        >
                             {extId}
-                        </Badge>
+                            <Copy width={14} className="opacity-0 transition-opacity group-hover:opacity-100" />
+                        </span>
                     )
                 },
             },
@@ -206,6 +215,16 @@ export const useColumnsManagersOrders = (opts?: {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
+                    if (status === -1) {
+                        return (
+                            <Badge
+                                variant="outline"
+                                className="bg-amber-500/10 text-amber-600 border-transparent"
+                            >
+                                Tasdiqlanmagan
+                            </Badge>
+                        )
+                    }
                     return <div>{STATUS_TRIP[status] || "-"}</div>
                 },
             },
