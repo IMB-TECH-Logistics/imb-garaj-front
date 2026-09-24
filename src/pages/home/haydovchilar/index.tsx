@@ -7,7 +7,6 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useMemo } from "react"
-import ParamInput from "@/components/as-params/input"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { useTranslation } from "react-i18next"
 
@@ -241,11 +240,6 @@ export default function HaydovchilarList() {
                         </Badge>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                        <ParamInput
-                            searchKey="driver_search"
-                            placeholder={`${t("actions.search")} (ism, familiya)...`}
-                            className="w-full sm:w-64"
-                        />
                         <ParamCombobox
                             paramName="tier"
                             options={TIER_OPTIONS}
