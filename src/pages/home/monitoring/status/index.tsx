@@ -5,7 +5,7 @@ import { endOfMonth, format, startOfMonth } from "date-fns"
 import { useMemo } from "react"
 import { type ApiStatusVehicle, type VehicleRow } from "./data"
 import RouteView from "./route-view"
-import VehicleList from "./vehicle-list"
+import StatsView from "./stats-view"
 import VehicleTimeline from "./timeline"
 
 export default function StatusReport({
@@ -81,7 +81,7 @@ export default function StatusReport({
     if (sv != null && vehId != null && vehicle == null) {
         if (isLoading) return null
         return (
-            <VehicleList onSelect={openTimeline} />
+            <StatsView onSelect={openTimeline} />
         )
     }
 
@@ -112,6 +112,6 @@ export default function StatusReport({
         )
 
     return (
-        <VehicleList onSelect={openTimeline} />
+        <StatsView onSelect={openTimeline} />
     )
 }

@@ -109,6 +109,7 @@ export const MONITORING_GPS_HISTORY_DAYS = "monitoring/gps-history/days"
 export const MONITORING_VEHICLE_LAST_ORDERS = "monitoring/vehicles/last-orders"
 // Append `/<vehicleId>/last-order` when calling
 export const MONITORING_VEHICLE_LAST_ORDER = "monitoring/vehicles"
+export const MONITORING_LOGISTICS_STATS = "monitoring/stats"
 export const MONITORING_STATUS_TIMELINE = "monitoring/status/timeline"
 export const MONITORING_STATUS_ROUTE = "monitoring/status/route"
 
