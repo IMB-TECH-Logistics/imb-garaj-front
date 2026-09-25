@@ -9,7 +9,7 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
@@ -218,9 +218,10 @@ type PanelProps = {
     tracker: GpsLiveVehicle
     history: TrackerHistory
     onBack: () => void
+    children?: ReactNode
 }
 
-export function TrackerHistoryPanel({ tracker, history, onBack }: PanelProps) {
+export function TrackerHistoryPanel({ tracker, history, onBack, children }: PanelProps) {
     const { t } = useTranslation()
     const { days, selected, summary } = history
     const online = tracker.status === "online"
@@ -257,6 +258,8 @@ export function TrackerHistoryPanel({ tracker, history, onBack }: PanelProps) {
                     </p>
                 </div>
             </div>
+
+            {children}
 
             <div className="grid grid-cols-4 gap-2">
                 {[

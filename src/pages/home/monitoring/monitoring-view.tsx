@@ -14,6 +14,7 @@ import {
     MONITORING_TRIPS_TRACKING,
     MONITORING_VEHICLES,
     MONITORING_GPS_LIVE,
+    MONITORING_VEHICLE_LAST_ORDERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
@@ -33,6 +34,7 @@ import { useTranslation } from "react-i18next"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import GpsList from "./gps-list"
+import { LastOrderCard, useVehicleLastOrder } from "./order-card"
 import { useGpsLiveSocket } from "./gps-socket"
 import { TrackerHistoryPanel, useTrackerHistory } from "./tracker-history"
 import MonitoringFilterBar from "./filter-bar"
@@ -56,6 +58,7 @@ import type {
     TripTracking,
     VehicleTracking,
     GpsLiveVehicle,
+    VehicleLastOrders,
 } from "./types"
 import { EMPTY_FILTERS, isHistoricalView, todayIso } from "./types"
 import VehicleList from "./vehicle-list"
@@ -208,7 +211,20 @@ export default function MonitoringView() {
 
     const [trackerImei, setTrackerImei] = useState<string | null>(null)
     const [panelOpen, setPanelOpen] = useState(true)
+    const [showOrderRoute, setShowOrderRoute] = useState(false)
     const history = useTrackerHistory(trackerImei)
+    const lastOrders = useGet<VehicleLastOrders>(MONITORING_VEHICLE_LAST_ORDERS, {
+        enabled: !historical,
+        options: { staleTime: 60 * 1000, refetchInterval: 60 * 1000 },
+    })
+    const ordersByVehicle = useMemo(
+        () => Object.fromEntries((lastOrders.data?.results ?? []).map((o) => [o.vehicle, o])),
+        [lastOrders.data],
+    )
+    const selectTracker = (imei: string | null) => {
+        setShowOrderRoute(false)
+        setTrackerImei(imei)
+    }
 
     const gpsMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
@@ -226,7 +242,7 @@ export default function MonitoringView() {
                 stale: g.status !== "online",
                 icon: "truck" as const,
                 selected: g.imei === trackerImei,
-                onClick: () => setTrackerImei(g.imei),
+                onClick: () => selectTracker(g.imei),
             }))
     }, [gpsLive.data, historical, trackerImei])
 
@@ -366,6 +382,8 @@ export default function MonitoringView() {
     // Eski hisob: liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
     const gpsItems = gpsLive.data ?? []
     const selectedTracker = gpsItems.find((g) => g.imei === trackerImei) ?? null
+    const lastOrder = useVehicleLastOrder(selectedTracker?.vehicle ?? null)
+    const trackerMap = showOrderRoute ? lastOrder.map : null
     const freshCount =
         dimension === "driver"
             ? gpsItems.filter((g) => g.status === "online").length
@@ -559,26 +577,26 @@ export default function MonitoringView() {
                                 markers={mapMarkers}
                                 segments={
                                     trackerImei
-                                        ? history.map.segments
+                                        ? (trackerMap?.segments ?? history.map.segments)
                                         : historical
                                           ? routeSegments
                                           : undefined
                                 }
                                 points={
                                     trackerImei
-                                        ? history.map.points
+                                        ? (trackerMap?.points ?? history.map.points)
                                         : historical
                                           ? polylineData?.points
                                           : undefined
                                 }
                                 bbox={
                                     trackerImei
-                                        ? history.map.bbox
+                                        ? (trackerMap ? trackerMap.bbox : history.map.bbox)
                                         : historical
                                           ? (polylineData?.bbox ?? null)
                                           : null
                                 }
-                                pois={trackerImei ? history.map.pois : undefined}
+                                pois={trackerImei && !trackerMap ? history.map.pois : undefined}
                             />
                         </CardContent>
                     </Card>
@@ -680,14 +698,23 @@ export default function MonitoringView() {
                                 <TrackerHistoryPanel
                                     tracker={selectedTracker}
                                     history={history}
-                                    onBack={() => setTrackerImei(null)}
-                                />
+                                    onBack={() => selectTracker(null)}
+                                >
+                                    {selectedTracker.vehicle != null && (
+                                        <LastOrderCard
+                                            lastOrder={lastOrder}
+                                            showRoute={showOrderRoute}
+                                            onToggleRoute={() => setShowOrderRoute((v) => !v)}
+                                        />
+                                    )}
+                                </TrackerHistoryPanel>
                             ) : (
                                 <GpsList
                                     items={gpsItems}
                                     loading={gpsLive.isLoading}
+                                    orders={ordersByVehicle}
                                     activeImei={trackerImei}
-                                    onSelect={(item) => setTrackerImei(item.imei)}
+                                    onSelect={(item) => selectTracker(item.imei)}
                                 />
                             )
                         ) : dimension === "order" ? (

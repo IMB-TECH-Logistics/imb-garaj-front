@@ -18,10 +18,12 @@ import {
     DimensionListSkeleton,
     DimensionRow,
 } from "./dimension-row"
-import type { GpsLiveVehicle } from "./types"
+import { OrderStatusChip } from "./order-card"
+import type { GpsLiveVehicle, VehicleOrderBadge } from "./types"
 
 type Props = {
     items: GpsLiveVehicle[]
+    orders?: Record<number, VehicleOrderBadge>
     loading?: boolean
     activeImei?: string | null
     onSelect?: (item: GpsLiveVehicle) => void
@@ -33,7 +35,7 @@ function secondsSince(value: string | null) {
         : null
 }
 
-export default function GpsList({ items, loading, activeImei, onSelect }: Props) {
+export default function GpsList({ items, orders, loading, activeImei, onSelect }: Props) {
     const { t } = useTranslation()
     const confirm = useConfirm()
     const queryClient = useQueryClient()
@@ -115,6 +117,14 @@ export default function GpsList({ items, loading, activeImei, onSelect }: Props)
                         item.speed != null
                             ? `${Math.round(item.speed)} km/h`
                             : undefined
+                    }
+                    footer={
+                        item.vehicle != null && orders?.[item.vehicle] ? (
+                            <OrderStatusChip
+                                code={orders[item.vehicle].external_id}
+                                garageStatus={orders[item.vehicle].garage_status}
+                            />
+                        ) : undefined
                     }
                     metaRight={
                         <span

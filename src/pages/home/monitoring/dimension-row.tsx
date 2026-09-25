@@ -23,6 +23,7 @@ type DimensionRowProps = {
     index?: number
     badge?: ReactNode
     action?: ReactNode
+    footer?: ReactNode
 }
 
 export function DimensionRow({
@@ -35,6 +36,7 @@ export function DimensionRow({
     index = 0,
     badge,
     action,
+    footer,
 }: DimensionRowProps) {
     const stale =
         secondsSince == null || secondsSince > STALE_THRESHOLD_SECONDS
@@ -92,6 +94,7 @@ export function DimensionRow({
                         )}
                     </div>
                 )}
+                {footer && <div className="mt-1 flex min-w-0">{footer}</div>}
             </button>
             {action}
         </li>

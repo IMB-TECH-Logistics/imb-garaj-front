@@ -158,3 +158,57 @@ export type GpsPosition = {
     speed: number | null
     course: number | null
 }
+
+export type VehicleOrderBadge = {
+    vehicle: number
+    external_id: string
+    garage_order_id: number | null
+    status: number
+    status_name: string | null
+    garage_status: number | null
+}
+
+export type VehicleLastOrders = {
+    available: boolean
+    stale: boolean
+    results: VehicleOrderBadge[]
+}
+
+export type LastOrderStatus = {
+    status: number
+    status_name: string | null
+    garage_status: number | null
+    start: string
+    end: string | null
+}
+
+export type VehicleLastOrder = {
+    vehicle: { id: number; truck_number: string; driver: string | null; gps_imei: string | null }
+    available: boolean
+    stale: boolean
+    order: {
+        external_id: string
+        garage_order_id: number | null
+        status: number
+        status_name: string | null
+        garage_status: number | null
+        from: string | null
+        to: string | null
+        date: string | null
+    } | null
+    statuses: LastOrderStatus[]
+    loaded_at: string | null
+    loaded_at_reliable: boolean | null
+    stats: {
+        started_at: string
+        ended_at: string | null
+        spent_minutes: number
+        distance_km: number | null
+        moving_minutes: number | null
+        stop_minutes: number | null
+    } | null
+    track: {
+        segments: { status: number | null; garage_status: number | null; points: [number, number][] }[]
+        bbox: [number, number, number, number] | null
+    } | null
+}
