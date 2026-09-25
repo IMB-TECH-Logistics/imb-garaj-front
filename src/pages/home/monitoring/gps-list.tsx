@@ -128,7 +128,6 @@ export default function GpsList({ items, orders, loading, activeImei, onSelect }
                                         <b className="font-medium text-foreground">{minutes(order.spent_minutes)}</b>
                                     </>
                                 )}
-                                {item.speed != null && <b className="font-medium text-foreground">{Math.round(item.speed)} km/h</b>}
                                 <span className={cn("ml-auto inline-flex items-center gap-1", stale && "text-destructive")}>
                                     <Clock className="h-3 w-3 shrink-0" />
                                     {item.last_update ? format(parseISO(item.last_update), "dd.MM HH:mm") : "—"}
