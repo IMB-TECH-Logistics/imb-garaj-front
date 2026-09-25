@@ -166,6 +166,12 @@ export type VehicleOrderBadge = {
     status: number
     status_name: string | null
     garage_status: number | null
+    from: string | null
+    to: string | null
+    loaded_at: string | null
+    loaded_at_reliable: boolean | null
+    started_at: string | null
+    spent_minutes: number | null
 }
 
 export type VehicleLastOrders = {

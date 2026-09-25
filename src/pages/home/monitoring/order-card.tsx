@@ -29,25 +29,11 @@ export function orderStatusMeta(garageStatus: number | null | undefined) {
     return STATUS_META[garageStatus] ?? EXTRA_META[garageStatus] ?? { label: "—", color: "#9ca3af" }
 }
 
-export function OrderStatusChip({ code, garageStatus }: { code: string; garageStatus: number | null }) {
-    const meta = orderStatusMeta(garageStatus)
-    return (
-        <span
-            className="inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-px text-[10px] font-semibold"
-            style={{ color: meta.color, backgroundColor: `${meta.color}1f` }}
-        >
-            <span className="font-mono">#{code}</span>
-            <span aria-hidden>·</span>
-            {meta.label}
-        </span>
-    )
-}
-
-function clock(value: string | null) {
+export function clock(value: string | null) {
     return value ? format(parseISO(value), "dd.MM HH:mm") : "—"
 }
 
-function minutes(value: number | null | undefined) {
+export function minutes(value: number | null | undefined) {
     if (value == null) return "—"
     const total = Math.round(value)
     const hours = Math.floor(total / 60)

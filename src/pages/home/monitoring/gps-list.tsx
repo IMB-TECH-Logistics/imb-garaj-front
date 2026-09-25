@@ -13,12 +13,8 @@ import { format, isToday, parseISO } from "date-fns"
 import { Clock, Unlink } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import {
-    DimensionEmpty,
-    DimensionListSkeleton,
-    DimensionRow,
-} from "./dimension-row"
-import { OrderStatusChip } from "./order-card"
+import { DimensionEmpty, DimensionListSkeleton } from "./dimension-row"
+import { clock, minutes, orderStatusMeta } from "./order-card"
 import type { GpsLiveVehicle, VehicleOrderBadge } from "./types"
 
 type Props = {
@@ -27,12 +23,6 @@ type Props = {
     loading?: boolean
     activeImei?: string | null
     onSelect?: (item: GpsLiveVehicle) => void
-}
-
-function secondsSince(value: string | null) {
-    return value
-        ? Math.max(0, Math.round((Date.now() - Date.parse(value)) / 1000))
-        : null
 }
 
 export default function GpsList({ items, orders, loading, activeImei, onSelect }: Props) {
@@ -80,14 +70,72 @@ export default function GpsList({ items, orders, loading, activeImei, onSelect }
 
     return (
         <ul className="flex flex-col gap-1.5">
-            {items.map((item, i) => (
-                <DimensionRow
-                    key={item.imei}
-                    index={i}
-                    active={item.imei === activeImei}
-                    onClick={() => onSelect?.(item)}
-                    action={
-                        item.vehicle ? (
+            {items.map((item, i) => {
+                const order = item.vehicle != null ? orders?.[item.vehicle] : undefined
+                const meta = order ? orderStatusMeta(order.garage_status) : null
+                const color = meta?.color ?? "hsl(var(--muted-foreground) / 0.4)"
+                const active = item.imei === activeImei
+                const stale = item.last_update && !isToday(parseISO(item.last_update))
+                return (
+                    <li
+                        key={item.imei}
+                        style={{ animationDelay: `${i * 35}ms` }}
+                        className="flex items-stretch gap-1 opacity-0 animate-[slide-in_320ms_cubic-bezier(.2,.7,.2,1)_forwards]"
+                    >
+                        <button
+                            type="button"
+                            onClick={() => onSelect?.(item)}
+                            className={cn(
+                                "relative grid w-full min-w-0 gap-1 overflow-hidden rounded-lg border bg-card py-2.5 pl-4 pr-3 text-left transition",
+                                "hover:border-primary/40 hover:bg-accent/40",
+                                active ? "border-primary/60 ring-1 ring-primary/20" : "border-border/70",
+                            )}
+                        >
+                            <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
+
+                            <span className="flex items-center justify-between gap-2">
+                                <span className="truncate font-mono text-lg font-bold leading-tight tracking-wider">
+                                    {item.vehicle_number || item.tracker_name || item.imei}
+                                </span>
+                                {meta && (
+                                    <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-semibold" style={{ color: meta.color }}>
+                                        <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
+                                        {meta.label}
+                                    </span>
+                                )}
+                            </span>
+
+                            <span className="flex items-center justify-between gap-2">
+                                <span className={cn("truncate text-sm font-medium", !order && "text-muted-foreground")}>
+                                    {order
+                                        ? order.from && order.to
+                                            ? `${order.from} → ${order.to}`
+                                            : "Yo'nalish noma'lum"
+                                        : "Buyurtma yo'q"}
+                                </span>
+                                {order && (
+                                    <span className="shrink-0 font-mono text-[11px] text-muted-foreground">#{order.external_id}</span>
+                                )}
+                            </span>
+
+                            <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground tabular-nums">
+                                {order && (
+                                    <>
+                                        <span>
+                                            Yuklangan{" "}
+                                            <b className="font-medium text-foreground">{clock(order.loaded_at)}</b>
+                                        </span>
+                                        <b className="font-medium text-foreground">{minutes(order.spent_minutes)}</b>
+                                    </>
+                                )}
+                                {item.speed != null && <b className="font-medium text-foreground">{Math.round(item.speed)} km/h</b>}
+                                <span className={cn("ml-auto inline-flex items-center gap-1", stale && "text-destructive")}>
+                                    <Clock className="h-3 w-3 shrink-0" />
+                                    {item.last_update ? format(parseISO(item.last_update), "dd.MM HH:mm") : "—"}
+                                </span>
+                            </span>
+                        </button>
+                        {item.vehicle ? (
                             <Button
                                 type="button"
                                 variant="ghost"
@@ -100,49 +148,10 @@ export default function GpsList({ items, orders, loading, activeImei, onSelect }
                             >
                                 <Unlink className="h-4 w-4" />
                             </Button>
-                        ) : undefined
-                    }
-                    secondsSince={secondsSince(item.last_update)}
-                    primary={
-                        <span className="inline-flex min-w-0 items-center gap-1.5">
-                            <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
-                                {i + 1}.
-                            </span>
-                            <span className="font-mono tracking-wide">
-                                {item.vehicle_number || item.tracker_name || item.imei}
-                            </span>
-                        </span>
-                    }
-                    secondary={
-                        item.speed != null
-                            ? `${Math.round(item.speed)} km/h`
-                            : undefined
-                    }
-                    footer={
-                        item.vehicle != null && orders?.[item.vehicle] ? (
-                            <OrderStatusChip
-                                code={orders[item.vehicle].external_id}
-                                garageStatus={orders[item.vehicle].garage_status}
-                            />
-                        ) : undefined
-                    }
-                    metaRight={
-                        <span
-                            className={cn(
-                                "inline-flex items-center gap-1",
-                                item.last_update &&
-                                    !isToday(parseISO(item.last_update)) &&
-                                    "text-destructive",
-                            )}
-                        >
-                            <Clock className="h-3 w-3 shrink-0" />
-                            {item.last_update
-                                ? format(parseISO(item.last_update), "dd.MM.yyyy HH:mm")
-                                : "—"}
-                        </span>
-                    }
-                />
-            ))}
+                        ) : null}
+                    </li>
+                )
+            })}
         </ul>
     )
 }
