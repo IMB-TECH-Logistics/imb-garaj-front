@@ -137,7 +137,7 @@ function MapLibreRouteMap({
                     [bbox[0], bbox[1]],
                     [bbox[2], bbox[3]],
                 ],
-                { padding: 80, duration: 700, maxZoom: 15 },
+                { padding: 80, duration: 700, maxZoom: 14 },
             )
             return
         }

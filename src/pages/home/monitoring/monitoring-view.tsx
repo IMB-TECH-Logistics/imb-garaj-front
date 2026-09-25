@@ -34,7 +34,7 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import GpsList from "./gps-list"
 import { useGpsLiveSocket } from "./gps-socket"
-import { TrackerHistoryPanel, useLiveTrails, useTrackerHistory } from "./tracker-history"
+import { TrackerHistoryPanel, useTrackerHistory } from "./tracker-history"
 import MonitoringFilterBar from "./filter-bar"
 import { LinkDeviceButton } from "./link-device-modal"
 import OrderList from "./order-list"
@@ -366,7 +366,6 @@ export default function MonitoringView() {
     // Eski hisob: liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
     const gpsItems = gpsLive.data ?? []
     const selectedTracker = gpsItems.find((g) => g.imei === trackerImei) ?? null
-    const liveTrails = useLiveTrails(gpsItems, !historical && !trackerImei)
     const freshCount =
         dimension === "driver"
             ? gpsItems.filter((g) => g.status === "online").length
@@ -563,7 +562,7 @@ export default function MonitoringView() {
                                         ? history.map.segments
                                         : historical
                                           ? routeSegments
-                                          : liveTrails
+                                          : undefined
                                 }
                                 points={
                                     trackerImei

@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next"
 import { DriverMarker, EndpointDot, PoiMarker } from "./map-markers"
 import type { MapPoint, RouteMapProps } from "./route-map"
 
+const MAX_FIT_ZOOM = 14
 const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY
 const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 const CONTAINER_STYLE = { width: "100%", height: "100%" }
@@ -66,6 +67,9 @@ export default function GoogleRouteMap({
                 { west: bbox[0], south: bbox[1], east: bbox[2], north: bbox[3] },
                 80,
             )
+            google.maps.event.addListenerOnce(map, "idle", () => {
+                if ((map.getZoom() ?? 0) > MAX_FIT_ZOOM) map.setZoom(MAX_FIT_ZOOM)
+            })
             return
         }
         if (markers && markers.length === 1) {

@@ -6,9 +6,8 @@ import {
     MONITORING_GPS_HISTORY,
     MONITORING_GPS_HISTORY_DAYS,
 } from "@/constants/api-endpoints"
-import { buildQueryKey, getRequest, useGet } from "@/hooks/useGet"
+import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
-import { useQueries } from "@tanstack/react-query"
 import { ArrowLeft } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -36,20 +35,6 @@ function toPoint(p: GpsPosition): Point {
     return { t, lat: p.latitude, lng: p.longitude, speed: p.speed ?? 0, day: dayKey(t) }
 }
 
-function splitByGaps(points: Point[]) {
-    const parts: Point[][] = []
-    let current: Point[] = []
-    points.forEach((p, i) => {
-        const previous = points[i - 1]
-        if (previous && (p.t - previous.t > GAP_MS || p.day !== previous.day)) {
-            parts.push(current)
-            current = []
-        }
-        current.push(p)
-    })
-    parts.push(current)
-    return parts.filter((part) => part.length > 1)
-}
 const clock = (ms: number) => timeFormat.format(ms)
 
 function dayParts(key: string) {
@@ -124,7 +109,8 @@ export function useTrackerHistory(imei: string | null) {
 
     useEffect(() => {
         if (imei && days.data?.length && initialisedFor !== imei) {
-            setSelected([days.data[0].date])
+            const today = dayKey(Date.now())
+            setSelected([days.data.some((d) => d.date === today) ? today : days.data[0].date])
             setInitialisedFor(imei)
         }
         if (!imei) {
@@ -227,56 +213,6 @@ export function useTrackerHistory(imei: string | null) {
 }
 
 export type TrackerHistory = ReturnType<typeof useTrackerHistory>
-
-export function useLiveTrails(items: GpsLiveVehicle[], enabled: boolean) {
-    const today = dayKey(Date.now())
-    const range = { from: `${today}T00:00:00+05:00`, to: `${today}T23:59:59+05:00` }
-    const imeis = items.map((item) => item.imei)
-
-    const history = useQueries({
-        queries: imeis.map((imei) => ({
-            queryKey: buildQueryKey(MONITORING_GPS_HISTORY, { imei, ...range }),
-            queryFn: (): Promise<GpsPosition[]> =>
-                getRequest(MONITORING_GPS_HISTORY, { params: { imei, ...range } }),
-            enabled,
-            staleTime: 5 * 60 * 1000,
-        })),
-    })
-
-    const [live, setLive] = useState<Record<string, Point[]>>({})
-
-    useEffect(() => {
-        if (!enabled) return
-        setLive((previous) => {
-            let next = previous
-            for (const item of items) {
-                if (item.lat == null || item.lng == null || !item.fix_time) continue
-                const t = Date.parse(item.fix_time)
-                const trail = previous[item.imei] ?? []
-                if (trail.length && trail[trail.length - 1].t >= t) continue
-                if (next === previous) next = { ...previous }
-                next[item.imei] = [...trail, { t, lat: item.lat, lng: item.lng, speed: item.speed ?? 0, day: dayKey(t) }]
-            }
-            return next
-        })
-    }, [items, enabled])
-
-    const loadedAt = history.map((q) => q.dataUpdatedAt).join(",")
-
-    return useMemo<ColoredSegment[]>(() => {
-        if (!enabled) return []
-        return imeis.flatMap((imei, i) => {
-            const loaded = (history[i]?.data ?? []).map(toPoint)
-            const lastLoaded = loaded.length ? loaded[loaded.length - 1].t : 0
-            const trail = [...loaded, ...(live[imei] ?? []).filter((p) => p.t > lastLoaded && p.day === today)]
-            return splitByGaps(trail).map((part) => ({
-                points: part.map((p) => [p.lng, p.lat] as MapPoint),
-                color: DAY_COLORS[i % DAY_COLORS.length],
-            }))
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [enabled, imeis.join(","), loadedAt, live, today])
-}
 
 type PanelProps = {
     tracker: GpsLiveVehicle
