@@ -175,10 +175,17 @@ export const useSalaryColumns = (opts?: EditableOpts) => {
             base
                 .filter((c) => (c as any).accessorKey !== "currency")
                 .map((c) => {
-                    if ((c as any).accessorKey !== "current_price") return c
+                    const key = (c as any).accessorKey
+                    if (key === "payment_type_name")
+                        return { ...c, enableSorting: true }
+                    if (key !== "current_price") return c
                     const patched: ColumnDef<DirectionRow> = {
                         ...c,
                         header: t("table.salary_monthly_uzs"),
+                        enableSorting: true,
+                        sortingFn: (a, b) =>
+                            Number(a.original.driver_salary_amount ?? 0) -
+                            Number(b.original.driver_salary_amount ?? 0),
                     }
                     if (opts?.editable) {
                         patched.cell = ({ row }) => (
