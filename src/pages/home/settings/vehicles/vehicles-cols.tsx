@@ -51,7 +51,15 @@ export const useColumnsVehiclesTable = () => {
                 accessorKey: "driver_name",
                 header: t("form.driver"),
                 enableSorting: true,
-                cell: ({ row }) => row.original.driver_name || "-",
+                size: 200,
+                cell: ({ row }) => (
+                    <span
+                        className="block truncate whitespace-nowrap"
+                        title={row.original.driver_name || undefined}
+                    >
+                        {row.original.driver_name || "-"}
+                    </span>
+                ),
             },
             {
                 accessorKey: "fuel",
