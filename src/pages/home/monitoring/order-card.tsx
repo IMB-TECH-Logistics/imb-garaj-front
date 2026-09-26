@@ -14,16 +14,6 @@ const EXTRA_META: Record<number, { label: string; color: string }> = {
     [ORDER_STATUS.CANCELED]: { label: "Bekor qilindi", color: "#f87171" },
 }
 
-const LOGISTICS_LABEL: Record<number, string> = {
-    50: "Boshlandi",
-    60: "Yuklash joyida",
-    70: "Yuklanmoqda",
-    80: "Yuklandi, yo'lda",
-    90: "Tushirish joyida",
-    100: "Tugallandi",
-    1000: "Bekor qilindi",
-}
-
 export function orderStatusMeta(garageStatus: number | null | undefined) {
     if (garageStatus == null) return { label: "—", color: "#9ca3af" }
     return STATUS_META[garageStatus] ?? EXTRA_META[garageStatus] ?? { label: "—", color: "#9ca3af" }
@@ -118,30 +108,6 @@ export function LastOrderCard({ lastOrder, showRoute, onToggleRoute }: CardProps
                     </div>
                 ))}
             </div>
-
-            <div className="text-xs">
-                <span className="text-muted-foreground">Yuklangan: </span>
-                <span className="font-mono tabular-nums">{clock(data.loaded_at)}</span>
-                {data.loaded_at && data.loaded_at_reliable === false && (
-                    <p className="mt-0.5 text-[11px] text-amber-500">
-                        Holatlar bir necha daqiqada ketma-ket belgilangan, vaqt aniq bo'lmasligi mumkin.
-                    </p>
-                )}
-            </div>
-
-            <ol className="flex flex-col gap-1" aria-label="Buyurtma holatlari">
-                {data.statuses.map((s) => (
-                    <li key={`${s.status}-${s.start}`} className="flex items-center gap-2 text-xs">
-                        <span
-                            aria-hidden
-                            className="h-2 w-2 shrink-0 rounded-full"
-                            style={{ backgroundColor: orderStatusMeta(s.garage_status).color }}
-                        />
-                        <span className="flex-1 truncate">{LOGISTICS_LABEL[s.status] ?? s.status_name}</span>
-                        <span className="font-mono tabular-nums text-muted-foreground">{clock(s.start)}</span>
-                    </li>
-                ))}
-            </ol>
 
             {data.stale && (
                 <p className="text-[11px] text-muted-foreground">Logistika hozir javob bermayapti, oxirgi ma'lum holat ko'rsatilmoqda.</p>
