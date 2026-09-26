@@ -346,6 +346,7 @@
         "truck_type": "Transport turi",
         "driver": "Haydovchi",
         "truck_status": "Avtomobil statusi",
+        "orders_history": "Buyurtmalar tarixi",
         "location": "Joylashuv",
         "pending_trips": "Kutilayotgan reyslar",
         "status_loaded": "Yukli",
@@ -473,5 +474,28 @@
         "select_required": "{{field}} tanlang",
         "field_required": "{{field}} kiritilishi shart",
         "numbers_only": "Faqat raqam kiriting"
+    },
+    "monitoring_stats": {
+        "date": "Sana",
+        "order": "Buyurtma",
+        "route": "Yo'nalish",
+        "status_50": "Boshlandi",
+        "status_60": "Yuklash joyida",
+        "status_70": "Yuklanmoqda",
+        "status_80": "Yo'lda",
+        "status_90": "Tushirish joyida",
+        "status_100": "Tugallandi",
+        "status_1000": "Bekor qilindi",
+        "total_time": "Jami vaqt",
+        "total_km": "Jami km",
+        "unknown_route": "Yo'nalish noma'lum",
+        "vehicle": "Mashina",
+        "all": "Hammasi",
+        "orders_count": "{{count}} ta buyurtma",
+        "synced": "Logistika bilan sinxron: {{time}}",
+        "not_linked": "Bu kompaniya Logistika bilan bog'lanmagan.",
+        "less_minute": "<1 daq",
+        "hours_minutes": "{{h}} soat {{m}} daq",
+        "minutes": "{{m}} daq"
     }
 }

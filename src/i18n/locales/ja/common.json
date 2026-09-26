@@ -333,6 +333,7 @@
         "truck_type": "車種",
         "driver": "ドライバー",
         "truck_status": "車両ステータス",
+        "orders_history": "注文履歴",
         "location": "場所",
         "pending_trips": "待機中の便",
         "status_loaded": "積載",
@@ -441,5 +442,28 @@
         "select_required": "{{field}}を選択してください",
         "field_required": "{{field}}は必須です",
         "numbers_only": "数字のみ入力してください"
+    },
+    "monitoring_stats": {
+        "date": "日付",
+        "order": "注文",
+        "route": "ルート",
+        "status_50": "開始",
+        "status_60": "積込地点",
+        "status_70": "積込中",
+        "status_80": "走行中",
+        "status_90": "荷降ろし地点",
+        "status_100": "完了",
+        "status_1000": "キャンセル",
+        "total_time": "合計時間",
+        "total_km": "合計km",
+        "unknown_route": "ルート不明",
+        "vehicle": "車両",
+        "all": "すべて",
+        "orders_count": "{{count}}件の注文",
+        "synced": "ロジスティクス同期: {{time}}",
+        "not_linked": "この会社はロジスティクスと連携していません。",
+        "less_minute": "1分未満",
+        "hours_minutes": "{{h}}時間{{m}}分",
+        "minutes": "{{m}}分"
     }
 }

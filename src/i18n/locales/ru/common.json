@@ -333,6 +333,7 @@
         "truck_type": "Тип транспорта",
         "driver": "Водитель",
         "truck_status": "Статус авто",
+        "orders_history": "История заказов",
         "location": "Местоположение",
         "pending_trips": "Ожидаемые рейсы",
         "status_loaded": "Загружен",
@@ -441,5 +442,28 @@
         "select_required": "Выберите {{field}}",
         "field_required": "Поле {{field}} обязательно",
         "numbers_only": "Вводите только цифры"
+    },
+    "monitoring_stats": {
+        "date": "Дата",
+        "order": "Заказ",
+        "route": "Маршрут",
+        "status_50": "Начат",
+        "status_60": "На погрузке",
+        "status_70": "Загрузка",
+        "status_80": "В пути",
+        "status_90": "На выгрузке",
+        "status_100": "Завершён",
+        "status_1000": "Отменён",
+        "total_time": "Общее время",
+        "total_km": "Всего км",
+        "unknown_route": "Маршрут неизвестен",
+        "vehicle": "Машина",
+        "all": "Все",
+        "orders_count": "Заказов: {{count}}",
+        "synced": "Синхронизация с Логистикой: {{time}}",
+        "not_linked": "Эта компания не связана с Логистикой.",
+        "less_minute": "<1 мин",
+        "hours_minutes": "{{h}} ч {{m}} мин",
+        "minutes": "{{m}} мин"
     }
 }

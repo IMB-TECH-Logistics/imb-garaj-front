@@ -333,6 +333,7 @@
         "truck_type": "Vehicle Type",
         "driver": "Driver",
         "truck_status": "Vehicle Status",
+        "orders_history": "Order history",
         "location": "Location",
         "pending_trips": "Pending Trips",
         "status_loaded": "Loaded",
@@ -441,5 +442,28 @@
         "select_required": "Select {{field}}",
         "field_required": "{{field}} is required",
         "numbers_only": "Enter numbers only"
+    },
+    "monitoring_stats": {
+        "date": "Date",
+        "order": "Order",
+        "route": "Route",
+        "status_50": "Started",
+        "status_60": "At loading point",
+        "status_70": "Loading",
+        "status_80": "On the road",
+        "status_90": "At unloading point",
+        "status_100": "Finished",
+        "status_1000": "Cancelled",
+        "total_time": "Total time",
+        "total_km": "Total km",
+        "unknown_route": "Unknown route",
+        "vehicle": "Vehicle",
+        "all": "All",
+        "orders_count": "{{count}} orders",
+        "synced": "Synced with Logistics: {{time}}",
+        "not_linked": "This company is not linked to Logistics.",
+        "less_minute": "<1 min",
+        "hours_minutes": "{{h}} h {{m}} min",
+        "minutes": "{{m}} min"
     }
 }

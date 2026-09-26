@@ -624,7 +624,7 @@ export default function MonitoringView() {
                             )}
                             <CardTitle className="truncate text-sm font-semibold">
                                 {mode === "report"
-                                    ? t("table.truck_status")
+                                    ? t("table.orders_history")
                                     : selectedId != null && selectedDriverName
                                       ? selectedDriverName
                                       : panelTitle}
