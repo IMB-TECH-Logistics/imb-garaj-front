@@ -21,7 +21,7 @@ import ExpenseEditForm, {
 
 const PAGE_PARAM = "expense_page"
 const PAGE_SIZE_PARAM = "expense_page_size"
-const DEFAULT_PAGE_SIZE = 25
+const DEFAULT_PAGE_SIZE = 50
 const DELETE_MODAL_KEY = "trip-expense-delete"
 
 type ExpenseRow = {
