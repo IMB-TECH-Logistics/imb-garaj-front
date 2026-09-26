@@ -462,6 +462,7 @@
         "orders_count": "{{count}}件の注文",
         "synced": "ロジスティクス同期: {{time}}",
         "not_linked": "この会社はロジスティクスと連携していません。",
+        "loading": "データを読み込み中（GPS集計に時間がかかります）…",
         "less_minute": "1分未満",
         "hours_minutes": "{{h}}時間{{m}}分",
         "minutes": "{{m}}分"

@@ -1,4 +1,6 @@
 import { DataTable } from "@/components/ui/datatable"
+import { Skeleton } from "@/components/ui/skeleton"
+import Spinner from "@/components/ui/spinner"
 import { MONITORING_LOGISTICS_STATS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
@@ -8,7 +10,6 @@ import { endOfMonth, format, parseISO, startOfMonth } from "date-fns"
 import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { orderStatusMeta } from "../order-card"
-import { IDLE, type VehicleRow } from "./data"
 
 type StatsOrder = {
     id: string
@@ -48,7 +49,7 @@ function Truck({ value }: { value: string | null }) {
     return <span className="whitespace-nowrap font-mono text-base font-bold tracking-wider">{value ?? "—"}</span>
 }
 
-export default function StatsView({ onSelect }: { onSelect: (v: VehicleRow) => void }) {
+export default function StatsView() {
     const { t } = useTranslation()
     const duration = useCallback(
         (value: number | null | undefined) => {
@@ -202,6 +203,8 @@ export default function StatsView({ onSelect }: { onSelect: (v: VehicleRow) => v
                 >
                     {t("monitoring_stats.all")}
                 </button>
+                {isLoading &&
+                    Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-8 w-24 rounded-full" />)}
                 {trucks.map((v) => (
                     <button
                         key={v.id}
@@ -216,7 +219,14 @@ export default function StatsView({ onSelect }: { onSelect: (v: VehicleRow) => v
                         {v.truck_number}
                     </button>
                 ))}
-                <span className="ml-auto text-[11px] text-muted-foreground">{t("monitoring_stats.orders_count", { count: orders.length })}</span>
+                {isLoading ? (
+                    <span className="ml-auto inline-flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <Spinner size="sm" />
+                        {t("monitoring_stats.loading")}
+                    </span>
+                ) : (
+                    <span className="ml-auto text-[11px] text-muted-foreground">{t("monitoring_stats.orders_count", { count: orders.length })}</span>
+                )}
                 {data?.synced_at && (
                     <span className="text-[11px] text-muted-foreground">
                         {t("monitoring_stats.synced", { time: format(parseISO(data.synced_at), "dd.MM HH:mm") })}
@@ -229,10 +239,6 @@ export default function StatsView({ onSelect }: { onSelect: (v: VehicleRow) => v
                 data={orders}
                 loading={isLoading}
                 numeration
-                onRowClick={(o) =>
-                    o.vehicle != null &&
-                    onSelect({ id: o.vehicle, truck_number: o.truck_number ?? "—", driver_name: "—", type: "—", current_status: IDLE })
-                }
             />
         </div>
     )

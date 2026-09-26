@@ -494,6 +494,7 @@
         "orders_count": "{{count}} ta buyurtma",
         "synced": "Logistika bilan sinxron: {{time}}",
         "not_linked": "Bu kompaniya Logistika bilan bog'lanmagan.",
+        "loading": "Ma'lumotlar yuklanmoqda (GPS hisobi biroz vaqt oladi)…",
         "less_minute": "<1 daq",
         "hours_minutes": "{{h}} soat {{m}} daq",
         "minutes": "{{m}} daq"

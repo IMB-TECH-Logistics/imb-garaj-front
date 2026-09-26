@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import Spinner from "@/components/ui/spinner"
 import { MONITORING_VEHICLE_LAST_ORDER } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
@@ -62,7 +64,22 @@ export function LastOrderCard({ lastOrder, showRoute, onToggleRoute }: CardProps
     const { data, loading, map } = lastOrder
 
     if (loading) {
-        return <div className="rounded-lg border p-3 text-xs text-muted-foreground">Buyurtma yuklanmoqda…</div>
+        return (
+            <section className="flex flex-col gap-3 rounded-lg border p-3" aria-busy="true" aria-label="Oxirgi buyurtma">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Spinner size="sm" />
+                    Buyurtma va GPS ma'lumotlari yuklanmoqda…
+                </div>
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
+                <div className="grid grid-cols-2 gap-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 rounded-md" />
+                    ))}
+                </div>
+                <Skeleton className="h-8 rounded-md" />
+            </section>
+        )
     }
     if (!data) return null
     if (!data.available) {

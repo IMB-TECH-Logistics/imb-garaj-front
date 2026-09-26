@@ -462,6 +462,7 @@
         "orders_count": "{{count}} orders",
         "synced": "Synced with Logistics: {{time}}",
         "not_linked": "This company is not linked to Logistics.",
+        "loading": "Loading data (GPS totals take a moment)…",
         "less_minute": "<1 min",
         "hours_minutes": "{{h}} h {{m}} min",
         "minutes": "{{m}} min"
