@@ -447,6 +447,7 @@
         "date": "Date",
         "order": "Order",
         "route": "Route",
+        "current_status": "Current status",
         "status_50": "Started",
         "status_60": "At loading point",
         "status_70": "Loading",

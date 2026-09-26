@@ -447,6 +447,7 @@
         "date": "日付",
         "order": "注文",
         "route": "ルート",
+        "current_status": "現在のステータス",
         "status_50": "開始",
         "status_60": "積込地点",
         "status_70": "積込中",

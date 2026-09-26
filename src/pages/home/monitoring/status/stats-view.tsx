@@ -43,10 +43,9 @@ const STATUS_COLUMNS: { status: number; garage: number }[] = [
     { status: 90, garage: 7 },
 ]
 
-const FINISH = 100
 
 function Truck({ value }: { value: string | null }) {
-    return <span className="whitespace-nowrap font-mono text-base font-bold tracking-wider">{value ?? "—"}</span>
+    return <span className="whitespace-nowrap font-mono text-sm font-bold tracking-wide">{value ?? "—"}</span>
 }
 
 export default function StatsView() {
@@ -106,7 +105,7 @@ export default function StatsView() {
                 id: "started_at",
                 accessorFn: (r) => r.started_at ?? "",
                 header: t("monitoring_stats.date"),
-                size: 110,
+                size: 95,
                 cell: ({ row }) => (
                     <div className="whitespace-nowrap">
                         <div>{row.original.started_at ? format(parseISO(row.original.started_at), "dd.MM.yyyy") : "—"}</div>
@@ -118,13 +117,14 @@ export default function StatsView() {
                 id: "truck",
                 accessorFn: (r) => r.truck_number ?? "",
                 header: t("monitoring_stats.order"),
-                size: 110,
+                size: 100,
                 cell: ({ row }) => <Truck value={row.original.truck_number} />,
             },
             {
                 id: "route",
                 accessorFn: (r) => `${r.from ?? ""} ${r.to ?? ""}`,
                 header: t("monitoring_stats.route"),
+                size: 130,
                 cell: ({ row }) =>
                     row.original.from && row.original.to ? (
                         <span>{`${row.original.from} → ${row.original.to}`}</span>
@@ -132,10 +132,26 @@ export default function StatsView() {
                         <span className="text-muted-foreground">{t("monitoring_stats.unknown_route")}</span>
                     ),
             },
+            {
+                id: "current_status",
+                accessorFn: (r) => r.status,
+                header: t("monitoring_stats.current_status"),
+                size: 95,
+                cell: ({ row }) => {
+                    const o = row.original
+                    const meta = orderStatusMeta(o.garage_status)
+                    return (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold leading-tight" style={{ color: meta.color }}>
+                            <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: meta.color }} />
+                            {t(`monitoring_stats.status_${o.status}`, { defaultValue: meta.label })}
+                        </span>
+                    )
+                },
+            },
             ...STATUS_COLUMNS.map<ColumnDef<StatsOrder>>((col) => ({
                 id: `status_${col.status}`,
                 accessorFn: (r) => r.status_minutes[String(col.status)] ?? -1,
-                size: 90,
+                size: 95,
                 header: () => (
                     <span className="inline-flex items-center gap-1.5 leading-tight">
                         <span aria-hidden className="h-2 w-2 shrink-0 rounded-sm" style={{ backgroundColor: orderStatusMeta(col.garage).color }} />
@@ -147,7 +163,7 @@ export default function StatsView() {
                     const current = row.original.status === col.status
                     if (value == null) return none
                     return (
-                        <span className={cn("whitespace-nowrap tabular-nums", current && "font-semibold text-primary")}>
+                        <span className={cn("tabular-nums leading-tight", current && "font-semibold text-primary")}>
                             {duration(value)}
                         </span>
                     )
@@ -157,27 +173,16 @@ export default function StatsView() {
                 id: "total",
                 accessorFn: (r) => r.spent_minutes ?? -1,
                 header: t("monitoring_stats.total_time"),
-                size: 105,
-                cell: ({ row }) => {
-                    const o = row.original
-                    const meta = orderStatusMeta(o.garage_status)
-                    return (
-                        <div className="whitespace-nowrap tabular-nums">
-                            <div className="font-semibold">{duration(o.spent_minutes)}</div>
-                            {o.status !== FINISH && (
-                                <div className="text-xs font-semibold" style={{ color: meta.color }}>
-                                    {t(`monitoring_stats.status_${o.status}`, { defaultValue: meta.label })}
-                                </div>
-                            )}
-                        </div>
-                    )
-                },
+                size: 90,
+                cell: ({ row }) => (
+                    <span className="font-semibold tabular-nums leading-tight">{duration(row.original.spent_minutes)}</span>
+                ),
             },
             {
                 id: "distance",
                 accessorFn: (r) => r.distance_km ?? -1,
                 header: t("monitoring_stats.total_km"),
-                size: 90,
+                size: 80,
                 cell: ({ row }) =>
                     row.original.distance_km != null ? (
                         <span className="whitespace-nowrap font-semibold tabular-nums">{row.original.distance_km.toFixed(1)} km</span>

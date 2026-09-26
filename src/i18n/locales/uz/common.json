@@ -479,6 +479,7 @@
         "date": "Sana",
         "order": "Buyurtma",
         "route": "Yo'nalish",
+        "current_status": "Hozirgi holat",
         "status_50": "Boshlandi",
         "status_60": "Yuklash joyida",
         "status_70": "Yuklanmoqda",
