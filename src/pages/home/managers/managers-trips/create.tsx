@@ -9,6 +9,7 @@ import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
+import { handleFormError } from "@/lib/show-form-errors"
 import { IS_READY } from "@/store/ready-mode"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
@@ -81,6 +82,9 @@ export default function CreateManagerTrips() {
     const mileageDiffers = !isEdit && startData?.end_mileage != null && Number(startMileage) !== Number(startData.end_mileage)
     const fuelDiffers = !isEdit && startData?.end_fuel != null && Number(startFuel) !== Number(startData.end_fuel)
 
+    const vehicleFuel = (isEdit ? item?.vehicle_fuel : (startData as any)?.vehicle_fuel) as string | undefined
+    const fuelUnit = vehicleFuel === "methane" ? "m³" : "litr"
+
     function removeImage(name: "start_mileage_image" | "end_mileage_image") {
         setValue(name, null)
     }
@@ -96,11 +100,12 @@ export default function CreateManagerTrips() {
         reset()
     }
 
+    const onError = (err: any) => handleFormError(err, form)
     const { mutate: createTrip, isPending: isCreating } = usePost(
-        { onSuccess },
+        { onSuccess, onError },
     )
     const { mutate: editTrip, isPending: isEditing } = usePatch(
-        { onSuccess },
+        { onSuccess, onError },
     )
 
     function onSubmit(values: any) {
@@ -204,7 +209,7 @@ export default function CreateManagerTrips() {
 
                 <FormNumberInput
                     name="start_fuel"
-                    label={`${t("form.fuel_type")} (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
+                    label={`${t("form.fuel_type")} (${fuelUnit})${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
                     control={control}
                     decimalScale={2}
                     allowNegative={false}
