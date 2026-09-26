@@ -85,8 +85,12 @@ export default function StatsView() {
         for (const o of allOrders) {
             if (o.vehicle != null && !seen.has(o.vehicle)) seen.set(o.vehicle, o.truck_number ?? "—")
         }
-        return [...seen].map(([id, truck_number]) => ({ id, truck_number })).sort((a, b) => a.truck_number.localeCompare(b.truck_number))
-    }, [allOrders])
+        const withGps = new Set((data?.vehicles ?? []).filter((v) => v.has_gps).map((v) => v.id))
+        const rank = (id: number) => (withGps.has(id) ? 0 : 1)
+        return [...seen]
+            .map(([id, truck_number]) => ({ id, truck_number }))
+            .sort((a, b) => rank(a.id) - rank(b.id) || a.truck_number.localeCompare(b.truck_number))
+    }, [allOrders, data])
     const orders = allOrders.filter(
         (o) =>
             (!selected.length || (o.vehicle != null && selected.includes(o.vehicle))) &&
