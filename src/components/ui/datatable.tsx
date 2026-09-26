@@ -71,6 +71,7 @@ interface DataTableProps<TData> {
     sortable?: boolean
     manualSorting?: boolean
     stickyHeader?: boolean
+    stickyActions?: boolean
     numeration?: boolean
     wrapperClassName?: string
     actionMenuMode?: boolean
@@ -111,6 +112,7 @@ export function DataTable<TData>({
     numeration = false,
     manualSorting = false,
     stickyHeader = false,
+    stickyActions = false,
     wrapperClassName,
     actionMenuMode,
     onEdit,
@@ -433,6 +435,9 @@ export function DataTable<TData>({
                                                             " px-2 cursor-pointer",
                                                             stickyHeader &&
                                                                 "sticky top-0 bg-card z-10",
+                                                            stickyActions &&
+                                                                header.column.id === "action" &&
+                                                                "sticky right-0 z-20 bg-secondary dark:bg-muted shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
                                                         )}
                                                         style={
                                                             (
@@ -513,7 +518,7 @@ export function DataTable<TData>({
                                             onRightClick?.(row.original)
                                         }}
                                         className={cn(
-                                            "hover:bg-zinc-200/90 dark:hover:bg-secondary border border-transparent ",
+                                            "group hover:bg-zinc-200/90 dark:hover:bg-secondary border border-transparent ",
                                             rowColor?.(row.original),
                                             index % 2 !== 0 &&
                                                 "dark:bg-secondary/70 bg-zinc-200/70 rounded-xl ",
@@ -570,6 +575,14 @@ export function DataTable<TData>({
                                                         "border-r dark:border-secondary/50 border-secondary last:border-none",
                                                         clickable &&
                                                             "cursor-pointer",
+                                                        stickyActions &&
+                                                            cell.column.id === "action" && [
+                                                                "sticky right-0 z-10 bg-card shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
+                                                                "before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:content-['']",
+                                                                index % 2 !== 0 &&
+                                                                    "before:bg-zinc-200/70 dark:before:bg-secondary/70",
+                                                                "group-hover:before:bg-zinc-200/90 dark:group-hover:before:bg-secondary",
+                                                            ],
                                                     )}
                                                 >
                                                     {flexRender(
