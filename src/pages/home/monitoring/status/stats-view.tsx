@@ -28,6 +28,7 @@ type StatsOrder = {
 type StatsResponse = {
     available: boolean
     synced_at: string | null
+    vehicles: { id: number; has_gps: boolean }[]
     orders: Omit<StatsOrder, "id">[]
 }
 
@@ -71,10 +72,13 @@ export default function StatsView({ onSelect }: { onSelect: (v: VehicleRow) => v
         options: { staleTime: 60 * 1000 },
     })
 
-    const allOrders = useMemo(
-        () => (data?.orders ?? []).map((o) => ({ ...o, id: o.external_id })),
-        [data],
-    )
+    const allOrders = useMemo(() => {
+        const withGps = new Set((data?.vehicles ?? []).filter((v) => v.has_gps).map((v) => v.id))
+        const hasGps = (vehicle: number | null) => (vehicle != null && withGps.has(vehicle) ? 0 : 1)
+        return (data?.orders ?? [])
+            .map((o) => ({ ...o, id: o.external_id }))
+            .sort((a, b) => hasGps(a.vehicle) - hasGps(b.vehicle))
+    }, [data])
     const trucks = useMemo(() => {
         const seen = new Map<number, string>()
         for (const o of allOrders) {
