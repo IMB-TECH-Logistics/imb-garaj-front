@@ -21,11 +21,12 @@ type Props = {
     items: GpsLiveVehicle[]
     orders?: Record<number, VehicleOrderBadge>
     loading?: boolean
+    unavailable?: boolean
     activeImei?: string | null
     onSelect?: (item: GpsLiveVehicle) => void
 }
 
-export default function GpsList({ items, orders, loading, activeImei, onSelect }: Props) {
+export default function GpsList({ items, orders, loading, unavailable, activeImei, onSelect }: Props) {
     const { t } = useTranslation()
     const confirm = useConfirm()
     const queryClient = useQueryClient()
@@ -59,6 +60,14 @@ export default function GpsList({ items, orders, loading, activeImei, onSelect }
     if (loading && items.length === 0) {
         return <DimensionListSkeleton />
     }
+    if (unavailable && items.length === 0) {
+        return (
+            <DimensionEmpty
+                title="GPS xizmati vaqtincha ishlamayapti"
+                hint="Ma'lumotlar xizmat tiklanganda avtomatik yangilanadi"
+            />
+        )
+    }
     if (!loading && items.length === 0) {
         return (
             <DimensionEmpty
@@ -69,6 +78,12 @@ export default function GpsList({ items, orders, loading, activeImei, onSelect }
     }
 
     return (
+        <>
+        {unavailable && (
+            <p className="mb-2 rounded-md border border-orange-500/40 bg-orange-500/10 px-3 py-2 text-xs text-orange-600 dark:text-orange-400">
+                GPS xizmati vaqtincha ishlamayapti — oxirgi ma'lum joylashuvlar ko'rsatilmoqda
+            </p>
+        )}
         <ul className="flex flex-col gap-1.5">
             {items.map((item, i) => {
                 const order = item.vehicle != null ? orders?.[item.vehicle] : undefined
@@ -152,5 +167,6 @@ export default function GpsList({ items, orders, loading, activeImei, onSelect }
                 )
             })}
         </ul>
+        </>
     )
 }

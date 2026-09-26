@@ -147,11 +147,13 @@ export default function MonitoringView() {
     const liveConnected = useGpsLiveSocket(!historical)
     const gpsLive = useGet<GpsLiveVehicle[]>(MONITORING_GPS_LIVE, {
         options: {
-            refetchInterval: historical
-                ? false
-                : liveConnected
-                  ? GPS_FALLBACK_MS
-                  : GPS_REFRESH_MS,
+            retry: 1,
+            refetchInterval: (query) =>
+                historical
+                    ? false
+                    : query.state.status === "error" || liveConnected
+                      ? GPS_FALLBACK_MS
+                      : GPS_REFRESH_MS,
             refetchIntervalInBackground: false,
         },
     })
@@ -712,6 +714,7 @@ export default function MonitoringView() {
                                 <GpsList
                                     items={gpsItems}
                                     loading={gpsLive.isLoading}
+                                    unavailable={gpsLive.isError}
                                     orders={ordersByVehicle}
                                     activeImei={trackerImei}
                                     onSelect={(item) => selectTracker(item.imei)}
