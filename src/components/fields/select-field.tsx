@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cn } from "@/lib/utils"
-import { ChevronDown } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import {
     FieldValues,
     Path,
@@ -11,6 +11,7 @@ import Select, {
     ClassNamesConfig,
     components,
     MenuListProps,
+    OptionProps,
     Props,
     ValueContainerProps,
 } from "react-select"
@@ -120,6 +121,7 @@ export default function SelectField<IForm extends FieldValues>({
                     DropdownIndicator,
                     ValueContainer,
                     MenuList,
+                    Option: SelectOption,
                     ...components,
                 }}
                 isClearable
@@ -180,9 +182,7 @@ const defaultSelectClassNames: ClassNamesConfig = {
     option: ({ isSelected }: { isSelected: boolean }) =>
         cn(
             "border-b last:border-none first:rounded-t-md last:rounded-b-md px-2 py-1.5 !text-sm outline-none hover:bg-secondary",
-            isSelected ?
-                "bg-primary/70 hover:bg-primary/70 text-background"
-            :   "",
+            isSelected ? "font-medium" : "",
         ),
     multiValue: () =>
         cn("bg-secondary rounded-md px-[4px] py-[2px] gap-1 justify-between"),
@@ -238,3 +238,17 @@ const ValueContainer = ({
         </components.ValueContainer>
     )
 }
+
+const SelectOption = (props: OptionProps<any>) => (
+    <components.Option {...props}>
+        <span className="flex items-center gap-2">
+            {props.isMulti && (
+                <Checkbox checked={props.isSelected} className="pointer-events-none shrink-0" />
+            )}
+            <span className="flex-1 truncate">{props.children}</span>
+            {!props.isMulti && props.isSelected && (
+                <Check className="h-4 w-4 shrink-0 text-primary" />
+            )}
+        </span>
+    </components.Option>
+)

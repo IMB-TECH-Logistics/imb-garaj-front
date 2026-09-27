@@ -80,7 +80,7 @@ const UsersPage = () => {
                         pageKey="page"
                         onAdd={hasControl ? () => navigate({ to: "/users/create" }) : undefined}
                         count={data?.count}
-                        extraRight={
+                        extraLeft={
                             <FilterSelect
                                 isMulti
                                 filterKey="role"

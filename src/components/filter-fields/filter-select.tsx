@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cn } from "@/lib/utils"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { ChevronDown } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { ReactNode, useEffect } from "react"
 import Select, {
     ClassNamesConfig,
     MenuListProps,
+    OptionProps,
     Props,
     ValueContainerProps,
     components,
@@ -133,6 +134,7 @@ export default function FilterSelect({
                     DropdownIndicator,
                     ValueContainer,
                     MenuList,
+                    Option: SelectOption,
                     ...components,
                 }}
                 isClearable
@@ -174,7 +176,7 @@ const defaultSelectClassNames: ClassNamesConfig<Option> = {
     option: ({ isSelected }) =>
         cn(
             "first:rounded-t-xl last:rounded-b-xl px-3 py-2 text-sm outline-none hover:bg-secondary border-b last:border-none",
-            isSelected ? "bg-primary text-background hover:bg-primary" : "",
+            isSelected ? "font-medium" : "",
         ),
     multiValue: () =>
         cn("bg-secondary rounded-md px-[4px] py-[2px] gap-1 justify-between"),
@@ -231,3 +233,17 @@ const ValueContainer = ({
         </components.ValueContainer>
     )
 }
+
+const SelectOption = (props: OptionProps<any>) => (
+    <components.Option {...props}>
+        <span className="flex items-center gap-2">
+            {props.isMulti && (
+                <Checkbox checked={props.isSelected} className="pointer-events-none shrink-0" />
+            )}
+            <span className="flex-1 truncate">{props.children}</span>
+            {!props.isMulti && props.isSelected && (
+                <Check className="h-4 w-4 shrink-0 text-primary" />
+            )}
+        </span>
+    </components.Option>
+)
