@@ -23,7 +23,7 @@ export interface ReysOrder {
     cargo_type_name: string | null
     client_name: string | null
     client_code: string | null
-    summa_s_nds: string | number
+    summa: string | number
     naqd_amount: string | number
     pct: number
     our_share: string | number
@@ -103,12 +103,12 @@ export const useFlightsColumns = () => {
                 enableSorting: true,
             },
             {
-                header: t("form.amount_with_nds"),
-                accessorKey: "summa_s_nds",
+                header: t("form.amount_total"),
+                accessorKey: "summa",
                 size: 130,
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const v = toNum(row.original.summa_s_nds)
+                    const v = toNum(row.original.summa)
                     return <span className="font-medium">{formatMoney(v)}</span>
                 },
             },

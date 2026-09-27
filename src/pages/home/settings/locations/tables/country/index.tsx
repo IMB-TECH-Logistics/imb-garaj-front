@@ -50,8 +50,8 @@ const CountriesTable = () => {
                                     </TableHead>
                                 ),
                             )}
-                            <TableHead className="whitespace-nowrap text-right"></TableHead>
-                            <TableHead className="w-[40px]"></TableHead>
+                            <TableHead className="whitespace-nowrap text-right sticky right-10 bg-card"></TableHead>
+                            <TableHead className="w-[40px] sticky right-0 bg-card"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

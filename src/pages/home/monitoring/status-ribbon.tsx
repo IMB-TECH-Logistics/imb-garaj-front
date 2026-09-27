@@ -91,7 +91,7 @@ export default function StatusRibbon({
                         className="h-7 gap-1.5 px-2 text-xs text-muted-foreground"
                     >
                         <RotateCcw className="h-3.5 w-3.5" />
-                        Hammasi
+                        Barchasi
                     </Button>
                 )}
             </CardHeader>

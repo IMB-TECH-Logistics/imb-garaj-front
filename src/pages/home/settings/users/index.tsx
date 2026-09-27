@@ -1,19 +1,41 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import { DataTable } from "@/components/ui/datatable"
-import { SETTINGS_USERS } from "@/constants/api-endpoints"
+import FilterSelect from "@/components/filter-fields/filter-select"
+import { SETTINGS_ROLES, SETTINGS_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useHasAction } from "@/constants/useUser"
 import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import { useColumnsUsersTable } from "./users-cols"
 
 const UsersPage = () => {
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
+    const { t } = useTranslation()
+    const roleFilter = (search as { role?: (string | number)[] }).role
+    const { data: roles } = useGet<{ results?: { id: number; name: string }[] }>(SETTINGS_ROLES, {
+        params: { page_size: 1000 },
+    })
+    const defaultApplied = useRef(false)
+    useEffect(() => {
+        if (defaultApplied.current || !roles?.results?.length) return
+        defaultApplied.current = true
+        if (roleFilter !== undefined) return
+        const ids = roles.results.filter((r) => r.name !== "Driver").map((r) => r.id)
+        if (!ids.length) return
+        navigate({
+            replace: true,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            search: ((prev: any) => ({ ...prev, role: ids })) as any,
+        })
+    }, [roles, roleFilter, navigate])
     const { data, isLoading } = useGet<ListResponse<UserType>>(SETTINGS_USERS, {
         params: {
+            role__in: roleFilter?.length ? roleFilter.join(",") : undefined,
             search: search.first_name,
             page: search.page,
             page_size: search.page_size,
@@ -58,6 +80,15 @@ const UsersPage = () => {
                         pageKey="page"
                         onAdd={hasControl ? () => navigate({ to: "/users/create" }) : undefined}
                         count={data?.count}
+                        extraRight={
+                            <FilterSelect
+                                isMulti
+                                filterKey="role"
+                                options={roles?.results ?? []}
+                                placeholder={t("form.user_role")}
+                                wrapperClassname="min-w-[220px]"
+                            />
+                        }
                     />
                 }
             />

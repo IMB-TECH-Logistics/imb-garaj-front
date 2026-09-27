@@ -35,6 +35,7 @@ const TripOrderMain = () => {
             params: {
                 trip: parentId,
                 page,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -103,6 +104,7 @@ const TripOrderMain = () => {
 
             <div className="bg-card rounded-md p-3">
                 <DataTable
+                    manualSorting
                     loading={isLoading}
                     columns={columns}
                     data={data?.results}

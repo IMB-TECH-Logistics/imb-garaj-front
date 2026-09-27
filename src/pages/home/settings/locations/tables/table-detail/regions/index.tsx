@@ -25,6 +25,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                 search: search.region_search,
                 page: search[REGION_PAGE_KEY],
                 page_size: search[REGION_PAGE_SIZE_KEY],
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -70,6 +71,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar-x ">
                 <DataTable
+                    manualSorting
                     loading={isLoading}
                     columns={simpleColumns}
                     data={data?.results}

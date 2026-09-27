@@ -29,6 +29,7 @@ const TripOrderDetailRow = () => {
                 order: orderId,
                 page: 1,
                 page_size: 1000,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -54,6 +55,7 @@ const TripOrderDetailRow = () => {
         <div>
             <div className="overflow-x-auto">
                 <DataTable
+                    manualSorting
                     loading={isLoading}
                     columns={columns}
                     data={data?.results}

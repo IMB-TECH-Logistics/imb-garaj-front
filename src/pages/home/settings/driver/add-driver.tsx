@@ -4,6 +4,7 @@ import { FormFormatNumberInput } from "@/components/form/format-number-input"
 import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
+import { normalizeDocNumber } from "@/lib/format-driver-docs"
 import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
@@ -133,6 +134,7 @@ const AddDriverModal = () => {
                 <FormInput
                     required
                     registerOptions={{
+                        setValueAs: normalizeDocNumber,
                         maxLength: {
                             value: 9,
                             message:
@@ -168,6 +170,7 @@ const AddDriverModal = () => {
                 <FormInput
                     required
                     uppercase={true}
+                    registerOptions={{ setValueAs: normalizeDocNumber }}
                     name="driver.driver_license"
                     label={t("form.license_number")}
                     methods={form}

@@ -5,20 +5,14 @@ import { DataTable } from "@/components/ui/datatable"
 import { MultiCombobox } from "@/components/ui/multi-combobox"
 import {
     COMMON_DIRECTIONS,
-    DRIVER_SALARIES,
     SETTINGS_SELECTABLE_CARGO_TYPE,
-    SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_PAYMENT_TYPE,
 } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { usePatch } from "@/hooks/usePatch"
-import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Save, Wallet } from "lucide-react"
-import { useCallback, useMemo, useRef, useState } from "react"
-import { toast } from "sonner"
+import { Wallet } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import {
@@ -26,6 +20,7 @@ import {
     type DirectionRow,
 } from "../route-configs/cols"
 import BulkSalaryModal from "./bulk-salary-modal"
+import EditSalaryModal from "./edit-salary-modal"
 import {
     buildSalaryFilterOptions,
     SALARY_FILTER_COLUMNS,
@@ -48,6 +43,8 @@ type Direction = {
     current_price: DirectionPrice | null
     prices?: DirectionPrice[]
     driver_salary_amount: string | null
+    driver_salary_valid_from?: string | null
+    driver_salary_history?: DirectionRow["driver_salary_history"]
     created?: string
     updated?: string
 }
@@ -56,8 +53,6 @@ type SelectItem = { id: number | string; name: string }
 
 const filterParam = (key: string) => `sf_${key}`
 
-const todayIso = () => new Date().toISOString().slice(0, 10)
-
 const DriverSalariesPage = () => {
     const { t } = useTranslation()
     const hasControl = useHasAction("settings_driver_salaries_control")
@@ -65,12 +60,11 @@ const DriverSalariesPage = () => {
     const navigate = useNavigate()
 
     const { openModal: openBulkModal } = useModal("bulk-salary")
-    const queryClient = useQueryClient()
+    const { openModal: openEditModal } = useModal("edit-salary")
+    const [editingRow, setEditingRow] = useState<DirectionRow | null>(null)
 
     const [selectedRows, setSelectedRows] = useState<DirectionRow[]>([])
     const [clearSelectionTick, setClearSelectionTick] = useState(0)
-    const [priceEdits, setPriceEdits] = useState<Record<number, string>>({})
-    const { mutateAsync: bulkUpdateAsync, isPending: isSaving } = usePatch()
 
     const filters = useMemo(() => {
         const out: Record<string, string[]> = {}
@@ -131,19 +125,13 @@ const DriverSalariesPage = () => {
                 search: search.salary_search,
                 page: search.page,
                 page_size: search.page_size,
+                ordering: search.ordering,
+                unique_route: 1,
                 ...serverFilters,
             },
         },
     )
 
-    const { data: paymentTypeData } = useGet<SelectItem[]>(
-        SETTINGS_SELECTABLE_PAYMENT_TYPE,
-        { params: { model_name: "payment-type" } },
-    )
-    const { data: clientData } = useGet<SelectItem[]>(
-        SETTINGS_SELECTABLE_CLIENT,
-        { params: { model_name: "client" } },
-    )
     const { data: regionData } = useGet<SelectItem[]>("selectable/region", {
         params: { model_name: "region" },
     })
@@ -152,17 +140,8 @@ const DriverSalariesPage = () => {
         { params: { model_name: "cargo-type" } },
     )
     const { data: filterSourceData } = useGet<{
-        owner_code: string[]
         driver_salary_amount: string[]
     }>(`${COMMON_DIRECTIONS}/filter-options`)
-
-    const paymentMap = useMemo(
-        () =>
-            Object.fromEntries(
-                (paymentTypeData ?? []).map((i) => [Number(i.id), i.name]),
-            ),
-        [paymentTypeData],
-    )
 
     const enriched: DirectionRow[] = useMemo(
         () =>
@@ -178,34 +157,25 @@ const DriverSalariesPage = () => {
                 cargo_type: d.cargo_type,
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
                 payment_type: d.payment_type,
-                payment_type_name:
-                    paymentMap[d.payment_type] ?? String(d.payment_type),
+                payment_type_name: "",
                 currency: d.currency,
                 current_price: d.current_price,
                 prices: d.prices,
                 driver_salary_amount: d.driver_salary_amount ?? null,
+                driver_salary_valid_from: d.driver_salary_valid_from ?? null,
+                driver_salary_history: d.driver_salary_history ?? [],
             })),
-        [data, paymentMap],
+        [data],
     )
 
     const filterOptions = useMemo(
         () =>
             buildSalaryFilterOptions(enriched, {
                 regions: regionData,
-                clients: clientData,
                 cargo_types: cargoTypeData,
-                payment_types: paymentTypeData,
-                owner_codes: filterSourceData?.owner_code,
                 salary_amounts: filterSourceData?.driver_salary_amount,
             }),
-        [
-            enriched,
-            regionData,
-            clientData,
-            cargoTypeData,
-            paymentTypeData,
-            filterSourceData,
-        ],
+        [enriched, regionData, cargoTypeData, filterSourceData],
     )
 
     const activeFilterCount = Object.values(filters).filter(
@@ -213,81 +183,11 @@ const DriverSalariesPage = () => {
     ).length
 
     const selectedIds = selectedRows.map((r) => r.id)
-    const inlineEditable = hasControl
+    const columns = useSalaryColumns()
 
-    const priceEditsRef = useRef(priceEdits)
-    priceEditsRef.current = priceEdits
-
-    const getEdit = useCallback((id: number) => priceEditsRef.current[id], [])
-    const handlePriceChange = useCallback((id: number, value: string) => {
-        setPriceEdits((prev) => ({ ...prev, [id]: value }))
-    }, [])
-
-    const editOpts = useMemo(
-        () => ({
-            editable: inlineEditable,
-            disabled: selectedIds.length > 0,
-            getEdit,
-            onChange: handlePriceChange,
-        }),
-        [inlineEditable, selectedIds.length, getEdit, handlePriceChange],
-    )
-    const columns = useSalaryColumns(editOpts)
-
-    const pendingEdits = useMemo(
-        () =>
-            Object.entries(priceEdits).filter(([id, value]) => {
-                const row = enriched.find((r) => r.id === Number(id))
-                if (!row) return false
-                const raw = String(row.driver_salary_amount ?? "0")
-                const original = raw.includes(".")
-                    ? raw.replace(/\.?0+$/, "")
-                    : raw
-                return value !== original && value.trim().length > 0
-            }),
-        [priceEdits, enriched],
-    )
-
-    const handleSaveEdits = async () => {
-        if (pendingEdits.length === 0) return
-        const valid_from = todayIso()
-
-        const byAmount = pendingEdits.reduce<Record<string, number[]>>(
-            (acc, [id, amount]) => {
-                (acc[amount] ||= []).push(Number(id))
-                return acc
-            },
-            {},
-        )
-
-        const groups = Object.entries(byAmount)
-        const results = await Promise.allSettled(
-            groups.map(([amount, directions]) =>
-                bulkUpdateAsync(`${DRIVER_SALARIES}/bulk-update`, {
-                    directions,
-                    amount,
-                    valid_from,
-                }),
-            ),
-        )
-
-        const okGroups = results.filter((r) => r.status === "fulfilled")
-        const failedGroups = results.length - okGroups.length
-        const okRows = groups.reduce(
-            (sum, [, ids], i) =>
-                results[i].status === "fulfilled" ? sum + ids.length : sum,
-            0,
-        )
-
-        if (okRows > 0) {
-            toast.success(t("page.directions_salary_updated", { count: okRows }))
-            await queryClient.invalidateQueries({
-                queryKey: [COMMON_DIRECTIONS],
-            })
-        }
-        if (failedGroups > 0)
-            toast.error(t("page.groups_not_updated", { count: failedGroups }))
-        setPriceEdits({})
+    const handleEdit = (row: { original: DirectionRow }) => {
+        setEditingRow(row.original)
+        openEditModal()
     }
 
     return (
@@ -297,9 +197,11 @@ const DriverSalariesPage = () => {
                 columns={columns}
                 data={enriched}
                 selecteds_row={hasControl}
+                onEdit={hasControl ? handleEdit : undefined}
                 onSelectedRowsChange={setSelectedRows}
                 clearSelectionTrigger={clearSelectionTick}
                 numeration
+                manualSorting
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -327,11 +229,9 @@ const DriverSalariesPage = () => {
                         />
                         <div className="flex flex-wrap items-center gap-2">
                             {SALARY_FILTER_COLUMNS.map((col) => (
-                                <div
-                                    key={col.value}
-                                    className="flex-1 min-w-[160px]"
-                                >
+                                <div key={col.value} className="w-48">
                                     <MultiCombobox
+                                        className="h-8 text-sm"
                                         label={col.label}
                                         options={filterOptions[col.value]}
                                         values={filters[col.value] ?? []}
@@ -361,20 +261,18 @@ const DriverSalariesPage = () => {
                                 >
                                     {t("actions.give_salary_btn")}
                                 </Button>
-                            ) : pendingEdits.length > 0 ? (
-                                <Button
-                                    type="button"
-                                    onClick={handleSaveEdits}
-                                    loading={isSaving}
-                                    icon={<Save size={16} />}
-                                >
-                                    {t("actions.save")} ({pendingEdits.length})
-                                </Button>
                             ) : null}
                         </div>
                     </div>
                 }
             />
+            <Modal
+                title={t("actions.edit")}
+                modalKey="edit-salary"
+                size="max-w-md"
+            >
+                {editingRow && <EditSalaryModal row={editingRow} />}
+            </Modal>
             <Modal
                 title={t("actions.give_salary_btn")}
                 modalKey="bulk-salary"

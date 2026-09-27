@@ -38,9 +38,19 @@ export type DirectionRow = {
     current_price: DirectionPrice | null
     prices?: DirectionPrice[]
     driver_salary_amount?: string | null
+    driver_salary_valid_from?: string | null
+    driver_salary_history?: DriverSalaryHistoryItem[]
 }
 
-const formatDate = (s?: string | null) => {
+export type DriverSalaryHistoryItem = {
+    id: number
+    amount: string
+    valid_from: string
+    created?: string
+    changed_by_full_name?: string | null
+}
+
+export const formatDate = (s?: string | null) => {
     if (!s) return "—"
     const d = new Date(s)
     if (isNaN(d.getTime())) return s

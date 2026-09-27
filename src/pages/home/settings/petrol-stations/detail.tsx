@@ -63,7 +63,7 @@ type StationStats = {
 const CASH_FLOW_DELETE_KEY = "petrol-cash-flow-delete"
 
 const TABS: { key: string; label: string; action: number | null }[] = [
-    { key: "all", label: "Hammasi", action: null },
+    { key: "all", label: "Barchasi", action: null },
     { key: "topups", label: "Kirim", action: 1 },
     { key: "expenses", label: "Chiqim", action: -1 },
 ]

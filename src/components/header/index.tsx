@@ -35,7 +35,7 @@ function LangButton() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="relative" title={current.label}>
+                <Button variant="outline" size="icon" className="relative size-9 shrink-0" title={current.label}>
                     <Globe size={18} />
                     <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">{current.flag}</span>
                 </Button>
@@ -161,8 +161,8 @@ const Header = () => {
                         }}
                     />
                 )}
-                {canSeeIntegration && <IntegrationNotification />}
-                <div className="flex items-center sm:gap-2">
+                <div className="flex items-center gap-2">
+                    {canSeeIntegration && <IntegrationNotification />}
                     <LangButton />
                     <ThemeColorToggle />
                 </div>

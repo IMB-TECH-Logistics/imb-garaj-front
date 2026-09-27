@@ -14,15 +14,16 @@ import CreateTechnicInspect from "./create"
 const TruckCheck = () => {
     const { t } = useTranslation()
     const { id } = useParams({ strict: false })
+    const search = useSearch({ strict: false })
     const { data: inspect, isLoading } = useGet<ListResponse<TechnicInspect>>(
         `${TECHNICAL_INSPECT}`,
         {
             params: {
                 vehicle: id,
+                ordering: (search as any).ordering,
             },
         },
     )
-    const search = useSearch({ strict: false })
     const { getData, setData } = useGlobalStore()
     const item = getData<RolesType>(TECHNICAL_INSPECT)
     const { openModal: openDeleteModal } = useModal("delete")
@@ -40,6 +41,7 @@ const TruckCheck = () => {
     return (
         <>
             <DataTable
+                manualSorting
                 loading={isLoading}
                 columns={columns || []}
                 data={inspect?.results || []}

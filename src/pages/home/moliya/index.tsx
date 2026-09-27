@@ -223,7 +223,6 @@ function StatCard({ label, value, icon, color, hint }: { label: string; value: n
 type FinanceSummary = {
     balance: number
     income_total: number
-    income_vat: number
     expense_total: number
     advance_total: number
     profit: number
@@ -267,9 +266,8 @@ export default function MoliyaPage() {
                     color="blue"
                 />
                 <StatCard
-                    label={`${t("form.income")} (NDSsiz)`}
+                    label={t("form.income")}
                     value={Number(summary?.income_total ?? 0)}
-                    hint={`NDS: ${fmt(Number(summary?.income_vat ?? 0))} so'm`}
                     icon={<ArrowUpIcon />}
                     color="emerald"
                 />

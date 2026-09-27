@@ -2,7 +2,6 @@ import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
-import FormImagePicker from "@/components/form/image-picker"
 import { Button } from "@/components/ui/button"
 import { VEHICLES, SETTINGS_VEHICLE_TYPE, SETTINGS_DRIVERS, SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -15,6 +14,7 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import VehicleImagePicker from "./vehicle-image-picker"
 
 const MIN_VEHICLE_YEAR = 1950
 
@@ -48,10 +48,23 @@ const AddVehicleSettingsModal = () => {
     const { data: vehicleTypes } = useGet(SETTINGS_VEHICLE_TYPE, {
         params: { page_size: 10000 },
     })
+    const allTypes: { id: number; name: string; type: string }[] =
+        vehicleTypes?.results ?? []
+    const truckModels = allTypes.filter((vt) => vt.type === "model")
+    const truckTypes = allTypes.filter((vt) => vt.type === "truck")
+    const trailerTypes = allTypes.filter((vt) => vt.type === "trailer")
     const { data: drivers } = useGet(SETTINGS_DRIVERS, {
         params: { page_size: 10000 },
     })
-    const { data: owners } = useGet(SETTINGS_SELECTABLE_USERS)
+    const { data: owners } = useGet<
+        { id: number; first_name?: string | null; last_name?: string | null }[]
+    >(SETTINGS_SELECTABLE_USERS)
+    const ownerOptions = (owners ?? [])
+        .map((u) => ({
+            ...u,
+            full_name: [u.first_name, u.last_name].filter(Boolean).join(" ").trim(),
+        }))
+        .filter((u) => u.full_name)
 
     const form = useForm({
         defaultValues: current || { fuel: "methane" },
@@ -145,10 +158,18 @@ const AddVehicleSettingsModal = () => {
                     methods={form}
                 />
                 <FormCombobox
+                    name="truck_model"
+                    label={t("form.truck_model")}
+                    options={truckModels}
+                    control={control}
+                    labelKey="name"
+                    valueKey="id"
+                />
+                <FormCombobox
                     required
                     name="truck_type"
                     label={t("form.vehicle_type")}
-                    options={vehicleTypes?.results ?? []}
+                    options={truckTypes}
                     control={control}
                     labelKey="name"
                     valueKey="id"
@@ -156,7 +177,7 @@ const AddVehicleSettingsModal = () => {
                 <FormCombobox
                     name="trailer_type"
                     label={t("form.trailer_type")}
-                    options={vehicleTypes?.results ?? []}
+                    options={trailerTypes}
                     control={control}
                     labelKey="name"
                     valueKey="id"
@@ -172,9 +193,9 @@ const AddVehicleSettingsModal = () => {
                 <FormCombobox
                     name="owner"
                     label={t("form.owner")}
-                    options={owners ?? []}
+                    options={ownerOptions}
                     control={control}
-                    labelKey="first_name"
+                    labelKey="full_name"
                     valueKey="id"
                 />
                 <FormCombobox
@@ -216,7 +237,7 @@ const AddVehicleSettingsModal = () => {
                     name="consumption"
                     label={consumptionLabel}
                     control={control}
-                    decimalScale={0}
+                    decimalScale={1}
                     allowNegative={false}
                 />
                 <FormDatePicker
@@ -226,42 +247,36 @@ const AddVehicleSettingsModal = () => {
                     fullWidth
                 />
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:col-span-2 pt-4">
-                    <FormImagePicker
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:col-span-2 rounded-lg border p-2">
+                    <VehicleImagePicker
                         name="truck_front"
                         label={t("form.vehicle") + " " + t("actions.save").toLowerCase()}
                         methods={form}
-                        className="w-full h-28 object-cover rounded-md border"
                     />
-                    <FormImagePicker
+                    <VehicleImagePicker
                         name="truck_back"
                         label={t("form.vehicle_number") + " (back)"}
                         methods={form}
-                        className="w-full h-28 object-cover rounded-md border"
                     />
-                    <FormImagePicker
+                    <VehicleImagePicker
                         name="license_front"
                         label={t("form.tech_passport") + " (front)"}
                         methods={form}
-                        className="w-full h-28 object-cover rounded-md border"
                     />
-                    <FormImagePicker
+                    <VehicleImagePicker
                         name="license_back"
                         label={t("form.tech_passport") + " (back)"}
                         methods={form}
-                        className="w-full h-28 object-cover rounded-md border"
                     />
-                    <FormImagePicker
+                    <VehicleImagePicker
                         name="trailer_front"
                         label={t("form.trailer_number") + " (front)"}
                         methods={form}
-                        className="w-full h-28 object-cover rounded-md border"
                     />
-                    <FormImagePicker
+                    <VehicleImagePicker
                         name="trailer_back"
                         label={t("form.trailer_number") + " (back)"}
                         methods={form}
-                        className="w-full h-28 object-cover rounded-md border"
                     />
                 </div>
 

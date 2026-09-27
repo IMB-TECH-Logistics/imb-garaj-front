@@ -17,13 +17,19 @@ export const useColumnsUsersTable = () => {
                 enableSorting: true,
             },
             {
-                accessorKey: "username",
-                header: t("auth.username"),
-                enableSorting: true,
-            },
-            {
                 accessorKey: "role_name",
                 header: t("form.user_role"),
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.role_name || (
+                        <span className="text-destructive">
+                            {t("form.no_role")}
+                        </span>
+                    ),
+            },
+            {
+                accessorKey: "username",
+                header: t("auth.username"),
                 enableSorting: true,
             },
 
