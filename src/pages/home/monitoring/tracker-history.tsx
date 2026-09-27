@@ -230,7 +230,7 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
     const quick = [
         { label: "Bugun", keys: days.some((d) => d.date === today) ? [today] : [] },
         { label: "Kecha", keys: days.some((d) => d.date === yesterday) ? [yesterday] : [] },
-        { label: "Hammasi", keys: days.map((d) => d.date) },
+        { label: "Barchasi", keys: days.map((d) => d.date) },
     ]
 
     return (

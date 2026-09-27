@@ -1,7 +1,6 @@
 import { FormCheckbox } from "@/components/form/checkbox"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
-import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
     COMMON_DIRECTIONS,
@@ -55,7 +54,6 @@ type ReysFormValues = {
     status: string | null
     type: number | null
     out_of_contract: boolean
-    nds_percent?: string | null
 }
 
 const ORDER_STATUS_OPTIONS: { id: string; name: string }[] = [
@@ -104,7 +102,6 @@ const EditReysModal = () => {
             status: current?.status != null ? String(current.status) : null,
             type: current?.type ?? null,
             out_of_contract: (current as any)?.out_of_contract ?? false,
-            nds_percent: String(current?.nds_percent ?? current?.pct ?? ""),
         },
     })
 
@@ -216,14 +213,6 @@ const EditReysModal = () => {
         if (values.status !== null) payload.status = Number(values.status)
         if (values.type !== null) payload.type = values.type
         if (values.date) payload.date = values.date
-        const percent =
-            values.nds_percent === "" || values.nds_percent == null ?
-                null
-            :   Number(values.nds_percent)
-        const inheritsPercent = current?.nds_percent == null
-        if (!(inheritsPercent && percent === current?.pct)) {
-            payload.nds_percent = percent
-        }
         payload.out_of_contract = values.out_of_contract
 
         mutate(`${MANAGERS_ORDERS}/${current.id}`, payload)
@@ -320,15 +309,6 @@ const EditReysModal = () => {
                 valueKey="id"
                 labelKey="label"
                 placeholder={t("form.truck")}
-            />
-
-            <FormNumberInput
-                name="nds_percent"
-                label={t("form.rate_percent")}
-                control={control}
-                allowNegative={false}
-                decimalScale={0}
-                placeholder={t("form.rate_percent")}
             />
 
             <FormCheckbox

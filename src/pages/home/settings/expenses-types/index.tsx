@@ -60,7 +60,7 @@ const ExpensesTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Xarajat turlari"
+                        fileName={t("nav.expense_types")}
                         url="excel"
                         storeKey={hasControl ? SETTINGS_EXPENSES : undefined}
                         searchKey="expense_type"

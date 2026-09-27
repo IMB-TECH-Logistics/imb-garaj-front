@@ -134,6 +134,7 @@ const UserFormPage = () => {
                     />
                     <FormCombobox
                         options={userRole?.results ?? []}
+                        required
                         name="role"
                         control={form.control}
                         labelKey="name"

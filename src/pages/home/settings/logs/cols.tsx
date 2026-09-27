@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { Eye, Laptop, Smartphone, Tablet } from "lucide-react"
+import { Eye, Laptop, MapPin, Smartphone, Tablet } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { getSectionLabel } from "./sections"
@@ -108,6 +108,33 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 accessorKey: "ip_address",
                 size: 130,
                 cell: ({ row }) => row.original.ip_address || "—",
+            },
+            {
+                header: t("table.geo_location"),
+                id: "location",
+                size: 130,
+                cell: ({ row }) => {
+                    const { latitude, longitude, location_accuracy } = row.original
+                    if (latitude == null || longitude == null) return "—"
+                    return (
+                        <div className="flex flex-col">
+                            <a
+                                href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-primary hover:underline"
+                            >
+                                <MapPin className="h-4 w-4" />
+                                {t("table.show_on_map")}
+                            </a>
+                            {location_accuracy != null && (
+                                <span className="text-xs text-muted-foreground">
+                                    ±{Math.round(location_accuracy)} m
+                                </span>
+                            )}
+                        </div>
+                    )
+                },
             },
             {
                 header: t("form.date"),

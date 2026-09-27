@@ -112,7 +112,7 @@ export function DataTable<TData>({
     numeration = false,
     manualSorting = false,
     stickyHeader = false,
-    stickyActions = false,
+    stickyActions = true,
     wrapperClassName,
     actionMenuMode,
     onEdit,
@@ -169,7 +169,7 @@ export function DataTable<TData>({
                 ...columns,
                 {
                     header: " ",
-                    accessorKey: "action",
+                    id: ACTIONS_COLUMN_ID,
                     enableSorting: false,
                     size: 120,
                     cell: ({ row }) => (
@@ -366,7 +366,7 @@ export function DataTable<TData>({
                 {data?.length ?
                     <Table
                         className={`${className} select-text  bg-card rounded-md`}
-                        style={{ tableLayout: "fixed" }}
+                        style={{ tableLayout: "auto" }}
                     >
                         <TableHeader>
                             {table
@@ -436,7 +436,7 @@ export function DataTable<TData>({
                                                             stickyHeader &&
                                                                 "sticky top-0 bg-card z-10",
                                                             stickyActions &&
-                                                                header.column.id === "action" &&
+                                                                isActionsColumn(header.column.id) &&
                                                                 "sticky right-0 z-20 bg-secondary dark:bg-muted shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
                                                         )}
                                                         style={
@@ -459,7 +459,7 @@ export function DataTable<TData>({
                                                             :   undefined
                                                         }
                                                     >
-                                                        <div className="cursor-pointer flex items-center gap-1 select-none whitespace-normal">
+                                                        <div className="cursor-pointer flex items-center gap-1 select-none whitespace-nowrap">
                                                             {flexRender(
                                                                 header.column
                                                                     .columnDef
@@ -557,7 +557,8 @@ export function DataTable<TData>({
                                         {row.getVisibleCells().map((cell) => {
                                             const clickable =
                                                 !!onRowClick &&
-                                                cell.column.id !== "action"
+                                                cell.column.id !== "action" &&
+                                                !isActionsColumn(cell.column.id)
 
                                             return (
                                                 <TableCell
@@ -576,7 +577,7 @@ export function DataTable<TData>({
                                                         clickable &&
                                                             "cursor-pointer",
                                                         stickyActions &&
-                                                            cell.column.id === "action" && [
+                                                            isActionsColumn(cell.column.id) && [
                                                                 "sticky right-0 z-10 bg-card shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
                                                                 "before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:content-['']",
                                                                 index % 2 !== 0 &&
@@ -640,6 +641,12 @@ export function DataTable<TData>({
             :   ""}
         </main>
     )
+}
+
+const ACTIONS_COLUMN_ID = "__actions"
+
+function isActionsColumn(id: string) {
+    return id === ACTIONS_COLUMN_ID || id === "actions"
 }
 
 function isRowSelectionEqual(

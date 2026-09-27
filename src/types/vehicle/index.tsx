@@ -29,6 +29,7 @@ type VehicleDetailType = {
     driver_name: string
     trailer_type_name: string
     truck_type_name: string
+    truck_model_name?: string | null
     created: string
     updated: string
     truck_number: string
@@ -36,6 +37,7 @@ type VehicleDetailType = {
     stir?: string | null
     trailer_number: string
     fuel: string
+    truck_model?: number | null
     truck_type: number
     trailer_type: number
     driver: number
@@ -43,7 +45,7 @@ type VehicleDetailType = {
     year: number
     status: number
     registered_date: string
-    consumption: number
+    consumption: number | null
     truck_front: string | File | null
     truck_back: string | File | null
     license_front: string | File | null

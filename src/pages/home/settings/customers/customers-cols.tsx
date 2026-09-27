@@ -43,14 +43,6 @@ export const useColumnsCustomersTable = () => {
                     return digitsA.localeCompare(digitsB)
                 },
             },
-            {
-                accessorKey: "nds_percent",
-                header: t("form.nds"),
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span>{row.original.nds_percent ?? "—"} %</span>
-                ),
-            },
         ],
         [t],
     )

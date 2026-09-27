@@ -24,10 +24,9 @@ export interface ReysOrder {
     cargo_type_name: string | null
     client_name: string | null
     client_code: string | null
-    summa_s_nds: string | number
+    summa: string | number
     naqd_amount: string | number
     pct: number
-    nds_percent: number | null
     our_share: string | number
     external_id: string | number
 }
@@ -106,34 +105,13 @@ export const useAccountingCols = () => {
                 enableSorting: true,
             },
             {
-                header: t("form.amount_with_nds"),
-                accessorKey: "summa_s_nds",
+                header: t("form.amount_total"),
+                accessorKey: "summa",
                 size: 130,
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const v = toNum(row.original.summa_s_nds)
+                    const v = toNum(row.original.summa)
                     return <span className="font-medium">{formatMoney(v)}</span>
-                },
-            },
-            {
-                header: "%",
-                accessorKey: "pct",
-                size: 60,
-                enableSorting: false,
-                cell: ({ row }) => <span>{row.original.pct}%</span>,
-            },
-            {
-                header: t("status.cash"),
-                accessorKey: "naqd_amount",
-                size: 120,
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const v = toNum(row.original.naqd_amount)
-                    return (
-                        <span className="font-medium text-green-600">
-                            {formatMoney(v)}
-                        </span>
-                    )
                 },
             },
         ],

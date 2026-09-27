@@ -1,4 +1,4 @@
-import { useUser } from "@/constants/useUser"
+import { moduleOfCode, useUser } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
 import {
     Activity,
@@ -21,6 +21,7 @@ export interface MenuItem {
     items?: MenuItem[]
     pending?: boolean
     allowKey?: string
+    allowKeys?: string[]
     alwaysShow?: boolean
     extraPaths?: string[]
 }
@@ -42,6 +43,7 @@ const filterMenuItems = (
         const isAllowed =
             item.alwaysShow ||
             (item.allowKey && allowedModules.includes(item.allowKey)) ||
+            (item.allowKeys && item.allowKeys.some((k) => allowedModules.includes(k))) ||
             (filteredItem.items && filteredItem.items.length > 0)
 
         if (isAllowed) {
@@ -51,6 +53,27 @@ const filterMenuItems = (
         return acc
     }, [])
 }
+
+const removeDisabledItems = (
+    items: MenuItem[],
+    disabledModules: string[],
+): MenuItem[] =>
+    items.reduce<MenuItem[]>((acc, item) => {
+        if (
+            item.allowKey &&
+            disabledModules.includes(moduleOfCode(item.allowKey))
+        ) {
+            return acc
+        }
+        if (item.items) {
+            const children = removeDisabledItems(item.items, disabledModules)
+            if (children.length === 0) return acc
+            acc.push({ ...item, items: children })
+            return acc
+        }
+        acc.push(item)
+        return acc
+    }, [])
 
 const matchesPath = (pathname: string, item: MenuItem): boolean => {
     if (pathname === item.path || pathname.startsWith(item.path + "/")) {
@@ -118,10 +141,22 @@ export const usePaths = () => {
     const isSuperuser = data?.is_superuser
 
     const items = useItems()
+    const disabledModules = data?.disabled_modules
+
+    const enabledItems = useMemo(
+        () =>
+            disabledModules?.length
+                ? removeDisabledItems(items, disabledModules)
+                : items,
+        [items, disabledModules],
+    )
 
     const filteredItems = useMemo(
-        () => (isSuperuser ? items : filterMenuItems(items, safeActions)),
-        [items, safeActions, isSuperuser],
+        () =>
+            isSuperuser
+                ? enabledItems
+                : filterMenuItems(enabledItems, safeActions),
+        [enabledItems, safeActions, isSuperuser],
     )
 
     const childPaths = useMemo(
@@ -153,12 +188,13 @@ export const usePaths = () => {
     const isDeniedPath = useMemo(
         () => (pathname: string) => {
             if (isLoading || !data) return false
-            if (isSuperuser) return false
 
-            const extra = Object.entries(GUARDED_EXTRA).find(([path]) =>
-                matches(pathname, path),
-            )
-            if (extra) return !safeActions.includes(extra[1])
+            if (!isSuperuser) {
+                const extra = Object.entries(GUARDED_EXTRA).find(([path]) =>
+                    matches(pathname, path),
+                )
+                if (extra) return !safeActions.includes(extra[1])
+            }
 
             if (allowedPaths.some((path) => matches(pathname, path))) return false
             return deniedPaths.some((path) => matches(pathname, path))
@@ -214,6 +250,7 @@ export const useItems = () => {
                 icon: <CreditCard width={18} />,
                 path: "/kassa",
                 allowKey: "manager_cashflow_view",
+                allowKeys: ["kassa_payer_view", "kassa_payment_requests_view"],
             },
             {
                 label: t("nav.accounting"),

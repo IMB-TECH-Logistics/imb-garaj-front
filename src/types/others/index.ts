@@ -19,6 +19,9 @@ type User = {
     role_name: string
     actions: string[]
     is_superuser: boolean
+    disabled_modules?: string[]
+    kassa_mode?: "standard" | "driver_cash"
+    kassa_started_at?: string | null
     uuid?: string
     full_name?: string
     phone?: string | null

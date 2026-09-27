@@ -197,7 +197,6 @@ type CustomersType = {
     code: string
     created?: string
     updated?: string
-    nds_percent: number
     is_deleted?: false
 }
 

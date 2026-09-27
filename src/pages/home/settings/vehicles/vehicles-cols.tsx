@@ -31,21 +31,28 @@ export const useColumnsVehiclesTable = () => {
                 enableSorting: true,
             },
             {
-                accessorKey: "owner_name",
-                header: t("form.owner"),
-                enableSorting: true,
-            },
-            {
                 accessorKey: "trailer_number",
                 header: t("form.trailer_number"),
                 enableSorting: true,
                 cell: ({ row }) => row.original.trailer_number || "-",
             },
             {
+                accessorKey: "truck_model_name",
+                header: t("form.truck_model"),
+                enableSorting: true,
+                cell: ({ row }) => row.original.truck_model_name || "-",
+            },
+            {
                 accessorKey: "truck_type_name",
                 header: t("form.vehicle_type"),
                 enableSorting: true,
                 cell: ({ row }) => row.original.truck_type_name || "-",
+            },
+            {
+                accessorKey: "trailer_type_name",
+                header: t("form.trailer_type"),
+                enableSorting: true,
+                cell: ({ row }) => row.original.trailer_type_name || "-",
             },
             {
                 accessorKey: "driver_name",
@@ -91,9 +98,19 @@ export const useColumnsVehiclesTable = () => {
             },
             {
                 accessorKey: "consumption",
-                header: t("table.fuel_consumption_col"),
+                header: `${t("table.fuel_consumption_col")} (100km)`,
                 enableSorting: true,
-                cell: ({ row }) => row.original.consumption || "-",
+                cell: ({ row }) => {
+                    const value = row.original.consumption
+                    if (value === null || value === undefined) return "-"
+                    const unit = row.original.fuel === "diesel" ? "L" : "m³"
+                    return `${Number(value)} ${unit}`
+                },
+            },
+            {
+                accessorKey: "owner_name",
+                header: t("form.owner"),
+                enableSorting: true,
             },
             {
                 accessorKey: "registered_date",

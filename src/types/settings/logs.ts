@@ -10,6 +10,9 @@ type LogItem = {
     device: string | null
     user_agent: string | null
     ip_address: string | null
+    latitude: string | null
+    longitude: string | null
+    location_accuracy: number | null
     model: string
     obj_id: string
     user: number | null

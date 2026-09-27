@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
 const vehicleTypeOptions = [
+    { value: "model", label: "Model" },
     { value: "truck", label: "Avtomobil" },
     { value: "trailer", label: "Tirkama" },
 ]

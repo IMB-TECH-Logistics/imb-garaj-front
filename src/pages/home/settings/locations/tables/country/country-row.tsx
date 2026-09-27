@@ -97,7 +97,7 @@ export const CountryRowTable = ({
                     </TableCell>
                 ))}
 
-                <TableCell className="p-0 text-right w-[40px]">
+                <TableCell className="p-0 text-right w-[40px] sticky right-10 bg-card">
                     {hasControl && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -127,7 +127,7 @@ export const CountryRowTable = ({
                     )}
                 </TableCell>
 
-                <TableCell className="text-right p-0 w-[40px]">
+                <TableCell className="text-right p-0 w-[40px] sticky right-0 bg-card">
                     <Button
                         variant="ghost"
                         size="sm"

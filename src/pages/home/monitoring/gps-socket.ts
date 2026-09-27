@@ -53,7 +53,7 @@ function merge(list: GpsLiveVehicle[], item: LiveItem): GpsLiveVehicle[] {
     }
     return list.some((g) => g.imei === item.imei)
         ? list.map((g) => (g.imei === item.imei ? { ...g, ...patch } : g))
-        : [...list, { vehicle: null, vehicle_number: null, driver_name: null, ...patch }]
+        : [...list, { vehicle: null, vehicle_number: null, truck_status: null, driver_name: null, ...patch }]
 }
 
 export function useGpsLiveSocket(enabled: boolean) {

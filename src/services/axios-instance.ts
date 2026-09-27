@@ -1,5 +1,6 @@
 import axios from "axios"
 import { toast } from "sonner"
+import { getGeoHeaders, startGeoTracking } from "@/lib/geo-location"
 
 const getBaseURL = () => {
     if (import.meta.env.DEV) {
@@ -27,6 +28,12 @@ axiosInstance.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
+        if (token || config.url?.includes("auth/login")) {
+            startGeoTracking()
+        }
+        Object.entries(getGeoHeaders()).forEach(([key, value]) => {
+            config.headers.set(key, value)
+        })
         return config
     },
     (error) => Promise.reject(error),

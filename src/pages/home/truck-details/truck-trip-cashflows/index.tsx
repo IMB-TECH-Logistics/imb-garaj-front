@@ -19,6 +19,7 @@ const TruckTripCashflowRow = () => {
                 order: orderId,
                 page: search.expense_page,
                 page_size: search.expense_page_size,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -43,6 +44,7 @@ const TruckTripCashflowRow = () => {
             </div>
 
             <DataTable
+                manualSorting
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}

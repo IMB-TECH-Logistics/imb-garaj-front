@@ -29,6 +29,7 @@ const ShiftStatisticMain = () => {
             search: search.driver_name,
             page: search.page,
             page_size: search.page_size,
+            ordering: (search as any).ordering,
         },
     })
     const { data: cashflowData } = useGet<any>(CASHFLOW_STATISTICS, {
@@ -130,6 +131,7 @@ const ShiftStatisticMain = () => {
             </div>
 
             <DataTable
+                manualSorting
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}

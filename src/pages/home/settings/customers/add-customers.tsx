@@ -1,6 +1,5 @@
 import { FormFormatNumberInput } from "@/components/form/format-number-input"
 import FormInput from "@/components/form/input"
-import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
@@ -100,20 +99,6 @@ const AddCustomerModal = () => {
                         label={t("form.phone")}
                         name={"phone_number"}
                         placeholder="+998 __ ___ __ __"
-                    />
-
-                    <FormNumberInput
-                        required
-                        name="nds_percent"
-                        label={t("form.nds")}
-                        control={form.control}
-                        allowNegative={false}
-                        decimalScale={0}
-                        thousandSeparator={""}
-                        isAllowed={({ floatValue }) =>
-                            floatValue === undefined || floatValue <= 100
-                        }
-                        placeholder="Masalan: 12"
                     />
 
                     <div className="flex items-center justify-end gap-2 md:col-span-2">

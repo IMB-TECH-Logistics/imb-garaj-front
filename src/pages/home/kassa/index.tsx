@@ -2,15 +2,29 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import DownloadAsExcel from "@/components/download-as-excel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ParamCombobox } from "@/components/as-params/combobox"
-import { CHECKOUT_MAIN, CHECKOUT_TRANSACTIONS, DRIVERS_BALANCE, TRANSACTIONS } from "@/constants/api-endpoints"
+import {
+    CHECKOUT_BALANCES,
+    CHECKOUT_LOGS,
+    CHECKOUT_PENDING_COUNTS,
+    CHECKOUT_SUMMARY,
+    CHECKOUT_TRANSACTIONS,
+    DRIVERS_BALANCE,
+    TRANSACTIONS,
+} from "@/constants/api-endpoints"
 import DeleteModal from "@/components/custom/delete-modal"
 import TableActions from "@/components/custom/table-actions"
 import Modal from "@/components/custom/modal"
 import CheckoutAdjustModal from "./adjust-modal"
+import CheckoutTransferModal from "./transfer-modal"
+import CheckoutRequestModal from "./request-modal"
+import CheckoutLogs from "./logs"
+import CheckoutRequests from "./requests"
+import CheckoutReport from "./report"
+import KassaSummary, { KASSA_SUMMARY_GROUPS, KassaSummaryData, KassaSummaryGroup } from "./summary"
 import { useGet } from "@/hooks/useGet"
 import { useHasAction } from "@/constants/useUser"
 import { formatMoney } from "@/lib/format-money"
@@ -18,8 +32,8 @@ import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useModal } from "@/hooks/useModal"
-import { Plus, X } from "lucide-react"
-import { useMemo, useState } from "react"
+import { ArrowLeftRight, Plus, Send, X } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 type Transaction = {
@@ -29,6 +43,8 @@ type Transaction = {
     executor_name: string
     created: string
     type: number
+    status: number
+    checkout_kind: "cash" | "card"
     currency: number
     currency_course: string | null
     through: string | null
@@ -43,6 +59,18 @@ type DriverRow = {
     balance: string
 }
 
+type PendingCounts = {
+    requests: number
+    order_cashflows: number
+}
+
+const TX_STATUS_LABEL_KEY: Record<number, string> = {
+    10: "kassa.status_pending",
+    20: "kassa.status_approved",
+    [-10]: "kassa.status_rejected",
+    [-20]: "kassa.status_rollback",
+}
+
 const useTransactionCols = () => {
     const { t } = useTranslation()
     return useMemo<ColumnDef<Transaction>[]>(
@@ -53,10 +81,21 @@ const useTransactionCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span>
-                        {formatMoney(Number(row.original.amount))}
-                        {row.original.currency === 2 ? " USD" : ""}
+                        {formatMoney(
+                            row.original.currency === 2 && row.original.currency_course
+                                ? Number(row.original.amount) * Number(row.original.currency_course)
+                                : Number(row.original.amount),
+                        )}
                     </span>
                 ),
+            },
+            {
+                header: t("kassa.checkout_kind"),
+                accessorKey: "checkout_kind",
+                cell: ({ row }) =>
+                    row.original.checkout_kind === "card" ?
+                        t("kassa.card")
+                    :   t("kassa.cash"),
             },
             {
                 header: t("form.vehicle"),
@@ -104,15 +143,22 @@ const useTransactionCols = () => {
                 accessorKey: "type",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <Badge
-                        variant={
-                            row.original.type === -1
-                                ? "destructive"
-                                : "default"
-                        }
-                    >
-                        {row.original.type === -1 ? t("form.expense") : t("form.income")}
-                    </Badge>
+                    <div className="flex flex-col gap-1">
+                        <Badge
+                            variant={
+                                row.original.type === -1 ?
+                                    "destructive"
+                                :   "default"
+                            }
+                        >
+                            {row.original.type === -1 ? t("form.expense") : t("form.income")}
+                        </Badge>
+                        {row.original.status !== 20 && (
+                            <Badge variant="orange">
+                                {t(TX_STATUS_LABEL_KEY[row.original.status] ?? "kassa.status_pending")}
+                            </Badge>
+                        )}
+                    </div>
                 ),
             },
         ],
@@ -130,9 +176,11 @@ const Kassa = () => {
     const { openModal: openExpense } = useModal("checkout-expense")
     const { openModal: openEdit } = useModal("checkout-edit")
     const { openModal: openDelete } = useModal("checkout-delete")
+    const { openModal: openTransfer } = useModal("checkout-transfer")
+    const { openModal: openRequest } = useModal("checkout-request-create")
     const [selected, setSelected] = useState<Transaction | null>(null)
     const search = useSearch({ strict: false }) as any
-    const { data: checkout } = useGet<{ id: number; name: string; balance: string }>(CHECKOUT_MAIN)
+    const { data: pendingCounts } = useGet<PendingCounts>(CHECKOUT_PENDING_COUNTS)
     const { data: driversData } = useGet<DriverRow[]>(DRIVERS_BALANCE)
     const { data: vehiclesData } = useGet<{ id: number; name: string }[]>(
         "selectable/vehicle",
@@ -142,8 +190,17 @@ const Kassa = () => {
     const driverFilterId = search.driver ? Number(search.driver) : null
     const typeFilter: "all" | "1" | "-1" =
         search.type === "1" || search.type === "-1" ? search.type : "all"
-    const currencyFilter: "all" | "1" | "2" =
-        search.currency === "1" || search.currency === "2" ? search.currency : "all"
+    const kindFilter: "all" | "cash" | "card" =
+        search.tx_kind === "cash" || search.tx_kind === "card" ? search.tx_kind : "all"
+    const groupFilter: KassaSummaryGroup | undefined =
+        KASSA_SUMMARY_GROUPS.includes(search.group) ? search.group : undefined
+    const driversRef = useRef<HTMLDivElement>(null)
+    const [driversHighlight, setDriversHighlight] = useState(false)
+    useEffect(() => {
+        if (!driversHighlight) return
+        const timer = setTimeout(() => setDriversHighlight(false), 1500)
+        return () => clearTimeout(timer)
+    }, [driversHighlight])
     const filterParams = {
         page: search.page,
         page_size: search.page_size,
@@ -153,14 +210,23 @@ const Kassa = () => {
         vehicle: search.vehicle,
         search: search.tx_search,
         type: typeFilter === "all" ? undefined : Number(typeFilter),
-        currency: currencyFilter === "all" ? undefined : Number(currencyFilter),
+        checkout_kind: kindFilter === "all" ? undefined : kindFilter,
+        group: groupFilter,
         ordering: search.ordering,
     }
     const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
         TRANSACTIONS,
         { params: filterParams },
     )
-    const drivers = driversData ?? []
+    const drivers = useMemo(
+        () =>
+            [...(driversData ?? [])].sort(
+                (a, b) =>
+                    Number(b.balance || 0) - Number(a.balance || 0) ||
+                    (a.full_name ?? "").localeCompare(b.full_name ?? ""),
+            ),
+        [driversData],
+    )
     const selectedDriver = useMemo(
         () =>
             driverFilterId != null
@@ -186,6 +252,42 @@ const Kassa = () => {
         })
     }
 
+    const view: "transactions" | "logs" | "requests" | "report" =
+        search.kassa_view === "logs" ? "logs"
+        : search.kassa_view === "requests" ? "requests"
+        : search.kassa_view === "report" ? "report"
+        : "transactions"
+
+    const handleViewChange = (val: string) => {
+        navigate({
+            search: {
+                ...search,
+                kassa_view: val === "transactions" ? undefined : val,
+                page: undefined,
+                ordering: undefined,
+            } as any,
+        })
+    }
+
+    const viewSwitcher = (
+        <Tabs value={view} onValueChange={handleViewChange}>
+            <TabsList className="h-9">
+                <TabsTrigger value="transactions">
+                    {t("page.transactions")}
+                </TabsTrigger>
+                <TabsTrigger value="requests">
+                    {t("kassa.requests_tab")}
+                </TabsTrigger>
+                <TabsTrigger value="logs">
+                    {t("kassa_log.title")}
+                </TabsTrigger>
+                <TabsTrigger value="report">
+                    {t("kassa.report_tab")}
+                </TabsTrigger>
+            </TabsList>
+        </Tabs>
+    )
+
     const clearDriverFilter = () => {
         navigate({ search: { ...search, driver: undefined } as any })
     }
@@ -200,14 +302,54 @@ const Kassa = () => {
         })
     }
 
-    const handleCurrencyChange = (val: string) => {
+    const handleKindChange = (val: string) => {
         navigate({
             search: {
                 ...search,
-                currency: val === "all" ? undefined : val,
+                tx_kind: val === "all" ? undefined : val,
                 page: undefined,
             } as any,
         })
+    }
+
+    const handleSummaryGroup = (group: KassaSummaryGroup, data: KassaSummaryData) => {
+        navigate({
+            search: {
+                ...search,
+                kassa_view: undefined,
+                group,
+                from_date: data.from_date,
+                to_date: data.to_date,
+                tx_kind: undefined,
+                type: undefined,
+                page: undefined,
+            } as any,
+        })
+    }
+
+    const handleSummaryKind = (kind: "cash" | "card") => {
+        navigate({
+            search: {
+                ...search,
+                kassa_view: undefined,
+                group: undefined,
+                tx_kind: kind,
+                page: undefined,
+            } as any,
+        })
+    }
+
+    const handleSummaryDrivers = () => {
+        driversRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+        setDriversHighlight(true)
+    }
+
+    const clearGroupFilter = () => {
+        navigate({ search: { ...search, group: undefined, page: undefined } as any })
+    }
+
+    const goToRequests = () => {
+        navigate({ search: { ...search, kassa_view: "requests" } as any })
     }
 
     return (
@@ -215,24 +357,29 @@ const Kassa = () => {
             {/* Left sidebar */}
             <div className="md:max-w-sm md:min-w-sm w-full md:h-full shrink-0">
                 <Card className="bg-muted/60 md:h-full flex flex-col overflow-hidden">
-                    <CardHeader className="space-y-0 shrink-0">
-                        <CardTitle className="font-medium text-lg">
-                            {t("page.main_balance")}
-                        </CardTitle>
-                        <span>
-                            <span className="text-xl font-semibold">
-                                {formatMoney(Number(checkout?.balance ?? 0))}
-                            </span>{" "}
-                            <span className="text-base">{t("page.som")}</span>
-                        </span>
+                    <CardHeader className="space-y-2 shrink-0 p-3">
+                        <KassaSummary
+                            activeGroup={view === "transactions" ? groupFilter : undefined}
+                            activeKind={view === "transactions" && kindFilter !== "all" ? kindFilter : undefined}
+                            onGroup={handleSummaryGroup}
+                            onKind={handleSummaryKind}
+                            onDrivers={handleSummaryDrivers}
+                        />
+                        {!!pendingCounts?.requests && (
+                            <button type="button" onClick={goToRequests} className="w-fit">
+                                <Badge variant="orange">
+                                    {t("kassa.pending_requests", { count: pendingCounts.requests })}
+                                </Badge>
+                            </button>
+                        )}
                     </CardHeader>
                     <CardContent className="pt-0 space-y-3 flex-1 min-h-0 flex flex-col">
                         {hasControl && (
-                            <div className="gap-3 flex items-center justify-between shrink-0">
+                            <div className="gap-2 flex items-center flex-wrap shrink-0">
                                 <Button
                                     variant="destructive"
                                     type="button"
-                                    className="w-full"
+                                    className="flex-1 min-w-[45%]"
                                     onClick={openExpense}
                                 >
                                     <Plus size={20} />
@@ -240,16 +387,40 @@ const Kassa = () => {
                                 </Button>
                                 <Button
                                     type="button"
-                                    className="w-full"
+                                    className="flex-1 min-w-[45%]"
                                     onClick={openTopUp}
                                 >
                                     <Plus size={20} />
                                     {t("page.top_up_balance")}
                                 </Button>
+                                <Button
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex-1 min-w-[45%]"
+                                    onClick={openTransfer}
+                                >
+                                    <ArrowLeftRight size={18} />
+                                    {t("kassa.transfer")}
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    type="button"
+                                    className="flex-1 min-w-[45%]"
+                                    onClick={openRequest}
+                                >
+                                    <Send size={18} />
+                                    {t("kassa.request")}
+                                </Button>
                             </div>
                         )}
 
-                        <div className="border-t pt-3 shrink-0">
+                        <div
+                            ref={driversRef}
+                            className={cn(
+                                "border-t pt-3 shrink-0 rounded-md transition-colors",
+                                driversHighlight && "bg-primary/10",
+                            )}
+                        >
                             <p className="text-sm text-muted-foreground">
                                 {t("page.drivers_balance")}
                             </p>
@@ -299,13 +470,19 @@ const Kassa = () => {
 
             {/* Right table */}
             <div className="w-full min-w-0 md:h-full min-h-0">
-                <DataTable
+                {view === "logs" ?
+                    <CheckoutLogs switcher={viewSwitcher} />
+                : view === "requests" ?
+                    <CheckoutRequests switcher={viewSwitcher} />
+                : view === "report" ?
+                    <CheckoutReport switcher={viewSwitcher} />
+                :   <DataTable
                     numeration
                     manualSorting
                     rowAction={
                         hasControl ?
                             (row: Transaction) =>
-                                row.through === "checkout" ?
+                                row.through === "checkout" || row.through === "transfer" ?
                                     <TableActions
                                         onEdit={() => {
                                             setSelected(row)
@@ -332,10 +509,26 @@ const Kassa = () => {
                     head={
                         <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h1 className="text-lg">{t("page.transactions")}</h1>
+                                {viewSwitcher}
                                 <Badge>
                                     {formatMoney(transactionsData?.count)}
                                 </Badge>
+                                {groupFilter && (
+                                    <Badge
+                                        variant="outline"
+                                        className="gap-1 pr-1"
+                                    >
+                                        {t(`kassa.group_${groupFilter}`)}
+                                        <button
+                                            type="button"
+                                            onClick={clearGroupFilter}
+                                            className="ml-1 p-0.5 rounded hover:bg-muted"
+                                            aria-label={t("page.clear_filters")}
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </Badge>
+                                )}
                                 {selectedDriver && (
                                     <Badge
                                         variant="outline"
@@ -363,15 +556,19 @@ const Kassa = () => {
                                     }}
                                 />
                                 <Tabs
-                                    value={currencyFilter}
-                                    onValueChange={handleCurrencyChange}
+                                    value={kindFilter}
+                                    onValueChange={handleKindChange}
                                 >
                                     <TabsList className="h-9">
                                         <TabsTrigger value="all">
-                                            UZS+USD
+                                            {t("status.all")}
                                         </TabsTrigger>
-                                        <TabsTrigger value="1">UZS</TabsTrigger>
-                                        <TabsTrigger value="2">USD</TabsTrigger>
+                                        <TabsTrigger value="cash">
+                                            {t("kassa.cash")}
+                                        </TabsTrigger>
+                                        <TabsTrigger value="card">
+                                            {t("kassa.card")}
+                                        </TabsTrigger>
                                     </TabsList>
                                 </Tabs>
                                 <Tabs
@@ -402,7 +599,7 @@ const Kassa = () => {
                             </div>
                         </div>
                     }
-                />
+                />}
             </div>
 
             <Modal
@@ -433,14 +630,37 @@ const Kassa = () => {
                 <CheckoutAdjustModal
                     modalKey="checkout-edit"
                     kind={selected?.type === -1 ? "expense" : "income"}
-                    editing={selected ?? undefined}
+                    editing={
+                        selected ?
+                            {
+                                id: selected.id,
+                                amount: selected.amount,
+                                comment: selected.comment,
+                                checkout_kind: selected.checkout_kind,
+                            }
+                        :   undefined
+                    }
                 />
+            </Modal>
+            <Modal
+                modalKey="checkout-transfer"
+                title={t("kassa.transfer_title")}
+                size="max-w-md"
+            >
+                <CheckoutTransferModal modalKey="checkout-transfer" />
+            </Modal>
+            <Modal
+                modalKey="checkout-request-create"
+                title={t("kassa.request")}
+                size="max-w-md"
+            >
+                <CheckoutRequestModal modalKey="checkout-request-create" />
             </Modal>
             <DeleteModal
                 modalKey="checkout-delete"
                 path={CHECKOUT_TRANSACTIONS}
                 id={selected?.id}
-                refetchKeys={[CHECKOUT_MAIN, TRANSACTIONS]}
+                refetchKeys={[CHECKOUT_BALANCES, CHECKOUT_SUMMARY, TRANSACTIONS, CHECKOUT_LOGS]}
             />
         </div>
     )
