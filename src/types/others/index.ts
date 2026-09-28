@@ -25,6 +25,8 @@ type User = {
     uuid?: string
     full_name?: string
     phone?: string | null
+    is_global_admin?: boolean
+    tenant?: { schema_name: string; name: string }
 }
 
 type MonthCalProps = {

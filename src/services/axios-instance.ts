@@ -20,6 +20,10 @@ const axiosInstance = axios.create({
 
 export const getAccessToken = () => localStorage.getItem("token")
 
+export const TENANT_STORAGE_KEY = "tenant"
+
+export const getSelectedTenant = () => localStorage.getItem(TENANT_STORAGE_KEY)
+
 
 
 axiosInstance.interceptors.request.use(
@@ -27,6 +31,10 @@ axiosInstance.interceptors.request.use(
         const token = getAccessToken()
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
+        }
+        const tenant = getSelectedTenant()
+        if (token && tenant) {
+            config.headers.set("X-Tenant", tenant)
         }
         if (token || config.url?.includes("auth/login")) {
             startGeoTracking()
@@ -52,6 +60,7 @@ axiosInstance.interceptors.response.use(
 
         if (status === 401) {
             localStorage.removeItem("token")
+            localStorage.removeItem(TENANT_STORAGE_KEY)
             window.location.href = "/auth"
             return Promise.reject(error)
         }

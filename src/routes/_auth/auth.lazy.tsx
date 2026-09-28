@@ -7,6 +7,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LOGIN } from "@/constants/api-endpoints"
+import { TENANT_STORAGE_KEY } from "@/services/axios-instance"
 import { usePost } from "@/hooks/usePost"
 import { handleFormError } from "@/lib/show-form-errors"
 import { createLazyFileRoute } from "@tanstack/react-router"
@@ -44,6 +45,7 @@ function AuthComponent() {
         mutate(LOGIN, data, {
             onSuccess(res) {
                 localStorage.setItem("token", res.access)
+                localStorage.removeItem(TENANT_STORAGE_KEY)
                 window.location.href = "/"
             },
             onError: (error) => handleFormError(error, form),
