@@ -252,8 +252,15 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
 
                             <span className={cn("flex items-center justify-between gap-2", item.vehicle && "pr-7")}>
-                                <span className="truncate font-mono text-lg font-bold leading-tight tracking-wider">
-                                    {item.vehicle_number || item.tracker_name || item.imei}
+                                <span className="flex min-w-0 items-baseline gap-2">
+                                    <span className="shrink-0 font-mono text-lg font-bold leading-tight tracking-wider">
+                                        {item.vehicle_number || item.tracker_name || item.imei}
+                                    </span>
+                                    {item.driver_name && (
+                                        <span className="truncate text-sm font-medium text-muted-foreground">
+                                            {item.driver_name}
+                                        </span>
+                                    )}
                                 </span>
                                 {meta && (
                                     <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-semibold" style={{ color: meta.color }}>

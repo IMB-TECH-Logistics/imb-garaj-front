@@ -244,6 +244,11 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
                         <span className="truncate font-mono text-base font-bold tracking-wide">
                             {tracker.vehicle_number || tracker.tracker_name || tracker.imei}
                         </span>
+                        {tracker.driver_name && (
+                            <span className="truncate text-sm font-medium text-muted-foreground">
+                                {tracker.driver_name}
+                            </span>
+                        )}
                         <Badge
                             variant="outline"
                             className={cn(online ? "border-emerald-500/40 text-emerald-500" : "text-muted-foreground")}
