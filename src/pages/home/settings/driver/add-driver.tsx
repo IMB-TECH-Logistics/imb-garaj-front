@@ -1,17 +1,20 @@
 import { FormCheckbox } from "@/components/form/checkbox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { FormFormatNumberInput } from "@/components/form/format-number-input"
+import FieldLabel from "@/components/form/form-label"
 import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { normalizeDocNumber } from "@/lib/format-driver-docs"
+import { formatExperience, monthsSince } from "@/lib/format-experience"
 import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
@@ -30,6 +33,16 @@ const AddDriverModal = () => {
     })
 
     const { handleSubmit, reset } = form
+
+    const hiredAt = useWatch({ control: form.control, name: "driver.hired_at" })
+    const experienceText =
+        hiredAt ?
+            formatExperience(t, monthsSince(hiredAt))
+        :   formatExperience(
+                t,
+                currentDriver?.driver?.experience_months,
+                currentDriver?.driver?.experience,
+            )
 
     const onSuccess = () => {
         toast.success(
@@ -177,18 +190,26 @@ const AddDriverModal = () => {
                     placeholder={`${t("form.example")}: ABC1234567`}
                 />
 
-                <FormNumberInput
-                    required
-                    allowNegative={false}
-                    decimalScale={1}
-                    isAllowed={({ floatValue }) =>
-                        floatValue === undefined || floatValue <= 100
-                    }
-                    name="driver.experience"
-                    label={t("form.experience")}
+                <FormDatePicker
+                    name="driver.hired_at"
+                    label={t("form.hired_at")}
                     control={form.control}
-                    placeholder="5"
+                    placeholder={t("form.select_date")}
+                    calendarProps={{ disabled: { after: new Date() } }}
                 />
+
+                <fieldset className="flex flex-col w-full">
+                    <FieldLabel required={false} isError={false} htmlFor="driver-experience">
+                        {t("form.work_experience")}
+                    </FieldLabel>
+                    <Input
+                        id="driver-experience"
+                        readOnly
+                        disabled
+                        value={experienceText}
+                        fullWidth
+                    />
+                </fieldset>
 
                 <FormDatePicker
                     required

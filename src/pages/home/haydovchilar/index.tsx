@@ -3,6 +3,7 @@ import { DataTable } from "@/components/ui/datatable"
 import { DRIVERS_LIST } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
+import { formatExperience } from "@/lib/format-experience"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
@@ -18,6 +19,8 @@ type DriverRow = {
     username: string
     phone: string | null
     experience: number
+    hired_at: string | null
+    experience_months: number | null
     completed_trips: number
     total_trips: number
     ongoing_trips: number
@@ -70,12 +73,16 @@ const useCols = () => {
             },
             {
                 header: t("table.experience"),
-                accessorKey: "experience",
+                id: "experience",
+                accessorFn: (row) =>
+                    row.experience_months ?? Number(row.experience || 0) * 12,
                 enableSorting: true,
                 cell: ({ row }) =>
-                    row.original.experience > 0
-                        ? `${row.original.experience} yil`
-                        : "-",
+                    formatExperience(
+                        t,
+                        row.original.experience_months,
+                        row.original.experience,
+                    ),
             },
             {
                 header: t("page.trips"),

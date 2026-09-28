@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatPhoneNumber } from "../customers/phone-number"
 import { useTranslation } from "react-i18next"
+import { formatExperience } from "@/lib/format-experience"
 import { formatDriverLicense, formatPassportSerial } from "@/lib/format-driver-docs"
 export const useColumnsDriverTable = () => {
     const { t } = useTranslation()
@@ -55,13 +56,15 @@ export const useColumnsDriverTable = () => {
                 id: "driver_license",
             },
             {
-                header: t("form.experience"),
+                header: t("form.work_experience"),
                 enableSorting: false,
-                accessorFn: (row) => row.driver?.experience || 0,
-                cell: ({ row }) => {
-                    const value = row.getValue("work_experience") as number
-                    return value ? `${value} yil` : "-"
-                },
+                accessorFn: (row) =>
+                    formatExperience(
+                        t,
+                        row.driver?.experience_months,
+                        row.driver?.experience,
+                    ),
+                cell: ({ row }) => row.getValue("work_experience") as string,
                 id: "work_experience",
             },
             {

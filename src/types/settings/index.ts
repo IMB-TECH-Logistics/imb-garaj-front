@@ -237,6 +237,8 @@ type DriverInfoType = {
     driver_license: string
     driver_license_date: string
     experience: string
+    hired_at?: string | null
+    experience_months?: number | null
 }
 
 // SETTING/LOCATION

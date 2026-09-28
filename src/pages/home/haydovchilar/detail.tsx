@@ -6,6 +6,7 @@ import {
     DRIVERS_OVERVIEW,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { formatExperience } from "@/lib/format-experience"
 import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { ColumnDef } from "@tanstack/react-table"
@@ -25,6 +26,8 @@ type DriverOverview = {
     driver_license: string | null
     driver_license_date: string | null
     experience: number
+    hired_at: string | null
+    experience_months: number | null
     completed_trips: number
     total_trips: number
     ongoing_trips: number
@@ -293,6 +296,16 @@ export default function HaydovchiDetail() {
                             <Phone size={12} />
                             {formatPhoneNumber(overview.phone)}
                         </a>
+                    )}
+                    {overview && (
+                        <div className="text-sm text-muted-foreground mt-0.5">
+                            {t("form.work_experience")}:{" "}
+                            {formatExperience(
+                                t,
+                                overview.experience_months,
+                                overview.experience,
+                            )}
+                        </div>
                     )}
                 </div>
                 <div className="text-right shrink-0">
