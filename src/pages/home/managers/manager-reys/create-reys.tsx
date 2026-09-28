@@ -136,10 +136,13 @@ const AddTripOrders = () => {
                 currentTripOrder?.status != null && currentTripOrder.status !== -1
                     ? String(currentTripOrder.status)
                     : "0",
-            is_naqd: false,
+            is_naqd:
+                !!currentTripOrder?.incomes?.length &&
+                !currentTripOrder.direction &&
+                !currentTripOrder.client,
             incomes:
-                currentTripOrder?.payments?.length
-                    ? currentTripOrder.payments.map((p) => ({
+                currentTripOrder?.incomes?.length
+                    ? currentTripOrder.incomes.map((p) => ({
                         payment_type: p.payment_type,
                         amount: p.amount,
                     }))
