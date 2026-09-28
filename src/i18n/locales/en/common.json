@@ -259,7 +259,8 @@
         "offline": "Offline",
         "in_garage": "In Garage",
         "idle_stop": "Idle Stop",
-        "in_queue": "In Queue"
+        "in_queue": "In Queue",
+        "draft": "Draft"
     },
     "page": {
         "list": "List",
@@ -420,7 +421,8 @@
         "A user with that username already exists": "A user with that username already exists",
         "Ensure this field has no more than 255 characters": "Field must not exceed 255 characters",
         "Invalid data": "Invalid data",
-        "Object with name does not exist": "Object with this name does not exist"
+        "Object with name does not exist": "Object with this name does not exist",
+        "status_transition_forbidden": "Status change is not allowed: {{from}} → {{to}}"
     },
     "log": {
         "created": "Created",

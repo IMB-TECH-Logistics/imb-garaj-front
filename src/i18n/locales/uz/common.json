@@ -268,7 +268,8 @@
         "offline": "Offline",
         "in_garage": "Garajda",
         "idle_stop": "Bekor turish",
-        "in_queue": "Navbatda"
+        "in_queue": "Navbatda",
+        "draft": "Qoralama"
     },
     "page": {
         "list": "Ro'yxat",
@@ -452,7 +453,8 @@
         "A user with that username already exists": "Bunday foydalanuvchi nomi allaqachon mavjud",
         "Ensure this field has no more than 255 characters": "Bu maydon 255 ta belgidan oshmasligi kerak",
         "Invalid data": "Noto'g'ri ma'lumot",
-        "Object with name does not exist": "Bunday nom bilan ob'ekt topilmadi"
+        "Object with name does not exist": "Bunday nom bilan ob'ekt topilmadi",
+        "status_transition_forbidden": "Status o'zgarishi taqiqlangan: {{from}} → {{to}}"
     },
     "log": {
         "created": "Yaratildi",

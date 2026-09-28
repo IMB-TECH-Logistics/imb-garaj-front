@@ -1,11 +1,45 @@
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
+import i18n from "@/i18n/i18n"
+
+const ORDER_STATUS_KEYS: Record<number, string> = {
+  [-1]: "draft",
+  0: "pending",
+  1: "started",
+  5: "loading_status",
+  6: "on_road",
+  7: "unloading",
+  2: "done",
+  3: "cancelled",
+  4: "archived",
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function statusTransitionMessage(data: any): string | null {
+  const transition = data?.status_transition
+  if (transition?.code !== "forbidden") return null
+  const label = (value: unknown) => {
+    const key = ORDER_STATUS_KEYS[Number(value)]
+    return key ? i18n.t(`status.${key}`) : String(value)
+  }
+  return i18n.t("backend_messages.status_transition_forbidden", {
+    from: label(transition.from),
+    to: label(transition.to),
+  })
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleFormError(err: any, form?: UseFormReturn<any>) {
   const isClientError = err?.status !== 0 && Number(err?.status) < 500
   const data = err?.response?.data || {}
   const msg = data?.detail
+
+  const transitionMsg = statusTransitionMessage(data)
+  if (transitionMsg) {
+    toast.error(transitionMsg, { duration: 5000 })
+    return
+  }
 
   let hasValidFieldError = false
 

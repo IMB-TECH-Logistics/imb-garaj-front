@@ -259,7 +259,8 @@
         "offline": "オフライン",
         "in_garage": "車庫内",
         "idle_stop": "待機停車",
-        "in_queue": "順番待ち"
+        "in_queue": "順番待ち",
+        "draft": "下書き"
     },
     "page": {
         "list": "一覧",
@@ -420,7 +421,8 @@
         "A user with that username already exists": "このユーザー名はすでに使用されています",
         "Ensure this field has no more than 255 characters": "255文字以内で入力してください",
         "Invalid data": "無効なデータ",
-        "Object with name does not exist": "その名前のオブジェクトが見つかりません"
+        "Object with name does not exist": "その名前のオブジェクトが見つかりません",
+        "status_transition_forbidden": "ステータスの変更は許可されていません：{{from}} → {{to}}"
     },
     "log": {
         "created": "作成済",
