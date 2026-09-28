@@ -414,7 +414,7 @@
     },
     "auth": {
         "welcome": "ようこそ！",
-        "description": "貨物輸送業務を簡単・効率的に管理。IMB Logistika — 信頼性が高く、迅速で使いやすいシステムです。",
+        "description": "貨物輸送業務を簡単・効率的に管理。IMB Garaj — 信頼性が高く、迅速で使いやすいシステムです。",
         "copyright": "© 2025 IMBTECH LLC. 無断転載禁止。",
         "title": "ログイン",
         "subtitle": "続行するための認証情報を入力してください",

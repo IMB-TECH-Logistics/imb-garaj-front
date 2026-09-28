@@ -87,7 +87,7 @@ function AuthComponent() {
                         <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center">
                             <Truck className="w-6 h-6" />
                         </div>
-                        <span className="text-2xl font-bold">IMB LOGISTIKA</span>
+                        <span className="text-2xl font-bold">GARAJ</span>
                     </div>
                     <div className="h-[55vh] w-full flex flex-col items-center justify-center">
                         <h2 className="text-4xl font-bold mb-4 leading-tight">
