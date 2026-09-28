@@ -360,7 +360,9 @@ export default function AylanmaDetail() {
 
     const orderCols = useOrderCols()
 
-    const pendingSelected = (selectedRows ?? []).filter((r) => !r.salary_given)
+    const pendingSelected = (selectedRows ?? []).filter(
+        (r) => !r.salary_given && r.status === 2,
+    )
 
     const driverName = search?.name?.trim()
     const dateRange =
