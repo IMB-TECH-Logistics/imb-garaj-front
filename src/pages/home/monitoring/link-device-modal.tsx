@@ -8,6 +8,7 @@ import {
     MONITORING_GPS_LIVE,
     VEHICLES,
 } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
@@ -47,8 +48,10 @@ type DeviceForm = {
 
 export function LinkDeviceButton() {
     const { openModal } = useModal(LINK_MODAL)
+    const hasControl = useHasAction("monitoring_control")
 
     const { t } = useTranslation()
+    if (!hasControl) return null
     return (
         <>
             <Button

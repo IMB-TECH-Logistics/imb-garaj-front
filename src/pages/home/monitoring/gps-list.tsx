@@ -6,6 +6,7 @@ import {
     MONITORING_GPS_LIVE,
     VEHICLES,
 } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useConfirm } from "@/hooks/useConfirm"
 import { usePost } from "@/hooks/usePost"
 import { cn } from "@/lib/utils"
@@ -173,6 +174,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
     const confirm = useConfirm()
     const queryClient = useQueryClient()
     const { mutate, isPending } = usePost()
+    const hasControl = useHasAction("monitoring_control")
 
     const unlink = async (item: GpsLiveVehicle) => {
         const ok = await confirm({
@@ -251,7 +253,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                         >
                             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
 
-                            <span className={cn("flex items-center justify-between gap-2", item.vehicle && "pr-7")}>
+                            <span className={cn("flex items-center justify-between gap-2", item.vehicle && hasControl && "pr-7")}>
                                 <span className="flex min-w-0 items-baseline gap-2">
                                     <span className="shrink-0 font-mono text-lg font-bold leading-tight tracking-wider">
                                         {item.vehicle_number || item.tracker_name || item.imei}
@@ -299,7 +301,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                                 </span>
                             </span>
                         </button>
-                        {item.vehicle ? (
+                        {item.vehicle && hasControl ? (
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
