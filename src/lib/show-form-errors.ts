@@ -1,6 +1,18 @@
 import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 
+const errorText = (value: unknown): string => {
+  if (Array.isArray(value)) return value.map(errorText).join(", ")
+  if (value && typeof value === "object") {
+    return Object.entries(value)
+      .map(([key, v]) =>
+        Number.isNaN(Number(key)) ? `${key}: ${errorText(v)}` : errorText(v),
+      )
+      .join(", ")
+  }
+  return String(value)
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleFormError(err: any, form?: UseFormReturn<any>) {
   const isClientError = err?.status !== 0 && Number(err?.status) < 500
@@ -33,9 +45,7 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
     if (arrayErrors.length > 0) {
       toast.error(
         arrayErrors
-          .map(([, value]) =>
-            Array.isArray(value) ? value.join(", ") : String(value),
-          )
+          .map(([, value]) => errorText(value))
           .join("\n"),
         { duration: 5000 },
       )
