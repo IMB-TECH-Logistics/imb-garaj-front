@@ -265,7 +265,8 @@
         "offline": "オフライン",
         "in_garage": "車庫内",
         "idle_stop": "待機停車",
-        "in_queue": "順番待ち"
+        "in_queue": "順番待ち",
+        "draft": "下書き"
     },
     "page": {
         "truck_status_all": "すべて",
@@ -417,7 +418,7 @@
     },
     "auth": {
         "welcome": "ようこそ！",
-        "description": "貨物輸送業務を簡単・効率的に管理。IMB Logistika — 信頼性が高く、迅速で使いやすいシステムです。",
+        "description": "貨物輸送業務を簡単・効率的に管理。IMB Garaj — 信頼性が高く、迅速で使いやすいシステムです。",
         "copyright": "© 2025 IMBTECH LLC. 無断転載禁止。",
         "title": "ログイン",
         "subtitle": "続行するための認証情報を入力してください",
@@ -436,7 +437,8 @@
         "A user with that username already exists": "このユーザー名はすでに使用されています",
         "Ensure this field has no more than 255 characters": "255文字以内で入力してください",
         "Invalid data": "無効なデータ",
-        "Object with name does not exist": "その名前のオブジェクトが見つかりません"
+        "Object with name does not exist": "その名前のオブジェクトが見つかりません",
+        "status_transition_forbidden": "ステータスの変更は許可されていません：{{from}} → {{to}}"
     },
     "log": {
         "created": "作成済",

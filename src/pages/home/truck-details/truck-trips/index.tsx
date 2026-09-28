@@ -44,9 +44,8 @@ const VehicleTrips = () => {
         })
 
         const ordersIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
-        const ordersExpense = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.expense) || 0), 0) || 0
         const residualIncome = Number(trip.other_income) || 0
-        const residualExpense = (Number(trip.total_expense) || 0) - ordersExpense
+        const residualExpense = Number(trip.other_expense) || 0
         const totalIncome = ordersIncome + residualIncome
 
         if (residualIncome || residualExpense) {

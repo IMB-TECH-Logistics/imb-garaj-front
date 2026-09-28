@@ -12,6 +12,7 @@ export const SHIFTS = "hr/"
 export const LOGIN = "auth/login"
 export const LOGOUT = "auth/logout"
 export const PROFILE = "profile"
+export const AUTH_TENANTS = "auth/tenants"
 
 /** ===== TRIPS ===== */
 export const TRIPS_ORDERS_PAYMENT = "trips/order-payments"

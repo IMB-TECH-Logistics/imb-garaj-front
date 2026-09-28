@@ -7,6 +7,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LOGIN } from "@/constants/api-endpoints"
+import { TENANT_STORAGE_KEY } from "@/services/axios-instance"
 import { usePost } from "@/hooks/usePost"
 import { handleFormError } from "@/lib/show-form-errors"
 import { createLazyFileRoute } from "@tanstack/react-router"
@@ -44,6 +45,7 @@ function AuthComponent() {
         mutate(LOGIN, data, {
             onSuccess(res) {
                 localStorage.setItem("token", res.access)
+                localStorage.removeItem(TENANT_STORAGE_KEY)
                 window.location.href = "/"
             },
             onError: (error) => handleFormError(error, form),
@@ -85,7 +87,7 @@ function AuthComponent() {
                         <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center">
                             <Truck className="w-6 h-6" />
                         </div>
-                        <span className="text-2xl font-bold">IMB LOGISTIKA</span>
+                        <span className="text-2xl font-bold">GARAJ</span>
                     </div>
                     <div className="h-[55vh] w-full flex flex-col items-center justify-center">
                         <h2 className="text-4xl font-bold mb-4 leading-tight">

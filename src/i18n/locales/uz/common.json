@@ -274,7 +274,8 @@
         "offline": "Offline",
         "in_garage": "Garajda",
         "idle_stop": "Bekor turish",
-        "in_queue": "Navbatda"
+        "in_queue": "Navbatda",
+        "draft": "Qoralama"
     },
     "page": {
         "truck_status_all": "Barchasi",
@@ -448,7 +449,7 @@
     },
     "auth": {
         "welcome": "Xush kelibsiz!",
-        "description": "Yuk tashish ishlarini oson va tartibli boshqarish endi muammo emas. IMB Logistika — ishonchli, tezkor va qulay tizim siz uchun.",
+        "description": "Yuk tashish ishlarini oson va tartibli boshqarish endi muammo emas. IMB Garaj — ishonchli, tezkor va qulay tizim siz uchun.",
         "copyright": "Mualliflik huquqi © 2025, IMBTECH MChJ. Barcha huquqlar himoyalangan.",
         "title": "Tizimga kirish",
         "subtitle": "Davom etish uchun ma'lumotlaringizni kiriting",
@@ -467,7 +468,8 @@
         "A user with that username already exists": "Bunday foydalanuvchi nomi allaqachon mavjud",
         "Ensure this field has no more than 255 characters": "Bu maydon 255 ta belgidan oshmasligi kerak",
         "Invalid data": "Noto'g'ri ma'lumot",
-        "Object with name does not exist": "Bunday nom bilan ob'ekt topilmadi"
+        "Object with name does not exist": "Bunday nom bilan ob'ekt topilmadi",
+        "status_transition_forbidden": "Status o'zgarishi taqiqlangan: {{from}} → {{to}}"
     },
     "log": {
         "created": "Yaratildi",

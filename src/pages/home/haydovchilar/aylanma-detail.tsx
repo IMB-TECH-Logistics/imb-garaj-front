@@ -175,41 +175,36 @@ function SalaryPayoutModal({
     const qc = useQueryClient()
     const { closeModal, isOpen } = useModal("aylanma-pay-salary")
 
-    const sameTariff = useMemo(() => {
-        if (pending.length === 0) return null
-        const first = pending[0]?.salary_tariff_uzs
-        if (first == null) return null
-        const allSame = pending.every(
-            (o) => Number(o.salary_tariff_uzs) === Number(first),
-        )
-        return allSame ? Number(first) : null
-    }, [pending])
+    const tariffed = useMemo(
+        () => pending.filter((o) => o.salary_tariff_uzs != null),
+        [pending],
+    )
+    const untariffedCount = pending.length - tariffed.length
 
     const tariffSum = useMemo(
         () =>
-            pending.reduce(
+            tariffed.reduce(
                 (acc, o) => acc + num(o.salary_tariff_uzs),
                 0,
             ),
-        [pending],
+        [tariffed],
     )
-    const hasMissingTariff = pending.some((o) => o.salary_tariff_uzs == null)
 
     const form = useForm<PayoutForm>({
         defaultValues: {
-            amount_per_order: sameTariff ?? "",
+            amount_per_order: "",
             comment: "",
         },
     })
-    const { control, handleSubmit, reset, watch, setValue } = form
+    const { control, handleSubmit, reset, watch } = form
     const watchedAmount = watch("amount_per_order")
-    const total = num(watchedAmount) * pending.length
+    const total = tariffSum + num(watchedAmount) * untariffedCount
 
     useEffect(() => {
         if (isOpen) {
-            reset({ amount_per_order: sameTariff ?? "", comment: "" })
+            reset({ amount_per_order: "", comment: "" })
         }
-    }, [isOpen, sameTariff, reset])
+    }, [isOpen, reset])
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
@@ -228,13 +223,13 @@ function SalaryPayoutModal({
 
     const onSubmit = (data: PayoutForm) => {
         const amt = Number(data.amount_per_order)
-        if (!Number.isFinite(amt) || amt <= 0) {
+        if (untariffedCount > 0 && (!Number.isFinite(amt) || amt <= 0)) {
             toast.error(t("toast.error_amount"))
             return
         }
         mutate(`${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/pay-salary`, {
             order_ids: pending.map((r) => r.id),
-            amount_per_order: amt,
+            ...(untariffedCount > 0 ? { amount_per_order: amt } : {}),
             comment: data.comment || null,
         })
     }
@@ -248,48 +243,35 @@ function SalaryPayoutModal({
                         {pending.length} ta
                     </span>
                 </div>
-                {sameTariff != null ? (
+                {tariffed.length > 0 && (
                     <div className="flex justify-between text-emerald-600">
-                        <span>{t("form.amount_per_order")} ({t("actions.confirm")})</span>
-                        <span className="font-medium tabular-nums">
-                            {formatMoney(sameTariff)} UZS
-                        </span>
-                    </div>
-                ) : tariffSum > 0 ? (
-                    <div className="flex justify-between text-amber-600">
-                        <span>Sozlangan tariflar yig‘indisi (turli)</span>
+                        <span>Tarif bo‘yicha ({tariffed.length} ta, o‘zgartirilmaydi)</span>
                         <span className="font-medium tabular-nums">
                             {formatMoney(tariffSum)} UZS
                         </span>
                     </div>
-                ) : null}
-                {hasMissingTariff && (
+                )}
+                {untariffedCount > 0 && tariffed.length > 0 && (
                     <div className="text-[11px] text-amber-600">
-                        Ba’zi reyslar uchun tarif sozlanmagan.
+                        {untariffedCount} ta reys uchun tarif sozlanmagan — summani kiriting.
                     </div>
                 )}
             </div>
 
-            <FormNumberInput
-                required
-                control={control}
-                name="amount_per_order"
-                label={t("form.amount_per_order")}
-                placeholder="Ex: 500 000"
-                thousandSeparator=" "
-                decimalScale={0}
-            />
-
-            {sameTariff != null && Number(watchedAmount) !== sameTariff && (
-                <button
-                    type="button"
-                    className="text-[12px] text-primary text-left underline"
-                    onClick={() =>
-                        setValue("amount_per_order", sameTariff as any)
+            {untariffedCount > 0 && (
+                <FormNumberInput
+                    required
+                    control={control}
+                    name="amount_per_order"
+                    label={
+                        tariffed.length > 0
+                            ? `${t("form.amount_per_order")} (tarifsiz ${untariffedCount} ta)`
+                            : t("form.amount_per_order")
                     }
-                >
-                    {t("form.amount")} ({formatMoney(sameTariff)})
-                </button>
+                    placeholder="Ex: 500 000"
+                    thousandSeparator=" "
+                    decimalScale={0}
+                />
             )}
 
             <FormTextarea

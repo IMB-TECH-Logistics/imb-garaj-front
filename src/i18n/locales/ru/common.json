@@ -265,7 +265,8 @@
         "offline": "Офлайн",
         "in_garage": "В гараже",
         "idle_stop": "Простой",
-        "in_queue": "В очереди"
+        "in_queue": "В очереди",
+        "draft": "Черновик"
     },
     "page": {
         "truck_status_all": "Все",
@@ -417,7 +418,7 @@
     },
     "auth": {
         "welcome": "Добро пожаловать!",
-        "description": "Управляйте грузоперевозками легко и организованно. IMB Logistika — надёжная, быстрая и удобная система для вас.",
+        "description": "Управляйте грузоперевозками легко и организованно. IMB Garaj — надёжная, быстрая и удобная система для вас.",
         "copyright": "Авторские права © 2025, IMBTECH МЧЖ. Все права защищены.",
         "title": "Вход в систему",
         "subtitle": "Введите свои данные для продолжения",
@@ -436,7 +437,8 @@
         "A user with that username already exists": "Пользователь с таким именем уже существует",
         "Ensure this field has no more than 255 characters": "Поле не должно превышать 255 символов",
         "Invalid data": "Некорректные данные",
-        "Object with name does not exist": "Объект с таким именем не найден"
+        "Object with name does not exist": "Объект с таким именем не найден",
+        "status_transition_forbidden": "Смена статуса запрещена: {{from}} → {{to}}"
     },
     "log": {
         "created": "Создано",
