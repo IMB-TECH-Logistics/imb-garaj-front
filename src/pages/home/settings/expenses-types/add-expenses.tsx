@@ -89,13 +89,13 @@ const AddExpensesModal = () => {
                 <FormInput
                     required
                     name="name"
-                    label={t("form.expense_type")}
+                    label={t("form.expense_name")}
                     methods={form}
                 />
                 <FormCombobox
                     required
                     name="type"
-                    label={t("form.expense_type")}
+                    label={t("form.applies_to")}
                     options={EXPENSE_TYPE_OPTIONS}
                     control={form.control}
                     labelKey="label"

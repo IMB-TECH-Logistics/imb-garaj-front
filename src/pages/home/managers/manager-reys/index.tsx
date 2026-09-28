@@ -126,6 +126,7 @@ export default function ManagerReys() {
                 columns={cols}
                 data={data?.results || []}
                 manualSorting
+                stickyActions
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",

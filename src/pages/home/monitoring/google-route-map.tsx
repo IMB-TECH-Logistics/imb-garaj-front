@@ -6,12 +6,14 @@ import {
     PolylineF,
     useJsApiLoader,
 } from "@react-google-maps/api"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { DriverMarker, EndpointDot, PoiMarker } from "./map-markers"
 import type { MapPoint, RouteMapProps } from "./route-map"
 
 const MAX_FIT_ZOOM = 14
+const HIDDEN_WIDTH = 50
+const REFIT_SETTLE_MS = 400
 const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY
 const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 const CONTAINER_STYLE = { width: "100%", height: "100%" }
@@ -47,6 +49,33 @@ export default function GoogleRouteMap({
         region: "UZ",
     })
     const [map, setMap] = useState<google.maps.Map | null>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
+    const [refitTick, setRefitTick] = useState(0)
+
+    useEffect(() => {
+        const node = containerRef.current
+        if (!node) return
+        let hidden = false
+        let timer: ReturnType<typeof setTimeout> | undefined
+        const observer = new ResizeObserver(([entry]) => {
+            if (entry.contentRect.width < HIDDEN_WIDTH) {
+                hidden = true
+                clearTimeout(timer)
+                return
+            }
+            if (!hidden) return
+            clearTimeout(timer)
+            timer = setTimeout(() => {
+                hidden = false
+                setRefitTick((tick) => tick + 1)
+            }, REFIT_SETTLE_MS)
+        })
+        observer.observe(node)
+        return () => {
+            clearTimeout(timer)
+            observer.disconnect()
+        }
+    }, [])
 
     const validSegments = (segments ?? []).filter((s) => s.points.length >= 2)
     const startPoint = points && points.length > 0 ? points[0] : null
@@ -81,10 +110,11 @@ export default function GoogleRouteMap({
             map.fitBounds(bounds, 96)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [map, fitSignature])
+    }, [map, fitSignature, refitTick])
 
     return (
         <div
+            ref={containerRef}
             className={cn(
                 "relative overflow-hidden bg-slate-100 dark:bg-slate-950",
                 className,

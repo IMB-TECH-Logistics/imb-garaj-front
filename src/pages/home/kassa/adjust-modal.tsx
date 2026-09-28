@@ -1,9 +1,13 @@
 import FormTextarea from "@/components/form/textarea"
 import { FormNumberInput } from "@/components/form/number-input"
+import { FormSelect } from "@/components/form/select"
 import { Button } from "@/components/ui/button"
 import {
+    CHECKOUT_BALANCES,
     CHECKOUT_EXPENSE,
-    CHECKOUT_MAIN,
+    CHECKOUT_LOGS,
+    CHECKOUT_PENDING_COUNTS,
+    CHECKOUT_SUMMARY,
     CHECKOUT_TOP_UP,
     CHECKOUT_TRANSACTIONS,
 } from "@/constants/api-endpoints"
@@ -12,45 +16,76 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { handleFormError } from "@/lib/show-form-errors"
 import { useQueryClient } from "@tanstack/react-query"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
+type CheckoutKind = "cash" | "card"
+
 type FormValues = {
     amount: string | number | ""
     comment: string
+    checkout_kind: CheckoutKind
 }
 
 export type CheckoutEditing = {
     id: number
     amount: string
     comment: string | null
+    checkout_kind?: CheckoutKind
 }
 
 type Props = {
     modalKey: string
     kind: "income" | "expense"
     editing?: CheckoutEditing
+    defaultCheckoutKind?: CheckoutKind
 }
 
-const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
+const CheckoutAdjustModal = ({
+    modalKey,
+    kind,
+    editing,
+    defaultCheckoutKind = "cash",
+}: Props) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal, isOpen } = useModal(modalKey)
     const isIncome = kind === "income"
     const url = isIncome ? CHECKOUT_TOP_UP : CHECKOUT_EXPENSE
 
+    const kindOptions = useMemo(
+        () => [
+            { id: "cash", name: t("kassa.cash") },
+            { id: "card", name: t("kassa.card") },
+        ],
+        [t],
+    )
+
     const form = useForm<FormValues>({
-        defaultValues: { amount: "", comment: "" },
+        defaultValues: {
+            amount: "",
+            comment: "",
+            checkout_kind: defaultCheckoutKind,
+        },
     })
     const { control, handleSubmit, reset } = form
 
     useEffect(() => {
-        if (!isOpen) reset({ amount: "", comment: "" })
+        if (!isOpen)
+            reset({
+                amount: "",
+                comment: "",
+                checkout_kind: defaultCheckoutKind,
+            })
         else if (editing)
-            reset({ amount: editing.amount, comment: editing.comment ?? "" })
-    }, [isOpen, editing, reset])
+            reset({
+                amount: editing.amount,
+                comment: editing.comment ?? "",
+                checkout_kind: editing.checkout_kind ?? "cash",
+            })
+    }, [isOpen, editing, reset, defaultCheckoutKind])
 
     const onSuccess = () => {
         toast.success(
@@ -58,8 +93,11 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
             : isIncome ? t("toast.balance_topped_up")
             : t("toast.expense_added"),
         )
-        queryClient.refetchQueries({ queryKey: [CHECKOUT_MAIN] })
+        queryClient.refetchQueries({ queryKey: [CHECKOUT_BALANCES] })
+        queryClient.invalidateQueries({ queryKey: [CHECKOUT_SUMMARY] })
         queryClient.refetchQueries({ queryKey: ["transaction"] })
+        queryClient.invalidateQueries({ queryKey: [CHECKOUT_LOGS] })
+        queryClient.invalidateQueries({ queryKey: [CHECKOUT_PENDING_COUNTS] })
         closeModal()
     }
 
@@ -70,6 +108,7 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
         const payload = {
             amount: Number(values.amount),
             comment: values.comment || null,
+            checkout_kind: values.checkout_kind,
         }
         const options = { onError: (e: unknown) => handleFormError(e, form) }
         if (editing) update(`${CHECKOUT_TRANSACTIONS}/${editing.id}`, payload, options)
@@ -78,6 +117,15 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            <FormSelect
+                required
+                control={control}
+                label={t("kassa.checkout_kind")}
+                name="checkout_kind"
+                options={kindOptions}
+                valueKey="id"
+                labelKey="name"
+            />
             <FormNumberInput
                 required
                 control={control}
@@ -88,8 +136,7 @@ const CheckoutAdjustModal = ({ modalKey, kind, editing }: Props) => {
                 decimalScale={2}
                 allowNegative={false}
                 registerOptions={{
-                    validate: (v) =>
-                        Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                    validate: (v) => Number(v) > 0 || t("kassa.amount_gt_zero"),
                 }}
             />
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />

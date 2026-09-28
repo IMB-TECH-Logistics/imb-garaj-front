@@ -66,8 +66,6 @@ export default function StatusReport({
             }) as any,
         })
 
-    const openTimeline = (v: VehicleRow) =>
-        patch({ sv: "timeline", sveh: v.id, sstatus: undefined, sfrom: undefined })
     const openRoute = (
         v: VehicleRow,
         status: number,
@@ -81,7 +79,7 @@ export default function StatusReport({
     if (sv != null && vehId != null && vehicle == null) {
         if (isLoading) return null
         return (
-            <StatsView onSelect={openTimeline} />
+            <StatsView />
         )
     }
 
@@ -112,6 +110,6 @@ export default function StatusReport({
         )
 
     return (
-        <StatsView onSelect={openTimeline} />
+        <StatsView />
     )
 }

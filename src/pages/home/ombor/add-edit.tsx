@@ -104,6 +104,7 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
             <FormNumberInput
                 required
                 name="unit_price"
+                allowNegative={false}
                 label={t("form.unit_price")}
                 control={control}
                 thousandSeparator=" "
@@ -112,6 +113,7 @@ const OmborAddEdit = ({ current }: { current?: OmborProduct | null }) => {
             <FormNumberInput
                 required
                 name="quantity"
+                allowNegative={false}
                 label={t("form.quantity")}
                 control={control}
                 thousandSeparator=" "

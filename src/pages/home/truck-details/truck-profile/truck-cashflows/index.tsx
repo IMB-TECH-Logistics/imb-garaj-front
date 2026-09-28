@@ -23,7 +23,8 @@ const VehicleCashflows = () => {
                 search: search.cashflow_search,
                 page: search.page,
                 page_size: search.page_size,
-                vehicle:id
+                vehicle:id,
+                ordering: (search as any).ordering,
             },
         },
     )
@@ -45,6 +46,7 @@ const VehicleCashflows = () => {
     return (
         <>
             <DataTable
+                manualSorting
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}

@@ -11,7 +11,7 @@ const LimitOffsetPagination: React.FC<
         previous: string | null | undefined
     }
 > = ({
-    page_sizes = [10, DEFAULT_PAGE_SIZE, 50, 75, 100],
+    page_sizes = [10, 25, 50, 75, 100],
     paramName = "offset",
     pageSizeParamName = "limit",
     disabled = false,

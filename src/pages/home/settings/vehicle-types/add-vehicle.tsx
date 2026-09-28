@@ -12,8 +12,9 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
 const vehicleTypeOptions = [
-    { value: "truck", label: "Avtomobil" },
-    { value: "trailer", label: "Tirkama" },
+    { value: "model", label: "Avtomobil rusumi" },
+    { value: "truck", label: "Avtomobil turi" },
+    { value: "trailer", label: "Tirkama turi" },
 ]
 
 const AddVehicleModal = () => {
@@ -72,7 +73,7 @@ const AddVehicleModal = () => {
                 <FormCombobox
                     required
                     name="type"
-                    label={t("form.vehicle_type")}
+                    label={t("table.type")}
                     options={vehicleTypeOptions}
                     control={form.control}
                     labelKey="label"

@@ -3,8 +3,9 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 const vehicleTypeOptions = [
-    { value: "truck", label: "Avtomobil" },
-    { value: "trailer", label: "Tirkama" },
+    { value: "model", label: "Avtomobil rusumi" },
+    { value: "truck", label: "Avtomobil turi" },
+    { value: "trailer", label: "Tirkama turi" },
 ]
 export const useColumnsVehicleTable = () => {
     const { t } = useTranslation()
@@ -17,7 +18,7 @@ export const useColumnsVehicleTable = () => {
             },
             {
                 accessorKey: "type",
-                header: t("form.vehicle_type"),
+                header: t("table.type"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const typeValue = row.getValue("type")

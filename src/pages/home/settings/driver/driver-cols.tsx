@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatPhoneNumber } from "../customers/phone-number"
 import { useTranslation } from "react-i18next"
+import { formatDriverLicense, formatPassportSerial } from "@/lib/format-driver-docs"
 export const useColumnsDriverTable = () => {
     const { t } = useTranslation()
     return useMemo<ColumnDef<DriversType>[]>(
@@ -27,14 +28,9 @@ export const useColumnsDriverTable = () => {
                 ),
             },
             {
-                accessorKey: "username",
-                header: t("auth.username"),
-                enableSorting: true,
-            },
-            {
                 header: t("form.passport"),
                 enableSorting: false,
-                accessorFn: (row) => row.driver?.passport_serial || "",
+                accessorFn: (row) => formatPassportSerial(row.driver?.passport_serial),
                 cell: ({ row }) => {
                     return row.getValue("passport_number") || "-"
                 },
@@ -52,7 +48,7 @@ export const useColumnsDriverTable = () => {
             {
                 header: t("form.license_number"),
                 enableSorting: false,
-                accessorFn: (row) => row.driver?.driver_license || "",
+                accessorFn: (row) => formatDriverLicense(row.driver?.driver_license),
                 cell: ({ row }) => {
                     return row.getValue("driver_license") || "-"
                 },

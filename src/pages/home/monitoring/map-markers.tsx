@@ -32,7 +32,63 @@ export function EndpointDot({
     )
 }
 
+const TONE_STYLES = {
+    loaded: { border: "border-emerald-500", text: "text-emerald-500", tail: "bg-emerald-500" },
+    empty: { border: "border-sky-500", text: "text-sky-500", tail: "bg-sky-500" },
+    repair: { border: "border-orange-500", text: "text-orange-500", tail: "bg-orange-500" },
+} as const
+
+function TonedTruckMarker({ marker }: { marker: LiveMarker }) {
+    const online = !marker.stale
+    const tone = TONE_STYLES[marker.tone ?? "empty"]
+    return (
+        <button
+            type="button"
+            onClick={marker.onClick}
+            className={cn(
+                "group relative flex flex-col items-center transition will-change-transform hover:-translate-y-0.5 hover:scale-[1.04]",
+                !online && "opacity-70",
+            )}
+        >
+            <div
+                className={cn(
+                    "relative z-10 flex h-9 w-9 -mt-1 items-center justify-center rounded-full border-2 bg-white/95 shadow-lg shadow-slate-900/30 backdrop-blur dark:bg-slate-900/95",
+                    tone.border,
+                    !online && "border-dashed",
+                    marker.selected && "ring-4 ring-primary/40",
+                )}
+            >
+                <Truck className={cn("h-5 w-5", tone.text)} />
+                <span
+                    aria-hidden
+                    className={cn(
+                        "absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-slate-900",
+                        online ? "bg-emerald-500" : "bg-slate-400",
+                    )}
+                />
+            </div>
+            <span className={cn("z-0 -mt-0.5 h-2 w-0.5", tone.tail)} />
+            <div
+                className={cn(
+                    "mt-0.5 max-w-[180px] truncate rounded-md px-1.5 py-0.5 text-[11px] font-semibold shadow-md backdrop-blur-md transition",
+                    online
+                        ? "bg-white/95 text-slate-900 dark:bg-slate-900/95 dark:text-white"
+                        : "bg-slate-200/85 text-slate-700 dark:bg-slate-800/85 dark:text-slate-300",
+                )}
+            >
+                {marker.label}
+            </div>
+            {marker.sub && marker.sub !== marker.label && (
+                <div className="mt-px max-w-[180px] truncate rounded-sm bg-white/85 px-1.5 py-px font-mono text-[10px] font-medium text-slate-600 shadow-sm dark:bg-slate-900/85 dark:text-slate-400">
+                    {marker.sub}
+                </div>
+            )}
+        </button>
+    )
+}
+
 export function DriverMarker({ marker }: { marker: LiveMarker }) {
+    if (marker.icon === "truck" && marker.tone) return <TonedTruckMarker marker={marker} />
     const fresh = !marker.stale
     return (
         <button

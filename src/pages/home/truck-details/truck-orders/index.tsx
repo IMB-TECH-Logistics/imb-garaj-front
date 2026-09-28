@@ -61,7 +61,7 @@ const TruckTripOrderMain = () => {
             <div className="bg-card rounded-md p-3">
                 <Table className="select-text bg-card rounded-md">
                     <TableHeader>
-                        <TableRow className="border-none">
+                        <TableRow className="border-none [&>th]:whitespace-nowrap">
                             <TableHead>#</TableHead>
                             <TableHead>{t("form.loading_location")}</TableHead>
                             <TableHead>{t("form.unloading_location")}</TableHead>

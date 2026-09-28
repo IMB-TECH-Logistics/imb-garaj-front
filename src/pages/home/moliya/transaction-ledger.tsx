@@ -165,7 +165,7 @@ export default function TransactionLedger() {
                                     <option value="avans">Avans</option>
                                 </select>
                             </th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_with_nds")}</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_total")}</th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.balance")}</th>
                             <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.comment")}</th>
                         </tr>

@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import Spinner from "@/components/ui/spinner"
 import { MONITORING_VEHICLE_LAST_ORDER } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
@@ -12,16 +14,6 @@ import type { VehicleLastOrder } from "./types"
 const EXTRA_META: Record<number, { label: string; color: string }> = {
     [ORDER_STATUS.COMPLETED]: { label: "Tugallandi", color: "#94a3b8" },
     [ORDER_STATUS.CANCELED]: { label: "Bekor qilindi", color: "#f87171" },
-}
-
-const LOGISTICS_LABEL: Record<number, string> = {
-    50: "Boshlandi",
-    60: "Yuklash joyida",
-    70: "Yuklanmoqda",
-    80: "Yuklandi, yo'lda",
-    90: "Tushirish joyida",
-    100: "Tugallandi",
-    1000: "Bekor qilindi",
 }
 
 export function orderStatusMeta(garageStatus: number | null | undefined) {
@@ -72,7 +64,22 @@ export function LastOrderCard({ lastOrder, showRoute, onToggleRoute }: CardProps
     const { data, loading, map } = lastOrder
 
     if (loading) {
-        return <div className="rounded-lg border p-3 text-xs text-muted-foreground">Buyurtma yuklanmoqda…</div>
+        return (
+            <section className="flex flex-col gap-3 rounded-lg border p-3" aria-busy="true" aria-label="Oxirgi buyurtma">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Spinner size="sm" />
+                    Buyurtma va GPS ma'lumotlari yuklanmoqda…
+                </div>
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
+                <div className="grid grid-cols-2 gap-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-12 rounded-md" />
+                    ))}
+                </div>
+                <Skeleton className="h-8 rounded-md" />
+            </section>
+        )
     }
     if (!data) return null
     if (!data.available) {
@@ -118,30 +125,6 @@ export function LastOrderCard({ lastOrder, showRoute, onToggleRoute }: CardProps
                     </div>
                 ))}
             </div>
-
-            <div className="text-xs">
-                <span className="text-muted-foreground">Yuklangan: </span>
-                <span className="font-mono tabular-nums">{clock(data.loaded_at)}</span>
-                {data.loaded_at && data.loaded_at_reliable === false && (
-                    <p className="mt-0.5 text-[11px] text-amber-500">
-                        Holatlar bir necha daqiqada ketma-ket belgilangan, vaqt aniq bo'lmasligi mumkin.
-                    </p>
-                )}
-            </div>
-
-            <ol className="flex flex-col gap-1" aria-label="Buyurtma holatlari">
-                {data.statuses.map((s) => (
-                    <li key={`${s.status}-${s.start}`} className="flex items-center gap-2 text-xs">
-                        <span
-                            aria-hidden
-                            className="h-2 w-2 shrink-0 rounded-full"
-                            style={{ backgroundColor: orderStatusMeta(s.garage_status).color }}
-                        />
-                        <span className="flex-1 truncate">{LOGISTICS_LABEL[s.status] ?? s.status_name}</span>
-                        <span className="font-mono tabular-nums text-muted-foreground">{clock(s.start)}</span>
-                    </li>
-                ))}
-            </ol>
 
             {data.stale && (
                 <p className="text-[11px] text-muted-foreground">Logistika hozir javob bermayapti, oxirgi ma'lum holat ko'rsatilmoqda.</p>

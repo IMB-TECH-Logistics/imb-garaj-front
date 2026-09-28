@@ -161,7 +161,7 @@ export default function ManagersTrips() {
                                                         size="sm"
                                                         onClick={() => setIsArchive(true)}
                                                     >
-                                                        Hammasini ko'rish
+                                                        Barchasini ko'rish
                                                     </Button>
                                                 )}
                                             <span className="text-muted-foreground">/</span>

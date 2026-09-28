@@ -17,6 +17,7 @@ interface TableHeaderProps {
     onAdd?: () => void
     count?: number
     extraTitle?: ReactNode
+    extraLeft?: ReactNode
     extraRight?: ReactNode
 }
 
@@ -28,6 +29,7 @@ const TableHeader = ({
     onAdd,
     count,
     extraTitle,
+    extraLeft,
     extraRight,
 }: TableHeaderProps) => {
     const { t } = useTranslation()
@@ -75,6 +77,8 @@ const TableHeader = ({
                     :   "flex items-center justify-between gap-3 w-full"
                 }
             >
+                {extraLeft}
+
                 {searchKey && (
                     <div className={showTitle ? "w-72" : "flex-1"}>
                         <ParamInput

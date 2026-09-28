@@ -33,7 +33,8 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
-import GpsList from "./gps-list"
+import { DimensionEmpty } from "./dimension-row"
+import GpsList, { ConnectionFilterBar, TruckStatusFilterBar, type ConnectionFilter } from "./gps-list"
 import { LastOrderCard, useVehicleLastOrder } from "./order-card"
 import { useGpsLiveSocket } from "./gps-socket"
 import { TrackerHistoryPanel, useTrackerHistory } from "./tracker-history"
@@ -59,8 +60,9 @@ import type {
     VehicleTracking,
     GpsLiveVehicle,
     VehicleLastOrders,
+    TruckStatusFilter,
 } from "./types"
-import { EMPTY_FILTERS, isHistoricalView, todayIso } from "./types"
+import { EMPTY_FILTERS, TRUCK_STATUS_FILTERS, isHistoricalView, todayIso, truckStatusOf } from "./types"
 import VehicleList from "./vehicle-list"
 
 const LIVE_REFRESH_MS = 30_000
@@ -147,11 +149,13 @@ export default function MonitoringView() {
     const liveConnected = useGpsLiveSocket(!historical)
     const gpsLive = useGet<GpsLiveVehicle[]>(MONITORING_GPS_LIVE, {
         options: {
-            refetchInterval: historical
-                ? false
-                : liveConnected
-                  ? GPS_FALLBACK_MS
-                  : GPS_REFRESH_MS,
+            retry: 1,
+            refetchInterval: (query) =>
+                historical
+                    ? false
+                    : query.state.status === "error" || liveConnected
+                      ? GPS_FALLBACK_MS
+                      : GPS_REFRESH_MS,
             refetchIntervalInBackground: false,
         },
     })
@@ -221,6 +225,39 @@ export default function MonitoringView() {
         () => Object.fromEntries((lastOrders.data?.results ?? []).map((o) => [o.vehicle, o])),
         [lastOrders.data],
     )
+    const truckStatus: TruckStatusFilter = TRUCK_STATUS_FILTERS.includes(search?.truck_status)
+        ? search.truck_status
+        : "all"
+    const setTruckStatus = (next: TruckStatusFilter) =>
+        patchSearch({ truck_status: next === "all" ? undefined : next })
+    const truckStatusCounts = useMemo(() => {
+        const counts: Record<TruckStatusFilter, number> = { all: 0, loaded: 0, empty: 0, repair: 0 }
+        for (const g of gpsLive.data ?? []) {
+            counts.all += 1
+            counts[truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined)] += 1
+        }
+        return counts
+    }, [gpsLive.data, ordersByVehicle])
+    const connection: ConnectionFilter =
+        search?.conn === "online" || search?.conn === "offline" ? search.conn : "all"
+    const setConnection = (next: ConnectionFilter) =>
+        patchSearch({ conn: next === "all" ? undefined : next })
+    const connectionCounts = useMemo(() => {
+        const all = gpsLive.data ?? []
+        const online = all.filter((g) => g.status === "online").length
+        return { all: all.length, online, offline: all.length - online }
+    }, [gpsLive.data])
+    const cargoItems = useMemo(
+        () =>
+            (gpsLive.data ?? []).filter(
+                (g) =>
+                    (truckStatus === "all" ||
+                        truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined) ===
+                            truckStatus) &&
+                    (connection === "all" || (g.status === "online") === (connection === "online")),
+            ),
+        [gpsLive.data, ordersByVehicle, truckStatus, connection],
+    )
     const selectTracker = (imei: string | null) => {
         setShowOrderRoute(false)
         setTrackerImei(imei)
@@ -228,7 +265,7 @@ export default function MonitoringView() {
 
     const gpsMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
-        return (gpsLive.data ?? [])
+        return cargoItems
             .filter((g) => g.lat != null && g.lng != null)
             .map((g) => ({
                 id: `gps-${g.imei}`,
@@ -241,10 +278,11 @@ export default function MonitoringView() {
                         : g.driver_name ?? undefined,
                 stale: g.status !== "online",
                 icon: "truck" as const,
+                tone: truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined),
                 selected: g.imei === trackerImei,
                 onClick: () => selectTracker(g.imei),
             }))
-    }, [gpsLive.data, historical, trackerImei])
+    }, [cargoItems, historical, trackerImei, ordersByVehicle])
 
     const liveMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
@@ -466,9 +504,6 @@ export default function MonitoringView() {
                     {mode === "map" &&
                         (freshCount != null ? (
                             <>
-                                <Badge variant="secondary">
-                                    {t("status.online")} · {freshCount} / {gpsItems.length}
-                                </Badge>
                                 {liveConnected && (
                                     <Badge
                                         variant="outline"
@@ -571,7 +606,21 @@ export default function MonitoringView() {
                     )}
                 >
                     <Card className="relative overflow-hidden">
-                        <CardContent className="p-0">
+                        <CardContent className="relative p-0">
+                            {!historical && !trackerImei && (gpsLive.data?.length ?? 0) > 0 && (
+                                <div className="absolute left-3 top-3 z-[500] flex flex-wrap items-start gap-2">
+                                    <TruckStatusFilterBar
+                                        value={truckStatus}
+                                        onChange={setTruckStatus}
+                                        counts={truckStatusCounts}
+                                    />
+                                    <ConnectionFilterBar
+                                        value={connection}
+                                        onChange={setConnection}
+                                        counts={connectionCounts}
+                                    />
+                                </div>
+                            )}
                             <RouteMap
                                 height="calc(100vh - 200px)"
                                 markers={mapMarkers}
@@ -624,7 +673,7 @@ export default function MonitoringView() {
                             )}
                             <CardTitle className="truncate text-sm font-semibold">
                                 {mode === "report"
-                                    ? t("table.truck_status")
+                                    ? t("table.orders_history")
                                     : selectedId != null && selectedDriverName
                                       ? selectedDriverName
                                       : panelTitle}
@@ -709,13 +758,20 @@ export default function MonitoringView() {
                                     )}
                                 </TrackerHistoryPanel>
                             ) : (
+                                <>
+                                {(truckStatus !== "all" || connection !== "all") && cargoItems.length === 0 && gpsItems.length > 0 ? (
+                                    <DimensionEmpty title={t("page.not_found")} />
+                                ) : (
                                 <GpsList
-                                    items={gpsItems}
+                                    items={cargoItems}
                                     loading={gpsLive.isLoading}
+                                    unavailable={gpsLive.isError}
                                     orders={ordersByVehicle}
                                     activeImei={trackerImei}
                                     onSelect={(item) => selectTracker(item.imei)}
                                 />
+                                )}
+                                </>
                             )
                         ) : dimension === "order" ? (
                             <OrderList

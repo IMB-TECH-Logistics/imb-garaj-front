@@ -1,46 +1,49 @@
-import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 import type { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
 import { useMemo } from "react"
-import { NumericFormat } from "react-number-format"
 import { useTranslation } from "react-i18next"
 import {
+    formatDate,
     useDirectionColumns,
     type DirectionRow,
+    type DriverSalaryHistoryItem,
 } from "../route-configs/cols"
 
-export type SalaryFilterSourceKey =
-    | "regions"
-    | "clients"
-    | "cargo_types"
-    | "payment_types"
-    | "owner_codes"
-    | "salary_amounts"
+export const localTodayIso = () => format(new Date(), "yyyy-MM-dd")
+
+export const upcomingSalary = (
+    history?: DriverSalaryHistoryItem[],
+): DriverSalaryHistoryItem | undefined => {
+    const today = localTodayIso()
+    return [...(history ?? [])]
+        .filter((h) => h.valid_from > today)
+        .sort((a, b) => a.valid_from.localeCompare(b.valid_from))[0]
+}
+
+export type SalaryFilterSourceKey = "regions" | "cargo_types" | "salary_amounts"
+
+const HIDDEN_SALARY_COLUMNS = new Set([
+    "owner_code",
+    "owner_name",
+    "payment_type_name",
+    "currency",
+])
 
 export const SALARY_FILTER_COLUMNS: Array<{
     value: string
     label: string
     source?: SalaryFilterSourceKey
 }> = [
-    { value: "owner_code", label: "Firma kodi", source: "owner_codes" },
     { value: "load", label: "Yuklash manzili", source: "regions" },
     { value: "unload", label: "Yuk tushirish manzili", source: "regions" },
-    { value: "owner", label: "Yuk egasi", source: "clients" },
     { value: "cargo_type", label: "Yuk turi", source: "cargo_types" },
-    { value: "payment_type", label: "To'lov turi", source: "payment_types" },
-    {
-        value: "driver_salary_amount",
-        label: "Beriladigan oylik (UZS)",
-        source: "salary_amounts",
-    },
 ]
 
 export type SalaryFilterSources = Partial<
-    Record<
-        "regions" | "clients" | "cargo_types" | "payment_types",
-        { id: number | string; name: string }[]
-    >
+    Record<"regions" | "cargo_types", { id: number | string; name: string }[]>
 > &
-    Partial<Record<"owner_codes" | "salary_amounts", string[]>>
+    Partial<Record<"salary_amounts", string[]>>
 
 const stripDecZeros = (raw: string): string => {
     if (!raw.includes(".")) return raw
@@ -74,7 +77,7 @@ export const filterSalaryRows = (
     )
 }
 
-const formatPriceLabel = (raw: string): string => {
+export const formatPriceLabel = (raw: string): string => {
     const [intPart, decPart] = stripDecZeros(raw).split(".")
     const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
     return decPart ? `${grouped}.${decPart}` : grouped
@@ -127,74 +130,54 @@ export const buildSalaryFilterOptions = (
     return out
 }
 
-type EditableOpts = {
-    editable: boolean
-    disabled?: boolean
-    getEdit: (id: number) => string | undefined
-    onChange: (id: number, value: string) => void
-}
-
-const InlinePriceCell = ({
-    row,
-    opts,
-}: {
-    row: DirectionRow
-    opts: EditableOpts
-}) => {
-    const original = stripDecZeros(String(row.driver_salary_amount ?? "0"))
-    const editVal = opts.getEdit(row.id)
-    const value = editVal ?? original
-    const dirty = editVal !== undefined && editVal !== original
+const SalaryAmountCell = ({ row }: { row: DirectionRow }) => {
+    const { t } = useTranslation()
+    const next = upcomingSalary(row.driver_salary_history)
     return (
-        <NumericFormat
-            thousandSeparator=" "
-            allowNegative={false}
-            value={value}
-            disabled={opts.disabled}
-            onValueChange={(v) => opts.onChange(row.id, v.value)}
-            onClick={(e) => e.stopPropagation()}
-            className={cn(
-                "h-8 w-full rounded-md px-2 text-sm outline-none",
-                "bg-background/70 dark:bg-background/40",
-                "border border-input/70 hover:border-input",
-                "focus:border-ring focus:ring-1 focus:ring-ring focus:bg-background",
-                dirty &&
-                    "border-orange-500 bg-orange-500/10 focus:border-orange-500 focus:ring-orange-500",
-                opts.disabled &&
-                    "opacity-60 cursor-not-allowed hover:border-input/70",
+        <div className="flex flex-wrap items-center gap-2">
+            <span>{formatPriceLabel(row.driver_salary_amount ?? "0")}</span>
+            {next && (
+                <Badge variant="outline" className="whitespace-nowrap">
+                    {t("page.salary_upcoming")}: {formatDate(next.valid_from)}{" "}
+                    — {formatPriceLabel(String(next.amount))}
+                </Badge>
             )}
-        />
+        </div>
     )
 }
 
-export const useSalaryColumns = (opts?: EditableOpts) => {
+export const useSalaryColumns = () => {
     const { t } = useTranslation()
     const base = useDirectionColumns()
     return useMemo<ColumnDef<DirectionRow>[]>(
         () =>
             base
-                .filter((c) => (c as any).accessorKey !== "currency")
-                .map((c) => {
-                    if ((c as any).accessorKey !== "current_price") return c
-                    const patched: ColumnDef<DirectionRow> = {
+                .filter(
+                    (c) => !HIDDEN_SALARY_COLUMNS.has((c as any).accessorKey),
+                )
+                .flatMap((c) => {
+                    const key = (c as any).accessorKey
+                    if (key !== "current_price") return [c]
+                    const validFromCol: ColumnDef<DirectionRow> = {
+                        id: "driver_salary_valid_from",
+                        accessorKey: "driver_salary_valid_from",
+                        header: t("page.valid_from"),
+                        enableSorting: true,
+                        cell: ({ row }) =>
+                            formatDate(row.original.driver_salary_valid_from),
+                    }
+                    const amountCol: ColumnDef<DirectionRow> = {
                         ...c,
+                        id: "driver_salary_amount",
+                        accessorKey: "driver_salary_amount",
                         header: t("table.salary_monthly_uzs"),
+                        enableSorting: true,
+                        cell: ({ row }) => (
+                            <SalaryAmountCell row={row.original} />
+                        ),
                     }
-                    if (opts?.editable) {
-                        patched.cell = ({ row }) => (
-                            <InlinePriceCell row={row.original} opts={opts} />
-                        )
-                    } else {
-                        patched.cell = ({ row }) => (
-                            <span>
-                                {formatPriceLabel(
-                                    row.original.driver_salary_amount ?? "0",
-                                )}
-                            </span>
-                        )
-                    }
-                    return patched
+                    return [amountCol, validFromCol]
                 }),
-        [base, opts?.editable, opts?.disabled, opts?.getEdit, opts?.onChange, t],
+        [base, t],
     )
 }
