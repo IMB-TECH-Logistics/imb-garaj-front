@@ -175,6 +175,11 @@ function LinkDeviceForm() {
                     onSearchChange={setDeviceSearch}
                     onAdd={openAddDevice}
                 />
+                {devices.isError && (
+                    <p className="text-xs text-destructive">
+                        GPS xizmati vaqtincha ishlamayapti
+                    </p>
+                )}
                 <Button type="submit" className="w-full" disabled={isPending}>
                     {t("actions.attach")}
                 </Button>
