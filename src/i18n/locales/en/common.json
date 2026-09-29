@@ -110,6 +110,8 @@
         "city": "City",
         "load_place": "Loading place",
         "unload_place": "Unloading place",
+        "load_region": "Loading region",
+        "unload_region": "Unloading region",
         "address": "Address",
         "phone": "Phone",
         "expense_name": "Name",

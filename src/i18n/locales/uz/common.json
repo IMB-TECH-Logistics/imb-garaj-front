@@ -110,6 +110,8 @@
         "city": "Shahar",
         "load_place": "Yuklash manzili",
         "unload_place": "Yuk tushirish manzili",
+        "load_region": "Yuklash viloyati",
+        "unload_region": "Yuk tushirish viloyati",
         "address": "Manzil",
         "phone": "Telefon",
         "expense_name": "Nomi",

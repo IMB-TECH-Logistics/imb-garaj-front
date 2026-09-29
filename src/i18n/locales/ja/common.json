@@ -110,6 +110,8 @@
         "city": "都市",
         "load_place": "積込場所",
         "unload_place": "荷降ろし場所",
+        "load_region": "積込地域",
+        "unload_region": "荷降ろし地域",
         "address": "住所",
         "phone": "電話",
         "expense_name": "名称",

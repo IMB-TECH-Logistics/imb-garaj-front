@@ -84,9 +84,9 @@ export const useDirectionColumns = () => {
     return useMemo<ColumnDef<DirectionRow>[]>(
         () => [
             { accessorKey: "owner_code", header: t("form.company_code"), enableSorting: true, size: 100 },
-            { accessorKey: "load_city_name", header: t("form.city"), enableSorting: true, cell: ({ row }) => row.original.load_city_name || row.original.load_name || "—" },
+            { accessorKey: "load_city_name", header: t("form.load_region"), enableSorting: true, cell: ({ row }) => row.original.load_city_name || row.original.load_name || "—" },
             { accessorKey: "load_place_display", header: t("form.load_place"), enableSorting: false, cell: ({ row }) => row.original.load_place_display || "—" },
-            { accessorKey: "unload_city_name", header: t("form.city"), enableSorting: true, cell: ({ row }) => row.original.unload_city_name || row.original.unload_name || "—" },
+            { accessorKey: "unload_city_name", header: t("form.unload_region"), enableSorting: true, cell: ({ row }) => row.original.unload_city_name || row.original.unload_name || "—" },
             { accessorKey: "unload_place_display", header: t("form.unload_place"), enableSorting: false, cell: ({ row }) => row.original.unload_place_display || "—" },
             { accessorKey: "owner_name", header: t("form.cargo_owner"), enableSorting: true },
             { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
