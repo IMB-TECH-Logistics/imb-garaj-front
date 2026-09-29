@@ -18,7 +18,7 @@ export default function Managers() {
                 page_size:search.page_size,
                 page:search.page,
                 search:search.search,
-                ordering:(search as Record<string, any>).ordering,
+                ordering:(search as Record<string, any>).ordering ?? "pending_orders",
             }
         })
     const navigate = useNavigate()
