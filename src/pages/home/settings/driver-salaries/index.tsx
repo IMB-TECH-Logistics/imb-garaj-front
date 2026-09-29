@@ -36,6 +36,8 @@ type Direction = {
     load_name: string
     unload: number
     unload_name: string
+    load_city_name?: string | null
+    unload_city_name?: string | null
     cargo_type: number
     cargo_type_name: string
     payment_type: number
@@ -52,6 +54,12 @@ type Direction = {
 type SelectItem = { id: number | string; name: string }
 
 const filterParam = (key: string) => `sf_${key}`
+
+const regionPlace = (
+    cityName: string | null | undefined,
+    regionName: string | null | undefined,
+): string | null =>
+    cityName && regionName && cityName !== regionName ? regionName : null
 
 const DriverSalariesPage = () => {
     const { t } = useTranslation()
@@ -154,6 +162,13 @@ const DriverSalariesPage = () => {
                 load_name: d.load_name ?? String(d.load),
                 unload: d.unload,
                 unload_name: d.unload_name ?? String(d.unload),
+                load_city_name: d.load_city_name,
+                unload_city_name: d.unload_city_name,
+                load_place_display: regionPlace(d.load_city_name, d.load_name),
+                unload_place_display: regionPlace(
+                    d.unload_city_name,
+                    d.unload_name,
+                ),
                 cargo_type: d.cargo_type,
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
                 payment_type: d.payment_type,
