@@ -28,6 +28,7 @@ const AddTrip = () => {
             driver: currentShift?.driver,
             vehicle: currentShift?.vehicle,
             start: currentShift?.start,
+            end: currentShift?.end,
         },
     })
 
