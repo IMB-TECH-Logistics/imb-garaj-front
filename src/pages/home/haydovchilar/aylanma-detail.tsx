@@ -36,6 +36,8 @@ type OrderRow = {
 }
 
 const num = (v: unknown) => Number(v ?? 0) || 0
+const plainMoney = (v: number) =>
+    Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
 
 const ORDER_STATUS_KEY: Record<number, string> = {
     0: "status.pending",
@@ -162,6 +164,7 @@ const useOrderCols = () => {
 
 type PayoutForm = {
     amount_per_order: number | string | ""
+    given_amount: number | string | ""
     comment: string
 }
 
@@ -195,19 +198,30 @@ function SalaryPayoutModal({
         [tariffed],
     )
 
+    const { data: overview } = useGet<{ salary_balance_uzs?: string | number }>(
+        `${DRIVERS_OVERVIEW}/${driverId}/overview`,
+        { enabled: isOpen },
+    )
+    const balance = num(overview?.salary_balance_uzs)
+
     const form = useForm<PayoutForm>({
         defaultValues: {
             amount_per_order: "",
+            given_amount: "",
             comment: "",
         },
     })
     const { control, handleSubmit, reset, watch } = form
     const watchedAmount = watch("amount_per_order")
+    const watchedGiven = watch("given_amount")
     const total = tariffSum + num(watchedAmount) * untariffedCount
+    const suggested = Math.max(total - balance, 0)
+    const given = watchedGiven === "" || watchedGiven == null ? suggested : num(watchedGiven)
+    const difference = given - total
 
     useEffect(() => {
         if (isOpen) {
-            reset({ amount_per_order: "", comment: "" })
+            reset({ amount_per_order: "", given_amount: "", comment: "" })
         }
     }, [isOpen, reset])
 
@@ -237,6 +251,7 @@ function SalaryPayoutModal({
         mutate(`${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/pay-salary`, {
             order_ids: pending.map((r) => r.id),
             ...(untariffedCount > 0 && hasAmt ? { amount_per_order: amt } : {}),
+            given_amount: given,
             comment: data.comment || null,
         })
     }
@@ -281,17 +296,52 @@ function SalaryPayoutModal({
                 />
             )}
 
+            {balance !== 0 && (
+                <div className="text-xs text-amber-600">
+                    Oldingi oylik farqi:{" "}
+                    {balance > 0
+                        ? `haydovchi qarzi ${plainMoney(balance)} UZS`
+                        : `haydovchiga qarzdormiz ${plainMoney(-balance)} UZS`}
+                </div>
+            )}
+
+            <FormNumberInput
+                control={control}
+                name="given_amount"
+                label="Berilgan pul"
+                placeholder={plainMoney(suggested)}
+                thousandSeparator=" "
+                decimalScale={0}
+            />
+
             <FormTextarea
                 methods={form}
                 label={t("form.optional_comment")}
                 name="comment"
             />
 
-            <div className="rounded-md border border-dashed p-2 text-sm flex justify-between">
-                <span className="text-muted-foreground">{t("form.expense")}</span>
-                <span className="font-semibold tabular-nums">
-                    {formatMoney(total)} UZS
-                </span>
+            <div className="rounded-md border border-dashed p-2 text-sm flex flex-col gap-1">
+                <div className="flex justify-between">
+                    <span className="text-muted-foreground">{t("form.expense")}</span>
+                    <span className="font-semibold tabular-nums">
+                        {formatMoney(total)} UZS
+                    </span>
+                </div>
+                <div className="flex justify-between">
+                    <span className="text-muted-foreground">Berilgan pul</span>
+                    <span className="font-semibold tabular-nums">
+                        {formatMoney(given)} UZS
+                    </span>
+                </div>
+                {difference !== 0 && (
+                    <div className="flex justify-between text-amber-600">
+                        <span>Farq haydovchi balansida qoladi</span>
+                        <span className="font-semibold tabular-nums">
+                            {difference > 0 ? "+" : "−"}
+                            {formatMoney(Math.abs(difference))} UZS
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className="flex justify-end pt-1 gap-2">
