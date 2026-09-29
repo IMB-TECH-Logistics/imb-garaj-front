@@ -200,7 +200,8 @@ function ArrowDownIcon() {
     )
 }
 
-function StatCard({ label, value, icon, color, hint }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string }) {
+function StatCard({ label, value, icon, color, hint, failed }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string; failed?: boolean }) {
+    const { t } = useTranslation()
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",
@@ -213,8 +214,12 @@ function StatCard({ label, value, icon, color, hint }: { label: string; value: n
             </div>
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="text-sm font-semibold truncate">{fmt(value)} so'm</p>
-                {hint && <p className="text-[10px] text-muted-foreground truncate">{hint}</p>}
+                <p className="text-sm font-semibold truncate">{failed ? "—" : `${fmt(value)} so'm`}</p>
+                {failed ? (
+                    <p className="text-[10px] text-destructive truncate">{t("messages.not_loaded")}</p>
+                ) : (
+                    hint && <p className="text-[10px] text-muted-foreground truncate">{hint}</p>
+                )}
             </div>
         </div>
     )
@@ -233,7 +238,7 @@ export default function MoliyaPage() {
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const pageRef = useRef<HTMLDivElement>(null)
     const search: any = useSearch({ strict: false })
-    const { data: summary } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+    const { data: summary, isError: summaryFailed } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
 
@@ -264,12 +269,14 @@ export default function MoliyaPage() {
                     value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
+                    failed={summaryFailed}
                 />
                 <StatCard
                     label={t("form.income")}
                     value={Number(summary?.income_total ?? 0)}
                     icon={<ArrowUpIcon />}
                     color="emerald"
+                    failed={summaryFailed}
                 />
                 <StatCard
                     label={t("form.expense")}
@@ -277,6 +284,7 @@ export default function MoliyaPage() {
                     hint={`Avans: ${fmt(Number(summary?.advance_total ?? 0))} so'm (xarajatga kirmaydi)`}
                     icon={<ArrowDownIcon />}
                     color="red"
+                    failed={summaryFailed}
                 />
             </div>
 

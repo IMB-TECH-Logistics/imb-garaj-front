@@ -78,7 +78,9 @@
         "fill_fields": "Iltimos, barcha maydonlarni to'g'ri to'ldiring",
         "no_connection": "Server bilan bog'lanib bo'lmadi. Internet aloqasini tekshiring va qayta urinib ko'ring.",
         "server_error": "Amal bajarilmadi — serverda xatolik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring. ({{status}})",
-        "request_timeout": "So'rov javobi kutilgan vaqtda kelmadi. Iltimos, qayta urinib ko'ring."
+        "request_timeout": "So'rov javobi kutilgan vaqtda kelmadi. Iltimos, qayta urinib ko'ring.",
+        "load_error": "Ma'lumotni yuklab bo'lmadi — serverda xatolik yuz berdi. Ko'rsatilgan raqamlar to'liq emas bo'lishi mumkin, birozdan so'ng sahifani yangilang. ({{status}})",
+        "not_loaded": "Yuklanmadi"
     },
     "lang": {
         "uz": "O'zbek",

@@ -37,7 +37,7 @@ const FinanceStatisticMain = () => {
     const isValidRange = (!search?.from_date && !search?.to_date) ||
         (!!search?.from_date && !!search?.to_date && new Date(search.from_date) <= new Date(search.to_date))
 
-    const { data: statisticsData, isLoading } = useGet<OwnerStatistic[]>(
+    const { data: statisticsData, isLoading, isError } = useGet<OwnerStatistic[]>(
         OWNER_MAIN_STATISTIC,
         {
             params: {
@@ -137,7 +137,7 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalExpense)} so'm
+                                        {isError ? "—" : `${formatMoney(totals.totalExpense)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -156,7 +156,7 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalIncome)} so'm
+                                        {isError ? "—" : `${formatMoney(totals.totalIncome)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -183,7 +183,7 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalProfit)} so'm
+                                        {isError ? "—" : `${formatMoney(totals.totalProfit)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>

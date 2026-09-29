@@ -20,8 +20,13 @@ const getBaseURL = () => {
 
 export const baseURL = getBaseURL()
 
+export const REQUEST_TIMEOUT = 60 * 1000
+
+const TRANSFER_TIMEOUT = 5 * 60 * 1000
+
 const axiosInstance = axios.create({
     baseURL,
+    timeout: REQUEST_TIMEOUT,
 })
 
 export const getAccessToken = () => localStorage.getItem("token")
@@ -45,6 +50,9 @@ export const getTenantFilter = () =>
 
 axiosInstance.interceptors.request.use(
     (config) => {
+        if (config.responseType === "blob" || config.data instanceof FormData) {
+            config.timeout = Math.max(config.timeout ?? 0, TRANSFER_TIMEOUT)
+        }
         const token = getAccessToken()
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
@@ -97,7 +105,11 @@ const refreshAccessToken = (failedToken: string | null) => {
     if (!refresh) return Promise.resolve(null)
     if (!refreshPromise) {
         refreshPromise = axios
-            .post(`${baseURL}/auth/refresh/`, { refresh })
+            .post(
+                `${baseURL}/auth/refresh/`,
+                { refresh },
+                { timeout: REQUEST_TIMEOUT },
+            )
             .then(({ data }) => {
                 localStorage.setItem("token", data.access)
                 localStorage.setItem(REFRESH_STORAGE_KEY, data.refresh)

@@ -1,11 +1,16 @@
-import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import {
+    MutationCache,
+    QueryCache,
+    QueryClient,
+    QueryClientProvider,
+} from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { RouterProvider, createRouter } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
 import { I18nextProvider } from "react-i18next"
 import "./main.css"
 import i18n from "@/i18n/i18n"
-import { handleFormError } from "@/lib/show-form-errors"
+import { handleFormError, handleQueryError } from "@/lib/show-form-errors"
 import { routeTree } from "./routeTree.gen"
 
 const RELOAD_KEY = "vite:chunk-reload"
@@ -34,6 +39,12 @@ window.addEventListener("unhandledrejection", (event) => {
 })
 
 const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+        onError: (error, query) => {
+            if (query.meta?.skipGlobalError) return
+            handleQueryError(error)
+        },
+    }),
     mutationCache: new MutationCache({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any, _variables, _context, mutation) => {
@@ -45,6 +56,9 @@ const queryClient = new QueryClient({
     }),
     defaultOptions: {
         queries: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            retry: (count, error: any) =>
+                count < 3 && error?.code !== "ECONNABORTED",
             refetchOnWindowFocus: false,
             refetchOnMount: false,
         },

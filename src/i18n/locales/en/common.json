@@ -78,7 +78,9 @@
         "fill_fields": "Please fill in all fields correctly",
         "no_connection": "Could not connect to the server. Please check your internet connection.",
         "server_error": "Action failed — a server error occurred. Please try again later. ({{status}})",
-        "request_timeout": "The request did not receive a response in time. Please try again."
+        "request_timeout": "The request did not receive a response in time. Please try again.",
+        "load_error": "Could not load data — a server error occurred. Figures shown may be incomplete; please refresh later. ({{status}})",
+        "not_loaded": "Not loaded"
     },
     "lang": {
         "uz": "O'zbek",
