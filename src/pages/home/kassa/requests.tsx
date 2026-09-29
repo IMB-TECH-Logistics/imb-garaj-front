@@ -257,6 +257,8 @@ const CheckoutRequests = ({ switcher }: Props) => {
                         }
                         onUndo={canDecide ? () => handleReject(row) : undefined}
                     />
+                : row.status === 20 && profile?.is_superuser ?
+                    <TableActions onDelete={() => handleDelete(row)} />
                 :   null
             }}
             wrapperClassName="md:h-full flex flex-col"
@@ -326,7 +328,7 @@ const CheckoutRequests = ({ switcher }: Props) => {
             modalKey="checkout-request-delete"
             path={CHECKOUT_REQUESTS}
             id={selected?.id}
-            refetchKeys={[CHECKOUT_REQUESTS, CHECKOUT_PENDING_COUNTS]}
+            refetchKeys={[CHECKOUT_REQUESTS, CHECKOUT_PENDING_COUNTS, CHECKOUT_SUMMARY]}
         />
         </>
     )
