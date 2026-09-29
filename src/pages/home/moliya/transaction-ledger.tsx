@@ -117,7 +117,7 @@ export default function TransactionLedger() {
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
+            <div className="pl-4 pr-12 pt-3 pb-2 shrink-0 flex items-center justify-between">
                 <h3 className="text-xs font-semibold">{t("page.transactions")}</h3>
                 <span className="text-[10px] text-muted-foreground">{data?.count ?? 0} ta</span>
             </div>
