@@ -441,7 +441,8 @@
         "subtitle": "Enter your credentials to continue",
         "username": "Username",
         "password": "Password",
-        "submit": "Sign in"
+        "submit": "Sign in",
+        "invalid_credentials": "Invalid username or password"
     },
     "backend_messages": {
         "Username or password is incorrect": "Username or password is incorrect",
@@ -477,7 +478,8 @@
         "invalid_date": "Select a date",
         "select_required": "Select {{field}}",
         "field_required": "{{field}} is required",
-        "numbers_only": "Enter numbers only"
+        "numbers_only": "Enter numbers only",
+        "reserved_username": "Usernames starting with \"{{prefix}}\" are reserved by the system"
     },
     "monitoring_stats": {
         "date": "Date",

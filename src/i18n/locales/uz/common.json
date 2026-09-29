@@ -472,7 +472,8 @@
         "subtitle": "Davom etish uchun ma'lumotlaringizni kiriting",
         "username": "Login",
         "password": "Parol",
-        "submit": "Kirish"
+        "submit": "Kirish",
+        "invalid_credentials": "Login yoki parol noto'g'ri"
     },
     "backend_messages": {
         "Username or password is incorrect": "Login yoki parol noto'g'ri",
@@ -508,7 +509,8 @@
         "invalid_date": "Sanani tanlang",
         "select_required": "{{field}} tanlang",
         "field_required": "{{field}} kiritilishi shart",
-        "numbers_only": "Faqat raqam kiriting"
+        "numbers_only": "Faqat raqam kiriting",
+        "reserved_username": "\"{{prefix}}\" bilan boshlanadigan login tizim uchun band"
     },
     "monitoring_stats": {
         "date": "Sana",
