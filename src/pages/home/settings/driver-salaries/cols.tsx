@@ -136,6 +136,11 @@ const SalaryAmountCell = ({ row }: { row: DirectionRow }) => {
     return (
         <div className="flex flex-wrap items-center gap-2">
             <span>{formatPriceLabel(row.driver_salary_amount ?? "0")}</span>
+            {row.driver_salary_amount == null && (
+                <Badge variant="destructive" className="whitespace-nowrap">
+                    {t("form.tariff_no")}
+                </Badge>
+            )}
             {next && (
                 <Badge variant="outline" className="whitespace-nowrap">
                     {t("page.salary_upcoming")}: {formatDate(next.valid_from)}{" "}

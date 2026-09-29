@@ -32,6 +32,7 @@ type OrderRow = {
     salary_paid_uzs: string | number
     salary_given: boolean
     salary_tariff_uzs: string | number | null
+    salary_tariff_missing?: boolean
 }
 
 const num = (v: unknown) => Number(v ?? 0) || 0
@@ -118,7 +119,11 @@ const useOrderCols = () => {
                 cell: ({ row }) => {
                     const v = row.original.salary_tariff_uzs
                     if (v == null)
-                        return <span className="text-amber-500">{t("form.tariff_no")}</span>
+                        return (
+                            <Badge variant="destructive" className="w-fit whitespace-nowrap">
+                                {t("form.tariff_no")}
+                            </Badge>
+                        )
                     return (
                         <span className="tabular-nums">{formatMoney(num(v))}</span>
                     )
@@ -207,8 +212,9 @@ function SalaryPayoutModal({
     }, [isOpen, reset])
 
     const { mutate, isPending } = usePost({
-        onSuccess: () => {
+        onSuccess: (res: { warning?: string | null }) => {
             toast.success(t("toast.advance_given"))
+            if (res?.warning) toast.warning(`${res.warning} — oylik 0`)
             qc.refetchQueries({ queryKey: [refetchKey] })
             qc.refetchQueries({
                 predicate: (q) =>
@@ -223,13 +229,14 @@ function SalaryPayoutModal({
 
     const onSubmit = (data: PayoutForm) => {
         const amt = Number(data.amount_per_order)
-        if (untariffedCount > 0 && (!Number.isFinite(amt) || amt <= 0)) {
+        const hasAmt = Number.isFinite(amt) && amt > 0
+        if (untariffedCount > 0 && tariffed.length === 0 && !hasAmt) {
             toast.error(t("toast.error_amount"))
             return
         }
         mutate(`${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/pay-salary`, {
             order_ids: pending.map((r) => r.id),
-            ...(untariffedCount > 0 ? { amount_per_order: amt } : {}),
+            ...(untariffedCount > 0 && hasAmt ? { amount_per_order: amt } : {}),
             comment: data.comment || null,
         })
     }
@@ -251,16 +258,16 @@ function SalaryPayoutModal({
                         </span>
                     </div>
                 )}
-                {untariffedCount > 0 && tariffed.length > 0 && (
-                    <div className="text-[11px] text-amber-600">
-                        {untariffedCount} ta reys uchun tarif sozlanmagan — summani kiriting.
+                {untariffedCount > 0 && (
+                    <div className="text-xs font-medium text-red-600">
+                        {untariffedCount} ta reysda tarif yo‘q — summa kiritilmasa oylik 0.
                     </div>
                 )}
             </div>
 
             {untariffedCount > 0 && (
                 <FormNumberInput
-                    required
+                    required={tariffed.length === 0}
                     control={control}
                     name="amount_per_order"
                     label={

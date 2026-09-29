@@ -116,6 +116,8 @@ const DriverSalariesPage = () => {
         [navigate],
     )
 
+    const missingOnly = search.sf_missing === "1" || search.sf_missing === 1
+
     const serverFilters = useMemo(() => {
         const out: Record<string, string> = {}
         for (const [key, vals] of Object.entries(filters)) {
@@ -136,6 +138,7 @@ const DriverSalariesPage = () => {
                 ordering: search.ordering,
                 unique_route: 1,
                 ...serverFilters,
+                ...(missingOnly ? { driver_salary_missing: "true" } : {}),
             },
         },
     )
@@ -257,6 +260,23 @@ const DriverSalariesPage = () => {
                                         />
                                     </div>
                                 ))}
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={missingOnly ? "destructive" : "outline"}
+                                    onClick={() =>
+                                        navigate({
+                                            search: ((prev: Record<string, unknown>) => ({
+                                                ...prev,
+                                                sf_missing: missingOnly ? undefined : "1",
+                                                page: undefined,
+                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                            })) as any,
+                                        })
+                                    }
+                                >
+                                    {t("form.tariff_no")}
+                                </Button>
                                 {activeFilterCount > 0 && (
                                     <Button
                                         type="button"
