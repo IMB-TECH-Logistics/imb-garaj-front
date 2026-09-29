@@ -120,7 +120,7 @@ const Header = () => {
             <div className="flex items-center xl:gap-6 max-w-full overflow-x-auto custom-scrollbar">
                 <div
                     className={cn(
-                        "flex items-center gap-3 transition-all duration-300 min-w-0",
+                        "flex items-center gap-3 transition-all duration-300 shrink-0",
                         open && "min-w-[13rem]",
                     )}
                 >
@@ -164,13 +164,15 @@ const Header = () => {
                     />
                 )}
                 {pathname.startsWith("/moliya") && (
-                    <ParamDateRange
-                        from="from_date"
-                        to="to_date"
-                        addButtonProps={{
-                            className: "!bg-muted/50 h-8 text-xs min-w-28 justify-start",
-                        }}
-                    />
+                    <div className="hidden sm:block">
+                        <ParamDateRange
+                            from="from_date"
+                            to="to_date"
+                            addButtonProps={{
+                                className: "!bg-muted/50 h-8 text-xs min-w-28 justify-start",
+                            }}
+                        />
+                    </div>
                 )}
                 <div className="flex items-center gap-2">
                     <DocumentNotification />

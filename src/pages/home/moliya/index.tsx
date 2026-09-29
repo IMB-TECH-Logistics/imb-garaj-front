@@ -263,6 +263,9 @@ export default function MoliyaPage() {
                 )}
                 onClick={() => setExpandedId(null)}
             />
+            <div className="sm:hidden mb-3">
+                <ParamDateRange from="from_date" to="to_date" />
+            </div>
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-3">
                 <StatCard
