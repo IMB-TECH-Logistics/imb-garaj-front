@@ -33,6 +33,14 @@ export function isReversedRange(fromDate?: string, toDate?: string) {
     return !Number.isNaN(start) && !Number.isNaN(end) && start > end;
 }
 
+export function useDefaultRangeApplied(from = "from_date", to = "to_date") {
+    const search = useSearch({ strict: false }) as Record<string, unknown>;
+    const hasRange = !!search[from] || !!search[to];
+    const waiting = useRef(!hasRange);
+    if (hasRange) waiting.current = false;
+    return !waiting.current;
+}
+
 export default function ParamDateRange({
     name = "date",
     dateFormat = "yyy-MM-dd",
