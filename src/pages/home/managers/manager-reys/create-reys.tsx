@@ -359,6 +359,7 @@ const AddTripOrders = () => {
 
     const onSuccess = () => finalize(false)
 
+    const submittingRef = useRef(false)
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
     const { mutate: update, isPending: updating } = usePatch({})
     const { mutate: approve, isPending: approving } = usePost({})
@@ -439,11 +440,18 @@ const AddTripOrders = () => {
             formData.append("removed_images", String(imgId)),
         )
 
+        if (submittingRef.current) return
+        submittingRef.current = true
+        const release = () => {
+            submittingRef.current = false
+        }
+
         if (currentTripOrder?.id) {
             if (!isDraft) {
                 formData.append("status", String(Number(data.status)))
             }
             update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formData, {
+                onSettled: release,
                 onSuccess: () => {
                     if (isDraft) {
                         runApprove(currentTripOrder.id)
@@ -453,7 +461,7 @@ const AddTripOrders = () => {
                 },
             })
         } else {
-            create(MANAGERS_ORDERS, formData)
+            create(MANAGERS_ORDERS, formData, { onSettled: release })
         }
     }
 
