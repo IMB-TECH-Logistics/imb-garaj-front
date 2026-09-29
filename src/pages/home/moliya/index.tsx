@@ -267,7 +267,7 @@ export default function MoliyaPage() {
                 <ParamDateRange from="from_date" to="to_date" />
             </div>
             {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <StatCard
                     label={search?.to_date ? `${t("form.balance")} (davr oxiriga)` : t("form.balance")}
                     value={Number(summary?.balance ?? 0)}
@@ -295,8 +295,8 @@ export default function MoliyaPage() {
             {/* Main 2x2 grid */}
             <div
                 className={cn(
-                    "grid gap-3 h-[calc(100vh-80px-76px)]",
-                    "grid-cols-1 md:grid-cols-2 grid-rows-2",
+                    "grid gap-3 auto-rows-[26rem] md:auto-rows-auto md:h-[calc(100vh-80px-76px)]",
+                    "grid-cols-1 md:grid-cols-2 md:grid-rows-2",
                 )}
             >
                 <ChartPanel expandedId={expandedId} panelId="income-expense" onToggle={setExpandedId}>
@@ -317,7 +317,7 @@ export default function MoliyaPage() {
             </div>
 
             {/* Bottom row - same height as grid rows */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pb-4 h-[calc((100vh-80px-12px)/2)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pb-4 auto-rows-[26rem] md:auto-rows-auto md:h-[calc((100vh-80px-12px)/2)]">
                 <div className="grid grid-cols-2 gap-3 h-full">
                     <ChartPanel expandedId={expandedId} panelId="debtor" onToggle={setExpandedId}>
                         <DebtorCard />
