@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { cn } from "@/lib/utils"
+import {
+    encodeSingle,
+    groupOptionsByName,
+    groupsToValue,
+    selectedGroupKeys,
+} from "@/lib/tenant-options"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Check, ChevronDown } from "lucide-react"
 import { ReactNode, useEffect } from "react"
@@ -31,7 +37,7 @@ interface IProps extends Props<Option> {
 export default function FilterSelect({
     filterKey,
     pageKey = "page",
-    options = [],
+    options: rawOptions = [],
     classNames,
     optLabel = "name",
     optValue = "id",
@@ -47,13 +53,27 @@ export default function FilterSelect({
     // @ts-expect-error sdf
     const filterVal = search[filterKey]
 
-    // @ts-expect-error sdf
+    const nameGroups = groupOptionsByName(rawOptions as Option[], optLabel, optValue)
+    const options: Option[] =
+        nameGroups ?
+            nameGroups.map((g) => ({
+                ...g.first,
+                [optValue]: props.isMulti ? g.key : encodeSingle(g),
+                [optLabel]: g.label,
+            }))
+        :   (rawOptions as Option[])
+
     const currentVal = options.find((o) => o[optValue] === filterVal) || null
 
     const multiCurrentVal =
         props.isMulti ?
-            // @ts-expect-error sdf
-            options.filter((o) => filterVal?.includes(o[optValue]))
+            nameGroups ?
+                options.filter((o) =>
+                    selectedGroupKeys(nameGroups, filterVal).includes(
+                        o[optValue],
+                    ),
+                )
+            :   options.filter((o) => filterVal?.includes(o[optValue]))
         :   []
 
     useEffect(() => {
@@ -86,7 +106,14 @@ export default function FilterSelect({
                     // @ts-expect-error sdf
                     search: {
                         ...search,
-                        [filterKey]: opt.map((o) => o[optValue]),
+                        [filterKey]:
+                            nameGroups ?
+                                groupsToValue(
+                                    nameGroups.filter((g) =>
+                                        opt.some((o) => o[optValue] === g.key),
+                                    ),
+                                )
+                            :   opt.map((o) => o[optValue]),
                     },
                 })
                 if (opt.length === 0) {

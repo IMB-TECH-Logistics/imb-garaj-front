@@ -10,8 +10,12 @@ import {
 import { AUTH_TENANTS } from "@/constants/api-endpoints"
 import { useUser } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
+import { ALL_TENANTS, isAllTenantsMode } from "@/lib/tenant-scope"
 import { cn } from "@/lib/utils"
-import { TENANT_STORAGE_KEY } from "@/services/axios-instance"
+import {
+    TENANT_FILTER_STORAGE_KEY,
+    TENANT_STORAGE_KEY,
+} from "@/services/axios-instance"
 import { Building2, Check, ChevronDown } from "lucide-react"
 
 type Tenant = {
@@ -32,11 +36,13 @@ export function TenantSwitcher() {
 
     if (!isGlobalAdmin) return null
 
-    const current = user?.tenant?.schema_name
+    const allTenants = isAllTenantsMode()
+    const current = allTenants ? ALL_TENANTS : user?.tenant?.schema_name
 
     const selectTenant = (schemaName: string) => {
         if (schemaName === current) return
         localStorage.setItem(TENANT_STORAGE_KEY, schemaName)
+        localStorage.removeItem(TENANT_FILTER_STORAGE_KEY)
         window.location.reload()
     }
 
@@ -46,7 +52,7 @@ export function TenantSwitcher() {
                 <Button variant="outline" className="h-9 gap-2 shrink-0 max-w-56">
                     <Building2 size={16} />
                     <span className="hidden sm:inline text-xs text-muted-foreground">Tenantlar:</span>
-                    <span className="truncate font-medium">{user?.tenant?.name ?? "—"}</span>
+                    <span className="truncate font-medium">{allTenants ? "Barcha tenantlar" : (user?.tenant?.name ?? "—")}</span>
                     <ChevronDown size={14} className="opacity-60" />
                 </Button>
             </DropdownMenuTrigger>
@@ -56,6 +62,19 @@ export function TenantSwitcher() {
                     <span className="text-xs font-normal text-muted-foreground">{tenants?.length ?? 0}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                    onClick={() => selectTenant(ALL_TENANTS)}
+                    className={cn(
+                        "flex items-center gap-2",
+                        allTenants && "bg-accent",
+                    )}
+                >
+                    <Check
+                        size={14}
+                        className={cn("shrink-0", !allTenants && "invisible")}
+                    />
+                    <span className="truncate font-medium">Barcha tenantlar</span>
+                </DropdownMenuItem>
                 {isLoading && (
                     <div className="px-2 py-3 text-sm text-muted-foreground">Yuklanmoqda...</div>
                 )}

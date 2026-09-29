@@ -7,6 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { useTenantColumns } from "@/components/custom/tenant-column"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import {
@@ -88,10 +89,11 @@ export function CollapsibleDataTable<TData>({
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const search: any = useSearch({ from: "__root__" })
+    const tableColumns = useTenantColumns(columns, data)
 
     const table = useReactTable({
         data: data || [],
-        columns,
+        columns: tableColumns,
         state: {
             sorting,
             columnFilters,
@@ -198,6 +200,7 @@ export function CollapsibleDataTable<TData>({
                             table.getRowModel().rows.map((row, i) => (
                                 <TableRow
                                     key={i}
+                                    data-tenant={(row.original as any)?.tenant_schema}
                                     data-state={
                                         row.getIsSelected() && "selected"
                                     }

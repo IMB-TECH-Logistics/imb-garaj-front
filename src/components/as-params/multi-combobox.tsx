@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/popover"
 import { DEBOUNCETIME } from "@/constants/default"
 import { cn } from "@/lib/utils"
+import {
+    groupOptionsByName,
+    selectedGroupKeys,
+    toggleGroup,
+} from "@/lib/tenant-options"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { CheckIcon, ChevronDown, X } from "lucide-react"
 import { useState } from "react"
@@ -36,7 +41,7 @@ type ParamComboboxProps<T extends Record<string, any>> = {
 }
 
 export function ParamMultiCombobox<T extends Record<string, any>>({
-    options,
+    options: rawOptions,
     paramName,
     label,
     isError,
@@ -57,10 +62,43 @@ export function ParamMultiCombobox<T extends Record<string, any>>({
         string,
         string | undefined
     >
-    const currentValues = search[paramName]?.split(",") || []
+    const nameGroups = groupOptionsByName(rawOptions, labelKey, valueKey)
+    const options: T[] =
+        nameGroups ?
+            nameGroups.map(
+                (g) =>
+                    ({
+                        ...g.first,
+                        [valueKey]: g.key,
+                        [labelKey]: g.label,
+                    }) as T,
+            )
+        :   rawOptions
+    const currentValues: string[] =
+        nameGroups ?
+            selectedGroupKeys(nameGroups, search[paramName])
+        :   search[paramName]?.split(",") || []
     const [open, setOpen] = useState(false)
 
     const handleSelect = (option: T) => {
+        if (nameGroups) {
+            const group = nameGroups.find(
+                (g) => g.key === String(option[valueKey]),
+            )
+            if (group) {
+                navigate({
+                    search: {
+                        ...search,
+                        [paramName]: toggleGroup(search[paramName], group),
+                    },
+                })
+            }
+            setInputValue("")
+            if (onSearchChange) {
+                onSearchChange("")
+            }
+            return
+        }
         const val = option[valueKey]
         const stringVal = String(val)
 

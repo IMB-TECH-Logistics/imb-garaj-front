@@ -1,3 +1,4 @@
+import { isAllTenantsMode } from "@/lib/tenant-scope"
 import { useEffect, useRef, useState } from "react"
 import {
     keepPreviousData,
@@ -36,6 +37,8 @@ export const useWebSocket = <T = unknown>(
     })
 
     useEffect(() => {
+        if (isAllTenantsMode()) return
+
         const connectWebSocket = () => {
             setIsFetching(true)
             if (!hasConnected) {

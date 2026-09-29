@@ -4,6 +4,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { useModal } from "./useModal"
 import axiosInstance from "@/services/axios-instance"
+import { useTenantRequest, withReadTenant } from "@/lib/tenant-scope"
 
 const normalizeUrl = (url?: string) => `/${(url ?? "").replace(/^\/+|\/+$/g, "")}/`
 
@@ -18,6 +19,7 @@ export const useDownloadAsExcel = ({
     fileType?: string
     params?: Record<string, any>
 }) => {
+    const { scope } = useTenantRequest(url)
     const [isFetching, setIsFetching] = useState(false)
     const { openModal, closeModal } = useModal("confim-download")
 
@@ -28,6 +30,7 @@ export const useDownloadAsExcel = ({
         setIsFetching(true)
         try {
             const response = await axiosInstance.get(normalizeUrl(url), {
+                ...withReadTenant(scope),
                 responseType: "blob",
                 params,
             })
@@ -56,6 +59,7 @@ export const useDownloadAsExcel = ({
         setIsFetching(true)
         try {
             const response = await axiosInstance.get(normalizeUrl(passwordUrl), {
+                ...withReadTenant(scope),
                 responseType: "blob",
                 params: {
                     ...params,

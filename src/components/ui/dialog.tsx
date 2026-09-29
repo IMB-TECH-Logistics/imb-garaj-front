@@ -2,6 +2,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
+import { TenantScopeBoundary } from "@/components/custom/tenant-scope-boundary"
 import { cn } from "@/lib/utils"
 import { ClassNameValue } from "tailwind-merge"
 
@@ -44,7 +45,7 @@ const DialogContent = React.forwardRef<
             )}
             {...props}
         >
-            {children}
+            <TenantScopeBoundary>{children}</TenantScopeBoundary>
             <DialogPrimitive.Close
                 className={cn(
                     "absolute right-4 top-4 text-primary rounded-sm ring-offset-background transition-opacity hover:opacity-100 focus:outline-none  focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
