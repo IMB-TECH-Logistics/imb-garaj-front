@@ -19,6 +19,7 @@ type TripDetail = {
     start_mileage?: number
     end_mileage?: number
     vehicle?: number
+    vehicle_number?: string | null
 }
 
 export default function TripTrackPage() {
@@ -122,11 +123,7 @@ export default function TripTrackPage() {
                             />
                             <Row
                                 label={t("form.truck")}
-                                value={
-                                    trip.data?.vehicle != null
-                                        ? `#${trip.data.vehicle}`
-                                        : "—"
-                                }
+                                value={trip.data?.vehicle_number ?? "—"}
                             />
                             <Row
                                 label={t("table.start_time")}
