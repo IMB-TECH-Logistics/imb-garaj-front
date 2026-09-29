@@ -250,7 +250,7 @@ const AddVehicleSettingsModal = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:col-span-2 rounded-lg border p-2">
                     <VehicleImagePicker
                         name="truck_front"
-                        label={t("form.vehicle") + " " + t("actions.save").toLowerCase()}
+                        label={t("form.vehicle_number") + " (front)"}
                         methods={form}
                     />
                     <VehicleImagePicker
