@@ -12,8 +12,9 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { useSearch } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
+import { useTechCheckAlerts } from "@/hooks/use-tech-check-alerts"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Plus, TriangleAlert } from "lucide-react"
 import { useExpenseCols, type VehicleExpenseRow } from "./cols"
 import AddExpenseModal from "./add-expense"
 import { useTranslation } from "react-i18next"
@@ -22,6 +23,9 @@ type SelectItem = { id: number | string; name: string }
 
 export const TexnikCheck = () => {
     const search: any = useSearch({ strict: false })
+    const navigate = useNavigate()
+    const onlyAlerts = search?.ti_alert === "1" || search?.ti_alert === 1
+    const { count: alertCount } = useTechCheckAlerts()
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal } = useModal("add-expense")
     const { openModal: openDeleteModal } = useModal("delete")
@@ -37,7 +41,7 @@ export const TexnikCheck = () => {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
     const defaultDateRange =
-        !search?.from_date && !search?.to_date
+        !onlyAlerts && !search?.from_date && !search?.to_date
             ? { from: startOfMonth, to: endOfMonth }
             : undefined
 
@@ -46,8 +50,9 @@ export const TexnikCheck = () => {
         {
             params: {
                 category: search?.category,
-                from_date: search?.from_date,
-                to_date: search?.to_date,
+                from_date: onlyAlerts ? undefined : search?.from_date,
+                to_date: onlyAlerts ? undefined : search?.to_date,
+                alert: onlyAlerts ? 1 : undefined,
                 page: search?.page,
                 page_size: search?.page_size,
                 search: search?.vehicle_search,
@@ -57,6 +62,15 @@ export const TexnikCheck = () => {
     )
 
     const columns = useExpenseCols()
+
+    const toggleAlerts = () =>
+        navigate({
+            search: {
+                ...search,
+                ti_alert: onlyAlerts ? undefined : "1",
+                page: undefined,
+            } as any,
+        })
 
     const handleAdd = () => {
         clearKey(TECHNICAL_INSPECT)
@@ -107,14 +121,26 @@ export const TexnikCheck = () => {
                                 label={t("form.expense_type")}
                                 addButtonProps={comboStyle}
                             />
-                            <ParamDateRange
+                            <Button
+                                variant={onlyAlerts ? "destructive" : "outline"}
+                                icon={<TriangleAlert size={18} />}
+                                onClick={toggleAlerts}
+                            >
+                                Amal muddati tugayotganlar
+                                {alertCount > 0 && (
+                                    <span className="ml-1 rounded-full bg-red-500 text-white text-[11px] font-bold min-w-5 h-5 px-1.5 inline-flex items-center justify-center">
+                                        {alertCount}
+                                    </span>
+                                )}
+                            </Button>
+                            {!onlyAlerts && <ParamDateRange
                                 from="from_date"
                                 to="to_date"
                                 defaultValue={defaultDateRange}
                                 addButtonProps={{
                                     className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
                                 }}
-                            />
+                            />}
                             <Button onClick={handleAdd}>
                                 <Plus size={16} />
                                 {t("actions.add")}

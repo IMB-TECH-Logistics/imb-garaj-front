@@ -1,4 +1,5 @@
 import { formatMoney } from "@/lib/format-money"
+import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,11 +12,28 @@ export type VehicleExpenseRow = {
     category_name: string
     date: string
     lifespan: string
+    is_latest?: boolean
+    status?: "ok" | "expiring" | "expired" | null
+    days_left?: number | null
     comment: string
     amount: string | number
     executor: number | null
     executor_name: string | null
     created: string
+}
+
+const STATUS_CLASSES: Record<string, string> = {
+    expired:
+        "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800 font-semibold",
+    expiring:
+        "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800 font-semibold",
+}
+
+export const lifespanHint = (days: number | null | undefined) => {
+    if (days === null || days === undefined) return ""
+    if (days < 0) return `${-days} kun oldin tugagan`
+    if (days === 0) return "Bugun tugaydi"
+    return `${days} kun qoldi`
 }
 
 export const useExpenseCols = () => {
@@ -58,6 +76,21 @@ export const useExpenseCols = () => {
                 accessorKey: "lifespan",
                 size: 110,
                 enableSorting: true,
+                cell: ({ row }) => {
+                    const { lifespan, status, days_left } = row.original
+                    const alert = status === "expired" || status === "expiring"
+                    return (
+                        <span
+                            title={alert ? lifespanHint(days_left) : undefined}
+                            className={cn(
+                                "rounded-md border border-transparent px-2 py-0.5 tabular-nums",
+                                alert && STATUS_CLASSES[status as string],
+                            )}
+                        >
+                            {lifespan}
+                        </span>
+                    )
+                },
             },
             {
                 header: t("table.responsible"),

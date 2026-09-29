@@ -10,6 +10,7 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
 import { IntegrationNotification } from "./integration-notification"
 import { DocumentNotification } from "./document-notification"
+import { TechCheckNotification } from "./tech-check-notification"
 import { TenantFilter } from "./tenant-filter"
 import { TenantSwitcher } from "./tenant-switcher"
 import { useHasAction } from "@/constants/useUser"
@@ -173,6 +174,7 @@ const Header = () => {
                 )}
                 <div className="flex items-center gap-2">
                     <DocumentNotification />
+                    <TechCheckNotification />
                     {canSeeIntegration && <IntegrationNotification />}
                     <LangButton />
                     <ThemeColorToggle />

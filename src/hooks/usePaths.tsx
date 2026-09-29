@@ -1,5 +1,6 @@
 import { moduleOfCode, useUser } from "@/constants/useUser"
 import { useDocumentAlerts } from "@/hooks/use-document-alerts"
+import { useTechCheckAlerts } from "@/hooks/use-tech-check-alerts"
 import { useLocation } from "@tanstack/react-router"
 import {
     Activity,
@@ -168,6 +169,7 @@ export const usePaths = () => {
     )
 
     const { count: documentAlerts } = useDocumentAlerts()
+    const { count: techCheckAlerts } = useTechCheckAlerts()
 
     const filteredItems = useMemo(
         () =>
@@ -175,9 +177,9 @@ export const usePaths = () => {
                 isSuperuser
                     ? enabledItems
                     : filterMenuItems(enabledItems, safeActions),
-                { "/documents": documentAlerts },
+                { "/documents": documentAlerts, "/technic-check": techCheckAlerts },
             ),
-        [enabledItems, safeActions, isSuperuser, documentAlerts],
+        [enabledItems, safeActions, isSuperuser, documentAlerts, techCheckAlerts],
     )
 
     const childPaths = useMemo(
