@@ -82,6 +82,9 @@ type ManagerOrders = {
     logistics_product?: string | null
     logistics_distributor?: string | null
     logistics_distributor_code?: string | null
+    manual_income?: boolean
+    price_diff?: string | number
+    price_diff_by_client?: boolean
 }
 
 type ManagerExpenses = {

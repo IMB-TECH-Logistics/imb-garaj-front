@@ -221,7 +221,12 @@
         "select_trip": "Aylanmani tanlang",
         "select_vehicle_first": "Avval mashina tanlang",
         "no_trips_in_turnover": "Bu aylanmada reys yo'q",
-        "select_order": "Reysni tanlang"
+        "select_order": "Reysni tanlang",
+        "price_diff": "Narx farqi",
+        "price_diff_less": "haydovchi yozgan summa yo'nalish narxidan kam",
+        "price_diff_more": "haydovchi yozgan summa yo'nalish narxidan ko'p",
+        "price_diff_by_client": "Mijoz sababli",
+        "price_diff_driver": "Narx farqi (qarz/haq)"
     },
     "toast": {
         "added": "Qo'shildi",

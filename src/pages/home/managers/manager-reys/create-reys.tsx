@@ -30,6 +30,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useController, useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { FormNumberInput } from "@/components/form/number-input"
+import PriceDiff from "./price-diff"
 import { useTranslation } from "react-i18next"
 
 type Option = { id: number; name: string }
@@ -426,7 +427,9 @@ const AddTripOrders = () => {
             if (!isNaqdSel && matchedDirection) {
                 formData.append("direction", String(matchedDirection.id))
             }
-            formData.append("incomes", JSON.stringify(incomes))
+            if (isNaqdSel || !currentTripOrder?.manual_income) {
+                formData.append("incomes", JSON.stringify(incomes))
+            }
         } else if (isCityOnlySel) {
             formData.append("loading", data.loading)
         }
@@ -625,6 +628,8 @@ const AddTripOrders = () => {
                         />
                     </div>
                 </div>
+
+                {currentTripOrder?.id && <PriceDiff order={currentTripOrder} />}
 
                 {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
                 {isReysActivity && isNaqd && (

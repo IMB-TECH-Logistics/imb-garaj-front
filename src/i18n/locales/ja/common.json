@@ -212,7 +212,12 @@
         "select_trip": "オーダーを選択",
         "select_vehicle_first": "先に車両を選択",
         "no_trips_in_turnover": "このオーダーに運行なし",
-        "select_order": "運行を選択"
+        "select_order": "運行を選択",
+        "price_diff": "価格差",
+        "price_diff_less": "ドライバーの入力額がルート価格より低い",
+        "price_diff_more": "ドライバーの入力額がルート価格より高い",
+        "price_diff_by_client": "顧客都合",
+        "price_diff_driver": "価格差（負債/過払い）"
     },
     "toast": {
         "added": "追加されました",

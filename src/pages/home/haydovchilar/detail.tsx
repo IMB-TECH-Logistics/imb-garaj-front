@@ -37,6 +37,7 @@ type DriverOverview = {
     revenue_usd: string | number
     salary_paid_uzs: string | number
     computed_balance_uzs: string | number
+    price_diff_uzs?: string | number
     total_distance_km: string | number
     total_fuel_liters: string | number
     fuel_per_100km: string | number
@@ -324,7 +325,7 @@ export default function HaydovchiDetail() {
             </div>
 
             {overview && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                     <Card>
                         <CardContent className="p-3">
                             <div className="grid grid-cols-2 gap-3">
@@ -360,6 +361,17 @@ export default function HaydovchiDetail() {
                     <StatCard
                         label={t("table.fuel_l")}
                         value={fuelPer100kmText(overview)}
+                    />
+                    <StatCard
+                        label={t("form.price_diff_driver")}
+                        value={formatMoneyText(num(overview.price_diff_uzs))}
+                        accent={
+                            num(overview.price_diff_uzs) < 0
+                                ? "text-red-500"
+                                : num(overview.price_diff_uzs) > 0
+                                  ? "text-green-500"
+                                  : undefined
+                        }
                     />
                 </div>
             )}

@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { STATUS_TRIP } from "../managers-trips/cols"
+import { hasPriceDiff } from "./price-diff"
 
 const HOLAT_COLORS: Record<number, string> = {
     1: "bg-green-500/10 text-green-600 border-transparent",
@@ -133,16 +134,31 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => {
                     const moneyUzs = row.original?.payment_amount_uzs
                     const moneyUsd = row.original?.payment_amount_usd
+                    const diff = Number(row.original?.price_diff ?? 0)
+                    const diffBadge =
+                        hasPriceDiff(row.original) && diff !== 0 ? (
+                            <Badge
+                                variant="outline"
+                                title={t("form.price_diff")}
+                                className={
+                                    diff < 0
+                                        ? "bg-red-500/10 text-red-600 border-transparent"
+                                        : "bg-green-500/10 text-green-600 border-transparent"
+                                }
+                            >
+                                {t("form.price_diff")}: {formatMoney(diff)}
+                            </Badge>
+                        ) : null
 
                     if (moneyUsd) {
-                        return <div>{formatMoney(moneyUsd)} USD</div>
+                        return <div className="flex items-center gap-1">{formatMoney(moneyUsd)} USD {diffBadge}</div>
                     }
 
                     if (moneyUzs) {
-                        return <div>{formatMoney(moneyUzs)} UZS</div>
+                        return <div className="flex items-center gap-1">{formatMoney(moneyUzs)} UZS {diffBadge}</div>
                     }
 
-                    return "-"
+                    return diffBadge ?? "-"
                 },
             },
             {

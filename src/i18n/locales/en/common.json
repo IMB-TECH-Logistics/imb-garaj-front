@@ -212,7 +212,12 @@
         "select_trip": "Select turnover",
         "select_vehicle_first": "Select vehicle first",
         "no_trips_in_turnover": "No trips in this turnover",
-        "select_order": "Select trip"
+        "select_order": "Select trip",
+        "price_diff": "Price difference",
+        "price_diff_less": "amount entered by driver is below the route price",
+        "price_diff_more": "amount entered by driver is above the route price",
+        "price_diff_by_client": "Due to client",
+        "price_diff_driver": "Price difference (debt/credit)"
     },
     "toast": {
         "added": "Added",

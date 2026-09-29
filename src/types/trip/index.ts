@@ -114,6 +114,9 @@ type TripOrdersRow = {
         },
     ]
     images?: { id: number; image: string }[]
+    manual_income?: boolean
+    price_diff?: string | number
+    price_diff_by_client?: boolean
 }
 
 type CashflowRow = {
