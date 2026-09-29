@@ -37,6 +37,8 @@ export type ComboboxProps<T extends Record<string, any>> = {
     isSearch?: boolean
     isClearIcon?: boolean
     emptyText?: string
+    id?: string
+    ariaLabel?: string
 }
 
 export function Combobox<T extends Record<string, any>>({
@@ -56,6 +58,8 @@ export function Combobox<T extends Record<string, any>>({
     isClearIcon = true,
     isSearch = true,
     emptyText = "Mavjud emas",
+    id,
+    ariaLabel,
 }: ComboboxProps<T>) {
     const [open, setOpen] = useState(false)
     const [inputValue, setInputValue] = useState("")
@@ -90,6 +94,8 @@ export function Combobox<T extends Record<string, any>>({
                 <Button
                     variant={"outline"}
                     role="combobox"
+                    id={id}
+                    aria-label={ariaLabel || label}
                     aria-invalid={isError || undefined}
                     className={cn(
                         "w-full justify-between relative   px-4 hover:bg-card font-normal ",

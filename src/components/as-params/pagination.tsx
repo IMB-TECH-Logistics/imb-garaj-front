@@ -152,6 +152,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
                     disabled={disabled}
                     className="w-20 h-8 sm:h-10 bg-primary/10 text-primary hover:bg-primary/15"
                     label=""
+                    ariaLabel="Page size"
                     options={page_sizes?.map((size) => ({
                         label: `${size}`,
                         value: `${size}`,

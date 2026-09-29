@@ -49,6 +49,8 @@ export function FormSelect<
                             options={options}
                             label={label || "Tanlang"}
                             placeholder={placeholder}
+                            id={name}
+                            ariaLabel={label || placeholder}
                             value={field.value}
                             className={cn(
                                 !!error && "border-destructive focus:right-0",
