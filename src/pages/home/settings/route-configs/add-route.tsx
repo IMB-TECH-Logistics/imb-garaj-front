@@ -10,7 +10,6 @@ import {
     SETTINGS_SELECTABLE_PAYMENT_TYPE,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { formatMoney } from "@/lib/format-money"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
@@ -116,7 +115,10 @@ const AddRouteConfigModal = () => {
             toast.warning(
                 t("messages.direction_price_not_current", {
                     date: formatDate(sentDate),
-                    price: formatMoney(Number(active.price)),
+                    price: String(Math.round(Number(active.price))).replace(
+                        /\B(?=(\d{3})+(?!\d))/g,
+                        " ",
+                    ),
                     active_date: formatDate(active.valid_from),
                 }),
                 { duration: 10000 },
