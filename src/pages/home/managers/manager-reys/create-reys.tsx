@@ -649,6 +649,8 @@ const AddTripOrders = () => {
                                 className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end"
                             >
                                 <FormCombobox
+                                    required
+                                    hideError={false}
                                     control={control}
                                     name={`incomes.${index}.payment_type`}
                                     label={index === 0 ? t("form.payment_type") : ""}
@@ -661,10 +663,17 @@ const AddTripOrders = () => {
                                 />
 
                                 <FormNumberInput
+                                    required
                                     control={control}
                                     name={`incomes.${index}.amount`}
                                     placeholder={t("form.amount")}
-                                    label={incomes[index]?.currency === 2 ? "USD" : undefined}
+                                    label={
+                                        incomes[index]?.currency === 2
+                                            ? "USD"
+                                            : index === 0
+                                              ? t("form.amount")
+                                              : undefined
+                                    }
                                     registerOptions={{
                                         validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
                                     }}
