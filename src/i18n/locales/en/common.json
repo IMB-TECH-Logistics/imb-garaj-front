@@ -438,7 +438,8 @@
         "subtitle": "Enter your credentials to continue",
         "username": "Username",
         "password": "Password",
-        "submit": "Sign in"
+        "submit": "Sign in",
+        "invalid_credentials": "Invalid username or password"
     },
     "backend_messages": {
         "Username or password is incorrect": "Username or password is incorrect",

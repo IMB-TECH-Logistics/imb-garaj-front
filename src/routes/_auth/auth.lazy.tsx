@@ -14,6 +14,7 @@ import { createLazyFileRoute } from "@tanstack/react-router"
 import { Globe, Truck } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 export const Route = createLazyFileRoute("/_auth/auth")({
     component: AuthComponent,
@@ -48,7 +49,14 @@ function AuthComponent() {
                 localStorage.removeItem(TENANT_STORAGE_KEY)
                 window.location.href = "/"
             },
-            onError: (error) => handleFormError(error, form),
+            onError: (error) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if ((error as any)?.response?.data?.code === "invalid_credentials") {
+                    toast.error(t("auth.invalid_credentials"))
+                    return
+                }
+                handleFormError(error, form)
+            },
         })
     })
 

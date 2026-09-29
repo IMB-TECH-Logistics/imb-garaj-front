@@ -438,7 +438,8 @@
         "subtitle": "続行するための認証情報を入力してください",
         "username": "ユーザー名",
         "password": "パスワード",
-        "submit": "ログイン"
+        "submit": "ログイン",
+        "invalid_credentials": "ユーザー名またはパスワードが正しくありません"
     },
     "backend_messages": {
         "Username or password is incorrect": "ユーザー名またはパスワードが正しくありません",

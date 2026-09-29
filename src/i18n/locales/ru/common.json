@@ -438,7 +438,8 @@
         "subtitle": "Введите свои данные для продолжения",
         "username": "Логин",
         "password": "Пароль",
-        "submit": "Войти"
+        "submit": "Войти",
+        "invalid_credentials": "Неверный логин или пароль"
     },
     "backend_messages": {
         "Username or password is incorrect": "Неверный логин или пароль",
