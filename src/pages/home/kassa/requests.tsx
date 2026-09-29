@@ -146,6 +146,7 @@ const CheckoutRequests = ({ switcher }: Props) => {
     const queryClient = useQueryClient()
     const search = useSearch({ strict: false }) as any
     const hasApprove = useHasAction("manager_cashflow_approve_control")
+    const hasCancel = useHasAction("manager_cashflow_cancel_control")
     const hasControl = useHasAction("manager_cashflow_control")
     const { data: profile } = useUser()
     const confirm = useConfirm()
@@ -257,7 +258,7 @@ const CheckoutRequests = ({ switcher }: Props) => {
                         }
                         onUndo={canDecide ? () => handleReject(row) : undefined}
                     />
-                : row.status === 20 && profile?.is_superuser ?
+                : row.status === 20 && hasCancel ?
                     <TableActions onDelete={() => handleDelete(row)} />
                 :   null
             }}

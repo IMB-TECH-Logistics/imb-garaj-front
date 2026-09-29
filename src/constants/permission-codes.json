@@ -14,6 +14,7 @@
   "logs_view",
   "manager_cashflow_approve_control",
   "manager_cashflow_approve_view",
+  "manager_cashflow_cancel_control",
   "manager_cashflow_control",
   "manager_cashflow_view",
   "manager_flights_control",
