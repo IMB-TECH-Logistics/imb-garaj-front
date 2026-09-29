@@ -32,6 +32,7 @@ import { toast } from "sonner"
 import { FormNumberInput } from "@/components/form/number-input"
 import PriceDiff from "./price-diff"
 import { useTranslation } from "react-i18next"
+import { isWithinMoneyLimit } from "@/lib/money-limit"
 
 type Option = { id: number; name: string }
 
@@ -664,6 +665,9 @@ const AddTripOrders = () => {
                                     name={`incomes.${index}.amount`}
                                     placeholder={t("form.amount")}
                                     label={incomes[index]?.currency === 2 ? "USD" : undefined}
+                                    registerOptions={{
+                                        validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                                    }}
                                 />
 
                                 {incomes[index]?.currency === 2 && (

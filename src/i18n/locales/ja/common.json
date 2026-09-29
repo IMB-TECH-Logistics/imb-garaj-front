@@ -466,6 +466,7 @@
     },
     "validation": {
         "required_field": "{{field}}を入力してください",
+        "max_amount": "金額は1 000 000 000以下にしてください",
         "required": "必須フィールド",
         "min_length": "{{min}}文字以上",
         "invalid_phone": "電話番号が無効です",
