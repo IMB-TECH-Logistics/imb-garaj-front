@@ -32,13 +32,10 @@ export const useCostCols = () => {
             },
             {
                 header: t("table.orders_count"),
-                accessorKey: "pending_order_count",
+                accessorKey: "order_count",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <span>
-                        {Number(row.original.pending_order_count ?? 0) +
-                            Number(row.original.completed_order_count ?? 0)}
-                    </span>
+                    <span>{Number(row.original.order_count ?? 0)}</span>
                 ),
             },
         ],

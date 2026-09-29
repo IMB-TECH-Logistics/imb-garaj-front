@@ -223,7 +223,7 @@ export default function HaydovchiDetail() {
 
     const { data: overview, isError: overviewError, isLoading: overviewLoading } = useGet<DriverOverview>(
         `${DRIVERS_OVERVIEW}/${driverId}/overview`,
-        { enabled: !!driverId },
+        { enabled: !!driverId, options: { retry: false } },
     )
 
     const { data: trips, isLoading: tripsLoading } = useGet<DriverTripRow[]>(

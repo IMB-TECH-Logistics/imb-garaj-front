@@ -1,6 +1,5 @@
-import {TexnikCheck } from '@/pages/home/texnik-check'
-import { createLazyFileRoute } from '@tanstack/react-router'
+import { createLazyFileRoute, Navigate } from "@tanstack/react-router"
 
-export const Route = createLazyFileRoute('/_main/texnik-check/')({
-  component:TexnikCheck
+export const Route = createLazyFileRoute("/_main/texnik-check/")({
+    component: () => <Navigate to="/technic-check" replace />,
 })

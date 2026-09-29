@@ -7,6 +7,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { VEHICLES } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft, Calendar, Truck } from "lucide-react"
@@ -18,8 +19,9 @@ function ViewPage() {
     const navigate = useNavigate()
     const search: any = useSearch({ strict: false })
     const { id } = useParams({ strict: false }) as { id?: string }
+    const canViewVehicle = useHasAction("settings_vehicles_view")
     const { error: vehicleError } = useGet(`${VEHICLES}/${id}`, {
-        enabled: !!id,
+        enabled: !!id && canViewVehicle,
         options: { retry: false },
     })
 

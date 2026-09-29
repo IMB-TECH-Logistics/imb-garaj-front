@@ -134,7 +134,7 @@ const CargoPage = () => {
                 }
             />
 
-            <DeleteModal path={SETTINGS_CARGO_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
+            <DeleteModal path={SETTINGS_CARGO_TYPE} id={item?.id} restorable name={item?.name ? `«${item?.name}» ` : ""} />
 
             <Modal
                 title={
