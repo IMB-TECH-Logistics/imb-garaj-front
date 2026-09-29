@@ -51,6 +51,7 @@ type Transaction = {
     driver_name: string | null
     vehicle_plate: string | null
     source: string | null
+    is_unconfirmed?: boolean
 }
 
 type DriverRow = {
@@ -156,6 +157,14 @@ const useTransactionCols = () => {
                         {row.original.status !== 20 && (
                             <Badge variant="orange">
                                 {t(TX_STATUS_LABEL_KEY[row.original.status] ?? "kassa.status_pending")}
+                            </Badge>
+                        )}
+                        {row.original.status === 20 && row.original.is_unconfirmed && (
+                            <Badge
+                                variant="outline"
+                                className="bg-amber-500/10 text-amber-600 border-transparent"
+                            >
+                                Tasdiqlanmagan
                             </Badge>
                         )}
                     </div>
