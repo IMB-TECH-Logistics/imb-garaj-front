@@ -112,7 +112,7 @@ const DocumentsPage = () => {
                             >
                                 Muddati tugaganlar
                                 {alertCount > 0 && (
-                                    <span className="ml-1 rounded-full bg-red-500 text-white text-[11px] font-bold min-w-5 h-5 px-1.5 inline-flex items-center justify-center">
+                                    <span className="ml-1 rounded-full bg-red-600 text-white text-[11px] font-bold min-w-5 h-5 px-1.5 inline-flex items-center justify-center">
                                         {alertCount}
                                     </span>
                                 )}

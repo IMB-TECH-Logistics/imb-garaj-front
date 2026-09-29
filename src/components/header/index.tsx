@@ -140,7 +140,7 @@ const Header = () => {
                                 <TabsTrigger key={link.label} value={link.path}>
                                     {link.icon} {link.label}
                                     {!!link.badge && (
-                                        <span className="ml-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
+                                        <span className="ml-1.5 rounded-full bg-red-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
                                             {link.badge}
                                         </span>
                                     )}
