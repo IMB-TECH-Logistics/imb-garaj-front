@@ -1,7 +1,7 @@
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { ReactNode } from "react"
+import { ReactNode, useEffect, useRef } from "react"
 import { ClassNameValue } from "tailwind-merge"
 import {
     Dialog,
@@ -49,6 +49,19 @@ const Modal = ({
     titleInChildren = false,
 }: Props) => {
     const { isOpen, closeModal } = useModal(modalKey)
+    const openerRef = useRef<HTMLElement | null>(null)
+    const wasOpen = useRef(false)
+    if (isOpen && !wasOpen.current && document.activeElement instanceof HTMLElement) {
+        openerRef.current = document.activeElement
+    }
+
+    useEffect(() => {
+        wasOpen.current = !!isOpen
+        if (isOpen) return
+        const opener = openerRef.current
+        openerRef.current = null
+        if (opener?.isConnected) setTimeout(() => opener.focus())
+    }, [isOpen])
 
     const handleClose = () => {
         if (onClose) {
