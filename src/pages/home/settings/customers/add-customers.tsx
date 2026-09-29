@@ -1,4 +1,3 @@
-import { FormFormatNumberInput } from "@/components/form/format-number-input"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
@@ -20,8 +19,8 @@ const AddCustomerModal = () => {
     const currentForwarder = getData<CustomersType>(SETTINGS_CUSTOMERS)
     const form = useForm<CustomersType>({
         defaultValues: {
-            ...currentForwarder,
-            phone_number: currentForwarder?.phone_number?.replace(/^\+?998/, "") || "",
+            name: currentForwarder?.name ?? "",
+            code: currentForwarder?.code ?? "",
         },
     })
 
@@ -56,19 +55,12 @@ const AddCustomerModal = () => {
             return
         }
 
-        const phoneDigits = (values.phone_number || "").replace(/\D/g, "")
-        if (phoneDigits && phoneDigits.length !== 9) {
-            form.setError("phone_number", {
-                type: "manual",
-                message: "Telefon raqam to'liq emas",
-            })
-            return
-        }
+        const payload = { name: values.name, code: values.code }
 
         if (currentForwarder?.id) {
-            updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, values)
+            updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, payload)
         } else {
-            postMutate(SETTINGS_CUSTOMERS, values)
+            postMutate(SETTINGS_CUSTOMERS, payload)
         }
     }
 
@@ -91,14 +83,6 @@ const AddCustomerModal = () => {
                         label={t("form.company_code")}
                         methods={form}
                         placeholder="Masalan: 100A"
-                    />
-
-                    <FormFormatNumberInput
-                        control={form.control}
-                        format="+998 ## ### ## ##"
-                        label={t("form.phone")}
-                        name={"phone_number"}
-                        placeholder="+998 __ ___ __ __"
                     />
 
                     <div className="flex items-center justify-end gap-2 md:col-span-2">
