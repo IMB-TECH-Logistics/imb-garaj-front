@@ -109,6 +109,7 @@
         "loading_address": "Loading Address",
         "unloading_address": "Unloading Address",
         "city": "City",
+        "no_price": "No price",
         "load_place": "Loading place",
         "unload_place": "Unloading place",
         "load_region": "Loading region",

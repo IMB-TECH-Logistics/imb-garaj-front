@@ -109,6 +109,7 @@
         "loading_address": "Yuklash manzili",
         "unloading_address": "Yuk tushirish manzili",
         "city": "Shahar",
+        "no_price": "Narx yo'q",
         "load_place": "Yuklash manzili",
         "unload_place": "Yuk tushirish manzili",
         "load_region": "Yuklash viloyati",

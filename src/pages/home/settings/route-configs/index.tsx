@@ -38,6 +38,7 @@ type Direction = {
     payment_type: number
     currency: 1 | 2
     current_price: DirectionPrice | null
+    no_price?: boolean
     prices?: DirectionPrice[]
     created?: string
     updated?: string
@@ -117,6 +118,7 @@ const RouteConfigsPage = () => {
                     paymentMap[d.payment_type] ?? String(d.payment_type),
                 currency: d.currency,
                 current_price: d.current_price,
+                no_price: d.no_price,
                 prices: d.prices,
             })),
         [data, paymentMap],

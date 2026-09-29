@@ -109,6 +109,7 @@
         "loading_address": "Адрес погрузки",
         "unloading_address": "Адрес выгрузки",
         "city": "Город",
+        "no_price": "Нет цены",
         "load_place": "Адрес погрузки (точка)",
         "unload_place": "Адрес выгрузки (точка)",
         "load_region": "Область погрузки",

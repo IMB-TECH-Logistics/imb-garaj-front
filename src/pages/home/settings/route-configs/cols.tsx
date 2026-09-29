@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -35,6 +36,7 @@ export type DirectionRow = {
     payment_type_name: string
     currency: 1 | 2
     current_price: DirectionPrice | null
+    no_price?: boolean
     prices?: DirectionPrice[]
     driver_salary_amount?: string | null
     driver_salary_valid_from?: string | null
@@ -105,6 +107,11 @@ export const useDirectionColumns = () => {
                                   )
                                 : "—"}
                         </span>
+                        {row.original.no_price && (
+                            <Badge variant="destructive">
+                                {t("form.no_price")}
+                            </Badge>
+                        )}
                     </div>
                 ),
             },
