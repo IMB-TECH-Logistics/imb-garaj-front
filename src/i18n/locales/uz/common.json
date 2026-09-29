@@ -62,7 +62,8 @@
         "attach": "Biriktirish",
         "detach": "Ajratish",
         "archive": "Arxivlash",
-        "restore": "Tiklash"
+        "restore": "Tiklash",
+        "skip_to_content": "Asosiy qismga o'tish"
     },
     "messages": {
         "success_add": "Muvaffaqiyatli qo'shildi!",

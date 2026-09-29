@@ -62,7 +62,8 @@
         "attach": "Attach",
         "detach": "Detach",
         "archive": "Archive",
-        "restore": "Restore"
+        "restore": "Restore",
+        "skip_to_content": "Skip to main content"
     },
     "messages": {
         "success_add": "Added successfully!",
