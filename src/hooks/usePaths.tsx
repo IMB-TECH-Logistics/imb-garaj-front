@@ -62,9 +62,13 @@ const removeDisabledItems = (
     disabledModules: string[],
 ): MenuItem[] =>
     items.reduce<MenuItem[]>((acc, item) => {
+        const keys = [
+            ...(item.allowKey ? [item.allowKey] : []),
+            ...(item.allowKeys ?? []),
+        ]
         if (
-            item.allowKey &&
-            disabledModules.includes(moduleOfCode(item.allowKey))
+            keys.length > 0 &&
+            keys.every((key) => disabledModules.includes(moduleOfCode(key)))
         ) {
             return acc
         }
@@ -212,17 +216,18 @@ export const usePaths = () => {
         () => (pathname: string) => {
             if (isLoading || !data) return false
 
-            if (!isSuperuser) {
-                const extra = Object.entries(GUARDED_EXTRA).find(([path]) =>
-                    matches(pathname, path),
-                )
-                if (extra) return !safeActions.includes(extra[1])
+            const extra = Object.entries(GUARDED_EXTRA).find(([path]) =>
+                matches(pathname, path),
+            )
+            if (extra) {
+                if (disabledModules?.includes(moduleOfCode(extra[1]))) return true
+                if (!isSuperuser) return !safeActions.includes(extra[1])
             }
 
             if (allowedPaths.some((path) => matches(pathname, path))) return false
             return deniedPaths.some((path) => matches(pathname, path))
         },
-        [allowedPaths, deniedPaths, isSuperuser, isLoading, data, safeActions],
+        [allowedPaths, deniedPaths, isSuperuser, isLoading, data, safeActions, disabledModules],
     )
 
     return {
