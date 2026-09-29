@@ -6,6 +6,7 @@ import { COMMON_DIRECTIONS, DRIVER_SALARIES } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useQueryClient } from "@tanstack/react-query"
+import { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -29,6 +30,7 @@ const EditSalaryModal = ({ row }: Props) => {
         },
     })
     const { mutateAsync, isPending } = usePatch()
+    const submitting = useRef(false)
 
     const today = localTodayIso()
     const history = [...(row.driver_salary_history ?? [])].sort((a, b) =>
@@ -38,6 +40,8 @@ const EditSalaryModal = ({ row }: Props) => {
 
     const onSubmit = async ({ amount, valid_from }: FormValues) => {
         if (!amount || !valid_from) return
+        if (submitting.current) return
+        submitting.current = true
         try {
             await mutateAsync(`${DRIVER_SALARIES}/bulk-update`, {
                 directions: [row.id],
@@ -51,6 +55,8 @@ const EditSalaryModal = ({ row }: Props) => {
             closeModal()
         } catch {
             return
+        } finally {
+            submitting.current = false
         }
     }
 
