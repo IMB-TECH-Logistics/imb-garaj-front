@@ -357,6 +357,9 @@
         "salary_history_empty": "История отсутствует"
     },
     "table": {
+        "activity": "Деятельность",
+        "cargo_state": "Загрузка",
+        "order_status": "Статус заказа",
         "geo_location": "Локация",
         "show_on_map": "На карте",
         "truck_number": "Номер авто",
@@ -466,6 +469,8 @@
     },
     "validation": {
         "required_field": "Введите {{field}}",
+        "max_amount": "Сумма не должна превышать 1 000 000 000",
+        "end_before_start": "Дата окончания не может быть раньше даты начала",
         "required": "Обязательное поле",
         "min_length": "Минимум {{min}} символов",
         "invalid_phone": "Неверный номер телефона",

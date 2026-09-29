@@ -32,6 +32,7 @@ import { toast } from "sonner"
 import { FormNumberInput } from "@/components/form/number-input"
 import PriceDiff from "./price-diff"
 import { useTranslation } from "react-i18next"
+import { isWithinMoneyLimit } from "@/lib/money-limit"
 
 type Option = { id: number; name: string }
 
@@ -68,7 +69,7 @@ export const STATUS_OPTIONS: StatusOption[] = [
     { id: "5", name: "Yuklanmoqda" },
     { id: "6", name: "Yo'lda" },
     { id: "7", name: "Tushirilmoqda" },
-    { id: "2", name: "Yakunlandi" },
+    { id: "2", name: "Tugallandi" },
     { id: "3", name: "Bekor qilindi" },
     { id: "4", name: "Arxivlangan" },
 ]
@@ -359,6 +360,7 @@ const AddTripOrders = () => {
 
     const onSuccess = () => finalize(false)
 
+    const submittingRef = useRef(false)
     const { mutate: create, isPending: creating } = usePost({ onSuccess })
     const { mutate: update, isPending: updating } = usePatch({})
     const { mutate: approve, isPending: approving } = usePost({})
@@ -439,11 +441,18 @@ const AddTripOrders = () => {
             formData.append("removed_images", String(imgId)),
         )
 
+        if (submittingRef.current) return
+        submittingRef.current = true
+        const release = () => {
+            submittingRef.current = false
+        }
+
         if (currentTripOrder?.id) {
             if (!isDraft) {
                 formData.append("status", String(Number(data.status)))
             }
             update(`${MANAGERS_ORDERS}/${currentTripOrder.id}`, formData, {
+                onSettled: release,
                 onSuccess: () => {
                     if (isDraft) {
                         runApprove(currentTripOrder.id)
@@ -453,7 +462,7 @@ const AddTripOrders = () => {
                 },
             })
         } else {
-            create(MANAGERS_ORDERS, formData)
+            create(MANAGERS_ORDERS, formData, { onSettled: release })
         }
     }
 
@@ -640,6 +649,8 @@ const AddTripOrders = () => {
                                 className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end"
                             >
                                 <FormCombobox
+                                    required
+                                    hideError={false}
                                     control={control}
                                     name={`incomes.${index}.payment_type`}
                                     label={index === 0 ? t("form.payment_type") : ""}
@@ -652,10 +663,20 @@ const AddTripOrders = () => {
                                 />
 
                                 <FormNumberInput
+                                    required
                                     control={control}
                                     name={`incomes.${index}.amount`}
                                     placeholder={t("form.amount")}
-                                    label={incomes[index]?.currency === 2 ? "USD" : undefined}
+                                    label={
+                                        incomes[index]?.currency === 2
+                                            ? "USD"
+                                            : index === 0
+                                              ? t("form.amount")
+                                              : undefined
+                                    }
+                                    registerOptions={{
+                                        validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                                    }}
                                 />
 
                                 {incomes[index]?.currency === 2 && (

@@ -357,6 +357,9 @@
         "salary_history_empty": "No history"
     },
     "table": {
+        "activity": "Activity",
+        "cargo_state": "Load state",
+        "order_status": "Order status",
         "geo_location": "Location",
         "show_on_map": "On map",
         "truck_number": "Plate Number",
@@ -466,6 +469,8 @@
     },
     "validation": {
         "required_field": "Enter {{field}}",
+        "max_amount": "Amount must not exceed 1 000 000 000",
+        "end_before_start": "End date cannot be earlier than start date",
         "required": "Required field",
         "min_length": "Minimum {{min}} characters",
         "invalid_phone": "Invalid phone number",

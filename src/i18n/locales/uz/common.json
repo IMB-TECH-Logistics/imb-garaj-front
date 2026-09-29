@@ -369,6 +369,9 @@
         "salary_history_empty": "Tarix mavjud emas"
     },
     "table": {
+        "activity": "Faoliyat",
+        "cargo_state": "Yuk holati",
+        "order_status": "Buyurtma holati",
         "geo_location": "Lokatsiya",
         "show_on_map": "Xaritada",
         "truck_number": "Avto raqami",
@@ -497,6 +500,8 @@
     },
     "validation": {
         "required_field": "{{field}}ni kiriting",
+        "max_amount": "Summa 1 000 000 000 dan oshmasligi kerak",
+        "end_before_start": "Tugash sanasi boshlanish sanasidan oldin bo'lishi mumkin emas",
         "required": "Majburiy maydon",
         "min_length": "Kamida {{min}} ta belgi",
         "invalid_phone": "Telefon raqam noto'g'ri",

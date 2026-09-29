@@ -27,6 +27,7 @@ import { DRIVER_SALARIES, MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGER
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 import { useTranslation } from "react-i18next"
+import { isWithinMoneyLimit } from "@/lib/money-limit"
 
 // ──── Types ────
 
@@ -398,7 +399,7 @@ function AddFinanceForm({
         const fd = new FormData()
 
         if (tripId != null) fd.append("trip", String(tripId))
-        fd.append("amount", String(Number(data.amount)))
+        fd.append("amount", String(data.amount))
         if (selectedCategoryId != null) fd.append("category", String(selectedCategoryId))
         fd.append("action", String(action))
         fd.append("currency", String(data.currency || 1))
@@ -445,6 +446,9 @@ function AddFinanceForm({
                 placeholder="Ex: 123 000"
                 thousandSeparator=" "
                 decimalScale={currency === 2 ? 2 : 0}
+                registerOptions={{
+                    validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                }}
             />
             {currency === 2 && (
                 <FormNumberInput
@@ -916,6 +920,9 @@ function AvansForm({ tripId }: { tripId?: number }) {
                 placeholder="Ex: 5 000 000"
                 thousandSeparator=" "
                 decimalScale={currency === 2 ? 2 : 0}
+                registerOptions={{
+                    validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                }}
             />
             {currency === 2 && (
                 <FormNumberInput

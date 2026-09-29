@@ -357,6 +357,9 @@
         "salary_history_empty": "履歴なし"
     },
     "table": {
+        "activity": "稼働状況",
+        "cargo_state": "積載状態",
+        "order_status": "注文ステータス",
         "geo_location": "位置情報",
         "show_on_map": "地図で表示",
         "truck_number": "車番",
@@ -466,6 +469,8 @@
     },
     "validation": {
         "required_field": "{{field}}を入力してください",
+        "max_amount": "金額は1 000 000 000以下にしてください",
+        "end_before_start": "終了日は開始日より前にできません",
         "required": "必須フィールド",
         "min_length": "{{min}}文字以上",
         "invalid_phone": "電話番号が無効です",
