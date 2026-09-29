@@ -63,7 +63,11 @@
         "detach": "Detach",
         "archive": "Archive",
         "restore": "Restore",
-        "skip_to_content": "Skip to main content"
+        "skip_to_content": "Skip to main content",
+        "more": "Actions",
+        "undo": "Undo",
+        "toggle_theme": "Toggle theme",
+        "expand": "Expand"
     },
     "messages": {
         "success_add": "Added successfully!",

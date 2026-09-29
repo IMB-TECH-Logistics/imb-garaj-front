@@ -60,6 +60,7 @@ export default function ParamInput({
             <Input
                 defaultValue={params[searchKey]}
                 placeholder={"Qidirish..."}
+                aria-label={props.placeholder ?? "Qidirish"}
                 type="search"
                 ref={inputRef}
                 onChange={handleInputChange}

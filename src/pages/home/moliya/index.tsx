@@ -40,6 +40,7 @@ function ChartPanel({
     panelId: string
     onToggle: (id: string | null) => void
 }) {
+    const { t } = useTranslation()
     const ref = useRef<HTMLDivElement>(null)
     const originRect = useRef<DOMRect | null>(null)
     const isExpanded = expandedId === panelId
@@ -159,6 +160,8 @@ function ChartPanel({
                         />
                     )}
                     <button
+                        type="button"
+                        aria-label={t("actions.expand")}
                         onClick={handleClick}
                         className="size-8 rounded-lg flex items-center justify-center bg-background/70 backdrop-blur-sm border shadow-sm text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all duration-200"
                     >

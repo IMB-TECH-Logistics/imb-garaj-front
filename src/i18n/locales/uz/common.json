@@ -63,7 +63,11 @@
         "detach": "Ajratish",
         "archive": "Arxivlash",
         "restore": "Tiklash",
-        "skip_to_content": "Asosiy qismga o'tish"
+        "skip_to_content": "Asosiy qismga o'tish",
+        "more": "Amallar",
+        "undo": "Bekor qilish",
+        "toggle_theme": "Mavzuni almashtirish",
+        "expand": "Kattalashtirish"
     },
     "messages": {
         "success_add": "Muvaffaqiyatli qo'shildi!",

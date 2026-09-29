@@ -63,7 +63,11 @@
         "detach": "取外",
         "archive": "アーカイブ",
         "restore": "復元",
-        "skip_to_content": "メインコンテンツへスキップ"
+        "skip_to_content": "メインコンテンツへスキップ",
+        "more": "操作",
+        "undo": "元に戻す",
+        "toggle_theme": "テーマ切替",
+        "expand": "拡大"
     },
     "messages": {
         "success_add": "正常に追加されました！",

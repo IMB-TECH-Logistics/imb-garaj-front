@@ -9,6 +9,7 @@ import {
     Trash2,
     Undo,
 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "../ui/button"
 import {
     DropdownMenu,
@@ -38,6 +39,7 @@ export default function TableActions({
     onFinished,
     className,
 }: Props) {
+    const { t } = useTranslation()
     return menuMode ?
             <DropdownMenu>
                 <DropdownMenuTrigger asChild className={className}>
@@ -45,6 +47,7 @@ export default function TableActions({
                         variant="ghost"
                         className="!text-primary size-6 "
                         size={"icon"}
+                        aria-label={t("actions.more")}
                         icon={<EllipsisVertical width={16} />}
                     />
                 </DropdownMenuTrigger>
@@ -129,6 +132,7 @@ export default function TableActions({
             >
                 {onFinished && (
                     <Button
+                        aria-label={t("actions.finish")}
                         icon={<Check className="text-green-500" size={16} />}
                         size="sm"
                         className="p-0 h-3"
@@ -141,6 +145,7 @@ export default function TableActions({
                 )}
                 {onView && (
                     <Button
+                        aria-label={t("actions.view")}
                         icon={<Eye className="text-green-500" size={16} />}
                         size="sm"
                         className="p-0 h-3"
@@ -153,6 +158,7 @@ export default function TableActions({
                 )}
                 {onEdit && (
                     <Button
+                        aria-label={t("actions.edit")}
                         icon={<SquarePen className="text-primary" size={16} />}
                         size="sm"
                         className="p-0 h-3"
@@ -165,6 +171,7 @@ export default function TableActions({
                 )}
                 {onDelete && (
                     <Button
+                        aria-label={t("actions.delete")}
                         icon={<Trash2 className="text-red-500" size={16} />}
                         size="sm"
                         className="p-0 h-3"
@@ -177,6 +184,7 @@ export default function TableActions({
                 )}
                 {onUndo && (
                     <Button
+                        aria-label={t("actions.undo")}
                         icon={<Undo className="text-red-500" size={16} />}
                         size="sm"
                         className="p-0 h-3"
@@ -189,6 +197,7 @@ export default function TableActions({
                 )}
                 {onRedo && (
                     <Button
+                        aria-label={t("actions.restore")}
                         icon={<RotateCcw size={16} />}
                         size="sm"
                         className="p-0 h-3"
