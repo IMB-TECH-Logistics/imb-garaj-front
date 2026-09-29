@@ -373,7 +373,10 @@
         "edit_expense_modal": "Xarajat tahrirlash",
         "salary_upcoming": "Keyingi",
         "salary_current": "Joriy",
-        "salary_history_empty": "Tarix mavjud emas"
+        "salary_history_empty": "Tarix mavjud emas",
+        "forbidden_title": "Sizga ruxsat berilmagan",
+        "forbidden_text": "Bu bo'limni ochish uchun ruxsatingiz yo'q. Kerak bo'lsa, administratordan rolingizga ruxsat qo'shishni so'rang.",
+        "go_home": "Bosh sahifaga"
     },
     "table": {
         "geo_location": "Lokatsiya",

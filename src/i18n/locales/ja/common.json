@@ -361,7 +361,10 @@
         "valid_from": "適用開始日",
         "salary_upcoming": "予定",
         "salary_current": "現在",
-        "salary_history_empty": "履歴なし"
+        "salary_history_empty": "履歴なし",
+        "forbidden_title": "アクセスが拒否されました",
+        "forbidden_text": "このセクションへのアクセス権がありません。必要に応じて、管理者にロールへの権限追加を依頼してください。",
+        "go_home": "ホームへ"
     },
     "table": {
         "geo_location": "位置情報",

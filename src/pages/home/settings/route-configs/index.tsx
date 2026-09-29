@@ -156,7 +156,7 @@ const RouteConfigsPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Yo'nalishlar"
+                        fileName={t("nav.directions")}
                         url="excel"
                         storeKey={hasControl ? COMMON_DIRECTIONS : undefined}
                         searchKey="route_configs_search"

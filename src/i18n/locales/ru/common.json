@@ -361,7 +361,10 @@
         "valid_from": "Действует с",
         "salary_upcoming": "Следующий",
         "salary_current": "Текущий",
-        "salary_history_empty": "История отсутствует"
+        "salary_history_empty": "История отсутствует",
+        "forbidden_title": "Доступ запрещён",
+        "forbidden_text": "У вас нет доступа к этому разделу. При необходимости попросите администратора добавить разрешение вашей роли.",
+        "go_home": "На главную"
     },
     "table": {
         "geo_location": "Локация",

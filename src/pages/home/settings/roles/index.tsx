@@ -59,7 +59,7 @@ const RolesPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Rollar"
+                        fileName={t("nav.roles")}
                         url="excel"
                         storeKey={hasControl ? SETTINGS_ROLES : undefined}
                         searchKey="roles_search"

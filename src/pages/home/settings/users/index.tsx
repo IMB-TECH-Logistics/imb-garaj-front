@@ -73,7 +73,7 @@ const UsersPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Foydalanuvchilar"
+                        fileName={t("nav.users")}
                         url="excel"
                         storeKey={SETTINGS_USERS}
                         searchKey="first_name"

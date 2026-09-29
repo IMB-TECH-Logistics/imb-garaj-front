@@ -361,7 +361,10 @@
         "valid_from": "Valid from",
         "salary_upcoming": "Upcoming",
         "salary_current": "Current",
-        "salary_history_empty": "No history"
+        "salary_history_empty": "No history",
+        "forbidden_title": "Access denied",
+        "forbidden_text": "You don't have access to this section. If needed, ask an administrator to add the permission to your role.",
+        "go_home": "Go to home page"
     },
     "table": {
         "geo_location": "Location",
