@@ -131,6 +131,7 @@ const matches = (pathname: string, path: string) =>
 const GUARDED_EXTRA: Record<string, string> = {
     "/trip": "manager_flights_view",
     "/dashboard": "investor_view",
+    "/truck-detail": "investor_view",
 }
 
 export const usePaths = () => {
