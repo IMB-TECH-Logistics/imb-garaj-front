@@ -5,6 +5,7 @@ import { COMMON_DIRECTIONS, DRIVER_SALARIES } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useQueryClient } from "@tanstack/react-query"
+import { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -27,9 +28,12 @@ const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
     const { handleSubmit, control, reset } = form
 
     const { mutateAsync, isPending } = usePatch()
+    const submitting = useRef(false)
 
     const onSubmit = async ({ amount, valid_from }: FormValues) => {
         if (!amount || !valid_from || selectedIds.length === 0) return
+        if (submitting.current) return
+        submitting.current = true
         try {
             await mutateAsync(`${DRIVER_SALARIES}/bulk-update`, {
                 directions: selectedIds,
@@ -47,6 +51,8 @@ const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
             onApplied()
         } catch {
             /* handleFormError already toasts the failure */
+        } finally {
+            submitting.current = false
         }
     }
 

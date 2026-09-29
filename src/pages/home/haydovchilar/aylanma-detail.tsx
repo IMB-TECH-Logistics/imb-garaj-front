@@ -227,7 +227,7 @@ function SalaryPayoutModal({
 
     const { mutate, isPending } = usePost({
         onSuccess: (res: { warning?: string | null }) => {
-            toast.success(t("toast.advance_given"))
+            toast.success(t("toast.salary_given"))
             if (res?.warning) toast.warning(`${res.warning} — oylik 0`)
             qc.refetchQueries({ queryKey: [refetchKey] })
             qc.refetchQueries({

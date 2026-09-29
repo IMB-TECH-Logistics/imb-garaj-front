@@ -8,6 +8,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -85,8 +86,16 @@ const AddVehicleSettingsModal = () => {
         queryClient.refetchQueries({ queryKey: [VEHICLES] })
     }
 
-    const { mutate: postMutate, isPending: isPendingCreate } = usePost({ onSuccess })
-    const { mutate: updateMutate, isPending: isPendingUpdate } = usePatch({ onSuccess })
+    const onError = (error: any) => {
+        handleFormError(error, form)
+        const data = error?.response?.data
+        if (data && IMAGE_FIELDS.some((key) => key in data)) {
+            toast.error(t("toast.error_fields"))
+        }
+    }
+
+    const { mutate: postMutate, isPending: isPendingCreate } = usePost({ onSuccess, onError })
+    const { mutate: updateMutate, isPending: isPendingUpdate } = usePatch({ onSuccess, onError })
     const isPending = isPendingCreate || isPendingUpdate
 
     const onSubmit = (values: any) => {

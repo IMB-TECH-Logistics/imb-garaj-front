@@ -72,6 +72,7 @@
     "messages": {
         "success_add": "Успешно добавлено!",
         "success_edit": "Успешно изменено!",
+        "direction_price_not_current": "Цена сохранена с {{date}}, но сейчас действует {{price}} (с {{active_date}}). Новая цена применяется только к заказам с {{date}} до следующего изменения.",
         "success_delete": "Успешно удалено",
         "confirm_delete": "Вы уверены?",
         "confirm_unlink_device": "Отвязать GPS устройство от машины {{vehicle}}?",
@@ -249,6 +250,7 @@
         "balance_topped_up": "Баланс пополнен",
         "record_updated": "Запись обновлена",
         "advance_given": "Аванс успешно выдан",
+        "salary_given": "Зарплата успешно выдана",
         "category_added": "Категория успешно добавлена",
         "warehouse_out": "Выдано со склада",
         "device_added": "GPS устройство добавлено",

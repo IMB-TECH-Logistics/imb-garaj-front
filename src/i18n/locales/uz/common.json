@@ -72,6 +72,7 @@
     "messages": {
         "success_add": "Muvaffaqiyatli qo'shildi!",
         "success_edit": "Muvaffaqiyatli tahrirlandi!",
+        "direction_price_not_current": "Narx {{date}} sanasidan saqlandi, lekin bugun amaldagi narx — {{price}} ({{active_date}} dan). Yangi narx faqat {{date}} dan keyingi o'zgarishgacha bo'lgan buyurtmalarga ta'sir qiladi.",
         "success_delete": "Muvaffaqiyatli o'chirildi",
         "confirm_delete": "O'chirmoqchimisiz?",
         "confirm_unlink_device": "{{vehicle}} mashinasidan GPS qurilma ajratilsinmi?",
@@ -258,6 +259,7 @@
         "balance_topped_up": "Balans to'ldirildi",
         "record_updated": "Yozuv yangilandi",
         "advance_given": "Avans muvaffaqiyatli berildi",
+        "salary_given": "Oylik muvaffaqiyatli berildi",
         "category_added": "Kategoriya muvaffaqiyatli qo'shildi",
         "warehouse_out": "Ombordan chiqarildi",
         "device_added": "GPS qurilma qo'shildi",

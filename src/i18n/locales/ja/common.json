@@ -72,6 +72,7 @@
     "messages": {
         "success_add": "正常に追加されました！",
         "success_edit": "正常に更新されました！",
+        "direction_price_not_current": "価格は{{date}}から保存されましたが、現在有効な価格は{{price}}（{{active_date}}から）です。新しい価格は{{date}}から次の変更までの注文にのみ適用されます。",
         "success_delete": "正常に削除されました",
         "confirm_delete": "よろしいですか？",
         "confirm_unlink_device": "{{vehicle}} からGPSデバイスの連携を解除しますか？",
@@ -249,6 +250,7 @@
         "balance_topped_up": "残高がチャージされました",
         "record_updated": "レコードが更新されました",
         "advance_given": "前払いが正常に支給されました",
+        "salary_given": "給与が正常に支給されました",
         "category_added": "カテゴリが正常に追加されました",
         "warehouse_out": "倉庫から出庫されました",
         "device_added": "GPSデバイスが追加されました",
