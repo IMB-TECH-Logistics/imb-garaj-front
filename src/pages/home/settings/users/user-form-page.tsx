@@ -42,10 +42,7 @@ const UserFormPage = () => {
 
     const selectedRole = useWatch({ control, name: "role" })
     const roles = (userRole?.results as RolesType[]) ?? []
-    const selectedRoleName = roles.find(
-        (r) => Number(r.id) === Number(selectedRole),
-    )?.name
-    const isDriver = selectedRoleName?.toLowerCase() === "driver"
+    const isDriver = Number(selectedRole) === 1
 
     // Rol ruxsatlari xodimga NUSXALANMAYDI: backend ularni `effective_actions`
     // (rol ∪ shaxsiy) sifatida o'zi qo'shadi. Bu yerda ular faqat meros
@@ -65,6 +62,7 @@ const UserFormPage = () => {
 
     const onSubmit = async (values: UserType) => {
         try {
+            if (isDriver) values = { ...values, actions: [] }
             if (id) {
                 const { password, ...rest } = values
                 await updateMutate(`${SETTINGS_USERS}/${id}`, password ? values : rest)

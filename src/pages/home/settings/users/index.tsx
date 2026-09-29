@@ -25,7 +25,7 @@ const UsersPage = () => {
         if (defaultApplied.current || !roles?.results?.length) return
         defaultApplied.current = true
         if (roleFilter !== undefined) return
-        const ids = roles.results.filter((r) => r.name !== "Driver").map((r) => r.id)
+        const ids = roles.results.filter((r) => r.id !== 1).map((r) => r.id)
         if (!ids.length) return
         navigate({
             replace: true,
