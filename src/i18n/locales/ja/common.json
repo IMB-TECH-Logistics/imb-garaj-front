@@ -293,6 +293,7 @@
         "expense_list": "支出一覧",
         "income_history": "収入履歴",
         "expense_history": "支出履歴",
+        "added_after_close": "後から追加",
         "trips": "便",
         "trip_list": "便一覧",
         "trips_cargo": "貨物便",

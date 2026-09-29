@@ -52,6 +52,7 @@ type FinanceRow = {
     currency_course: string | null
     petrol_station: number | null
     petrol_station_name: string | null
+    added_after_close?: boolean
 }
 
 function formatAmount(row: FinanceRow) {
@@ -628,7 +629,21 @@ const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => 
                 },
             }] : []),
             { header: t("form.payment_type"), accessorKey: "payment_type_name", enableSorting: true },
-            { header: t("table.created_at"), accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
+            {
+                header: t("table.created_at"),
+                accessorKey: "created",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div className="flex items-center gap-2">
+                        {formatDateTime(row.original.created)}
+                        {row.original.added_after_close && (
+                            <Badge variant="outline" className="border-amber-500 text-amber-600 whitespace-nowrap">
+                                {t("page.added_after_close")}
+                            </Badge>
+                        )}
+                    </div>
+                ),
+            },
         ],
         [opts?.isFuel, opts?.withCategory, t],
     )

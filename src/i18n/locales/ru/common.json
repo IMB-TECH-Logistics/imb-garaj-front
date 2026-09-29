@@ -293,6 +293,7 @@
         "expense_list": "Список расходов",
         "income_history": "История доходов",
         "expense_history": "История расходов",
+        "added_after_close": "Добавлено позже",
         "trips": "Рейсы",
         "trip_list": "Список рейсов",
         "trips_cargo": "Грузовые рейсы",

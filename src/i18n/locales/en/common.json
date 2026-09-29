@@ -293,6 +293,7 @@
         "expense_list": "Expense List",
         "income_history": "Income History",
         "expense_history": "Expense History",
+        "added_after_close": "Added later",
         "trips": "Trips",
         "trip_list": "Trip List",
         "trips_cargo": "Cargo Trips",
