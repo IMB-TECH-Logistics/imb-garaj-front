@@ -150,9 +150,11 @@ export const useDirectionColumns = () => {
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         <span>
-                            {formatMoney(
-                                Number(row.original.current_price?.price ?? 0),
-                            )}
+                            {row.original.current_price?.price != null
+                                ? formatMoney(
+                                      Number(row.original.current_price.price),
+                                  )
+                                : "—"}
                         </span>
                         {(row.original.prices?.length ?? 0) > 1 && (
                             <PriceHistoryPopover prices={row.original.prices} />
