@@ -57,7 +57,7 @@ const TableHeader = ({
     const showTitle = lastCount.current !== undefined
 
     return (
-        <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             {showTitle && (
                 <div className="flex items-center gap-2">
                     <h1 className="text-xl font-semibold">{fileName}</h1>
@@ -73,14 +73,14 @@ const TableHeader = ({
             <div
                 className={
                     showTitle ?
-                        "flex items-center gap-3 ml-auto"
-                    :   "flex items-center justify-between gap-3 w-full"
+                        "flex flex-wrap items-center justify-end gap-3 ml-auto min-w-0"
+                    :   "flex flex-wrap items-center justify-between gap-3 w-full"
                 }
             >
                 {extraLeft}
 
                 {searchKey && (
-                    <div className={showTitle ? "w-72" : "flex-1"}>
+                    <div className={showTitle ? "w-full sm:w-72" : "flex-1 min-w-48"}>
                         <ParamInput
                             fullWidth
                             searchKey={searchKey}
@@ -93,7 +93,7 @@ const TableHeader = ({
 
                 {(onAdd || storeKey) && (
                     <Button
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 shrink-0"
                         onClick={handleAdd}
                         icon={<PlusCircle size={18} />}
                     >
