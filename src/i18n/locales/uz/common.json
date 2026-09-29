@@ -498,6 +498,7 @@
     "validation": {
         "required_field": "{{field}}ni kiriting",
         "max_amount": "Summa 1 000 000 000 dan oshmasligi kerak",
+        "end_before_start": "Tugash sanasi boshlanish sanasidan oldin bo'lishi mumkin emas",
         "required": "Majburiy maydon",
         "min_length": "Kamida {{min}} ta belgi",
         "invalid_phone": "Telefon raqam noto'g'ri",

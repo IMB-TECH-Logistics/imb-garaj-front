@@ -467,6 +467,7 @@
     "validation": {
         "required_field": "Enter {{field}}",
         "max_amount": "Amount must not exceed 1 000 000 000",
+        "end_before_start": "End date cannot be earlier than start date",
         "required": "Required field",
         "min_length": "Minimum {{min}} characters",
         "invalid_phone": "Invalid phone number",

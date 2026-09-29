@@ -8,6 +8,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { startOfDay } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -30,7 +31,8 @@ const AddTrip = () => {
         },
     })
 
-    const { handleSubmit, control, reset } = form
+    const { handleSubmit, control, reset, watch, setError } = form
+    const startValue = watch("start")
 
     const onSuccess = () => {
         toast.success(
@@ -48,6 +50,10 @@ const AddTrip = () => {
     const isPending = creating || updating
 
     const onSubmit = (data: TripFormData) => {
+        if (data.start && data.end && new Date(data.end) < new Date(data.start)) {
+            setError("end", { type: "validate", message: t("validation.end_before_start") })
+            return
+        }
         const formattedData = {
             ...data,
         }
@@ -98,6 +104,11 @@ const AddTrip = () => {
                         name="end"
                         placeholder={t("form.select_date")}
                         className="w-full"
+                        calendarProps={
+                            startValue
+                                ? { disabled: { before: startOfDay(new Date(startValue)) } }
+                                : undefined
+                        }
                     />
                 </div>
             </div>
