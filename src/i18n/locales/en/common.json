@@ -242,6 +242,7 @@
         "balance_topped_up": "Balance topped up",
         "record_updated": "Record updated",
         "advance_given": "Advance successfully issued",
+        "salary_given": "Salary successfully paid",
         "category_added": "Category successfully added",
         "warehouse_out": "Issued from warehouse",
         "device_added": "GPS device added",

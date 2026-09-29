@@ -242,6 +242,7 @@
         "balance_topped_up": "残高がチャージされました",
         "record_updated": "レコードが更新されました",
         "advance_given": "前払いが正常に支給されました",
+        "salary_given": "給与が正常に支給されました",
         "category_added": "カテゴリが正常に追加されました",
         "warehouse_out": "倉庫から出庫されました",
         "device_added": "GPSデバイスが追加されました",
