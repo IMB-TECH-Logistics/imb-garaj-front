@@ -136,11 +136,16 @@ const AddTripOrders = () => {
                 currentTripOrder?.status != null && currentTripOrder.status !== -1
                     ? String(currentTripOrder.status)
                     : "0",
-            is_naqd: false,
+            is_naqd:
+                !!currentTripOrder?.incomes?.length &&
+                !currentTripOrder.direction &&
+                !currentTripOrder.client,
             incomes:
-                currentTripOrder?.payments?.length
-                    ? currentTripOrder.payments.map((p) => ({
+                currentTripOrder?.incomes?.length
+                    ? currentTripOrder.incomes.map((p) => ({
                         payment_type: p.payment_type,
+                        currency: p.currency ?? 1,
+                        currency_course: p.currency_course,
                         amount: p.amount,
                     }))
                     : [
@@ -205,7 +210,7 @@ const AddTripOrders = () => {
     )
 
     const isNaqd = !!watch("is_naqd")
-    const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
+    const incomes = watch("incomes") as { payment_type: number | null; currency?: number; amount: string }[]
     const selectedPaymentTypeIds = useMemo(
         () => new Set((incomes ?? []).map((inc) => inc.payment_type).filter(Boolean)),
         [incomes],
@@ -394,7 +399,8 @@ const AddTripOrders = () => {
             const incomes = isNaqdSel
                 ? (data.incomes ?? []).map((inc: any) => ({
                     payment_type: inc.payment_type,
-                    currency: 1,
+                    currency: inc.currency ?? 1,
+                    currency_course: inc.currency === 2 ? inc.currency_course : null,
                     amount: String(inc.amount ?? "0"),
                 }))
                 : [
@@ -644,7 +650,18 @@ const AddTripOrders = () => {
                                     control={control}
                                     name={`incomes.${index}.amount`}
                                     placeholder={t("form.amount")}
+                                    label={incomes[index]?.currency === 2 ? "USD" : undefined}
                                 />
+
+                                {incomes[index]?.currency === 2 && (
+                                    <FormNumberInput
+                                        required
+                                        control={control}
+                                        name={`incomes.${index}.currency_course`}
+                                        label={t("form.currency_rate")}
+                                        placeholder={t("form.currency_rate")}
+                                    />
+                                )}
 
                                 {incomeFields.length > 1 && (
                                     <Button

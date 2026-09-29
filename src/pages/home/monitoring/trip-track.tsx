@@ -19,6 +19,7 @@ type TripDetail = {
     start_mileage?: number
     end_mileage?: number
     vehicle?: number
+    vehicle_number?: string | null
 }
 
 export default function TripTrackPage() {
@@ -33,6 +34,7 @@ export default function TripTrackPage() {
 
     const trip = useGet<TripDetail>(`${MANAGERS_TRIPS}/${tripId}`, {
         enabled: !Number.isNaN(tripId),
+        options: { retry: false },
     })
 
     const polylineData = polyline.data
@@ -46,6 +48,19 @@ export default function TripTrackPage() {
             : null
 
     const { t } = useTranslation()
+
+    if (Number.isNaN(tripId) || (trip.error as any)?.response?.status === 404) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
+                <p className="text-lg font-medium">{t("page.not_found")}</p>
+                <Button variant="outline" onClick={() => navigate({ to: "/monitoring" })}>
+                    <ArrowLeft size={16} className="mr-2" />
+                    {t("page.back_to_list")}
+                </Button>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -122,11 +137,7 @@ export default function TripTrackPage() {
                             />
                             <Row
                                 label={t("form.truck")}
-                                value={
-                                    trip.data?.vehicle != null
-                                        ? `#${trip.data.vehicle}`
-                                        : "—"
-                                }
+                                value={trip.data?.vehicle_number ?? "—"}
                             />
                             <Row
                                 label={t("table.start_time")}

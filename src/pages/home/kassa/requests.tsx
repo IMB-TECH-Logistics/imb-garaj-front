@@ -13,6 +13,7 @@ import {
     CHECKOUT_SUMMARY,
 } from "@/constants/api-endpoints"
 import { useHasAction, useUser } from "@/constants/useUser"
+import { useConfirm } from "@/hooks/useConfirm"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
@@ -147,6 +148,7 @@ const CheckoutRequests = ({ switcher }: Props) => {
     const hasApprove = useHasAction("manager_cashflow_approve_control")
     const hasControl = useHasAction("manager_cashflow_control")
     const { data: profile } = useUser()
+    const confirm = useConfirm()
     const [selected, setSelected] = useState<CheckoutRequest | null>(null)
     const { openModal: openReject } = useModal("checkout-request-reject")
     const { openModal: openDelete } = useModal("checkout-request-delete")
@@ -210,7 +212,12 @@ const CheckoutRequests = ({ switcher }: Props) => {
         meta: { skipGlobalError: true },
     })
 
-    const handleApprove = (row: CheckoutRequest) => {
+    const handleApprove = async (row: CheckoutRequest) => {
+        const ok = await confirm({
+            title: t("kassa.approve"),
+            description: formatMoney(Number(row.amount)),
+        })
+        if (!ok) return
         decide(
             `${CHECKOUT_REQUESTS}/${row.id}/decision`,
             { status: 20 },
@@ -236,19 +243,24 @@ const CheckoutRequests = ({ switcher }: Props) => {
             loading={isLoading}
             columns={columns}
             data={data?.results}
-            rowAction={(row: CheckoutRequest) =>
-                row.status === 10 ?
+            rowAction={(row: CheckoutRequest) => {
+                const canDecide =
+                    hasApprove &&
+                    (row.executor !== profile?.id || !!profile?.is_superuser)
+                return row.status === 10 ?
                     <TableActions
-                        onFinished={hasApprove ? () => handleApprove(row) : undefined}
+                        onFinished={canDecide ? () => handleApprove(row) : undefined}
                         onDelete={
                             hasControl || row.executor === profile?.id ?
                                 () => handleDelete(row)
                             :   undefined
                         }
-                        onUndo={hasApprove ? () => handleReject(row) : undefined}
+                        onUndo={canDecide ? () => handleReject(row) : undefined}
                     />
+                : row.status === 20 && profile?.is_superuser ?
+                    <TableActions onDelete={() => handleDelete(row)} />
                 :   null
-            }
+            }}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
             paginationProps={{
@@ -316,7 +328,7 @@ const CheckoutRequests = ({ switcher }: Props) => {
             modalKey="checkout-request-delete"
             path={CHECKOUT_REQUESTS}
             id={selected?.id}
-            refetchKeys={[CHECKOUT_REQUESTS, CHECKOUT_PENDING_COUNTS]}
+            refetchKeys={[CHECKOUT_REQUESTS, CHECKOUT_PENDING_COUNTS, CHECKOUT_SUMMARY]}
         />
         </>
     )

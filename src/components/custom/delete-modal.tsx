@@ -23,6 +23,7 @@ interface IProps {
     disableRefetch?: boolean
     refetchKey?: string
     refetchKeys?: unknown[]
+    restorable?: boolean
 }
 
 export default function DeleteModal({
@@ -35,6 +36,7 @@ export default function DeleteModal({
     disableRefetch = false,
     refetchKeys,
     refetchKey,
+    restorable = false,
 }: IProps) {
     const { closeModal } = useModal(modalKey)
     const queryClient = useQueryClient()
@@ -87,7 +89,9 @@ export default function DeleteModal({
                     {`Siz haqiqatdan ham o'chirishni xohlaysizmi?`}
                 </DialogTitle>
                 <DialogDescription>
-                    {"Bu qaytarib bo'lmas jarayon!!!"}
+                    {restorable
+                        ? "O'chirilgan yozuvni «Arxiv» bo'limidan tiklash mumkin"
+                        : "Bu qaytarib bo'lmas jarayon!!!"}
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2">

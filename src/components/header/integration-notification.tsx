@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { MANAGERS_ORDERS, MANAGERS_ORDERS_INTEGRATION_COUNT } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
@@ -15,6 +16,7 @@ export function IntegrationNotification() {
     const queryClient = useQueryClient()
     const [approvingId, setApprovingId] = useState<number | null>(null)
     const [open, setOpen] = useState(false)
+    const canApprove = useHasAction("manager_vehicles_control")
 
     const { data: countData, isError } = useGet<{ count: number }>(
         MANAGERS_ORDERS_INTEGRATION_COUNT,
@@ -152,6 +154,7 @@ export function IntegrationNotification() {
                                     <ArrowRight size={14} className="mt-0.5 text-muted-foreground shrink-0" />
                                 </button>
                                 {isDraft ? (
+                                    canApprove && (
                                     <Button
                                         type="button"
                                         size="sm"
@@ -165,6 +168,7 @@ export function IntegrationNotification() {
                                     >
                                         Tasdiqlash
                                     </Button>
+                                    )
                                 ) : (
                                     <span className="mt-3 p-1 text-green-500 shrink-0" title="Tasdiqlangan">
                                         <Check size={15} />

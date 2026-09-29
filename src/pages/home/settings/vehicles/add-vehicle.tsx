@@ -209,7 +209,7 @@ const AddVehicleSettingsModal = () => {
                 <FormCombobox
                     name="status"
                     label={t("table.status")}
-                    options={STATUS_OPTIONS}
+                    options={STATUS_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
                     control={control}
                     labelKey="label"
                     valueKey="value"

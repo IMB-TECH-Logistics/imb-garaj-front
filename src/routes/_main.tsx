@@ -5,6 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import type { SEARCH_KEY } from "@/constants/default"
 import { cn } from "@/lib/utils"
 import { usePaths } from "@/hooks/usePaths"
+import { useUser } from "@/constants/useUser"
 import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/_main")({
@@ -24,6 +25,7 @@ function MainLayout() {
     const { pathname } = useLocation()
     const { isDeniedPath } = usePaths()
     const denied = isDeniedPath(pathname)
+    const { isLoading: isProfileLoading } = useUser()
 
     return (
         <SidebarProvider defaultOpen={true}>
@@ -43,7 +45,7 @@ function MainLayout() {
                             "mx-auto p-4 h-full overflow-y-auto   pt-20 flex flex-col pb-10",
                         )}
                     >
-                        {denied ? <Forbidden /> : <Outlet />}
+                        {isProfileLoading ? null : denied ? <Forbidden /> : <Outlet />}
                     </main>
                 </div>
             </SidebarInset>

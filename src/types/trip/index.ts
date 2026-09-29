@@ -23,6 +23,7 @@ type TripRow = {
     orders_count: string | number
     pending_order_count?: string | number
     completed_order_count?: string | number
+    order_count?: string | number
     id: number | string
     created: string
     updated: string
