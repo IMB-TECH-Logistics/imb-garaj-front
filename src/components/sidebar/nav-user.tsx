@@ -19,7 +19,7 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import { LOGOUT, PROFILE } from "@/constants/api-endpoints"
-import axiosInstance from "@/services/axios-instance"
+import axiosInstance, { getRefreshToken } from "@/services/axios-instance"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
@@ -46,7 +46,9 @@ export function NavUser() {
 
     const logOut = async () => {
         try {
-            await axiosInstance.post(`/${LOGOUT}/`)
+            await axiosInstance.post(`/${LOGOUT}/`, {
+                refresh: getRefreshToken(),
+            })
         } catch {
             // token yaroqsiz bo'lsa ham chiqaveramiz
         }
