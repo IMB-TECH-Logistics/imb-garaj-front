@@ -20,9 +20,9 @@ const UserFormPage = () => {
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
 
-    const { data: userData } = useGet<UserType>(
+    const { data: userData, error: userError } = useGet<UserType>(
         id ? `${SETTINGS_USERS}/${id}` : "",
-        { enabled: !!id },
+        { enabled: !!id, options: { retry: false } },
     )
     const { data: userRole } = useGet(SETTINGS_ROLES)
 
@@ -77,6 +77,18 @@ const UserFormPage = () => {
             )
             navigate({ to: "/users" })
         } catch { }
+    }
+
+    if (id && (userError as any)?.response?.status === 404) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
+                <p className="text-lg font-medium">{t("page.not_found")}</p>
+                <Button variant="outline" onClick={() => navigate({ to: "/users" })}>
+                    <ArrowLeft size={16} className="mr-2" />
+                    {t("page.back_to_list")}
+                </Button>
+            </div>
+        )
     }
 
     return (
