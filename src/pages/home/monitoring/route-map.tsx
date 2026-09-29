@@ -41,6 +41,7 @@ export type LiveMarker = {
     selected?: boolean
     icon?: "truck"
     tone?: "loaded" | "empty" | "repair"
+    russia?: boolean
     onClick?: () => void
 }
 

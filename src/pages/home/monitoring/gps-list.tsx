@@ -16,9 +16,10 @@ import { Clock, Unlink } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { DimensionEmpty, DimensionListSkeleton } from "./dimension-row"
+import { RussiaFlag } from "./map-markers"
 import { clock, minutes, orderStatusMeta } from "./order-card"
 import type { GpsLiveVehicle, TruckStatusFilter, VehicleOrderBadge } from "./types"
-import { TRUCK_STATUS_FILTERS } from "./types"
+import { isRussiaTruck, TRUCK_STATUS_FILTERS } from "./types"
 
 const TRUCK_STATUS_LABELS: Record<TruckStatusFilter, string> = {
     all: "page.truck_status_all",
@@ -236,6 +237,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                 const color = meta?.color ?? "hsl(var(--muted-foreground) / 0.4)"
                 const active = item.imei === activeImei
                 const stale = item.last_update && !isToday(parseISO(item.last_update))
+                const russia = isRussiaTruck(item)
                 return (
                     <li
                         key={item.imei}
@@ -249,12 +251,17 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                                 "relative grid w-full min-w-0 gap-1 overflow-hidden rounded-lg border bg-card py-2.5 pl-4 pr-3 text-left transition",
                                 "hover:border-primary/40 hover:bg-accent/40",
                                 active ? "border-primary/60 ring-1 ring-primary/20" : "border-border/70",
+                                russia && !active && "border-[#0039a6]/40 bg-[#0039a6]/[0.04]",
                             )}
                         >
+                            {russia && (
+                                <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: "linear-gradient(to right, #ffffff 0 33.33%, #0039a6 33.33% 66.66%, #d52b1e 66.66% 100%)" }} />
+                            )}
                             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
 
                             <span className={cn("flex items-center justify-between gap-2", item.vehicle && hasControl && "pr-7")}>
                                 <span className="flex min-w-0 items-baseline gap-2">
+                                    {russia && <RussiaFlag className="self-center" />}
                                     <span className="shrink-0 font-mono text-lg font-bold leading-tight tracking-wider">
                                         {item.vehicle_number || item.tracker_name || item.imei}
                                     </span>

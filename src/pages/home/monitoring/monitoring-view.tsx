@@ -62,7 +62,7 @@ import type {
     VehicleLastOrders,
     TruckStatusFilter,
 } from "./types"
-import { EMPTY_FILTERS, TRUCK_STATUS_FILTERS, isHistoricalView, todayIso, truckStatusOf } from "./types"
+import { EMPTY_FILTERS, TRUCK_STATUS_FILTERS, isHistoricalView, isRussiaTruck, todayIso, truckStatusOf } from "./types"
 import VehicleList from "./vehicle-list"
 
 const LIVE_REFRESH_MS = 30_000
@@ -279,6 +279,7 @@ export default function MonitoringView() {
                 stale: g.status !== "online",
                 icon: "truck" as const,
                 tone: truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined),
+                russia: isRussiaTruck(g),
                 selected: g.imei === trackerImei,
                 onClick: () => selectTracker(g.imei),
             }))

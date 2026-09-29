@@ -1,6 +1,18 @@
 import { cn } from "@/lib/utils"
 import { Truck } from "lucide-react"
 import type { LiveMarker, MapPoi } from "./route-map"
+import { RUSSIA_FLAG_GRADIENT } from "./types"
+
+export function RussiaFlag({ className }: { className?: string }) {
+    return (
+        <span
+            aria-label="Rossiya"
+            title="Rossiya reysi"
+            className={cn("inline-block h-3 w-[18px] shrink-0 rounded-[2px] ring-1 ring-slate-900/15", className)}
+            style={{ background: RUSSIA_FLAG_GRADIENT }}
+        />
+    )
+}
 
 export function EndpointDot({
     variant,
@@ -53,11 +65,15 @@ function TonedTruckMarker({ marker }: { marker: LiveMarker }) {
             <div
                 className={cn(
                     "relative z-10 flex h-9 w-9 -mt-1 items-center justify-center rounded-full border-2 bg-white/95 shadow-lg shadow-slate-900/30 backdrop-blur dark:bg-slate-900/95",
-                    tone.border,
+                    marker.russia ? "border-[#0039a6]" : tone.border,
                     !online && "border-dashed",
+                    marker.russia && "ring-2 ring-[#d52b1e]",
                     marker.selected && "ring-4 ring-primary/40",
                 )}
             >
+                {marker.russia && (
+                    <RussiaFlag className="absolute -left-2 -top-1.5 h-2.5 w-4 shadow-sm" />
+                )}
                 <Truck className={cn("h-5 w-5", tone.text)} />
                 <span
                     aria-hidden
@@ -71,6 +87,7 @@ function TonedTruckMarker({ marker }: { marker: LiveMarker }) {
             <div
                 className={cn(
                     "mt-0.5 max-w-[180px] truncate rounded-md px-1.5 py-0.5 text-[11px] font-semibold shadow-md backdrop-blur-md transition",
+                    marker.russia && "border-b-2 border-[#d52b1e]",
                     online
                         ? "bg-white/95 text-slate-900 dark:bg-slate-900/95 dark:text-white"
                         : "bg-slate-200/85 text-slate-700 dark:bg-slate-800/85 dark:text-slate-300",

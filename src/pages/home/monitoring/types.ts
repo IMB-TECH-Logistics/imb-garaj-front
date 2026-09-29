@@ -142,6 +142,17 @@ export type GpsLiveVehicle = {
     fix_time: string | null
 }
 
+const RUSSIA_TRUCK_IMEIS: string[] = []
+const RUSSIA_TRUCK_NUMBERS = ["241OCA"]
+
+export const RUSSIA_FLAG_GRADIENT = "linear-gradient(to bottom, #ffffff 0 33.33%, #0039a6 33.33% 66.66%, #d52b1e 66.66% 100%)"
+
+export function isRussiaTruck(item: Pick<GpsLiveVehicle, "imei" | "vehicle_number">): boolean {
+    if (RUSSIA_TRUCK_IMEIS.includes(item.imei)) return true
+    const number = (item.vehicle_number ?? "").replace(/\s+/g, "").toUpperCase()
+    return RUSSIA_TRUCK_NUMBERS.some((n) => number.endsWith(n))
+}
+
 export type GpsDay = {
     date: string
     points: number
