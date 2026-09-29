@@ -20,6 +20,9 @@ export const TRIPS_DRIVER_STATS = "trips/driver-stats"
 
 /** ===== VEHICLES ===== */
 export const VEHICLES = "vehicles"
+export const VEHICLE_DOCUMENTS = "vehicles/documents"
+export const VEHICLE_DOCUMENTS_TRUCKS = "vehicles/documents/trucks"
+export const VEHICLE_DOCUMENT_ALERTS = "vehicles/documents/alerts"
 export const TECHNICAL_INSPECT = "vehicles/technical-inspection"
 
 /** ===== CHECKOUT ===== */

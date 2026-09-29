@@ -76,6 +76,11 @@ export function NavMain() {
                                 >
                                     <span>{icon}</span>
                                     <span>{label}</span>
+                                    {!!item.badge && !pending && (
+                                        <span className="ml-auto rounded-full bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
+                                            {item.badge > 99 ? "99+" : item.badge}
+                                        </span>
+                                    )}
                                     {isGroup && (
                                         <ChevronDown
                                             size={16}
@@ -142,6 +147,11 @@ export function NavMain() {
                                                         }}
                                                     >
                                                         <span>{child.label}</span>
+                                                        {!!child.badge && (
+                                                            <span className="ml-auto rounded-full bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
+                                                                {child.badge}
+                                                            </span>
+                                                        )}
                                                     </Link>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>

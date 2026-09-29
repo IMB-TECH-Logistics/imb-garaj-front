@@ -9,6 +9,7 @@ import { ThemeColorToggle } from "./color-toggle"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
 import { IntegrationNotification } from "./integration-notification"
+import { DocumentNotification } from "./document-notification"
 import { TenantSwitcher } from "./tenant-switcher"
 import { useHasAction } from "@/constants/useUser"
 import {
@@ -136,6 +137,11 @@ const Header = () => {
                             {childPaths?.map((link) => (
                                 <TabsTrigger key={link.label} value={link.path}>
                                     {link.icon} {link.label}
+                                    {!!link.badge && (
+                                        <span className="ml-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
+                                            {link.badge}
+                                        </span>
+                                    )}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
@@ -164,6 +170,7 @@ const Header = () => {
                     />
                 )}
                 <div className="flex items-center gap-2">
+                    <DocumentNotification />
                     {canSeeIntegration && <IntegrationNotification />}
                     <LangButton />
                     <ThemeColorToggle />

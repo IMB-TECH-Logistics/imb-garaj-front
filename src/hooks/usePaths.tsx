@@ -1,4 +1,5 @@
 import { moduleOfCode, useUser } from "@/constants/useUser"
+import { useDocumentAlerts } from "@/hooks/use-document-alerts"
 import { useLocation } from "@tanstack/react-router"
 import {
     Activity,
@@ -24,6 +25,7 @@ export interface MenuItem {
     allowKeys?: string[]
     alwaysShow?: boolean
     extraPaths?: string[]
+    badge?: number
 }
 
 const filterMenuItems = (
@@ -125,6 +127,19 @@ const collectLeafPaths = (items: MenuItem[]): string[] =>
             : [item.path],
     )
 
+const withBadges = (
+    items: MenuItem[],
+    badges: Record<string, number>,
+): MenuItem[] =>
+    items.map((item) => {
+        if (item.items?.length) {
+            const children = withBadges(item.items, badges)
+            const total = children.reduce((sum, c) => sum + (c.badge ?? 0), 0)
+            return { ...item, items: children, badge: total || undefined }
+        }
+        return { ...item, badge: badges[item.path] || undefined }
+    })
+
 const matches = (pathname: string, path: string) =>
     pathname === path || pathname.startsWith(path + "/")
 
@@ -152,12 +167,17 @@ export const usePaths = () => {
         [items, disabledModules],
     )
 
+    const { count: documentAlerts } = useDocumentAlerts()
+
     const filteredItems = useMemo(
         () =>
-            isSuperuser
-                ? enabledItems
-                : filterMenuItems(enabledItems, safeActions),
-        [enabledItems, safeActions, isSuperuser],
+            withBadges(
+                isSuperuser
+                    ? enabledItems
+                    : filterMenuItems(enabledItems, safeActions),
+                { "/documents": documentAlerts },
+            ),
+        [enabledItems, safeActions, isSuperuser, documentAlerts],
     )
 
     const childPaths = useMemo(
@@ -312,6 +332,11 @@ export const useItems = () => {
                     {
                         label: t("nav.trucks"),
                         path: "/vehicles",
+                        allowKey: "settings_vehicles_view",
+                    },
+                    {
+                        label: t("nav.documents"),
+                        path: "/documents",
                         allowKey: "settings_vehicles_view",
                     },
                     {
