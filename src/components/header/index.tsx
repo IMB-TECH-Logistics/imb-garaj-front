@@ -9,6 +9,7 @@ import { ThemeColorToggle } from "./color-toggle"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
 import { IntegrationNotification } from "./integration-notification"
+import { TenantFilter } from "./tenant-filter"
 import { TenantSwitcher } from "./tenant-switcher"
 import { useHasAction } from "@/constants/useUser"
 import {
@@ -145,6 +146,7 @@ const Header = () => {
 
             <hgroup className="flex items-center gap-2 sm:gap-4">
                 <TenantSwitcher />
+                <TenantFilter />
                 {searchConfig && (
                     <ParamInput
                         key={searchConfig.prefix}

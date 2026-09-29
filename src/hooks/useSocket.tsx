@@ -1,5 +1,6 @@
 import { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
+import { isAllTenantsMode } from "@/lib/tenant-scope"
 import { useGet } from "./useGet"
 import { useUpdateQueryCache } from "./useUpdateQuery"
 
@@ -79,7 +80,7 @@ export function useSocket<T>({
     } = useUpdateQueryCache<MaybeWithId<T>>()
 
     useEffect(() => {
-        if (!wsUrl) return
+        if (!wsUrl || isAllTenantsMode()) return
 
         let reconnectTimeout: NodeJS.Timeout | null = null
 

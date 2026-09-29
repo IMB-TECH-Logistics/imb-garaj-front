@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover"
 import { DEBOUNCETIME } from "@/constants/default"
 import { cn } from "@/lib/utils"
+import { encodeSingle, groupOptionsByName } from "@/lib/tenant-options"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { CheckIcon, ChevronDown, X } from "lucide-react"
 import { ReactNode, useEffect, useState } from "react"
@@ -117,13 +118,26 @@ export function ParamCombobox<T extends Record<string, any>>({
         setOpen(false)
     }
 
-    const safeOptions: T[] = Array.isArray(options)
+    const rawOptions: T[] = Array.isArray(options)
         ? options
         : Array.isArray((options as any)?.results)
           ? (options as any).results
           : Array.isArray((options as any)?.data)
             ? (options as any).data
             : []
+
+    const nameGroups = groupOptionsByName(rawOptions, labelKey, valueKey)
+    const safeOptions: T[] =
+        nameGroups ?
+            nameGroups.map(
+                (g) =>
+                    ({
+                        ...g.first,
+                        [valueKey]: encodeSingle(g),
+                        [labelKey]: g.label,
+                    }) as T,
+            )
+        :   rawOptions
 
     const selectedOption = safeOptions.find(
         (d) => d[valueKey] == currentValue,

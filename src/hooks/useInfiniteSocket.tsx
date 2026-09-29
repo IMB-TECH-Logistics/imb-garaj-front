@@ -4,6 +4,7 @@ import {
     UseQueryResult,
     useQueryClient,
 } from "@tanstack/react-query";
+import { isAllTenantsMode } from "@/lib/tenant-scope";
 import { useInfiniteGet } from "./useInfiniteGet";
 
 type UseGetOptions<T> = Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">;
@@ -37,6 +38,8 @@ export function useInfiniteSocket<T = unknown>(
     const query = useInfiniteGet<T>(url, params, options as UseGetOptions<T>);
 
     useEffect(() => {
+        if (isAllTenantsMode()) return;
+
         let reconnectTimeout: NodeJS.Timeout | null = null;
 
         const connectWebSocket = () => {

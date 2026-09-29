@@ -3,7 +3,11 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { downloadExcel } from "@/lib/download-excel"
 import { handleFormError } from "@/lib/show-form-errors"
-import { baseURL, getAccessToken } from "@/services/axios-instance"
+import {
+    baseURL,
+    getAccessToken,
+    getSelectedTenant,
+} from "@/services/axios-instance"
 import { Download } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -101,6 +105,7 @@ const ExportAsExcel = ({
         const response = await fetch(`${baseURL}${url}?` + searchParams, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                ...(getSelectedTenant() ? { "X-Tenant": getSelectedTenant() as string } : {}),
             },
         })
         if (response.status === 200) {

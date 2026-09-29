@@ -5,6 +5,7 @@ import {
     UseInfiniteQueryOptions,
 } from "@tanstack/react-query"
 import { AxiosRequestConfig } from "axios"
+import { useTenantRequest, withReadTenant } from "@/lib/tenant-scope"
 import { getRequest } from "./useGet"
 
 type ICustomUseInfiniteQueryOptions<TQueryFnData, TError, TData> = Partial<
@@ -36,13 +37,15 @@ export const useInfinite = <
     args?: UseInfiniteArgs<TQueryFnData, TError>,
 ) => {
     const { deps, options, config, params, page_key = "page" } = args || {}
+    const { scope, pending } = useTenantRequest(url)
+    const baseKey = deps
+        ? [url, ...deps, ...Object.values(params || {})]
+        : [url, ...Object.values(params || {})]
     return useInfiniteQuery<TQueryFnData, TError, TData>({
-        queryKey: deps
-            ? [url, ...deps, ...Object.values(params || {})]
-            : [url, ...Object.values(params || {})],
+        queryKey: scope ? [...baseKey, scope] : baseKey,
         queryFn: async ({ pageParam = 1 }) => {
             const response = await getRequest(url, {
-                ...config,
+                ...withReadTenant(scope, config),
                 params: {
                     ...params,
                     [page_key]: pageParam,
@@ -66,5 +69,6 @@ export const useInfinite = <
             // @ts-expect-error default settings
             pages.flatMap((page) => page.results) || [],
         ...(options || {}),
+        ...(pending && { enabled: false }),
     })
 }

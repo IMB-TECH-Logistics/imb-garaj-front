@@ -1,4 +1,5 @@
 import axiosInstance from "@/services/axios-instance"
+import { useTenantRequest, withReadTenant } from "@/lib/tenant-scope"
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 import { AxiosRequestConfig } from "axios"
 
@@ -26,14 +27,18 @@ export const useGet = <TData = any, TQueryFnData = unknown, TError = any>(
     args?: UseGetArgs<TData, TQueryFnData, TError>,
 ) => {
     const { config, options, params, enabled = true } = args || {}
-    const queryKey = buildQueryKey(url, params)
+    const { scope, pending } = useTenantRequest(url)
+    const baseKey = buildQueryKey(url, params)
+    const queryKey = scope ? [...baseKey, scope] : baseKey
 
 
     return useQuery<TQueryFnData, TError, TData>({
         queryKey,
-        queryFn: () => getRequest(url, { ...config, params }),
+        queryFn: () =>
+            getRequest(url, { ...withReadTenant(scope, config), params }),
         staleTime: options?.staleTime ?? DEFAULT_STALE_TIME,
         enabled,
         ...options,
+        ...(pending && { enabled: false }),
     })
 }

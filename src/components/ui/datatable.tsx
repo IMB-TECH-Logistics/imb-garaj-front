@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table"
 import { DEFAULT_PAGE_SIZE, PAGE_KEY, PAGE_SIZE_KEY } from "@/constants/default"
 import { useHasAction } from "@/constants/useUser"
+import { useTenantColumns } from "@/components/custom/tenant-column"
 import { cn } from "@/lib/utils"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
@@ -161,12 +162,14 @@ export function DataTable<TData>({
             ]
         :   []
 
+    const baseColumns = useTenantColumns(columns, data)
+
     const orderedColumns = React.useMemo(() => {
-        if (!canUseActions) return columns
+        if (!canUseActions) return baseColumns
 
         if (onDelete || onEdit || onUndo || onView || onRedo || rowAction) {
             return [
-                ...columns,
+                ...baseColumns,
                 {
                     header: " ",
                     id: ACTIONS_COLUMN_ID,
@@ -202,10 +205,10 @@ export function DataTable<TData>({
                     ),
                 },
             ]
-        } else return columns
+        } else return baseColumns
     }, [
         actionMenuMode,
-        columns,
+        baseColumns,
         onDelete,
         onEdit,
         onUndo,
@@ -509,7 +512,8 @@ export function DataTable<TData>({
                             {table.getRowModel().rows?.length > 0 ?
                                 table.getRowModel().rows?.map((row, index) => (
                                     <TableRow
-                                        key={row.id}
+                                        key={(row.original as any)?.tenant_schema ? `${(row.original as any).tenant_schema}:${row.id}` : row.id}
+                                        data-tenant={(row.original as any)?.tenant_schema}
                                         data-state={
                                             row.getIsSelected() && "selected"
                                         }

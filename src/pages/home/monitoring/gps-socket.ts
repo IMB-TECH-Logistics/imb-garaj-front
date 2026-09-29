@@ -3,6 +3,7 @@ import {
     MONITORING_GPS_LIVE_TICKET,
 } from "@/constants/api-endpoints"
 import { buildQueryKey, getRequest } from "@/hooks/useGet"
+import { isAllTenantsMode } from "@/lib/tenant-scope"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import type { GpsLiveVehicle } from "./types"
@@ -61,7 +62,7 @@ export function useGpsLiveSocket(enabled: boolean) {
     const [connected, setConnected] = useState(false)
 
     useEffect(() => {
-        if (!enabled) return
+        if (!enabled || isAllTenantsMode()) return
         const key = buildQueryKey(MONITORING_GPS_LIVE)
         let socket: WebSocket | null = null
         let retry: ReturnType<typeof setTimeout> | undefined

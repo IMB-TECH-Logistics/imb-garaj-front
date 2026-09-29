@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AxiosProgressEvent } from "axios";
 import { useInView } from "react-intersection-observer";
 import axiosInstance from "@/services/axios-instance";
+import { useTenantRequest, withReadTenant } from "@/lib/tenant-scope";
 
 type UseGetOptions<T> = Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">;
 
@@ -25,7 +26,10 @@ export function useInfiniteGet<T = unknown>(
     const { ref, inView } = useInView();
     const queryClient = useQueryClient();
 
-    const lastUrl = params ? [url, { ...params, page_tabs: undefined }] : [url];
+    const { scope, pending } = useTenantRequest(url);
+
+    const baseKey = params ? [url, { ...params, page_tabs: undefined }] : [url];
+    const lastUrl = scope ? [...baseKey, scope] : baseKey;
     const [page, setPage] = useState(
         () =>
             (queryClient.getQueryData(lastUrl) as { current_page: number })
@@ -36,6 +40,7 @@ export function useInfiniteGet<T = unknown>(
         queryKey: lastUrl,
         queryFn: async () => {
             const response = await axiosInstance.get(url, {
+                ...withReadTenant(scope),
                 params: params ? { ...params, page } : { page },
                 onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
                     if (progressEvent.total) {
@@ -60,6 +65,7 @@ export function useInfiniteGet<T = unknown>(
             };
         },
         ...options,
+        ...(pending && { enabled: false }),
         retryDelay: 5000,
         retry: 3,
         placeholderData: keepPreviousData,

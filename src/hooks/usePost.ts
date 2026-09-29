@@ -1,4 +1,5 @@
 import axiosInstance from "@/services/axios-instance"
+import { useTenantRequest, withWriteTenant } from "@/lib/tenant-scope"
 import {
     MutateOptions,
     useMutation,
@@ -13,10 +14,13 @@ export const postRequest = <T>(
 ) =>
     axiosInstance
         .post(`/${url}/`, payload, {
-            ...(!(payload instanceof FormData) && {
-                headers: { "Content-Type": "application/json" },
-            }),
             ...config,
+            ...(!(payload instanceof FormData) && {
+                headers: {
+                    "Content-Type": "application/json",
+                    ...config.headers,
+                },
+            }),
         })
         .then((res) => res.data)
 
@@ -24,8 +28,10 @@ export const usePost = <P = any, D = any>(
     options?: Partial<UseMutationOptions<D, any, { url: string; payload: P }>>,
     config?: AxiosRequestConfig,
 ) => {
+    const { scope } = useTenantRequest("")
     const mutation = useMutation<D, any, { url: string; payload: P }>({
-        mutationFn: ({ url, payload }) => postRequest(url, payload, config),
+        mutationFn: ({ url, payload }) =>
+            postRequest(url, payload, withWriteTenant(url, scope, config)),
         ...(options || {}),
     })
 

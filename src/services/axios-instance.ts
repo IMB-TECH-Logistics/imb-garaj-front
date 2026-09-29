@@ -24,6 +24,13 @@ export const TENANT_STORAGE_KEY = "tenant"
 
 export const getSelectedTenant = () => localStorage.getItem(TENANT_STORAGE_KEY)
 
+export const TENANT_FILTER_STORAGE_KEY = "tenant_filter"
+
+export const getTenantFilter = () =>
+    (localStorage.getItem(TENANT_FILTER_STORAGE_KEY) ?? "")
+        .split(",")
+        .filter(Boolean)
+
 
 
 axiosInstance.interceptors.request.use(
@@ -33,8 +40,16 @@ axiosInstance.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`
         }
         const tenant = getSelectedTenant()
-        if (token && tenant) {
+        if (token && tenant && !config.headers.has("X-Tenant")) {
             config.headers.set("X-Tenant", tenant)
+        }
+        const tenantFilter = getTenantFilter()
+        if (
+            token &&
+            tenantFilter.length &&
+            config.headers.get("X-Tenant") === "*"
+        ) {
+            config.headers.set("X-Tenant-Filter", tenantFilter.join(","))
         }
         if (token || config.url?.includes("auth/login")) {
             startGeoTracking()
@@ -61,6 +76,7 @@ axiosInstance.interceptors.response.use(
         if (status === 401) {
             localStorage.removeItem("token")
             localStorage.removeItem(TENANT_STORAGE_KEY)
+            localStorage.removeItem(TENANT_FILTER_STORAGE_KEY)
             window.location.href = "/auth"
             return Promise.reject(error)
         }
