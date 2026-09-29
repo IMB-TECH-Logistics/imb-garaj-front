@@ -67,6 +67,7 @@
     "messages": {
         "success_add": "Muvaffaqiyatli qo'shildi!",
         "success_edit": "Muvaffaqiyatli tahrirlandi!",
+        "direction_price_not_current": "Narx {{date}} sanasidan saqlandi, lekin bugun amaldagi narx — {{price}} ({{active_date}} dan). Yangi narx faqat {{date}} dan keyingi o'zgarishgacha bo'lgan buyurtmalarga ta'sir qiladi.",
         "success_delete": "Muvaffaqiyatli o'chirildi",
         "confirm_delete": "O'chirmoqchimisiz?",
         "confirm_unlink_device": "{{vehicle}} mashinasidan GPS qurilma ajratilsinmi?",

@@ -67,6 +67,7 @@
     "messages": {
         "success_add": "Успешно добавлено!",
         "success_edit": "Успешно изменено!",
+        "direction_price_not_current": "Цена сохранена с {{date}}, но сейчас действует {{price}} (с {{active_date}}). Новая цена применяется только к заказам с {{date}} до следующего изменения.",
         "success_delete": "Успешно удалено",
         "confirm_delete": "Вы уверены?",
         "confirm_unlink_device": "Отвязать GPS устройство от машины {{vehicle}}?",

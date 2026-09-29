@@ -67,6 +67,7 @@
     "messages": {
         "success_add": "Added successfully!",
         "success_edit": "Updated successfully!",
+        "direction_price_not_current": "Price saved from {{date}}, but the price in effect today is {{price}} (since {{active_date}}). The new price only applies to orders from {{date}} until the next change.",
         "success_delete": "Deleted successfully",
         "confirm_delete": "Are you sure?",
         "confirm_unlink_device": "Unlink the GPS device from {{vehicle}}?",
