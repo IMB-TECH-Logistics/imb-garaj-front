@@ -137,7 +137,7 @@ function AuthComponent() {
                         <Button
                             type="submit"
                             loading={isPending}
-                            className="w-full bg-blue-400 hover:bg-blue-500 text-white"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                         >
                             {t("auth.submit")}
                         </Button>
