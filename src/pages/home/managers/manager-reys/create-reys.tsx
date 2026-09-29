@@ -69,7 +69,7 @@ export const STATUS_OPTIONS: StatusOption[] = [
     { id: "5", name: "Yuklanmoqda" },
     { id: "6", name: "Yo'lda" },
     { id: "7", name: "Tushirilmoqda" },
-    { id: "2", name: "Yakunlandi" },
+    { id: "2", name: "Tugallandi" },
     { id: "3", name: "Bekor qilindi" },
     { id: "4", name: "Arxivlangan" },
 ]

@@ -357,6 +357,9 @@
         "salary_history_empty": "No history"
     },
     "table": {
+        "activity": "Activity",
+        "cargo_state": "Load state",
+        "order_status": "Order status",
         "geo_location": "Location",
         "show_on_map": "On map",
         "truck_number": "Plate Number",

@@ -357,6 +357,9 @@
         "salary_history_empty": "履歴なし"
     },
     "table": {
+        "activity": "稼働状況",
+        "cargo_state": "積載状態",
+        "order_status": "注文ステータス",
         "geo_location": "位置情報",
         "show_on_map": "地図で表示",
         "truck_number": "車番",

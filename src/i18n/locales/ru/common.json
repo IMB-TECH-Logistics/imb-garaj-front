@@ -357,6 +357,9 @@
         "salary_history_empty": "История отсутствует"
     },
     "table": {
+        "activity": "Деятельность",
+        "cargo_state": "Загрузка",
+        "order_status": "Статус заказа",
         "geo_location": "Локация",
         "show_on_map": "На карте",
         "truck_number": "Номер авто",

@@ -114,7 +114,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="activity"
-                    label={t("table.status")}
+                    label={t("table.activity")}
                     options={ACTIVITY_OPTIONS}
                     valueKey="id"
                     labelKey="name"
@@ -123,7 +123,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="type"
-                    label={t("table.status")}
+                    label={t("table.cargo_state")}
                     options={TYPE_OPTIONS}
                     valueKey="id"
                     labelKey="name"
@@ -132,7 +132,7 @@ export default function ReysFilters() {
                 />
                 <ParamCombobox
                     paramName="status"
-                    label={t("table.status")}
+                    label={t("table.order_status")}
                     options={LIST_STATUS_OPTIONS}
                     valueKey="id"
                     labelKey="name"

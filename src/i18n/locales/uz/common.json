@@ -369,6 +369,9 @@
         "salary_history_empty": "Tarix mavjud emas"
     },
     "table": {
+        "activity": "Faoliyat",
+        "cargo_state": "Yuk holati",
+        "order_status": "Buyurtma holati",
         "geo_location": "Lokatsiya",
         "show_on_map": "Xaritada",
         "truck_number": "Avto raqami",
