@@ -209,61 +209,61 @@ const DriverSalariesPage = () => {
                     page_sizes: [25, 50, 100, 250, 500, 1000],
                 }}
                 head={
-                    <div className="flex flex-col gap-3 mb-3">
-                        <TableHeader
-                            fileName="Oylik tariflar"
-                            url="excel"
-                            searchKey="salary_search"
-                            pageKey="page"
-                            count={data?.count}
-                            extraTitle={
-                                selectedIds.length > 0 ? (
-                                    <Badge
-                                        variant="secondary"
-                                        className="text-sm"
+                    <TableHeader
+                        fileName="Oylik tariflar"
+                        url="excel"
+                        searchKey="salary_search"
+                        pageKey="page"
+                        count={data?.count}
+                        extraTitle={
+                            selectedIds.length > 0 ? (
+                                <Badge
+                                    variant="secondary"
+                                    className="text-sm"
+                                >
+                                    {selectedIds.length} tanlandi
+                                </Badge>
+                            ) : null
+                        }
+                        extraRight={
+                            <>
+                                {SALARY_FILTER_COLUMNS.map((col) => (
+                                    <div key={col.value} className="w-44">
+                                        <MultiCombobox
+                                            className="h-8 text-sm"
+                                            label={col.label}
+                                            options={filterOptions[col.value]}
+                                            values={filters[col.value] ?? []}
+                                            setValues={(vals: string[]) =>
+                                                setFilter(col.value, vals ?? [])
+                                            }
+                                            labelKey="label"
+                                            valueKey="value"
+                                        />
+                                    </div>
+                                ))}
+                                {activeFilterCount > 0 && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={clearFilters}
                                     >
-                                        {selectedIds.length} tanlandi
-                                    </Badge>
-                                ) : null
-                            }
-                        />
-                        <div className="flex flex-wrap items-center gap-2">
-                            {SALARY_FILTER_COLUMNS.map((col) => (
-                                <div key={col.value} className="w-48">
-                                    <MultiCombobox
-                                        className="h-8 text-sm"
-                                        label={col.label}
-                                        options={filterOptions[col.value]}
-                                        values={filters[col.value] ?? []}
-                                        setValues={(vals: string[]) =>
-                                            setFilter(col.value, vals ?? [])
-                                        }
-                                        labelKey="label"
-                                        valueKey="value"
-                                    />
-                                </div>
-                            ))}
-                            {activeFilterCount > 0 && (
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={clearFilters}
-                                >
-                                    {t("actions.reset")}
-                                </Button>
-                            )}
-                            {hasControl && selectedIds.length > 0 ? (
-                                <Button
-                                    type="button"
-                                    onClick={openBulkModal}
-                                    icon={<Wallet size={16} />}
-                                >
-                                    {t("actions.give_salary_btn")}
-                                </Button>
-                            ) : null}
-                        </div>
-                    </div>
+                                        {t("actions.reset")}
+                                    </Button>
+                                )}
+                                {hasControl && selectedIds.length > 0 ? (
+                                    <Button
+                                        type="button"
+                                        onClick={openBulkModal}
+                                        icon={<Wallet size={16} />}
+                                    >
+                                        {t("actions.give_salary_btn")}
+                                    </Button>
+                                ) : null}
+                            </>
+                        }
+                    />
                 }
             />
             <Modal
