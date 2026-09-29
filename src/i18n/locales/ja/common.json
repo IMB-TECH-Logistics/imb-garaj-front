@@ -472,7 +472,8 @@
         "invalid_date": "日付を選択してください",
         "select_required": "{{field}}を選択してください",
         "field_required": "{{field}}は必須です",
-        "numbers_only": "数字のみ入力してください"
+        "numbers_only": "数字のみ入力してください",
+        "reserved_username": "\"{{prefix}}\" で始まるユーザー名はシステムで予約されています"
     },
     "monitoring_stats": {
         "date": "日付",

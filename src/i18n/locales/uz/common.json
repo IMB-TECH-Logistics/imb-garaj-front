@@ -503,7 +503,8 @@
         "invalid_date": "Sanani tanlang",
         "select_required": "{{field}} tanlang",
         "field_required": "{{field}} kiritilishi shart",
-        "numbers_only": "Faqat raqam kiriting"
+        "numbers_only": "Faqat raqam kiriting",
+        "reserved_username": "\"{{prefix}}\" bilan boshlanadigan login tizim uchun band"
     },
     "monitoring_stats": {
         "date": "Sana",

@@ -472,7 +472,8 @@
         "invalid_date": "Выберите дату",
         "select_required": "Выберите {{field}}",
         "field_required": "Поле {{field}} обязательно",
-        "numbers_only": "Вводите только цифры"
+        "numbers_only": "Вводите только цифры",
+        "reserved_username": "Логин, начинающийся с \"{{prefix}}\", зарезервирован системой"
     },
     "monitoring_stats": {
         "date": "Дата",

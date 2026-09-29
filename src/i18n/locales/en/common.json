@@ -472,7 +472,8 @@
         "invalid_date": "Select a date",
         "select_required": "Select {{field}}",
         "field_required": "{{field}} is required",
-        "numbers_only": "Enter numbers only"
+        "numbers_only": "Enter numbers only",
+        "reserved_username": "Usernames starting with \"{{prefix}}\" are reserved by the system"
     },
     "monitoring_stats": {
         "date": "Date",
