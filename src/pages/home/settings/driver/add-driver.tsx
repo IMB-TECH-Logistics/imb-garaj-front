@@ -12,6 +12,7 @@ import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm, useWatch } from "react-hook-form"
@@ -54,12 +55,16 @@ const AddDriverModal = () => {
         queryClient.refetchQueries({ queryKey: [SETTINGS_DRIVERS] })
     }
 
+    const onError = (error: unknown) => handleFormError(error, form)
+
     const { mutate: postMutate, isPending: isPendingCreate } = usePost({
         onSuccess,
+        onError,
     })
 
     const { mutate: updateMutate, isPending: isPendingUpdate } = usePatch({
         onSuccess,
+        onError,
     })
 
     const isPending = isPendingCreate || isPendingUpdate
