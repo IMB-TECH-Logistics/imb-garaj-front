@@ -148,9 +148,10 @@ export const useDirectionColumns = () => {
             { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
             { accessorKey: "payment_type_name", header: t("form.payment_type"), enableSorting: false },
             {
+                id: "price_amount",
                 accessorKey: "current_price",
                 header: t("form.amount"),
-                enableSorting: false,
+                enableSorting: true,
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         <span>

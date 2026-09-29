@@ -547,12 +547,8 @@ export function DataTable<TData>({
                                                     search[paramName] || 1,
                                                     totalPages ?? 1
                                                 ) - 1) *
-                                                    (search[
-                                                        pageSizeParamName
-                                                    ] ||
-                                                        paginationProps
-                                                            ?.page_sizes?.[0] ||
-                                                        DEFAULT_PAGE_SIZE) +
+                                                    table.getState().pagination
+                                                        .pageSize +
                                                     index +
                                                     1}
                                             </TableCell>

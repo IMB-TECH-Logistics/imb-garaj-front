@@ -9,12 +9,14 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { useSearch } from "@tanstack/react-router"
-import { useMemo } from "react"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddRouteConfigModal from "./add-route"
 import { type DirectionPrice, type DirectionRow, useDirectionColumns } from "./cols"
+
+const DEFAULT_ORDERING = "-price_amount"
 
 type Direction = {
     id: number
@@ -49,6 +51,22 @@ const RouteConfigsPage = () => {
     const { openModal: openDeleteModal } = useModal("delete")
     const { openModal: openCreateModal } = useModal("create")
 
+    const navigate = useNavigate()
+    const ordering = search.ordering ?? DEFAULT_ORDERING
+
+    useEffect(() => {
+        if (!search.ordering) {
+            navigate({
+                replace: true,
+                search: (prev: Record<string, unknown>) => ({
+                    ...prev,
+                    ordering: DEFAULT_ORDERING,
+                }),
+            } as any)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search.ordering])
+
     const { data, isLoading } = useGet<ListResponse<Direction>>(
         COMMON_DIRECTIONS,
         {
@@ -56,7 +74,7 @@ const RouteConfigsPage = () => {
                 search: search.route_configs_search,
                 page: search.page,
                 page_size: search.page_size,
-                ordering: search.ordering,
+                ordering,
             },
         },
     )
