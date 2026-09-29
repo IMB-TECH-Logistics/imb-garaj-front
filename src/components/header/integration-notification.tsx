@@ -28,7 +28,7 @@ export function IntegrationNotification() {
     const { data: ordersData, isLoading, isError: ordersError } = useGet<ListResponse<ManagerOrders>>(
         MANAGERS_ORDERS,
         {
-            params: { is_integration: "true", page_size: 10, ordering: "-id" },
+            params: { is_integration: "true", status: -1, page_size: 100, ordering: "-id" },
         },
     )
 
