@@ -42,7 +42,7 @@ export function NavUser() {
     const fullName =
         [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
         user?.username ||
-        "Super Admin"
+        (user ? "Super Admin" : t("messages.loading"))
 
     const logOut = async () => {
         try {
