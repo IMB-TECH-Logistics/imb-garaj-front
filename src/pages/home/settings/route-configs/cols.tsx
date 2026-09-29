@@ -30,6 +30,8 @@ export type DirectionRow = {
     load_name: string
     unload?: number
     unload_name: string
+    load_place?: string | null
+    unload_place?: string | null
     cargo_type?: number
     cargo_type_name: string
     payment_type?: number
@@ -138,8 +140,10 @@ export const useDirectionColumns = () => {
     return useMemo<ColumnDef<DirectionRow>[]>(
         () => [
             { accessorKey: "owner_code", header: t("form.company_code"), enableSorting: true, size: 100 },
-            { accessorKey: "load_name", header: t("form.loading_address"), enableSorting: true },
-            { accessorKey: "unload_name", header: t("form.unloading_address"), enableSorting: true },
+            { accessorKey: "load_name", header: t("form.city"), enableSorting: true },
+            { accessorKey: "load_place", header: t("form.load_place"), enableSorting: false, cell: ({ row }) => row.original.load_place || "—" },
+            { accessorKey: "unload_name", header: t("form.city"), enableSorting: true },
+            { accessorKey: "unload_place", header: t("form.unload_place"), enableSorting: false, cell: ({ row }) => row.original.unload_place || "—" },
             { accessorKey: "owner_name", header: t("form.cargo_owner"), enableSorting: true },
             { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
             { accessorKey: "payment_type_name", header: t("form.payment_type"), enableSorting: false },

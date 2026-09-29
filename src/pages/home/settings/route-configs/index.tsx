@@ -25,6 +25,8 @@ type Direction = {
     load_name: string
     unload: number
     unload_name: string
+    load_place?: string | null
+    unload_place?: string | null
     cargo_type: number
     cargo_type_name: string
     payment_type: number
@@ -82,6 +84,8 @@ const RouteConfigsPage = () => {
                 owner_code: d.owner_code ?? "",
                 load_name: d.load_name ?? String(d.load),
                 unload_name: d.unload_name ?? String(d.unload),
+                load_place: d.load_place,
+                unload_place: d.unload_place,
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
                 payment_type_name:
                     paymentMap[d.payment_type] ?? String(d.payment_type),
