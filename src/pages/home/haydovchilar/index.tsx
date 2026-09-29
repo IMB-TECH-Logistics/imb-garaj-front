@@ -234,7 +234,7 @@ export default function HaydovchilarList() {
             data={rows}
             paginationProps={{
                 page_sizes: [25, 50, 100, 250, 500],
-                PageSize: 25,
+                PageSize: 50,
             }}
             numeration
             onRowClick={handleRowClick}
