@@ -12,6 +12,8 @@ import {
     UseFormReturn,
 } from "react-hook-form"
 
+const MAX_IMAGE_MB = 10
+
 type Props<IForm extends FieldValues> = {
     name: Path<IForm>
     label: string
@@ -39,6 +41,13 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
 
     const setFile = (file?: File | null) => {
         if (!file) return
+        if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+            methods.setError(name, {
+                type: "validate",
+                message: `Rasm hajmi ${MAX_IMAGE_MB} MB dan oshmasligi kerak (tanlangan: ${(file.size / 1024 / 1024).toFixed(1)} MB).`,
+            })
+            return
+        }
         methods.clearErrors(name)
         methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
     }
