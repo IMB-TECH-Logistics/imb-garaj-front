@@ -371,6 +371,7 @@
         "fuel_consumption": "Fuel Consumption",
         "fuel_per_km": "Per km",
         "profit": "Profit",
+        "income": "Income",
         "action": "Action",
         "action_d2m": "Driver → Manager (D2M)",
         "action_m2d": "Manager → Driver (M2D)",

@@ -371,6 +371,7 @@
         "fuel_consumption": "燃料消費",
         "fuel_per_km": "消費/km",
         "profit": "利益",
+        "income": "収入",
         "action": "アクション",
         "action_d2m": "ドライバー → マネージャー (D2M)",
         "action_m2d": "マネージャー → ドライバー (M2D)",

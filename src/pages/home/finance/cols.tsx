@@ -15,7 +15,6 @@ export interface OwnerStatistic {
     fuel_consume: number | null
     fuel_per_km: number
     income: string | number | null
-    income_with_vat: string | number | null
     expense: string | number | null
     cargo_type_name: string | null
 }
@@ -127,11 +126,11 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: t("form.income"),
-                accessorKey: "income_with_vat",
+                header: t("table.income"),
+                accessorKey: "income",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const v = round3(toNum(row.original.income_with_vat) || toNum(row.original.income))
+                    const v = round3(toNum(row.original.income))
                     return <span className="text-green-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
@@ -140,7 +139,7 @@ export const useCostCols = () => {
                 id: "profit",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const profit = round3((toNum(row.original.income_with_vat) || toNum(row.original.income)) - toNum(row.original.expense))
+                    const profit = round3(toNum(row.original.income) - toNum(row.original.expense))
                     return <span className={`font-medium ${profit >= 0 ? "text-blue-600" : "text-red-600"}`}>{formatMoney(profit)}</span>
                 },
             },
