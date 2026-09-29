@@ -10,7 +10,7 @@ import FlowChart from "./flow-chart"
 import TransactionLedger from "./transaction-ledger"
 import { DebtorCard, CreditorCard } from "./debtor-creditor"
 import CashflowForecast from "./cashflow-forecast"
-import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamDateRange, { isReversedRange } from "@/components/as-params/date-picker-range"
 
 function ExpandIcon({ expanded }: { expanded: boolean }) {
     if (expanded) {
@@ -239,6 +239,7 @@ export default function MoliyaPage() {
     const pageRef = useRef<HTMLDivElement>(null)
     const search: any = useSearch({ strict: false })
     const { data: summary, isError: summaryFailed } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+        enabled: !isReversedRange(search?.from_date, search?.to_date),
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
 
