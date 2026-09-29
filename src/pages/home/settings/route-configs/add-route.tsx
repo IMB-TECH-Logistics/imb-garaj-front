@@ -1,5 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
+import { FormInput } from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,6 +30,8 @@ type Direction = {
     owner: number | null
     load: number | null
     unload: number | null
+    load_place?: string | null
+    unload_place?: string | null
     cargo_type: number | null
     payment_type: number | null
     currency: number | null
@@ -73,6 +76,8 @@ const AddRouteConfigModal = () => {
             owner: current?.owner ?? null,
             load: current?.load ?? null,
             unload: current?.unload ?? null,
+            load_place: current?.load_place ?? "",
+            unload_place: current?.unload_place ?? "",
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
             currency: current?.currency ?? null,
@@ -134,6 +139,12 @@ const AddRouteConfigModal = () => {
                 labelKey="name"
                 placeholder={t("form.region")}
             />
+            <FormInput
+                name="load_place"
+                label={t("form.load_place")}
+                placeholder={t("form.load_place")}
+                methods={form}
+            />
             <FormCombobox
                 required
                 label={t("form.unloading_address")}
@@ -143,6 +154,12 @@ const AddRouteConfigModal = () => {
                 valueKey="id"
                 labelKey="name"
                 placeholder={t("form.region")}
+            />
+            <FormInput
+                name="unload_place"
+                label={t("form.unload_place")}
+                placeholder={t("form.unload_place")}
+                methods={form}
             />
             <FormCombobox
                 required
