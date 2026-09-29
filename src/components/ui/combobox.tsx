@@ -36,6 +36,7 @@ export type ComboboxProps<T extends Record<string, any>> = {
     addButtonProps?: ButtonProps
     isSearch?: boolean
     isClearIcon?: boolean
+    emptyText?: string
 }
 
 export function Combobox<T extends Record<string, any>>({
@@ -54,6 +55,7 @@ export function Combobox<T extends Record<string, any>>({
     addButtonProps,
     isClearIcon = true,
     isSearch = true,
+    emptyText = "Mavjud emas",
 }: ComboboxProps<T>) {
     const [open, setOpen] = useState(false)
     const [inputValue, setInputValue] = useState("")
@@ -158,7 +160,7 @@ export function Combobox<T extends Record<string, any>>({
                         />
                     )}
                     <CommandList>
-                        <CommandEmpty>{"Mavjud emas"}</CommandEmpty>
+                        <CommandEmpty>{emptyText}</CommandEmpty>
                         <CommandGroup>
                             {sortedOptions?.map((d, i) => {
                                 const itemId = String(d[valueKey] ?? i)

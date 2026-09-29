@@ -14,7 +14,7 @@ import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link2 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -92,6 +92,14 @@ function LinkDeviceForm() {
     const devices = useGet<DeviceOption[]>(MONITORING_GPS_DEVICES, {
         params: { search: deviceSearch },
     })
+
+    useEffect(() => {
+        if (devices.isError) {
+            toast.error("GPS xizmati vaqtincha ishlamayapti", {
+                id: "gps-devices-error",
+            })
+        }
+    }, [devices.isError])
 
     const vehicleOptions = useMemo(
         () =>
@@ -174,6 +182,11 @@ function LinkDeviceForm() {
                     isLoading={devices.isLoading}
                     onSearchChange={setDeviceSearch}
                     onAdd={openAddDevice}
+                    emptyText={
+                        devices.isError
+                            ? "Qurilmalarni yuklab bo'lmadi"
+                            : undefined
+                    }
                 />
                 {devices.isError && (
                     <p className="text-xs text-destructive">
