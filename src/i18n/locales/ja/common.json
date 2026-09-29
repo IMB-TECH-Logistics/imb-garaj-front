@@ -62,7 +62,12 @@
         "attach": "取付",
         "detach": "取外",
         "archive": "アーカイブ",
-        "restore": "復元"
+        "restore": "復元",
+        "skip_to_content": "メインコンテンツへスキップ",
+        "more": "操作",
+        "undo": "元に戻す",
+        "toggle_theme": "テーマ切替",
+        "expand": "拡大"
     },
     "messages": {
         "success_add": "正常に追加されました！",
@@ -78,7 +83,9 @@
         "fill_fields": "すべての項目を正しく入力してください",
         "no_connection": "サーバーに接続できませんでした。インターネット接続を確認してください。",
         "server_error": "操作に失敗しました — サーバーエラーが発生しました。しばらくしてから再試行してください。 ({{status}})",
-        "request_timeout": "リクエストへの応答が時間内に受信されませんでした。もう一度お試しください。"
+        "request_timeout": "リクエストへの応答が時間内に受信されませんでした。もう一度お試しください。",
+        "load_error": "データを読み込めませんでした — サーバーエラーが発生しました。表示される数値は不完全な可能性があります。しばらくしてから再読み込みしてください。 ({{status}})",
+        "not_loaded": "読み込み失敗"
     },
     "lang": {
         "uz": "O'zbek",
@@ -354,7 +361,10 @@
         "valid_from": "適用開始日",
         "salary_upcoming": "予定",
         "salary_current": "現在",
-        "salary_history_empty": "履歴なし"
+        "salary_history_empty": "履歴なし",
+        "forbidden_title": "アクセスが拒否されました",
+        "forbidden_text": "このセクションへのアクセス権がありません。必要に応じて、管理者にロールへの権限追加を依頼してください。",
+        "go_home": "ホームへ"
     },
     "table": {
         "activity": "稼働状況",

@@ -64,7 +64,7 @@ const BuxgalteriyaExcelModal = () => {
         from_date: params.from_date,
         to_date: params.to_date,
         search: params.search,
-        enabled: isOpen,
+        enabled: !!isOpen,
     })
 
     const { trigger, isFetching } = useDownloadAsExcel({

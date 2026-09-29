@@ -1,4 +1,4 @@
-import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
 import DownloadAsExcel from "@/components/download-as-excel"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -223,9 +223,10 @@ const Kassa = () => {
         group: groupFilter,
         ordering: search.ordering,
     }
+    const rangeReady = useDefaultRangeApplied()
     const { data: transactionsData, isLoading: transactionsLoading } = useGet<ListResponse<Transaction>>(
         TRANSACTIONS,
-        { params: filterParams },
+        { params: filterParams, enabled: rangeReady },
     )
     const drivers = useMemo(
         () =>

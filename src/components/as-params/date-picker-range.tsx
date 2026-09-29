@@ -1,6 +1,6 @@
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 import { X } from "lucide-react";
-import { format } from "date-fns";
+import { endOfMonth, format, startOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { DatePickerWithRange } from "../form/date-range-picker";
@@ -31,6 +31,14 @@ export function isReversedRange(fromDate?: string, toDate?: string) {
     const start = new Date(fromDate).getTime();
     const end = new Date(toDate).getTime();
     return !Number.isNaN(start) && !Number.isNaN(end) && start > end;
+}
+
+export function useDefaultRangeApplied(from = "from_date", to = "to_date") {
+    const search = useSearch({ strict: false }) as Record<string, unknown>;
+    const hasRange = !!search[from] || !!search[to];
+    const waiting = useRef(!hasRange);
+    if (hasRange) waiting.current = false;
+    return !waiting.current;
 }
 
 export default function ParamDateRange({
@@ -79,19 +87,25 @@ export default function ParamDateRange({
             });
             return;
         }
-        if (isReversed && defaultValue) {
+        if (isReversed) {
+            const fallback = defaultValue ?? {
+                from: startOfMonth(new Date()),
+                to: endOfMonth(new Date()),
+            };
             navigate({
                 search: {
                     ...search,
-                    [from]: defaultValue?.from ? format(defaultValue.from, dateFormat) : undefined,
-                    [to]: defaultValue?.to ? format(defaultValue.to, dateFormat) : undefined,
+                    [from]: fallback.from ? format(fallback.from, dateFormat) : undefined,
+                    [to]: fallback.to ? format(fallback.to, dateFormat) : undefined,
                     page: undefined,
                 },
                 replace: true,
             });
-            toast.warning("Sana oralig'i noto'g'ri edi, joriy oy qo'yildi", {
-                id: "reversed-date-range",
-            });
+            setTimeout(() =>
+                toast.warning("Sana oralig'i noto'g'ri edi, joriy oy qo'yildi", {
+                    id: "reversed-date-range",
+                }),
+            );
             return;
         }
         if (defaultValue && !fromDateString && !toDateString && !initialApplied.current) {

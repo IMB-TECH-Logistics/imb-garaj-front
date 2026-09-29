@@ -63,7 +63,7 @@ function EntryList({ entries, variant }: { entries: Entry[]; variant: "income" |
     const isIncome = variant === "income"
     return (
         <div className="h-full flex flex-col">
-            <div className="px-4 pt-3 pb-[17px] shrink-0 border-b flex items-center gap-3">
+            <div className="pl-4 pr-12 pt-3 pb-[17px] shrink-0 border-b flex flex-wrap items-center gap-x-3">
                 <h3 className="text-xs font-semibold">{isIncome ? "Bizga berishlari kerak" : "Biz berishimiz kerak"}</h3>
                 <span className={cn("text-xs font-semibold", isIncome ? "text-emerald-500" : "text-red-500")}>
                     {isIncome ? "+" : "−"}{fmt(total)}

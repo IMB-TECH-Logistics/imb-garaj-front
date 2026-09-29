@@ -57,6 +57,30 @@ export function NavMain() {
                         const isGroupOpen =
                             isGroup && (openGroup ?? (isParentActive ? label : null)) === label
 
+                        const inner = (
+                            <>
+                                <span>{icon}</span>
+                                <span>{label}</span>
+                                {!!item.badge && !pending && (
+                                    <span className="ml-auto rounded-full bg-red-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
+                                        {item.badge > 99 ? "99+" : item.badge}
+                                    </span>
+                                )}
+                                {isGroup && (
+                                    <ChevronDown
+                                        size={16}
+                                        className={`ml-auto transition-transform ${isGroupOpen ? "rotate-180" : ""}`}
+                                    />
+                                )}
+
+                                {pending && (
+                                    <Badge variant="secondary" className="ml-auto text-[10px] bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 leading-none py-0 px-2 border-none font-bold">
+                                        Pending
+                                    </Badge>
+                                )}
+                            </>
+                        )
+
                         const content = (
                             <SidebarMenuItem>
                                 <SidebarMenuButton
@@ -74,25 +98,7 @@ export function NavMain() {
                                         if (mobile) toggleSidebar()
                                     }}
                                 >
-                                    <span>{icon}</span>
-                                    <span>{label}</span>
-                                    {!!item.badge && !pending && (
-                                        <span className="ml-auto rounded-full bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
-                                            {item.badge > 99 ? "99+" : item.badge}
-                                        </span>
-                                    )}
-                                    {isGroup && (
-                                        <ChevronDown
-                                            size={16}
-                                            className={`ml-auto transition-transform ${isGroupOpen ? "rotate-180" : ""}`}
-                                        />
-                                    )}
-                                    
-                                    {pending && (
-                                        <Badge variant="secondary" className="ml-auto text-[10px] bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 leading-none py-0 px-2 border-none font-bold">
-                                            Pending
-                                        </Badge>
-                                    )}
+                                    {inner}
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         )
@@ -116,20 +122,28 @@ export function NavMain() {
                                     {content}
                                 </div>
                             ) : (
-                            <Link
-                                to={path}
-                                activeProps={{
-                                    className:
-                                        "[&_button]:bg-primary/10   hover:[&_button]:bg-primary/10  hover:[&_button]:text-primary  text-primary ",
-                                }}
-                                className={`rounded-lg ${
-                                    isParentActive ?
-                                        "[&_button]:bg-primary/10  text-primary "
-                                    :   ""
-                                }`}
-                            >
-                                {content}
-                            </Link>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    tooltip={label}
+                                    className={`flex items-center gap-4 ${
+                                        isParentActive ? "bg-primary/10 text-primary" : ""
+                                    }`}
+                                >
+                                    <Link
+                                        to={path}
+                                        activeProps={{
+                                            className:
+                                                "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
+                                        }}
+                                        onClick={() => {
+                                            if (mobile) toggleSidebar()
+                                        }}
+                                    >
+                                        {inner}
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                             )}
                             {children.length > 0 && (
                                 <SidebarMenuItem>
@@ -148,7 +162,7 @@ export function NavMain() {
                                                     >
                                                         <span>{child.label}</span>
                                                         {!!child.badge && (
-                                                            <span className="ml-auto rounded-full bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
+                                                            <span className="ml-auto rounded-full bg-red-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center leading-none">
                                                                 {child.badge}
                                                             </span>
                                                         )}

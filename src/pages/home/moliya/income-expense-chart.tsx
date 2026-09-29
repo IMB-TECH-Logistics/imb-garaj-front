@@ -104,7 +104,7 @@ export default function IncomeExpenseChart() {
     return (
         <div className="flex flex-col h-full p-3 gap-2">
             {/* Title + Legend */}
-            <div className="flex items-center justify-between shrink-0">
+            <div className="flex items-center justify-between shrink-0 pr-10">
                 <span className="text-xs font-semibold">
                     {t("form.income")} va {t("form.expense")}
                     <span className="text-muted-foreground font-normal ml-1.5">
@@ -112,7 +112,7 @@ export default function IncomeExpenseChart() {
                     </span>
                 </span>
             </div>
-            <div className="flex items-center gap-4 text-xs shrink-0">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs shrink-0 pr-10">
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.income }} />
                     <span className="text-muted-foreground">{t("form.income")}:</span>

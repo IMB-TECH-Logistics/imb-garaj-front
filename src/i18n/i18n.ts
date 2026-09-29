@@ -7,6 +7,12 @@ import jaCommon from "./locales/ja/common.json"
 import ruCommon from "./locales/ru/common.json"
 import uzCommon from "./locales/uz/common.json"
 
+const syncDocumentLang = (lng?: string) => {
+    document.documentElement.lang = (lng || "uz").split("-")[0]
+}
+
+i18n.on("languageChanged", syncDocumentLang)
+
 i18n
     .use(LanguageDetector)
     .use(initReactI18next)

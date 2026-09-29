@@ -92,3 +92,16 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
     toast.error("Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function handleQueryError(err: any) {
+  const status = Number(err?.response?.status)
+  if (status && status < 500) return
+  const message =
+    err?.code === "ECONNABORTED" || err?.code === "ETIMEDOUT"
+      ? i18n.t("messages.request_timeout")
+      : !err?.response
+        ? i18n.t("messages.no_connection")
+        : i18n.t("messages.load_error", { status })
+  toast.error(message, { id: "query-error", duration: 6000 })
+}

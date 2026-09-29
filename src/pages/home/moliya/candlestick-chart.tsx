@@ -641,7 +641,7 @@ export default function CandlestickChart() {
   return (
     <div className="tv-layout">
       {/* Title */}
-      <div style={{ padding: '10px 14px 0', fontSize: 12, fontWeight: 600, color: 'var(--tv-text-strong)', fontFamily: 'var(--sans)' }}>
+      <div style={{ padding: '10px 48px 0 14px', fontSize: 12, fontWeight: 600, color: 'var(--tv-text-strong)', fontFamily: 'var(--sans)' }}>
         {t("form.balance")}
       </div>
       {/* OHLC overlay */}
