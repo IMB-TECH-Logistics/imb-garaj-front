@@ -145,6 +145,22 @@ const AddDriverModal = () => {
                 />
 
                 <FormInput
+                    name="driver.relative_phone_1"
+                    label={t("form.relative_phone_1")}
+                    methods={form}
+                    registerOptions={{ maxLength: { value: 100, message: "100 ta belgidan oshmasin" } }}
+                    placeholder={`${t("form.example")}: +998 90 123 45 67 (akasi)`}
+                />
+
+                <FormInput
+                    name="driver.relative_phone_2"
+                    label={t("form.relative_phone_2")}
+                    methods={form}
+                    registerOptions={{ maxLength: { value: 100, message: "100 ta belgidan oshmasin" } }}
+                    placeholder={`${t("form.example")}: +998 90 123 45 67 (akasi)`}
+                />
+
+                <FormInput
                     required
                     registerOptions={{
                         setValueAs: normalizeDocNumber,

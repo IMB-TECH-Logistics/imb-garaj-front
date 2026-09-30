@@ -116,6 +116,8 @@
         "unload_region": "Unloading region",
         "address": "Address",
         "phone": "Phone",
+        "relative_phone_1": "Phone 1",
+        "relative_phone_2": "Phone 2",
         "expense_name": "Name",
         "applies_to": "Type",
         "expense_type": "Expense Type",

@@ -116,6 +116,8 @@
         "unload_region": "荷降ろし地域",
         "address": "住所",
         "phone": "電話",
+        "relative_phone_1": "電話 1",
+        "relative_phone_2": "電話 2",
         "expense_name": "名称",
         "applies_to": "種別",
         "expense_type": "費用種別",

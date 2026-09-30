@@ -29,6 +29,26 @@ export const useColumnsDriverTable = () => {
                 ),
             },
             {
+                id: "relative_phone_1",
+                header: t("form.relative_phone_1"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <div className="min-w-[180px] w-[220px] truncate">
+                        {row.original?.driver?.relative_phone_1 || "-"}
+                    </div>
+                ),
+            },
+            {
+                id: "relative_phone_2",
+                header: t("form.relative_phone_2"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <div className="min-w-[180px] w-[220px] truncate">
+                        {row.original?.driver?.relative_phone_2 || "-"}
+                    </div>
+                ),
+            },
+            {
                 header: t("form.passport"),
                 enableSorting: false,
                 accessorFn: (row) => formatPassportSerial(row.driver?.passport_serial),

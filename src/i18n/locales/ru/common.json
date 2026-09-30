@@ -116,6 +116,8 @@
         "unload_region": "Область выгрузки",
         "address": "Адрес",
         "phone": "Телефон",
+        "relative_phone_1": "Телефон 1",
+        "relative_phone_2": "Телефон 2",
         "expense_name": "Название",
         "applies_to": "Тип",
         "expense_type": "Тип расхода",

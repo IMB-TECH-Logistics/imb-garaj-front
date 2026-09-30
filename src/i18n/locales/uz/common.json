@@ -116,6 +116,8 @@
         "unload_region": "Yuk tushirish viloyati",
         "address": "Manzil",
         "phone": "Telefon",
+        "relative_phone_1": "Telefon 1",
+        "relative_phone_2": "Telefon 2",
         "expense_name": "Nomi",
         "applies_to": "Turi",
         "expense_type": "Xarajat turi",

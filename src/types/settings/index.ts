@@ -234,6 +234,8 @@ type DriverInfoType = {
     passport_serial: string
     pinfl: string
     phone: string
+    relative_phone_1?: string | null
+    relative_phone_2?: string | null
     driver_license: string
     driver_license_date: string
     experience: string
