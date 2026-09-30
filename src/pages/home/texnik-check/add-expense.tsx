@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { VehicleExpenseRow } from "./cols"
 import { useTranslation } from "react-i18next"
+import { todayIso } from "@/lib/today-iso"
 
 type SelectItem = { id: number | string; name: string }
 
@@ -42,7 +43,7 @@ const AddExpenseModal = () => {
             vehicle: current?.vehicle ?? null,
             category: current?.category ?? null,
             amount: current?.amount ? String(current.amount) : null,
-            date: current?.date ?? new Date().toISOString().split("T")[0],
+            date: current?.date ?? todayIso(),
             lifespan: current?.lifespan ?? "",
             comment: current?.comment ?? "",
         },
