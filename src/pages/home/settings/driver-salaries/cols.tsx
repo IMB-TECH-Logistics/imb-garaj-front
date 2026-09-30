@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import type { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
+import { todayIso } from "@/lib/today-iso"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import {
@@ -10,7 +10,7 @@ import {
     type DriverSalaryHistoryItem,
 } from "../route-configs/cols"
 
-export const localTodayIso = () => format(new Date(), "yyyy-MM-dd")
+export const localTodayIso = () => todayIso()
 
 export const upcomingSalary = (
     history?: DriverSalaryHistoryItem[],

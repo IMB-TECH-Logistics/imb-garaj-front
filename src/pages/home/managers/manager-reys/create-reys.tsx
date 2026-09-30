@@ -33,6 +33,7 @@ import { FormNumberInput } from "@/components/form/number-input"
 import PriceDiff from "./price-diff"
 import { useTranslation } from "react-i18next"
 import { isWithinMoneyLimit } from "@/lib/money-limit"
+import { todayIso } from "@/lib/today-iso"
 
 type Option = { id: number; name: string }
 
@@ -129,7 +130,7 @@ const AddTripOrders = () => {
             unloading: currentTripOrder?.unloading,
             trip: id,
             cargo_type: currentTripOrder?.cargo_type,
-            date: currentTripOrder?.date ?? new Date().toISOString().split("T")[0],
+            date: currentTripOrder?.date ?? todayIso(),
             activity:
                 currentTripOrder?.activity != null
                     ? String(currentTripOrder.activity)

@@ -168,7 +168,7 @@ export default function TransactionLedger() {
                                 </select>
                             </th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_total")}</th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.balance")}</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2" title={t("form.period_running_total_hint")}>{t("form.period_running_total")}</th>
                             <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.comment")}</th>
                         </tr>
                     </thead>
