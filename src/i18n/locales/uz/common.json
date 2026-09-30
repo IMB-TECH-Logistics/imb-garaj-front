@@ -28,6 +28,7 @@
         "activity_log": "Faoliyat jurnali"
     },
     "actions": {
+        "reverse_salary": "Storno qilish",
         "unlink_gps": "GPS'ni uzish",
         "add": "Qo'shish",
         "edit": "Tahrirlash",
@@ -62,15 +63,25 @@
         "attach": "Biriktirish",
         "detach": "Ajratish",
         "archive": "Arxivlash",
-        "restore": "Tiklash"
+        "restore": "Tiklash",
+        "skip_to_content": "Asosiy qismga o'tish",
+        "more": "Amallar",
+        "undo": "Bekor qilish",
+        "toggle_theme": "Mavzuni almashtirish",
+        "expand": "Kattalashtirish"
     },
     "messages": {
+        "reverse_salary_hint": "Kassa va haydovchi oylik farqi qaytariladi, reyslar yana 'Berilmagan' bo'ladi.",
+        "reverse_salary_trips": "{{count}} ta reys",
         "success_add": "Muvaffaqiyatli qo'shildi!",
         "success_edit": "Muvaffaqiyatli tahrirlandi!",
+        "direction_price_not_current": "Narx {{date}} sanasidan saqlandi, lekin bugun amaldagi narx — {{price}} ({{active_date}} dan). Yangi narx faqat {{date}} dan keyingi o'zgarishgacha bo'lgan buyurtmalarga ta'sir qiladi.",
         "success_delete": "Muvaffaqiyatli o'chirildi",
         "confirm_delete": "O'chirmoqchimisiz?",
         "confirm_unlink_device": "{{vehicle}} mashinasidan GPS qurilma ajratilsinmi?",
         "confirm_dialog_title": "Tasdiqlash",
+        "duplicate_client_title": "Bunday nomli mijoz bor",
+        "duplicate_client_name": "«{{name}}» nomli mijoz allaqachon mavjud (firma kodi: {{codes}}). Baribir yangi mijoz sifatida saqlansinmi?",
         "download_password": "Yuklab olish uchun parol talab qilinadi",
         "not_found": "Topilmadi",
         "loading": "Yuklanmoqda...",
@@ -78,7 +89,9 @@
         "fill_fields": "Iltimos, barcha maydonlarni to'g'ri to'ldiring",
         "no_connection": "Server bilan bog'lanib bo'lmadi. Internet aloqasini tekshiring va qayta urinib ko'ring.",
         "server_error": "Amal bajarilmadi — serverda xatolik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring. ({{status}})",
-        "request_timeout": "So'rov javobi kutilgan vaqtda kelmadi. Iltimos, qayta urinib ko'ring."
+        "request_timeout": "So'rov javobi kutilgan vaqtda kelmadi. Iltimos, qayta urinib ko'ring.",
+        "load_error": "Ma'lumotni yuklab bo'lmadi — serverda xatolik yuz berdi. Ko'rsatilgan raqamlar to'liq emas bo'lishi mumkin, birozdan so'ng sahifani yangilang. ({{status}})",
+        "not_loaded": "Yuklanmadi"
     },
     "lang": {
         "uz": "O'zbek",
@@ -148,6 +161,8 @@
         "discount": "Chegirma",
         "device": "Qurilma",
         "balance": "Qoldiq",
+        "period_running_total": "Davr yig'indisi",
+        "period_running_total_hint": "Tanlangan davr boshidan shu qatorgacha kirim − chiqim − avans yig'indisi. Kassa qoldig'i emas — kassa qoldig'i yuqoridagi «Qoldiq» kartasida.",
         "income": "Tushum",
         "expense": "Chiqim",
         "advance": "Avans",
@@ -226,9 +241,15 @@
         "price_diff_less": "haydovchi yozgan summa yo'nalish narxidan kam",
         "price_diff_more": "haydovchi yozgan summa yo'nalish narxidan ko'p",
         "price_diff_by_client": "Mijoz sababli",
-        "price_diff_driver": "Narx farqi (qarz/haq)"
+        "price_diff_driver": "Narx farqi (+ qarz / − haq)",
+        "salary_diff_driver": "Oylik farqi (+ qarz / − haq)",
+        "debt_driver_owes": "haydovchi kompaniyaga qarzdor",
+        "debt_company_owes": "kompaniya haydovchiga qarzdor",
+        "debt_total": "Jami qarz (qoldiq + oylik + narx farqi)",
+        "not_in_balance": "Qoldiqqa kirmaydi"
     },
     "toast": {
+        "salary_reversed": "Oylik to'lovi bekor qilindi (storno)",
         "added": "Qo'shildi",
         "updated": "Yangilandi",
         "deleted": "O'chirildi",
@@ -251,6 +272,7 @@
         "balance_topped_up": "Balans to'ldirildi",
         "record_updated": "Yozuv yangilandi",
         "advance_given": "Avans muvaffaqiyatli berildi",
+        "salary_given": "Oylik muvaffaqiyatli berildi",
         "category_added": "Kategoriya muvaffaqiyatli qo'shildi",
         "warehouse_out": "Ombordan chiqarildi",
         "device_added": "GPS qurilma qo'shildi",
@@ -290,6 +312,7 @@
         "draft": "Qoralama"
     },
     "page": {
+        "salary_payouts": "Berilgan oyliklar",
         "truck_status_all": "Barchasi",
         "truck_status_loaded": "Yukli",
         "truck_status_empty": "Yuksiz",
@@ -366,9 +389,15 @@
         "edit_expense_modal": "Xarajat tahrirlash",
         "salary_upcoming": "Keyingi",
         "salary_current": "Joriy",
-        "salary_history_empty": "Tarix mavjud emas"
+        "salary_history_empty": "Tarix mavjud emas",
+        "forbidden_title": "Sizga ruxsat berilmagan",
+        "forbidden_text": "Bu bo'limni ochish uchun ruxsatingiz yo'q. Kerak bo'lsa, administratordan rolingizga ruxsat qo'shishni so'rang.",
+        "go_home": "Bosh sahifaga"
     },
     "table": {
+        "activity": "Faoliyat",
+        "cargo_state": "Yuk holati",
+        "order_status": "Buyurtma holati",
         "geo_location": "Lokatsiya",
         "show_on_map": "Xaritada",
         "truck_number": "Avto raqami",
@@ -469,7 +498,8 @@
         "subtitle": "Davom etish uchun ma'lumotlaringizni kiriting",
         "username": "Login",
         "password": "Parol",
-        "submit": "Kirish"
+        "submit": "Kirish",
+        "invalid_credentials": "Login yoki parol noto'g'ri"
     },
     "backend_messages": {
         "Username or password is incorrect": "Login yoki parol noto'g'ri",
@@ -497,13 +527,16 @@
     },
     "validation": {
         "required_field": "{{field}}ni kiriting",
+        "max_amount": "Summa 1 000 000 000 dan oshmasligi kerak",
+        "end_before_start": "Tugash sanasi boshlanish sanasidan oldin bo'lishi mumkin emas",
         "required": "Majburiy maydon",
         "min_length": "Kamida {{min}} ta belgi",
         "invalid_phone": "Telefon raqam noto'g'ri",
         "invalid_date": "Sanani tanlang",
         "select_required": "{{field}} tanlang",
         "field_required": "{{field}} kiritilishi shart",
-        "numbers_only": "Faqat raqam kiriting"
+        "numbers_only": "Faqat raqam kiriting",
+        "reserved_username": "\"{{prefix}}\" bilan boshlanadigan login tizim uchun band"
     },
     "monitoring_stats": {
         "date": "Sana",

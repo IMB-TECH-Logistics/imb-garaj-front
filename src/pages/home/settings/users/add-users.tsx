@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { Switch } from "@/components/ui/switch"
 import PermissionField from "./permission-field"
 import { useTranslation } from "react-i18next"
+import { validateUsername } from "@/lib/reserved-username"
 
 const AddUserModal = () => {
     const { t } = useTranslation()
@@ -98,6 +99,7 @@ const AddUserModal = () => {
                     <FormInput
                         required
                         name="username"
+                        registerOptions={{ validate: validateUsername }}
                         label={t("auth.username")}
                         methods={form}
                         placeholder={`${t("form.example")}: ali1`}

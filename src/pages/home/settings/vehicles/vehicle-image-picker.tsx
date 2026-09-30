@@ -1,3 +1,4 @@
+import FieldError from "@/components/form/form-error"
 import { Input } from "@/components/ui/input"
 import SeeInView from "@/components/ui/see-in-view"
 import { cn } from "@/lib/utils"
@@ -11,6 +12,8 @@ import {
     UseFormReturn,
 } from "react-hook-form"
 
+const MAX_IMAGE_MB = 10
+
 type Props<IForm extends FieldValues> = {
     name: Path<IForm>
     label: string
@@ -22,7 +25,7 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
     label,
     methods,
 }: Props<IForm>) {
-    const { field } = useController({ name, control: methods.control })
+    const { field, fieldState } = useController({ name, control: methods.control })
     const value = field.value as File | string | null | undefined
 
     const preview = useMemo(() => {
@@ -37,7 +40,16 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
     }, [preview, value])
 
     const setFile = (file?: File | null) => {
-        if (file) methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
+        if (!file) return
+        if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+            methods.setError(name, {
+                type: "validate",
+                message: `Rasm hajmi ${MAX_IMAGE_MB} MB dan oshmasligi kerak (tanlangan: ${(file.size / 1024 / 1024).toFixed(1)} MB).`,
+            })
+            return
+        }
+        methods.clearErrors(name)
+        methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
     }
 
     const onPaste = (e: ClipboardEvent<HTMLInputElement>) => {
@@ -53,7 +65,10 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
 
     return (
         <div
-            className="flex flex-col items-center gap-3 rounded-lg border p-4"
+            className={cn(
+                "flex flex-col items-center gap-3 rounded-lg border p-4",
+                fieldState.error && "border-destructive",
+            )}
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
         >
@@ -93,6 +108,9 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
             >
                 {label}
             </label>
+            {fieldState.error?.message && (
+                <FieldError>{fieldState.error.message}</FieldError>
+            )}
         </div>
     )
 }

@@ -90,9 +90,9 @@ const ParamPagination: React.FC<PaginationProps> = ({
         )
 
     return (
-        <div className="flex items-center gap-4">
-            <Pagination2 className="w-auto m-0">
-                <PaginationContent className="flex items-center">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 max-w-full min-w-0">
+            <Pagination2 className="w-auto m-0 min-w-0">
+                <PaginationContent className="flex flex-wrap items-center justify-center">
                     <PaginationItem>
                         <Button
                             disabled={disabled || currentPage === 1}
@@ -152,6 +152,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
                     disabled={disabled}
                     className="w-20 h-8 sm:h-10 bg-primary/10 text-primary hover:bg-primary/15"
                     label=""
+                    ariaLabel="Page size"
                     options={page_sizes?.map((size) => ({
                         label: `${size}`,
                         value: `${size}`,

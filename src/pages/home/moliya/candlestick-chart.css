@@ -193,10 +193,10 @@
 
 /* ---- OHLC Overlay ---- */
 .tv-ohlc-overlay {
-  position: absolute;
-  top: 28px;
-  left: 12px;
+  position: relative;
+  padding: 4px 14px 2px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   z-index: 5;
@@ -668,9 +668,6 @@
 
   .tv-ohlc-overlay {
     font-size: 10px;
-    top: 80px;
-    flex-wrap: wrap;
-    max-width: 260px;
   }
 
   .tv-sidebar-filter {

@@ -20,6 +20,7 @@ import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { todayIso } from "@/lib/today-iso"
 
 type TripOrder = {
     id: number
@@ -39,7 +40,7 @@ export default function FinishManagerTrips() {
         defaultValues: {
             ...item,
             vehicle: id,
-            end: new Date().toISOString().split("T")[0],
+            end: todayIso(),
         },
     })
 

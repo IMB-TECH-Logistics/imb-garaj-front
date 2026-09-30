@@ -1,5 +1,8 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
-import ParamDateRange, { isReversedRange } from "@/components/as-params/date-picker-range"
+import ParamDateRange, {
+    isReversedRange,
+    useDefaultRangeApplied,
+} from "@/components/as-params/date-picker-range"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
@@ -35,6 +38,7 @@ export default function FlightsPage() {
     )
 
     const isReversed = isReversedRange(search?.from_date, search?.to_date)
+    const rangeReady = useDefaultRangeApplied()
 
     const defaultDateRange =
         (!search?.from_date && !search?.to_date) || isReversed ?
@@ -50,11 +54,11 @@ export default function FlightsPage() {
         from_date: search?.from_date,
         to_date: search?.to_date,
         search: search?.search,
-        enabled: !isReversed,
+        enabled: !isReversed && rangeReady,
     })
 
     const { data, isLoading } = useGet<ListResponse<ReysOrder>>(MANAGERS_RUNS, {
-        enabled: !isReversed,
+        enabled: !isReversed && rangeReady,
         params: {
             from_date: search?.from_date,
             to_date: search?.to_date,

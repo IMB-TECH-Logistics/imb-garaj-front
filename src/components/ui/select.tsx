@@ -22,6 +22,8 @@ export default function Select<T extends Record<string, any>>({
     valueKey = "value",
     placeholder,
     classNameItem,
+    id,
+    ariaLabel,
 }: thisProps<T>) {
     return (
         <Select2
@@ -30,6 +32,8 @@ export default function Select<T extends Record<string, any>>({
             onValueChange={setValue}
         >
             <SelectTrigger
+                id={id}
+                aria-label={ariaLabel || label || undefined}
                 className={cn(
                     `w-full bg-background ${className}`,
                     renderOption && "pl-1",
@@ -80,4 +84,6 @@ interface thisProps<T extends Record<string, any>> {
     valueKey?: keyof T
     renderOption?: (item: T) => ReactNode
     placeholder?: string
+    id?: string
+    ariaLabel?: string
 }

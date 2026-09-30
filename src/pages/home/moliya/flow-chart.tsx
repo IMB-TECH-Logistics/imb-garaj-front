@@ -238,7 +238,7 @@ export default function FlowChart() {
                     <button onClick={() => setZoom((z) => Math.min(3, z * 1.25))} className="size-6 rounded flex items-center justify-center text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">+</button>
                     <button onClick={() => setZoom((z) => Math.max(0.3, z * 0.8))} className="size-6 rounded flex items-center justify-center text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">−</button>
                     <button onClick={fitView} className="h-6 px-2 rounded text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Reset</button>
-                    <span className="text-[10px] text-muted-foreground/50">{Math.round(zoom * 100)}%</span>
+                    <span className="text-[10px] text-muted-foreground">{Math.round(zoom * 100)}%</span>
                 </div>
             </div>
 

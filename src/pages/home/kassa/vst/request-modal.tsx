@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import type { VstOverview } from "./types"
+import { isWithinMoneyLimit } from "@/lib/money-limit"
 
 type FormValues = {
     recipient_type: "1" | "2"
@@ -167,7 +168,10 @@ const VstRequestModal = () => {
                 decimalScale={2}
                 allowNegative={false}
                 registerOptions={{
-                    validate: (v) => Number(v) > 0 || t("kassa.amount_gt_zero"),
+                    validate: (v) =>
+                        Number(v) > 0
+                            ? isWithinMoneyLimit(v) || t("validation.max_amount")
+                            : t("kassa.amount_gt_zero"),
                 }}
             />
             <FormSelect

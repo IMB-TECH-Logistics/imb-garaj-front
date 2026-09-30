@@ -54,9 +54,10 @@ export default function ManagersTrips() {
             navigate({ search: (prev: any) => { const { moliya_trip_id, ...rest } = prev; return rest } } as any)
         }
     }
-    const { data, isLoading } = useGet<ListResponse<ManagerTrips>>(
+    const { data, isLoading, isError, error } = useGet<ListResponse<ManagerTrips>>(
         MANAGERS_TRIPS,
         {
+            options: { retry: false },
             params: {
                 ...(driver_id ? { driver_id } : { vehicle: id }),
                 ...(!isArchive ? { page_size: 2 } : {}),
@@ -67,6 +68,9 @@ export default function ManagersTrips() {
             },
         },
     )
+    const isNotFound =
+        vehicleError?.response?.status === 404 ||
+        (isError && [400, 404].includes(error?.response?.status))
     const currentItem = getData("expense-id")
     const { data: expenses } = useGet(MANAGERS_CASHFLOW, {
         params: {
@@ -186,13 +190,18 @@ export default function ManagersTrips() {
                                     />
                                 </div>
                                 {hasControl && (
-                                    <Button onClick={handleAdd} disabled={hasOngoingTrip}>
+                                    <Button onClick={handleAdd} disabled={hasOngoingTrip || isError || isNotFound}>
                                         <Plus size={16} />
                                         {t("actions.start")}
                                     </Button>
                                 )}
                             </div>
                         </div>
+                        {isError && (
+                            <p className="py-10 text-center text-destructive">
+                                {isNotFound ? t("page.not_found") : t("messages.error")}
+                            </p>
+                        )}
                     </div>
                 }
             />

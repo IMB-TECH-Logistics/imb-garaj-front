@@ -24,6 +24,7 @@ import {
     useSearch,
 } from "@tanstack/react-router"
 import { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 
 export const Route = createFileRoute("/_main")({
     component: MainLayout,
@@ -92,6 +93,7 @@ function MainLayout() {
     const denied = isDeniedPath(pathname)
     const { isLoading: isProfileLoading } = useUser()
     const allTenants = isAllTenantsMode()
+    const { t } = useTranslation()
 
     useEffect(() => {
         if (!allTenants) return
@@ -100,6 +102,16 @@ function MainLayout() {
 
     return (
         <SidebarProvider defaultOpen={true}>
+            <a
+                href="#main-content"
+                onClick={(e) => {
+                    e.preventDefault()
+                    document.getElementById("main-content")?.focus()
+                }}
+                className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+            >
+                {t("actions.skip_to_content")}
+            </a>
             <AppSidebar />
             <SidebarInset>
                 <div className="w-full h-full overflow-y-auto">
@@ -112,8 +124,10 @@ function MainLayout() {
                     </div>
 
                     <main
+                        id="main-content"
+                        tabIndex={-1}
                         className={cn(
-                            "mx-auto p-4 h-full overflow-y-auto   pt-20 flex flex-col pb-10",
+                            "mx-auto p-4 h-full overflow-y-auto   pt-20 flex flex-col pb-10 focus:outline-none",
                         )}
                     >
                         {isProfileLoading ? null

@@ -7,13 +7,17 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LOGIN } from "@/constants/api-endpoints"
-import { TENANT_STORAGE_KEY } from "@/services/axios-instance"
+import {
+    REFRESH_STORAGE_KEY,
+    TENANT_STORAGE_KEY,
+} from "@/services/axios-instance"
 import { usePost } from "@/hooks/usePost"
 import { handleFormError } from "@/lib/show-form-errors"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { Globe, Truck } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 export const Route = createLazyFileRoute("/_auth/auth")({
     component: AuthComponent,
@@ -45,10 +49,18 @@ function AuthComponent() {
         mutate(LOGIN, data, {
             onSuccess(res) {
                 localStorage.setItem("token", res.access)
+                localStorage.setItem(REFRESH_STORAGE_KEY, res.refresh)
                 localStorage.removeItem(TENANT_STORAGE_KEY)
                 window.location.href = "/"
             },
-            onError: (error) => handleFormError(error, form),
+            onError: (error) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if ((error as any)?.response?.data?.code === "invalid_credentials") {
+                    toast.error(t("auth.invalid_credentials"))
+                    return
+                }
+                handleFormError(error, form)
+            },
         })
     })
 
@@ -133,7 +145,7 @@ function AuthComponent() {
                         <Button
                             type="submit"
                             loading={isPending}
-                            className="w-full bg-blue-400 hover:bg-blue-500 text-white"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                         >
                             {t("auth.submit")}
                         </Button>

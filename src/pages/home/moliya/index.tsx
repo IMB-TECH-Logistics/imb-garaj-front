@@ -10,7 +10,7 @@ import FlowChart from "./flow-chart"
 import TransactionLedger from "./transaction-ledger"
 import { DebtorCard, CreditorCard } from "./debtor-creditor"
 import CashflowForecast from "./cashflow-forecast"
-import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamDateRange, { isReversedRange } from "@/components/as-params/date-picker-range"
 
 function ExpandIcon({ expanded }: { expanded: boolean }) {
     if (expanded) {
@@ -40,6 +40,7 @@ function ChartPanel({
     panelId: string
     onToggle: (id: string | null) => void
 }) {
+    const { t } = useTranslation()
     const ref = useRef<HTMLDivElement>(null)
     const originRect = useRef<DOMRect | null>(null)
     const isExpanded = expandedId === panelId
@@ -159,6 +160,8 @@ function ChartPanel({
                         />
                     )}
                     <button
+                        type="button"
+                        aria-label={t("actions.expand")}
                         onClick={handleClick}
                         className="size-8 rounded-lg flex items-center justify-center bg-background/70 backdrop-blur-sm border shadow-sm text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all duration-200"
                     >
@@ -200,7 +203,8 @@ function ArrowDownIcon() {
     )
 }
 
-function StatCard({ label, value, icon, color, hint }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string }) {
+function StatCard({ label, value, icon, color, hint, failed }: { label: string; value: number; icon: ReactNode; color: "blue" | "emerald" | "red"; hint?: string; failed?: boolean }) {
+    const { t } = useTranslation()
     const colors = {
         blue: "text-blue-600 bg-blue-500/10",
         emerald: "text-emerald-600 bg-emerald-500/10",
@@ -213,8 +217,12 @@ function StatCard({ label, value, icon, color, hint }: { label: string; value: n
             </div>
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="text-sm font-semibold truncate">{fmt(value)} so'm</p>
-                {hint && <p className="text-[10px] text-muted-foreground truncate">{hint}</p>}
+                <p className="text-sm font-semibold truncate">{failed ? "—" : `${fmt(value)} so'm`}</p>
+                {failed ? (
+                    <p className="text-[10px] text-destructive truncate">{t("messages.not_loaded")}</p>
+                ) : (
+                    hint && <p className="text-[10px] text-muted-foreground truncate">{hint}</p>
+                )}
             </div>
         </div>
     )
@@ -233,7 +241,8 @@ export default function MoliyaPage() {
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const pageRef = useRef<HTMLDivElement>(null)
     const search: any = useSearch({ strict: false })
-    const { data: summary } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+    const { data: summary, isError: summaryFailed } = useGet<FinanceSummary>(FINANCE_SUMMARY, {
+        enabled: !isReversedRange(search?.from_date, search?.to_date),
         params: { from_date: search?.from_date, to_date: search?.to_date },
     })
 
@@ -257,19 +266,24 @@ export default function MoliyaPage() {
                 )}
                 onClick={() => setExpandedId(null)}
             />
+            <div className="sm:hidden mb-3">
+                <ParamDateRange from="from_date" to="to_date" />
+            </div>
             {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <StatCard
                     label={search?.to_date ? `${t("form.balance")} (davr oxiriga)` : t("form.balance")}
                     value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
+                    failed={summaryFailed}
                 />
                 <StatCard
                     label={t("form.income")}
                     value={Number(summary?.income_total ?? 0)}
                     icon={<ArrowUpIcon />}
                     color="emerald"
+                    failed={summaryFailed}
                 />
                 <StatCard
                     label={t("form.expense")}
@@ -277,14 +291,15 @@ export default function MoliyaPage() {
                     hint={`Avans: ${fmt(Number(summary?.advance_total ?? 0))} so'm (xarajatga kirmaydi)`}
                     icon={<ArrowDownIcon />}
                     color="red"
+                    failed={summaryFailed}
                 />
             </div>
 
             {/* Main 2x2 grid */}
             <div
                 className={cn(
-                    "grid gap-3 h-[calc(100vh-80px-76px)]",
-                    "grid-cols-1 md:grid-cols-2 grid-rows-2",
+                    "grid gap-3 auto-rows-[26rem] md:auto-rows-auto md:h-[calc(100vh-80px-76px)]",
+                    "grid-cols-1 md:grid-cols-2 md:grid-rows-2",
                 )}
             >
                 <ChartPanel expandedId={expandedId} panelId="income-expense" onToggle={setExpandedId}>
@@ -305,7 +320,7 @@ export default function MoliyaPage() {
             </div>
 
             {/* Bottom row - same height as grid rows */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pb-4 h-[calc((100vh-80px-12px)/2)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pb-4 auto-rows-[26rem] md:auto-rows-auto md:h-[calc((100vh-80px-12px)/2)]">
                 <div className="grid grid-cols-2 gap-3 h-full">
                     <ChartPanel expandedId={expandedId} panelId="debtor" onToggle={setExpandedId}>
                         <DebtorCard />

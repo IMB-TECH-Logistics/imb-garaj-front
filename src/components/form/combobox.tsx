@@ -80,6 +80,8 @@ export function FormCombobox<
                         value={field.value || ""}
                         setValue={field.onChange}
                         label={placeholder || label || "Tanlang"}
+                        id={name}
+                        ariaLabel={label || placeholder}
                         isError={!!fieldState.error}
                         onAdd={onAdd}
                         valueKey={valueKey}
