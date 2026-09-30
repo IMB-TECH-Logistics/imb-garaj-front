@@ -26,7 +26,8 @@ type User = {
     full_name?: string
     phone?: string | null
     is_global_admin?: boolean
-    tenant?: { schema_name: string; name: string }
+    is_warehouse_owner?: boolean
+    tenant?: { schema_name: string; name: string; is_warehouse_owner?: boolean }
 }
 
 type MonthCalProps = {

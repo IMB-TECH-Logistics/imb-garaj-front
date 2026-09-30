@@ -54,6 +54,8 @@ type SearchParams = {
     tier?:"A"|"B"|"C"|"D"
     customer_search?:string
     cargo_search?:string
+    unit_search?:string
+    catalog_search?:string
     country_search?:string
     vehicle_search?:string
     roles_search?:string

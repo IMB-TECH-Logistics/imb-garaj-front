@@ -1,4 +1,4 @@
-import { moduleOfCode, useUser } from "@/constants/useUser"
+import { moduleOfCode, useUser, useWarehouseOwner } from "@/constants/useUser"
 import { useLocation } from "@tanstack/react-router"
 import {
     Activity,
@@ -24,6 +24,7 @@ export interface MenuItem {
     allowKeys?: string[]
     alwaysShow?: boolean
     extraPaths?: string[]
+    ownerOnly?: boolean
 }
 
 const filterMenuItems = (
@@ -75,7 +76,18 @@ const removeDisabledItems = (
         return acc
     }, [])
 
-const matchesPath = (pathname: string, item: MenuItem): boolean => {
+const removeOwnerOnly = (items: MenuItem[], isOwner: boolean): MenuItem[] =>
+    isOwner ?
+        items
+    :   items
+            .filter((item) => !item.ownerOnly)
+            .map((item) =>
+                item.items ?
+                    { ...item, items: removeOwnerOnly(item.items, isOwner) }
+                :   item,
+            )
+
+const matchesPath =(pathname: string, item: MenuItem): boolean => {
     if (pathname === item.path || pathname.startsWith(item.path + "/")) {
         return true
     }
@@ -143,12 +155,17 @@ export const usePaths = () => {
     const items = useItems()
     const disabledModules = data?.disabled_modules
 
+    const isWarehouseOwner = useWarehouseOwner()
+
     const enabledItems = useMemo(
         () =>
-            disabledModules?.length
-                ? removeDisabledItems(items, disabledModules)
-                : items,
-        [items, disabledModules],
+            removeOwnerOnly(
+                disabledModules?.length
+                    ? removeDisabledItems(items, disabledModules)
+                    : items,
+                isWarehouseOwner,
+            ),
+        [items, disabledModules, isWarehouseOwner],
     )
 
     const filteredItems = useMemo(
@@ -352,6 +369,18 @@ export const useItems = () => {
                         label: t("nav.monthly_rates"),
                         path: "/driver-salaries",
                         allowKey: "settings_driver_salaries_view",
+                    },
+                    {
+                        label: t("wh.units"),
+                        path: "/units",
+                        allowKey: "warehouse_view",
+                        ownerOnly: true,
+                    },
+                    {
+                        label: t("wh.catalog"),
+                        path: "/product-catalog",
+                        allowKey: "warehouse_view",
+                        ownerOnly: true,
                     },
                     {
                         label: t("nav.activity_log"),

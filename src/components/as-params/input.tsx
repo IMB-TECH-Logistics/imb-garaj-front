@@ -6,11 +6,13 @@ import { DEBOUNCETIME } from "@/constants/default"
 type ParamInputProps = {
     searchKey?: string
     pageKey?: string
+    onEnter?: (value: string) => void
 } & InputProps
 
 export default function ParamInput({
     searchKey = "search",
     pageKey = "page",
+    onEnter,
     ...props
 }: ParamInputProps) {
     const navigate = useNavigate()
@@ -21,6 +23,7 @@ export default function ParamInput({
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
+            onEnter?.(e.currentTarget.value)
             navigate({
                 search: {
                     ...params,

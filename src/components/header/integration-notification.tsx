@@ -1,16 +1,26 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { MANAGERS_ORDERS, MANAGERS_ORDERS_INTEGRATION_COUNT } from "@/constants/api-endpoints"
+import {
+    MANAGERS_ORDERS,
+    MANAGERS_ORDERS_INTEGRATION_COUNT,
+    WAREHOUSE_LOW_STOCK,
+} from "@/constants/api-endpoints"
+import { useHasAction, useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { Bell, ArrowRight, Check } from "lucide-react"
+import type { WhLowStock } from "@/pages/home/ombor/types"
+import { Bell, ArrowRight, Boxes, Check, Package, TriangleAlert } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 export function IntegrationNotification() {
+    const { t } = useTranslation()
+    const isOwner = useWarehouseOwner()
+    const hasControl = useHasAction("warehouse_control")
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [approvingId, setApprovingId] = useState<number | null>(null)
@@ -22,6 +32,16 @@ export function IntegrationNotification() {
     )
 
     const count = countData?.count ?? 0
+
+    const { data: lowStock } = useGet<{ count: number; results: WhLowStock[] }>(
+        WAREHOUSE_LOW_STOCK,
+        {
+            enabled: isOwner,
+            options: { refetchInterval: 45_000, staleTime: 40_000 },
+        },
+    )
+    const lowItems = isOwner ? (lowStock?.results ?? []) : []
+    const total = count + lowItems.length
 
     const { data: ordersData, isLoading, isError: ordersError } = useGet<ListResponse<ManagerOrders>>(
         MANAGERS_ORDERS,
@@ -75,9 +95,9 @@ export function IntegrationNotification() {
             <PopoverTrigger asChild>
                 <Button variant="outline" size="icon" className="relative size-9 shrink-0">
                     <Bell size={18} />
-                    {count > 0 && (
+                    {total > 0 && (
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 leading-none">
-                            {count > 99 ? "99+" : count}
+                            {total > 99 ? "99+" : total}
                         </span>
                     )}
                 </Button>
@@ -174,6 +194,68 @@ export function IntegrationNotification() {
                         )
                     })}
                 </div>
+                {isOwner && (
+                    <div className="border-t border-border">
+                        <div className="px-4 pt-3 pb-1 text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                            <Boxes size={14} className="text-primary" />
+                            {t("wh.low_stock.title")}
+                        </div>
+                        <div className="max-h-64 overflow-y-auto p-1">
+                            {lowItems.length === 0 ?
+                                <p className="text-sm text-muted-foreground text-center py-6">
+                                    {t("wh.low_stock.ok")}
+                                </p>
+                            :   lowItems.map((item) => {
+                                    const left = Number(item.qty_left)
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="flex items-center gap-3 rounded-sm px-2 py-2 hover:bg-muted/50"
+                                        >
+                                            <div
+                                                className={`size-8 rounded-md grid place-items-center shrink-0 ${left > 0 ? "bg-red-500/10 text-red-500" : "bg-secondary text-muted-foreground"}`}
+                                            >
+                                                {left > 0 ?
+                                                    <TriangleAlert size={16} />
+                                                :   <Package size={16} />}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-sm font-medium truncate">
+                                                    {item.name}
+                                                </div>
+                                                <div
+                                                    className={`text-xs tabular-nums ${left > 0 ? "text-red-600" : "text-muted-foreground"}`}
+                                                >
+                                                    {t("wh.low_stock.row", {
+                                                        left,
+                                                        min: Number(item.min_quantity),
+                                                        unit: item.unit_name,
+                                                    })}
+                                                    {left > 0 ? "" : ` · ${t("wh.low_stock.empty")}`}
+                                                </div>
+                                            </div>
+                                            {hasControl && (
+                                                <button
+                                                    type="button"
+                                                    className="text-xs font-medium text-primary hover:underline whitespace-nowrap"
+                                                    onClick={() => {
+                                                        setOpen(false)
+                                                        navigate({
+                                                            to: "/ombor",
+                                                            search: { receipt: 1 },
+                                                        })
+                                                    }}
+                                                >
+                                                    {t("wh.low_stock.receipt")}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+                )}
             </PopoverContent>
         </Popover>
     )

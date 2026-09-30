@@ -1,208 +1,169 @@
-import Modal from "@/components/custom/modal"
+import DownloadAsExcel from "@/components/download-as-excel"
+import { parseGs1 } from "@/components/scanner/gs1"
+import ScannerDialog from "@/components/scanner/scanner-dialog"
+import { useUsbScanner } from "@/components/scanner/use-usb-scanner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
-import { TooltipProvider } from "@/components/ui/tooltip"
-import DownloadAsExcel from "@/components/download-as-excel"
-import { WAREHOUSE_PRODUCTS, WAREHOUSE_STATS } from "@/constants/api-endpoints"
+import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
+import { useHasAction, useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
-import { useDelete } from "@/hooks/useDelete"
 import { useModal } from "@/hooks/useModal"
-import { formatMoney } from "@/lib/format-money"
-import { useQueryClient } from "@tanstack/react-query"
-import { useSearch } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
-import OmborAddEdit from "./add-edit"
-import OmborWithdraw from "./withdraw"
-import { expiryRowClass, useOmborCols, type OmborProduct } from "./cols"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { Plus, ScanLine } from "lucide-react"
+import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
+import { useProductCols } from "./cols"
+import LinesSection from "./lines-section"
+import ReceiptModal, { RECEIPT_MODAL_KEY, RECEIPT_SCAN_KEY } from "./receipt-modal"
+import type { OmborSearchParams, WhProduct } from "./types"
+import { useOmborSearch } from "./use-ombor-search"
+import { useScanLookup } from "./use-scan-lookup"
 
-type Stats = { total_balance: string | number; product_count: number }
+const FIND_SCAN_KEY = "wh-find-scan"
 
 const Ombor = () => {
     const { t } = useTranslation()
-    const queryClient = useQueryClient()
-    const { openModal: openCreate } = useModal("ombor-create")
-    const { openModal: openWithdraw } = useModal("ombor-withdraw")
+    const isOwner = useWarehouseOwner()
+    const hasControl = useHasAction("warehouse_control")
+    const search = useSearch({ strict: false })
+    const navigate = useNavigate()
+    const { product, select, clear } = useOmborSearch()
+    const lookup = useScanLookup()
+    const sectionRef = useRef<HTMLDivElement>(null)
 
-    const [editing, setEditing] = useState<OmborProduct | null>(null)
-    const [withdrawing, setWithdrawing] = useState<OmborProduct | null>(null)
-    const [toDelete, setToDelete] = useState<OmborProduct | null>(null)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const search: any = useSearch({ strict: false })
+    const { openModal: openScan, isOpen: scanOpen } = useModal(FIND_SCAN_KEY)
+    const { openModal: openReceipt, isOpen: receiptOpen } =
+        useModal(RECEIPT_MODAL_KEY)
+    const { isOpen: receiptScanOpen } = useModal(RECEIPT_SCAN_KEY)
 
-    const { data: products, isLoading } = useGet<ListResponse<OmborProduct>>(
+    const receiptParam = (search as OmborSearchParams).receipt
+
+    useEffect(() => {
+        if (!receiptParam) return
+        if (isOwner && hasControl) openReceipt()
+        navigate({
+            search: (prev: Record<string, unknown>) => ({
+                ...prev,
+                receipt: undefined,
+            }),
+            replace: true,
+        } as never)
+    }, [receiptParam])
+
+    const query = String(search.search ?? "").trim()
+    const searchValue = parseGs1(query).gtin ?? query
+
+    const { data, isLoading } = useGet<ListResponse<WhProduct>>(
         WAREHOUSE_PRODUCTS,
-        { params: { page_size: 1000, search: search.search } },
-    )
-    const { data: stats } = useGet<Stats>(WAREHOUSE_STATS)
-    const items = products?.results ?? []
-
-    const { mutate: deleteMutate, isPending: deleting } = useDelete({
-        onSuccess: () => {
-            toast.success(t("toast.deleted"))
-            queryClient.refetchQueries({ queryKey: [WAREHOUSE_PRODUCTS] })
-            queryClient.refetchQueries({ queryKey: [WAREHOUSE_STATS] })
-            setToDelete(null)
+        {
+            params: {
+                in_stock: 1,
+                search: searchValue || undefined,
+                page: search.page,
+                page_size: search.page_size,
+            },
         },
-    })
+    )
 
-    const handleAdd = () => {
-        setEditing(null)
-        openCreate()
-    }
+    const columns = useProductCols()
 
-    const handleEdit = (item: OmborProduct) => {
-        setEditing(item)
-        openCreate()
-    }
+    useUsbScanner(
+        async (code) => {
+            const message = await lookup(code)
+            if (message) toast.error(message)
+        },
+        !scanOpen && !receiptOpen && !receiptScanOpen,
+    )
 
-    const handleWithdraw = (item: OmborProduct) => {
-        setWithdrawing(item)
-        openWithdraw()
-    }
+    useEffect(() => {
+        if (!product) return
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && !e.defaultPrevented) clear()
+        }
+        window.addEventListener("keydown", onKeyDown)
+        return () => window.removeEventListener("keydown", onKeyDown)
+    }, [product])
 
-    const cols = useOmborCols({
-        onEdit: handleEdit,
-        onDelete: (item) => setToDelete(item),
-        onWithdraw: handleWithdraw,
-    })
+    useEffect(() => {
+        const node = sectionRef.current
+        if (!product || !node) return
+        const { top } = node.getBoundingClientRect()
+        if (top > window.innerHeight - 160) {
+            node.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+    }, [product])
 
     return (
-        <TooltipProvider delayDuration={150}>
-            <div className="flex md:flex-row flex-col w-full gap-3 md:items-start">
-                <div className="md:max-w-sm md:min-w-sm w-full md:sticky md:top-0 shrink-0">
-                    <Card className="bg-muted/60">
-                        <CardHeader className="space-y-0">
-                            <CardTitle className="font-medium text-lg">
-                                {t("page.warehouse_balance")}
-                            </CardTitle>
-                            <span>
-                                <span className="text-xl font-semibold">
-                                    {formatMoney(Number(stats?.total_balance ?? 0))}
-                                </span>{" "}
-                                <span className="text-base">so'm</span>
-                            </span>
-                        </CardHeader>
-                        <CardContent className="pt-0 space-y-3">
-                            <div className="border-t pt-3">
-                                <p className="text-sm font-medium text-muted-foreground mb-2">
-                                    {t("page.details")}
-                                </p>
-                                <div className="space-y-1">
-                                    {items.map((cat, i) => (
-                                        <div
-                                            key={cat.id}
-                                            className="flex items-center justify-between py-1.5 px-2 rounded-md"
-                                        >
-                                            <span className="text-sm flex items-center gap-2">
-                                                <span className="text-xs text-muted-foreground w-4 text-right">
-                                                    {i + 1}
-                                                </span>
-                                                {cat.name}
-                                            </span>
-                                            <span className="text-sm font-medium">
-                                                {formatMoney(
-                                                    Number(cat.unit_price) *
-                                                        Number(cat.quantity),
-                                                )}{" "}
-                                                so'm
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="w-full min-w-0 overflow-x-auto">
-                    <DataTable
-                        numeration
-                        loading={isLoading}
-                        columns={cols}
-                        data={items}
-                        rowColor={(row: OmborProduct) =>
-                            expiryRowClass(row.expiry_status)
-                        }
-                        head={
-                            <div className="flex justify-between items-center gap-3 mb-3">
-                                <div className="flex items-center gap-2">
-                                    <h1 className="text-lg">{t("page.warehouse_products")}</h1>
-                                    <Badge>{items.length}</Badge>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <DownloadAsExcel
-                                        url={`${WAREHOUSE_PRODUCTS}/excel`}
-                                        name="Ombor"
-                                    />
-                                    <Button onClick={handleAdd} icon={<Plus size={18} />}>
-                                        {t("actions.add")}
-                                    </Button>
-                                </div>
-                            </div>
-                        }
-                    />
-                </div>
-
-                <Modal
-                    modalKey="ombor-create"
-                    title={editing ? t("actions.edit") : t("actions.add")}
-                    size="max-w-md"
-                >
-                    <OmborAddEdit current={editing} />
-                </Modal>
-
-                <Modal
-                    modalKey="ombor-withdraw"
-                    title={t("page.issue_from_warehouse")}
-                    size="max-w-md"
-                >
-                    <OmborWithdraw product={withdrawing} />
-                </Modal>
-
-                <AlertDialog
-                    open={!!toDelete}
-                    onOpenChange={(o) => !o && setToDelete(null)}
-                >
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>{t("page.delete_confirm")}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                "{toDelete?.name}" mahsulotini o'chirmoqchimisiz?
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
-                            <AlertDialogAction
-                                disabled={deleting}
-                                onClick={() => {
-                                    if (toDelete)
-                                        deleteMutate(
-                                            `${WAREHOUSE_PRODUCTS}/${toDelete.id}`,
-                                        )
+        <div className="flex flex-col w-full gap-3">
+            <DataTable
+                numeration
+                loading={isLoading}
+                columns={columns}
+                data={data?.results}
+                onRowClick={(row) =>
+                    row.id === product ? clear() : select(row.id)
+                }
+                rowColor={(row) =>
+                    row.id === product ? "!bg-primary/10" : ""
+                }
+                height="h-40"
+                className="min-w-[760px]"
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                }}
+                head={
+                    <div className="flex justify-between items-center gap-3 mb-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-lg">
+                                {t("page.warehouse_products")}
+                            </h1>
+                            <Badge>{data?.count ?? 0}</Badge>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <Button
+                                variant="outline"
+                                icon={<ScanLine size={16} />}
+                                onClick={openScan}
+                            >
+                                {t("wh.scan_btn")}
+                            </Button>
+                            <DownloadAsExcel
+                                url={`${WAREHOUSE_PRODUCTS}/excel`}
+                                name={t("nav.warehouse")}
+                                params={{
+                                    in_stock: 1,
+                                    search: searchValue || undefined,
                                 }}
                             >
-                                {t("actions.delete")}
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-        </TooltipProvider>
+                                {t("actions.download")}
+                            </DownloadAsExcel>
+                            {isOwner && hasControl && (
+                                <Button
+                                    icon={<Plus size={16} />}
+                                    onClick={openReceipt}
+                                >
+                                    {t("actions.add")}
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                }
+            />
+
+            <LinesSection ref={sectionRef} />
+
+            <ScannerDialog
+                modalKey={FIND_SCAN_KEY}
+                title={t("wh.scan_title")}
+                onScan={lookup}
+            />
+
+            {isOwner && hasControl && <ReceiptModal />}
+        </div>
     )
 }
 

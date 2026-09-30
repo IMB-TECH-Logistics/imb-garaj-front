@@ -1,7 +1,7 @@
-import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import type { ExpenseItem } from "./types"
 
 export type VehicleExpenseRow = {
     id: number
@@ -9,10 +9,12 @@ export type VehicleExpenseRow = {
     vehicle_name: string
     category: number
     category_name: string
+    category_code: string | null
     date: string
-    lifespan: string
     comment: string
-    amount: string | number
+    amount: string | number | null
+    warehouse_total: string | null
+    items: ExpenseItem[]
     executor: number | null
     executor_name: string | null
     created: string
@@ -38,24 +40,8 @@ export const useExpenseCols = () => {
                 enableSorting: true,
             },
             {
-                header: t("form.amount"),
-                accessorKey: "amount",
-                size: 130,
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const v = Number(row.original.amount ?? 0) || 0
-                    return <span className="font-medium text-red-600">{formatMoney(v)}</span>
-                },
-            },
-            {
                 header: t("form.date"),
                 accessorKey: "date",
-                size: 110,
-                enableSorting: true,
-            },
-            {
-                header: t("form.lifespan"),
-                accessorKey: "lifespan",
                 size: 110,
                 enableSorting: true,
             },
