@@ -77,6 +77,8 @@
         "confirm_delete": "Are you sure?",
         "confirm_unlink_device": "Unlink the GPS device from {{vehicle}}?",
         "confirm_dialog_title": "Confirm",
+        "duplicate_client_title": "A client with this name exists",
+        "duplicate_client_name": "A client named “{{name}}” already exists (company code: {{codes}}). Save as a new client anyway?",
         "download_password": "Password required to download",
         "not_found": "Not found",
         "loading": "Loading...",

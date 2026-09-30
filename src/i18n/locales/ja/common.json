@@ -77,6 +77,8 @@
         "confirm_delete": "よろしいですか？",
         "confirm_unlink_device": "{{vehicle}} からGPSデバイスの連携を解除しますか？",
         "confirm_dialog_title": "確認",
+        "duplicate_client_title": "同名の顧客が存在します",
+        "duplicate_client_name": "「{{name}}」という顧客は既に存在します（会社コード: {{codes}}）。新しい顧客として保存しますか？",
         "download_password": "ダウンロードにはパスワードが必要です",
         "not_found": "見つかりません",
         "loading": "読み込み中...",

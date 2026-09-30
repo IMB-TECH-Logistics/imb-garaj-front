@@ -77,6 +77,8 @@
         "confirm_delete": "Вы уверены?",
         "confirm_unlink_device": "Отвязать GPS устройство от машины {{vehicle}}?",
         "confirm_dialog_title": "Подтверждение",
+        "duplicate_client_title": "Клиент с таким названием уже есть",
+        "duplicate_client_name": "Клиент «{{name}}» уже существует (код фирмы: {{codes}}). Всё равно сохранить как нового клиента?",
         "download_password": "Для скачивания требуется пароль",
         "not_found": "Не найдено",
         "loading": "Загрузка...",

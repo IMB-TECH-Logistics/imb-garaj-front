@@ -77,6 +77,8 @@
         "confirm_delete": "O'chirmoqchimisiz?",
         "confirm_unlink_device": "{{vehicle}} mashinasidan GPS qurilma ajratilsinmi?",
         "confirm_dialog_title": "Tasdiqlash",
+        "duplicate_client_title": "Bunday nomli mijoz bor",
+        "duplicate_client_name": "«{{name}}» nomli mijoz allaqachon mavjud (firma kodi: {{codes}}). Baribir yangi mijoz sifatida saqlansinmi?",
         "download_password": "Yuklab olish uchun parol talab qilinadi",
         "not_found": "Topilmadi",
         "loading": "Yuklanmoqda...",
