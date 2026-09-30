@@ -80,7 +80,7 @@ const AddRouteConfigModal = () => {
             unload_place: current?.unload_place ?? "",
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
-            currency: current?.currency ?? null,
+            currency: current?.currency ?? 1,
             price:
                 current?.current_price?.price != null
                     ? String(current.current_price.price)
