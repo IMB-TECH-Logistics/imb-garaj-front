@@ -28,6 +28,7 @@
         "activity_log": "Activity Log"
     },
     "actions": {
+        "reverse_salary": "Reverse payout",
         "unlink_gps": "Unlink GPS",
         "add": "Add",
         "edit": "Edit",
@@ -70,6 +71,7 @@
         "expand": "Expand"
     },
     "messages": {
+        "reverse_salary_hint": "The cash desk and the driver's salary difference are restored; the trips become unpaid again.",
         "success_add": "Added successfully!",
         "success_edit": "Updated successfully!",
         "direction_price_not_current": "Price saved from {{date}}, but the price in effect today is {{price}} (since {{active_date}}). The new price only applies to orders from {{date}} until the next change.",
@@ -233,6 +235,7 @@
         "not_in_balance": "Not included in balance"
     },
     "toast": {
+        "salary_reversed": "Salary payout reversed",
         "added": "Added",
         "updated": "Updated",
         "deleted": "Deleted",
@@ -295,6 +298,7 @@
         "draft": "Draft"
     },
     "page": {
+        "salary_payouts": "Salary payouts",
         "truck_status_all": "All",
         "truck_status_loaded": "Loaded",
         "truck_status_empty": "Empty",

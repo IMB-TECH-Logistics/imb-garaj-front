@@ -28,6 +28,7 @@
         "activity_log": "Журнал активности"
     },
     "actions": {
+        "reverse_salary": "Сторнировать",
         "unlink_gps": "Отвязать GPS",
         "add": "Добавить",
         "edit": "Редактировать",
@@ -70,6 +71,7 @@
         "expand": "Развернуть"
     },
     "messages": {
+        "reverse_salary_hint": "Касса и разница зарплаты водителя вернутся, рейсы снова станут «Не выдано».",
         "success_add": "Успешно добавлено!",
         "success_edit": "Успешно изменено!",
         "direction_price_not_current": "Цена сохранена с {{date}}, но сейчас действует {{price}} (с {{active_date}}). Новая цена применяется только к заказам с {{date}} до следующего изменения.",
@@ -233,6 +235,7 @@
         "not_in_balance": "Не входит в остаток"
     },
     "toast": {
+        "salary_reversed": "Выплата зарплаты отменена (сторно)",
         "added": "Добавлено",
         "updated": "Обновлено",
         "deleted": "Удалено",
@@ -295,6 +298,7 @@
         "draft": "Черновик"
     },
     "page": {
+        "salary_payouts": "Выплаченные зарплаты",
         "truck_status_all": "Все",
         "truck_status_loaded": "Загружен",
         "truck_status_empty": "Пустой",

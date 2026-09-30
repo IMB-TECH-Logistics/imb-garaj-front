@@ -28,6 +28,7 @@
         "activity_log": "Faoliyat jurnali"
     },
     "actions": {
+        "reverse_salary": "Storno qilish",
         "unlink_gps": "GPS'ni uzish",
         "add": "Qo'shish",
         "edit": "Tahrirlash",
@@ -70,6 +71,7 @@
         "expand": "Kattalashtirish"
     },
     "messages": {
+        "reverse_salary_hint": "Kassa va haydovchi oylik farqi qaytariladi, reyslar yana 'Berilmagan' bo'ladi.",
         "success_add": "Muvaffaqiyatli qo'shildi!",
         "success_edit": "Muvaffaqiyatli tahrirlandi!",
         "direction_price_not_current": "Narx {{date}} sanasidan saqlandi, lekin bugun amaldagi narx — {{price}} ({{active_date}} dan). Yangi narx faqat {{date}} dan keyingi o'zgarishgacha bo'lgan buyurtmalarga ta'sir qiladi.",
@@ -242,6 +244,7 @@
         "not_in_balance": "Qoldiqqa kirmaydi"
     },
     "toast": {
+        "salary_reversed": "Oylik to'lovi bekor qilindi (storno)",
         "added": "Qo'shildi",
         "updated": "Yangilandi",
         "deleted": "O'chirildi",
@@ -304,6 +307,7 @@
         "draft": "Qoralama"
     },
     "page": {
+        "salary_payouts": "Berilgan oyliklar",
         "truck_status_all": "Barchasi",
         "truck_status_loaded": "Yukli",
         "truck_status_empty": "Yuksiz",

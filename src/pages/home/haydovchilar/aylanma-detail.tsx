@@ -3,6 +3,15 @@ import { Button } from "@/components/ui/button"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { DRIVERS_OVERVIEW } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
+import { handleFormError } from "@/lib/show-form-errors"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
@@ -365,6 +374,125 @@ function SalaryPayoutModal({
     )
 }
 
+type PayoutRow = {
+    id: number
+    created: string
+    accrued: string | number
+    given: string | number
+    difference: string | number
+    comment: string | null
+    executor: string | null
+    orders: number[]
+}
+
+function PayoutHistory({
+    driverId,
+    tripId,
+    ordersUrl,
+}: {
+    driverId: string
+    tripId: string
+    ordersUrl: string
+}) {
+    const { t } = useTranslation()
+    const qc = useQueryClient()
+    const canReverse = useHasAction("manager_cashflow_approve_control")
+    const payoutsUrl = `${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/payouts`
+    const { data: payouts } = useGet<PayoutRow[]>(payoutsUrl, { enabled: !!tripId })
+    const { openModal, closeModal } = useModal("aylanma-payout-reverse")
+    const [target, setTarget] = useState<PayoutRow | null>(null)
+
+    const { mutate, isPending } = usePost({
+        onSuccess: () => {
+            toast.success(t("toast.salary_reversed"))
+            qc.refetchQueries({ queryKey: [payoutsUrl] })
+            qc.refetchQueries({ queryKey: [ordersUrl] })
+            qc.refetchQueries({
+                predicate: (q) =>
+                    typeof q.queryKey[0] === "string" &&
+                    String(q.queryKey[0]).startsWith(`${DRIVERS_OVERVIEW}/${driverId}`),
+            })
+            closeModal()
+        },
+        onError: (error) => {
+            handleFormError(error)
+            closeModal()
+        },
+    })
+
+    if (!payouts?.length) return null
+
+    return (
+        <Card>
+            <CardContent className="p-4 space-y-2">
+                <h3 className="font-medium">{t("page.salary_payouts")}</h3>
+                {payouts.map((p) => {
+                    const diff = num(p.difference)
+                    return (
+                        <div
+                            key={p.id}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2 text-sm"
+                        >
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 tabular-nums">
+                                <span>{formatDate(p.created)}</span>
+                                <span>{t("form.expense")}: {formatMoney(num(p.accrued))}</span>
+                                <span>Berilgan pul: {formatMoney(num(p.given))}</span>
+                                {diff !== 0 && (
+                                    <span className="text-amber-600">
+                                        {diff > 0 ? "+" : "−"}
+                                        {formatMoney(Math.abs(diff))}
+                                    </span>
+                                )}
+                                <span className="text-muted-foreground">
+                                    {p.orders.length} ta reys{p.executor ? ` · ${p.executor}` : ""}
+                                </span>
+                            </div>
+                            {canReverse && (
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setTarget(p)
+                                        openModal()
+                                    }}
+                                >
+                                    {t("actions.reverse_salary")}
+                                </Button>
+                            )}
+                        </div>
+                    )
+                })}
+            </CardContent>
+            <Modal size="max-w-md" modalKey="aylanma-payout-reverse" titleInChildren>
+                <DialogHeader>
+                    <DialogTitle className="font-normal">
+                        {t("actions.reverse_salary")}?
+                    </DialogTitle>
+                    <DialogDescription>
+                        {target
+                            ? `${formatMoney(num(target.given))} UZS · ${target.orders.length} ta reys. ${t("messages.reverse_salary_hint")}`
+                            : null}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2">
+                    <Button variant="outline" onClick={closeModal} disabled={isPending}>
+                        {t("actions.cancel")}
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        loading={isPending}
+                        onClick={() =>
+                            target && mutate(`${payoutsUrl}/${target.id}/reverse`, {})
+                        }
+                    >
+                        {t("actions.reverse_salary")}
+                    </Button>
+                </DialogFooter>
+            </Modal>
+        </Card>
+    )
+}
+
 export default function AylanmaDetail() {
     const { t } = useTranslation()
     const navigate = useNavigate()
@@ -481,6 +609,8 @@ export default function AylanmaDetail() {
                     refetchKey={ordersUrl}
                 />
             </Modal>
+
+            <PayoutHistory driverId={id} tripId={tripId} ordersUrl={ordersUrl} />
         </div>
     )
 }
