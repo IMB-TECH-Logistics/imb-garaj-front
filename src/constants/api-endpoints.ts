@@ -61,6 +61,7 @@ export const COMMON_DIRECTIONS = "routes"
 export const COMMON_DIRECTIONS_LOADS = "routes/loads"
 export const COMMON_DIRECTIONS_CLIENTS = "routes/clients"
 export const COMMON_DIRECTIONS_CARGO_TYPES = "routes/cargo-types"
+export const COMMON_DIRECTIONS_DISTRIBUTORS = "routes/distributors"
 
 /** ===== SELECTABLE (was /common/selectable/*) ===== */
 export const SETTINGS_SELECTABLE_VEHICLE_TYPE = "selectable/vehicle-type"

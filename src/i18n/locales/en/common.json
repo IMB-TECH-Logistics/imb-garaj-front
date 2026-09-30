@@ -224,7 +224,8 @@
         "district": "District",
         "code": "Code",
         "relative_contact_1": "Contact 1",
-        "relative_contact_2": "Contact 2"
+        "relative_contact_2": "Contact 2",
+        "distributor": "Distributor"
     },
     "toast": {
         "added": "Added",

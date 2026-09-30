@@ -17,6 +17,10 @@ export type DirectionPrice = {
 
 export type DirectionRow = {
     id: number
+    distributor_id?: number | null
+    distributor_name?: string | null
+    distributor_code?: string | null
+    distributor_district?: string | null
     owner?: number
     owner_name: string
     owner_code: string
@@ -90,6 +94,22 @@ export const useDirectionColumns = () => {
             { accessorKey: "load_place_display", header: t("form.load_place"), enableSorting: false, cell: ({ row }) => row.original.load_place_display || "—" },
             { accessorKey: "unload_city_name", header: t("form.unload_region"), enableSorting: true, cell: ({ row }) => row.original.unload_city_name || row.original.unload_name || "—" },
             { accessorKey: "unload_place_display", header: t("form.unload_place"), enableSorting: false, cell: ({ row }) => row.original.unload_place_display || "—" },
+            {
+                accessorKey: "distributor_name",
+                header: t("form.distributor"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const { distributor_name, distributor_code, distributor_district } = row.original
+                    if (!distributor_name) return "—"
+                    const meta = [distributor_code, distributor_district].filter(Boolean).join(" · ")
+                    return (
+                        <div className="min-w-[160px] max-w-[240px]">
+                            <div className="truncate">{distributor_name}</div>
+                            {meta && <div className="truncate text-xs text-muted-foreground">{meta}</div>}
+                        </div>
+                    )
+                },
+            },
             { accessorKey: "owner_name", header: t("form.cargo_owner"), enableSorting: true },
             { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
             { accessorKey: "payment_type_name", header: t("form.payment_type"), enableSorting: false },

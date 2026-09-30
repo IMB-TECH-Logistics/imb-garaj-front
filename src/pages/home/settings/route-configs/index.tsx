@@ -113,6 +113,10 @@ const RouteConfigsPage = () => {
                 unload_city_name: d.unload_city_name,
                 load_place_display: d.load_place_display,
                 unload_place_display: d.unload_place_display,
+                distributor_id: d.distributor_id,
+                distributor_name: d.distributor_name,
+                distributor_code: d.distributor_code,
+                distributor_district: d.distributor_district,
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
                 payment_type_name:
                     paymentMap[d.payment_type] ?? String(d.payment_type),

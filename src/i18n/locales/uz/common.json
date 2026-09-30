@@ -233,7 +233,8 @@
         "district": "Tuman",
         "code": "Kod",
         "relative_contact_1": "Kontakt 1",
-        "relative_contact_2": "Kontakt 2"
+        "relative_contact_2": "Kontakt 2",
+        "distributor": "Distributor"
     },
     "toast": {
         "added": "Qo'shildi",

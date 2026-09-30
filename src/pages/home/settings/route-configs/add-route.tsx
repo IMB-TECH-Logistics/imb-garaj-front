@@ -5,6 +5,7 @@ import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
     COMMON_DIRECTIONS,
+    COMMON_DIRECTIONS_DISTRIBUTORS,
     SETTINGS_SELECTABLE_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINGS_SELECTABLE_PAYMENT_TYPE,
@@ -35,6 +36,10 @@ type Direction = {
     cargo_type: number | null
     payment_type: number | null
     currency: number | null
+    distributor_id: number | null
+    distributor_name?: string | null
+    distributor_code?: string | null
+    distributor_district?: string | null
     price: string | null
     valid_from: string | null
     current_price?: DirectionPrice | null
@@ -46,6 +51,16 @@ type Direction = {
 }
 
 type SelectItem = { id: number | string; name: string }
+
+type DistributorOption = {
+    id: number
+    name: string
+    code: string | null
+    district_name: string | null
+}
+
+const distributorLabel = (name?: string | null, code?: string | null, district?: string | null) =>
+    [name, code ? `(${code})` : null, district ? `— ${district}` : null].filter(Boolean).join(" ")
 
 const withCurrent = (
     options: SelectItem[] | undefined,
@@ -81,6 +96,7 @@ const AddRouteConfigModal = () => {
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
             currency: current?.currency ?? 1,
+            distributor_id: current?.distributor_id ?? null,
             price:
                 current?.current_price?.price != null
                     ? String(current.current_price.price)
@@ -103,6 +119,14 @@ const AddRouteConfigModal = () => {
     const { data: paymentType } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_PAYMENT_TYPE, {
         params: { model_name: "payment-type" },
     })
+    const { data: distributorsData } = useGet<DistributorOption[]>(COMMON_DIRECTIONS_DISTRIBUTORS)
+    const distributorOptions = withCurrent(
+        distributorsData?.map((d) => ({ id: d.id, name: distributorLabel(d.name, d.code, d.district_name) })),
+        current?.distributor_id,
+        current?.distributor_name
+            ? distributorLabel(current.distributor_name, current.distributor_code, current.distributor_district)
+            : undefined,
+    )
 
     const onSuccess = () => {
         toast.success(
@@ -219,6 +243,17 @@ const AddRouteConfigModal = () => {
                 placeholder={t("form.select_date")}
                 className="w-full"
             />
+            {distributorOptions.length > 0 && (
+                <FormCombobox
+                    label={t("form.distributor")}
+                    name="distributor_id"
+                    control={control}
+                    options={distributorOptions}
+                    valueKey="id"
+                    labelKey="name"
+                    placeholder={t("form.distributor")}
+                />
+            )}
 
             <div className="col-span-2 flex items-center justify-end mt-3">
                 <Button className="min-w-36" type="submit" loading={isPending}>

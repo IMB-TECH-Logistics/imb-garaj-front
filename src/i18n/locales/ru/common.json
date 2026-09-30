@@ -224,7 +224,8 @@
         "district": "Район",
         "code": "Код",
         "relative_contact_1": "Контакт 1",
-        "relative_contact_2": "Контакт 2"
+        "relative_contact_2": "Контакт 2",
+        "distributor": "Дистрибьютор"
     },
     "toast": {
         "added": "Добавлено",

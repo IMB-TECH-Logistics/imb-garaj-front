@@ -224,7 +224,8 @@
         "district": "地区",
         "code": "コード",
         "relative_contact_1": "連絡先 1",
-        "relative_contact_2": "連絡先 2"
+        "relative_contact_2": "連絡先 2",
+        "distributor": "ディストリビューター"
     },
     "toast": {
         "added": "追加されました",
