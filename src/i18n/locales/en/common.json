@@ -225,7 +225,12 @@
         "price_diff_less": "amount entered by driver is below the route price",
         "price_diff_more": "amount entered by driver is above the route price",
         "price_diff_by_client": "Due to client",
-        "price_diff_driver": "Price difference (debt/credit)"
+        "price_diff_driver": "Price difference (+ debt / − credit)",
+        "salary_diff_driver": "Salary difference (+ debt / − credit)",
+        "debt_driver_owes": "driver owes the company",
+        "debt_company_owes": "company owes the driver",
+        "debt_total": "Total debt (balance + salary + price diff)",
+        "not_in_balance": "Not included in balance"
     },
     "toast": {
         "added": "Added",

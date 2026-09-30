@@ -234,7 +234,12 @@
         "price_diff_less": "haydovchi yozgan summa yo'nalish narxidan kam",
         "price_diff_more": "haydovchi yozgan summa yo'nalish narxidan ko'p",
         "price_diff_by_client": "Mijoz sababli",
-        "price_diff_driver": "Narx farqi (qarz/haq)"
+        "price_diff_driver": "Narx farqi (+ qarz / − haq)",
+        "salary_diff_driver": "Oylik farqi (+ qarz / − haq)",
+        "debt_driver_owes": "haydovchi kompaniyaga qarzdor",
+        "debt_company_owes": "kompaniya haydovchiga qarzdor",
+        "debt_total": "Jami qarz (qoldiq + oylik + narx farqi)",
+        "not_in_balance": "Qoldiqqa kirmaydi"
     },
     "toast": {
         "added": "Qo'shildi",

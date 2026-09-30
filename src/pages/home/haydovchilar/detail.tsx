@@ -38,6 +38,9 @@ type DriverOverview = {
     salary_paid_uzs: string | number
     computed_balance_uzs: string | number
     price_diff_uzs?: string | number
+    salary_balance_uzs?: string | number
+    price_diff_debt_uzs?: string | number
+    debt_total_uzs?: string | number
     total_distance_km: string | number
     total_fuel_liters: string | number
     fuel_per_100km: string | number
@@ -194,14 +197,19 @@ const useAylanmaCols = () => {
     )
 }
 
+const debtAccent = (v: number) =>
+    v > 0 ? "text-red-500" : v < 0 ? "text-green-500" : undefined
+
 const StatCard = ({
     label,
     value,
     accent,
+    hint,
 }: {
     label: string
     value: React.ReactNode
     accent?: string
+    hint?: React.ReactNode
 }) => (
     <Card>
         <CardContent className="p-3">
@@ -211,6 +219,9 @@ const StatCard = ({
             <div className={`text-lg font-semibold tabular-nums ${accent || ""}`}>
                 {value}
             </div>
+            {hint ?
+                <div className="text-[11px] text-muted-foreground">{hint}</div>
+            :   null}
         </CardContent>
     </Card>
 )
@@ -273,6 +284,13 @@ export default function HaydovchiDetail() {
             : balance > 0
               ? "text-green-500"
               : "text-muted-foreground"
+    const salaryDebt = num(overview?.salary_balance_uzs)
+    const priceDebt = num(overview?.price_diff_debt_uzs)
+    const debtTotal = num(overview?.debt_total_uzs)
+    const debtHint = (v: number) =>
+        v > 0 ? t("form.debt_driver_owes")
+        : v < 0 ? t("form.debt_company_owes")
+        : undefined
 
     return (
         <div className="space-y-4 pb-6">
@@ -321,11 +339,19 @@ export default function HaydovchiDetail() {
                             UZS
                         </span>
                     </div>
+                    {overview && (salaryDebt !== 0 || priceDebt !== 0) && (
+                        <div className="text-xs text-muted-foreground">
+                            {t("form.debt_total")}:{" "}
+                            <span className={`font-medium tabular-nums ${debtAccent(debtTotal) || ""}`}>
+                                {formatMoneyText(debtTotal)} UZS
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {overview && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
                     <Card>
                         <CardContent className="p-3">
                             <div className="grid grid-cols-2 gap-3">
@@ -364,14 +390,15 @@ export default function HaydovchiDetail() {
                     />
                     <StatCard
                         label={t("form.price_diff_driver")}
-                        value={formatMoneyText(num(overview.price_diff_uzs))}
-                        accent={
-                            num(overview.price_diff_uzs) < 0
-                                ? "text-red-500"
-                                : num(overview.price_diff_uzs) > 0
-                                  ? "text-green-500"
-                                  : undefined
-                        }
+                        value={formatMoneyText(priceDebt)}
+                        accent={debtAccent(priceDebt)}
+                        hint={debtHint(priceDebt)}
+                    />
+                    <StatCard
+                        label={t("form.salary_diff_driver")}
+                        value={formatMoneyText(salaryDebt)}
+                        accent={debtAccent(salaryDebt)}
+                        hint={debtHint(salaryDebt) ?? t("form.not_in_balance")}
                     />
                 </div>
             )}
