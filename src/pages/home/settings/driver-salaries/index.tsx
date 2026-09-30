@@ -38,6 +38,8 @@ type Direction = {
     unload_name: string
     load_city_name?: string | null
     unload_city_name?: string | null
+    load_place_display?: string | null
+    unload_place_display?: string | null
     cargo_type: number
     cargo_type_name: string
     payment_type: number
@@ -167,11 +169,12 @@ const DriverSalariesPage = () => {
                 unload_name: d.unload_name ?? String(d.unload),
                 load_city_name: d.load_city_name,
                 unload_city_name: d.unload_city_name,
-                load_place_display: regionPlace(d.load_city_name, d.load_name),
-                unload_place_display: regionPlace(
-                    d.unload_city_name,
-                    d.unload_name,
-                ),
+                load_place_display:
+                    d.load_place_display ||
+                    regionPlace(d.load_city_name, d.load_name),
+                unload_place_display:
+                    d.unload_place_display ||
+                    regionPlace(d.unload_city_name, d.unload_name),
                 cargo_type: d.cargo_type,
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
                 payment_type: d.payment_type,
