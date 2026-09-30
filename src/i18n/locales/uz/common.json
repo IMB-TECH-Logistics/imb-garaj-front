@@ -158,6 +158,8 @@
         "discount": "Chegirma",
         "device": "Qurilma",
         "balance": "Qoldiq",
+        "period_running_total": "Davr yig'indisi",
+        "period_running_total_hint": "Tanlangan davr boshidan shu qatorgacha kirim − chiqim − avans yig'indisi. Kassa qoldig'i emas — kassa qoldig'i yuqoridagi «Qoldiq» kartasida.",
         "income": "Tushum",
         "expense": "Chiqim",
         "advance": "Avans",

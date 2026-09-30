@@ -158,6 +158,8 @@
         "discount": "Discount",
         "device": "Device",
         "balance": "Balance",
+        "period_running_total": "Period running total",
+        "period_running_total_hint": "Income − expense − advance from the start of the selected period up to this row. Not the cash balance — the cash balance is shown in the “Balance” card above.",
         "income": "Income",
         "expense": "Expense",
         "advance": "Advance",

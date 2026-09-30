@@ -158,6 +158,8 @@
         "discount": "割引",
         "device": "デバイス",
         "balance": "残高",
+        "period_running_total": "期間累計",
+        "period_running_total_hint": "選択期間の開始からこの行までの入金 − 出金 − 前払の累計。現金残高ではありません（現金残高は上の「残高」カードに表示）。",
         "income": "収入",
         "expense": "支出",
         "advance": "前払い",
