@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import "maplibre-gl/dist/maplibre-gl.css"
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import Map, {
     Layer,
@@ -10,7 +10,7 @@ import Map, {
     Source,
 } from "react-map-gl/maplibre"
 import GoogleRouteMap from "./google-route-map"
-import { DriverMarker, EndpointDot, PoiMarker } from "./map-markers"
+import { DriverMarker, EndpointDot, PoiMarker, SpeedTooltip } from "./map-markers"
 
 const MAP_STYLE_URL =
     import.meta.env.VITE_MAP_STYLE_URL ||
@@ -29,7 +29,32 @@ const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 
 export type MapPoint = [number, number] // [lng, lat]
 
-export type ColoredSegment = { points: MapPoint[]; color: string }
+export type ColoredSegment = {
+    points: MapPoint[]
+    color: string
+    /** km/h at each point; enables the speed tooltip on hover. */
+    speeds?: number[]
+    /** epoch ms at each point, shown next to the speed. */
+    times?: number[]
+}
+
+export type RouteHover = { lat: number; lng: number; speed: number; time?: number }
+
+export function nearestPoint(segment: ColoredSegment, lng: number, lat: number): RouteHover | null {
+    if (!segment.speeds) return null
+    const scale = Math.cos((lat * Math.PI) / 180)
+    let best = 0
+    let bestDistance = Infinity
+    segment.points.forEach(([pLng, pLat], i) => {
+        const d = ((pLng - lng) * scale) ** 2 + (pLat - lat) ** 2
+        if (d < bestDistance) {
+            bestDistance = d
+            best = i
+        }
+    })
+    const [pLng, pLat] = segment.points[best]
+    return { lat: pLat, lng: pLng, speed: segment.speeds[best], time: segment.times?.[best] }
+}
 
 export type LiveMarker = {
     id: string | number
@@ -91,21 +116,27 @@ function MapLibreRouteMap({
     const { t } = useTranslation()
     const mapRef = useRef<MapRef | null>(null)
 
+    const [hover, setHover] = useState<RouteHover | null>(null)
+    const validSegments = useMemo(
+        () => (segments ?? []).filter((s) => s.points.length >= 2),
+        [segments],
+    )
+
     const segmentFeatures = useMemo(() => {
-        const valid = (segments ?? []).filter((s) => s.points.length >= 2)
+        const valid = validSegments
         if (valid.length === 0) return null
         return {
             type: "FeatureCollection" as const,
-            features: valid.map((s) => ({
+            features: valid.map((s, idx) => ({
                 type: "Feature" as const,
-                properties: { color: s.color },
+                properties: { color: s.color, idx },
                 geometry: {
                     type: "LineString" as const,
                     coordinates: s.points,
                 },
             })),
         }
-    }, [segments])
+    }, [validSegments])
 
     const polylineFeature = useMemo(() => {
         if (!points || points.length < 2) return null
@@ -186,6 +217,14 @@ function MapLibreRouteMap({
                 }}
                 mapStyle={MAP_STYLE_URL}
                 style={{ width: "100%", height: "100%" }}
+                interactiveLayerIds={segmentFeatures ? ["route-seg-hit"] : []}
+                cursor={hover ? "pointer" : undefined}
+                onMouseMove={(e) => {
+                    const feature = e.features?.[0]
+                    const segment = feature ? validSegments[feature.properties?.idx] : undefined
+                    setHover(segment ? nearestPoint(segment, e.lngLat.lng, e.lngLat.lat) : null)
+                }}
+                onMouseLeave={() => setHover(null)}
                 onLoad={(e) => {
                     const map = e.target
                     const layers = map.getStyle().layers ?? []
@@ -236,6 +275,15 @@ function MapLibreRouteMap({
                             layout={{
                                 "line-cap": "round",
                                 "line-join": "round",
+                            }}
+                        />
+                        <Layer
+                            id="route-seg-hit"
+                            type="line"
+                            paint={{
+                                "line-color": "#000000",
+                                "line-width": 16,
+                                "line-opacity": 0,
                             }}
                         />
                     </Source>
@@ -331,6 +379,12 @@ function MapLibreRouteMap({
                         <DriverMarker marker={m} />
                     </Marker>
                 ))}
+
+                {hover && (
+                    <Marker latitude={hover.lat} longitude={hover.lng} anchor="bottom" offset={[0, -10]}>
+                        <SpeedTooltip speed={hover.speed} time={hover.time} />
+                    </Marker>
+                )}
 
                 {pois?.map((p) => (
                     <Marker key={p.id} latitude={p.lat} longitude={p.lng} anchor="center">

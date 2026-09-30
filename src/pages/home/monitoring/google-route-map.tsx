@@ -8,8 +8,8 @@ import {
 } from "@react-google-maps/api"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { DriverMarker, EndpointDot, PoiMarker } from "./map-markers"
-import type { MapPoint, RouteMapProps } from "./route-map"
+import { DriverMarker, EndpointDot, PoiMarker, SpeedTooltip } from "./map-markers"
+import { type MapPoint, type RouteHover, type RouteMapProps, nearestPoint } from "./route-map"
 
 const MAX_FIT_ZOOM = 14
 const HIDDEN_WIDTH = 50
@@ -30,6 +30,10 @@ const centerOnPoint = (width: number, height: number) => ({
     x: -width / 2,
     y: -height / 2,
 })
+const aboveTheLine = (width: number, height: number) => ({
+    x: -width / 2,
+    y: -height - 10,
+})
 
 export default function GoogleRouteMap({
     points,
@@ -49,6 +53,7 @@ export default function GoogleRouteMap({
         region: "UZ",
     })
     const [map, setMap] = useState<google.maps.Map | null>(null)
+    const [hover, setHover] = useState<RouteHover | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const [refitTick, setRefitTick] = useState(0)
 
@@ -156,6 +161,36 @@ export default function GoogleRouteMap({
                                   }}
                               />
                           )}
+
+                    {validSegments.map(
+                        (s, i) =>
+                            s.speeds && (
+                                <PolylineF
+                                    key={`hit-${i}`}
+                                    path={s.points.map(toLatLng)}
+                                    options={{
+                                        strokeOpacity: 0,
+                                        strokeWeight: 16,
+                                        zIndex: 10,
+                                    }}
+                                    onMouseMove={(e) => {
+                                        const at = e.latLng
+                                        if (at) setHover(nearestPoint(s, at.lng(), at.lat()))
+                                    }}
+                                    onMouseOut={() => setHover(null)}
+                                />
+                            ),
+                    )}
+
+                    {hover && (
+                        <OverlayViewF
+                            position={{ lat: hover.lat, lng: hover.lng }}
+                            mapPaneName={OverlayView.FLOAT_PANE}
+                            getPixelPositionOffset={aboveTheLine}
+                        >
+                            <SpeedTooltip speed={hover.speed} time={hover.time} />
+                        </OverlayViewF>
+                    )}
 
                     {startPoint && (
                         <OverlayViewF

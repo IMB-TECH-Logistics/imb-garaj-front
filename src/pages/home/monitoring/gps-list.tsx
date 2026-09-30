@@ -242,13 +242,13 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                     <li
                         key={item.imei}
                         style={{ animationDelay: `${i * 35}ms` }}
-                        className="relative opacity-0 animate-[slide-in_320ms_cubic-bezier(.2,.7,.2,1)_forwards]"
+                        className="relative min-w-0 opacity-0 animate-[slide-in_320ms_cubic-bezier(.2,.7,.2,1)_forwards]"
                     >
                         <button
                             type="button"
                             onClick={() => onSelect?.(item)}
                             className={cn(
-                                "relative grid w-full min-w-0 gap-1 overflow-hidden rounded-lg border bg-card py-2.5 pl-4 pr-3 text-left transition",
+                                "relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-1 overflow-hidden rounded-lg border bg-card py-2.5 pl-4 pr-3 text-left transition",
                                 "hover:border-primary/40 hover:bg-accent/40",
                                 active ? "border-primary/60 ring-1 ring-primary/20" : "border-border/70",
                                 russia && !active && "border-[#0039a6]/40 bg-[#0039a6]/[0.04]",
@@ -262,7 +262,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                             <span className={cn("flex items-center justify-between gap-2", item.vehicle && hasControl && "pr-7")}>
                                 <span className="flex min-w-0 items-baseline gap-2">
                                     {russia && <RussiaFlag className="self-center" />}
-                                    <span className="shrink-0 font-mono text-lg font-bold leading-tight tracking-wider">
+                                    <span className="max-w-full shrink-0 truncate font-mono text-base font-bold leading-tight tracking-wider sm:text-lg">
                                         {item.vehicle_number || item.tracker_name || item.imei}
                                     </span>
                                     {item.driver_name && (
@@ -279,8 +279,8 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                                 )}
                             </span>
 
-                            <span className="flex items-center justify-between gap-2">
-                                <span className={cn("truncate text-sm font-medium", !order && "text-muted-foreground")}>
+                            <span className="flex min-w-0 items-center justify-between gap-2">
+                                <span className={cn("min-w-0 truncate text-sm font-medium", !order && "text-muted-foreground")}>
                                     {order
                                         ? order.from && order.to
                                             ? `${order.from} → ${order.to}`
@@ -292,7 +292,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                                 )}
                             </span>
 
-                            <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground tabular-nums">
+                            <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground tabular-nums">
                                 {order && (
                                     <>
                                         <span>

@@ -186,3 +186,24 @@ export function PoiMarker({ poi }: { poi: MapPoi }) {
         </div>
     )
 }
+
+const tooltipTime = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Tashkent",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+})
+
+export function SpeedTooltip({ speed, time }: { speed: number; time?: number }) {
+    return (
+        <div className="pointer-events-none flex items-baseline gap-1.5 whitespace-nowrap rounded-md bg-slate-900/95 px-2 py-1 text-white shadow-lg">
+            <span className="font-mono text-sm font-bold tabular-nums">{Math.round(speed)}</span>
+            <span className="text-[11px] text-slate-300">km/h</span>
+            {time != null && (
+                <span className="font-mono text-[11px] tabular-nums text-slate-400">
+                    {tooltipTime.format(time)}
+                </span>
+            )}
+        </div>
+    )
+}

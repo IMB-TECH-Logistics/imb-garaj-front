@@ -609,7 +609,7 @@ export default function MonitoringView() {
                     <Card className="relative overflow-hidden">
                         <CardContent className="relative p-0">
                             {!historical && !trackerImei && (gpsLive.data?.length ?? 0) > 0 && (
-                                <div className="absolute left-3 top-3 z-[500] flex flex-wrap items-start gap-2">
+                                <div className="absolute left-3 right-3 top-3 z-[500] flex flex-wrap items-start gap-2 pointer-events-none [&>*]:pointer-events-auto [&>*]:max-w-full [&>*]:overflow-x-auto">
                                     <TruckStatusFilterBar
                                         value={truckStatus}
                                         onChange={setTruckStatus}

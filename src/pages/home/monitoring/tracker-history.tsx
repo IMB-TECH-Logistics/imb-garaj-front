@@ -56,11 +56,27 @@ function metres(a: Point, b: Point) {
     return 2 * 6371000 * Math.asin(Math.sqrt(h))
 }
 
-const SPEED_LIMIT_KMH = 60
+const SPEED_STOPS: [number, [number, number, number]][] = [
+    [55, [16, 185, 129]],
+    [70, [250, 204, 21]],
+    [85, [239, 68, 68]],
+]
 
 function speedColor(speed: number) {
-    return speed < SPEED_LIMIT_KMH ? "#10b981" : "#f43f5e"
+    const [first] = SPEED_STOPS
+    if (speed <= first[0]) return `rgb(${first[1].join(",")})`
+    for (let i = 1; i < SPEED_STOPS.length; i++) {
+        const [toSpeed, to] = SPEED_STOPS[i]
+        if (speed <= toSpeed) {
+            const [fromSpeed, from] = SPEED_STOPS[i - 1]
+            const k = (speed - fromSpeed) / (toSpeed - fromSpeed)
+            return `rgb(${from.map((c, j) => Math.round(c + (to[j] - c) * k)).join(",")})`
+        }
+    }
+    return `rgb(${SPEED_STOPS[SPEED_STOPS.length - 1][1].join(",")})`
 }
+
+const SPEED_LEGEND = `linear-gradient(to right, ${SPEED_STOPS.map(([s, c], i) => `rgb(${c.join(",")}) ${(i / (SPEED_STOPS.length - 1)) * 100}%`).join(", ")})`
 
 function summarize(points: Point[]) {
     let distance = 0
@@ -151,10 +167,20 @@ export function useTrackerHistory(imei: string | null) {
                     for (let i = 1; i < current.length; i++) {
                         const a = current[i - 1]
                         const b = current[i]
-                        out.push({ points: [[a.lng, a.lat], [b.lng, b.lat]], color: speedColor(Math.max(a.speed, b.speed)) })
+                        out.push({
+                            points: [[a.lng, a.lat], [b.lng, b.lat]],
+                            color: speedColor(Math.max(a.speed, b.speed)),
+                            speeds: [a.speed, b.speed],
+                            times: [a.t, b.t],
+                        })
                     }
                 } else {
-                    out.push({ points: current.map((p) => [p.lng, p.lat] as MapPoint), color: colors[current[0].day] })
+                    out.push({
+                        points: current.map((p) => [p.lng, p.lat] as MapPoint),
+                        color: colors[current[0].day],
+                        speeds: current.map((p) => p.speed),
+                        times: current.map((p) => p.t),
+                    })
                 }
             }
             current = []
@@ -239,9 +265,9 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
                 <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={onBack} aria-label={t("page.back_to_list")}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                        <span className="truncate font-mono text-base font-bold tracking-wide">
+                <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <span className="shrink-0 font-mono text-base font-bold tracking-wide">
                             {tracker.vehicle_number || tracker.tracker_name || tracker.imei}
                         </span>
                         {tracker.driver_name && (
@@ -251,7 +277,7 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
                         )}
                         <Badge
                             variant="outline"
-                            className={cn(online ? "border-emerald-500/40 text-emerald-500" : "text-muted-foreground")}
+                            className={cn("ml-auto shrink-0", online ? "border-emerald-500/40 text-emerald-500" : "text-muted-foreground")}
                         >
                             {online ? "Onlayn" : "Oflayn"}
                         </Badge>
@@ -266,21 +292,21 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
 
             {children}
 
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2 lg:grid-cols-2">
                 {[
                     [(summary.distance / 1000).toFixed(1), "km"],
                     [String(Math.round(summary.maxSpeed)), "max km/h"],
                     [duration(summary.moving), "harakatda"],
                     [String(summary.stops.length), "to'xtash"],
                 ].map(([value, label]) => (
-                    <div key={label} className="rounded-md border px-2.5 py-2">
-                        <div className="font-mono text-sm font-bold tabular-nums">{value}</div>
-                        <div className="text-[11px] text-muted-foreground">{label}</div>
+                    <div key={label} className="min-w-0 rounded-md border px-2.5 py-2">
+                        <div className="truncate font-mono text-sm font-bold tabular-nums">{value}</div>
+                        <div className="truncate text-[11px] text-muted-foreground">{label}</div>
                     </div>
                 ))}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("table.days")}</span>
                 <span className="flex-1" />
                 {quick.map((q) => (
@@ -307,7 +333,7 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
                     return (
                         <label
                             key={d.date}
-                            className="grid cursor-pointer grid-cols-[auto_auto_1fr_auto] items-center gap-2.5 rounded-md border px-3 py-2 hover:bg-accent"
+                            className="grid cursor-pointer grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-md border px-3 py-2 hover:bg-accent"
                         >
                             <Checkbox checked={selected.includes(d.date)} onCheckedChange={() => history.toggleDay(d.date)} />
                             <span className="h-1 w-3 rounded-full" style={{ background: history.colors[d.date] }} />
@@ -328,6 +354,16 @@ export function TrackerHistoryPanel({ tracker, history, onBack, children }: Pane
                     Tezlik bo'yicha rang
                     <Switch checked={history.bySpeed} onCheckedChange={history.setBySpeed} />
                 </label>
+                {history.bySpeed && (
+                    <div className="flex flex-col gap-1">
+                        <div className="h-1.5 rounded-full" style={{ background: SPEED_LEGEND }} />
+                        <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+                            <span>0–{SPEED_STOPS[0][0]}</span>
+                            <span>{SPEED_STOPS[1][0]}</span>
+                            <span>{SPEED_STOPS[2][0]}+ km/h</span>
+                        </div>
+                    </div>
+                )}
                 <label className="flex items-center justify-between">
                     To'xtashlarni ko'rsatish
                     <Switch checked={history.showStops} onCheckedChange={history.setShowStops} />
