@@ -33,8 +33,15 @@ export const useColumnsDriverTable = () => {
                 header: t("form.relative_phone_1"),
                 enableSorting: false,
                 cell: ({ row }) => (
-                    <div className="min-w-[180px] w-[220px] truncate">
-                        {row.original?.driver?.relative_phone_1 || "-"}
+                    <div className="min-w-[180px] w-[220px]">
+                        <div className="truncate">
+                            {formatPhoneNumber(row.original?.driver?.relative_phone_1 || "")}
+                        </div>
+                        {row.original?.driver?.relative_contact_1 && (
+                            <div className="truncate text-xs text-muted-foreground">
+                                {row.original.driver.relative_contact_1}
+                            </div>
+                        )}
                     </div>
                 ),
             },
@@ -43,8 +50,15 @@ export const useColumnsDriverTable = () => {
                 header: t("form.relative_phone_2"),
                 enableSorting: false,
                 cell: ({ row }) => (
-                    <div className="min-w-[180px] w-[220px] truncate">
-                        {row.original?.driver?.relative_phone_2 || "-"}
+                    <div className="min-w-[180px] w-[220px]">
+                        <div className="truncate">
+                            {formatPhoneNumber(row.original?.driver?.relative_phone_2 || "")}
+                        </div>
+                        {row.original?.driver?.relative_contact_2 && (
+                            <div className="truncate text-xs text-muted-foreground">
+                                {row.original.driver.relative_contact_2}
+                            </div>
+                        )}
                     </div>
                 ),
             },

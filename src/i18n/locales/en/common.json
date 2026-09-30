@@ -222,7 +222,9 @@
         "price_diff_by_client": "Due to client",
         "price_diff_driver": "Price difference (debt/credit)",
         "district": "District",
-        "code": "Code"
+        "code": "Code",
+        "relative_contact_1": "Contact 1",
+        "relative_contact_2": "Contact 2"
     },
     "toast": {
         "added": "Added",

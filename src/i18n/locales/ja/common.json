@@ -222,7 +222,9 @@
         "price_diff_by_client": "顧客都合",
         "price_diff_driver": "価格差（負債/過払い）",
         "district": "地区",
-        "code": "コード"
+        "code": "コード",
+        "relative_contact_1": "連絡先 1",
+        "relative_contact_2": "連絡先 2"
     },
     "toast": {
         "added": "追加されました",

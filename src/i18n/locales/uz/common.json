@@ -231,7 +231,9 @@
         "price_diff_by_client": "Mijoz sababli",
         "price_diff_driver": "Narx farqi (qarz/haq)",
         "district": "Tuman",
-        "code": "Kod"
+        "code": "Kod",
+        "relative_contact_1": "Kontakt 1",
+        "relative_contact_2": "Kontakt 2"
     },
     "toast": {
         "added": "Qo'shildi",

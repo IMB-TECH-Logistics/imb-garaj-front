@@ -84,6 +84,18 @@ const AddDriverModal = () => {
             return
         }
 
+        for (const key of ["relative_phone_1", "relative_phone_2"] as const) {
+            const digits = (values.driver?.[key] || "").replace(/\D/g, "")
+            if (digits.length > 0 && digits.length !== 9) {
+                form.setError(`driver.${key}`, {
+                    type: "manual",
+                    message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+                })
+                toast.error(t("toast.error_phone"))
+                return
+            }
+        }
+
         if (currentDriver?.id) {
             const { password, ...restValues } = values
 
@@ -142,22 +154,6 @@ const AddDriverModal = () => {
                     label={t("form.phone")}
                     name={"driver.phone"}
                     placeholder="+998 __ ___ __ __"
-                />
-
-                <FormInput
-                    name="driver.relative_phone_1"
-                    label={t("form.relative_phone_1")}
-                    methods={form}
-                    registerOptions={{ maxLength: { value: 100, message: "100 ta belgidan oshmasin" } }}
-                    placeholder={`${t("form.example")}: +998 90 123 45 67 (akasi)`}
-                />
-
-                <FormInput
-                    name="driver.relative_phone_2"
-                    label={t("form.relative_phone_2")}
-                    methods={form}
-                    registerOptions={{ maxLength: { value: 100, message: "100 ta belgidan oshmasin" } }}
-                    placeholder={`${t("form.example")}: +998 90 123 45 67 (akasi)`}
                 />
 
                 <FormInput
@@ -226,6 +222,38 @@ const AddDriverModal = () => {
                         fullWidth
                     />
                 </fieldset>
+
+                <FormFormatNumberInput
+                    control={form.control}
+                    format="+998 ## ### ## ##"
+                    label={t("form.relative_phone_1")}
+                    name={"driver.relative_phone_1"}
+                    placeholder="+998 __ ___ __ __"
+                />
+
+                <FormInput
+                    name="driver.relative_contact_1"
+                    label={t("form.relative_contact_1")}
+                    methods={form}
+                    registerOptions={{ maxLength: { value: 255, message: "255 ta belgidan oshmasin" } }}
+                    placeholder={`${t("form.example")}: Akasi - Anvar`}
+                />
+
+                <FormFormatNumberInput
+                    control={form.control}
+                    format="+998 ## ### ## ##"
+                    label={t("form.relative_phone_2")}
+                    name={"driver.relative_phone_2"}
+                    placeholder="+998 __ ___ __ __"
+                />
+
+                <FormInput
+                    name="driver.relative_contact_2"
+                    label={t("form.relative_contact_2")}
+                    methods={form}
+                    registerOptions={{ maxLength: { value: 255, message: "255 ta belgidan oshmasin" } }}
+                    placeholder={`${t("form.example")}: Akasi - Anvar`}
+                />
 
                 <FormDatePicker
                     required

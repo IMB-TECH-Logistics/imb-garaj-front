@@ -236,6 +236,8 @@ type DriverInfoType = {
     phone: string
     relative_phone_1?: string | null
     relative_phone_2?: string | null
+    relative_contact_1?: string | null
+    relative_contact_2?: string | null
     driver_license: string
     driver_license_date: string
     experience: string
