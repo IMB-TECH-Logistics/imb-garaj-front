@@ -129,6 +129,7 @@ export default function TransactionLedger() {
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={descFilter}
+                                    aria-label={t("form.description")}
                                     onChange={(e) => setFilter("ledger_desc", e.target.value)}
                                     style={{ colorScheme: scheme }}
                                     className={cn(
@@ -148,6 +149,7 @@ export default function TransactionLedger() {
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={typeFilter}
+                                    aria-label={t("table.type")}
                                     onChange={(e) => setFilter("ledger_type", e.target.value)}
                                     style={{ colorScheme: scheme }}
                                     className={cn(

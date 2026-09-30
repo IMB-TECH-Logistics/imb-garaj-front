@@ -28,7 +28,7 @@ const TruckTripOrderMain = () => {
     const page = Number(search.page ?? 1)
     const expandedOrderId = search.order ? Number(search.order) : null
 
-    const { data, isLoading, isError } = useGet<ListResponse<TripOrdersRow>>(
+    const { data, isLoading, isError, error } = useGet<ListResponse<TripOrdersRow>>(
         MANAGERS_ORDERS,
         {
             params: {
@@ -36,8 +36,13 @@ const TruckTripOrderMain = () => {
                 page:search.page,
                 page_size:search.page_size
             },
+            options: {
+                retry: (count, err: any) =>
+                    count < 3 && err?.response?.status !== 404,
+            },
         },
     )
+    const isNotFound = (error as any)?.response?.status === 404
 
     const toggleExpand = (orderId: number) => {
         const isOpen = expandedOrderId === orderId
@@ -90,9 +95,12 @@ const TruckTripOrderMain = () => {
                             <TableRow className="border-none">
                                 <TableCell
                                     colSpan={9}
-                                    className="text-center py-6 text-destructive"
+                                    className={cn(
+                                        "text-center py-6",
+                                        isNotFound ? "text-muted-foreground" : "text-destructive",
+                                    )}
                                 >
-                                    {t("messages.error")}
+                                    {isNotFound ? t("page.not_found") : t("messages.error")}
                                 </TableCell>
                             </TableRow>
                         )}
