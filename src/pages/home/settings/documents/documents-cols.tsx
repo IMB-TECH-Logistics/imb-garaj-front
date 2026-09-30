@@ -1,15 +1,13 @@
+import { Button } from "@/components/ui/button"
+import SeeInView from "@/components/ui/see-in-view"
 import { formatDate } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { Plus } from "lucide-react"
+import { TFunction } from "i18next"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import {
-    DOC_TYPE_OPTIONS,
-    DocType,
-    DocumentCell,
-    VehicleDocumentsRow,
-} from "./types"
+import { DocumentCell, DriverDocumentsRow, VehicleDocumentsRow } from "./types"
 
 const STATUS_CLASSES: Record<string, string> = {
     expired:
@@ -19,20 +17,46 @@ const STATUS_CLASSES: Record<string, string> = {
     ok: "border-transparent",
 }
 
-const statusHint = (doc: DocumentCell) => {
+const statusHint = (doc: DocumentCell, t: TFunction) => {
     if (doc.days_left === null) return ""
-    if (doc.days_left < 0) return `Muddati ${-doc.days_left} kun oldin tugagan`
-    if (doc.days_left === 0) return "Muddati bugun tugaydi"
-    return `${doc.days_left} kun qoldi`
+    if (doc.days_left < 0)
+        return t("documents_page.expired_ago", { days: -doc.days_left })
+    if (doc.days_left === 0) return t("documents_page.expires_today")
+    return t("documents_page.days_left", { days: doc.days_left })
+}
+
+const PhotoThumbs = ({ doc }: { doc: DocumentCell }) => {
+    const { t } = useTranslation()
+    const photos = [
+        { url: doc.photo_front, label: t("documents_page.photo_front") },
+        { url: doc.photo_back, label: t("documents_page.photo_back") },
+    ].filter((p) => !!p.url)
+    if (!photos.length) return null
+    return (
+        <span className="inline-flex items-center gap-1">
+            {photos.map((p) => (
+                <SeeInView key={p.label} url={p.url}>
+                    <img
+                        src={p.url as string}
+                        alt={p.label}
+                        title={p.label}
+                        className="size-8 rounded border object-cover"
+                    />
+                </SeeInView>
+            ))}
+        </span>
+    )
 }
 
 type CellProps = {
     doc: DocumentCell | null
     canEdit: boolean
     onClick: () => void
+    withPhotos?: boolean
 }
 
-const DocCell = ({ doc, canEdit, onClick }: CellProps) => {
+const DocCell = ({ doc, canEdit, onClick, withPhotos = true }: CellProps) => {
+    const { t } = useTranslation()
     if (!doc) {
         return canEdit ?
                 <button
@@ -40,60 +64,261 @@ const DocCell = ({ doc, canEdit, onClick }: CellProps) => {
                     onClick={onClick}
                     className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
                 >
-                    <Plus size={14} /> Qo'shish
+                    <Plus size={14} /> {t("documents_page.add_label")}
                 </button>
             :   <span className="text-muted-foreground">-</span>
     }
     return (
-        <button
-            type="button"
-            disabled={!canEdit}
-            onClick={onClick}
-            title={[doc.number, statusHint(doc)].filter(Boolean).join(" · ")}
-            className={cn(
-                "rounded-md border px-2 py-0.5 text-sm tabular-nums disabled:cursor-default",
-                canEdit && "hover:ring-1 hover:ring-primary/40",
-                STATUS_CLASSES[doc.status ?? "ok"],
-            )}
-        >
-            {doc.expires_date ? formatDate(doc.expires_date) : "Muddati yo'q"}
-        </button>
+        <span className="inline-flex items-center gap-2">
+            <button
+                type="button"
+                disabled={!canEdit}
+                onClick={onClick}
+                title={[doc.number, statusHint(doc, t)]
+                    .filter(Boolean)
+                    .join(" · ")}
+                className={cn(
+                    "rounded-md border px-2 py-0.5 text-sm tabular-nums disabled:cursor-default",
+                    canEdit && "hover:ring-1 hover:ring-primary/40",
+                    STATUS_CLASSES[doc.status ?? "ok"],
+                )}
+            >
+                {doc.expires_date ?
+                    formatDate(doc.expires_date)
+                :   t("documents_page.no_expiry")}
+            </button>
+            {withPhotos && <PhotoThumbs doc={doc} />}
+        </span>
     )
 }
 
-export const useColumnsDocumentsTable = (
+export const useColumnsDriverDocuments = (
     canEdit: boolean,
-    onCellClick: (row: VehicleDocumentsRow, docType: DocType) => void,
+    onEdit: (row: DriverDocumentsRow) => void,
+    onDelete: (row: DriverDocumentsRow) => void,
 ) => {
     const { t } = useTranslation()
-    return useMemo<ColumnDef<VehicleDocumentsRow>[]>(
-        () => [
+    return useMemo<ColumnDef<DriverDocumentsRow>[]>(() => {
+        const columns: ColumnDef<DriverDocumentsRow>[] = [
+            {
+                accessorKey: "full_name",
+                header: t("documents_page.driver"),
+                enableSorting: false,
+            },
+            {
+                accessorKey: "phone",
+                header: t("documents_page.phone"),
+                enableSorting: false,
+                cell: ({ row }) => row.original.phone || "-",
+            },
+            {
+                id: "license_number",
+                header: t("documents_page.license_number"),
+                enableSorting: false,
+                cell: ({ row }) =>
+                    row.original.documents.driver_license?.number || "-",
+            },
+            {
+                id: "issued_date",
+                header: t("documents_page.issued_date"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const date =
+                        row.original.documents.driver_license?.issued_date
+                    return date ? formatDate(date) : "-"
+                },
+            },
+            {
+                id: "expires_date",
+                header: t("documents_page.expires_date"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <DocCell
+                        withPhotos={false}
+                        doc={row.original.documents.driver_license}
+                        canEdit={canEdit}
+                        onClick={() => onEdit(row.original)}
+                    />
+                ),
+            },
+            {
+                id: "photos",
+                header: t("documents_page.photos"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const doc = row.original.documents.driver_license
+                    return doc ? <PhotoThumbs doc={doc} /> : "-"
+                },
+            },
+        ]
+        if (canEdit) {
+            columns.push({
+                id: "actions",
+                header: " ",
+                enableSorting: false,
+                size: 120,
+                cell: ({ row }) =>
+                    row.original.documents.driver_license ?
+                        <div className="flex items-center justify-end gap-2 pr-2">
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                title={t("actions.edit")}
+                                onClick={() => onEdit(row.original)}
+                            >
+                                <Pencil size={16} />
+                            </Button>
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="text-red-600 hover:text-red-700"
+                                title={t("actions.delete")}
+                                onClick={() => onDelete(row.original)}
+                            >
+                                <Trash2 size={16} />
+                            </Button>
+                        </div>
+                    :   null,
+            })
+        }
+        return columns
+    }, [t, canEdit, onEdit, onDelete])
+}
+
+const VehiclePhotoThumbs = ({ row }: { row: VehicleDocumentsRow }) => {
+    const { t } = useTranslation()
+    const truck = row.documents.truck_passport
+    const trailer = row.documents.trailer_passport
+    const photos =
+        row.shared_photos ?
+            [
+                {
+                    url: truck?.photo_front,
+                    label: t("documents_page.photo_shared_front"),
+                },
+                {
+                    url: truck?.photo_back,
+                    label: t("documents_page.photo_shared_back"),
+                },
+            ]
+        :   [
+                {
+                    url: truck?.photo_front,
+                    label: t("documents_page.photo_truck_front"),
+                },
+                {
+                    url: truck?.photo_back,
+                    label: t("documents_page.photo_truck_back"),
+                },
+                {
+                    url: trailer?.photo_front,
+                    label: t("documents_page.photo_trailer_front"),
+                },
+                {
+                    url: trailer?.photo_back,
+                    label: t("documents_page.photo_trailer_back"),
+                },
+            ]
+    const visible = photos.filter((p) => !!p.url)
+    if (!visible.length) return "-"
+    return (
+        <span className="inline-flex items-center gap-1">
+            {visible.map((p) => (
+                <SeeInView key={p.label} url={p.url as string}>
+                    <img
+                        src={p.url as string}
+                        alt={p.label}
+                        title={p.label}
+                        className="size-8 rounded border object-cover"
+                    />
+                </SeeInView>
+            ))}
+        </span>
+    )
+}
+
+export const useColumnsVehicleDocuments = (
+    canEdit: boolean,
+    onEdit: (row: VehicleDocumentsRow) => void,
+    onDelete: (row: VehicleDocumentsRow) => void,
+) => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<VehicleDocumentsRow>[]>(() => {
+        const columns: ColumnDef<VehicleDocumentsRow>[] = [
             {
                 accessorKey: "truck_number",
-                header: t("form.vehicle_number"),
-                enableSorting: true,
+                header: t("documents_page.truck_number"),
+                enableSorting: false,
             },
             {
-                accessorKey: "driver_name",
-                header: t("form.driver"),
-                enableSorting: true,
-                cell: ({ row }) => row.original.driver_name || "-",
+                accessorKey: "trailer_number",
+                header: t("documents_page.trailer_number"),
+                enableSorting: false,
+                cell: ({ row }) => row.original.trailer_number || "-",
             },
-            ...DOC_TYPE_OPTIONS.map(
-                ({ value, label }): ColumnDef<VehicleDocumentsRow> => ({
-                    id: value,
-                    header: label,
+            ...(["truck_passport", "trailer_passport"] as const).map(
+                (docType): ColumnDef<VehicleDocumentsRow> => ({
+                    id: docType,
+                    header: t(`documents_page.${docType}`),
                     enableSorting: false,
-                    cell: ({ row }) => (
-                        <DocCell
-                            doc={row.original.documents[value]}
-                            canEdit={canEdit}
-                            onClick={() => onCellClick(row.original, value)}
-                        />
-                    ),
+                    cell: ({ row }) =>
+                        (
+                            docType === "trailer_passport" &&
+                            !row.original.trailer_number
+                        ) ?
+                            "-"
+                        :   <DocCell
+                                withPhotos={false}
+                                doc={row.original.documents[docType]}
+                                canEdit={canEdit}
+                                onClick={() => onEdit(row.original)}
+                            />,
                 }),
             ),
-        ],
-        [t, canEdit, onCellClick],
-    )
+            {
+                id: "photos",
+                header: t("documents_page.photos"),
+                enableSorting: false,
+                cell: ({ row }) => <VehiclePhotoThumbs row={row.original} />,
+            },
+        ]
+        if (canEdit) {
+            columns.push({
+                id: "actions",
+                header: " ",
+                enableSorting: false,
+                size: 120,
+                cell: ({ row }) =>
+                    (
+                        row.original.documents.truck_passport ||
+                        row.original.documents.trailer_passport
+                    ) ?
+                        <div className="flex items-center justify-end gap-2 pr-2">
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                title={t("actions.edit")}
+                                onClick={() => onEdit(row.original)}
+                            >
+                                <Pencil size={16} />
+                            </Button>
+                            <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="text-red-600 hover:text-red-700"
+                                title={t("actions.delete")}
+                                onClick={() => onDelete(row.original)}
+                            >
+                                <Trash2 size={16} />
+                            </Button>
+                        </div>
+                    :   null,
+            })
+        }
+        return columns
+    }, [t, canEdit, onEdit, onDelete])
 }

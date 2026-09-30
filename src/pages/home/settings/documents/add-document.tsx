@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import {
     VEHICLE_DOCUMENT_ALERTS,
     VEHICLE_DOCUMENTS,
+    VEHICLE_DOCUMENTS_DRIVERS,
     VEHICLE_DOCUMENTS_TRUCKS,
     VEHICLES,
 } from "@/constants/api-endpoints"
@@ -12,37 +13,73 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import compressImg from "@/lib/compress-img"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { useSearch } from "@tanstack/react-router"
 import { format } from "date-fns"
 import { Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { ALERT_DAYS, DOC_TYPE_OPTIONS, VehicleDocumentType } from "./types"
+import VehicleImagePicker from "../vehicles/vehicle-image-picker"
+import {
+    ALERT_DAYS,
+    DOC_TYPE_OPTIONS,
+    DocTab,
+    MAX_PHOTO_MB,
+    TAB_DOC_TYPES,
+    VehicleDocumentType,
+} from "./types"
 
-type FormValues = Partial<VehicleDocumentType>
+type FormValues = Partial<
+    Omit<VehicleDocumentType, "photo_front" | "photo_back">
+> & {
+    photo_front?: File | string | null
+    photo_back?: File | string | null
+}
+
+const PHOTO_FIELDS = ["photo_front", "photo_back"] as const
 
 const toApiDate = (value?: string | Date | null) =>
-    value ? format(new Date(value), "yyyy-MM-dd") : null
+    value ? format(new Date(value), "yyyy-MM-dd") : ""
 
 const AddDocumentModal = () => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
+    const search = useSearch({ strict: false }) as Record<string, unknown>
+    const tab: DocTab = search.tab === "vehicles" ? "vehicles" : "drivers"
     const { closeModal } = useModal("create")
     const { openModal: openDeleteModal } = useModal("delete")
     const { getData, clearKey } = useGlobalStore()
-    const current = getData<FormValues>(VEHICLE_DOCUMENTS)
-    const isPrefilled = !!current?.vehicle && !!current?.doc_type
+    const current = getData<VehicleDocumentType>(VEHICLE_DOCUMENTS)
+    const isPrefilled = !!(current?.vehicle || current?.driver) && !!current?.doc_type
+
+    const form = useForm<FormValues>({
+        defaultValues: current?.doc_type ?
+                current
+            :   { doc_type: TAB_DOC_TYPES[tab][0] },
+    })
+    const { handleSubmit, reset, control, watch } = form
+    const docType = watch("doc_type")
+    const isDriverDoc = docType === "driver_license"
 
     const { data: vehicles } = useGet<
         ListResponse<{ id: number; truck_number: string }>
-    >(VEHICLES, { params: { page_size: 10000 }, enabled: !isPrefilled })
-
-    const form = useForm<FormValues>({
-        defaultValues: current || { doc_type: "truck_passport" },
+    >(VEHICLES, {
+        params: { page_size: 10000 },
+        enabled: !isPrefilled && !isDriverDoc,
     })
-    const { handleSubmit, reset, control } = form
+    const { data: drivers } = useGet<
+        ListResponse<{ id: number; full_name: string }>
+    >(VEHICLE_DOCUMENTS_DRIVERS, {
+        params: { page_size: 10000 },
+        enabled: !isPrefilled && isDriverDoc,
+    })
+
+    const docTypeOptions = DOC_TYPE_OPTIONS.filter((o) =>
+        TAB_DOC_TYPES[tab].includes(o.value),
+    ).map((o) => ({ ...o, label: t(`documents_page.${o.value}`) }))
 
     const onSuccess = () => {
         toast.success(
@@ -55,9 +92,11 @@ const AddDocumentModal = () => {
         closeModal()
         queryClient.refetchQueries({
             predicate: (q) =>
-                [VEHICLE_DOCUMENTS_TRUCKS, VEHICLE_DOCUMENT_ALERTS].includes(
-                    q.queryKey[0] as string,
-                ),
+                [
+                    VEHICLE_DOCUMENTS_DRIVERS,
+                    VEHICLE_DOCUMENTS_TRUCKS,
+                    VEHICLE_DOCUMENT_ALERTS,
+                ].includes(q.queryKey[0] as string),
         })
     }
 
@@ -69,18 +108,42 @@ const AddDocumentModal = () => {
     })
     const isPending = isPendingCreate || isPendingUpdate
 
-    const onSubmit = (values: FormValues) => {
-        const payload = {
-            vehicle: values.vehicle,
-            doc_type: values.doc_type,
-            number: values.number ?? "",
-            issued_date: toApiDate(values.issued_date),
-            expires_date: toApiDate(values.expires_date),
+    const onSubmit = async (values: FormValues) => {
+        const formData = new FormData()
+        formData.append("doc_type", String(values.doc_type))
+        if (isDriverDoc) {
+            if (values.driver) formData.append("driver", String(values.driver))
+        } else if (values.vehicle) {
+            formData.append("vehicle", String(values.vehicle))
         }
+        formData.append("number", values.number ?? "")
+        formData.append("issued_date", toApiDate(values.issued_date))
+        formData.append("expires_date", toApiDate(values.expires_date))
+
+        for (const field of PHOTO_FIELDS) {
+            const value = values[field]
+            if (value instanceof File) {
+                if (value.size > MAX_PHOTO_MB * 1024 * 1024) {
+                    toast.error(
+                        t("documents_page.file_too_large", { mb: MAX_PHOTO_MB }),
+                    )
+                    return
+                }
+                const compressed = await compressImg(value, {
+                    maxSizeMB: 1.5,
+                    maxWidthOrHeight: 2000,
+                })
+                if (!compressed) return
+                formData.append(field, compressed)
+            } else if (value === "" || (value === null && current?.[field])) {
+                formData.append(field, "")
+            }
+        }
+
         if (current?.id) {
-            updateMutate(`${VEHICLE_DOCUMENTS}/${current.id}`, payload)
+            updateMutate(`${VEHICLE_DOCUMENTS}/${current.id}`, formData)
         } else {
-            postMutate(VEHICLE_DOCUMENTS, payload)
+            postMutate(VEHICLE_DOCUMENTS, formData)
         }
     }
 
@@ -98,52 +161,81 @@ const AddDocumentModal = () => {
                 <>
                     <FormCombobox
                         required
-                        name="vehicle"
-                        label={t("form.vehicle_number")}
-                        options={vehicles?.results ?? []}
-                        control={control}
-                        labelKey="truck_number"
-                        valueKey="id"
-                    />
-                    <FormCombobox
-                        required
                         name="doc_type"
-                        label="Hujjat nomi"
-                        options={DOC_TYPE_OPTIONS}
+                        label={t("documents_page.doc_type")}
+                        options={docTypeOptions}
                         control={control}
                         labelKey="label"
                         valueKey="value"
                     />
+                    {isDriverDoc ?
+                        <FormCombobox
+                            key="driver"
+                            required
+                            name="driver"
+                            label={t("documents_page.driver")}
+                            options={drivers?.results ?? []}
+                            control={control}
+                            labelKey="full_name"
+                            valueKey="id"
+                        />
+                    :   <FormCombobox
+                            key="vehicle"
+                            required
+                            name="vehicle"
+                            label={t("documents_page.vehicle")}
+                            options={vehicles?.results ?? []}
+                            control={control}
+                            labelKey="truck_number"
+                            valueKey="id"
+                        />
+                    }
                 </>
             )}
             <FormInput
                 name="number"
-                label="Hujjat raqami"
+                label={t("documents_page.number")}
                 methods={form}
                 wrapperClassName="md:col-span-2"
             />
             <FormDatePicker
                 name="issued_date"
-                label="Berilgan sana"
+                label={t("documents_page.issued_date")}
                 control={control}
                 fullWidth
             />
             <div>
                 <FormDatePicker
                     name="expires_date"
-                    label="Amal qilish muddati"
+                    label={t("documents_page.expires_date")}
                     control={control}
                     fullWidth
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                    Bo'sh qoldirilsa, berilgan sanadan 5 yil hisoblanadi
+                    {t("documents_page.expires_hint")}
                 </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 md:col-span-2">
+                <VehicleImagePicker
+                    name="photo_front"
+                    label={t("documents_page.photo_front")}
+                    methods={form}
+                    clearable
+                    maxSizeMB={MAX_PHOTO_MB}
+                />
+                <VehicleImagePicker
+                    name="photo_back"
+                    label={t("documents_page.photo_back")}
+                    methods={form}
+                    clearable
+                    maxSizeMB={MAX_PHOTO_MB}
+                />
             </div>
             {!!current?.id && current.days_left !== null && current.days_left !== undefined && current.days_left <= ALERT_DAYS && (
                 <p className="md:col-span-2 text-sm font-medium text-red-600">
                     {current.days_left < 0 ?
-                        `Muddati ${-current.days_left} kun oldin tugagan`
-                    :   `Muddati tugashiga ${current.days_left} kun qoldi`}
+                        t("documents_page.expired_ago", { days: -current.days_left })
+                    :   t("documents_page.expires_in", { days: current.days_left })}
                 </p>
             )}
             <div className="flex items-center justify-between gap-2 md:col-span-2">

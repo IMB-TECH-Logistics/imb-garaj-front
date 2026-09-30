@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useDocumentAlerts } from "@/hooks/use-document-alerts"
+import { DocumentAlert } from "@/pages/home/settings/documents/types"
 import { formatDate } from "@/lib/format-date"
 import { useNavigate } from "@tanstack/react-router"
 import { ArrowRight, FileWarning } from "lucide-react"
@@ -22,13 +23,14 @@ export function DocumentNotification() {
 
     const documents = data?.results ?? []
 
-    const goToDocuments = (truckNumber?: string) => {
+    const goToDocuments = (doc?: DocumentAlert) => {
         setOpen(false)
+        const name = doc && (doc.tab === "drivers" ? doc.driver_name : doc.truck_number)
         navigate({
             to: "/documents",
-            search: (truckNumber ?
-                { documents_search: truckNumber }
-            :   { doc_alert: "1" }) as any,
+            search: (doc ?
+                { tab: doc.tab, documents_search: name || undefined }
+            :   { tab: data?.drivers || !data?.vehicles ? "drivers" : "vehicles", doc_alert: "1" }) as any,
         })
     }
 
@@ -70,14 +72,14 @@ export function DocumentNotification() {
                                 key={doc.id}
                                 type="button"
                                 className="w-full text-left px-4 py-3 flex items-start justify-between gap-2 hover:bg-muted/50"
-                                onClick={() => goToDocuments(doc.truck_number)}
+                                onClick={() => goToDocuments(doc)}
                             >
                                 <div className="min-w-0">
                                     <p className="text-sm font-medium truncate">
-                                        {doc.truck_number} · {doc.doc_type_name}
+                                        {(doc.tab === "drivers" ? doc.driver_name : doc.truck_number) || "-"} · {doc.doc_type_name}
                                     </p>
                                     <p className="text-xs text-muted-foreground truncate">
-                                        {doc.driver_name || "-"}
+                                        {doc.tab === "drivers" ? doc.driver_name || "-" : doc.trailer_number || "-"}
                                     </p>
                                     <p
                                         className={`text-xs mt-1 font-semibold ${doc.status === "expired" ? "text-red-600" : "text-amber-600"}`}

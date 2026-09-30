@@ -14,18 +14,10 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
-import VehicleImagePicker from "./vehicle-image-picker"
 
 const MIN_VEHICLE_YEAR = 1950
 
-const IMAGE_FIELDS = [
-    "truck_front",
-    "truck_back",
-    "license_front",
-    "license_back",
-    "trailer_front",
-    "trailer_back",
-] as const
+const LEGACY_PHOTO_KEY = /^(truck|license|trailer)_(front|back)$/
 
 const FUEL_OPTIONS = [
     { value: "methane", label: "Metan" },
@@ -93,7 +85,7 @@ const AddVehicleSettingsModal = () => {
         const formData = new FormData()
 
         Object.entries(values).forEach(([key, value]) => {
-            if (IMAGE_FIELDS.includes(key as (typeof IMAGE_FIELDS)[number])) {
+            if (LEGACY_PHOTO_KEY.test(key)) {
                 return
             }
             if (value === undefined || value === null || value === "") {
@@ -104,12 +96,6 @@ const AddVehicleSettingsModal = () => {
                 return
             }
             formData.append(key, String(value))
-        })
-
-        IMAGE_FIELDS.forEach((key) => {
-            if (values[key] instanceof File) {
-                formData.append(key, values[key])
-            }
         })
 
         if (current?.id) {
@@ -246,39 +232,6 @@ const AddVehicleSettingsModal = () => {
                     control={control}
                     fullWidth
                 />
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:col-span-2 rounded-lg border p-2">
-                    <VehicleImagePicker
-                        name="truck_front"
-                        label={t("form.vehicle") + " " + t("actions.save").toLowerCase()}
-                        methods={form}
-                    />
-                    <VehicleImagePicker
-                        name="truck_back"
-                        label={t("form.vehicle_number") + " (back)"}
-                        methods={form}
-                    />
-                    <VehicleImagePicker
-                        name="license_front"
-                        label={t("form.tech_passport") + " (front)"}
-                        methods={form}
-                    />
-                    <VehicleImagePicker
-                        name="license_back"
-                        label={t("form.tech_passport") + " (back)"}
-                        methods={form}
-                    />
-                    <VehicleImagePicker
-                        name="trailer_front"
-                        label={t("form.trailer_number") + " (front)"}
-                        methods={form}
-                    />
-                    <VehicleImagePicker
-                        name="trailer_back"
-                        label={t("form.trailer_number") + " (back)"}
-                        methods={form}
-                    />
-                </div>
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button

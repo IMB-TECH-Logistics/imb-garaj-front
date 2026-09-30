@@ -1,8 +1,9 @@
-import { Input } from "@/components/ui/input"
 import SeeInView from "@/components/ui/see-in-view"
 import { cn } from "@/lib/utils"
-import { Download } from "lucide-react"
-import { ClipboardEvent, DragEvent, useEffect, useMemo } from "react"
+import { ImagePlus, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
+import { ClipboardEvent, DragEvent, useEffect, useMemo, useRef, useState } from "react"
 import {
     FieldValues,
     Path,
@@ -15,15 +16,22 @@ type Props<IForm extends FieldValues> = {
     name: Path<IForm>
     label: string
     methods: UseFormReturn<IForm>
+    clearable?: boolean
+    maxSizeMB?: number
 }
 
 export default function VehicleImagePicker<IForm extends FieldValues>({
     name,
     label,
     methods,
+    clearable = false,
+    maxSizeMB,
 }: Props<IForm>) {
+    const { t } = useTranslation()
     const { field } = useController({ name, control: methods.control })
     const value = field.value as File | string | null | undefined
+    const inputRef = useRef<HTMLInputElement>(null)
+    const [dragging, setDragging] = useState(false)
 
     const preview = useMemo(() => {
         if (!value) return null
@@ -37,10 +45,19 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
     }, [preview, value])
 
     const setFile = (file?: File | null) => {
-        if (file) methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
+        if (!file) return
+        if (!file.type.startsWith("image")) {
+            toast.error(t("documents_page.only_images"))
+            return
+        }
+        if (maxSizeMB && file.size > maxSizeMB * 1024 * 1024) {
+            toast.error(t("documents_page.file_too_large", { mb: maxSizeMB }))
+            return
+        }
+        methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
     }
 
-    const onPaste = (e: ClipboardEvent<HTMLInputElement>) => {
+    const onPaste = (e: ClipboardEvent<HTMLDivElement>) => {
         for (const item of e.clipboardData.items) {
             if (item.type.startsWith("image")) setFile(item.getAsFile())
         }
@@ -48,51 +65,91 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
 
     const onDrop = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault()
+        setDragging(false)
         setFile(e.dataTransfer.files?.[0])
     }
 
+    const openPicker = () => inputRef.current?.click()
+
     return (
-        <div
-            className="flex flex-col items-center gap-3 rounded-lg border p-4"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={onDrop}
-        >
+        <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium">{label}</span>
             {preview ?
-                <SeeInView url={preview}>
-                    <img
-                        src={preview}
-                        alt={label}
-                        className="h-16 w-full rounded-md border object-cover"
-                    />
-                </SeeInView>
-            :   <Input
-                    fullWidth
-                    className="h-16 w-full bg-transparent"
-                    placeholder="CTRL + V"
+                <div className="relative h-36 w-full">
+                    <SeeInView url={preview} fullWidth>
+                        <img
+                            src={preview}
+                            alt={label}
+                            className="h-36 w-full cursor-zoom-in rounded-lg border object-cover"
+                        />
+                    </SeeInView>
+                    <div className="absolute bottom-2 right-2 flex gap-1.5">
+                        <button
+                            type="button"
+                            onClick={openPicker}
+                            className="rounded-md border bg-background/90 px-2 py-1 text-xs font-medium hover:bg-background"
+                        >
+                            {t("documents_page.change_photo")}
+                        </button>
+                        {clearable && (
+                            <button
+                                type="button"
+                                title={t("actions.delete")}
+                                onClick={() =>
+                                    methods.setValue(
+                                        name,
+                                        "" as PathValue<IForm, Path<IForm>>,
+                                    )
+                                }
+                                className="rounded-md border bg-background/90 p-1 text-muted-foreground hover:text-red-600"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            :   <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={openPicker}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            openPicker()
+                        }
+                    }}
                     onPaste={onPaste}
-                    value=""
-                    onChange={() => {}}
-                />
+                    onDragOver={(e) => {
+                        e.preventDefault()
+                        setDragging(true)
+                    }}
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={onDrop}
+                    className={cn(
+                        "flex h-36 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-center transition-colors hover:border-primary hover:bg-primary/5 focus-visible:border-primary focus-visible:outline-none",
+                        dragging && "border-primary bg-primary/5",
+                    )}
+                >
+                    <ImagePlus className="size-8 text-primary" />
+                    <span className="text-sm font-medium">
+                        {t("documents_page.upload_click")}
+                    </span>
+                    <span className="px-2 text-xs text-muted-foreground">
+                        {t("documents_page.upload_hint")}
+                    </span>
+                </div>
             }
-            <label
-                htmlFor={name}
-                className="cursor-pointer text-muted-foreground hover:text-foreground"
-            >
-                <Download className="size-5" />
-            </label>
             <input
+                ref={inputRef}
                 id={name}
                 type="file"
                 accept="image/*"
                 hidden
-                onChange={(e) => setFile(e.target.files?.[0])}
+                onChange={(e) => {
+                    setFile(e.target.files?.[0])
+                    e.target.value = ""
+                }}
             />
-            <label
-                htmlFor={name}
-                className={cn("cursor-pointer text-center text-sm font-medium")}
-            >
-                {label}
-            </label>
         </div>
     )
 }
