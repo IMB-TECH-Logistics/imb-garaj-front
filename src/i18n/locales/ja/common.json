@@ -28,6 +28,7 @@
         "activity_log": "活動ログ"
     },
     "actions": {
+        "reverse_salary": "取り消す",
         "unlink_gps": "GPSを解除",
         "add": "追加",
         "edit": "編集",
@@ -70,6 +71,7 @@
         "expand": "拡大"
     },
     "messages": {
+        "reverse_salary_hint": "レジとドライバーの給与差額が戻り、便は未払いに戻ります。",
         "success_add": "正常に追加されました！",
         "success_edit": "正常に更新されました！",
         "direction_price_not_current": "価格は{{date}}から保存されましたが、現在有効な価格は{{price}}（{{active_date}}から）です。新しい価格は{{date}}から次の変更までの注文にのみ適用されます。",
@@ -225,9 +227,15 @@
         "price_diff_less": "ドライバーの入力額がルート価格より低い",
         "price_diff_more": "ドライバーの入力額がルート価格より高い",
         "price_diff_by_client": "顧客都合",
-        "price_diff_driver": "価格差（負債/過払い）"
+        "price_diff_driver": "価格差（＋負債／−過払い）",
+        "salary_diff_driver": "給与差（＋負債／−過払い）",
+        "debt_driver_owes": "ドライバーが会社に負債",
+        "debt_company_owes": "会社がドライバーに負債",
+        "debt_total": "負債合計（残高＋給与＋価格差）",
+        "not_in_balance": "残高に含まれない"
     },
     "toast": {
+        "salary_reversed": "給与支払いを取り消しました",
         "added": "追加されました",
         "updated": "更新されました",
         "deleted": "削除されました",
@@ -290,6 +298,7 @@
         "draft": "下書き"
     },
     "page": {
+        "salary_payouts": "支払済み給与",
         "truck_status_all": "すべて",
         "truck_status_loaded": "積載",
         "truck_status_empty": "空車",

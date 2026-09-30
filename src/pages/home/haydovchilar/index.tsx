@@ -36,6 +36,7 @@ type DriverRow = {
     fuel_gas_per_100km: string | number
     coverage: number
     balance_uzs: string | number
+    salary_balance_uzs?: string | number
     latest_trip_id: number | null
     latest_trip_end: string | null
     score: string | number
@@ -163,18 +164,29 @@ const useCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const v = num(row.original.balance_uzs)
+                    const salary = num(row.original.salary_balance_uzs)
                     return (
-                        <span
-                            className={
-                                v < 0
-                                    ? "text-red-500 font-medium"
-                                    : v > 0
-                                      ? "text-green-500 font-medium"
-                                      : ""
-                            }
-                        >
-                            {formatMoney(v)} {t("page.som")}
-                        </span>
+                        <div className="flex flex-col">
+                            <span
+                                className={
+                                    v < 0
+                                        ? "text-red-500 font-medium"
+                                        : v > 0
+                                          ? "text-green-500 font-medium"
+                                          : ""
+                                }
+                            >
+                                {formatMoney(v)} {t("page.som")}
+                            </span>
+                            {salary !== 0 && (
+                                <span
+                                    className={`text-[11px] ${salary > 0 ? "text-red-500" : "text-green-500"}`}
+                                    title={t(salary > 0 ? "form.debt_driver_owes" : "form.debt_company_owes")}
+                                >
+                                    {t("form.salary_diff_driver")}: {formatMoney(salary)}
+                                </span>
+                            )}
+                        </div>
                     )
                 },
             },
