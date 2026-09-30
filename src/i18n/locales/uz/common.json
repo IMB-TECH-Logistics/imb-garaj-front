@@ -72,6 +72,7 @@
     },
     "messages": {
         "reverse_salary_hint": "Kassa va haydovchi oylik farqi qaytariladi, reyslar yana 'Berilmagan' bo'ladi.",
+        "reverse_salary_trips": "{{count}} ta reys",
         "success_add": "Muvaffaqiyatli qo'shildi!",
         "success_edit": "Muvaffaqiyatli tahrirlandi!",
         "direction_price_not_current": "Narx {{date}} sanasidan saqlandi, lekin bugun amaldagi narx — {{price}} ({{active_date}} dan). Yangi narx faqat {{date}} dan keyingi o'zgarishgacha bo'lgan buyurtmalarga ta'sir qiladi.",

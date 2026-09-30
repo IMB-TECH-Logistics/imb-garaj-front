@@ -469,9 +469,13 @@ function PayoutHistory({
                         {t("actions.reverse_salary")}?
                     </DialogTitle>
                     <DialogDescription>
-                        {target
-                            ? `${formatMoney(num(target.given))} UZS · ${target.orders.length} ta reys. ${t("messages.reverse_salary_hint")}`
-                            : null}
+                        {target ? (
+                            <>
+                                {formatMoney(num(target.given))} UZS ·{" "}
+                                {t("messages.reverse_salary_trips", { count: target.orders.length })}.{" "}
+                                {t("messages.reverse_salary_hint")}
+                            </>
+                        ) : null}
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="gap-2">
