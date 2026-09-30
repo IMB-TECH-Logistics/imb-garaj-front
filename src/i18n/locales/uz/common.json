@@ -25,7 +25,8 @@
         "payment_types": "To'lov turlari",
         "expense_types": "Kirim-chiqim turlari",
         "monthly_rates": "Oylik tariflar",
-        "activity_log": "Faoliyat jurnali"
+        "activity_log": "Faoliyat jurnali",
+        "distributors": "Distributorlar"
     },
     "actions": {
         "unlink_gps": "GPS'ni uzish",
@@ -228,7 +229,9 @@
         "price_diff_less": "haydovchi yozgan summa yo'nalish narxidan kam",
         "price_diff_more": "haydovchi yozgan summa yo'nalish narxidan ko'p",
         "price_diff_by_client": "Mijoz sababli",
-        "price_diff_driver": "Narx farqi (qarz/haq)"
+        "price_diff_driver": "Narx farqi (qarz/haq)",
+        "district": "Tuman",
+        "code": "Kod"
     },
     "toast": {
         "added": "Qo'shildi",

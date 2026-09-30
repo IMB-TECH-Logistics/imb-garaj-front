@@ -362,6 +362,11 @@ export const useItems = () => {
                         allowKey: "settings_customers_view",
                     },
                     {
+                        label: t("nav.distributors"),
+                        path: "/distributors",
+                        allowKey: "settings_customers_view",
+                    },
+                    {
                         label: t("nav.truck_types"),
                         path: "/vehicle-types",
                         allowKey: "settings_vehicle_types_view",

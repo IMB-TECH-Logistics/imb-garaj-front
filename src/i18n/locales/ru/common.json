@@ -25,7 +25,8 @@
         "payment_types": "Виды оплаты",
         "expense_types": "Виды приходов и расходов",
         "monthly_rates": "Ежемес. тарифы",
-        "activity_log": "Журнал активности"
+        "activity_log": "Журнал активности",
+        "distributors": "Дистрибьюторы"
     },
     "actions": {
         "unlink_gps": "Отвязать GPS",
@@ -219,7 +220,9 @@
         "price_diff_less": "сумма, указанная водителем, меньше цены направления",
         "price_diff_more": "сумма, указанная водителем, больше цены направления",
         "price_diff_by_client": "По вине клиента",
-        "price_diff_driver": "Разница в цене (долг/доплата)"
+        "price_diff_driver": "Разница в цене (долг/доплата)",
+        "district": "Район",
+        "code": "Код"
     },
     "toast": {
         "added": "Добавлено",

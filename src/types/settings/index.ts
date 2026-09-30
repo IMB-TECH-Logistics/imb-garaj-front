@@ -260,3 +260,13 @@ type SettingsDistrictType = {
     name: string
     region: number
 }
+
+type DistributorType = {
+    id: number
+    name: string
+    code: string | null
+    district_id: number
+    district_name: string
+    region_id: number
+    region_name: string
+}
