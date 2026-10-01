@@ -98,17 +98,9 @@ export const useDirectionColumns = () => {
                 accessorKey: "distributor_name",
                 header: t("form.distributor"),
                 enableSorting: false,
-                cell: ({ row }) => {
-                    const { distributor_name, distributor_code, distributor_district } = row.original
-                    if (!distributor_name) return "—"
-                    const meta = [distributor_code, distributor_district].filter(Boolean).join(" · ")
-                    return (
-                        <div className="min-w-[160px] max-w-[240px]">
-                            <div className="truncate">{distributor_name}</div>
-                            {meta && <div className="truncate text-xs text-muted-foreground">{meta}</div>}
-                        </div>
-                    )
-                },
+                cell: ({ row }) => row.original.distributor_name ? (
+                    <div className="min-w-[160px] max-w-[240px] truncate">{row.original.distributor_name}</div>
+                ) : "—",
             },
             { accessorKey: "owner_name", header: t("form.cargo_owner"), enableSorting: true },
             { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
