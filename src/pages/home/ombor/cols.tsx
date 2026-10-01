@@ -1,219 +1,246 @@
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
-import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import {
-    AlertTriangle,
-    PackageMinus,
-    SquarePen,
-    Trash2,
-} from "lucide-react"
+import { QrCode } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import type { WhProduct, WhReceiptLine, WhWithdrawal } from "./types"
+import { fmtDate } from "./utils"
 
-export type ExpiryStatus = "none" | "ok" | "soon" | "expired"
+const Dash = () => <span className="text-muted-foreground">—</span>
 
-export interface OmborProduct {
-    id: number
-    name: string
-    unit: string
-    unit_display: string
-    unit_price: string | number
-    quantity: string | number
-    expiry_date: string | null
-    days_to_expiry: number | null
-    expiry_status: ExpiryStatus
-    total?: string | number
-    created?: string
-    updated?: string
-}
-
-export const UNIT_OPTIONS = [
-    { id: "piece", name: "Dona" },
-    { id: "liter", name: "Litr" },
-    { id: "canister", name: "Balon" },
-    { id: "kilogram", name: "Kilogramm" },
-    { id: "meter", name: "Metr" },
-    { id: "box", name: "Quti" },
-    { id: "set", name: "To'plam" },
-    { id: "pack", name: "Paket" },
-]
-
-export const expiryRowClass = (status: ExpiryStatus) => {
-    if (status === "expired")
-        return "bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50"
-    if (status === "soon")
-        return "bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50"
-    return ""
-}
-
-const ExpiryBadge = ({ p }: { p: OmborProduct }) => {
+const SourceBadge = ({ source }: { source: "qr" | "manual" }) => {
     const { t } = useTranslation()
-    if (p.expiry_status === "none" || p.days_to_expiry == null) return null
-    const isExpired = p.expiry_status === "expired"
-    const isSoon = p.expiry_status === "soon"
-    if (!isExpired && !isSoon) return null
-    const days = p.days_to_expiry
-    const text = isExpired
-        ? `Eskirgan: ${Math.abs(days)} kun oldin`
-        : `Eskirishga ${days} kun qoldi`
-    return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <span
-                    className={cn(
-                        "inline-flex items-center justify-center w-5 h-5 rounded-full",
-                        isExpired
-                            ? "text-rose-600 bg-rose-100 dark:bg-rose-900/40"
-                            : "text-amber-600 bg-amber-100 dark:bg-amber-900/40",
-                    )}
-                >
-                    <AlertTriangle size={12} />
-                </span>
-            </TooltipTrigger>
-            <TooltipContent>{text}</TooltipContent>
-        </Tooltip>
-    )
+    return source === "qr" ?
+            <Badge className="gap-1 !px-1.5">
+                <QrCode size={12} />
+                QR
+            </Badge>
+        :   <Badge variant="secondary" className="!px-1.5">
+                {t("wh.manual")}
+            </Badge>
 }
 
-export const useOmborCols = (opts: {
-    onEdit: (item: OmborProduct) => void
-    onDelete: (item: OmborProduct) => void
-    onWithdraw: (item: OmborProduct) => void
-}) => {
-    const { onEdit, onDelete, onWithdraw } = opts
+export const useProductCols = () => {
     const { t } = useTranslation()
-    return useMemo<ColumnDef<OmborProduct>[]>(
+    return useMemo<ColumnDef<WhProduct>[]>(
         () => [
             {
-                header: t("form.name"),
                 accessorKey: "name",
-                enableSorting: true,
+                header: t("form.name"),
                 cell: ({ row }) => (
-                    <div className="flex items-center gap-2">
-                        <ExpiryBadge p={row.original} />
-                        <span>{row.original.name}</span>
+                    <div>
+                        <div>{row.original.name}</div>
+                        {row.original.gtin && (
+                            <div className="text-xs text-muted-foreground font-mono">
+                                {row.original.gtin}
+                            </div>
+                        )}
                     </div>
                 ),
             },
             {
-                header: t("form.unit"),
-                accessorKey: "unit_display",
-                enableSorting: true,
-            },
-            {
-                header: t("form.unit_price"),
-                accessorKey: "unit_price",
-                enableSorting: true,
+                id: "quantity",
+                header: t("form.quantity"),
                 cell: ({ row }) => (
-                    <span>{formatMoney(Number(row.original.unit_price))} so'm</span>
+                    <span className="whitespace-nowrap">
+                        {formatMoney(row.original.qty_left)}{" "}
+                        {row.original.unit_name}
+                    </span>
                 ),
             },
             {
-                header: t("form.quantity"),
-                accessorKey: "quantity",
-                enableSorting: true,
+                id: "avg_price",
+                header: t("form.unit_price"),
+                cell: ({ row }) =>
+                    row.original.avg_price === null ?
+                        <Dash />
+                    :   <span className="whitespace-nowrap">
+                            {formatMoney(row.original.avg_price)} {t("page.som")}
+                        </span>,
+            },
+            {
+                id: "value",
+                header: t("wh.total_sum"),
                 cell: ({ row }) => (
-                    <span>
-                        {formatMoney(Number(row.original.quantity))}{" "}
-                        {row.original.unit_display}
+                    <span className="font-medium whitespace-nowrap">
+                        {formatMoney(row.original.value)} {t("page.som")}
+                    </span>
+                ),
+            },
+        ],
+        [t],
+    )
+}
+
+export const useReceiptCols = (hideProduct: boolean) => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<WhReceiptLine>[]>(() => {
+        const product: ColumnDef<WhReceiptLine> = {
+            id: "product",
+            header: t("wh.product"),
+            cell: ({ row }) => (
+                <span className="whitespace-nowrap font-medium">
+                    {row.original.product_name}
+                </span>
+            ),
+        }
+        const rest: ColumnDef<WhReceiptLine>[] = [
+            {
+                id: "date",
+                header: t("form.date"),
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {fmtDate(row.original.date)}
+                    </span>
+                ),
+            },
+            {
+                id: "lot",
+                header: t("wh.lot"),
+                cell: ({ row }) =>
+                    row.original.lot_number ?
+                        <span className="font-mono whitespace-nowrap">
+                            {row.original.lot_number}
+                        </span>
+                    :   <Dash />,
+            },
+            {
+                id: "expires",
+                header: t("wh.expiry"),
+                cell: ({ row }) => (
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                        <span>{fmtDate(row.original.expires_at)}</span>
+                        <SourceBadge source={row.original.source} />
+                    </div>
+                ),
+            },
+            {
+                id: "quantity",
+                header: t("form.quantity"),
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {formatMoney(row.original.quantity)}{" "}
+                        {row.original.unit_name}
+                    </span>
+                ),
+            },
+            {
+                id: "unit_price",
+                header: t("wh.unit_price"),
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {formatMoney(row.original.unit_price)} {t("page.som")}
                     </span>
                 ),
             },
             {
                 id: "total",
-                header: t("form.total_amount"),
-                enableSorting: true,
-                accessorFn: (row) =>
-                    Number(row.unit_price) * Number(row.quantity),
+                header: t("form.amount"),
                 cell: ({ row }) => (
-                    <span className="font-medium">
-                        {formatMoney(
-                            Number(row.original.unit_price) *
-                                Number(row.original.quantity),
-                        )}{" "}
-                        so'm
+                    <span className="font-medium whitespace-nowrap">
+                        {formatMoney(row.original.total)} {t("page.som")}
                     </span>
                 ),
             },
             {
-                header: t("table.depreciation"),
-                accessorKey: "expiry_date",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const d = row.original.expiry_date
-                    if (!d) return <span className="text-muted-foreground">—</span>
-                    const days = row.original.days_to_expiry
-                    return (
-                        <div className="flex flex-col">
-                            <span>{d}</span>
-                            {days != null && (
-                                <span
-                                    className={cn(
-                                        "text-[11px]",
-                                        row.original.expiry_status === "expired"
-                                            ? "text-rose-600"
-                                            : row.original.expiry_status ===
-                                                "soon"
-                                              ? "text-amber-600"
-                                              : "text-muted-foreground",
-                                    )}
-                                >
-                                    {days < 0
-                                        ? `${Math.abs(days)} kun o'tdi`
-                                        : `${days} kun qoldi`}
-                                </span>
-                            )}
-                        </div>
-                    )
-                },
+                id: "comment",
+                header: t("form.comment"),
+                cell: ({ row }) =>
+                    row.original.comment ?
+                        <span className="text-muted-foreground inline-block min-w-32">
+                            {row.original.comment}
+                        </span>
+                    :   <Dash />,
+            },
+        ]
+        return hideProduct ? rest : [product, ...rest]
+    }, [t, hideProduct])
+}
+
+export const useWithdrawalCols = (opts: {
+    hideProduct: boolean
+    showTenant: boolean
+}) => {
+    const { t } = useTranslation()
+    const { hideProduct, showTenant } = opts
+    return useMemo<ColumnDef<WhWithdrawal>[]>(() => {
+        const columns: ColumnDef<WhWithdrawal>[] = []
+        if (!hideProduct) {
+            columns.push({
+                id: "product",
+                header: t("wh.product"),
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap font-medium">
+                        {row.original.product_name}
+                    </span>
+                ),
+            })
+        }
+        columns.push({
+            id: "date",
+            header: t("form.date"),
+            cell: ({ row }) => (
+                <span className="whitespace-nowrap">
+                    {fmtDate(row.original.date)}
+                </span>
+            ),
+        })
+        if (showTenant) {
+            columns.push({
+                id: "tenant",
+                header: t("wh.tenant"),
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {row.original.tenant_name}
+                    </span>
+                ),
+            })
+        }
+        columns.push(
+            {
+                id: "vehicle",
+                header: t("wh.plate"),
+                cell: ({ row }) =>
+                    row.original.vehicle_plate ?
+                        <span className="font-medium whitespace-nowrap">
+                            {row.original.vehicle_plate}
+                        </span>
+                    :   <Dash />,
             },
             {
-                id: "actions",
-                header: " ",
+                id: "lot",
+                header: t("wh.lot"),
+                cell: ({ row }) =>
+                    row.original.lot_number ?
+                        <span className="font-mono whitespace-nowrap">
+                            {row.original.lot_number}
+                        </span>
+                    :   <Dash />,
+            },
+            {
+                id: "quantity",
+                header: t("form.quantity"),
                 cell: ({ row }) => (
-                    <div className="flex items-center justify-end gap-1">
-                        <Button
-                            icon={
-                                <PackageMinus
-                                    className="text-orange-600"
-                                    size={16}
-                                />
-                            }
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-3"
-                            title={t("page.issue_from_warehouse")}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onWithdraw(row.original)
-                            }}
-                        />
-                        <Button
-                            icon={<SquarePen className="text-primary" size={16} />}
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-3"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onEdit(row.original)
-                            }}
-                        />
-                        <Button
-                            icon={<Trash2 className="text-red-500" size={16} />}
-                            size="sm"
-                            variant="ghost"
-                            className="p-0 h-3"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onDelete(row.original)
-                            }}
-                        />
-                    </div>
+                    <span className="whitespace-nowrap">
+                        {formatMoney(row.original.quantity)}{" "}
+                        {row.original.unit_name}
+                    </span>
                 ),
             },
-        ],
-        [onEdit, onDelete, onWithdraw, t],
-    )
+            {
+                id: "source",
+                header: t("form.source"),
+                cell: ({ row }) =>
+                    row.original.inspection_id ?
+                        <Badge variant="secondary">
+                            {t("wh.source_inspection", {
+                                id: row.original.inspection_id,
+                            })}
+                        </Badge>
+                    :   <Dash />,
+            },
+        )
+        return columns
+    }, [t, hideProduct, showTenant])
 }

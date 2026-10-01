@@ -31,6 +31,7 @@ export type ComboboxProps<T extends Record<string, any>> = {
     className?: ClassNameValue
     labelKey?: keyof T
     valueKey?: keyof T
+    disabledKey?: keyof T
     skeletonCount?: number
     onSearchChange?: (val: string) => void
     addButtonProps?: ButtonProps
@@ -48,6 +49,7 @@ export function Combobox<T extends Record<string, any>>({
     isError,
     labelKey = "label",
     valueKey = "value",
+    disabledKey,
     className,
     isLoading,
     skeletonCount = 5,
@@ -170,6 +172,7 @@ export function Combobox<T extends Record<string, any>>({
                                         key={itemId}
                                         value={itemId}
                                         keywords={[itemLabel]}
+                                        disabled={!!disabledKey && !!d[disabledKey]}
                                         onSelect={() => handleSelect(d)}
                                     >
                                         {d[labelKey]}

@@ -71,6 +71,7 @@ const TruckCheck = () => {
                         `${t("nav.tech_check")} ${t("actions.edit")}`
                     :   `${t("nav.tech_check")} ${t("actions.add")}`
                 }
+                size="max-w-2xl"
             >
                 <CreateTechnicInspect />
             </Modal>

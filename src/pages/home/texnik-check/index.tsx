@@ -14,9 +14,11 @@ import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useTechCheckAlerts } from "@/hooks/use-tech-check-alerts"
 import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useState } from "react"
 import { Plus, TriangleAlert } from "lucide-react"
 import { useExpenseCols, type VehicleExpenseRow } from "./cols"
 import AddExpenseModal from "./add-expense"
+import ExpenseDetailSheet from "./detail-sheet"
 import { useTranslation } from "react-i18next"
 
 type SelectItem = { id: number | string; name: string }
@@ -30,6 +32,7 @@ export const TexnikCheck = () => {
     const { openModal } = useModal("add-expense")
     const { openModal: openDeleteModal } = useModal("delete")
     const current = getData<VehicleExpenseRow>(TECHNICAL_INSPECT)
+    const [detail, setDetail] = useState<VehicleExpenseRow | null>(null)
 
     const { data: categoriesData } = useGet<ListResponse<SelectItem>>(
         SETTINGS_EXPENSES,
@@ -82,6 +85,11 @@ export const TexnikCheck = () => {
         openModal()
     }
 
+    const handleDetailEdit = (row: VehicleExpenseRow) => {
+        setDetail(null)
+        handleEdit({ original: row })
+    }
+
     const handleDelete = (row: { original: VehicleExpenseRow }) => {
         setData(TECHNICAL_INSPECT, row.original)
         openDeleteModal()
@@ -100,6 +108,7 @@ export const TexnikCheck = () => {
                 data={data?.results || []}
                 numeration
                 manualSorting
+                onRowClick={setDetail}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 paginationProps={{
@@ -153,10 +162,16 @@ export const TexnikCheck = () => {
             <Modal
                 modalKey="add-expense"
                 title={current?.id ? t("page.edit_expense_modal") : t("page.add_expense_modal")}
-                size="max-w-xl"
+                size="max-w-2xl"
             >
                 <AddExpenseModal />
             </Modal>
+
+            <ExpenseDetailSheet
+                row={detail}
+                onClose={() => setDetail(null)}
+                onEdit={handleDetailEdit}
+            />
 
             <DeleteModal path={TECHNICAL_INSPECT} id={current?.id} />
         </div>

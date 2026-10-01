@@ -14,6 +14,7 @@ import { TechCheckNotification } from "./tech-check-notification"
 import { TenantFilter } from "./tenant-filter"
 import { TenantSwitcher } from "./tenant-switcher"
 import { useHasAction } from "@/constants/useUser"
+import OmborHeaderSearch from "@/pages/home/ombor/header-search"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -154,7 +155,10 @@ const Header = () => {
             <hgroup className="flex items-center gap-2 sm:gap-4">
                 <TenantSwitcher />
                 <TenantFilter />
-                {searchConfig && (
+                {searchConfig && pathname.startsWith("/ombor") && (
+                    <OmborHeaderSearch key={searchConfig.prefix} />
+                )}
+                {searchConfig && !pathname.startsWith("/ombor") && (
                     <ParamInput
                         key={searchConfig.prefix}
                         searchKey={searchConfig.searchKey}

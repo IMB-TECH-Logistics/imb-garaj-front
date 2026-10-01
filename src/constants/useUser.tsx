@@ -17,6 +17,11 @@ export const useUser = () => {
     }
 }
 
+export function useWarehouseOwner(): boolean {
+    const { data } = useUser()
+    return !!(data?.is_warehouse_owner || data?.tenant?.is_warehouse_owner)
+}
+
 export function useHasAction(
     actionCodes: TPermissions | TPermissions[],
 ): boolean {

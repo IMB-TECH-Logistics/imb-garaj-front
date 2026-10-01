@@ -124,8 +124,13 @@ export const MONITORING_STATUS_TIMELINE = "monitoring/status/timeline"
 export const MONITORING_STATUS_ROUTE = "monitoring/status/route"
 
 /** ===== WAREHOUSE / OMBOR ===== */
+export const WAREHOUSE_UNITS = "warehouse/units"
 export const WAREHOUSE_PRODUCTS = "warehouse/products"
-export const WAREHOUSE_STATS = "warehouse/stats"
+export const WAREHOUSE_RECEIPTS = "warehouse/receipts"
+export const WAREHOUSE_RECEIPT_LINES = "warehouse/receipts/lines"
+export const WAREHOUSE_WITHDRAWALS = "warehouse/withdrawals"
+export const WAREHOUSE_SCAN = "warehouse/scan"
+export const WAREHOUSE_LOW_STOCK = "warehouse/low-stock"
 
 /** ===== CHECKOUT extras ===== */
 export const CHECKOUT_TOP_UP = "checkout/top-up"
@@ -144,9 +149,6 @@ export const KASSA_PAYMENT_REQUESTS = "checkout/payment-requests"
 export const KASSA_PAYER_REPORTS = "checkout/payer-reports"
 export const TRANSACTIONS = "transaction"
 export const PETROL_STATIONS_STATS = "petrol-stations/stats"
-
-export const WAREHOUSE_WITHDRAW = "warehouse/withdraw"
-export const WAREHOUSE_WITHDRAWALS = "warehouse/withdrawals"
 
 /** ===== DRIVERS (Haydovchilar) ===== */
 export const DRIVERS_STATS = "users/drivers/stats"
