@@ -133,23 +133,13 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                 required
                 label={t("form.vehicle")}
                 hideError={false}
+                wrapperClassName="col-span-2"
                 name="vehicle"
                 control={control}
                 options={vehicles || []}
                 valueKey="id"
                 labelKey="name"
                 placeholder={t("form.vehicle")}
-            />
-            <FormCombobox
-                required
-                label={t("form.expense_type")}
-                hideError={false}
-                name="category"
-                control={control}
-                options={categories || []}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.expense_type")}
             />
             {isWarehouse ?
                 <WarehouseLines form={form} current={current} check={check} />
