@@ -727,7 +727,6 @@
             "err_product": "Mahsulotni katalogdan tanlang",
             "err_quantity": "Miqdorni kiriting",
             "err_price": "Birlik narxini kiriting",
-            "err_payment_type": "To'lov turini tanlang",
             "saved": "Kirim saqlandi"
         },
         "tech": {
