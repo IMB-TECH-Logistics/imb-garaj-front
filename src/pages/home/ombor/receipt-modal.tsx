@@ -9,7 +9,11 @@ import { gs1ErrorText } from "@/components/scanner/gs1-message"
 import ScannerDialog from "@/components/scanner/scanner-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { WAREHOUSE_RECEIPTS } from "@/constants/api-endpoints"
+import {
+    SETTINGS_SELECTABLE_PAYMENT_TYPE,
+    WAREHOUSE_RECEIPTS,
+} from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
@@ -49,6 +53,7 @@ type LineValues = {
 
 type FormValues = {
     date: string
+    payment_type: number | null
     comment: string
     lines: LineValues[]
 }
@@ -278,14 +283,24 @@ const ReceiptForm = () => {
     const { data: catalog } = useCatalog()
     const products = useMemo(() => catalog?.results ?? [], [catalog])
     const [serverError, setServerError] = useState("")
+    const { data: paymentTypes } = useGet<{ id: number; name: string }[]>(
+        SETTINGS_SELECTABLE_PAYMENT_TYPE,
+        { params: { model_name: "payment-type" } },
+    )
 
     const form = useForm<FormValues>({
-        defaultValues: { date: todayISO(), comment: "", lines: [] },
+        defaultValues: {
+            date: todayISO(),
+            payment_type: null,
+            comment: "",
+            lines: [],
+        },
     })
     const { control, handleSubmit } = form
     const { fields, append, remove } = useFieldArray({ control, name: "lines" })
 
     const lines = useWatch({ control, name: "lines" })
+    const paymentType = useWatch({ control, name: "payment_type" })
 
     const total = lines.reduce(
         (sum, line) =>
@@ -307,6 +322,7 @@ const ReceiptForm = () => {
         if (lines.some((l) => l.unit_price === "")) {
             return t("wh.receipt.err_price")
         }
+        if (!paymentType) return t("wh.receipt.err_payment_type")
         return ""
     })()
 
@@ -356,6 +372,7 @@ const ReceiptForm = () => {
         setServerError("")
         mutate(WAREHOUSE_RECEIPTS, {
             date: values.date,
+            payment_type: values.payment_type,
             comment: values.comment.trim() || undefined,
             lines: values.lines.map((line) => ({
                 product: Number(line.product),
@@ -431,6 +448,15 @@ const ReceiptForm = () => {
                     name="date"
                     label={t("form.date")}
                     control={control}
+                />
+                <FormCombobox
+                    required
+                    name="payment_type"
+                    label={t("form.payment_type")}
+                    control={control}
+                    options={paymentTypes || undefined}
+                    valueKey="id"
+                    labelKey="name"
                 />
             </div>
 

@@ -696,6 +696,7 @@
             "err_product": "カタログから商品を選択してください",
             "err_quantity": "数量を入力してください",
             "err_price": "単価を入力してください",
+            "err_payment_type": "支払い方法を選択してください",
             "saved": "入庫を保存しました"
         },
         "tech": {

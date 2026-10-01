@@ -699,6 +699,7 @@
             "err_product": "Choose a product from the catalog",
             "err_quantity": "Enter the quantity",
             "err_price": "Enter the unit price",
+            "err_payment_type": "Choose the payment type",
             "saved": "Receipt saved"
         },
         "tech": {
