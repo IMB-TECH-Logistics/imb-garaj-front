@@ -184,7 +184,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                 <Button
                     type="submit"
                     loading={isPending}
-                    disabled={!!error}
+                    disabled={isWarehouse ? check.invalid : !!error}
                     className="min-w-36"
                 >
                     {t("actions.save")}

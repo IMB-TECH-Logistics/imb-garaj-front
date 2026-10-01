@@ -17,7 +17,6 @@ export type LineCheck = {
     lot: boolean
     quantity: boolean
     stock: boolean
-    available: number
 }
 
 export const useLineCheck = (
@@ -103,7 +102,6 @@ export const useLineCheck = (
             product: noProduct,
             lot: badLot,
             quantity: badQuantity,
-            available: lot ? availableOf(lot) : 0,
             stock:
                 !noProduct &&
                 !badLot &&
@@ -118,10 +116,10 @@ export const useLineCheck = (
         : checks.some((c) => c.product) ? t("wh.tech.err_product")
         : checks.some((c) => c.lot) ? t("wh.tech.err_lot")
         : checks.some((c) => c.quantity) ? t("wh.tech.err_quantity")
-        : checks.some((c) => c.stock) ? t("wh.tech.err_stock")
         : ""
+    const invalid = !!error || checks.some((c) => c.stock)
 
-    return { lotsOf, availableOf, checks, error }
+    return { lotsOf, availableOf, checks, error, invalid }
 }
 
 export type LineCheckResult = ReturnType<typeof useLineCheck>

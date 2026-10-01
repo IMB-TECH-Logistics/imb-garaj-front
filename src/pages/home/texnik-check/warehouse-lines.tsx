@@ -247,12 +247,12 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                         />
                                     </div>
                                     {c?.stock && (
-                                        <div className="-mt-2 px-0.5 text-xs text-destructive">
-                                            {t("wh.tech.err_stock_line", {
-                                                name: product?.name ?? "",
-                                                available:
-                                                    `${c.available} ${unit}`.trim(),
-                                            })}
+                                        <div className={cn(GRID, "-mt-1.5")}>
+                                            <span className="max-sm:hidden" />
+                                            <span className="max-sm:hidden" />
+                                            <span className="px-0.5 text-xs text-destructive">
+                                                {t("wh.tech.err_stock_line")}
+                                            </span>
                                         </div>
                                     )}
                                 </Fragment>
