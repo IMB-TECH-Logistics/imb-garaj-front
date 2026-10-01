@@ -12,6 +12,7 @@ import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { FormDatePicker } from "@/components/form/date-picker"
@@ -55,7 +56,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
         },
     })
 
-    const { handleSubmit, control, reset } = form
+    const { handleSubmit, control, reset, setValue, getValues } = form
     const category = useWatch({ control, name: "category" })
     const items = useWatch({ control, name: "items" })
 
@@ -68,6 +69,12 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
         { params: { type: 1, page_size: 100 } },
     )
     const categories = categoriesData?.results
+
+    useEffect(() => {
+        if (current?.id || getValues("category")) return
+        const tech = categories?.find((c) => c.code === TECH_INSPECTION_CODE)
+        if (tech) setValue("category", tech.id)
+    }, [categories])
 
     const categoryCode =
         categories?.find((c) => c.id === category)?.code ??

@@ -115,9 +115,8 @@ export const useLineCheck = (
         !lines.length ? t("wh.receipt.err_empty")
         : checks.some((c) => c.product) ? t("wh.tech.err_product")
         : checks.some((c) => c.lot) ? t("wh.tech.err_lot")
-        : checks.some((c) => c.quantity) ? t("wh.tech.err_quantity")
         : ""
-    const invalid = !!error || checks.some((c) => c.stock)
+    const invalid = !!error || checks.some((c) => c.quantity || c.stock)
 
     return { lotsOf, availableOf, checks, error, invalid }
 }
