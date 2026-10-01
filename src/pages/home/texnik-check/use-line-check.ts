@@ -17,6 +17,7 @@ export type LineCheck = {
     lot: boolean
     quantity: boolean
     stock: boolean
+    available: number
 }
 
 export const useLineCheck = (
@@ -102,6 +103,7 @@ export const useLineCheck = (
             product: noProduct,
             lot: badLot,
             quantity: badQuantity,
+            available: lot ? availableOf(lot) : 0,
             stock:
                 !noProduct &&
                 !badLot &&

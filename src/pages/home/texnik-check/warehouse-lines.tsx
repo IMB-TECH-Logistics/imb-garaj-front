@@ -8,9 +8,9 @@ import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { Plus, ScanLine, Trash2 } from "lucide-react"
-import { useMemo } from "react"
-import { useFieldArray, useWatch } from "react-hook-form"
+import { Fragment, useMemo } from "react"
 import type { UseFormReturn } from "react-hook-form"
+import { useFieldArray, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import type { WhProduct } from "../ombor/types"
 import { useScanResolve } from "../ombor/use-scan-lookup"
@@ -169,9 +169,10 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                             const line = lines[index]
                             if (!line) return null
                             const c = check.checks[index]
-                            const unit =
-                                products.find((p) => p.id === line.product)
-                                    ?.unit_name ?? ""
+                            const product = products.find(
+                                (p) => p.id === line.product,
+                            )
+                            const unit = product?.unit_name ?? ""
                             const lots =
                                 line.product ? check.lotsOf(line.product) : []
                             const lotOptions = (lots ?? []).map((l) => ({
@@ -189,57 +190,72 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                             }))
 
                             return (
-                                <div key={field.id} className={GRID}>
-                                    <Combobox
-                                        options={products}
-                                        value={line.product}
-                                        setValue={(v) =>
-                                            changeProduct(index, v)
-                                        }
-                                        label={t("wh.tech.choose_product")}
-                                        valueKey="id"
-                                        labelKey="name"
-                                        isError={c?.product}
-                                        className="min-w-0"
-                                    />
-                                    <Combobox
-                                        options={lotOptions}
-                                        value={line.lot}
-                                        setValue={(v) => changeLot(index, v)}
-                                        label={t("wh.tech.choose_lot")}
-                                        valueKey="id"
-                                        labelKey="name"
-                                        disabledKey="disabled"
-                                        isError={c?.lot}
-                                        className="min-w-0"
-                                        addButtonProps={{
-                                            disabled: !line.product,
-                                        }}
-                                    />
-                                    <FormNumberInput
-                                        hideError
-                                        control={control}
-                                        name={`items.${index}.quantity`}
-                                        allowNegative={false}
-                                        decimalScale={2}
-                                        suffix={unit ? ` ${unit}` : undefined}
-                                        placeholder="0"
-                                        className={
-                                            c?.quantity || c?.stock ?
-                                                "!border-destructive"
-                                            :   undefined
-                                        }
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-8 shrink-0 !text-red-500"
-                                        title={t("actions.delete")}
-                                        icon={<Trash2 size={16} />}
-                                        onClick={() => remove(index)}
-                                    />
-                                </div>
+                                <Fragment key={field.id}>
+                                    <div className={GRID}>
+                                        <Combobox
+                                            options={products}
+                                            value={line.product}
+                                            setValue={(v) =>
+                                                changeProduct(index, v)
+                                            }
+                                            label={t("wh.tech.choose_product")}
+                                            valueKey="id"
+                                            labelKey="name"
+                                            isError={c?.product}
+                                            className="min-w-0"
+                                        />
+                                        <Combobox
+                                            options={lotOptions}
+                                            value={line.lot}
+                                            setValue={(v) =>
+                                                changeLot(index, v)
+                                            }
+                                            label={t("wh.tech.choose_lot")}
+                                            valueKey="id"
+                                            labelKey="name"
+                                            disabledKey="disabled"
+                                            isError={c?.lot}
+                                            className="min-w-0"
+                                            addButtonProps={{
+                                                disabled: !line.product,
+                                            }}
+                                        />
+                                        <FormNumberInput
+                                            hideError
+                                            control={control}
+                                            name={`items.${index}.quantity`}
+                                            allowNegative={false}
+                                            decimalScale={2}
+                                            suffix={
+                                                unit ? ` ${unit}` : undefined
+                                            }
+                                            placeholder="0"
+                                            className={
+                                                c?.quantity || c?.stock ?
+                                                    "!border-destructive"
+                                                :   undefined
+                                            }
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8 shrink-0 !text-red-500"
+                                            title={t("actions.delete")}
+                                            icon={<Trash2 size={16} />}
+                                            onClick={() => remove(index)}
+                                        />
+                                    </div>
+                                    {c?.stock && (
+                                        <div className="-mt-2 px-0.5 text-xs text-destructive">
+                                            {t("wh.tech.err_stock_line", {
+                                                name: product?.name ?? "",
+                                                available:
+                                                    `${c.available} ${unit}`.trim(),
+                                            })}
+                                        </div>
+                                    )}
+                                </Fragment>
                             )
                         })}
                     </>
