@@ -101,27 +101,24 @@ export const useColumnsDriverDocuments = (
     return useMemo<ColumnDef<DriverDocumentsRow>[]>(() => {
         const columns: ColumnDef<DriverDocumentsRow>[] = [
             {
+                id: "driver_name",
                 accessorKey: "full_name",
                 header: t("documents_page.driver"),
-                enableSorting: false,
             },
             {
                 accessorKey: "phone",
                 header: t("documents_page.phone"),
-                enableSorting: false,
                 cell: ({ row }) => row.original.phone || "-",
             },
             {
                 id: "license_number",
                 header: t("documents_page.license_number"),
-                enableSorting: false,
                 cell: ({ row }) =>
                     row.original.documents.driver_license?.number || "-",
             },
             {
                 id: "issued_date",
                 header: t("documents_page.issued_date"),
-                enableSorting: false,
                 cell: ({ row }) => {
                     const date =
                         row.original.documents.driver_license?.issued_date
@@ -131,7 +128,6 @@ export const useColumnsDriverDocuments = (
             {
                 id: "expires_date",
                 header: t("documents_page.expires_date"),
-                enableSorting: false,
                 cell: ({ row }) => (
                     <DocCell
                         withPhotos={false}
@@ -250,19 +246,16 @@ export const useColumnsVehicleDocuments = (
             {
                 accessorKey: "truck_number",
                 header: t("documents_page.truck_number"),
-                enableSorting: false,
             },
             {
                 accessorKey: "trailer_number",
                 header: t("documents_page.trailer_number"),
-                enableSorting: false,
                 cell: ({ row }) => row.original.trailer_number || "-",
             },
             ...(["truck_passport", "trailer_passport"] as const).map(
                 (docType): ColumnDef<VehicleDocumentsRow> => ({
-                    id: docType,
+                    id: `${docType}_expires`,
                     header: t(`documents_page.${docType}`),
-                    enableSorting: false,
                     cell: ({ row }) =>
                         (
                             docType === "trailer_passport" &&

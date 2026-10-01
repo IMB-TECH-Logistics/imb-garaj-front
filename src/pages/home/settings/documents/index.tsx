@@ -54,6 +54,7 @@ const DocumentsPage = () => {
         page: search.page,
         page_size: search.page_size,
         alert: onlyAlerts ? 1 : undefined,
+        ordering: search.ordering,
     }
     const { data: driversData, isLoading: isLoadingDrivers } = useGet<
         ListResponse<DriverDocumentsRow>
