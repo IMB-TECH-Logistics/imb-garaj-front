@@ -105,4 +105,13 @@ export type OmborSearchParams = {
     receipt?: 1
     lpage?: number
     lpage_size?: number
+    from_date?: string
+    to_date?: string
+    tenant?: number
+    vehicle_plate?: string
+}
+
+export type WhWithdrawalFilters = {
+    tenants: { id: number; name: string }[]
+    vehicles: { plate: string }[]
 }

@@ -1,16 +1,19 @@
+import { ParamCombobox } from "@/components/as-params/combobox"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     WAREHOUSE_PRODUCTS,
     WAREHOUSE_RECEIPT_LINES,
+    WAREHOUSE_WITHDRAWAL_FILTERS,
     WAREHOUSE_WITHDRAWALS,
 } from "@/constants/api-endpoints"
 import { useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Package, X } from "lucide-react"
-import { forwardRef } from "react"
+import { forwardRef, useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { useReceiptCols, useWithdrawalCols } from "./cols"
 import type {
@@ -19,6 +22,7 @@ import type {
     WhReceiptLine,
     WhTab,
     WhWithdrawal,
+    WhWithdrawalFilters,
 } from "./types"
 import { useOmborSearch } from "./use-ombor-search"
 
@@ -121,6 +125,40 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
         page: search.lpage,
         page_size: search.lpage_size,
     }
+    const withdrawalParams = {
+        ...listParams,
+        from_date: search.from_date,
+        to_date: search.to_date,
+        tenant: search.tenant,
+        vehicle_plate: search.vehicle_plate,
+    }
+
+    const navigate = useNavigate()
+    const filterKey = [
+        search.from_date,
+        search.to_date,
+        search.tenant,
+        search.vehicle_plate,
+    ].join("|")
+    const prevFilterKey = useRef(filterKey)
+    useEffect(() => {
+        if (prevFilterKey.current === filterKey) return
+        prevFilterKey.current = filterKey
+        if (search.lpage) {
+            navigate({
+                search: { ...search, lpage: undefined } as never,
+                replace: true,
+            })
+        }
+    }, [filterKey])
+
+    const { data: filterOptions } = useGet<WhWithdrawalFilters>(
+        WAREHOUSE_WITHDRAWAL_FILTERS,
+        {
+            params: { tenant: search.tenant },
+            enabled: activeTab === "withdrawals",
+        },
+    )
 
     const { data: receipts, isLoading: receiptsLoading } = useGet<
         ListResponse<WhReceiptLine>
@@ -131,7 +169,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
     const { data: withdrawals, isLoading: withdrawalsLoading } = useGet<
         ListResponse<WhWithdrawal>
     >(WAREHOUSE_WITHDRAWALS, {
-        params: listParams,
+        params: withdrawalParams,
         enabled: activeTab === "withdrawals",
     })
 
@@ -146,22 +184,61 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
             {product && selected && (
                 <ProductHeader product={selected} onClose={clear} />
             )}
-            <Tabs
-                value={activeTab}
-                onValueChange={(value) => setTab(value as WhTab)}
-                className="mb-3"
-            >
-                <TabsList>
-                    {isOwner && (
-                        <TabsTrigger value="receipts">
-                            {t("wh.receipts")}
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+                <Tabs
+                    value={activeTab}
+                    onValueChange={(value) => setTab(value as WhTab)}
+                >
+                    <TabsList>
+                        {isOwner && (
+                            <TabsTrigger value="receipts">
+                                {t("wh.receipts")}
+                            </TabsTrigger>
+                        )}
+                        <TabsTrigger value="withdrawals">
+                            {isOwner ?
+                                t("wh.withdrawals")
+                            :   t("wh.my_withdrawals")}
                         </TabsTrigger>
-                    )}
-                    <TabsTrigger value="withdrawals">
-                        {isOwner ? t("wh.withdrawals") : t("wh.my_withdrawals")}
-                    </TabsTrigger>
-                </TabsList>
-            </Tabs>
+                    </TabsList>
+                </Tabs>
+                {activeTab === "withdrawals" && (
+                    <div className="ml-auto flex flex-wrap items-center gap-2">
+                        <ParamDateRange
+                            from="from_date"
+                            to="to_date"
+                            addButtonProps={{
+                                className:
+                                    "!bg-background dark:!bg-secondary min-w-32 justify-start",
+                            }}
+                        />
+                        {isOwner && (
+                            <ParamCombobox
+                                paramName="tenant"
+                                options={filterOptions?.tenants ?? []}
+                                valueKey="id"
+                                labelKey="name"
+                                label={t("wh.tenant")}
+                                asloClear={["vehicle_plate"]}
+                                addButtonProps={{
+                                    className:
+                                        "!bg-background dark:!bg-secondary",
+                                }}
+                            />
+                        )}
+                        <ParamCombobox
+                            paramName="vehicle_plate"
+                            options={filterOptions?.vehicles ?? []}
+                            valueKey="plate"
+                            labelKey="plate"
+                            label={t("wh.plate")}
+                            addButtonProps={{
+                                className: "!bg-background dark:!bg-secondary",
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
         </>
     )
 
