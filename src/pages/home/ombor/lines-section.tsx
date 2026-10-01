@@ -24,6 +24,7 @@ import type {
     WhWithdrawal,
     WhWithdrawalFilters,
 } from "./types"
+import { useCatalog } from "./use-catalog"
 import { useOmborSearch } from "./use-ombor-search"
 
 const highlight = (selected: boolean) => (selected ? "!bg-primary/10" : "")
@@ -124,11 +125,11 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
         product,
         page: search.lpage,
         page_size: search.lpage_size,
+        from_date: search.from_date,
+        to_date: search.to_date,
     }
     const withdrawalParams = {
         ...listParams,
-        from_date: search.from_date,
-        to_date: search.to_date,
         tenant: search.tenant,
         vehicle_plate: search.vehicle_plate,
     }
@@ -152,6 +153,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
         }
     }, [filterKey])
 
+    const { data: catalog } = useCatalog()
     const { data: filterOptions } = useGet<WhWithdrawalFilters>(
         WAREHOUSE_WITHDRAWAL_FILTERS,
         {
@@ -202,30 +204,40 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
-                {activeTab === "withdrawals" && (
-                    <div className="ml-auto flex flex-wrap items-center gap-2">
-                        <ParamDateRange
-                            from="from_date"
-                            to="to_date"
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                    <ParamDateRange
+                        from="from_date"
+                        to="to_date"
+                        addButtonProps={{
+                            className:
+                                "!bg-background dark:!bg-secondary min-w-32 justify-start",
+                        }}
+                    />
+                    <ParamCombobox
+                        paramName="product"
+                        options={catalog?.results ?? []}
+                        valueKey="id"
+                        labelKey="name"
+                        label={t("wh.product")}
+                        asloClear={["lot", "lpage"]}
+                        addButtonProps={{
+                            className: "!bg-background dark:!bg-secondary",
+                        }}
+                    />
+                    {activeTab === "withdrawals" && isOwner && (
+                        <ParamCombobox
+                            paramName="tenant"
+                            options={filterOptions?.tenants ?? []}
+                            valueKey="id"
+                            labelKey="name"
+                            label={t("wh.tenant")}
+                            asloClear={["vehicle_plate"]}
                             addButtonProps={{
-                                className:
-                                    "!bg-background dark:!bg-secondary min-w-32 justify-start",
+                                className: "!bg-background dark:!bg-secondary",
                             }}
                         />
-                        {isOwner && (
-                            <ParamCombobox
-                                paramName="tenant"
-                                options={filterOptions?.tenants ?? []}
-                                valueKey="id"
-                                labelKey="name"
-                                label={t("wh.tenant")}
-                                asloClear={["vehicle_plate"]}
-                                addButtonProps={{
-                                    className:
-                                        "!bg-background dark:!bg-secondary",
-                                }}
-                            />
-                        )}
+                    )}
+                    {activeTab === "withdrawals" && (
                         <ParamCombobox
                             paramName="vehicle_plate"
                             options={filterOptions?.vehicles ?? []}
@@ -236,8 +248,8 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                                 className: "!bg-background dark:!bg-secondary",
                             }}
                         />
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </>
     )
