@@ -114,6 +114,7 @@ export const useColumnsDriverDocuments = (
             },
             {
                 id: "license_number",
+                accessorFn: (row) => row.documents.driver_license?.number,
                 header: t("documents_page.license_number"),
                 enableSorting: true,
                 cell: ({ row }) =>
@@ -121,6 +122,7 @@ export const useColumnsDriverDocuments = (
             },
             {
                 id: "issued_date",
+                accessorFn: (row) => row.documents.driver_license?.issued_date,
                 header: t("documents_page.issued_date"),
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -131,6 +133,7 @@ export const useColumnsDriverDocuments = (
             },
             {
                 id: "expires_date",
+                accessorFn: (row) => row.documents.driver_license?.expires_date,
                 header: t("documents_page.expires_date"),
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -262,6 +265,7 @@ export const useColumnsVehicleDocuments = (
             ...(["truck_passport", "trailer_passport"] as const).map(
                 (docType): ColumnDef<VehicleDocumentsRow> => ({
                     id: `${docType}_expires`,
+                    accessorFn: (row) => row.documents[docType]?.expires_date,
                     header: t(`documents_page.${docType}`),
                     enableSorting: true,
                     cell: ({ row }) =>
