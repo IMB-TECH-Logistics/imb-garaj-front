@@ -797,5 +797,19 @@
             "ok": "すべての商品の在庫は十分です",
             "receipt": "入庫する"
         }
+    },
+    "reys_bulk": {
+        "all_label": "すべての運行",
+        "approve_btn": "選択を承認 ({{count}})",
+        "cancel_btn": "選択をキャンセル ({{count}})",
+        "confirm_approve": "{{count}}件の運行を承認しますか？",
+        "confirm_cancel": "{{count}}件の運行をキャンセルしますか？",
+        "confirm_approve_hint": "選択した未承認の運行が承認されます。",
+        "confirm_cancel_hint": "選択した未承認の運行がキャンセルされます。この操作は元に戻せません。",
+        "approved": "{{count}}件の運行を承認しました",
+        "canceled": "{{count}}件の運行をキャンセルしました",
+        "skipped": "、{{count}}件はスキップされました",
+        "error": "操作に失敗しました",
+        "view_all": "すべて表示して一括承認"
     }
 }

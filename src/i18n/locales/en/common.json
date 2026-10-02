@@ -800,5 +800,19 @@
             "ok": "All products are sufficiently stocked",
             "receipt": "Add receipt"
         }
+    },
+    "reys_bulk": {
+        "all_label": "All trips",
+        "approve_btn": "Approve selected ({{count}})",
+        "cancel_btn": "Cancel selected ({{count}})",
+        "confirm_approve": "Approve {{count}} trip(s)?",
+        "confirm_cancel": "Cancel {{count}} trip(s)?",
+        "confirm_approve_hint": "The selected unconfirmed trips will be approved.",
+        "confirm_cancel_hint": "The selected unconfirmed trips will be canceled. This cannot be undone!",
+        "approved": "{{count}} trip(s) approved",
+        "canceled": "{{count}} trip(s) canceled",
+        "skipped": ", {{count}} skipped",
+        "error": "Failed to perform the action",
+        "view_all": "View all and bulk approve"
     }
 }

@@ -828,5 +828,19 @@
             "ok": "Hamma mahsulot yetarli",
             "receipt": "Kirim qilish"
         }
+    },
+    "reys_bulk": {
+        "all_label": "Barcha reyslar",
+        "approve_btn": "Tanlanganlarni tasdiqlash ({{count}})",
+        "cancel_btn": "Tanlanganlarni bekor qilish ({{count}})",
+        "confirm_approve": "{{count}} ta reysni tasdiqlaysizmi?",
+        "confirm_cancel": "{{count}} ta reysni bekor qilasizmi?",
+        "confirm_approve_hint": "Tanlangan tasdiqlanmagan reyslar tasdiqlanadi.",
+        "confirm_cancel_hint": "Tanlangan tasdiqlanmagan reyslar bekor qilinadi. Bu qaytarib bo'lmas jarayon!",
+        "approved": "{{count}} ta reys tasdiqlandi",
+        "canceled": "{{count}} ta reys bekor qilindi",
+        "skipped": ", {{count}} tasi o'tkazib yuborildi",
+        "error": "Amalni bajarishda xatolik",
+        "view_all": "Barchasini ko'rish va ommaviy tasdiqlash"
     }
 }

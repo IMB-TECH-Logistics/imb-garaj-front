@@ -7,6 +7,10 @@ import { DataTable } from "@/components/ui/datatable"
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog"
 import {
     MANAGERS_ORDERS,
@@ -22,7 +26,7 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
-import { Check, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -40,12 +44,13 @@ export default function ManagerReys() {
     const { setData, getData, clearKey } = useGlobalStore()
     const item = getData(MANAGERS_VEHICLES)
     const { id } = useParams({ strict: false })
+    const tripId = id && id !== "all" ? id : undefined
     const { data: trip, error: tripError } = useGet<{
         driver_name: string | null
         vehicle_number: string | null
         vehicle?: number
-    }>(`${MANAGERS_TRIPS}/${id}`, {
-        enabled: !!id && !name,
+    }>(`${MANAGERS_TRIPS}/${tripId}`, {
+        enabled: !!tripId && !name,
         options: { retry: false },
     })
     useEffect(() => {
@@ -55,12 +60,13 @@ export default function ManagerReys() {
     }, [trip?.vehicle, setData])
     const tripLabel =
         name ||
+        (id === "all" ? t("reys_bulk.all_label") : null) ||
         [trip?.vehicle_number, trip?.driver_name].filter(Boolean).join(" - ") ||
         (tripError?.response?.status === 404 ? "Reys topilmadi" : "—")
     const currentSelected = getData(MANAGERS_ORDERS)
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
         params: {
-            trip: id,
+            trip: tripId,
             page_size: search.page_size,
             page: search.page,
             ordering: (search as any).ordering,
@@ -72,6 +78,52 @@ export default function ManagerReys() {
     const hasControl = useHasAction("manager_vehicles_control")
     const queryClient = useQueryClient()
     const { mutate: approve } = usePost({})
+    const { mutate: bulkDecide, isPending: bulkPending } = usePost({})
+    const canBulk = useHasAction("manager_flights_control")
+    const { openModal: openBulkModal, closeModal: closeBulkModal } = useModal(
+        `${MANAGERS_ORDERS}-bulk`,
+    )
+    const [selectedRows, setSelectedRows] = useState<ManagerOrders[]>([])
+    const [clearSelectionTick, setClearSelectionTick] = useState(0)
+    const [bulkAction, setBulkAction] = useState<"approve" | "cancel">("approve")
+    const draftIds = selectedRows.filter((r) => r.status === -1).map((r) => r.id)
+
+    const startBulk = (action: "approve" | "cancel") => {
+        setBulkAction(action)
+        openBulkModal()
+    }
+
+    const handleBulkConfirm = () => {
+        bulkDecide(
+            `${MANAGERS_ORDERS}/bulk-decision`,
+            { action: bulkAction, ids: draftIds },
+            {
+                onSuccess: (res: any) => {
+                    const done = res?.done?.length ?? 0
+                    const skipped = res?.skipped?.length ?? 0
+                    const key =
+                        bulkAction === "approve"
+                            ? "reys_bulk.approved"
+                            : "reys_bulk.canceled"
+                    toast.success(
+                        t(key, { count: done }) +
+                            (skipped > 0
+                                ? t("reys_bulk.skipped", { count: skipped })
+                                : ""),
+                    )
+                    queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS] })
+                    queryClient.invalidateQueries({
+                        queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT],
+                    })
+                    setClearSelectionTick((v) => v + 1)
+                    closeBulkModal()
+                },
+                onError: () => {
+                    toast.error(t("reys_bulk.error"))
+                },
+            },
+        )
+    }
     const [approvingId, setApprovingId] = useState<number | null>(null)
 
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
@@ -127,6 +179,9 @@ export default function ManagerReys() {
                 data={data?.results || []}
                 manualSorting
                 stickyActions
+                selecteds_row={canBulk}
+                onSelectedRowsChange={setSelectedRows}
+                clearSelectionTrigger={clearSelectionTick}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -175,7 +230,26 @@ export default function ManagerReys() {
                                         className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
                                     }}
                                 />
-                                {hasControl && (
+                                {canBulk && draftIds.length > 0 && (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            className="text-green-600"
+                                            onClick={() => startBulk("approve")}
+                                        >
+                                            <Check size={16} />
+                                            {t("reys_bulk.approve_btn", { count: draftIds.length })}
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            onClick={() => startBulk("cancel")}
+                                        >
+                                            <X size={16} />
+                                            {t("reys_bulk.cancel_btn", { count: draftIds.length })}
+                                        </Button>
+                                    </>
+                                )}
+                                {hasControl && tripId && (
                                     <Button onClick={handleAdd}>
                                         <Plus size={16} />
                                         {t("actions.add")}
@@ -195,6 +269,46 @@ export default function ManagerReys() {
                 }
             >
                 <AddTripOrders />
+            </Modal>
+
+            <Modal
+                size="max-w-md"
+                modalKey={`${MANAGERS_ORDERS}-bulk`}
+                titleInChildren
+            >
+                <DialogHeader>
+                    <DialogTitle className="font-normal max-w-sm">
+                        {t(
+                            bulkAction === "approve"
+                                ? "reys_bulk.confirm_approve"
+                                : "reys_bulk.confirm_cancel",
+                            { count: draftIds.length },
+                        )}
+                    </DialogTitle>
+                    <DialogDescription>
+                        {t(
+                            bulkAction === "approve"
+                                ? "reys_bulk.confirm_approve_hint"
+                                : "reys_bulk.confirm_cancel_hint",
+                        )}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={closeBulkModal}
+                        disabled={bulkPending}
+                    >
+                        {t("actions.cancel")}
+                    </Button>
+                    <Button
+                        variant={bulkAction === "cancel" ? "destructive" : "default"}
+                        onClick={handleBulkConfirm}
+                        loading={bulkPending}
+                    >
+                        {t("actions.confirm")}
+                    </Button>
+                </DialogFooter>
             </Modal>
 
             <DeleteModal

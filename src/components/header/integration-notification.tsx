@@ -197,6 +197,26 @@ export function IntegrationNotification() {
                         )
                     })}
                 </div>
+                {orders.length > 0 && (
+                    <div className="border-t border-border p-1">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="w-full text-xs text-primary"
+                            onClick={() => {
+                                setOpen(false)
+                                navigate({
+                                    to: "/manager-trips/manager-reys/$id",
+                                    params: { id: "all" },
+                                    search: { status: -1, is_integration: "true" },
+                                } as any)
+                            }}
+                        >
+                            {t("reys_bulk.view_all")}
+                        </Button>
+                    </div>
+                )}
                 {isOwner && (
                     <div className="border-t border-border">
                         <div className="px-4 pt-3 pb-1 text-xs font-medium text-muted-foreground flex items-center gap-1.5">

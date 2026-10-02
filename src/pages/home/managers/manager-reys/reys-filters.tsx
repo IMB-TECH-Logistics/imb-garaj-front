@@ -22,6 +22,7 @@ export const REYS_FILTER_KEYS = [
     "activity",
     "type",
     "status",
+    "is_integration",
     "out_of_contract",
     "from_date",
     "to_date",
@@ -32,7 +33,10 @@ const CONTRACT_OPTIONS: Option[] = [
     { id: "true", name: "Shartnomadan tashqari" },
 ]
 
-const LIST_STATUS_OPTIONS = STATUS_OPTIONS.filter((option) => option.id !== "4")
+const LIST_STATUS_OPTIONS = [
+    { id: "-1", name: "Tasdiqlanmagan" },
+    ...STATUS_OPTIONS.filter((option) => option.id !== "4"),
+]
 
 const filterButtonProps = {
     className: "!bg-background dark:!bg-secondary",
