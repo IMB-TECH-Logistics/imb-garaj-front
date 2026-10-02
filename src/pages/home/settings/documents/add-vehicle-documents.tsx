@@ -219,7 +219,6 @@ const AddVehicleDocumentsModal = () => {
             name={`${prefix}_expires_date`}
             label={label}
             control={control}
-            required={prefix === "truck_passport"}
             placeholder={t("documents_page.pick_date")}
             fullWidth
         />
