@@ -396,6 +396,7 @@
         "valid_from": "Действует с",
         "salary_upcoming": "Следующий",
         "salary_current": "Текущий",
+        "vt_amount_missing": "сумма не указана",
         "vt_title": "Месячные тарифы",
         "vt_route": "Направление",
         "vt_amount": "Оклад (сум)",

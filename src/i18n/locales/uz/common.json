@@ -408,6 +408,7 @@
         "edit_expense_modal": "Xarajat tahrirlash",
         "salary_upcoming": "Keyingi",
         "salary_current": "Joriy",
+        "vt_amount_missing": "summa kiritilmagan",
         "vt_title": "Oylik tariflar",
         "vt_route": "Yo'nalish",
         "vt_amount": "Oylik (so'm)",

@@ -396,6 +396,7 @@
         "valid_from": "適用開始日",
         "salary_upcoming": "予定",
         "salary_current": "現在",
+        "vt_amount_missing": "金額未設定",
         "vt_title": "月額タリフ",
         "vt_route": "ルート",
         "vt_amount": "月額 (UZS)",

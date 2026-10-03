@@ -69,7 +69,7 @@ export const useSalaryColumns = () => {
                 cell: ({ row }) =>
                     row.original.amount == null ? (
                         <span className="whitespace-nowrap font-medium text-destructive">
-                            {t("form.tariff_no")}
+                            {t("page.vt_amount_missing")}
                         </span>
                     ) : (
                         formatMoney(row.original.amount)

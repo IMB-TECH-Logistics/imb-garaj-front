@@ -396,6 +396,7 @@
         "valid_from": "Valid from",
         "salary_upcoming": "Upcoming",
         "salary_current": "Current",
+        "vt_amount_missing": "amount not set",
         "vt_title": "Monthly tariffs",
         "vt_route": "Route",
         "vt_amount": "Monthly pay (UZS)",
