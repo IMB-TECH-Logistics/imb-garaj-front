@@ -55,6 +55,12 @@ export const useColumnsManagersOrders = (opts?: {
             }
             return [
             {
+                accessorKey: "date",
+                header: t("table.created_at"),
+                enableSorting: true,
+                cell: ({ row }) => formatDateSafe(row.original.date),
+            },
+            {
                 accessorKey: "loading_name",
                 header: t("form.loading_location"),
                 enableSorting: true,
@@ -82,13 +88,6 @@ export const useColumnsManagersOrders = (opts?: {
                 enableSorting: true,
                 cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span>,
             },
-            {
-                accessorKey: "date",
-                header: t("table.created_at"),
-                enableSorting: true,
-                cell: ({ row }) => formatDateSafe(row.original.date),
-            },
-            {
             {
                 id: "direction_match",
                 header: t("form.direction"),
