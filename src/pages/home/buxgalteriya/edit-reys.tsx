@@ -224,9 +224,9 @@ const EditReysModal = () => {
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Asosiy</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
+                        isClearIcon={false}
                         label={t("form.company_name")}
                         name="client"
                         control={control}
@@ -244,39 +244,13 @@ const EditReysModal = () => {
                         placeholder={t("form.select_date")}
                         className="w-full"
                     />
-
-                    <FormCombobox
-                        label={t("form.direction")}
-                        name="direction"
-                        control={control}
-                        options={directionOptions}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder="Yo'nalishni tanlang"
-                    />
-
-                    <FormCombobox
-                        label={t("table.status")}
-                        name="status"
-                        control={control}
-                        options={ORDER_STATUS_OPTIONS}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("table.status")}
-                    />
-
-                    <FormCheckbox
-                        control={control}
-                        name="out_of_contract"
-                        label={t("form.out_of_contract")}
-                    />
                 </div>
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yo'nalish</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
+                        isClearIcon={false}
                         label={t("form.loading_location")}
                         name="loading"
                         control={control}
@@ -287,6 +261,7 @@ const EditReysModal = () => {
                     />
 
                     <FormCombobox
+                        isClearIcon={false}
                         label={t("form.unloading_location")}
                         name="unloading"
                         control={control}
@@ -299,9 +274,9 @@ const EditReysModal = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yuk va avtomobil</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
+                        isClearIcon={false}
                         label={t("form.cargo_type")}
                         name="cargo_type"
                         control={control}
@@ -312,6 +287,7 @@ const EditReysModal = () => {
                     />
 
                     <FormCombobox
+                        isClearIcon={false}
                         label={t("form.trip_type")}
                         name="type"
                         control={control}
@@ -322,6 +298,7 @@ const EditReysModal = () => {
                     />
 
                     <FormCombobox
+                        isClearIcon={false}
                         label={t("form.truck")}
                         name="vehicle"
                         control={control}
@@ -330,6 +307,25 @@ const EditReysModal = () => {
                         labelKey="label"
                         placeholder={t("form.truck")}
                     />
+
+                    <FormCombobox
+                        isClearIcon={false}
+                        label={t("table.status")}
+                        name="status"
+                        control={control}
+                        options={ORDER_STATUS_OPTIONS}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("table.status")}
+                    />
+
+                    <div className="md:col-span-2">
+                        <FormCheckbox
+                            control={control}
+                            name="out_of_contract"
+                            label={t("form.out_of_contract")}
+                        />
+                    </div>
                 </div>
             </section>
 

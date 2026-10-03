@@ -1,11 +1,11 @@
 import { Combobox } from "@/components/ui/combobox"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { DatePickerWithRange } from "@/components/form/date-range-picker"
 import { MANAGERS_RUNS } from "@/constants/api-endpoints"
 import { useRunFilterOptions } from "./loading-options"
 import { useModal } from "@/hooks/useModal"
+import { useGet } from "@/hooks/useGet"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
@@ -44,6 +44,12 @@ const BuxgalteriyaExcelModal = () => {
             to: search?.to_date ? new Date(search.to_date) : undefined,
         })
     }, [isOpen])
+
+    const { data: vehicles } = useGet<{ results?: { id: number; truck_number: string }[] } | { id: number; truck_number: string }[]>("vehicles", {
+        params: { page_size: 500 },
+        enabled: !!isOpen,
+    })
+    const vehicleList = Array.isArray(vehicles) ? vehicles : vehicles?.results ?? []
 
     const params = {
         client: client || undefined,
@@ -120,15 +126,20 @@ const BuxgalteriyaExcelModal = () => {
                         valueKey="id"
                     />
                 </div>
-                <Input
-                    placeholder="Davlat raqami..."
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                />
-                <DatePickerWithRange
-                    date={dateRange}
-                    setDate={setDateRange as any}
-                />
+                <div className="grid grid-cols-2 gap-3">
+                    <Combobox
+                        label="Mashina"
+                        options={vehicleList}
+                        value={searchText}
+                        setValue={(v: any) => setSearchText(toStr(v))}
+                        labelKey="truck_number"
+                        valueKey="truck_number"
+                    />
+                    <DatePickerWithRange
+                        date={dateRange}
+                        setDate={setDateRange as any}
+                    />
+                </div>
                 <div className="flex justify-end gap-2 pt-2">
                     <Button variant="outline" onClick={closeModal} type="button">
                         {t("actions.cancel")}
