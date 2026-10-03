@@ -163,6 +163,7 @@ const AddTripOrders = () => {
                     ],
             client: currentTripOrder?.client ?? null,
             direction: currentTripOrder?.direction ?? null,
+            salary_amount: currentTripOrder?.salary_amount ?? 150000,
             images: [] as File[],
         },
     })
@@ -467,6 +468,7 @@ const AddTripOrders = () => {
             }
         } else if (isCityOnlySel) {
             formData.append("loading", data.loading)
+            if (activity === 4) formData.append("salary_amount", String(data.salary_amount ?? 0))
         }
 
         images.forEach((file) => formData.append("images", file))
@@ -629,7 +631,7 @@ const AddTripOrders = () => {
                         )}
 
                         {isCityOnlyActivity && (
-                            <div className="rounded-lg border bg-card/50 p-4">
+                            <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormCombobox
                                     required
                                     hideError={false}
@@ -641,6 +643,16 @@ const AddTripOrders = () => {
                                     labelKey="name"
                                     placeholder={t("form.loading_location")}
                                 />
+                                {activityValue === "4" && (
+                                    <FormNumberInput
+                                        control={control}
+                                        name="salary_amount"
+                                        label="Bekor turish haqi"
+                                        placeholder="Ex: 150 000"
+                                        thousandSeparator=" "
+                                        allowNegative={false}
+                                    />
+                                )}
                             </div>
                         )}
 
