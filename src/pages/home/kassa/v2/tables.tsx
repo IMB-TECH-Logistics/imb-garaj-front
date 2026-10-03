@@ -25,6 +25,7 @@ import {
     KassaTx,
     KIND_DIR,
     KV2_DRIVERS,
+    CloseBreakdown,
     KV2_EXCEL,
     KV2_REQUESTS,
     KV2_TRANSACTIONS,
@@ -56,6 +57,19 @@ const Party = ({ name, trip }: { name: string | null; trip: number | null }) => 
 )
 
 const Note = ({ v }: { v: string | null | undefined }) => <span className="text-muted-foreground line-clamp-2 max-w-48">{v || "—"}</span>
+
+export const CloseLines = ({ c }: { c: CloseBreakdown }) => (
+    <div className="flex flex-col text-xs tabular-nums whitespace-nowrap">
+        {n(c.earned) !== 0 && <span>Reys puli (naqd): <span className="text-green-600">+{money(c.earned)}</span></span>}
+        {n(c.avans_left) !== 0 && (
+            <span>
+                {n(c.avans_left) > 0 ? "Avansdan qoldi" : "Avansdan ortiq sarfladi"}:{" "}
+                <span className={n(c.avans_left) > 0 ? "text-green-600" : "text-destructive"}>{n(c.avans_left) > 0 ? "+" : "−"}{money(Math.abs(n(c.avans_left)))}</span>
+            </span>
+        )}
+        {n(c.salary) !== 0 && <span>Oylik: <span className="text-destructive">−{money(c.salary)}</span></span>}
+    </div>
+)
 
 const DateCell = ({ v }: { v: string | null }) => <span className="whitespace-nowrap text-muted-foreground">{fmtDate(v)}</span>
 
@@ -136,8 +150,35 @@ const requestRow = (r: KassaRequest): KassaRow => ({
     edited_at: null,
     reversed: null,
     reversal_of: null,
+    close: r.close ? { ...r.close, id: -r.id, request: r.id } : null,
     req: r,
 })
+
+const mergeCloses = (list: KassaRow[]): KassaRow[] => {
+    const seen = new Set<number>()
+    const out: KassaRow[] = []
+    for (const r of list) {
+        if (!r.close) {
+            out.push(r)
+            continue
+        }
+        if (seen.has(r.close.id)) continue
+        seen.add(r.close.id)
+        const net = n(r.close.net)
+        out.push({ ...r, amount: String(Math.abs(net)), dir: net >= 0 ? "in" : "out", kind_label: "Aylanmani yopish", expense_type: null })
+    }
+    return out
+}
+
+const dm = (d: string | null) => (d ? `${d.slice(8, 10)}.${d.slice(5, 7)}` : "…")
+const tripPeriod = (a: string | null, b: string | null) => `${dm(a)} – ${b ? dm(b) : "davom etmoqda"}`
+
+const Part = ({ v, sign }: { v: number | string | undefined; sign: "+" | "−" }) => {
+    const x = n(v)
+    if (!x) return <span className="text-muted-foreground">—</span>
+    const plus = sign === "+" ? x > 0 : x < 0
+    return <span className={cn("tabular-nums whitespace-nowrap font-medium", plus ? "text-green-600" : "text-destructive")}>{plus ? "+" : "−"}{money(Math.abs(x))}</span>
+}
 
 export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onReject, onPay, onEditRequest, group, groupLabel, onClearGroup }: {
     group?: string | null
@@ -165,7 +206,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
         post(url, {}, { onSuccess: () => toast.success(ok), onError: (e: unknown) => toast.error(errorText(e)) })
     const rows = useMemo<KassaRow[]>(() => {
         const pend = group ? [] : (pendingData?.results ?? []).map(requestRow).filter((r) => dir === "all" || r.dir === dir)
-        return [...pend, ...(data?.results ?? [])]
+        return mergeCloses([...pend, ...(data?.results ?? [])])
     }, [data, pendingData, dir, group])
     const excelModal = useModal(EXCEL_MODAL)
 
@@ -175,9 +216,14 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 header: "Summa",
                 accessorKey: "amount",
                 cell: ({ row }) => (
-                    <span className={cn(row.original.reversed && "line-through opacity-60")}>
+                    <div className={cn("flex flex-col", row.original.reversed && "line-through opacity-60")}>
                         <Money v={row.original.amount} dir={row.original.dir} />
-                    </span>
+                        {row.original.close && (
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {row.original.dir === "in" ? "kassa haydovchidan oladi" : "kassa haydovchiga beradi"}
+                            </span>
+                        )}
+                    </div>
                 ),
             },
             {
@@ -186,6 +232,19 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 cell: ({ row }) => row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
             },
             { header: "Kimdan / kimga", accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
+            {
+                header: "Aylanma davri",
+                id: "close_period",
+                cell: ({ row }) => row.original.close ? <span className="whitespace-nowrap tabular-nums">{tripPeriod(row.original.close.trip_start, row.original.close.trip_end)}</span> : null,
+            },
+            {
+                header: "Berilgan avans",
+                id: "close_given",
+                cell: ({ row }) => row.original.close ? <span className="whitespace-nowrap tabular-nums">{n(row.original.close.given) ? money(row.original.close.given) : "—"}</span> : null,
+            },
+            { header: "Avans qoldig'i", id: "close_avans", cell: ({ row }) => row.original.close ? <Part v={row.original.close.avans_left} sign="+" /> : null },
+            { header: "Naqd reys puli", id: "close_earned", cell: ({ row }) => row.original.close ? <Part v={row.original.close.earned} sign="+" /> : null },
+            { header: "Oylik", id: "close_salary", cell: ({ row }) => row.original.close ? <Part v={row.original.close.salary} sign="−" /> : null },
             { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
             { header: "Kiritgan", accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
             {
@@ -319,13 +378,13 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
             {
                 header: "Nima uchun",
                 accessorKey: "kind_label",
-                cell: ({ row }) => row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
+                cell: ({ row }) => row.original.close ? "Aylanmani yopish" : row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
             },
             { header: "Kimga / nimaga", id: "who", cell: ({ row }) => <Party name={requestWho(row.original)} trip={row.original.trip} /> },
             {
                 header: "Izoh",
                 accessorKey: "comment",
-                cell: ({ row }) => (
+                cell: ({ row }) => row.original.close ? <CloseLines c={row.original.close} /> : (
                     <div className="flex flex-col">
                         <Note v={row.original.comment} />
                         {row.original.expected_amount != null && n(row.original.expected_amount) !== n(row.original.amount) && (
@@ -366,7 +425,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                                     <X size={16} />
                                     Rad etish
                                 </Button>
-                                {operator && <TableActions onEdit={() => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />}
+                                {operator && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />}
                             </div>
                             {short && <span className="text-xs text-destructive whitespace-nowrap">Kassada yetarli pul yo'q</span>}
                         </div>
@@ -376,7 +435,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                     return (
                         <div className="flex items-center gap-2 justify-end">
                             <Badge variant="orange" className="w-fit whitespace-nowrap">Kutilmoqda</Badge>
-                            <TableActions onEdit={() => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />
+                            <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />
                         </div>
                     )
                 const [label, variant] = REQ_STATUS[r.status] ?? ["—", "secondary"]
@@ -387,9 +446,15 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                         {r.status === STATUS.REJECTED && r.rejected_comment && <span className="text-xs text-muted-foreground max-w-56 text-right">{r.rejected_comment}</span>}
                         {r.status === STATUS.REJECTED && operator && (
                             <div className="flex items-center gap-2 mt-1">
-                                <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => onEdit(r)}>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 gap-1"
+                                    disabled={isPending}
+                                    onClick={() => (r.close ? act(`${KV2_REQUESTS}/${r.id}/resend`, "So'rov qayta yuborildi") : onEdit(r))}
+                                >
                                     <Pencil size={14} />
-                                    Tuzatib qayta yuborish
+                                    {r.close ? "Qayta hisoblab yuborish" : "Tuzatib qayta yuborish"}
                                 </Button>
                                 <TableActions onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />
                             </div>

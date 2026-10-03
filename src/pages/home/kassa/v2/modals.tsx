@@ -38,6 +38,7 @@ import {
     VEHICLES_LIST,
     WAREHOUSES,
 } from "./api"
+import { CloseLines } from "./tables"
 
 export const M = {
     income: "kv2-income",
@@ -313,9 +314,18 @@ export const PayModal = ({ request }: { request: KassaRequest | null }) => {
     return (
         <div className="flex flex-col gap-4">
             <p className="text-sm">
-                <b>{money(request.amount)} so'm</b> · {request.kind_label} · {request.driver_name || "—"}
+                <b>{money(request.amount)} so'm</b> · {request.close ? `Aylanma #${request.trip} yopish` : request.kind_label} · {request.driver_name || "—"}
             </p>
-            <p className="text-sm text-muted-foreground">{out ? "Kassadan chiqim qilinadi." : "Kassaga kirim qilinadi."}</p>
+            {request.close && (
+                <div className="rounded-lg border px-3 py-2">
+                    <CloseLines c={request.close} />
+                </div>
+            )}
+            <p className="text-sm text-muted-foreground">
+                {request.close
+                    ? out ? `Kassa haydovchiga ${money(request.amount)} so'm beradi. Shundan keyin aylanma yopiladi.` : `Kassa haydovchidan ${money(request.amount)} so'm oladi. Shundan keyin aylanma yopiladi.`
+                    : out ? "Kassadan chiqim qilinadi." : "Kassaga kirim qilinadi."}
+            </p>
             <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={closeModal}>Bekor qilish</Button>
                 <Button
@@ -374,27 +384,21 @@ export const CloseTripModal = ({ trip }: { trip: KassaTrip | null }) => {
     })
     const { data: categories } = useGet<{ id: number; name: string }[]>(KV2_CATEGORIES, { enabled: isOpen })
     const [expenses, setExpenses] = useState<ExpenseEdit[]>([])
-    const [paid, setPaid] = useState<number | "">("")
-    const [salaryOn, setSalaryOn] = useState(true)
-    const [salary, setSalary] = useState<number | "">("")
 
     useEffect(() => {
         if (!isOpen || !preview) return
         setExpenses(preview.expenses.map((e) => ({ id: e.id, amount: n(e.amount), category: e.category, comment: e.comment, date: e.date })))
-        setSalaryOn(n(preview.salary_default) > 0)
-        setSalary(n(preview.salary_default) || "")
     }, [isOpen, preview])
 
     const original = preview ? n(preview.spent) : 0
     const spent = expenses.reduce((a, e) => a + Math.abs(e.amount), 0)
     const due = preview ? n(preview.due) - (spent - original) : 0
-    useEffect(() => { if (isOpen && preview) setPaid(Math.abs(due)) }, [isOpen, preview, due])
 
     if (!trip) return null
     if (!preview) return <p className="text-sm text-muted-foreground">Yuklanmoqda…</p>
-    const returns = due >= 0
-    const amount = Number(paid || 0)
-    const diff = Math.abs(due) - amount
+    const salary = n(preview.salary_default)
+    const net = due - salary
+    const returns = net >= 0
     const setExp = (id: number, patch: Partial<ExpenseEdit>) => setExpenses((xs) => xs.map((x) => (x.id === id ? { ...x, ...patch } : x)))
     const catOptions = (current: number | null, name?: string | null) => {
         const list = categories ?? []
@@ -407,11 +411,9 @@ export const CloseTripModal = ({ trip }: { trip: KassaTrip | null }) => {
             onSubmit={(e) => {
                 e.preventDefault()
                 post.mutate(`${KV2_TRIPS}/${trip.id}/close`, {
-                    amount,
-                    salary: salaryOn ? Number(salary) || 0 : 0,
                     expenses: expenses.map((x) => ({ id: x.id, amount: x.amount, category: x.category, comment: x.comment })),
                 }, {
-                    onSuccess: (res: any) => toast.success(res?.status === "yopildi" ? "Aylanma yopildi (so'rovsiz)" : "Aylanma yopildi, so'rovlar kassirga yuborildi"),
+                    onSuccess: (res: any) => toast.success(res?.status === "yopildi" ? "Aylanma yopildi (so'rovsiz)" : "Aylanma yopildi, so'rov kassirga yuborildi"),
                     onError: onErr,
                 })
             }}
@@ -438,48 +440,21 @@ export const CloseTripModal = ({ trip }: { trip: KassaTrip | null }) => {
 
             <div className="rounded-lg border px-3 py-1 divide-y">
                 <div>
-                    {n(preview.prior) !== 0 && <Row label={n(preview.prior) > 0 ? "Oldingi qarzi" : "Oldingi haqdorligi"} value={`${n(preview.prior) > 0 ? "+" : "−"}${money(Math.abs(n(preview.prior)))}`} />}
                     <Row label="Kassadan berilgan (avans + qo'shimcha)" value={`+${money(preview.given)}`} />
                     <Row label="Reyslardan olgan pul (naqd)" value={`+${money(preview.earned)}`} />
                     <Row label="Xarajatlar (naqd)" value={`−${money(spent)}`} />
                 </div>
+                <Row label="Haydovchi qo'lida qolgan" value={`${money(due)} so'm`} />
+                <Row label="Oylik (reyslar bo'yicha)" value={`−${money(salary)}`} />
                 <Row
                     className={cn("font-semibold", returns ? "text-green-600" : "text-destructive")}
-                    label={returns ? "Hisob bo'yicha kassaga qaytarishi kerak" : "Hisob bo'yicha kassa haydovchiga beradi"}
-                    value={`${money(Math.abs(due))} so'm`}
+                    label={returns ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"}
+                    value={`${money(Math.abs(net))} so'm`}
                 />
             </div>
+            <span className="text-xs text-muted-foreground">Kassir bitta tugma bilan tasdiqlaydi, shundan keyin haydovchi balansi 0 bo'ladi.</span>
 
-            <label className="flex flex-col gap-1.5 text-sm font-medium">
-                {returns ? "Haydovchi aslida topshiradigan summa" : "Kassa aslida beradigan summa"}
-                <input
-                    className="h-10 rounded-md border bg-background px-3 text-sm font-normal tabular-nums"
-                    value={paid === "" ? "" : money(Number(paid))}
-                    onChange={(e) => setPaid(e.target.value === "" ? "" : Number(e.target.value.replace(/\D/g, "")))}
-                />
-                {diff !== 0 && (
-                    <span className="text-xs font-normal text-orange-500">
-                        Farq {money(Math.abs(diff))} so'm haydovchi balansida qoladi ({(returns ? diff > 0 : diff < 0) ? "qarzi" : "haqdorligi"}) — keyingi aylanmada hisoblanadi.
-                    </span>
-                )}
-            </label>
-
-            <div className="rounded-lg border px-3 py-2 flex flex-col gap-2">
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="checkbox" checked={salaryOn} onChange={(e) => setSalaryOn(e.target.checked)} className="size-4" />
-                    Oylik so'rovi (hisoblangan: {money(preview.salary_default)})
-                </label>
-                {salaryOn && (
-                    <input
-                        className="h-10 rounded-md border bg-background px-3 text-sm tabular-nums"
-                        value={salary === "" ? "" : money(Number(salary))}
-                        onChange={(e) => setSalary(e.target.value === "" ? "" : Number(e.target.value.replace(/\D/g, "")))}
-                    />
-                )}
-                <span className="text-xs text-muted-foreground">Jarima yoki bonus bo'lsa summani o'zgartiring. Oylik qoldiqdan ayrilmaydi, kassadan alohida beriladi.</span>
-            </div>
-
-            <Save label={amount === 0 ? "Aylanmani yopish" : "Yopish va so'rov yuborish"} loading={post.isPending} />
+            <Save label={due === 0 && salary === 0 ? "Aylanmani yopish" : "Yopish va so'rov yuborish"} loading={post.isPending} />
         </form>
     )
 }

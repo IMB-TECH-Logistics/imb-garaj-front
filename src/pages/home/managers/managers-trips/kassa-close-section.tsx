@@ -25,7 +25,6 @@ type Expense = { id: number; amount: number; category: number | null; category_n
 type SalaryOrder = { order: number; route: string; date: string | null; status_label: string | null; tariff: number | null; amount: number | null }
 
 type Preview = {
-    prior: number
     given: number
     earned: number
     spent: number
@@ -55,7 +54,6 @@ const SALARY_MODAL = "kassa-close-salary-edit"
 const ORDER_STATUS: Record<number, string> = { [-1]: "Qoralama", 0: "Kutilmoqda", 1: "Boshlandi", 5: "Yuklanmoqda", 6: "Yo'lda", 7: "Tushirilmoqda", 2: "Tugallandi", 3: "Bekor qilindi", 4: "Arxivlangan" }
 
 const money = (v: number) => (v < 0 ? "−" : "") + Math.abs(Math.round(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-const digits = (v: string) => Number(v.replace(/\D/g, ""))
 
 const errorText = (e: any) => {
     const d = e?.response?.data
@@ -91,8 +89,6 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
         enabled: !!tripId,
     })
 
-    const [paid, setPaid] = useState<number | "">("")
-    const [salaryOn, setSalaryOn] = useState(true)
     const [salaries, setSalaries] = useState<Record<number, number>>({})
     const [selected, setSelected] = useState<Expense | null>(null)
     const [salaryRow, setSalaryRow] = useState<SalaryOrder | null>(null)
@@ -133,18 +129,17 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
 
     const salaryTotal = Object.values(salaries).reduce((a, v) => a + (Number(v) || 0), 0)
     const due = preview ? Number(preview.due) : 0
-    useEffect(() => { if (preview) setPaid(Math.abs(Number(preview.due))) }, [preview?.due])
+    const net = due - salaryTotal
 
-    const amount = Number(paid || 0)
     useEffect(() => {
         onChange({
             ready: !!preview,
-            amount,
-            salary: salaryOn ? salaryTotal : 0,
-            salaries: salaryOn ? Object.entries(salaries).map(([order, value]) => ({ order: Number(order), amount: Number(value) || 0 })) : [],
+            amount: net,
+            salary: salaryTotal,
+            salaries: Object.entries(salaries).map(([order, value]) => ({ order: Number(order), amount: Number(value) || 0 })),
             expenses: [],
         })
-    }, [preview, amount, salaryOn, salaryTotal, salaries])
+    }, [preview, net, salaryTotal, salaries])
 
     const { mutate: patch, isPending: saving } = usePatch({ meta: { skipGlobalError: true } })
     const form = useForm<{ amount: number | ""; category: string; comment: string }>({ defaultValues: { amount: "", category: "", comment: "" } })
@@ -184,8 +179,7 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
 
     if (isLoading || !preview) return <p className="text-sm text-muted-foreground">Kassa hisobi yuklanmoqda…</p>
 
-    const returns = due >= 0
-    const diff = Math.abs(due) - amount
+    const returns = net >= 0
     const catList = (() => {
         const list = categories ?? []
         return selected?.category && !list.some((c) => c.id === selected.category)
@@ -251,46 +245,19 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
 
             <div className="rounded-lg border px-3 py-1 divide-y">
                 <div>
-                    {Number(preview.prior) !== 0 && (
-                        <Row label={Number(preview.prior) > 0 ? "Oldingi qarzi" : "Oldingi haqdorligi"} value={`${Number(preview.prior) > 0 ? "+" : "−"}${money(Math.abs(Number(preview.prior)))}`} />
-                    )}
                     <Row label="Kassadan berilgan (avans + qo'shimcha)" value={`+${money(Number(preview.given))}`} />
                     <Row label="Reyslardan olgan pul (naqd)" value={`+${money(Number(preview.earned))}`} />
                     <Row label="Naqd xarajatlar" value={`−${money(Number(preview.spent))}`} />
                 </div>
+                <Row label="Haydovchi qo'lida qolgan" value={`${money(due)} so'm`} />
+                <Row label="Oylik («Oyliklar» tabidagi jami)" value={`−${money(salaryTotal)}`} />
                 <Row
                     className={cn("font-semibold", returns ? "text-green-600" : "text-destructive")}
-                    label={returns ? "Hisob bo'yicha kassaga qaytarishi kerak" : "Hisob bo'yicha kassa haydovchiga beradi"}
-                    value={`${money(Math.abs(due))} so'm`}
+                    label={returns ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"}
+                    value={`${money(Math.abs(net))} so'm`}
                 />
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-                <label className="flex flex-col gap-1.5 text-sm font-medium">
-                    {returns ? "Haydovchi aslida topshiradigan summa" : "Kassa aslida beradigan summa"}
-                    <input
-                        className="h-10 rounded-md border bg-background px-3 text-sm font-normal tabular-nums"
-                        value={paid === "" ? "" : money(Number(paid))}
-                        onChange={(e) => setPaid(e.target.value === "" ? "" : digits(e.target.value))}
-                    />
-                    {diff !== 0 && (
-                        <span className="text-xs font-normal text-orange-500">
-                            Farq {money(Math.abs(diff))} so'm haydovchi balansida qoladi ({(returns ? diff > 0 : diff < 0) ? "qarzi" : "haqdorligi"}).
-                        </span>
-                    )}
-                </label>
-                <div className="flex flex-col gap-1.5 text-sm">
-                    <label className="flex items-center gap-2 font-medium cursor-pointer">
-                        <input type="checkbox" checked={salaryOn} onChange={(e) => setSalaryOn(e.target.checked)} className="size-4" />
-                        Oylik so'rovi
-                    </label>
-                    <div className="h-10 rounded-md border bg-muted/40 px-3 flex items-center justify-between tabular-nums">
-                        <span>{salaryOn ? money(salaryTotal) : "—"}</span>
-                        <span className="text-xs text-muted-foreground">«Oyliklar» tabidagi jami</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">Oylik qoldiqdan ayrilmaydi, kassadan alohida so'rov bilan beriladi.</span>
-                </div>
-            </div>
+            <span className="text-xs text-muted-foreground">Kassaga bitta so'rov boradi. Kassir tasdiqlagach, haydovchi balansi 0 bo'ladi.</span>
 
             <Modal modalKey={EDIT_MODAL} title="Xarajatni tahrirlash" size="max-w-md">
                 <form

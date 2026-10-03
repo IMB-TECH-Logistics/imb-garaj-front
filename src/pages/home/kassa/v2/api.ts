@@ -54,7 +54,7 @@ export type Overview = {
     balance: number
     start_balance: number | null
     started_at: string | null
-    income: { total: number; external: number; drivers: number; reversals: number }
+    income: { total: number; external: number; trips: number; drivers: number; reversals: number }
     outcome: { total: number; avans: number; farq: number; oylik: number; garaj: number; reversals: number }
     drivers: { id: number; name: string; plate: string | null; balance: number }[]
     drivers_total: number
@@ -77,6 +77,7 @@ export type KassaTx = {
     edited_at: string | null
     reversed: { at: string; reason: string; by: string | null } | null
     reversal_of: number | null
+    close?: (CloseBreakdown & { id: number; request: number }) | null
 }
 
 export type KassaRequest = {
@@ -102,6 +103,7 @@ export type KassaRequest = {
     paid_by_name: string | null
     paid_at: string | null
     created: string
+    close?: CloseBreakdown | null
 }
 
 export type KassaTrip = {
@@ -116,10 +118,21 @@ export type KassaTrip = {
     driver_balance: number
 }
 
+export type CloseBreakdown = {
+    trip_start: string | null
+    trip_end: string | null
+    given: number
+    earned: number
+    spent: number
+    due: number
+    avans_left: number
+    salary: number
+    net: number
+}
+
 export type ClosePreview = {
     trip: number
     driver: number
-    prior: number
     given: number
     earned: number
     spent: number

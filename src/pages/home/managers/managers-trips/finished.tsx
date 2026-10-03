@@ -146,8 +146,6 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         try {
             await patchTripAsync(`${MANAGERS_TRIPS}/${tripId}`, formData)
             const res: any = await postCloseAsync(`checkout/kassa-v2/trips/${tripId}/close`, {
-                amount: kassa.amount,
-                salary: kassa.salary,
                 salaries: kassa.salaries,
                 expenses: kassa.expenses,
             })
@@ -157,7 +155,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                     return k.startsWith(MANAGERS_TRIPS) || k.includes("cashflow") || k.startsWith("checkout/kassa-v2")
                 },
             })
-            toast.success(res?.status === "yopildi" ? "Aylanma yopildi" : "Aylanma yopildi, qoldiq so'rovi kassirga yuborildi")
+            toast.success(res?.status === "yopildi" ? "Aylanma yopildi" : "Aylanma yopildi, so'rov kassirga yuborildi")
             closeModal()
             reset()
         } catch (e) {

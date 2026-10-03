@@ -86,7 +86,8 @@ const KassaV2 = () => {
                     <Box className="bg-green-600/5 border-green-600/30">
                         <Line strong tone="green" label="Kirim" value={ov?.income.total} {...lineProps("in", "Kirim")} />
                         <Line sub label="Tashqi manbadan" value={ov?.income.external} {...lineProps("in_external", "Tashqi manbadan")} />
-                        <Line sub label="Haydovchilar topshirgan" value={ov?.income.drivers} {...lineProps("in_drivers", "Haydovchilar topshirgan")} />
+                        <Line sub label="Naqd reys puli" value={ov?.income.trips} {...lineProps("in_trips", "Naqd reys puli")} />
+                        <Line sub label="Haydovchi qaytargan" value={ov?.income.drivers} {...lineProps("in_drivers", "Haydovchi qaytargan")} />
                         {!!n(ov?.income.reversals) && <Line sub label="Bekor qilingan chiqimlar" value={ov?.income.reversals} {...lineProps("in_reversals", "Bekor qilingan chiqimlar")} />}
                     </Box>
                     <Box className="bg-red-600/5 border-red-600/30">
