@@ -45,9 +45,7 @@ export const routeLabel = (
     >,
     internalLabel: (name: string) => string,
 ) =>
-    row.from_region === row.to_region
-        ? internalLabel(row.from_region_name)
-        : `${row.from_region_name} ↔ ${row.to_region_name}`
+    `${row.from_region_name} ↔ ${row.to_region_name}`
 
 export const useSalaryColumns = () => {
     const { t } = useTranslation()

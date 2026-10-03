@@ -413,7 +413,7 @@
         "vt_route": "Yo'nalish",
         "vt_amount": "Oylik (so'm)",
         "vt_valid_from": "Amal qilish sanasi",
-        "vt_upcoming": "Kelgusi",
+        "vt_upcoming": "Keyingi narx",
         "vt_internal": "{{name}} (ichki)",
         "vt_viloyat": "Viloyat",
         "vt_selected": "{{count}} tanlandi",
