@@ -73,28 +73,6 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span>,
             },
             {
-                accessorKey: "external_id",
-                header: t("table.cargo_id"),
-                size: 120,
-                cell: ({ row }) => {
-                    const extId = row.original.external_id
-                    if (!extId) return <span className="text-muted-foreground">—</span>
-                    return (
-                        <span
-                            className="group inline-flex items-center gap-1 cursor-pointer transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                navigator.clipboard.writeText(String(extId))
-                                toast.success(`${extId} nusxaga olindi`)
-                            }}
-                        >
-                            {extId}
-                            <Copy width={14} className="opacity-0 transition-opacity group-hover:opacity-100" />
-                        </span>
-                    )
-                },
-            },
-            {
                 accessorKey: "date",
                 header: t("table.created_at"),
                 enableSorting: true,
@@ -228,6 +206,28 @@ export const useColumnsManagersOrders = (opts?: {
                             <ImageIcon size={16} />
                             <span className="text-xs">{images.length}</span>
                         </button>
+                    )
+                },
+            },
+            {
+                accessorKey: "external_id",
+                header: t("table.cargo_id"),
+                size: 120,
+                cell: ({ row }) => {
+                    const extId = row.original.external_id
+                    if (!extId) return <span className="text-muted-foreground">—</span>
+                    return (
+                        <span
+                            className="group inline-flex items-center gap-1 cursor-pointer transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                navigator.clipboard.writeText(String(extId))
+                                toast.success(`${extId} nusxaga olindi`)
+                            }}
+                        >
+                            {extId}
+                            <Copy width={14} className="opacity-0 transition-opacity group-hover:opacity-100" />
+                        </span>
                     )
                 },
             },
