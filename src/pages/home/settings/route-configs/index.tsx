@@ -79,8 +79,9 @@ const RouteConfigsPage = () => {
         {
             params: {
                 search: search.route_configs_search,
-                page: onlyNoPrice ? undefined : search.page,
-                page_size: onlyNoPrice ? 10000 : search.page_size,
+                page: search.page,
+                page_size: search.page_size,
+                no_price: onlyNoPrice ? true : undefined,
                 ordering,
             },
         },
@@ -104,7 +105,6 @@ const RouteConfigsPage = () => {
     const enriched: DirectionRow[] = useMemo(
         () =>
             (data?.results ?? [])
-                .filter((d) => !onlyNoPrice || d.no_price)
                 .map((d) => ({
                 id: d.id,
                 owner_name: d.owner_name ?? String(d.owner),
@@ -129,7 +129,7 @@ const RouteConfigsPage = () => {
                 no_price: d.no_price,
                 prices: d.prices,
             })),
-        [data, paymentMap, onlyNoPrice],
+        [data, paymentMap],
     )
 
     const columns = useDirectionColumns()

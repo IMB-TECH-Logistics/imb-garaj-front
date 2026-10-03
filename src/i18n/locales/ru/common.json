@@ -547,6 +547,8 @@
         "reject_reason": "Причина отклонения",
         "reject_comment_required": "Укажите причину отклонения",
         "status_pending": "Ожидает",
+        "awaiting_order": "Ожидает",
+        "awaiting_order_hint": "Поступит в кассу после завершения рейса",
         "status_approved": "Подтверждено",
         "status_rejected": "Отклонено",
         "status_rollback": "Отменено",

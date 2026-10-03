@@ -547,6 +547,8 @@
         "reject_reason": "Rejection reason",
         "reject_comment_required": "Enter the rejection reason",
         "status_pending": "Pending",
+        "awaiting_order": "Awaiting",
+        "awaiting_order_hint": "Will reach the kassa when the trip is completed",
         "status_approved": "Approved",
         "status_rejected": "Rejected",
         "status_rollback": "Rolled back",

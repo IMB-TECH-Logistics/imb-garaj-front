@@ -547,6 +547,8 @@
         "reject_reason": "却下理由",
         "reject_comment_required": "却下理由を入力してください",
         "status_pending": "保留中",
+        "awaiting_order": "待機中",
+        "awaiting_order_hint": "運行完了後にキャッシュに入ります",
         "status_approved": "承認済み",
         "status_rejected": "却下",
         "status_rollback": "取消",

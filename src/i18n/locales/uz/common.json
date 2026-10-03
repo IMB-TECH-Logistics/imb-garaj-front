@@ -578,6 +578,8 @@
         "reject_reason": "Rad etish sababi",
         "reject_comment_required": "Rad etish sababini kiriting",
         "status_pending": "Kutilmoqda",
+        "awaiting_order": "Kutilmoqda",
+        "awaiting_order_hint": "Reys yakunlanganda kassaga tushadi",
         "status_approved": "Tasdiqlangan",
         "status_rejected": "Rad etilgan",
         "status_rollback": "Bekor qilingan",
