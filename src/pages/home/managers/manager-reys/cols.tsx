@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Copy, ImageIcon, TriangleAlert } from "lucide-react"
+import { Copy, ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
@@ -118,36 +118,6 @@ export const useColumnsManagersOrders = (opts?: {
                     return (
                         <Badge variant="outline" className={`whitespace-nowrap ${colorClass}`}>
                             {row.original?.activity_display || "-"}
-                        </Badge>
-                    )
-                },
-            },
-            {
-                id: "trip_confirm",
-                header: t("reys_confirm.trip_label"),
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const unconfirmed =
-                        row.original?.trip_confirmed === false && Number(row.original?.status) !== -1
-                    const isActiveOrder = ![2, 3, 4].includes(Number(row.original?.status))
-                    const otherActive = isActiveOrder ? row.original?.vehicle_other_active_orders ?? 0 : 0
-                    const openTrips = row.original?.vehicle_open_trips ?? 0
-                    const openDays = row.original?.trip_open_days ?? 0
-                    const issues = [
-                        openTrips > 1 ? t("reys_confirm.open_trips", { count: openTrips }) : null,
-                        openDays > 30 ? t("reys_confirm.open_days", { count: openDays }) : null,
-                        otherActive > 0 ? t("form.dm_open_orders", { count: otherActive }) : null,
-                    ].filter(Boolean) as string[]
-                    if (!unconfirmed && issues.length === 0) return null
-                    const color = issues.length ? DIRECTION_MATCH_COLORS.not_found : DIRECTION_MATCH_COLORS.unpriced
-                    return (
-                        <Badge
-                            variant="outline"
-                            title={issues.join(" · ") || undefined}
-                            className={`gap-1 whitespace-nowrap ${color}`}
-                        >
-                            {issues.length > 0 && <TriangleAlert className="size-3" />}
-                            {unconfirmed ? t("reys_confirm.short") : issues.length}
                         </Badge>
                     )
                 },
