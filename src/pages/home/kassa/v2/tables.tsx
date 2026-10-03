@@ -1,6 +1,7 @@
 import TableActions from "@/components/custom/table-actions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Combobox } from "@/components/ui/combobox"
 import { DataTable } from "@/components/ui/datatable"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useGet } from "@/hooks/useGet"
@@ -61,11 +62,17 @@ const Head = ({ left, right }: { left: ReactNode; right?: ReactNode }) => (
 )
 
 const Filter = ({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) => (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className="h-9 rounded-md border bg-background px-3 text-sm min-w-36">
-        {options.map(([k, l]) => (
-            <option key={k} value={k}>{l}</option>
-        ))}
-    </select>
+    <Combobox
+        label=""
+        options={options.map(([id, name]) => ({ id, name }))}
+        value={value}
+        setValue={(v: any) => v != null && v !== "" && onChange(String(v))}
+        labelKey="name"
+        valueKey="id"
+        isClearIcon={false}
+        isSearch={false}
+        className="h-10 w-44"
+    />
 )
 
 const usePaging = () => {
@@ -176,11 +183,11 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                         return (
                             <div className="flex flex-col items-end gap-1">
                                 <div className="flex items-center gap-1">
-                                    <Button size="sm" variant="outline" className="h-8 min-w-28 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => act(`${KV2_REQUESTS}/${q.id}/pay`, out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi")}>
+                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => act(`${KV2_REQUESTS}/${q.id}/pay`, out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi")}>
                                         <Check size={16} />
                                         {out ? "Berdim" : "Oldim"}
                                     </Button>
-                                    <Button size="sm" variant="outline" className="h-8 min-w-28 gap-1 text-destructive hover:text-destructive" onClick={() => onReject(q)}>
+                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-destructive hover:text-destructive" onClick={() => onReject(q)}>
                                         <X size={16} />
                                         Rad etish
                                     </Button>
@@ -312,11 +319,11 @@ export const RequestsTable = ({ switcher, onReject, onEdit, actions }: {
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
-                                <Button size="sm" variant="outline" className="h-8 min-w-28 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => act(`${KV2_REQUESTS}/${r.id}/pay`, out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi")}>
+                                <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => act(`${KV2_REQUESTS}/${r.id}/pay`, out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi")}>
                                     <Check size={16} />
                                     {out ? "Berdim" : "Oldim"}
                                 </Button>
-                                <Button size="sm" variant="outline" className="h-8 min-w-28 gap-1 text-destructive hover:text-destructive" onClick={() => onReject(r)}>
+                                <Button size="sm" variant="outline" className="h-8 gap-1 text-destructive hover:text-destructive" onClick={() => onReject(r)}>
                                     <X size={16} />
                                     Rad etish
                                 </Button>
