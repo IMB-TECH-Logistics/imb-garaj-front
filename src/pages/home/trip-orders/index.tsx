@@ -29,7 +29,7 @@ const TripOrderMain = () => {
     const parentId = params.parentId
     const currentTripsOrder = getData<TripsOrders>(MANAGERS_ORDERS)
 
-    const { data, isLoading } = useGet<ListResponse<TripOrdersRow>>(
+    const { data, isLoading, isError, error } = useGet<ListResponse<TripOrdersRow>>(
         MANAGERS_ORDERS,
         {
             params: {
@@ -37,8 +37,10 @@ const TripOrderMain = () => {
                 page,
                 ordering: (search as any).ordering,
             },
+            options: { retry: false },
         },
     )
+    const isNotFound = isError && [400, 404].includes(error?.response?.status)
 
     const handleCreate = () => {
         clearKey(MANAGERS_ORDERS)
@@ -95,7 +97,7 @@ const TripOrderMain = () => {
                     <h1 className="font-bold">{t("page.trip_list")}</h1>
                 </div>
                 <div className="flex justify-end">
-                    <Button onClick={handleCreate}>
+                    <Button onClick={handleCreate} disabled={isError}>
                         <CirclePlus size={18} />
                         {t("actions.add")}
                     </Button>
@@ -103,19 +105,25 @@ const TripOrderMain = () => {
             </div>
 
             <div className="bg-card rounded-md p-3">
-                <DataTable
-                    manualSorting
-                    loading={isLoading}
-                    columns={columns}
-                    data={data?.results}
-                    numeration
-                    onEdit={({ original }) => handleEdit(original)}
-                    onDelete={({ original }) => handleDelete(original)}
-                    paginationProps={{
-                        totalPages: 1,
-                    }}
-                    onView={({ original }) => handleAdd(original)}
-                />
+                {isError ? (
+                    <p className="py-10 text-center text-destructive">
+                        {isNotFound ? t("page.not_found") : t("messages.error")}
+                    </p>
+                ) : (
+                    <DataTable
+                        manualSorting
+                        loading={isLoading}
+                        columns={columns}
+                        data={data?.results}
+                        numeration
+                        onEdit={({ original }) => handleEdit(original)}
+                        onDelete={({ original }) => handleDelete(original)}
+                        paginationProps={{
+                            totalPages: 1,
+                        }}
+                        onView={({ original }) => handleAdd(original)}
+                    />
+                )}
             </div>
 
             <Modal

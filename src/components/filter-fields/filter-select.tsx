@@ -172,6 +172,11 @@ export default function FilterSelect({
                 hideSelectedOptions={false}
                 closeMenuOnSelect={!props.isMulti}
                 placeholder={label}
+                aria-label={
+                    typeof label === "string" ? label
+                    : typeof props.placeholder === "string" ? props.placeholder
+                    : undefined
+                }
                 menuPortalTarget={document.body}
                 styles={{
                     menuPortal: (base) => ({

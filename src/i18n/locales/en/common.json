@@ -29,6 +29,7 @@
         "distributors": "Distributors"
     },
     "actions": {
+        "reverse_salary": "Reverse payout",
         "unlink_gps": "Unlink GPS",
         "add": "Add",
         "edit": "Edit",
@@ -63,15 +64,25 @@
         "attach": "Attach",
         "detach": "Detach",
         "archive": "Archive",
-        "restore": "Restore"
+        "restore": "Restore",
+        "skip_to_content": "Skip to main content",
+        "more": "Actions",
+        "undo": "Undo",
+        "toggle_theme": "Toggle theme",
+        "expand": "Expand"
     },
     "messages": {
+        "reverse_salary_hint": "The cash desk and the driver's salary difference are restored; the trips become unpaid again.",
+        "reverse_salary_trips": "{{count}} trips",
         "success_add": "Added successfully!",
         "success_edit": "Updated successfully!",
+        "direction_price_not_current": "Price saved from {{date}}, but the price in effect today is {{price}} (since {{active_date}}). The new price only applies to orders from {{date}} until the next change.",
         "success_delete": "Deleted successfully",
         "confirm_delete": "Are you sure?",
         "confirm_unlink_device": "Unlink the GPS device from {{vehicle}}?",
         "confirm_dialog_title": "Confirm",
+        "duplicate_client_title": "A client with this name exists",
+        "duplicate_client_name": "A client named “{{name}}” already exists (company code: {{codes}}). Save as a new client anyway?",
         "download_password": "Password required to download",
         "not_found": "Not found",
         "loading": "Loading...",
@@ -79,7 +90,9 @@
         "fill_fields": "Please fill in all fields correctly",
         "no_connection": "Could not connect to the server. Please check your internet connection.",
         "server_error": "Action failed — a server error occurred. Please try again later. ({{status}})",
-        "request_timeout": "The request did not receive a response in time. Please try again."
+        "request_timeout": "The request did not receive a response in time. Please try again.",
+        "load_error": "Could not load data — a server error occurred. Figures shown may be incomplete; please refresh later. ({{status}})",
+        "not_loaded": "Not loaded"
     },
     "lang": {
         "uz": "O'zbek",
@@ -151,6 +164,8 @@
         "discount": "Discount",
         "device": "Device",
         "balance": "Balance",
+        "period_running_total": "Period running total",
+        "period_running_total_hint": "Income − expense − advance from the start of the selected period up to this row. Not the cash balance — the cash balance is shown in the “Balance” card above.",
         "income": "Income",
         "expense": "Expense",
         "advance": "Advance",
@@ -220,7 +235,12 @@
         "price_diff_less": "amount entered by driver is below the route price",
         "price_diff_more": "amount entered by driver is above the route price",
         "price_diff_by_client": "Due to client",
-        "price_diff_driver": "Price difference (debt/credit)",
+        "price_diff_driver": "Price difference (+ debt / − credit)",
+        "salary_diff_driver": "Salary difference (+ debt / − credit)",
+        "debt_driver_owes": "driver owes the company",
+        "debt_company_owes": "company owes the driver",
+        "debt_total": "Total debt (balance + salary + price diff)",
+        "not_in_balance": "Not included in balance",
         "district": "District",
         "code": "Code",
         "relative_contact_1": "Contact 1",
@@ -228,6 +248,7 @@
         "distributor": "Distributor"
     },
     "toast": {
+        "salary_reversed": "Salary payout reversed",
         "added": "Added",
         "updated": "Updated",
         "deleted": "Deleted",
@@ -250,6 +271,7 @@
         "balance_topped_up": "Balance topped up",
         "record_updated": "Record updated",
         "advance_given": "Advance successfully issued",
+        "salary_given": "Salary successfully paid",
         "category_added": "Category successfully added",
         "warehouse_out": "Issued from warehouse",
         "device_added": "GPS device added",
@@ -289,6 +311,7 @@
         "draft": "Draft"
     },
     "page": {
+        "salary_payouts": "Salary payouts",
         "truck_status_all": "All",
         "truck_status_loaded": "Loaded",
         "truck_status_empty": "Empty",
@@ -362,9 +385,15 @@
         "valid_from": "Valid from",
         "salary_upcoming": "Upcoming",
         "salary_current": "Current",
-        "salary_history_empty": "No history"
+        "salary_history_empty": "No history",
+        "forbidden_title": "Access denied",
+        "forbidden_text": "You don't have access to this section. If needed, ask an administrator to add the permission to your role.",
+        "go_home": "Go to home page"
     },
     "table": {
+        "activity": "Activity",
+        "cargo_state": "Load state",
+        "order_status": "Order status",
         "geo_location": "Location",
         "show_on_map": "On map",
         "truck_number": "Plate Number",
@@ -446,7 +475,8 @@
         "subtitle": "Enter your credentials to continue",
         "username": "Username",
         "password": "Password",
-        "submit": "Sign in"
+        "submit": "Sign in",
+        "invalid_credentials": "Invalid username or password"
     },
     "backend_messages": {
         "Username or password is incorrect": "Username or password is incorrect",
@@ -474,13 +504,16 @@
     },
     "validation": {
         "required_field": "Enter {{field}}",
+        "max_amount": "Amount must not exceed 1 000 000 000",
+        "end_before_start": "End date cannot be earlier than start date",
         "required": "Required field",
         "min_length": "Minimum {{min}} characters",
         "invalid_phone": "Invalid phone number",
         "invalid_date": "Select a date",
         "select_required": "Select {{field}}",
         "field_required": "{{field}} is required",
-        "numbers_only": "Enter numbers only"
+        "numbers_only": "Enter numbers only",
+        "reserved_username": "Usernames starting with \"{{prefix}}\" are reserved by the system"
     },
     "monitoring_stats": {
         "date": "Date",

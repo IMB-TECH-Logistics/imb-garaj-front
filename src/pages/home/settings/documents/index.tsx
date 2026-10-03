@@ -1,7 +1,8 @@
 import ParamTabs from "@/components/as-params/tabs"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
-import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { DataTable } from "@/components/ui/datatable"
 import {
     VEHICLE_DOCUMENT_ALERTS,
@@ -15,7 +16,6 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { TriangleAlert } from "lucide-react"
 import { ReactNode, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
@@ -167,15 +167,13 @@ const DocumentsPage = () => {
             searchKey="documents_search"
             pageKey="page"
             count={data?.count}
-            extraRight={
-                <Button
-                    variant={onlyAlerts ? "destructive" : "outline"}
-                    icon={<TriangleAlert size={18} />}
-                    onClick={toggleAlerts}
-                >
-                    {t("documents_page.expired_only")}
-                    <CountBadge count={alerts?.[tab] ?? 0} />
-                </Button>
+            extraLeft={
+                <div className="flex items-center gap-2 shrink-0">
+                    <Switch id="doc-alert-switch" checked={onlyAlerts} onCheckedChange={toggleAlerts} />
+                    <Label htmlFor="doc-alert-switch" className="cursor-pointer text-sm">
+                        {t("documents_page.expired_only")}
+                    </Label>
+                </div>
             }
         />
     )

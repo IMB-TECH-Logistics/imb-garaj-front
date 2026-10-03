@@ -2,6 +2,12 @@ import axios from "axios"
 import { toast } from "sonner"
 import { getGeoHeaders, startGeoTracking } from "@/lib/geo-location"
 
+declare module "axios" {
+    interface InternalAxiosRequestConfig {
+        _retried?: boolean
+    }
+}
+
 const getBaseURL = () => {
     if (import.meta.env.DEV) {
         return import.meta.env.VITE_DEFAULT_URL
@@ -14,11 +20,20 @@ const getBaseURL = () => {
 
 export const baseURL = getBaseURL()
 
+export const REQUEST_TIMEOUT = 60 * 1000
+
+const TRANSFER_TIMEOUT = 5 * 60 * 1000
+
 const axiosInstance = axios.create({
     baseURL,
+    timeout: REQUEST_TIMEOUT,
 })
 
 export const getAccessToken = () => localStorage.getItem("token")
+
+export const REFRESH_STORAGE_KEY = "refresh"
+
+export const getRefreshToken = () => localStorage.getItem(REFRESH_STORAGE_KEY)
 
 export const TENANT_STORAGE_KEY = "tenant"
 
@@ -35,6 +50,9 @@ export const getTenantFilter = () =>
 
 axiosInstance.interceptors.request.use(
     (config) => {
+        if (config.responseType === "blob" || config.data instanceof FormData) {
+            config.timeout = Math.max(config.timeout ?? 0, TRANSFER_TIMEOUT)
+        }
         const token = getAccessToken()
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
@@ -62,6 +80,49 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error),
 )
 
+const isAuthUrl = (url?: string) =>
+    !!url && /auth\/(login|refresh)/.test(url)
+
+const getBearer = (header: unknown) =>
+    typeof header === "string" ? header.replace(/^Bearer /, "") : null
+
+const logoutToAuth = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem(REFRESH_STORAGE_KEY)
+    localStorage.removeItem(TENANT_STORAGE_KEY)
+    localStorage.removeItem(TENANT_FILTER_STORAGE_KEY)
+    window.location.href = "/auth"
+}
+
+let refreshPromise: Promise<string | null> | null = null
+
+const refreshAccessToken = (failedToken: string | null) => {
+    const current = getAccessToken()
+    if (current && failedToken && current !== failedToken) {
+        return Promise.resolve(current)
+    }
+    const refresh = getRefreshToken()
+    if (!refresh) return Promise.resolve(null)
+    if (!refreshPromise) {
+        refreshPromise = axios
+            .post(
+                `${baseURL}/auth/refresh/`,
+                { refresh },
+                { timeout: REQUEST_TIMEOUT },
+            )
+            .then(({ data }) => {
+                localStorage.setItem("token", data.access)
+                localStorage.setItem(REFRESH_STORAGE_KEY, data.refresh)
+                return data.access as string
+            })
+            .catch(() => null)
+            .finally(() => {
+                refreshPromise = null
+            })
+    }
+    return refreshPromise
+}
+
 axiosInstance.interceptors.response.use(
     (response) => response,
 
@@ -74,10 +135,18 @@ axiosInstance.interceptors.response.use(
         }
 
         if (status === 401) {
-            localStorage.removeItem("token")
-            localStorage.removeItem(TENANT_STORAGE_KEY)
-            localStorage.removeItem(TENANT_FILTER_STORAGE_KEY)
-            window.location.href = "/auth"
+            const config = error.config
+            if (config && !config._retried && !isAuthUrl(config.url)) {
+                config._retried = true
+                const token = await refreshAccessToken(
+                    getBearer(config.headers?.Authorization),
+                )
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`
+                    return axiosInstance(config)
+                }
+            }
+            logoutToAuth()
             return Promise.reject(error)
         }
         if (status === 403) {

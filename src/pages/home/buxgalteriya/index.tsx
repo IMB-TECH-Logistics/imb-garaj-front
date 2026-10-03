@@ -6,7 +6,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
-import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { useAccountingCols, ReysOrder } from "./cols"
 import EditReysModal from "./edit-reys"
@@ -32,6 +32,8 @@ const BuxgalteriyaPage = () => {
             ? { from: startOfMonth, to: endOfMonth }
             : undefined
 
+    const rangeReady = useDefaultRangeApplied()
+
     const {
         loadingOptions,
         unloadingOptions,
@@ -41,11 +43,13 @@ const BuxgalteriyaPage = () => {
         from_date: search?.from_date,
         to_date: search?.to_date,
         search: search?.search,
+        enabled: rangeReady,
     })
 
     const { data, isLoading } = useGet<ListResponse<ReysOrder>>(
         MANAGERS_RUNS,
         {
+            enabled: rangeReady,
             params: {
                 from_date: search?.from_date,
                 to_date: search?.to_date,

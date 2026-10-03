@@ -1,4 +1,4 @@
-import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CHECKOUT_SUMMARY } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -101,7 +101,9 @@ const KassaSummary = ({ activeGroup, activeKind, onGroup, onKind, onDrivers }: P
         const now = new Date()
         return { from: startOfMonth(now), to: endOfDay(now) }
     }, [])
+    const rangeReady = useDefaultRangeApplied()
     const { data, isLoading } = useGet<KassaSummaryData>(CHECKOUT_SUMMARY, {
+        enabled: rangeReady,
         params: { from_date: search.from_date, to_date: search.to_date },
     })
 

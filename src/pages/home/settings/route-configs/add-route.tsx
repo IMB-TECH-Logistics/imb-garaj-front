@@ -19,6 +19,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { formatDate } from "./cols"
 
 type DirectionPrice = {
     id: number
@@ -128,10 +129,29 @@ const AddRouteConfigModal = () => {
             : undefined,
     )
 
-    const onSuccess = () => {
-        toast.success(
-            current?.id ? t("messages.success_edit") : t("messages.success_add"),
-        )
+    const onSuccess = (
+        saved?: Direction,
+        variables?: { payload: Direction },
+    ) => {
+        const sentDate = variables?.payload?.valid_from
+        const active = saved?.current_price
+        if (sentDate && active && active.valid_from !== sentDate) {
+            toast.warning(
+                t("messages.direction_price_not_current", {
+                    date: formatDate(sentDate),
+                    price: String(Math.round(Number(active.price))).replace(
+                        /\B(?=(\d{3})+(?!\d))/g,
+                        " ",
+                    ),
+                    active_date: formatDate(active.valid_from),
+                }),
+                { duration: 10000 },
+            )
+        } else {
+            toast.success(
+                current?.id ? t("messages.success_edit") : t("messages.success_add"),
+            )
+        }
         reset()
         clearKey(COMMON_DIRECTIONS)
         closeModal()

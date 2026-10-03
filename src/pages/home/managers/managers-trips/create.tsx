@@ -18,6 +18,7 @@ import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { todayIso } from "@/lib/today-iso"
 
 export default function CreateManagerTrips() {
     const { t } = useTranslation()
@@ -32,7 +33,7 @@ export default function CreateManagerTrips() {
         defaultValues: {
             ...item,
             vehicle: id,
-            start: item?.start || new Date().toISOString().split("T")[0],
+            start: item?.start || todayIso(),
         },
     })
 

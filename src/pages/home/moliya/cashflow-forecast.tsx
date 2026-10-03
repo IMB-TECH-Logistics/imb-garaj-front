@@ -70,7 +70,7 @@ export default function CashflowForecast() {
 
     return (
         <div className="bg-card border rounded-xl overflow-hidden h-full flex flex-col">
-            <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
+            <div className="pl-4 pr-12 pt-3 pb-2 shrink-0 flex items-center justify-between">
                 <div>
                     <h3 className="text-sm font-semibold">Cash Flow Prognoz</h3>
                     <p className="text-[10px] text-muted-foreground">Kelgusi 6 oy</p>

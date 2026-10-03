@@ -1,6 +1,7 @@
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
+import { useConfirm } from "@/hooks/useConfirm"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
@@ -9,12 +10,17 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import axiosInstance from "@/services/axios-instance"
+
+const normalizeName = (value?: string) =>
+    (value ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase()
 
 const AddCustomerModal = () => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
+    const confirm = useConfirm()
 
     const currentForwarder = getData<CustomersType>(SETTINGS_CUSTOMERS)
     const form = useForm<CustomersType>({
@@ -56,6 +62,29 @@ const AddCustomerModal = () => {
         }
 
         const payload = { name: values.name, code: values.code }
+
+        const name = normalizeName(values.name)
+        if (name && name !== normalizeName(currentForwarder?.name)) {
+            const duplicates = await axiosInstance
+                .get(SETTINGS_CUSTOMERS, { params: { search: values.name.trim(), page_size: 100 } })
+                .then(({ data }) => (data?.results ?? data ?? []) as CustomersType[])
+                .then((list) =>
+                    list.filter(
+                        (c) => c.id !== currentForwarder?.id && normalizeName(c.name) === name,
+                    ),
+                )
+                .catch(() => [] as CustomersType[])
+            if (duplicates.length) {
+                const proceed = await confirm({
+                    title: t("messages.duplicate_client_title"),
+                    description: t("messages.duplicate_client_name", {
+                        name: values.name.trim(),
+                        codes: duplicates.map((c) => c.code || "—").join(", "),
+                    }),
+                })
+                if (!proceed) return
+            }
+        }
 
         if (currentForwarder?.id) {
             updateMutate(`${SETTINGS_CUSTOMERS}/${currentForwarder.id}`, payload)

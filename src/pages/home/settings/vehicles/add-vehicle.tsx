@@ -111,127 +111,160 @@ const AddVehicleSettingsModal = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
-                <FormInput
-                    required
-                    name="truck_number"
-                    label={t("form.vehicle_number")}
-                    methods={form}
-                />
-                <FormInput
-                    name="truck_passport"
-                    label={t("form.tech_passport")}
-                    methods={form}
-                />
-                <FormNumberInput
-                    name="stir"
-                    label={t("form.tax_id")}
-                    control={control}
-                    thousandSeparator=""
-                    decimalScale={0}
-                    maxLength={14}
-                    registerOptions={{
-                        validate: (v: string) => {
-                            if (!v) return true
-                            if (!/^\d+$/.test(v)) return t("validation.numbers_only")
-                            if (v.length !== 9 && v.length !== 14) return "9 (STIR) yoki 14 (JSHSHIR) xonali bo'lishi kerak"
-                            return true
-                        },
-                    }}
-                />
-                <FormInput
-                    name="trailer_number"
-                    label={t("form.trailer_number")}
-                    methods={form}
-                />
-                <FormCombobox
-                    name="truck_model"
-                    label={t("form.truck_model")}
-                    options={truckModels}
-                    control={control}
-                    labelKey="name"
-                    valueKey="id"
-                />
-                <FormCombobox
-                    required
-                    name="truck_type"
-                    label={t("form.vehicle_type")}
-                    options={truckTypes}
-                    control={control}
-                    labelKey="name"
-                    valueKey="id"
-                />
-                <FormCombobox
-                    name="trailer_type"
-                    label={t("form.trailer_type")}
-                    options={trailerTypes}
-                    control={control}
-                    labelKey="name"
-                    valueKey="id"
-                />
-                <FormCombobox
-                    name="driver"
-                    label={t("form.driver")}
-                    options={drivers?.results ?? []}
-                    control={control}
-                    labelKey="first_name"
-                    valueKey="id"
-                />
-                <FormCombobox
-                    name="owner"
-                    label={t("form.owner")}
-                    options={ownerOptions}
-                    control={control}
-                    labelKey="full_name"
-                    valueKey="id"
-                />
-                <FormCombobox
-                    name="fuel"
-                    label={t("form.fuel_type")}
-                    options={FUEL_OPTIONS}
-                    control={control}
-                    labelKey="label"
-                    valueKey="value"
-                />
-                <FormCombobox
-                    name="status"
-                    label={t("table.status")}
-                    options={STATUS_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
-                    control={control}
-                    labelKey="label"
-                    valueKey="value"
-                />
-                <FormNumberInput
-                    name="year"
-                    label={t("form.year")}
-                    control={control}
-                    decimalScale={0}
-                    thousandSeparator={""}
-                    isAllowed={({ floatValue }) =>
-                        floatValue === undefined || floatValue <= 2100
-                    }
-                    registerOptions={{
-                        validate: (v: string | number) => {
-                            if (v === "" || v === null || v === undefined) return true
-                            const maxYear = new Date().getFullYear() + 1
-                            const year = Number(v)
-                            return (year >= MIN_VEHICLE_YEAR && year <= maxYear) ||
-                                `Ishlab chiqarilgan yil ${MIN_VEHICLE_YEAR} va ${maxYear} orasida bo'lishi kerak.`
-                        },
-                    }}
-                />
-                <FormNumberInput
-                    name="consumption"
-                    label={consumptionLabel}
-                    control={control}
-                    decimalScale={1}
-                    allowNegative={false}
-                />
-                <FormDatePicker
-                    name="registered_date"
-                    label={t("form.registration_date")}
-                    control={control}
-                    fullWidth
-                />
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Avtomobil</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput
+                        required
+                        name="truck_number"
+                        label={t("form.vehicle_number")}
+                        methods={form}
+                    />
+
+                    <FormCombobox
+                        required
+                        name="truck_type"
+                        label={t("form.vehicle_type")}
+                        options={truckTypes}
+                        control={control}
+                        labelKey="name"
+                        valueKey="id"
+                    />
+
+                    <FormCombobox
+                        name="truck_model"
+                        label={t("form.truck_model")}
+                        options={truckModels}
+                        control={control}
+                        labelKey="name"
+                        valueKey="id"
+                    />
+
+                    <FormNumberInput
+                        name="year"
+                        label={t("form.year")}
+                        control={control}
+                        decimalScale={0}
+                        thousandSeparator={""}
+                        isAllowed={({ floatValue }) =>
+                            floatValue === undefined || floatValue <= 2100
+                        }
+                        registerOptions={{
+                            validate: (v: string | number) => {
+                                if (v === "" || v === null || v === undefined) return true
+                                const maxYear = new Date().getFullYear() + 1
+                                const year = Number(v)
+                                return (year >= MIN_VEHICLE_YEAR && year <= maxYear) ||
+                                    `Ishlab chiqarilgan yil ${MIN_VEHICLE_YEAR} va ${maxYear} orasida bo'lishi kerak.`
+                            },
+                        }}
+                    />
+
+                    <FormCombobox
+                        name="fuel"
+                        label={t("form.fuel_type")}
+                        options={FUEL_OPTIONS}
+                        control={control}
+                        labelKey="label"
+                        valueKey="value"
+                    />
+
+                    <FormNumberInput
+                        name="consumption"
+                        label={consumptionLabel}
+                        control={control}
+                        decimalScale={1}
+                        allowNegative={false}
+                    />
+                    </div>
+                </section>
+
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tirkama</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput
+                        name="trailer_number"
+                        label={t("form.trailer_number")}
+                        methods={form}
+                    />
+
+                    <FormCombobox
+                        name="trailer_type"
+                        label={t("form.trailer_type")}
+                        options={trailerTypes}
+                        control={control}
+                        labelKey="name"
+                        valueKey="id"
+                    />
+                    </div>
+                </section>
+
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Haydovchi va holat</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        name="driver"
+                        label={t("form.driver")}
+                        options={drivers?.results ?? []}
+                        control={control}
+                        labelKey="first_name"
+                        valueKey="id"
+                    />
+
+                    <FormCombobox
+                        name="status"
+                        label={t("table.status")}
+                        options={STATUS_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
+                        control={control}
+                        labelKey="label"
+                        valueKey="value"
+                    />
+                    </div>
+                </section>
+
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Egasi va hujjatlar</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        name="owner"
+                        label={t("form.owner")}
+                        options={ownerOptions}
+                        control={control}
+                        labelKey="full_name"
+                        valueKey="id"
+                    />
+
+                    <FormNumberInput
+                        name="stir"
+                        label={t("form.tax_id")}
+                        control={control}
+                        thousandSeparator=""
+                        decimalScale={0}
+                        maxLength={14}
+                        registerOptions={{
+                            validate: (v: string) => {
+                                if (!v) return true
+                                if (!/^\d+$/.test(v)) return t("validation.numbers_only")
+                                if (v.length !== 9 && v.length !== 14) return "9 (STIR) yoki 14 (JSHSHIR) xonali bo'lishi kerak"
+                                return true
+                            },
+                        }}
+                    />
+
+                    <FormInput
+                        name="truck_passport"
+                        label={t("form.tech_passport")}
+                        methods={form}
+                    />
+
+                    <FormDatePicker
+                        name="registered_date"
+                        label={t("form.registration_date")}
+                        control={control}
+                        fullWidth
+                    />
+                    </div>
+                </section>
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button

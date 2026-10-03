@@ -117,7 +117,7 @@ export default function TransactionLedger() {
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <div className="px-4 pt-3 pb-2 shrink-0 flex items-center justify-between">
+            <div className="pl-4 pr-12 pt-3 pb-2 shrink-0 flex items-center justify-between">
                 <h3 className="text-xs font-semibold">{t("page.transactions")}</h3>
                 <span className="text-[10px] text-muted-foreground">{data?.count ?? 0} ta</span>
             </div>
@@ -129,6 +129,7 @@ export default function TransactionLedger() {
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={descFilter}
+                                    aria-label={t("form.description")}
                                     onChange={(e) => setFilter("ledger_desc", e.target.value)}
                                     style={{ colorScheme: scheme }}
                                     className={cn(
@@ -148,6 +149,7 @@ export default function TransactionLedger() {
                             <th className="text-left px-2 py-1.5">
                                 <select
                                     value={typeFilter}
+                                    aria-label={t("table.type")}
                                     onChange={(e) => setFilter("ledger_type", e.target.value)}
                                     style={{ colorScheme: scheme }}
                                     className={cn(
@@ -166,7 +168,7 @@ export default function TransactionLedger() {
                                 </select>
                             </th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_total")}</th>
-                            <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.balance")}</th>
+                            <th className="text-right font-medium text-muted-foreground px-2 py-2" title={t("form.period_running_total_hint")}>{t("form.period_running_total")}</th>
                             <th className="text-left font-medium text-muted-foreground px-4 py-2">{t("form.comment")}</th>
                         </tr>
                     </thead>

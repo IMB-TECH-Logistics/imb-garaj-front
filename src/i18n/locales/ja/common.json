@@ -29,6 +29,7 @@
         "distributors": "ディストリビューター"
     },
     "actions": {
+        "reverse_salary": "取り消す",
         "unlink_gps": "GPSを解除",
         "add": "追加",
         "edit": "編集",
@@ -63,15 +64,25 @@
         "attach": "取付",
         "detach": "取外",
         "archive": "アーカイブ",
-        "restore": "復元"
+        "restore": "復元",
+        "skip_to_content": "メインコンテンツへスキップ",
+        "more": "操作",
+        "undo": "元に戻す",
+        "toggle_theme": "テーマ切替",
+        "expand": "拡大"
     },
     "messages": {
+        "reverse_salary_hint": "レジとドライバーの給与差額が戻り、便は未払いに戻ります。",
+        "reverse_salary_trips": "{{count}} 件の便",
         "success_add": "正常に追加されました！",
         "success_edit": "正常に更新されました！",
+        "direction_price_not_current": "価格は{{date}}から保存されましたが、現在有効な価格は{{price}}（{{active_date}}から）です。新しい価格は{{date}}から次の変更までの注文にのみ適用されます。",
         "success_delete": "正常に削除されました",
         "confirm_delete": "よろしいですか？",
         "confirm_unlink_device": "{{vehicle}} からGPSデバイスの連携を解除しますか？",
         "confirm_dialog_title": "確認",
+        "duplicate_client_title": "同名の顧客が存在します",
+        "duplicate_client_name": "「{{name}}」という顧客は既に存在します（会社コード: {{codes}}）。新しい顧客として保存しますか？",
         "download_password": "ダウンロードにはパスワードが必要です",
         "not_found": "見つかりません",
         "loading": "読み込み中...",
@@ -79,7 +90,9 @@
         "fill_fields": "すべての項目を正しく入力してください",
         "no_connection": "サーバーに接続できませんでした。インターネット接続を確認してください。",
         "server_error": "操作に失敗しました — サーバーエラーが発生しました。しばらくしてから再試行してください。 ({{status}})",
-        "request_timeout": "リクエストへの応答が時間内に受信されませんでした。もう一度お試しください。"
+        "request_timeout": "リクエストへの応答が時間内に受信されませんでした。もう一度お試しください。",
+        "load_error": "データを読み込めませんでした — サーバーエラーが発生しました。表示される数値は不完全な可能性があります。しばらくしてから再読み込みしてください。 ({{status}})",
+        "not_loaded": "読み込み失敗"
     },
     "lang": {
         "uz": "O'zbek",
@@ -151,6 +164,8 @@
         "discount": "割引",
         "device": "デバイス",
         "balance": "残高",
+        "period_running_total": "期間累計",
+        "period_running_total_hint": "選択期間の開始からこの行までの入金 − 出金 − 前払の累計。現金残高ではありません（現金残高は上の「残高」カードに表示）。",
         "income": "収入",
         "expense": "支出",
         "advance": "前払い",
@@ -220,7 +235,12 @@
         "price_diff_less": "ドライバーの入力額がルート価格より低い",
         "price_diff_more": "ドライバーの入力額がルート価格より高い",
         "price_diff_by_client": "顧客都合",
-        "price_diff_driver": "価格差（負債/過払い）",
+        "price_diff_driver": "価格差（＋負債／−過払い）",
+        "salary_diff_driver": "給与差（＋負債／−過払い）",
+        "debt_driver_owes": "ドライバーが会社に負債",
+        "debt_company_owes": "会社がドライバーに負債",
+        "debt_total": "負債合計（残高＋給与＋価格差）",
+        "not_in_balance": "残高に含まれない",
         "district": "地区",
         "code": "コード",
         "relative_contact_1": "連絡先 1",
@@ -228,6 +248,7 @@
         "distributor": "ディストリビューター"
     },
     "toast": {
+        "salary_reversed": "給与支払いを取り消しました",
         "added": "追加されました",
         "updated": "更新されました",
         "deleted": "削除されました",
@@ -250,6 +271,7 @@
         "balance_topped_up": "残高がチャージされました",
         "record_updated": "レコードが更新されました",
         "advance_given": "前払いが正常に支給されました",
+        "salary_given": "給与が正常に支給されました",
         "category_added": "カテゴリが正常に追加されました",
         "warehouse_out": "倉庫から出庫されました",
         "device_added": "GPSデバイスが追加されました",
@@ -289,6 +311,7 @@
         "draft": "下書き"
     },
     "page": {
+        "salary_payouts": "支払済み給与",
         "truck_status_all": "すべて",
         "truck_status_loaded": "積載",
         "truck_status_empty": "空車",
@@ -362,9 +385,15 @@
         "valid_from": "適用開始日",
         "salary_upcoming": "予定",
         "salary_current": "現在",
-        "salary_history_empty": "履歴なし"
+        "salary_history_empty": "履歴なし",
+        "forbidden_title": "アクセスが拒否されました",
+        "forbidden_text": "このセクションへのアクセス権がありません。必要に応じて、管理者にロールへの権限追加を依頼してください。",
+        "go_home": "ホームへ"
     },
     "table": {
+        "activity": "稼働状況",
+        "cargo_state": "積載状態",
+        "order_status": "注文ステータス",
         "geo_location": "位置情報",
         "show_on_map": "地図で表示",
         "truck_number": "車番",
@@ -446,7 +475,8 @@
         "subtitle": "続行するための認証情報を入力してください",
         "username": "ユーザー名",
         "password": "パスワード",
-        "submit": "ログイン"
+        "submit": "ログイン",
+        "invalid_credentials": "ユーザー名またはパスワードが正しくありません"
     },
     "backend_messages": {
         "Username or password is incorrect": "ユーザー名またはパスワードが正しくありません",
@@ -474,13 +504,16 @@
     },
     "validation": {
         "required_field": "{{field}}を入力してください",
+        "max_amount": "金額は1 000 000 000以下にしてください",
+        "end_before_start": "終了日は開始日より前にできません",
         "required": "必須フィールド",
         "min_length": "{{min}}文字以上",
         "invalid_phone": "電話番号が無効です",
         "invalid_date": "日付を選択してください",
         "select_required": "{{field}}を選択してください",
         "field_required": "{{field}}は必須です",
-        "numbers_only": "数字のみ入力してください"
+        "numbers_only": "数字のみ入力してください",
+        "reserved_username": "\"{{prefix}}\" で始まるユーザー名はシステムで予約されています"
     },
     "monitoring_stats": {
         "date": "日付",

@@ -16,6 +16,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { isWithinMoneyLimit } from "@/lib/money-limit"
 
 type FormValues = { amount: string | number | ""; comment: string }
 
@@ -63,7 +64,10 @@ const VstGarageModal = ({ modalKey, kind }: Props) => {
                 decimalScale={2}
                 allowNegative={false}
                 registerOptions={{
-                    validate: (v) => Number(v) > 0 || t("kassa.amount_gt_zero"),
+                    validate: (v) =>
+                        Number(v) > 0
+                            ? isWithinMoneyLimit(v) || t("validation.max_amount")
+                            : t("kassa.amount_gt_zero"),
                 }}
             />
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />

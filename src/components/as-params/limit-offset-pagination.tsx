@@ -79,6 +79,7 @@ const LimitOffsetPagination: React.FC<
                     disabled={disabled}
                     className="w-20 h-8 sm:h-10"
                     label=""
+                    ariaLabel="Page size"
                     options={page_sizes?.map((size) => ({
                         label: `${size}`,
                         value: `${size}`,

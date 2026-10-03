@@ -1,5 +1,6 @@
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import { Input, InputProps } from "../ui/input"
 import { DEBOUNCETIME } from "@/constants/default"
 
@@ -16,6 +17,7 @@ export default function ParamInput({
     ...props
 }: ParamInputProps) {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any = useSearch({ strict: false })
     const inputRef = useRef<HTMLInputElement>(null)
@@ -62,7 +64,8 @@ export default function ParamInput({
         <>
             <Input
                 defaultValue={params[searchKey]}
-                placeholder={"Qidirish..."}
+                placeholder={`${t("actions.search")}...`}
+                aria-label={props.placeholder ?? t("actions.search")}
                 type="search"
                 ref={inputRef}
                 onChange={handleInputChange}

@@ -1,6 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormNumberInput } from "@/components/form/number-input"
-import FormInput from "@/components/form/input"
+import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import {
     TECHNICAL_INSPECT,
@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { VehicleExpenseRow } from "./cols"
 import { useTranslation } from "react-i18next"
+import { todayIso } from "@/lib/today-iso"
 import {
     TECH_INSPECTION_CODE,
     type ExpenseCategory,
@@ -46,7 +47,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
             vehicle: current?.vehicle ?? vehicleId ?? null,
             category: current?.category ?? null,
             amount: current?.amount ? String(current.amount) : null,
-            date: current?.date ?? new Date().toISOString().split("T")[0],
+            date: current?.date ?? todayIso(),
             lifespan: current?.lifespan ?? "",
             comment: current?.comment ?? "",
             items: (current?.items ?? []).map((item) => ({
@@ -134,59 +135,72 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
-            <FormCombobox
-                required
-                label={t("form.vehicle")}
-                hideError={false}
-                wrapperClassName="col-span-2"
-                name="vehicle"
-                control={control}
-                options={vehicles || []}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.vehicle")}
-            />
-            {isWarehouse ?
-                <WarehouseLines form={form} current={current} check={check} />
-            :   <FormNumberInput
-                    required
-                    name="amount"
-                    label={t("form.amount")}
-                    control={control}
-                    wrapperClassName="col-span-2"
-                    thousandSeparator=" "
-                    decimalScale={2}
-                    allowNegative={false}
-                    registerOptions={{
-                        validate: (v) =>
-                            Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
-                    }}
-                    placeholder="Ex: 1 000 000"
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <FormCombobox
+                        required
+                        label={t("form.vehicle")}
+                        hideError={false}
+                        wrapperClassName="col-span-2"
+                        name="vehicle"
+                        control={control}
+                        options={vehicles || []}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.vehicle")}
+                    />
+
+                    {isWarehouse ?
+                        <WarehouseLines form={form} current={current} check={check} />
+                    :   <FormNumberInput
+                            required
+                            name="amount"
+                            label={t("form.amount")}
+                            control={control}
+                            wrapperClassName="col-span-2"
+                            thousandSeparator=" "
+                            decimalScale={2}
+                            allowNegative={false}
+                            registerOptions={{
+                                validate: (v) =>
+                                    Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                            }}
+                            placeholder="Ex: 1 000 000"
+                        />
+                    }
+
+                    <FormDatePicker
+                        fullWidth
+                        required
+                        label={t("form.date")}
+                        control={control}
+                        name="date"
+                        placeholder={t("form.select_date")}
+                        className="w-full"
+                    />
+
+                    <FormDatePicker
+                        fullWidth
+                        required
+                        label={t("form.lifespan")}
+                        control={control}
+                        name="lifespan"
+                        placeholder={t("form.select_date")}
+                        className="w-full"
+                        calendarProps={minLifespan ? { disabled: { before: minLifespan } } : undefined}
+                    />
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <FormTextarea
+                    name="comment"
+                    label={t("form.comment")}
+                    methods={form}
+                    placeholder="Qo'shimcha izoh..."
+                    rows={3}
                 />
-            }
-            <FormDatePicker
-                required
-                label={t("form.date")}
-                control={control}
-                name="date"
-                placeholder={t("form.select_date")}
-                className="w-full"
-            />
-            <FormDatePicker
-                required
-                label={t("form.lifespan")}
-                control={control}
-                name="lifespan"
-                placeholder={t("form.select_date")}
-                className="w-full"
-                calendarProps={minLifespan ? { disabled: { before: minLifespan } } : undefined}
-            />
-            <FormInput
-                name="comment"
-                label={t("form.comment")}
-                methods={form}
-                placeholder="Qo'shimcha izoh..."
-            />
+            </section>
 
             <div className="col-span-2 flex items-center justify-end gap-3 pt-2">
                 {error && (

@@ -32,13 +32,16 @@ function statusTransitionMessage(data: any): string | null {
 const errorText = (value: unknown): string => {
   if (Array.isArray(value)) return value.map(errorText).join(", ")
   if (value && typeof value === "object") {
-    return Object.entries(value)
-      .map(([key, v]) =>
-        Number.isNaN(Number(key)) ? `${key}: ${errorText(v)}` : errorText(v),
-      )
-      .join(", ")
+    return Object.values(value).map(errorText).join(", ")
   }
   return String(value)
+}
+
+const fieldErrors = (key: string, value: unknown): [string, unknown][] => {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return Object.entries(value).map(([sub, v]) => [`${key}.${sub}`, v])
+  }
+  return [[key, value]]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,20 +62,21 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
     const fields = form.getValues()
 
     for (const [key, value] of Object.entries(data)) {
-      if (key !== "detail") {
-        const isFieldExist = key in fields || key.includes(".")
+      if (key === "detail") continue
+      for (const [path, fieldValue] of fieldErrors(key, value)) {
+        const isFieldExist = path in fields || path.includes(".")
         if (isFieldExist) {
           hasValidFieldError = true
-          form.setError(key as any, {
+          form.setError(path as any, {
             type: "validate",
-            message: value as string,
+            message: errorText(fieldValue),
           })
         }
       }
     }
 
-    if (!hasValidFieldError && msg) {
-      toast.error(msg)
+    if (!hasValidFieldError) {
+      toast.error(msg || errorText(data) || "Xatolik yuz berdi")
     }
   } else if (isClientError) {
     const arrayErrors = Object.entries(data).filter(([key]) => key !== "detail")
@@ -91,4 +95,17 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
   } else {
     toast.error("Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function handleQueryError(err: any) {
+  const status = Number(err?.response?.status)
+  if (status && status < 500) return
+  const message =
+    err?.code === "ECONNABORTED" || err?.code === "ETIMEDOUT"
+      ? i18n.t("messages.request_timeout")
+      : !err?.response
+        ? i18n.t("messages.no_connection")
+        : i18n.t("messages.load_error", { status })
+  toast.error(message, { id: "query-error", duration: 6000 })
 }

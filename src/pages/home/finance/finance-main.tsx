@@ -11,7 +11,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowDownCircle, ArrowUpCircle, PlusCircle, TrendingUp } from "lucide-react"
 import { useMemo } from "react"
-import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
 import { useCostCols, OwnerStatistic } from "./cols"
 import AddTransport from "./create"
 import { useTranslation } from "react-i18next"
@@ -37,7 +37,9 @@ const FinanceStatisticMain = () => {
     const isValidRange = (!search?.from_date && !search?.to_date) ||
         (!!search?.from_date && !!search?.to_date && new Date(search.from_date) <= new Date(search.to_date))
 
-    const { data: statisticsData, isLoading } = useGet<OwnerStatistic[]>(
+    const rangeReady = useDefaultRangeApplied()
+
+    const { data: statisticsData, isLoading, isError } = useGet<OwnerStatistic[]>(
         OWNER_MAIN_STATISTIC,
         {
             params: {
@@ -45,7 +47,7 @@ const FinanceStatisticMain = () => {
                 from_date: search?.from_date,
                 to_date: search?.to_date,
             },
-            enabled: isValidRange,
+            enabled: isValidRange && rangeReady,
         },
     )
 
@@ -137,7 +139,7 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalExpense)} so'm
+                                        {isError ? "—" : `${formatMoney(totals.totalExpense)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -156,7 +158,7 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalIncome)} so'm
+                                        {isError ? "—" : `${formatMoney(totals.totalIncome)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -183,7 +185,7 @@ const FinanceStatisticMain = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {formatMoney(totals.totalProfit)} so'm
+                                        {isError ? "—" : `${formatMoney(totals.totalProfit)} so'm`}
                                     </div>
                                 </CardContent>
                             </Card>
