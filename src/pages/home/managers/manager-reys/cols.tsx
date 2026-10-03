@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Copy, ImageIcon } from "lucide-react"
+import { Copy, ImageIcon, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
@@ -115,6 +115,7 @@ export const useColumnsManagersOrders = (opts?: {
                         ACTIVITY_COLORS[activity] ||
                         "bg-gray-500/10 text-gray-500 border-gray-200"
                     const otherActive = row.original?.vehicle_other_active_orders ?? 0
+                    const isActiveOrder = ![2, 3, 4].includes(Number(row.original?.status))
                     const unconfirmed = row.original?.trip_confirmed === false
                     const openTrips = row.original?.vehicle_open_trips ?? 0
                     const openDays = row.original?.trip_open_days ?? 0
@@ -147,12 +148,14 @@ export const useColumnsManagersOrders = (opts?: {
                                     {t("reys_confirm.open_days", { count: openDays })}
                                 </Badge>
                             )}
-                            {otherActive > 0 && (
+                            {otherActive > 0 && isActiveOrder && (
                                 <Badge
                                     variant="outline"
-                                    className={DIRECTION_MATCH_COLORS.not_found}
+                                    title={t("form.dm_open_orders", { count: otherActive })}
+                                    className={`gap-1 px-1.5 ${DIRECTION_MATCH_COLORS.not_found}`}
                                 >
-                                    {t("form.dm_open_orders", { count: otherActive })}
+                                    <TriangleAlert className="size-3" />
+                                    {otherActive}
                                 </Badge>
                             )}
                         </div>
