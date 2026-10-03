@@ -95,12 +95,6 @@ export const useColumnsManagersOrders = (opts?: {
                 },
             },
             {
-                accessorKey: "logistics_distributor_code",
-                header: t("form.company_code"),
-                size: 110,
-                cell: ({ row }) => row.original.logistics_distributor_code || <span className="text-muted-foreground">—</span>,
-            },
-            {
                 accessorKey: "date",
                 header: t("table.created_at"),
                 enableSorting: true,
@@ -236,6 +230,12 @@ export const useColumnsManagersOrders = (opts?: {
                         </button>
                     )
                 },
+            },
+            {
+                accessorKey: "logistics_distributor_code",
+                header: t("form.company_code"),
+                size: 110,
+                cell: ({ row }) => row.original.logistics_distributor_code || <span className="text-muted-foreground">—</span>,
             },
             {
                 accessorKey: "pending_time",
