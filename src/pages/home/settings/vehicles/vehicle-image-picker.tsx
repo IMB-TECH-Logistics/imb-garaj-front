@@ -1,9 +1,10 @@
+import PasteInput from "@/components/form/paste-input"
 import SeeInView from "@/components/ui/see-in-view"
 import { cn } from "@/lib/utils"
-import { ClipboardPaste, ImagePlus, X } from "lucide-react"
+import { ImagePlus, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { DragEvent, useEffect, useId, useMemo, useRef, useState } from "react"
+import { DragEvent, useEffect, useMemo, useRef, useState } from "react"
 import {
     FieldValues,
     Path,
@@ -11,47 +12,6 @@ import {
     useController,
     UseFormReturn,
 } from "react-hook-form"
-
-type PasteTarget = {
-    hovered: boolean
-    empty: boolean
-    el: HTMLElement | null
-    setFile: (file: File) => void
-}
-
-const pasteTargets = new Map<string, PasteTarget>()
-
-const imageFromClipboard = (data: DataTransfer | null) => {
-    if (!data) return null
-    for (const item of data.items) {
-        if (item.type.startsWith("image")) return item.getAsFile()
-    }
-    return null
-}
-
-const handleWindowPaste = (e: globalThis.ClipboardEvent) => {
-    const file = imageFromClipboard(e.clipboardData)
-    if (!file) return
-    const targets = [...pasteTargets.values()].filter(
-        (x) => x.el && document.body.contains(x.el),
-    )
-    const ordered = targets.sort((a, b) =>
-        a.el!.compareDocumentPosition(b.el!) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
-    )
-    const target = ordered.find((x) => x.hovered) ?? ordered.find((x) => x.empty)
-    if (!target) return
-    e.preventDefault()
-    target.setFile(file)
-}
-
-const registerPasteTarget = (id: string, target: PasteTarget) => {
-    if (pasteTargets.size === 0) window.addEventListener("paste", handleWindowPaste)
-    pasteTargets.set(id, target)
-    return () => {
-        pasteTargets.delete(id)
-        if (pasteTargets.size === 0) window.removeEventListener("paste", handleWindowPaste)
-    }
-}
 
 type Props<IForm extends FieldValues> = {
     name: Path<IForm>
@@ -98,44 +58,6 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
         methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
     }
 
-    const pasteId = useId()
-    const wrapperRef = useRef<HTMLDivElement>(null)
-    const targetRef = useRef<PasteTarget>({
-        hovered: false,
-        empty: true,
-        el: null,
-        setFile: () => {},
-    })
-    targetRef.current.empty = !value
-    targetRef.current.setFile = setFile
-
-    useEffect(() => {
-        const target = targetRef.current
-        target.el = wrapperRef.current
-        return registerPasteTarget(pasteId, target)
-    }, [pasteId])
-
-    const pasteFromClipboard = async () => {
-        if (!navigator.clipboard?.read) {
-            toast.info(t("documents_page.paste_use_keys"))
-            return
-        }
-        try {
-            const items = await navigator.clipboard.read()
-            for (const item of items) {
-                const type = item.types.find((x) => x.startsWith("image"))
-                if (type) {
-                    const blob = await item.getType(type)
-                    setFile(new File([blob], `paste.${type.split("/")[1] || "png"}`, { type }))
-                    return
-                }
-            }
-            toast.error(t("documents_page.paste_no_image"))
-        } catch {
-            toast.info(t("documents_page.paste_use_keys"))
-        }
-    }
-
     const onDrop = (e: DragEvent<HTMLDivElement>) => {
         e.preventDefault()
         setDragging(false)
@@ -145,17 +67,9 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
     const openPicker = () => inputRef.current?.click()
 
     return (
-        <div
-            ref={wrapperRef}
-            className="flex flex-col gap-2"
-            onMouseEnter={() => {
-                targetRef.current.hovered = true
-            }}
-            onMouseLeave={() => {
-                targetRef.current.hovered = false
-            }}
-        >
+        <div className="flex flex-col gap-2">
             <span className="text-sm font-medium">{label}</span>
+            <PasteInput onFile={setFile} />
             {preview ?
                 <div className="relative h-36 w-full">
                     <SeeInView url={preview} fullWidth>
@@ -172,14 +86,6 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
                             className="rounded-md border bg-background/90 px-2 py-1 text-xs font-medium hover:bg-background"
                         >
                             {t("documents_page.change_photo")}
-                        </button>
-                        <button
-                            type="button"
-                            title={t("documents_page.paste_btn")}
-                            onClick={pasteFromClipboard}
-                            className="rounded-md border bg-background/90 p-1 text-muted-foreground hover:text-primary"
-                        >
-                            <ClipboardPaste className="size-4" />
                         </button>
                         {clearable && (
                             <button
@@ -226,17 +132,6 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
                     <span className="px-2 text-xs text-muted-foreground">
                         {t("documents_page.upload_hint")}
                     </span>
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            pasteFromClipboard()
-                        }}
-                        className="inline-flex items-center gap-1 rounded-md border bg-background px-2 py-1 text-xs font-medium hover:border-primary hover:text-primary"
-                    >
-                        <ClipboardPaste className="size-3.5" />
-                        {t("documents_page.paste_btn")}
-                    </button>
                 </div>
             }
             <input

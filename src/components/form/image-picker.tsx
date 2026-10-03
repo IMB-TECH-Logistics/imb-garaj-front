@@ -10,10 +10,10 @@ import {
 } from "react-hook-form"
 import { ClassNameValue } from "tailwind-merge"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import SeeInView from "../ui/see-in-view"
 import FieldError from "./form-error"
+import PasteInput from "./paste-input"
 
 export default function FormImagePicker<IForm extends FieldValues>({
     name,
@@ -56,25 +56,11 @@ export default function FormImagePicker<IForm extends FieldValues>({
                         }
                     }}
                 >
-                    <Input
-                        className="w-24 border-0 border-b-2 bg-transparent rounded-b-none"
-                        placeholder="CTRL + V"
-                        onPaste={(e) => {
-                            const items = e.clipboardData.items
-                            for (const item of items) {
-                                if (item.type.startsWith("image")) {
-                                    const file = item.getAsFile()
-                                    if (file) {
-                                        methods.setValue(
-                                            name,
-                                            file as ValueType,
-                                        )
-                                    }
-                                }
-                            }
-                        }}
-                        value=""
-                    />
+                    <PasteInput
+ onFile={(file) =>
+ methods.setValue(name, file as ValueType)
+ }
+ />
 
                     <Download className="text-muted-foreground" />
 
@@ -158,32 +144,11 @@ export default function FormImagePicker<IForm extends FieldValues>({
                                                 className={`${className}` || ""}
                                             />
                                         </SeeInView>
-                                        <Input
-                                            fullWidth
-                                            className="w-full"
-                                            placeholder="CTRL + V"
-                                            onPaste={(e) => {
-                                                const items =
-                                                    e.clipboardData.items
-                                                for (const item of items) {
-                                                    if (
-                                                        item.type.startsWith(
-                                                            "image",
-                                                        )
-                                                    ) {
-                                                        const file =
-                                                            item.getAsFile()
-                                                        if (file) {
-                                                            methods.setValue(
-                                                                name,
-                                                                file as ValueType,
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }}
-                                            value=""
-                                        />
+                                        <PasteInput
+ onFile={(file) =>
+ methods.setValue(name, file as ValueType)
+ }
+ />
                                     </div>
                                 :   <div
                                         className={`${className} bg-secondary`}

@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { ImagePlus } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
+import PasteInput from "./paste-input";
 import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
 
 interface ImageInputProps<T> {
@@ -51,6 +52,12 @@ export default function ImageInput<T extends FieldValues>({
       )}
     >
       {label && <span className="text-sm font-medium">{label}</span>}
+      <PasteInput
+        onFile={(file) => {
+          setValue(name, file as PathValue<T, Path<T>>);
+          setPreview(URL.createObjectURL(file));
+        }}
+      />
       <input
         type="file"
         accept="image/*"

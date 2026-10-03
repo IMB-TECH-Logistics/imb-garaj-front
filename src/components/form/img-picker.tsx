@@ -1,9 +1,16 @@
-import { Controller, FieldValues, UseFormReturn, Path } from "react-hook-form"
+import {
+    Controller,
+    FieldValues,
+    UseFormReturn,
+    Path,
+    PathValue,
+} from "react-hook-form"
 import { ClassNameValue } from "tailwind-merge"
 import SeeInView from "../ui/see-in-view"
 import { Label } from "../ui/label"
 import { cn } from "@/lib/utils"
 import FieldError from "./form-error"
+import PasteInput from "./paste-input"
 import { ReactNode } from "react"
 
 export default function FormImagePicker<IForm extends FieldValues>({
@@ -30,6 +37,13 @@ export default function FormImagePicker<IForm extends FieldValues>({
                 >
                     {label}
                 </Label>
+            )}
+            {!disabled && (
+                <PasteInput
+                    onFile={(file) =>
+                        methods.setValue(name, file as PathValue<IForm, Path<IForm>>)
+                    }
+                />
             )}
             <Controller
                 name={name}

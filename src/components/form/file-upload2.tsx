@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { FileUploader } from "react-drag-drop-files"
 import Spinner from "../ui/spinner"
+import PasteInput from "./paste-input"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
 import compressImg from "@/lib/compress-img"
@@ -38,6 +39,7 @@ export default function FileUpload2<TForm extends FieldValues>({
     maxSize = 10,
     maxLength = 5,
     dropAccept = ["JPG", "PNG", "JPEG"],
+    isPaste = true,
     hideError = true,
 }: TProps<TForm>) {
     const maxS = maxSize * 1024 * 1024
@@ -137,6 +139,12 @@ export default function FileUpload2<TForm extends FieldValues>({
                 <FieldLabel isError={!!fieldState.error} required={required}>
                     {label}
                 </FieldLabel>
+            )}
+            {isPaste && (
+                <PasteInput
+                    onFile={(file) => handleOnChange([file])}
+                    disabled={field.disabled}
+                />
             )}
             <FileUploader
                 classes={cn(

@@ -1,5 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
+import PasteInput from "@/components/form/paste-input"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -842,6 +843,8 @@ const AddTripOrders = () => {
                         )}
 
                         {/* Rasm yuklash */}
+
+                        <PasteInput onFile={(file) => addImages([file])} />
 
                         <div
                             className="border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors hover:border-primary/60 group"
