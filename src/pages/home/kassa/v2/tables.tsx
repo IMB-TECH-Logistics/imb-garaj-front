@@ -1,16 +1,21 @@
+import Modal from "@/components/custom/modal"
 import TableActions from "@/components/custom/table-actions"
+import { DatePickerWithRange } from "@/components/form/date-range-picker"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Combobox } from "@/components/ui/combobox"
 import { DataTable } from "@/components/ui/datatable"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { Check, Download, Pencil, X } from "lucide-react"
-import { ReactNode, useMemo, useState } from "react"
+import { format } from "date-fns"
+import { ReactNode, useEffect, useMemo, useState } from "react"
+import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
 import {
     errorText,
@@ -75,6 +80,37 @@ const Filter = ({ value, onChange, options }: { value: string; onChange: (v: str
     />
 )
 
+const EXCEL_MODAL = "kassa-v2-excel"
+
+const ExcelModal = () => {
+    const period = usePeriod()
+    const { isOpen, closeModal } = useModal(EXCEL_MODAL)
+    const [range, setRange] = useState<DateRange | undefined>()
+    useEffect(() => {
+        if (!isOpen) return
+        setRange({
+            from: period.from_date ? new Date(period.from_date) : undefined,
+            to: period.to_date ? new Date(period.to_date) : undefined,
+        })
+    }, [isOpen])
+    const params = {
+        from_date: range?.from ? format(range.from, "yyyy-MM-dd") : undefined,
+        to_date: range?.to ? format(range.to, "yyyy-MM-dd") : range?.from ? format(range.from, "yyyy-MM-dd") : undefined,
+    }
+    const excel = useDownloadAsExcel({ url: KV2_EXCEL, name: `kassa_${params.from_date ?? "boshidan"}_${params.to_date ?? "bugungacha"}`, params })
+    return (
+        <Modal modalKey={EXCEL_MODAL} title="Excel yuklash" size="max-w-md">
+            <div className="flex flex-col gap-3">
+                <DatePickerWithRange date={range} setDate={setRange} />
+                <Button loading={excel.isFetching} onClick={async () => { await excel.trigger(); closeModal() }}>
+                    <Download size={16} />
+                    Yuklab olish
+                </Button>
+            </div>
+        </Modal>
+    )
+}
+
 const usePaging = () => {
     const search = useSearch({ strict: false }) as { page?: number; page_size?: number }
     return { page: search.page, page_size: search.page_size }
@@ -130,7 +166,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
         const pend = group ? [] : (pendingData?.results ?? []).map(requestRow).filter((r) => dir === "all" || r.dir === dir)
         return [...pend, ...(data?.results ?? [])]
     }, [data, pendingData, dir, group])
-    const excel = useDownloadAsExcel({ url: KV2_EXCEL, name: `kassa_${period.from_date ?? "boshidan"}_${period.to_date ?? "bugungacha"}`, params: period })
+    const excelModal = useModal(EXCEL_MODAL)
 
     const columns = useMemo<ColumnDef<KassaRow>[]>(
         () => [
@@ -227,10 +263,11 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     )}{!!pendingData?.count && <Badge variant="orange">{pendingData.count} ta so'rov kutilmoqda</Badge>}</>}
                     right={<>
                         <Filter value={dir} onChange={setDir} options={[["all", "Kirim va chiqim"], ["in", "Faqat kirim"], ["out", "Faqat chiqim"]]} />
-                        <Button variant="outline" loading={excel.isFetching} onClick={excel.trigger}>
+                        <Button variant="outline" onClick={() => excelModal.openModal()}>
                             <Download size={16} />
                             Excel
                         </Button>
+                        <ExcelModal />
                         {actions}
                     </>}
                 />
