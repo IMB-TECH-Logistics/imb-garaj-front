@@ -225,29 +225,23 @@ const AddVehicleDocumentsModal = () => {
     )
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-1">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {isFixed ?
-                    <>
-                <div className="space-y-1.5">
-                    <p className="text-sm font-medium">
-                        {t("documents_page.truck_number")}
-                    </p>
-                    <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm">
-                        {row?.truck_number}
-                    </div>
-                </div>
-                <div className="space-y-1.5">
-                    <p className="text-sm font-medium">
-                        {t("documents_page.trailer_number")}
-                    </p>
-                    <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm">
-                        {row?.trailer_number || "-"}
-                    </div>
-                </div>
-                    </>
-                :   <>
-                        <FormCombobox
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1"
+        >
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Avtomobil</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {isFixed ?
+                        <div className="space-y-1.5">
+                            <p className="text-sm font-medium">
+                                {t("documents_page.truck_number")}
+                            </p>
+                            <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm">
+                                {row?.truck_number}
+                            </div>
+                        </div>
+                    :   <FormCombobox
                             required
                             name="vehicle"
                             label={t("documents_page.truck_number")}
@@ -256,7 +250,35 @@ const AddVehicleDocumentsModal = () => {
                             labelKey="truck_number"
                             valueKey="id"
                         />
-                        <div className="space-y-1">
+                    }
+                    {expiresField(
+                        "truck_passport",
+                        t("documents_page.truck_expires"),
+                    )}
+                    {picker(
+                        "truck_passport_photo_front",
+                        t("documents_page.photo_truck_front"),
+                    )}
+                    {picker(
+                        "truck_passport_photo_back",
+                        t("documents_page.photo_truck_back"),
+                    )}
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tirkama</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {isFixed ?
+                        <div className="space-y-1.5">
+                            <p className="text-sm font-medium">
+                                {t("documents_page.trailer_number")}
+                            </p>
+                            <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm">
+                                {row?.trailer_number || "-"}
+                            </div>
+                        </div>
+                    :   <div className="space-y-1">
                             <FormCombobox
                                 name="vehicle"
                                 label={t("documents_page.trailer_number")}
@@ -271,31 +293,10 @@ const AddVehicleDocumentsModal = () => {
                                 </p>
                             )}
                         </div>
-                    </>
-                }
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {expiresField(
-                    "truck_passport",
-                    t("documents_page.truck_expires"),
-                )}
-                {expiresField(
-                    "trailer_passport",
-                    t("documents_page.trailer_expires"),
-                )}
-            </div>
-            <section className="space-y-3">
-                <h3 className="text-sm font-semibold">
-                    {t("documents_page.photos")}
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                    {picker(
-                        "truck_passport_photo_front",
-                        t("documents_page.photo_truck_front"),
-                    )}
-                    {picker(
-                        "truck_passport_photo_back",
-                        t("documents_page.photo_truck_back"),
+                    }
+                    {expiresField(
+                        "trailer_passport",
+                        t("documents_page.trailer_expires"),
                     )}
                     {picker(
                         "trailer_passport_photo_front",
@@ -307,7 +308,8 @@ const AddVehicleDocumentsModal = () => {
                     )}
                 </div>
             </section>
-            <div className="flex justify-end">
+
+            <div className="flex justify-end md:col-span-2">
                 <Button
                     className="min-w-36 w-full md:w-max"
                     type="submit"

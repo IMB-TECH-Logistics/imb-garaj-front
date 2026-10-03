@@ -124,13 +124,8 @@ export function MultiCombobox<T extends Record<string, any>>({
                     )}
                     {...addButtonProps}
                 >
-                    <div className={"flex items-center gap-2 pl-2"}>
-                        <span
-                            className={cn(
-                                "line-clamp-1 break-all truncate",
-                                !!values?.length && "w-[90%]",
-                            )}
-                        >
+                    <div className={cn("flex min-w-0 flex-1 items-center justify-between gap-2 pl-2", !!values?.length && "pr-6")}>
+                        <span className="min-w-0 truncate text-left">
                             {values?.length && values?.length < skeletonCount ?
                                 options
                                     ?.filter((d) =>
@@ -142,7 +137,7 @@ export function MultiCombobox<T extends Record<string, any>>({
                                 values?.length + " ta tanlandi"
                             :   label}
                         </span>
-                        <ChevronDown className=" h-4 w-4  text-primary opacity-50 " />
+                        <ChevronDown className="h-4 w-4 shrink-0 text-primary opacity-50" />
 
                     </div>
                     {!!values?.length && (

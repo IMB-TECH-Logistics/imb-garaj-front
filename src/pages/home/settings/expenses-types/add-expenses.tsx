@@ -91,7 +91,9 @@ const AddExpensesModal = () => {
                     name="name"
                     label={t("form.expense_name")}
                     methods={form}
+                    wrapperClassName="md:col-span-2"
                 />
+
                 <FormCombobox
                     required
                     name="type"
@@ -101,6 +103,7 @@ const AddExpensesModal = () => {
                     labelKey="label"
                     valueKey="value"
                 />
+
                 <FormCombobox
                     required
                     name="flow_type"

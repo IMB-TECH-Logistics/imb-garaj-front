@@ -98,82 +98,92 @@ const AddProductModal = () => {
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-4 p-1"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1"
         >
-            <FormInput
-                required
-                name="name"
-                label={t("form.name")}
-                methods={form}
-                wrapperClassName="col-span-2"
-            />
-
-            <FormCombobox
-                required
-                name="unit"
-                label={t("form.unit")}
-                placeholder={t("wh.choose")}
-                control={control}
-                options={units}
-                valueKey="id"
-                labelKey="name"
-                isLoading={unitsLoading}
-                wrapperClassName="col-span-2 sm:col-span-1"
-            />
-
-            <FormNumberInput
-                required
-                name="min_quantity"
-                label={t("wh.min_quantity")}
-                control={control}
-                allowNegative={false}
-                suffix={unitName ? ` ${unitName}` : undefined}
-                wrapperClassName="col-span-2 sm:col-span-1"
-            />
-
-            <div className="col-span-2 flex flex-col">
-                <FieldLabel htmlFor="life_years" required={false} isError={false}>
-                    {t("wh.life")}
-                </FieldLabel>
-                <div className="grid grid-cols-3 gap-3">
-                    <FormNumberInput
-                        name="life_years"
-                        control={control}
-                        placeholder={t("wh.years")}
-                        decimalScale={0}
-                        allowNegative={false}
-                        suffix={` ${t("wh.years")}`}
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Asosiy</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput
+                        required
+                        name="name"
+                        label={t("form.name")}
+                        methods={form}
+                        wrapperClassName="md:col-span-2"
                     />
-                    <FormNumberInput
-                        name="life_months"
+
+                    <FormCombobox
+                        required
+                        name="unit"
+                        label={t("form.unit")}
+                        placeholder={t("wh.choose")}
                         control={control}
-                        placeholder={t("wh.months")}
-                        decimalScale={0}
-                        allowNegative={false}
-                        suffix={` ${t("wh.months")}`}
+                        options={units}
+                        valueKey="id"
+                        labelKey="name"
+                        isLoading={unitsLoading}
+                        wrapperClassName="md:col-span-1"
                     />
+
                     <FormNumberInput
-                        name="life_days"
+                        required
+                        name="min_quantity"
+                        label={t("wh.min_quantity")}
                         control={control}
-                        placeholder={t("wh.days")}
-                        decimalScale={0}
                         allowNegative={false}
-                        suffix={` ${t("wh.days")}`}
+                        suffix={unitName ? ` ${unitName}` : undefined}
+                        wrapperClassName="md:col-span-1"
+                    />
+
+                    <FormInput
+                        name="gtin"
+                        label="GTIN"
+                        placeholder="04640012345017"
+                        inputMode="numeric"
+                        className="font-mono"
+                        methods={form}
+                        wrapperClassName="md:col-span-2"
                     />
                 </div>
-            </div>
+            </section>
 
-            <FormInput
-                name="gtin"
-                label="GTIN"
-                placeholder="04640012345017"
-                inputMode="numeric"
-                className="font-mono"
-                methods={form}
-                wrapperClassName="col-span-2"
-            />
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Xizmat muddati</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2 flex flex-col">
+                        <FieldLabel htmlFor="life_years" required={false} isError={false}>
+                            {t("wh.life")}
+                        </FieldLabel>
+                        <div className="grid grid-cols-3 gap-3">
+                            <FormNumberInput
+                                name="life_years"
+                                control={control}
+                                placeholder={t("wh.years")}
+                                decimalScale={0}
+                                allowNegative={false}
+                                suffix={` ${t("wh.years")}`}
+                            />
+                            <FormNumberInput
+                                name="life_months"
+                                control={control}
+                                placeholder={t("wh.months")}
+                                decimalScale={0}
+                                allowNegative={false}
+                                suffix={` ${t("wh.months")}`}
+                            />
+                            <FormNumberInput
+                                name="life_days"
+                                control={control}
+                                placeholder={t("wh.days")}
+                                decimalScale={0}
+                                allowNegative={false}
+                                suffix={` ${t("wh.days")}`}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            <div className="col-span-2 flex items-center justify-end pt-1">
+            <div className="md:col-span-2 flex items-center justify-end pt-1">
                 <Button
                     className="min-w-36 w-full md:w-max"
                     type="submit"

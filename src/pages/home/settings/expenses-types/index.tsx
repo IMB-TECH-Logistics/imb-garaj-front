@@ -72,9 +72,7 @@ const ExpensesTypePage = () => {
             <DeleteModal path={SETTINGS_EXPENSES} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
-                    item?.id ?
-                        t("actions.edit") + " " + t("nav.expense_types").toLowerCase()
-                    :   t("actions.add") + " " + t("nav.expense_types").toLowerCase()
+                    item?.id ? "Xarajat turini tahrirlash" : "Xarajat turi qo'shish"
                 }
                 modalKey="create"
             >

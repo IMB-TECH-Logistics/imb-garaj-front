@@ -71,9 +71,7 @@ const PaymenTypePage = () => {
             <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
-                    item?.id ?
-                        t("actions.edit") + " " + t("nav.payment_types").toLowerCase()
-                    :   t("actions.add") + " " + t("nav.payment_types").toLowerCase()
+                    item?.id ? "To'lov turini tahrirlash" : "To'lov turi qo'shish"
                 }
                 modalKey="create"
             >

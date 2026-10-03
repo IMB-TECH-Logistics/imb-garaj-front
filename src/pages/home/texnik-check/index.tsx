@@ -4,6 +4,8 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { DataTable } from "@/components/ui/datatable"
 import {
     TECHNICAL_INSPECT,
@@ -15,7 +17,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useTechCheckAlerts } from "@/hooks/use-tech-check-alerts"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useState } from "react"
-import { Plus, TriangleAlert } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useExpenseCols, type VehicleExpenseRow } from "./cols"
 import AddExpenseModal from "./add-expense"
 import ExpenseDetailSheet from "./detail-sheet"
@@ -124,24 +126,19 @@ export const TexnikCheck = () => {
                             <Badge>{data?.count ?? 0}</Badge>
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-2 shrink-0">
+                                <Switch id="ti-alert-switch" checked={onlyAlerts} onCheckedChange={toggleAlerts} />
+                                <Label htmlFor="ti-alert-switch" className="cursor-pointer text-sm">
+                                    Amal muddati tugayotganlar
+                                    {alertCount > 0 && ` (${alertCount})`}
+                                </Label>
+                            </div>
                             <ParamCombobox
                                 paramName="category"
                                 options={expenseCategories || []}
                                 label={t("form.expense_type")}
                                 addButtonProps={comboStyle}
                             />
-                            <Button
-                                variant={onlyAlerts ? "destructive" : "outline"}
-                                icon={<TriangleAlert size={18} />}
-                                onClick={toggleAlerts}
-                            >
-                                Amal muddati tugayotganlar
-                                {alertCount > 0 && (
-                                    <span className="ml-1 rounded-full bg-red-600 text-white text-[11px] font-bold min-w-5 h-5 px-1.5 inline-flex items-center justify-center">
-                                        {alertCount}
-                                    </span>
-                                )}
-                            </Button>
                             {!onlyAlerts && <ParamDateRange
                                 from="from_date"
                                 to="to_date"
@@ -161,7 +158,7 @@ export const TexnikCheck = () => {
 
             <Modal
                 modalKey="add-expense"
-                title={current?.id ? t("page.edit_expense_modal") : t("page.add_expense_modal")}
+                title={current?.id ? "Xarajatni tahrirlash" : "Xarajat qo'shish"}
                 size="max-w-2xl"
             >
                 <AddExpenseModal />

@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button"
+import TableActions from "@/components/custom/table-actions"
 import SeeInView from "@/components/ui/see-in-view"
 import { formatDate } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { TFunction } from "i18next"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { DocumentCell, DriverDocumentsRow, VehicleDocumentsRow } from "./types"
@@ -163,27 +163,11 @@ export const useColumnsDriverDocuments = (
                 size: 120,
                 cell: ({ row }) =>
                     row.original.documents.driver_license ?
-                        <div className="flex items-center justify-end gap-2 pr-2">
-                            <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title={t("actions.edit")}
-                                onClick={() => onEdit(row.original)}
-                            >
-                                <Pencil size={16} />
-                            </Button>
-                            <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                className="text-red-600 hover:text-red-700"
-                                title={t("actions.delete")}
-                                onClick={() => onDelete(row.original)}
-                            >
-                                <Trash2 size={16} />
-                            </Button>
-                        </div>
+                        <TableActions
+                            className="justify-end"
+                            onEdit={() => onEdit(row.original)}
+                            onDelete={() => onDelete(row.original)}
+                        />
                     :   null,
             })
         }
@@ -300,27 +284,11 @@ export const useColumnsVehicleDocuments = (
                         row.original.documents.truck_passport ||
                         row.original.documents.trailer_passport
                     ) ?
-                        <div className="flex items-center justify-end gap-2 pr-2">
-                            <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                title={t("actions.edit")}
-                                onClick={() => onEdit(row.original)}
-                            >
-                                <Pencil size={16} />
-                            </Button>
-                            <Button
-                                type="button"
-                                size="icon"
-                                variant="ghost"
-                                className="text-red-600 hover:text-red-700"
-                                title={t("actions.delete")}
-                                onClick={() => onDelete(row.original)}
-                            >
-                                <Trash2 size={16} />
-                            </Button>
-                        </div>
+                        <TableActions
+                            className="justify-end"
+                            onEdit={() => onEdit(row.original)}
+                            onDelete={() => onDelete(row.original)}
+                        />
                     :   null,
             })
         }

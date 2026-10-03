@@ -71,9 +71,7 @@ const VehicleTypePage = () => {
             <DeleteModal path={SETTINGS_VEHICLE_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
-                    item?.id ?
-                        t("actions.edit") + " " + t("nav.truck_types").toLowerCase()
-                    :   t("actions.add") + " " + t("nav.truck_types").toLowerCase()
+                    item?.id ? "Avtomobil turini tahrirlash" : "Avtomobil turi qo'shish"
                 }
                 modalKey="create"
             >

@@ -72,9 +72,7 @@ const VehiclesPage = () => {
             <DeleteModal path={VEHICLES} id={item?.id} />
             <Modal
                 title={
-                    item?.id
-                        ? t("actions.edit") + " " + t("nav.trucks").toLowerCase()
-                        : t("actions.add") + " " + t("nav.trucks").toLowerCase()
+                    item?.id ? "Avtomobilni tahrirlash" : "Avtomobil qo'shish"
                 }
                 modalKey="create"
                 size="max-w-3xl"

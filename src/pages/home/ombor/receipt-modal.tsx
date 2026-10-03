@@ -380,65 +380,75 @@ const ReceiptForm = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-3 p-0.5"
         >
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="font-medium text-sm">{t("wh.products")}</span>
-                <div className="flex items-center gap-2">
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        icon={<Plus size={16} />}
-                        onClick={() => {
-                            setServerError("")
-                            append(emptyLine())
-                        }}
-                    >
-                        {t("wh.receipt.add_manual")}
-                    </Button>
-                    <Button
-                        type="button"
-                        size="sm"
-                        icon={<ScanLine size={16} />}
-                        onClick={openScan}
-                    >
-                        {t("wh.receipt.scan_qr")}
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto no-scrollbar-x">
-                {fields.length ?
-                    fields.map((field, index) => (
-                        <ReceiptLineCard
-                            key={field.id}
-                            index={index}
-                            form={form}
-                            products={products}
-                            onRemove={() => remove(index)}
-                        />
-                    ))
-                :   <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
-                        <QrCode size={28} className="text-primary" />
-                        <div>{t("wh.receipt.no_lines")}</div>
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Mahsulotlar</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="font-medium text-sm">{t("wh.products")}</span>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                icon={<Plus size={16} />}
+                                onClick={() => {
+                                    setServerError("")
+                                    append(emptyLine())
+                                }}
+                            >
+                                {t("wh.receipt.add_manual")}
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                icon={<ScanLine size={16} />}
+                                onClick={openScan}
+                            >
+                                {t("wh.receipt.scan_qr")}
+                            </Button>
+                        </div>
                     </div>
-                }
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <FormDatePicker
-                    required
-                    fullWidth
-                    name="date"
-                    label={t("form.date")}
-                    control={control}
-                />
-            </div>
+                    <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto no-scrollbar-x">
+                        {fields.length ?
+                            fields.map((field, index) => (
+                                <ReceiptLineCard
+                                    key={field.id}
+                                    index={index}
+                                    form={form}
+                                    products={products}
+                                    onRemove={() => remove(index)}
+                                />
+                            ))
+                        :   <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+                                <QrCode size={28} className="text-primary" />
+                                <div>{t("wh.receipt.no_lines")}</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
 
-            <FormTextarea
-                name="comment"
-                label={t("form.comment")}
-                methods={form}
-            />
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Sana va izoh</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <FormDatePicker
+                            required
+                            fullWidth
+                            name="date"
+                            label={t("form.date")}
+                            control={control}
+                        />
+                    </div>
+
+                    <FormTextarea
+                        name="comment"
+                        label={t("form.comment")}
+                        methods={form}
+                    />
+                </div>
+            </section>
 
             <div className="rounded-lg bg-muted/60 p-3 flex items-center justify-between gap-3">
                 <div className="font-medium">{t("page.total")}</div>
@@ -451,7 +461,6 @@ const ReceiptForm = () => {
                     </div>
                 </div>
             </div>
-
             <div className="flex items-center justify-end gap-3 pt-1">
                 {error && (
                     <span className="text-xs text-destructive">{error}</span>

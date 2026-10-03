@@ -33,6 +33,7 @@ import { toast } from "sonner"
 import { useColumnsManagersOrders } from "./cols"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
+import AdvanceBadge from "../managers-trips/advance-badge"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 
 export default function ManagerReys() {
@@ -49,6 +50,8 @@ export default function ManagerReys() {
         driver_name: string | null
         vehicle_number: string | null
         vehicle?: number
+        pending_advance?: number | null
+        rejected_advance?: { amount: number; reason: string | null } | null
     }>(`${MANAGERS_TRIPS}/${tripId}`, {
         enabled: !!tripId && !name,
         options: { retry: false },
@@ -257,6 +260,11 @@ export default function ManagerReys() {
                                 )}
                             </div>
                         </div>
+                        {(trip?.pending_advance || trip?.rejected_advance) && (
+                            <div className="mt-2">
+                                <AdvanceBadge pending={trip?.pending_advance} rejected={trip?.rejected_advance} />
+                            </div>
+                        )}
                         <ReysFilters />
                     </div>
                 }
@@ -265,7 +273,7 @@ export default function ManagerReys() {
             <Modal
                 modalKey={MANAGERS_ORDERS}
                 title={
-                    currentSelected?.id ? t("page.trip_list") : t("page.trips")
+                    currentSelected?.id ? "Reysni tahrirlash" : "Reys qo'shish"
                 }
             >
                 <AddTripOrders />

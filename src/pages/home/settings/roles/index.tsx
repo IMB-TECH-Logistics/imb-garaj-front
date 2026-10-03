@@ -74,7 +74,7 @@ const RolesPage = () => {
                 name={item?.name}
             />
             <Modal
-                title={item?.id ? t("actions.edit") + " " + t("nav.roles").toLowerCase() : t("actions.add") + " " + t("nav.roles").toLowerCase()}
+                title={item?.id ? "Rolni tahrirlash" : "Rol qo'shish"}
                 modalKey="create"
                 size="max-w-5xl"
             >

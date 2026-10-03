@@ -95,7 +95,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             />
             <Modal
                 size="max-w-2xl"
-                title={item?.id ? t("actions.edit") + " " + t("form.region").toLowerCase() : t("actions.add") + " " + t("form.region").toLowerCase()}
+                title={item?.id ? "Viloyatni tahrirlash" : "Viloyat qo'shish"}
                 modalKey={"create-region"}
             >
                 <AddRegionsModal country_id={country_id} />

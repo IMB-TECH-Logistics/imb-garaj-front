@@ -9,7 +9,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
-import { CirclePlus, Plus, PlusCircle } from "lucide-react"
+import { CirclePlus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import CountriesTable from "./tables/country"
 import AddCountriesModal from "./tables/country/add-country"
@@ -77,7 +77,7 @@ const Locations = () => {
             </Card>
             <Modal
                 size="max-w-xl"
-                title={t("actions.add") + " " + t("form.country").toLowerCase()}
+                title="Davlat qo'shish"
                 modalKey="country-modal"
             >
                 <AddCountriesModal />

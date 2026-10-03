@@ -101,7 +101,7 @@ const UserFormPage = () => {
                     <ArrowLeft className="h-4" />
                 </Button>
                 <h1 className="text-xl font-semibold">
-                    {id ? t("actions.edit") + " " + t("nav.users").toLowerCase() : t("nav.users")}
+                    {id ? "Foydalanuvchini tahrirlash" : "Foydalanuvchi qo'shish"}
                 </h1>
             </div>
 
@@ -110,77 +110,96 @@ const UserFormPage = () => {
                     onSubmit={handleSubmit(onSubmit)}
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
-                    <FormInput
-                        required
-                        name="first_name"
-                        label={t("form.first_name")}
-                        methods={form}
-                        placeholder={`${t("form.example")}: Ali`}
-                    />
-                    <FormInput
-                        required
-                        name="last_name"
-                        label={t("form.last_name")}
-                        methods={form}
-                        placeholder={`${t("form.example")}: Aliyev`}
-                    />
-                    <FormInput
-                        required
-                        name="username"
-                        registerOptions={{ validate: validateUsername }}
-                        label={t("auth.username")}
-                        methods={form}
-                        placeholder={`${t("form.example")}: ali1`}
-                    />
-                    <FormInput
-                        required={!id}
-                        type="password"
-                        name="password"
-                        label={t("auth.password")}
-                        methods={form}
-                        placeholder={
-                            id
-                                ? t("form.enter_to_change")
-                                : `${t("form.example")}: SecurePass123!`
-                        }
-                    />
-                    <FormCombobox
-                        options={userRole?.results ?? []}
-                        required
-                        name="role"
-                        control={form.control}
-                        labelKey="name"
-                        valueKey="id"
-                        label={t("form.user_role")}
-                    />
+                    <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Shaxsiy ma'lumotlar</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormInput
+                                required
+                                name="first_name"
+                                label={t("form.first_name")}
+                                methods={form}
+                                placeholder={`${t("form.example")}: Ali`}
+                            />
 
-                    {!isDriver && (
-                        <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
-                            <div>
-                                <p className="text-sm font-medium">
-                                    Rol ruxsatlarini meros olsin
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    O‘chirilsa, xodimga faqat quyida
-                                    belgilangan ruxsatlar amal qiladi.
-                                </p>
-                            </div>
-                            <Switch
-                                checked={inheritsRole}
-                                onCheckedChange={(checked) =>
-                                    form.setValue("inherits_role", checked, {
-                                        shouldDirty: true,
-                                    })
+                            <FormInput
+                                required
+                                name="last_name"
+                                label={t("form.last_name")}
+                                methods={form}
+                                placeholder={`${t("form.example")}: Aliyev`}
+                            />
+                        </div>
+                    </section>
+
+                    <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Login va parol</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormInput
+                                required
+                                name="username"
+                                registerOptions={{ validate: validateUsername }}
+                                label={t("auth.username")}
+                                methods={form}
+                                placeholder={`${t("form.example")}: ali1`}
+                            />
+
+                            <FormInput
+                                required={!id}
+                                type="password"
+                                name="password"
+                                label={t("auth.password")}
+                                methods={form}
+                                placeholder={
+                                    id
+                                        ? t("form.enter_to_change")
+                                        : `${t("form.example")}: SecurePass123!`
                                 }
                             />
                         </div>
-                    )}
+                    </section>
 
-                    {!isDriver && (
-                        <div className="md:col-span-2">
-                            <PermissionField inherited={inheritedActions} />
+                    <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Rol va ruxsatlar</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormCombobox
+                                options={userRole?.results ?? []}
+                                required
+                                name="role"
+                                control={form.control}
+                                labelKey="name"
+                                valueKey="id"
+                                label={t("form.user_role")}
+                            />
+
+                            {!isDriver && (
+                                <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
+                                    <div>
+                                        <p className="text-sm font-medium">
+                                            Rol ruxsatlarini meros olsin
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            O‘chirilsa, xodimga faqat quyida
+                                            belgilangan ruxsatlar amal qiladi.
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        checked={inheritsRole}
+                                        onCheckedChange={(checked) =>
+                                            form.setValue("inherits_role", checked, {
+                                                shouldDirty: true,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            )}
+
+                            {!isDriver && (
+                                <div className="md:col-span-2">
+                                    <PermissionField inherited={inheritedActions} />
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </section>
 
                     <div className="md:col-span-2 flex justify-end pt-4">
                         <Button

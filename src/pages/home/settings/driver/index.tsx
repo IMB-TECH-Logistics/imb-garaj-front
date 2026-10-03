@@ -128,7 +128,7 @@ const Drivers = () => {
             <Modal
                 size="max-w-2xl"
                 title={
-                    item?.id ? t("actions.edit") + " " + t("nav.drivers").toLowerCase() : t("actions.add") + " " + t("nav.drivers").toLowerCase()
+                    item?.id ? "Haydovchini tahrirlash" : "Haydovchi qo'shish"
                 }
                 modalKey="create"
             >

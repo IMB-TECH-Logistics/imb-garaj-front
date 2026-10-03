@@ -1,8 +1,11 @@
+import ParamInput from "@/components/as-params/input"
 import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
+import { Label } from "@/components/ui/label"
 import { MultiCombobox } from "@/components/ui/multi-combobox"
+import { Switch } from "@/components/ui/switch"
 import {
     COMMON_DIRECTIONS,
     SETTINGS_SELECTABLE_CARGO_TYPE,
@@ -233,7 +236,6 @@ const DriverSalariesPage = () => {
                     <TableHeader
                         fileName="Oylik tariflar"
                         url="excel"
-                        searchKey="salary_search"
                         pageKey="page"
                         count={data?.count}
                         extraTitle={
@@ -246,12 +248,33 @@ const DriverSalariesPage = () => {
                                 </Badge>
                             ) : null
                         }
+                        extraLeft={
+                            <div className="flex items-center gap-2 shrink-0">
+                                <Switch
+                                    id="sf-missing-switch"
+                                    checked={missingOnly}
+                                    onCheckedChange={() =>
+                                        navigate({
+                                            search: ((prev: Record<string, unknown>) => ({
+                                                ...prev,
+                                                sf_missing: missingOnly ? undefined : "1",
+                                                page: undefined,
+                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                            })) as any,
+                                        })
+                                    }
+                                />
+                                <Label htmlFor="sf-missing-switch" className="cursor-pointer text-sm first-letter:uppercase">
+                                    {t("form.tariff_no")}
+                                </Label>
+                            </div>
+                        }
                         extraRight={
                             <>
                                 {SALARY_FILTER_COLUMNS.map((col) => (
-                                    <div key={col.value} className="w-44">
+                                    <div key={col.value} className="w-52">
                                         <MultiCombobox
-                                            className="h-8 text-sm"
+                                            className="h-10 text-sm"
                                             label={col.label}
                                             options={filterOptions[col.value]}
                                             values={filters[col.value] ?? []}
@@ -263,23 +286,9 @@ const DriverSalariesPage = () => {
                                         />
                                     </div>
                                 ))}
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant={missingOnly ? "destructive" : "outline"}
-                                    onClick={() =>
-                                        navigate({
-                                            search: ((prev: Record<string, unknown>) => ({
-                                                ...prev,
-                                                sf_missing: missingOnly ? undefined : "1",
-                                                page: undefined,
-                                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                            })) as any,
-                                        })
-                                    }
-                                >
-                                    {t("form.tariff_no")}
-                                </Button>
+                                <div className="w-full sm:w-72">
+                                    <ParamInput fullWidth searchKey="salary_search" pageKey="page" />
+                                </div>
                                 {activeFilterCount > 0 && (
                                     <Button
                                         type="button"
@@ -305,7 +314,7 @@ const DriverSalariesPage = () => {
                 }
             />
             <Modal
-                title={t("actions.edit")}
+                title="Maoshni tahrirlash"
                 modalKey="edit-salary"
                 size="max-w-md"
             >

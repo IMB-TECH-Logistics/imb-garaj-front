@@ -53,12 +53,12 @@ const AddDocumentModal = () => {
     const { openModal: openDeleteModal } = useModal("delete")
     const { getData, clearKey } = useGlobalStore()
     const current = getData<VehicleDocumentType>(VEHICLE_DOCUMENTS)
-    const isPrefilled = !!(current?.vehicle || current?.driver) && !!current?.doc_type
+    const isPrefilled =
+        !!(current?.vehicle || current?.driver) && !!current?.doc_type
 
     const form = useForm<FormValues>({
-        defaultValues: current?.doc_type ?
-                current
-            :   { doc_type: TAB_DOC_TYPES[tab][0] },
+        defaultValues:
+            current?.doc_type ? current : { doc_type: TAB_DOC_TYPES[tab][0] },
     })
     const { handleSubmit, reset, control, watch } = form
     const docType = watch("doc_type")
@@ -125,7 +125,9 @@ const AddDocumentModal = () => {
             if (value instanceof File) {
                 if (value.size > MAX_PHOTO_MB * 1024 * 1024) {
                     toast.error(
-                        t("documents_page.file_too_large", { mb: MAX_PHOTO_MB }),
+                        t("documents_page.file_too_large", {
+                            mb: MAX_PHOTO_MB,
+                        }),
                     )
                     return
                 }
@@ -158,86 +160,113 @@ const AddDocumentModal = () => {
             className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1"
         >
             {!isPrefilled && (
-                <>
-                    <FormCombobox
-                        required
-                        name="doc_type"
-                        label={t("documents_page.doc_type")}
-                        options={docTypeOptions}
-                        control={control}
-                        labelKey="label"
-                        valueKey="value"
-                    />
-                    {isDriverDoc ?
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
+                        Hujjat
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormCombobox
-                            key="driver"
                             required
-                            name="driver"
-                            label={t("documents_page.driver")}
-                            options={drivers?.results ?? []}
+                            name="doc_type"
+                            label={t("documents_page.doc_type")}
+                            options={docTypeOptions}
                             control={control}
-                            labelKey="full_name"
-                            valueKey="id"
+                            labelKey="label"
+                            valueKey="value"
                         />
-                    :   <FormCombobox
-                            key="vehicle"
-                            required
-                            name="vehicle"
-                            label={t("documents_page.vehicle")}
-                            options={vehicles?.results ?? []}
+                        {isDriverDoc ?
+                            <FormCombobox
+                                key="driver"
+                                required
+                                name="driver"
+                                label={t("documents_page.driver")}
+                                options={drivers?.results ?? []}
+                                control={control}
+                                labelKey="full_name"
+                                valueKey="id"
+                            />
+                        :   <FormCombobox
+                                key="vehicle"
+                                required
+                                name="vehicle"
+                                label={t("documents_page.vehicle")}
+                                options={vehicles?.results ?? []}
+                                control={control}
+                                labelKey="truck_number"
+                                valueKey="id"
+                            />
+                        }
+                    </div>
+                </section>
+            )}
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
+                    Ma'lumotlar
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput
+                        name="number"
+                        wrapperClassName="md:col-span-2"
+                        label={t("documents_page.number")}
+                        methods={form}
+                    />
+                    <FormDatePicker
+                        name="issued_date"
+                        label={t("documents_page.issued_date")}
+                        control={control}
+                        fullWidth
+                    />
+                    <div>
+                        <FormDatePicker
+                            name="expires_date"
+                            label={t("documents_page.expires_date")}
                             control={control}
-                            labelKey="truck_number"
-                            valueKey="id"
+                            fullWidth
                         />
-                    }
-                </>
-            )}
-            <FormInput
-                name="number"
-                label={t("documents_page.number")}
-                methods={form}
-                wrapperClassName="md:col-span-2"
-            />
-            <FormDatePicker
-                name="issued_date"
-                label={t("documents_page.issued_date")}
-                control={control}
-                fullWidth
-            />
-            <div>
-                <FormDatePicker
-                    name="expires_date"
-                    label={t("documents_page.expires_date")}
-                    control={control}
-                    fullWidth
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                    {t("documents_page.expires_hint")}
-                </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3 md:col-span-2">
-                <VehicleImagePicker
-                    name="photo_front"
-                    label={t("documents_page.photo_front")}
-                    methods={form}
-                    clearable
-                    maxSizeMB={MAX_PHOTO_MB}
-                />
-                <VehicleImagePicker
-                    name="photo_back"
-                    label={t("documents_page.photo_back")}
-                    methods={form}
-                    clearable
-                    maxSizeMB={MAX_PHOTO_MB}
-                />
-            </div>
-            {!!current?.id && current.days_left !== null && current.days_left !== undefined && current.days_left <= ALERT_DAYS && (
-                <p className="md:col-span-2 text-sm font-medium text-red-600">
-                    {current.days_left < 0 ?
-                        t("documents_page.expired_ago", { days: -current.days_left })
-                    :   t("documents_page.expires_in", { days: current.days_left })}
-                </p>
-            )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {t("documents_page.expires_hint")}
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
+                    Rasmlar
+                </h3>
+                <div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <VehicleImagePicker
+                            name="photo_front"
+                            label={t("documents_page.photo_front")}
+                            methods={form}
+                            clearable
+                            maxSizeMB={MAX_PHOTO_MB}
+                        />
+                        <VehicleImagePicker
+                            name="photo_back"
+                            label={t("documents_page.photo_back")}
+                            methods={form}
+                            clearable
+                            maxSizeMB={MAX_PHOTO_MB}
+                        />
+                    </div>
+                </div>
+            </section>
+            {!!current?.id &&
+                current.days_left !== null &&
+                current.days_left !== undefined &&
+                current.days_left <= ALERT_DAYS && (
+                    <p className="md:col-span-2 text-sm font-medium text-red-600">
+                        {current.days_left < 0 ?
+                            t("documents_page.expired_ago", {
+                                days: -current.days_left,
+                            })
+                        :   t("documents_page.expires_in", {
+                                days: current.days_left,
+                            })
+                        }
+                    </p>
+                )}
             <div className="flex items-center justify-between gap-2 md:col-span-2">
                 {current?.id ?
                     <Button

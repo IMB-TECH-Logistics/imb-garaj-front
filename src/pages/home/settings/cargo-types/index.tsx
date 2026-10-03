@@ -138,7 +138,7 @@ const CargoPage = () => {
 
             <Modal
                 title={
-                    item?.id ? t("actions.edit") + " " + t("nav.cargo_types").toLowerCase() : t("actions.add") + " " + t("nav.cargo_types").toLowerCase()
+                    item?.id ? "Yuk turini tahrirlash" : "Yuk turi qo'shish"
                 }
                 modalKey="create"
             >

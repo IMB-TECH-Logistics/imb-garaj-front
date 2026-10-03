@@ -75,7 +75,7 @@ const Customers = () => {
             />
             <Modal
                 size="max-w-2xl"
-                title={item?.id ? t("actions.edit") + " " + t("nav.customers").toLowerCase() : t("actions.add") + " " + t("nav.customers").toLowerCase()}
+                title={item?.id ? "Mijozni tahrirlash" : "Mijoz qo'shish"}
                 modalKey={"create"}
             >
                 <AddCustomersModal />

@@ -172,110 +172,148 @@ const AddRouteConfigModal = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
-            <FormCombobox
-                required
-                label={t("form.loading_address")}
-                name="load"
-                control={control}
-                options={withCurrent(regionsData, current?.load, current?.load_name)}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.region")}
-            />
-            <FormInput
-                name="load_place"
-                label={t("form.load_place")}
-                placeholder={t("form.load_place")}
-                methods={form}
-            />
-            <FormCombobox
-                required
-                label={t("form.unloading_address")}
-                name="unload"
-                control={control}
-                options={withCurrent(regionsData, current?.unload, current?.unload_name)}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.region")}
-            />
-            <FormInput
-                name="unload_place"
-                label={t("form.unload_place")}
-                placeholder={t("form.unload_place")}
-                methods={form}
-            />
-            <FormCombobox
-                required
-                label={t("form.cargo_owner")}
-                name="owner"
-                control={control}
-                options={withCurrent(clientData, current?.owner, current?.owner_name)}
-                labelKey="name"
-                valueKey="id"
-                placeholder={t("form.cargo_owner")}
-            />
-            <FormCombobox
-                required
-                label={t("form.cargo_type")}
-                name="cargo_type"
-                control={control}
-                options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name)}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.cargo_type")}
-            />
-            <FormCombobox
-                required
-                label={t("form.payment_type")}
-                name="payment_type"
-                control={control}
-                options={paymentType}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.payment_type")}
-            />
-            <FormCombobox
-                required
-                label={t("form.currency")}
-                name="currency"
-                control={control}
-                options={CURRENCY_OPTIONS}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.select_currency")}
-            />
-            <FormNumberInput
-                required
-                allowNegative={false}
-                decimalScale={2}
-                thousandSeparator=" "
-                name="price"
-                label={t("form.amount")}
-                placeholder="12 206 000"
-                control={control}
-            />
-            <FormDatePicker
-                required
-                label={t("page.valid_from")}
-                control={control}
-                name="valid_from"
-                placeholder={t("form.select_date")}
-                className="w-full"
-            />
-            {distributorOptions.length > 0 && (
-                <FormCombobox
-                    label={t("form.distributor")}
-                    name="distributor_id"
-                    control={control}
-                    options={distributorOptions}
-                    valueKey="id"
-                    labelKey="name"
-                    placeholder={t("form.distributor")}
-                />
-            )}
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yuklash joyi</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        required
+                        label={t("form.loading_address")}
+                        name="load"
+                        control={control}
+                        options={withCurrent(regionsData, current?.load, current?.load_name)}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.region")}
+                    />
 
-            <div className="col-span-2 flex items-center justify-end mt-3">
+                    <FormInput
+                        name="load_place"
+                        label={t("form.load_place")}
+                        placeholder={t("form.load_place")}
+                        methods={form}
+                    />
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tushirish joyi</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        required
+                        label={t("form.unloading_address")}
+                        name="unload"
+                        control={control}
+                        options={withCurrent(regionsData, current?.unload, current?.unload_name)}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.region")}
+                    />
+
+                    <FormInput
+                        name="unload_place"
+                        label={t("form.unload_place")}
+                        placeholder={t("form.unload_place")}
+                        methods={form}
+                    />
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yuk va mijoz</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        required
+                        label={t("form.cargo_owner")}
+                        name="owner"
+                        control={control}
+                        options={withCurrent(clientData, current?.owner, current?.owner_name)}
+                        labelKey="name"
+                        valueKey="id"
+                        placeholder={t("form.cargo_owner")}
+                    />
+
+                    <FormCombobox
+                        required
+                        label={t("form.cargo_type")}
+                        name="cargo_type"
+                        control={control}
+                        options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name)}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.cargo_type")}
+                    />
+
+                    {distributorOptions.length > 0 && (
+                        <FormCombobox
+                            label={t("form.distributor")}
+                            name="distributor_id"
+                            control={control}
+                            options={distributorOptions}
+                            valueKey="id"
+                            labelKey="name"
+                            placeholder={t("form.distributor")}
+                        />
+                    )}
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Narx va to'lov</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        required
+                        label={t("form.payment_type")}
+                        name="payment_type"
+                        control={control}
+                        options={paymentType}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.payment_type")}
+                    />
+
+                    <div className="flex gap-3 md:col-span-2">
+                        <div className="flex-1 min-w-0">
+                            <FormNumberInput
+                                required
+                                allowNegative={false}
+                                decimalScale={2}
+                                thousandSeparator=" "
+                                name="price"
+                                label={t("form.amount")}
+                                placeholder="12 206 000"
+                                control={control}
+                            />
+                        </div>
+                        <div className="w-32 shrink-0">
+                            <FormCombobox
+                                required
+                                label={t("form.currency")}
+                                name="currency"
+                                isClearIcon={false}
+                                control={control}
+                                options={CURRENCY_OPTIONS}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder={t("form.select_currency")}
+                            />
+                        </div>
+                    </div>
+
+
+                    <FormDatePicker
+                        fullWidth
+                        required
+                        label={t("page.valid_from")}
+                        control={control}
+                        name="valid_from"
+                        placeholder={t("form.select_date")}
+                        className="w-full"
+                    />
+                </div>
+            </section>
+
+            <div className="md:col-span-2 flex items-center justify-end mt-3">
                 <Button className="min-w-36" type="submit" loading={isPending}>
                     {t("actions.save")}
                 </Button>

@@ -175,7 +175,7 @@ const RouteConfigsPage = () => {
             />
             <Modal
                 title={
-                    item?.id ? t("actions.edit") + " " + t("nav.directions").toLowerCase() : t("actions.add") + " " + t("nav.directions").toLowerCase()
+                    item?.id ? "Yo'nalishni tahrirlash" : "Yo'nalish qo'shish"
                 }
                 modalKey="create"
                 size="max-w-2xl"

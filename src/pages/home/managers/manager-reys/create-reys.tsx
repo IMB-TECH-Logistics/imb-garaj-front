@@ -25,7 +25,7 @@ import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
-import { ChevronLeft, ChevronRight, ImageIcon, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, ImageIcon, Trash2, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useController, useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -506,144 +506,164 @@ const AddTripOrders = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-4 max-h-[72vh] overflow-y-auto pr-1 no-scrollbar-x"
             >
-                <FormCombobox
-                    required
-                    hideError={false}
-                    label={t("table.status")}
-                    name="activity"
-                    control={control}
-                    options={ACTIVITY_OPTIONS_TRANSLATED}
-                    valueKey="id"
-                    labelKey="name"
-                    placeholder={t("table.status")}
-                />
-
-                {isReysActivity && (
-                    <>
-                        {/* To'lov turi tabs */}
-                        <Tabs
-                            value={isNaqd ? "naqd" : "perech"}
-                            onValueChange={(v) => setValue("is_naqd", v === "naqd")}
-                        >
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="perech">{t("form.contract")}</TabsTrigger>
-                                <TabsTrigger value="naqd">{t("status.cash")}</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-
-                        {!isNaqd && (
-                            <FormCombobox
-                                required
-                                hideError={false}
-                                label={t("form.cargo_owner")}
-                                name="client"
-                                control={control}
-                                options={clientsData ?? []}
-                                valueKey="id"
-                                labelKey="name"
-                                placeholder={t("form.cargo_owner")}
-                            />
-                        )}
-
-                        <div className="rounded-lg border bg-card/50 p-4">
-                            <div className="flex gap-3">
-                                <div className="relative shrink-0 w-3">
-                                    <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
-                                    <div
-                                        className="absolute left-1/2 -translate-x-1/2 w-px"
-                                        style={{
-                                            top: 30,
-                                            bottom: 18,
-                                            backgroundImage:
-                                                "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
-                                        }}
-                                    />
-                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
-                                </div>
-
-                                <div className="flex flex-col gap-4 flex-1">
-                                    <FormCombobox
-                                        required
-                                        hideError={false}
-                                        name="loading"
-                                        control={control}
-                                        options={loadsData}
-                                        valueKey="id"
-                                        labelKey="name"
-                                        placeholder={t("form.loading_location")}
-                                        addButtonProps={{
-                                            disabled: !isNaqd && !watch("client"),
-                                        }}
-                                    />
-                                    <FormCombobox
-                                        required
-                                        hideError={false}
-                                        name="unloading"
-                                        control={control}
-                                        options={unloadsData}
-                                        valueKey="id"
-                                        labelKey="name"
-                                        placeholder={t("form.unloading_location")}
-                                        addButtonProps={{ disabled: !loadingValue }}
-                                    />
-                                </div>
-                            </div>
-
-                        </div>
-                    </>
-                )}
-
-                {isCityOnlyActivity && (
-                    <div className="rounded-lg border bg-card/50 p-4">
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Reys ma'lumotlari</h3>
+                    <div className="grid grid-cols-1 gap-4">
                         <FormCombobox
                             required
                             hideError={false}
-                            label={t("form.loading_location")}
-                            name="loading"
+                            label={t("table.status")}
+                            name="activity"
                             control={control}
-                            options={loadsData}
+                            options={ACTIVITY_OPTIONS_TRANSLATED}
                             valueKey="id"
                             labelKey="name"
-                            placeholder={t("form.loading_location")}
+                            placeholder={t("table.status")}
                         />
-                    </div>
-                )}
 
-                <div className="flex gap-3">
-                    {isReysActivity && (
-                        <div className="flex-1">
+                        {isReysActivity && (
+                            <>
+                                {/* To'lov turi tabs */}
+                                <Tabs
+                                    value={isNaqd ? "naqd" : "perech"}
+                                    onValueChange={(v) => setValue("is_naqd", v === "naqd")}
+                                >
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger value="perech">{t("form.contract")}</TabsTrigger>
+                                        <TabsTrigger value="naqd">{t("status.cash")}</TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
+
+                                {!isNaqd && (
+                                    <FormCombobox
+                                        required
+                                        hideError={false}
+                                        label={t("form.cargo_owner")}
+                                        name="client"
+                                        control={control}
+                                        options={clientsData ?? []}
+                                        valueKey="id"
+                                        labelKey="name"
+                                        placeholder={t("form.cargo_owner")}
+                                    />
+                                )}
+
+                                <div className="rounded-lg border bg-card/50 p-4">
+                                    <div className="flex gap-3">
+                                        <div className="relative shrink-0 w-3">
+                                            <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
+                                            <div
+                                                className="absolute left-1/2 -translate-x-1/2 w-px"
+                                                style={{
+                                                    top: 30,
+                                                    bottom: 18,
+                                                    backgroundImage:
+                                                        "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
+                                                }}
+                                            />
+                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
+                                        </div>
+
+                                        <div className="flex flex-col gap-4 flex-1">
+                                            <FormCombobox
+                                                required
+                                                hideError={false}
+                                                name="loading"
+                                                control={control}
+                                                options={loadsData}
+                                                valueKey="id"
+                                                labelKey="name"
+                                                placeholder={t("form.loading_location")}
+                                                addButtonProps={{
+                                                    disabled: !isNaqd && !watch("client"),
+                                                }}
+                                            />
+                                            <FormCombobox
+                                                required
+                                                hideError={false}
+                                                name="unloading"
+                                                control={control}
+                                                options={unloadsData}
+                                                valueKey="id"
+                                                labelKey="name"
+                                                placeholder={t("form.unloading_location")}
+                                                addButtonProps={{ disabled: !loadingValue }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </>
+                        )}
+
+                        {isCityOnlyActivity && (
+                            <div className="rounded-lg border bg-card/50 p-4">
+                                <FormCombobox
+                                    required
+                                    hideError={false}
+                                    label={t("form.loading_location")}
+                                    name="loading"
+                                    control={control}
+                                    options={loadsData}
+                                    valueKey="id"
+                                    labelKey="name"
+                                    placeholder={t("form.loading_location")}
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex gap-3">
+                            {isReysActivity && (
+                                <div className="flex-1">
+                                    <FormCombobox
+                                        label={t("form.cargo_type")}
+                                        name="cargo_type"
+                                        control={control}
+                                        options={cargoTypesData}
+                                        valueKey="id"
+                                        labelKey="name"
+                                        placeholder={t("status.empty")}
+                                        addButtonProps={{
+                                            disabled: !loadingValue || !unloadingValue,
+                                        }}
+                                    />
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <FormDatePicker
+                                    fullWidth
+                                    required
+                                    hideError={false}
+                                    label={t("form.date")}
+                                    control={control}
+                                    name="date"
+                                    placeholder={t("form.select_date")}
+                                    className="w-full"
+                                />
+                            </div>
+                        </div>
+
+                        {currentTripOrder?.id && <PriceDiff order={currentTripOrder} />}
+
+                        {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
+
+                        {currentTripOrder?.id && !isDraft && (
                             <FormCombobox
-                                label={t("form.cargo_type")}
-                                name="cargo_type"
+                                label={t("table.status")}
+                                name="status"
                                 control={control}
-                                options={cargoTypesData}
+                                options={STATUS_OPTIONS}
                                 valueKey="id"
                                 labelKey="name"
-                                placeholder={t("status.empty")}
-                                addButtonProps={{
-                                    disabled: !loadingValue || !unloadingValue,
-                                }}
+                                placeholder={t("table.status")}
                             />
-                        </div>
-                    )}
-                    <div className="flex-1">
-                        <FormDatePicker
-                            required
-                            hideError={false}
-                            label={t("form.date")}
-                            control={control}
-                            name="date"
-                            placeholder={t("form.select_date")}
-                            className="w-full"
-                        />
+                        )}
                     </div>
-                </div>
+                </section>
 
-                {currentTripOrder?.id && <PriceDiff order={currentTripOrder} />}
-
-                {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
                 {isReysActivity && isNaqd && (
-                    <div className="space-y-3">
+                    <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                        <div className="space-y-3">
                         {incomeFields.map((field, index) => (
                             <div
                                 key={field.id}
@@ -694,9 +714,12 @@ const AddTripOrders = () => {
                                     <Button
                                         type="button"
                                         variant="destructive"
+                                        size="icon"
+                                        className="h-10 w-10 shrink-0"
+                                        aria-label={t("actions.delete")}
                                         onClick={() => removeIncome(index)}
                                     >
-                                        {t("actions.delete")}
+                                        <Trash2 size={16} />
                                     </Button>
                                 )}
                             </div>
@@ -715,110 +738,106 @@ const AddTripOrders = () => {
                         >
                             + {t("actions.add")}
                         </Button>
-                    </div>
+                        </div>
+                    </section>
                 )}
 
-                {currentTripOrder?.id && !isDraft && (
-                    <FormCombobox
-                        label={t("table.status")}
-                        name="status"
-                        control={control}
-                        options={STATUS_OPTIONS}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("table.status")}
-                    />
-                )}
-
-                {previewItems.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                        {existingImages.map((img, index) => (
-                            <div
-                                key={`e-${img.id}`}
-                                className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
-                                onClick={() => setPreviewIndex(index)}
-                            >
-                                <img
-                                    src={img.image}
-                                    alt={`rasm-${img.id}`}
-                                    className="w-full h-full object-cover"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        removeExistingImage(img.id)
-                                    }}
-                                    className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
-                                >
-                                    <X size={12} />
-                                </button>
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Rasmlar</h3>
+                    <div className="grid grid-cols-1 gap-4">
+                        {previewItems.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {existingImages.map((img, index) => (
+                                    <div
+                                        key={`e-${img.id}`}
+                                        className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
+                                        onClick={() => setPreviewIndex(index)}
+                                    >
+                                        <img
+                                            src={img.image}
+                                            alt={`rasm-${img.id}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                removeExistingImage(img.id)
+                                            }}
+                                            className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </div>
+                                ))}
+                                {images.map((file, index) => (
+                                    <div
+                                        key={`n-${index}`}
+                                        className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
+                                        onClick={() =>
+                                            setPreviewIndex(existingImages.length + index)
+                                        }
+                                    >
+                                        <img
+                                            src={URL.createObjectURL(file)}
+                                            alt={`rasm-${index}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                removeNewImage(index)
+                                            }}
+                                            className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                        {images.map((file, index) => (
-                            <div
-                                key={`n-${index}`}
-                                className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
-                                onClick={() =>
-                                    setPreviewIndex(existingImages.length + index)
+                        )}
+
+                        {/* Rasm yuklash */}
+
+                        <div
+                            className="border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors hover:border-primary/60 group"
+                            style={{ minHeight: 100 }}
+                            onClick={() => rasmInputRef.current?.click()}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => {
+                                e.preventDefault()
+                                if (e.dataTransfer.files?.length) {
+                                    addImages(e.dataTransfer.files)
                                 }
-                            >
-                                <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`rasm-${index}`}
-                                    className="w-full h-full object-cover"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        removeNewImage(index)
-                                    }}
-                                    className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
-                                >
-                                    <X size={12} />
-                                </button>
+                            }}
+                        >
+                            <div className="flex flex-col items-center justify-center gap-2 py-7 text-muted-foreground group-hover:text-primary transition-colors">
+                                <ImageIcon size={28} strokeWidth={1.5} />
+                                <span className="text-sm font-medium">
+                                    {t("form.upload_image")}
+                                </span>
+                                <span className="text-xs">
+                                    {t("form.upload_image_hint")}
+                                </span>
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </div>
 
-                {/* Rasm yuklash */}
-                <div
-                    className="border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors hover:border-primary/60 group"
-                    style={{ minHeight: 100 }}
-                    onClick={() => rasmInputRef.current?.click()}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                        e.preventDefault()
-                        if (e.dataTransfer.files?.length) {
-                            addImages(e.dataTransfer.files)
-                        }
-                    }}
-                >
-                    <div className="flex flex-col items-center justify-center gap-2 py-7 text-muted-foreground group-hover:text-primary transition-colors">
-                        <ImageIcon size={28} strokeWidth={1.5} />
-                        <span className="text-sm font-medium">
-                            {t("form.upload_image")}
-                        </span>
-                        <span className="text-xs">
-                            {t("form.upload_image_hint")}
-                        </span>
+                        <input
+                            ref={rasmInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            hidden
+                            onChange={(e) => {
+                                if (e.target.files?.length) {
+                                    addImages(e.target.files)
+                                    e.target.value = ""
+                                }
+                            }}
+                        />
                     </div>
-                </div>
-                <input
-                    ref={rasmInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                    onChange={(e) => {
-                        if (e.target.files?.length) {
-                            addImages(e.target.files)
-                            e.target.value = ""
-                        }
-                    }}
-                />
+                </section>
 
                 <div className="flex justify-end gap-2 pt-1">
                     {isDraft && (

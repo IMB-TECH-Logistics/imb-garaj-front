@@ -100,7 +100,7 @@ export function Combobox<T extends Record<string, any>>({
                     aria-label={ariaLabel || label}
                     aria-invalid={isError || undefined}
                     className={cn(
-                        "w-full justify-between relative   px-4 hover:bg-card font-normal ",
+                        "w-full justify-between relative px-3 hover:bg-card font-normal",
                         value && "font-medium text-foreground",
                         isError && "border border-destructive",
                         className,
@@ -109,19 +109,19 @@ export function Combobox<T extends Record<string, any>>({
                 >
                     <div
                         className={cn(
-                            "flex items-center gap-2 pl-2 ",
+                            "flex min-w-0 flex-1 items-center justify-between gap-2",
                             onAdd && "pr-4",
                             !!value && isClearIcon && !onAdd && "pr-7",
                         )}
                     >
-                        <span className="line-clamp-1 break-all whitespace-pre-wrap ">
+                        <span className="min-w-0 truncate text-left">
                             {value ?
                                 options
                                     ?.find((d) => d[valueKey] == value)
                                     ?.[labelKey]?.toString() || label
                             :   label}
                         </span>
-                        <ChevronDown className=" h-4 w-4  text-primary opacity-50 " />
+                        <ChevronDown className="h-4 w-4 shrink-0 text-primary opacity-50" />
 
                     </div>
                     {!!value && isClearIcon && (

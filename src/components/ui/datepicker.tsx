@@ -9,6 +9,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import { useState } from "react"
 import { ClassNameValue } from "tailwind-merge"
 
 export function DatePicker({
@@ -34,8 +35,9 @@ export function DatePicker({
     className?: ClassNameValue
     isError?: boolean
 }) {
+    const [open, setOpen] = useState(false)
     return (
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
                     id="date"
@@ -54,7 +56,8 @@ export function DatePicker({
                         format(date, "dd.MM.yyyy")
                     :   <span className="text-muted-foreground">
                             {placeholder || "Kunni tanlang"}
-                        </span>}
+                        </span>
+                    }
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -67,6 +70,7 @@ export function DatePicker({
                             setDate(
                                 format(new Date(newDate as Date), "yyyy-MM-dd"),
                             )
+                            setOpen(false)
                         }
                     }}
                 />

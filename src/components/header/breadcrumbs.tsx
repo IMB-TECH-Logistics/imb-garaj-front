@@ -26,7 +26,7 @@ const nestedBreadcrumbs: { prefix: string; trail: BreadcrumbEntry[] }[] = [
     {
         prefix: "/manager-trips/manager-reys",
         trail: [
-            { label: "Meneger", path: "/managers" },
+            { label: "Transportlar", path: "/managers" },
             {
                 label: "Aylanmalar",
                 storeKey: "manager-trips-vehicle-id",
@@ -39,7 +39,7 @@ const nestedBreadcrumbs: { prefix: string; trail: BreadcrumbEntry[] }[] = [
     {
         prefix: "/manager-trips",
         trail: [
-            { label: "Meneger", path: "/managers" },
+            { label: "Transportlar", path: "/managers" },
             { label: "Aylanmalar" },
         ],
     },
