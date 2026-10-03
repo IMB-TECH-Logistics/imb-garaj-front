@@ -31,6 +31,7 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { useColumnsManagersOrders } from "./cols"
+import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
@@ -80,7 +81,6 @@ export default function ManagerReys() {
     })
     const hasControl = useHasAction("manager_vehicles_control")
     const queryClient = useQueryClient()
-    const { mutate: approve } = usePost({})
     const { mutate: bulkDecide, isPending: bulkPending } = usePost({})
     const canBulk = useHasAction("manager_flights_control")
     const { openModal: openBulkModal, closeModal: closeBulkModal } = useModal(
@@ -90,6 +90,10 @@ export default function ManagerReys() {
     const [clearSelectionTick, setClearSelectionTick] = useState(0)
     const [bulkAction, setBulkAction] = useState<"approve" | "cancel">("approve")
     const draftIds = selectedRows.filter((r) => r.status === -1).map((r) => r.id)
+    const unconfirmedIds = selectedRows
+        .filter((r) => r.trip_confirmed === false)
+        .map((r) => r.id)
+    const bulkIds = bulkAction === "approve" ? unconfirmedIds : draftIds
 
     const startBulk = (action: "approve" | "cancel") => {
         setBulkAction(action)
@@ -99,7 +103,7 @@ export default function ManagerReys() {
     const handleBulkConfirm = () => {
         bulkDecide(
             `${MANAGERS_ORDERS}/bulk-decision`,
-            { action: bulkAction, ids: draftIds },
+            { action: bulkAction, decision: bulkAction, ids: bulkIds },
             {
                 onSuccess: (res: any) => {
                     const done = res?.done?.length ?? 0
@@ -127,33 +131,11 @@ export default function ManagerReys() {
             },
         )
     }
-    const [approvingId, setApprovingId] = useState<number | null>(null)
+    const [approveOrder, setApproveOrder] = useState<ManagerOrders | null>(null)
+    const { openModal: openApproveModal } = useModal(APPROVE_TRIP_MODAL_KEY)
 
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
     const [previewIndex, setPreviewIndex] = useState<number | null>(null)
-
-    const handleApprove = (order: ManagerOrders) => {
-        setApprovingId(order.id)
-        approve(
-            `${MANAGERS_ORDERS}/${order.id}/approve`,
-            {},
-            {
-                onSuccess: () => {
-                    toast.success("Reys tasdiqlandi")
-                    queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS] })
-                    queryClient.invalidateQueries({
-                        queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT],
-                    })
-                },
-                onError: () => {
-                    toast.error("Tasdiqlashda xatolik")
-                },
-                onSettled: () => {
-                    setApprovingId(null)
-                },
-            },
-        )
-    }
 
     const cols = useColumnsManagersOrders({
         onImageClick: (images) => {
@@ -195,17 +177,17 @@ export default function ManagerReys() {
                 rowAction={
                     hasControl
                         ? (order) =>
-                              order.status === -1 ? (
+                              order.trip_confirmed === false ? (
                                   <Button
                                       size="sm"
                                       variant="ghost"
                                       className="h-3 p-0"
-                                      loading={approvingId === order.id}
-                                      disabled={approvingId === order.id}
+                                      title={t("reys_confirm.approve")}
                                       icon={<Check className="text-green-600" size={16} />}
                                       onClick={(e) => {
                                           e.stopPropagation()
-                                          if (approvingId !== order.id) handleApprove(order)
+                                          setApproveOrder(order)
+                                          openApproveModal()
                                       }}
                                   />
                               ) : null
@@ -233,24 +215,24 @@ export default function ManagerReys() {
                                         className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
                                     }}
                                 />
+                                {canBulk && unconfirmedIds.length > 0 && (
+                                    <Button
+                                        variant="outline"
+                                        className="text-green-600"
+                                        onClick={() => startBulk("approve")}
+                                    >
+                                        <Check size={16} />
+                                        {t("reys_bulk.approve_btn", { count: unconfirmedIds.length })}
+                                    </Button>
+                                )}
                                 {canBulk && draftIds.length > 0 && (
-                                    <>
-                                        <Button
-                                            variant="outline"
-                                            className="text-green-600"
-                                            onClick={() => startBulk("approve")}
-                                        >
-                                            <Check size={16} />
-                                            {t("reys_bulk.approve_btn", { count: draftIds.length })}
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            onClick={() => startBulk("cancel")}
-                                        >
-                                            <X size={16} />
-                                            {t("reys_bulk.cancel_btn", { count: draftIds.length })}
-                                        </Button>
-                                    </>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => startBulk("cancel")}
+                                    >
+                                        <X size={16} />
+                                        {t("reys_bulk.cancel_btn", { count: draftIds.length })}
+                                    </Button>
                                 )}
                                 {hasControl && tripId && (
                                     <Button onClick={handleAdd}>
@@ -290,7 +272,7 @@ export default function ManagerReys() {
                             bulkAction === "approve"
                                 ? "reys_bulk.confirm_approve"
                                 : "reys_bulk.confirm_cancel",
-                            { count: draftIds.length },
+                            { count: bulkIds.length },
                         )}
                     </DialogTitle>
                     <DialogDescription>
@@ -318,6 +300,8 @@ export default function ManagerReys() {
                     </Button>
                 </DialogFooter>
             </Modal>
+
+            <ApproveTripModal order={approveOrder} />
 
             <DeleteModal
                 path={MANAGERS_ORDERS}

@@ -89,6 +89,9 @@ type ManagerOrders = {
     direction_name?: string | null
     direction_has_price?: boolean
     vehicle_other_active_orders?: number
+    trip_confirmed?: boolean
+    trip_open_days?: number | null
+    vehicle_open_trips?: number
 }
 
 type ManagerExpenses = {

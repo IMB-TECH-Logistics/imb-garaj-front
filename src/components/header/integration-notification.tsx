@@ -47,7 +47,7 @@ export function IntegrationNotification() {
     const { data: ordersData, isLoading, isError: ordersError } = useGet<ListResponse<ManagerOrders>>(
         MANAGERS_ORDERS,
         {
-            params: { is_integration: "true", status: -1, page_size: 100, ordering: "-id" },
+            params: { is_integration: "true", trip_confirmed: "false", page_size: 100, ordering: "-id" },
         },
     )
 
@@ -117,7 +117,7 @@ export function IntegrationNotification() {
                         <p className="text-sm text-muted-foreground text-center py-6">Reys yo'q</p>
                     ) : orders.map((order) => {
                         const isApproving = approvingId === order.id
-                        const isDraft = order.status === -1
+                        const isDraft = order.trip_confirmed === false
                         return (
                             <div
                                 key={order.id}
@@ -209,7 +209,7 @@ export function IntegrationNotification() {
                                 navigate({
                                     to: "/manager-trips/manager-reys/$id",
                                     params: { id: "all" },
-                                    search: { status: -1, is_integration: "true" },
+                                    search: { is_integration: "true", trip_confirmed: "false" },
                                 } as any)
                             }}
                         >

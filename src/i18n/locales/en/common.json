@@ -847,6 +847,21 @@
             "receipt": "Add receipt"
         }
     },
+    "reys_confirm": {
+        "unconfirmed": "Trip not confirmed",
+        "open_trips": "Open trips: {{count}}",
+        "open_days": "Trip open for {{count}} days",
+        "approve": "Confirm",
+        "dialog_title": "Confirm trip",
+        "current_trip": "Current trip",
+        "trip_open": "open",
+        "trip_closed": "closed",
+        "trip_label": "Trip",
+        "trip_placeholder": "Keep in current trip",
+        "trip_hint": "If not chosen, the order is confirmed in the current trip (moved to a new open trip if it is closed).",
+        "approved": "Order confirmed",
+        "error": "Confirmation failed"
+    },
     "reys_bulk": {
         "all_label": "All trips",
         "approve_btn": "Approve selected ({{count}})",

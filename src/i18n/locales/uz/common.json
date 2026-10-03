@@ -875,6 +875,21 @@
             "receipt": "Kirim qilish"
         }
     },
+    "reys_confirm": {
+        "unconfirmed": "Aylanma tasdiqlanmagan",
+        "open_trips": "Ochiq aylanma: {{count}}",
+        "open_days": "Aylanma {{count}} kundan beri ochiq",
+        "approve": "Tasdiqlash",
+        "dialog_title": "Aylanmani tasdiqlash",
+        "current_trip": "Joriy aylanma",
+        "trip_open": "ochiq",
+        "trip_closed": "yopilgan",
+        "trip_label": "Aylanma",
+        "trip_placeholder": "Joriy aylanmada qoldirish",
+        "trip_hint": "Tanlanmasa, reys joriy aylanmada tasdiqlanadi (yopilgan bo'lsa yangi ochiq aylanmaga o'tkaziladi).",
+        "approved": "Reys tasdiqlandi",
+        "error": "Tasdiqlashda xatolik"
+    },
     "reys_bulk": {
         "all_label": "Barcha reyslar",
         "approve_btn": "Tanlanganlarni tasdiqlash ({{count}})",

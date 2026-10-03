@@ -23,6 +23,7 @@ export const REYS_FILTER_KEYS = [
     "type",
     "status",
     "is_integration",
+    "trip_confirmed",
     "out_of_contract",
     "direction_match",
     "from_date",
@@ -33,6 +34,8 @@ const CONTRACT_OPTIONS: Option[] = [
     { id: "false", name: "Shartnoma bo'yicha" },
     { id: "true", name: "Shartnomadan tashqari" },
 ]
+
+const TRIP_CONFIRMED_ID = "false"
 
 const LIST_STATUS_OPTIONS = [
     { id: "-1", name: "Tasdiqlanmagan" },
@@ -51,6 +54,10 @@ export default function ReysFilters() {
     const TYPE_OPTIONS: Option[] = [
         { id: "1", name: t("status.loaded") },
         { id: "2", name: t("status.empty") },
+    ]
+
+    const TRIP_CONFIRMED_OPTIONS: Option[] = [
+        { id: TRIP_CONFIRMED_ID, name: t("reys_confirm.unconfirmed") },
     ]
 
     const DIRECTION_MATCH_OPTIONS: Option[] = [
@@ -92,7 +99,7 @@ export default function ReysFilters() {
                     </Button>
                 </div>
             )}
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-9">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-10">
                 <ParamCombobox
                     paramName="loading"
                     label={t("form.loading_location")}
@@ -147,6 +154,15 @@ export default function ReysFilters() {
                     paramName="status"
                     label={t("table.order_status")}
                     options={LIST_STATUS_OPTIONS}
+                    valueKey="id"
+                    labelKey="name"
+                    isSearch={false}
+                    addButtonProps={filterButtonProps}
+                />
+                <ParamCombobox
+                    paramName="trip_confirmed"
+                    label={t("reys_confirm.trip_label")}
+                    options={TRIP_CONFIRMED_OPTIONS}
                     valueKey="id"
                     labelKey="name"
                     isSearch={false}

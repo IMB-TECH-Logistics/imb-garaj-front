@@ -115,11 +115,38 @@ export const useColumnsManagersOrders = (opts?: {
                         ACTIVITY_COLORS[activity] ||
                         "bg-gray-500/10 text-gray-500 border-gray-200"
                     const otherActive = row.original?.vehicle_other_active_orders ?? 0
+                    const unconfirmed = row.original?.trip_confirmed === false
+                    const openTrips = row.original?.vehicle_open_trips ?? 0
+                    const openDays = row.original?.trip_open_days ?? 0
                     return (
                         <div className="flex flex-wrap items-center gap-1">
                             <Badge variant="outline" className={colorClass}>
                                 {row.original?.activity_display || "-"}
                             </Badge>
+                            {unconfirmed && (
+                                <Badge
+                                    variant="outline"
+                                    className="bg-amber-500/10 text-amber-600 border-transparent"
+                                >
+                                    {t("reys_confirm.unconfirmed")}
+                                </Badge>
+                            )}
+                            {unconfirmed && openTrips > 1 && (
+                                <Badge
+                                    variant="outline"
+                                    className={DIRECTION_MATCH_COLORS.ambiguous}
+                                >
+                                    {t("reys_confirm.open_trips", { count: openTrips })}
+                                </Badge>
+                            )}
+                            {unconfirmed && openDays > 30 && (
+                                <Badge
+                                    variant="outline"
+                                    className={DIRECTION_MATCH_COLORS.not_found}
+                                >
+                                    {t("reys_confirm.open_days", { count: openDays })}
+                                </Badge>
+                            )}
                             {otherActive > 0 && (
                                 <Badge
                                     variant="outline"

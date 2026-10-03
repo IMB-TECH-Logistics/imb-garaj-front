@@ -844,6 +844,21 @@
             "receipt": "入庫する"
         }
     },
+    "reys_confirm": {
+        "unconfirmed": "運行未確認",
+        "open_trips": "進行中の運行: {{count}}",
+        "open_days": "運行が{{count}}日間継続中",
+        "approve": "確認",
+        "dialog_title": "運行の確認",
+        "current_trip": "現在の運行",
+        "trip_open": "進行中",
+        "trip_closed": "終了",
+        "trip_label": "運行",
+        "trip_placeholder": "現在の運行のままにする",
+        "trip_hint": "未選択の場合、現在の運行で確認されます(終了済みの場合は新しい運行に移動します)。",
+        "approved": "オーダーを確認しました",
+        "error": "確認に失敗しました"
+    },
     "reys_bulk": {
         "all_label": "すべての運行",
         "approve_btn": "選択を承認 ({{count}})",
