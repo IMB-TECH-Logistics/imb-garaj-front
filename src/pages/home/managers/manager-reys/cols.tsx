@@ -244,6 +244,22 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.pending_time)}</span>,
             },
             {
+                accessorKey: "completed_time",
+                header: t("table.end_time"),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.completed_time)}</span>,
+            },
+            {
+                id: "duration",
+                header: t("table.duration"),
+                size: 130,
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {formatDuration(row.original.pending_time, row.original.completed_time)}
+                    </span>
+                ),
+            },
+            {
                 accessorKey: "loading_time",
                 header: t("table.loading"),
                 size: 150,
@@ -260,12 +276,6 @@ export const useColumnsManagersOrders = (opts?: {
                 header: t("table.unloading_short"),
                 size: 150,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.unloading_time)}</span>,
-            },
-            {
-                accessorKey: "completed_time",
-                header: t("table.end_time"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.completed_time)}</span>,
             },
             {
                 accessorKey: "canceled_time",
@@ -302,6 +312,23 @@ export const useColumnsManagersOrders = (opts?: {
         },
         [opts?.onImageClick, t],
     )
+}
+
+const formatDuration = (start?: string, end?: string) => {
+    if (!start || !end) return "-"
+
+    const ms = new Date(end).getTime() - new Date(start).getTime()
+
+    if (isNaN(ms) || ms < 0) return "-"
+
+    const totalMinutes = Math.floor(ms / 60000)
+    const days = Math.floor(totalMinutes / 1440)
+    const hours = Math.floor((totalMinutes % 1440) / 60)
+    const minutes = totalMinutes % 60
+
+    if (days > 0) return `${days} kun ${hours} soat`
+    if (hours > 0) return `${hours} soat ${minutes} daq`
+    return `${minutes} daq`
 }
 
 const formatDateSafe = (value?: string) => {
