@@ -9,6 +9,7 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
+import { Button } from "@/components/ui/button"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -58,6 +59,7 @@ const RouteConfigsPage = () => {
 
     const navigate = useNavigate()
     const ordering = search.ordering ?? DEFAULT_ORDERING
+    const onlyNoPrice = search.no_price === "true"
 
     useEffect(() => {
         if (!search.ordering) {
@@ -79,6 +81,7 @@ const RouteConfigsPage = () => {
                 search: search.route_configs_search,
                 page: search.page,
                 page_size: search.page_size,
+                no_price: onlyNoPrice ? true : undefined,
                 ordering,
             },
         },
@@ -101,7 +104,8 @@ const RouteConfigsPage = () => {
 
     const enriched: DirectionRow[] = useMemo(
         () =>
-            (data?.results ?? []).map((d) => ({
+            (data?.results ?? [])
+                .map((d) => ({
                 id: d.id,
                 owner_name: d.owner_name ?? String(d.owner),
                 owner_code: d.owner_code ?? "",
@@ -153,7 +157,7 @@ const RouteConfigsPage = () => {
                 onEdit={hasControl ? handleEdit : undefined}
                 numeration
                 paginationProps={{
-                    totalPages: data?.total_pages,
+                    totalPages: onlyNoPrice ? 1 : data?.total_pages,
                     paramName: "page",
                     pageSizeParamName: "page_size",
                     page_sizes: [25, 50, 100, 250, 500, 1000],
@@ -165,7 +169,23 @@ const RouteConfigsPage = () => {
                         storeKey={hasControl ? COMMON_DIRECTIONS : undefined}
                         searchKey="route_configs_search"
                         pageKey="page"
-                        count={data?.count}
+                        count={onlyNoPrice ? enriched.length : data?.count}
+                        extraLeft={
+                            <Button
+                                variant={onlyNoPrice ? "default" : "outline"}
+                                onClick={() =>
+                                    navigate({
+                                        search: (prev: Record<string, unknown>) => ({
+                                            ...prev,
+                                            no_price: onlyNoPrice ? undefined : "true",
+                                            page: undefined,
+                                        }),
+                                    } as any)
+                                }
+                            >
+                                {t("form.dm_no_price_filter")}
+                            </Button>
+                        }
                     />
                 }
             />

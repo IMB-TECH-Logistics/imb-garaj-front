@@ -253,6 +253,10 @@ type RegionsType = {
     id: number
     name: string
     country: number
+    parent?: number | string | null
+    parent_name?: string | null
+    viloyat_name?: string
+    children_count?: number
 }
 
 // district

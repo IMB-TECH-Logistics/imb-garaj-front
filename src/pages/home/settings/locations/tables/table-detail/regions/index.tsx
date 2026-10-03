@@ -1,6 +1,17 @@
+import ParamPagination from "@/components/as-params/pagination"
 import DeleteModal from "@/components/custom/delete-modal"
+import EmptyBox from "@/components/custom/empty-box"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 import { SETTINGS_REGIONS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -9,6 +20,7 @@ import { useSearch } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import TableHeaderLocation from "../../table-header"
 import AddRegionsModal from "./add-regions"
+import { RegionRowTable } from "./region-row"
 import { useColumnsRegionsTable } from "./regions-cols"
 const REGION_PAGE_KEY = "region_page"
 const REGION_PAGE_SIZE_KEY = "region_page_size"
@@ -17,11 +29,14 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
     const { t } = useTranslation()
     const search = useSearch({ strict: false })
 
+    const isSearching = !!search.region_search
+
     const { data, isLoading } = useGet<ListResponse<RegionsType>>(
         `${SETTINGS_REGIONS}`,
         {
             params: {
                 country: country_id,
+                top_level: isSearching ? undefined : true,
                 search: search.region_search,
                 page: search[REGION_PAGE_KEY],
                 page_size: search[REGION_PAGE_SIZE_KEY],
@@ -70,6 +85,54 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                 />
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar-x ">
+                {!isSearching && (
+                    <>
+                        <Table className="min-w-[400px]">
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-10">#</TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        {t("form.region")}
+                                    </TableHead>
+                                    <TableHead className="sticky right-10 bg-card" />
+                                    <TableHead className="w-[40px] sticky right-0 bg-card" />
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading && (
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Skeleton className="h-6 w-full" />
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                                {data?.results?.map((region, index) => (
+                                    <RegionRowTable
+                                        key={region.id}
+                                        region={region}
+                                        index={index}
+                                        colSpan={4}
+                                    />
+                                ))}
+                                {data?.results?.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <EmptyBox height="h-40" />
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                        <div className="flex my-3 justify-center">
+                            <ParamPagination
+                                totalPages={data?.total_pages}
+                                paramName={REGION_PAGE_KEY}
+                                pageSizeParamName={REGION_PAGE_SIZE_KEY}
+                            />
+                        </div>
+                    </>
+                )}
+                {isSearching && (
                 <DataTable
                     manualSorting
                     loading={isLoading}
@@ -87,15 +150,17 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                     }}
                     wrapperClassName="!bg-transparent"
                 />
+                )}
             </div>
             <DeleteModal
                 modalKey="delete-region"
                 path={SETTINGS_REGIONS}
                 id={item?.id}
+                name={item?.name}
             />
             <Modal
                 size="max-w-2xl"
-                title={item?.id ? "Viloyatni tahrirlash" : "Viloyat qo'shish"}
+                title={(item?.id ? t("actions.edit") : t("actions.add")) + " " + (item?.parent ? t("form.place") : t("form.region")).toLowerCase()}
                 modalKey={"create-region"}
             >
                 <AddRegionsModal country_id={country_id} />

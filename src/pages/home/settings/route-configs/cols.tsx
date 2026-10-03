@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -103,29 +102,26 @@ export const useDirectionColumns = () => {
                 ) : "—",
             },
             { accessorKey: "owner_name", header: t("form.cargo_owner"), enableSorting: true },
-            { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true },
+            { accessorKey: "cargo_type_name", header: t("form.cargo_type"), enableSorting: true, cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span> },
             { accessorKey: "payment_type_name", header: t("form.payment_type"), enableSorting: false },
             {
                 id: "price_amount",
                 accessorKey: "current_price",
                 header: t("form.amount"),
                 enableSorting: true,
-                cell: ({ row }) => (
-                    <div className="flex items-center gap-2">
-                        <span>
-                            {row.original.current_price?.price != null
-                                ? formatMoney(
-                                      Number(row.original.current_price.price),
-                                  )
-                                : "—"}
+                cell: ({ row }) =>
+                    row.original.no_price ||
+                    row.original.current_price?.price == null ? (
+                        <span className="whitespace-nowrap font-medium text-destructive">
+                            {t("form.no_price")}
                         </span>
-                        {row.original.no_price && (
-                            <Badge variant="destructive">
-                                {t("form.no_price")}
-                            </Badge>
-                        )}
-                    </div>
-                ),
+                    ) : (
+                        <span className="whitespace-nowrap">
+                            {formatMoney(
+                                Number(row.original.current_price.price),
+                            )}
+                        </span>
+                    ),
             },
             {
                 accessorKey: "currency",

@@ -22,6 +22,14 @@ const ACTIVITY_COLORS: Record<number, string> = {
     5: "bg-yellow-500/10 text-yellow-600 border-transparent",
 }
 
+const DIRECTION_MATCH_COLORS = {
+    priced: "bg-green-500/10 text-green-600 border-transparent",
+    unpriced: "bg-amber-500/10 text-amber-600 border-transparent",
+    ambiguous: "bg-orange-500/10 text-orange-600 border-transparent",
+    not_found: "bg-red-500/10 text-red-600 border-transparent",
+    manual: "bg-blue-500/10 text-blue-600 border-transparent",
+}
+
 const isGarajOrTamirActivity = (activity?: number) =>
     activity === 2 || activity === 3
 
@@ -106,9 +114,65 @@ export const useColumnsManagersOrders = (opts?: {
                     const colorClass =
                         ACTIVITY_COLORS[activity] ||
                         "bg-gray-500/10 text-gray-500 border-gray-200"
+                    const otherActive = row.original?.vehicle_other_active_orders ?? 0
                     return (
-                        <Badge variant="outline" className={colorClass}>
-                            {row.original?.activity_display || "-"}
+                        <div className="flex flex-wrap items-center gap-1">
+                            <Badge variant="outline" className={colorClass}>
+                                {row.original?.activity_display || "-"}
+                            </Badge>
+                            {otherActive > 0 && (
+                                <Badge
+                                    variant="outline"
+                                    className={DIRECTION_MATCH_COLORS.not_found}
+                                >
+                                    {t("form.dm_open_orders", { count: otherActive })}
+                                </Badge>
+                            )}
+                        </div>
+                    )
+                },
+            },
+            {
+                id: "direction_match",
+                header: t("form.direction"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const match = row.original?.direction_match
+                    if (!match) return null
+                    const name = row.original?.direction_name || undefined
+                    if (match === "matched" || match === "created") {
+                        const priced = match === "matched" && row.original?.direction_has_price
+                        return priced ? (
+                            <Badge variant="outline" title={name} className={DIRECTION_MATCH_COLORS.priced}>
+                                {t("form.dm_has_price")}
+                            </Badge>
+                        ) : (
+                            <Badge
+                                variant="outline"
+                                title={t("form.dm_unpriced_hint")}
+                                className={DIRECTION_MATCH_COLORS.unpriced}
+                            >
+                                {t("form.dm_unpriced")}
+                            </Badge>
+                        )
+                    }
+                    if (match === "manual") {
+                        return (
+                            <Badge variant="outline" title={name} className={DIRECTION_MATCH_COLORS.manual}>
+                                {t("form.dm_manual")}
+                            </Badge>
+                        )
+                    }
+                    if (match === "ambiguous") {
+                        return (
+                            <Badge variant="outline" className={DIRECTION_MATCH_COLORS.ambiguous}>
+                                {t("form.dm_ambiguous")}
+                            </Badge>
+                        )
+                    }
+                    return (
+                        <Badge variant="outline" className={DIRECTION_MATCH_COLORS.not_found}>
+                            {t("form.dm_not_found")}
                         </Badge>
                     )
                 },

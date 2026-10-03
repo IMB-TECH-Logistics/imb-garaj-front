@@ -1,3 +1,4 @@
+import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_COUNTRIES, SETTINGS_REGIONS } from "@/constants/api-endpoints"
@@ -25,10 +26,22 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
 
     const currentRegion = getData<RegionsType>(SETTINGS_REGIONS)
 
+    const { data: viloyats, isLoading: isLoadingViloyats } = useGet<
+        ListResponse<RegionsType>
+    >(SETTINGS_REGIONS, {
+        params: { country: country_id, top_level: true, page_size: 1000 },
+        enabled: !!country_id,
+    })
+
+    const viloyatOptions = viloyats?.results?.filter(
+        (r) => r.id !== currentRegion?.id,
+    )
+
     const form = useForm<RegionsType>({
         defaultValues: {
             ...currentRegion,
             country: currentRegion?.country,
+            parent: currentRegion?.parent ?? "",
         },
     })
 
@@ -57,7 +70,8 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
 
     const onSubmit = (values: RegionsType) => {
         const formData = {
-            ...values,
+            name: values.name,
+            parent: values.parent ? Number(values.parent) : null,
             country: currentRegion?.id ? values.country : String(country_id),
         }
 
@@ -83,6 +97,22 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                 />
 
  
+                <div className="space-y-2">
+                    <FormCombobox
+                        isClearIcon
+                        label={t("form.region")}
+                        name="parent"
+                        control={form.control}
+                        options={viloyatOptions}
+                        valueKey="id"
+                        labelKey="name"
+                        isLoading={isLoadingViloyats}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        {t("form.region_parent_hint")}
+                    </p>
+                </div>
+
                 <div className="space-y-2">
                     <label className="text-sm font-medium">{t("form.country")}</label>
 

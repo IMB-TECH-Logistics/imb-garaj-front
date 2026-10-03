@@ -26,6 +26,9 @@ export type SalaryFilterSourceKey = "regions" | "cargo_types" | "salary_amounts"
 const HIDDEN_SALARY_COLUMNS = new Set([
     "owner_code",
     "owner_name",
+    "load_place_display",
+    "unload_place_display",
+    "distributor_name",
     "payment_type_name",
     "currency",
 ])
@@ -135,11 +138,12 @@ const SalaryAmountCell = ({ row }: { row: DirectionRow }) => {
     const next = upcomingSalary(row.driver_salary_history)
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <span>{formatPriceLabel(row.driver_salary_amount ?? "0")}</span>
-            {row.driver_salary_amount == null && (
-                <Badge variant="destructive" className="whitespace-nowrap">
+            {row.driver_salary_amount == null ? (
+                <span className="whitespace-nowrap font-medium text-destructive">
                     {t("form.tariff_no")}
-                </Badge>
+                </span>
+            ) : (
+                <span>{formatPriceLabel(row.driver_salary_amount)}</span>
             )}
             {next && (
                 <Badge variant="outline" className="whitespace-nowrap">

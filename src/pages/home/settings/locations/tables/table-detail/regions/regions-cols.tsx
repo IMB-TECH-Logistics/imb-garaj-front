@@ -7,14 +7,26 @@ export const useColumnsRegionsTable = () => {
     return useMemo<ColumnDef<RegionsType>[]>(
         () => [
             {
-                accessorKey: "name",
+                accessorKey: "viloyat_name",
                 header: t("form.region"),
                 enableSorting: true,
-                cell: ({ row }) => (
-                    <div className="">
-                        {row.original.name || "-"}
-                    </div>
-                ),
+                cell: ({ row }) =>
+                    row.original.parent ? (
+                        <div>{row.original.parent_name || "-"}</div>
+                    ) : (
+                        <div className="font-bold">{row.original.name || "-"}</div>
+                    ),
+            },
+            {
+                accessorKey: "name",
+                header: t("form.place"),
+                enableSorting: false,
+                cell: ({ row }) =>
+                    row.original.parent ? (
+                        <div>{row.original.name || "-"}</div>
+                    ) : (
+                        <div className="text-muted-foreground">—</div>
+                    ),
             },
         ],
         [t],

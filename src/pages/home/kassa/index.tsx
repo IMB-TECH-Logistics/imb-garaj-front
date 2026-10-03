@@ -52,6 +52,7 @@ type Transaction = {
     vehicle_plate: string | null
     source: string | null
     is_unconfirmed?: boolean
+    awaiting_order_completion?: boolean
 }
 
 type DriverRow = {
@@ -81,7 +82,7 @@ const useTransactionCols = () => {
                 accessorKey: "amount",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <span>
+                    <span className={row.original.awaiting_order_completion ? "text-muted-foreground" : undefined}>
                         {formatMoney(
                             row.original.currency === 2 && row.original.currency_course
                                 ? Number(row.original.amount) * Number(row.original.currency_course)
@@ -154,7 +155,16 @@ const useTransactionCols = () => {
                         >
                             {row.original.type === -1 ? t("form.expense") : t("form.income")}
                         </Badge>
-                        {row.original.status !== 20 && (
+                        {row.original.awaiting_order_completion && (
+                            <Badge
+                                variant="secondary"
+                                className="bg-muted text-muted-foreground"
+                                title={t("kassa.awaiting_order_hint")}
+                            >
+                                {t("kassa.awaiting_order")}
+                            </Badge>
+                        )}
+                        {row.original.status !== 20 && !row.original.awaiting_order_completion && (
                             <Badge variant="orange">
                                 {t(TX_STATUS_LABEL_KEY[row.original.status] ?? "kassa.status_pending")}
                             </Badge>

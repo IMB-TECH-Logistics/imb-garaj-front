@@ -96,6 +96,9 @@ type Direction = {
     payment_type: number
     currency: 1 | 2
     amount: string | null
+    load_place_display?: string | null
+    unload_place_display?: string | null
+    no_price?: boolean
 }
 
 const distinctOptions = (
@@ -158,6 +161,7 @@ const AddTripOrders = () => {
                         },
                     ],
             client: currentTripOrder?.client ?? null,
+            direction: currentTripOrder?.direction ?? null,
             images: [] as File[],
         },
     })
@@ -182,6 +186,7 @@ const AddTripOrders = () => {
     const loadingValue = watch("loading")
     const unloadingValue = watch("unloading")
     const cargoTypeValue = watch("cargo_type")
+    const directionValue = watch("direction")
     const activityValue = watch("activity") as string
 
     const isReysActivity = !activityValue || activityValue === "1"
@@ -280,14 +285,18 @@ const AddTripOrders = () => {
     }, [cargoTypesResponse])
 
     const matchedDirection = useMemo(() => {
-        if (currentTripOrder?.direction) {
-            const byId = directions.find(
-                (d) => d.id === Number(currentTripOrder.direction),
-            )
-            if (byId) return byId
-        }
         if (!loadingValue || !unloadingValue) return undefined
         const cargoId = Number(cargoTypeValue)
+        if (directionValue) {
+            const selected = directions.find(
+                (d) =>
+                    d.id === Number(directionValue) &&
+                    d.load === Number(loadingValue) &&
+                    d.unload === Number(unloadingValue) &&
+                    (!cargoId || d.cargo_type === cargoId),
+            )
+            if (selected) return selected
+        }
         if (cargoId) {
             const exact = directions.find(
                 (d) =>
@@ -307,8 +316,30 @@ const AddTripOrders = () => {
         loadingValue,
         unloadingValue,
         cargoTypeValue,
-        currentTripOrder?.direction,
+        directionValue,
     ])
+
+    const directionOptions = useMemo(() => {
+        if (!loadingValue || !unloadingValue) return []
+        const cargoId = Number(cargoTypeValue)
+        return directions
+            .filter(
+                (d) =>
+                    d.load === Number(loadingValue) &&
+                    d.unload === Number(unloadingValue) &&
+                    (!cargoId || d.cargo_type === cargoId),
+            )
+            .map((d) => ({
+                id: d.id,
+                name: [
+                    d.cargo_type_name,
+                    `${d.load_place_display || d.load_name} -> ${d.unload_place_display || d.unload_name}`,
+                    d.no_price ? t("form.no_price") : null,
+                ]
+                    .filter(Boolean)
+                    .join(" | "),
+            }))
+    }, [directions, loadingValue, unloadingValue, cargoTypeValue, t])
 
     useEffect(() => {
         if (directionPrefilledRef.current) return
@@ -642,6 +673,18 @@ const AddTripOrders = () => {
                                 />
                             </div>
                         </div>
+
+                        {isReysActivity && !isNaqd && directionOptions.length > 0 && (
+                            <FormCombobox
+                                label={t("form.direction")}
+                                name="direction"
+                                control={control}
+                                options={directionOptions}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder={t("form.direction")}
+                            />
+                        )}
 
                         {currentTripOrder?.id && <PriceDiff order={currentTripOrder} />}
 
