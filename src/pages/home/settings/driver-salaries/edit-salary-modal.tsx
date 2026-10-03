@@ -2,55 +2,61 @@ import { FormDatePicker } from "@/components/form/date-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { COMMON_DIRECTIONS, DRIVER_SALARIES } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
-import { usePatch } from "@/hooks/usePatch"
+import { usePost } from "@/hooks/usePost"
+import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { formatDate, type DirectionRow } from "../route-configs/cols"
-import { formatPriceLabel, localTodayIso } from "./cols"
+import {
+    formatDate,
+    localTodayIso,
+    VILOYAT_TARIFFS,
+    type ViloyatTariffRow,
+} from "./cols"
 
 type FormValues = { amount: string | null; valid_from: string | null }
 
 interface Props {
-    row: DirectionRow
+    row: ViloyatTariffRow
+    title: string
 }
 
-const EditSalaryModal = ({ row }: Props) => {
+const EditSalaryModal = ({ row, title }: Props) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("edit-salary")
     const { control, handleSubmit } = useForm<FormValues>({
         defaultValues: {
-            amount: row.driver_salary_amount ?? null,
+            amount: row.amount ?? null,
             valid_from: localTodayIso(),
         },
     })
-    const { mutateAsync, isPending } = usePatch()
+    const { mutateAsync, isPending } = usePost()
     const submitting = useRef(false)
 
     const today = localTodayIso()
-    const history = [...(row.driver_salary_history ?? [])].sort((a, b) =>
+    const history = [...(row.history ?? [])].sort((a, b) =>
         b.valid_from.localeCompare(a.valid_from),
     )
-    const currentId = history.find((h) => h.valid_from <= today)?.id
+    const currentFrom = history.find((h) => h.valid_from <= today)?.valid_from
 
     const onSubmit = async ({ amount, valid_from }: FormValues) => {
         if (!amount || !valid_from) return
         if (submitting.current) return
         submitting.current = true
         try {
-            await mutateAsync(`${DRIVER_SALARIES}/bulk-update`, {
-                directions: [row.id],
+            await mutateAsync(VILOYAT_TARIFFS, {
+                from_region: row.from_region,
+                to_region: row.to_region,
                 amount,
                 valid_from,
             })
-            toast.success(t("page.directions_salary_updated", { count: 1 }))
+            toast.success(t("page.vt_updated", { count: 1 }))
             await queryClient.invalidateQueries({
-                queryKey: [COMMON_DIRECTIONS],
+                queryKey: [VILOYAT_TARIFFS],
             })
             closeModal()
         } catch {
@@ -62,9 +68,12 @@ const EditSalaryModal = ({ row }: Props) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <p className="text-sm text-muted-foreground">
-                {row.load_name} → {row.unload_name} · {row.cargo_type_name}
-            </p>
+            <div>
+                <p className="text-sm font-medium">{title}</p>
+                <p className="text-xs text-muted-foreground">
+                    {t("page.vt_both_sides")}
+                </p>
+            </div>
             <FormNumberInput
                 required
                 thousandSeparator=" "
@@ -92,11 +101,11 @@ const EditSalaryModal = ({ row }: Props) => {
                     <div className="max-h-60 overflow-y-auto divide-y">
                         {history.map((h) => (
                             <div
-                                key={h.id}
+                                key={h.valid_from}
                                 className="flex items-center justify-between gap-2 px-3 py-2 text-sm"
                             >
                                 <span className="font-semibold tabular-nums">
-                                    {formatPriceLabel(String(h.amount))}
+                                    {formatMoney(h.amount)}
                                 </span>
                                 <div className="flex items-center gap-2">
                                     {h.valid_from > today && (
@@ -104,7 +113,7 @@ const EditSalaryModal = ({ row }: Props) => {
                                             {t("page.salary_upcoming")}
                                         </Badge>
                                     )}
-                                    {h.id === currentId && (
+                                    {h.valid_from === currentFrom && (
                                         <Badge variant="secondary">
                                             {t("page.salary_current")}
                                         </Badge>

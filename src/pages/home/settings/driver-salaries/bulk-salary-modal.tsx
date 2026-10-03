@@ -1,56 +1,54 @@
 import { FormDatePicker } from "@/components/form/date-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
-import { COMMON_DIRECTIONS, DRIVER_SALARIES } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
-import { usePatch } from "@/hooks/usePatch"
+import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRef } from "react"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
-import { localTodayIso } from "./cols"
+import { toast } from "sonner"
+import { localTodayIso, VILOYAT_TARIFFS, type ViloyatTariffRow } from "./cols"
 
 type FormValues = { amount: string | null; valid_from: string | null }
 
 interface Props {
-    selectedIds: number[]
+    selected: ViloyatTariffRow[]
     onApplied: () => void
 }
 
-const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
+const BulkSalaryModal = ({ selected, onApplied }: Props) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("bulk-salary")
-    const form = useForm<FormValues>({
+    const { handleSubmit, control, reset } = useForm<FormValues>({
         defaultValues: { amount: null, valid_from: localTodayIso() },
     })
-    const { handleSubmit, control, reset } = form
-
-    const { mutateAsync, isPending } = usePatch()
+    const { mutateAsync, isPending } = usePost()
     const submitting = useRef(false)
 
     const onSubmit = async ({ amount, valid_from }: FormValues) => {
-        if (!amount || !valid_from || selectedIds.length === 0) return
+        if (!amount || !valid_from || selected.length === 0) return
         if (submitting.current) return
         submitting.current = true
         try {
-            await mutateAsync(`${DRIVER_SALARIES}/bulk-update`, {
-                directions: selectedIds,
-                amount,
-                valid_from,
+            await mutateAsync(`${VILOYAT_TARIFFS}/bulk`, {
+                items: selected.map((r) => ({
+                    from_region: r.from_region,
+                    to_region: r.to_region,
+                    amount,
+                    valid_from,
+                })),
             })
-            toast.success(
-                t("page.directions_salary_assigned", { count: selectedIds.length }),
-            )
+            toast.success(t("page.vt_updated", { count: selected.length }))
             await queryClient.invalidateQueries({
-                queryKey: [COMMON_DIRECTIONS],
+                queryKey: [VILOYAT_TARIFFS],
             })
             reset({ amount: null, valid_from: localTodayIso() })
             closeModal()
             onApplied()
         } catch {
-            /* handleFormError already toasts the failure */
+            return
         } finally {
             submitting.current = false
         }
@@ -59,7 +57,7 @@ const BulkSalaryModal = ({ selectedIds, onApplied }: Props) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <p className="text-sm text-muted-foreground">
-                {t("page.bulk_salary_hint", { count: selectedIds.length })}
+                {t("page.vt_bulk_hint", { count: selected.length })}
             </p>
             <FormNumberInput
                 required
