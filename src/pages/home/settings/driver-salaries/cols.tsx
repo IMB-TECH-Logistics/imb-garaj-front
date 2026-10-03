@@ -68,9 +68,7 @@ export const useSalaryColumns = () => {
                 enableSorting: false,
                 cell: ({ row }) =>
                     row.original.amount == null ? (
-                        <span className="whitespace-nowrap font-medium text-destructive">
-                            {t("page.vt_amount_missing")}
-                        </span>
+                        "—"
                     ) : (
                         formatMoney(row.original.amount)
                     ),
