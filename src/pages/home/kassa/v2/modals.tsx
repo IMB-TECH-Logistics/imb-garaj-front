@@ -267,7 +267,7 @@ export const RequestModal = ({ editing }: { editing: KassaRequest | null }) => {
             )}
             {lockedKind ?
                 <p className="text-sm">{KIND_LABEL[editing!.kind]} · {editing!.driver_name} · aylanma #{editing!.trip}</p>
-            :   <FormCombobox required control={form.control} name="kind" label="Nima uchun" isSearch={false} isClearIcon={false} options={REQUEST_KIND_OPTIONS} valueKey="id" labelKey="name" />}
+            :   <FormCombobox required control={form.control} name="kind" label="So'rov turi" isSearch={false} isClearIcon={false} options={REQUEST_KIND_OPTIONS} valueKey="id" labelKey="name" />}
             {!garage && !lockedKind && (
                 <FormCombobox required control={form.control} name="trip" label="Haydovchi (ochiq aylanmasi)" isClearIcon={false} options={tripOptions} valueKey="id" labelKey="name" />
             )}
