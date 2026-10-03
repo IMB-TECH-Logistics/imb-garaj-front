@@ -876,6 +876,7 @@
         }
     },
     "reys_confirm": {
+        "short": "Tasdiqlanmagan",
         "unconfirmed": "Aylanma tasdiqlanmagan",
         "open_trips": "Ochiq aylanma: {{count}}",
         "open_days": "Aylanma {{count}} kundan beri ochiq",

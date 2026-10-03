@@ -845,6 +845,7 @@
         }
     },
     "reys_confirm": {
+        "short": "未確認",
         "unconfirmed": "運行未確認",
         "open_trips": "進行中の運行: {{count}}",
         "open_days": "運行が{{count}}日間継続中",

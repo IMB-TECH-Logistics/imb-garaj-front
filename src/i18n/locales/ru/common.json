@@ -854,6 +854,7 @@
         }
     },
     "reys_confirm": {
+        "short": "Не подтверждено",
         "unconfirmed": "Оборот не подтверждён",
         "open_trips": "Открытых оборотов: {{count}}",
         "open_days": "Оборот открыт {{count}} дн.",

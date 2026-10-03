@@ -848,6 +848,7 @@
         }
     },
     "reys_confirm": {
+        "short": "Unconfirmed",
         "unconfirmed": "Trip not confirmed",
         "open_trips": "Open trips: {{count}}",
         "open_days": "Trip open for {{count}} days",

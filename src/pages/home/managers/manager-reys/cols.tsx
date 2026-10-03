@@ -23,11 +23,11 @@ const ACTIVITY_COLORS: Record<number, string> = {
 }
 
 const DIRECTION_MATCH_COLORS = {
-    priced: "bg-green-500/10 text-green-600 border-transparent",
-    unpriced: "bg-amber-500/10 text-amber-600 border-transparent",
-    ambiguous: "bg-orange-500/10 text-orange-600 border-transparent",
-    not_found: "bg-red-500/10 text-red-600 border-transparent",
-    manual: "bg-blue-500/10 text-blue-600 border-transparent",
+    priced: "bg-green-500/10 text-green-600 border-transparent whitespace-nowrap",
+    unpriced: "bg-amber-500/10 text-amber-600 border-transparent whitespace-nowrap",
+    ambiguous: "bg-orange-500/10 text-orange-600 border-transparent whitespace-nowrap",
+    not_found: "bg-red-500/10 text-red-600 border-transparent whitespace-nowrap",
+    manual: "bg-blue-500/10 text-blue-600 border-transparent whitespace-nowrap",
 }
 
 const isGarajOrTamirActivity = (activity?: number) =>
@@ -70,6 +70,7 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "cargo_type_name",
                 header: t("form.cargo_type"),
                 enableSorting: true,
+                cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span>,
             },
             {
                 accessorKey: "external_id",
@@ -114,51 +115,39 @@ export const useColumnsManagersOrders = (opts?: {
                     const colorClass =
                         ACTIVITY_COLORS[activity] ||
                         "bg-gray-500/10 text-gray-500 border-gray-200"
-                    const otherActive = row.original?.vehicle_other_active_orders ?? 0
-                    const isActiveOrder = ![2, 3, 4].includes(Number(row.original?.status))
+                    return (
+                        <Badge variant="outline" className={`whitespace-nowrap ${colorClass}`}>
+                            {row.original?.activity_display || "-"}
+                        </Badge>
+                    )
+                },
+            },
+            {
+                id: "trip_confirm",
+                header: t("reys_confirm.trip_label"),
+                enableSorting: false,
+                cell: ({ row }) => {
                     const unconfirmed = row.original?.trip_confirmed === false
+                    const isActiveOrder = ![2, 3, 4].includes(Number(row.original?.status))
+                    const otherActive = isActiveOrder ? row.original?.vehicle_other_active_orders ?? 0 : 0
                     const openTrips = row.original?.vehicle_open_trips ?? 0
                     const openDays = row.original?.trip_open_days ?? 0
+                    const issues = [
+                        openTrips > 1 ? t("reys_confirm.open_trips", { count: openTrips }) : null,
+                        openDays > 30 ? t("reys_confirm.open_days", { count: openDays }) : null,
+                        otherActive > 0 ? t("form.dm_open_orders", { count: otherActive }) : null,
+                    ].filter(Boolean) as string[]
+                    if (!unconfirmed && !otherActive) return null
+                    const color = issues.length ? DIRECTION_MATCH_COLORS.not_found : DIRECTION_MATCH_COLORS.unpriced
                     return (
-                        <div className="flex flex-wrap items-center gap-1">
-                            <Badge variant="outline" className={colorClass}>
-                                {row.original?.activity_display || "-"}
-                            </Badge>
-                            {unconfirmed && (
-                                <Badge
-                                    variant="outline"
-                                    className="bg-amber-500/10 text-amber-600 border-transparent"
-                                >
-                                    {t("reys_confirm.unconfirmed")}
-                                </Badge>
-                            )}
-                            {unconfirmed && openTrips > 1 && (
-                                <Badge
-                                    variant="outline"
-                                    className={DIRECTION_MATCH_COLORS.ambiguous}
-                                >
-                                    {t("reys_confirm.open_trips", { count: openTrips })}
-                                </Badge>
-                            )}
-                            {unconfirmed && openDays > 30 && (
-                                <Badge
-                                    variant="outline"
-                                    className={DIRECTION_MATCH_COLORS.not_found}
-                                >
-                                    {t("reys_confirm.open_days", { count: openDays })}
-                                </Badge>
-                            )}
-                            {otherActive > 0 && isActiveOrder && (
-                                <Badge
-                                    variant="outline"
-                                    title={t("form.dm_open_orders", { count: otherActive })}
-                                    className={`gap-1 px-1.5 ${DIRECTION_MATCH_COLORS.not_found}`}
-                                >
-                                    <TriangleAlert className="size-3" />
-                                    {otherActive}
-                                </Badge>
-                            )}
-                        </div>
+                        <Badge
+                            variant="outline"
+                            title={issues.join(" · ") || undefined}
+                            className={`gap-1 whitespace-nowrap ${color}`}
+                        >
+                            {issues.length > 0 && <TriangleAlert className="size-3" />}
+                            {unconfirmed ? t("reys_confirm.short") : issues.length}
+                        </Badge>
                     )
                 },
             },
