@@ -6,10 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
+import { endOfMonth, startOfMonth } from "date-fns"
 import { ArrowDownCircle, Send, X } from "lucide-react"
 import { ReactNode, useState } from "react"
-import { KassaRequest, KassaTrip, KassaTx, n, useKassaRoles, useOverview, usePeriod } from "./api"
-import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, RejectModal, RequestModal, ReverseModal, TakeModal } from "./modals"
+import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, n, useKassaRoles, useOverview, usePeriod } from "./api"
+import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal, TakeModal } from "./modals"
 import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
 const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => (
@@ -54,6 +55,7 @@ const KassaV2 = () => {
     const [driver, setDriver] = useState<number | null>(null)
     const [editing, setEditing] = useState<KassaRequest | null>(null)
     const [rejecting, setRejecting] = useState<KassaRequest | null>(null)
+    const [paying, setPaying] = useState<KassaRequest | null>(null)
     const [closing, setClosing] = useState<KassaTrip | null>(null)
     const [incomeRow, setIncomeRow] = useState<KassaTx | null>(null)
     const [reverseRow, setReverseRow] = useState<KassaTx | null>(null)
@@ -63,6 +65,7 @@ const KassaV2 = () => {
     const take = useModal(M.take)
     const request = useModal(M.request)
     const reject = useModal(M.reject)
+    const pay = useModal(M.pay)
     const close = useModal(M.close)
     const reverseM = useModal(M.reverse)
 
@@ -74,7 +77,7 @@ const KassaV2 = () => {
         <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-3 md:h-full min-h-0">
             <Card className="md:h-full min-h-0 overflow-hidden">
                 <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
-                    <ParamDateRange from="from_date" to="to_date" addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
+                    <ParamDateRange className="w-full" from="from_date" to="to_date" defaultValue={{ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }} addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
 
                     <Box className="bg-primary/5 border-primary/30">
                         <Line strong label="Kassa qoldig'i" value={ov?.balance} />
@@ -94,7 +97,7 @@ const KassaV2 = () => {
                         <Line sub label="Garaj xarajatlari (naqd)" value={ov?.outcome.garaj} {...lineProps("out_garaj", "Garaj xarajatlari (naqd)")} />
                     </Box>
 
-                    <div className="border-t pt-3 flex flex-col min-h-0">
+                    <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-2">
                             <p className="text-sm font-medium text-muted-foreground">Haydovchilar balansi · {drivers.length}</p>
                             <span className="text-sm font-semibold tabular-nums">{formatMoney(n(ov?.drivers_total))}</span>
@@ -146,6 +149,7 @@ const KassaV2 = () => {
                     <RequestsTable
                         switcher={switcher}
                         onReject={(r) => { setRejecting(r); reject.openModal() }}
+                        onPay={(r) => { setPaying(r); pay.openModal() }}
                         onEdit={(r) => { setEditing(r); request.openModal() }}
                         actions={operator && (
                             <Button onClick={() => { setEditing(null); request.openModal() }}>
@@ -168,10 +172,11 @@ const KassaV2 = () => {
                         onDelete={(r) => { setIncomeRow(r); delIncome.openModal() }}
                         onReverse={(r) => { setReverseRow(r); reverseM.openModal() }}
                         onReject={(r) => { setRejecting(r); reject.openModal() }}
+                        onPay={(r) => { setPaying(r); pay.openModal() }}
                         onEditRequest={(r) => { setEditing(r); request.openModal() }}
                         actions={<>
                             {operator && (
-                                <Button variant="outline" onClick={() => { setEditing(null); request.openModal() }}>
+                                <Button onClick={() => { setEditing(null); request.openModal() }}>
                                     <Send size={16} />
                                     Pul so'rovi
                                 </Button>
@@ -192,6 +197,7 @@ const KassaV2 = () => {
             <Modal modalKey={M.take} title="Haydovchidan pul oldim" size="max-w-md"><TakeModal /></Modal>
             <Modal modalKey={M.request} title={!editing ? "Pul so'rovi" : editing.status === 10 ? "So'rovni tahrirlash" : "So'rovni tuzatish"} size="max-w-md"><RequestModal editing={editing} /></Modal>
             <Modal modalKey={M.reject} title="So'rovni rad etish" size="max-w-md"><RejectModal request={rejecting} /></Modal>
+            <Modal modalKey={M.pay} title={paying && KIND_DIR[paying.kind] === "out" ? "Pul berish" : "Pul olish"} size="max-w-md"><PayModal request={paying} /></Modal>
             <Modal modalKey={M.close} title={closing ? `Aylanma #${closing.id} ni yopish` : ""} size="max-w-xl"><CloseTripModal trip={closing} /></Modal>
             <Modal modalKey={M.reverse} title="Amalni bekor qilish" size="max-w-md"><ReverseModal row={reverseRow} /></Modal>
         </div>

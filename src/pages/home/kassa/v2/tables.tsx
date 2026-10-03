@@ -139,7 +139,7 @@ const requestRow = (r: KassaRequest): KassaRow => ({
     req: r,
 })
 
-export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onReject, onEditRequest, group, groupLabel, onClearGroup }: {
+export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onReject, onPay, onEditRequest, group, groupLabel, onClearGroup }: {
     group?: string | null
     groupLabel?: string
     onClearGroup?: () => void
@@ -149,6 +149,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     onDelete: (r: KassaTx) => void
     onReverse: (r: KassaTx) => void
     onReject: (r: KassaRequest) => void
+    onPay: (r: KassaRequest) => void
     onEditRequest: (r: KassaRequest) => void
 }) => {
     const { cashier, operator } = useKassaRoles()
@@ -219,7 +220,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                         return (
                             <div className="flex flex-col items-end gap-1">
                                 <div className="flex items-center gap-1">
-                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => act(`${KV2_REQUESTS}/${q.id}/pay`, out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi")}>
+                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => onPay(q)}>
                                         <Check size={16} />
                                         {out ? "Berdim" : "Oldim"}
                                     </Button>
@@ -263,7 +264,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     )}{!!pendingData?.count && <Badge variant="orange">{pendingData.count} ta so'rov kutilmoqda</Badge>}</>}
                     right={<>
                         <Filter value={dir} onChange={setDir} options={[["all", "Kirim va chiqim"], ["in", "Faqat kirim"], ["out", "Faqat chiqim"]]} />
-                        <Button variant="outline" onClick={() => excelModal.openModal()}>
+                        <Button onClick={() => excelModal.openModal()}>
                             <Download size={16} />
                             Excel
                         </Button>
@@ -289,9 +290,10 @@ const requestWho = (r: KassaRequest) => {
     return r.vehicle_number
 }
 
-export const RequestsTable = ({ switcher, onReject, onEdit, actions }: {
+export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
     switcher: ReactNode
     onReject: (r: KassaRequest) => void
+    onPay: (r: KassaRequest) => void
     onEdit: (r: KassaRequest) => void
     actions?: ReactNode
 }) => {
@@ -356,7 +358,7 @@ export const RequestsTable = ({ switcher, onReject, onEdit, actions }: {
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
-                                <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => act(`${KV2_REQUESTS}/${r.id}/pay`, out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi")}>
+                                <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => onPay(r)}>
                                     <Check size={16} />
                                     {out ? "Berdim" : "Oldim"}
                                 </Button>

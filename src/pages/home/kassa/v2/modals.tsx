@@ -18,6 +18,7 @@ import {
     KassaRequest,
     KassaTrip,
     KassaTx,
+    KIND_DIR,
     KIND_LABEL,
     KV2,
     KV2_CATEGORIES,
@@ -46,6 +47,7 @@ export const M = {
     reject: "kv2-reject",
     reverse: "kv2-reverse",
     close: "kv2-close",
+    pay: "kv2-pay",
 }
 
 const amountRules = { validate: (v: unknown) => Number(v) > 0 || "Summa 0 dan katta bo'lsin" }
@@ -300,6 +302,31 @@ export const RequestModal = ({ editing }: { editing: KassaRequest | null }) => {
             <FormTextarea label="Izoh" name="comment" methods={form} />
             <Save label={!editing ? "Yuborish" : editing.status === STATUS.PENDING ? "Saqlash" : "Qayta yuborish"} loading={post.isPending} />
         </form>
+    )
+}
+
+export const PayModal = ({ request }: { request: KassaRequest | null }) => {
+    const { closeModal } = useModal(M.pay)
+    const post = useKassaPost(closeModal)
+    if (!request) return null
+    const out = KIND_DIR[request.kind] === "out"
+    return (
+        <div className="flex flex-col gap-4">
+            <p className="text-sm">
+                <b>{money(request.amount)} so'm</b> · {request.kind_label} · {request.driver_name || "—"}
+            </p>
+            <p className="text-sm text-muted-foreground">{out ? "Kassadan chiqim qilinadi." : "Kassaga kirim qilinadi."}</p>
+            <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={closeModal}>Bekor qilish</Button>
+                <Button
+                    className="min-w-32"
+                    loading={post.isPending}
+                    onClick={() => post.mutate(`${KV2_REQUESTS}/${request.id}/pay`, {}, { onSuccess: () => toast.success(out ? "Kassadan chiqim qilindi" : "Kassaga kirim qilindi"), onError: onErr })}
+                >
+                    {out ? "Berdim" : "Oldim"}
+                </Button>
+            </div>
+        </div>
     )
 }
 
