@@ -40,7 +40,7 @@ function LangButton() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="relative size-9 shrink-0" title={current.label}>
+                <Button variant="default" size="icon" className="relative size-9 shrink-0" title={current.label}>
                     <Globe size={18} />
                     <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">{current.flag}</span>
                 </Button>
@@ -66,15 +66,15 @@ function LangButton() {
 // (exact or a "/"-segment prefix, first match wins); each `searchKey` mirrors the
 // URL param the corresponding page already reads.
 const HEADER_SEARCH: { prefix: string; searchKey: string; placeholder: string }[] = [
-    { prefix: "/buxgalteriya", searchKey: "search", placeholder: "Davlat raqami..." },
+    { prefix: "/buxgalteriya", searchKey: "search", placeholder: "Avtomobil raqami..." },
     { prefix: "/haydovchilar", searchKey: "driver_search", placeholder: "Haydovchi..." },
-    { prefix: "/managers", searchKey: "search", placeholder: "Mashina raqami..." },
+    { prefix: "/managers", searchKey: "search", placeholder: "Avtomobil raqami..." },
     { prefix: "/manager-trips/manager-reys", searchKey: "search", placeholder: "Joy, yuk turi, yuk beruvchi yoki ID..." },
     { prefix: "/kassa", searchKey: "tx_search", placeholder: "Izoh / ma'sul..." },
-    { prefix: "/texnik-check", searchKey: "vehicle_search", placeholder: "Mashina raqami..." },
-    { prefix: "/technic-check", searchKey: "vehicle_search", placeholder: "Mashina raqami..." },
+    { prefix: "/texnik-check", searchKey: "vehicle_search", placeholder: "Avtomobil raqami..." },
+    { prefix: "/technic-check", searchKey: "vehicle_search", placeholder: "Avtomobil raqami..." },
     { prefix: "/petrol-stations", searchKey: "petrol_search", placeholder: "Qidirish..." },
-    { prefix: "/truck", searchKey: "search", placeholder: "Mashina raqami..." },
+    { prefix: "/truck", searchKey: "search", placeholder: "Avtomobil raqami..." },
     { prefix: "/ombor", searchKey: "search", placeholder: "Mahsulot nomi..." },
     { prefix: "/monitoring", searchKey: "q", placeholder: "Mashina yoki haydovchi..." },
     { prefix: "/flights", searchKey: "search", placeholder: "Mashina, mijoz yoki joy..." },

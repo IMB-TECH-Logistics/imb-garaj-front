@@ -38,7 +38,7 @@ export function DocumentNotification() {
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
-                    variant="outline"
+                    variant="default"
                     size="icon"
                     className="relative size-9 shrink-0"
                     title="Hujjatlar muddati"

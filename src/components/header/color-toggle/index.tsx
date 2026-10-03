@@ -11,7 +11,7 @@ export function ThemeColorToggle() {
     return (
         <Button
             type="button"
-            variant="outline"
+            variant="default"
             size="icon"
             aria-label={t("actions.toggle_theme")}
             className="size-9 shrink-0"
