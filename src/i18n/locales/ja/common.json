@@ -150,6 +150,8 @@
         "description": "説明",
         "contract": "契約",
         "region": "地域",
+        "place": "場所",
+        "region_parent_hint": "空欄の場合は地域そのものです",
         "country": "国",
         "first_name": "名",
         "last_name": "姓",

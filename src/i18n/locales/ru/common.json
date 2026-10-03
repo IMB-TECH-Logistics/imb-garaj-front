@@ -150,6 +150,8 @@
         "description": "Описание",
         "contract": "Договор",
         "region": "Область",
+        "place": "Местоположение",
+        "region_parent_hint": "Если пусто — это область",
         "country": "Страна",
         "first_name": "Имя",
         "last_name": "Фамилия",

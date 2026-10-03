@@ -150,6 +150,8 @@
         "description": "Tavsif",
         "contract": "Shartnoma",
         "region": "Viloyat",
+        "place": "Joylashuv",
+        "region_parent_hint": "Bo'sh qoldirilsa — viloyat",
         "country": "Davlat",
         "first_name": "Ism",
         "last_name": "Familiya",
