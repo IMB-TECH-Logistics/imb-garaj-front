@@ -79,6 +79,28 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => formatDateSafe(row.original.date),
             },
             {
+                id: "images",
+                header: t("table.image_col"),
+                size: 60,
+                cell: ({ row }) => {
+                    const images = row.original?.images
+                    if (!images?.length) return <span className="text-muted-foreground">—</span>
+                    return (
+                        <button
+                            type="button"
+                            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                opts?.onImageClick?.(images)
+                            }}
+                        >
+                            <ImageIcon size={16} />
+                            <span className="text-xs">{images.length}</span>
+                        </button>
+                    )
+                },
+            },
+            {
                 accessorKey: "activity_display",
                 header: t("table.status"),
                 enableSorting: false,
@@ -185,28 +207,6 @@ export const useColumnsManagersOrders = (opts?: {
                     }
 
                     return diffBadge ?? "-"
-                },
-            },
-            {
-                id: "images",
-                header: t("table.image_col"),
-                size: 60,
-                cell: ({ row }) => {
-                    const images = row.original?.images
-                    if (!images?.length) return <span className="text-muted-foreground">—</span>
-                    return (
-                        <button
-                            type="button"
-                            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                opts?.onImageClick?.(images)
-                            }}
-                        >
-                            <ImageIcon size={16} />
-                            <span className="text-xs">{images.length}</span>
-                        </button>
-                    )
                 },
             },
             {
