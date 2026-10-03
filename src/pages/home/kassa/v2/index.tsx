@@ -8,7 +8,7 @@ import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { ArrowDownCircle, Send, X } from "lucide-react"
 import { ReactNode, useState } from "react"
-import { fmtDate, KassaRequest, KassaTrip, KassaTx, n, useKassaRoles, useOverview, usePeriod } from "./api"
+import { KassaRequest, KassaTrip, KassaTx, n, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, RejectModal, RequestModal, ReverseModal, TakeModal } from "./modals"
 import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
@@ -119,10 +119,6 @@ const KassaV2 = () => {
                             ))}
                             {!drivers.length && <p className="text-xs text-muted-foreground">Yangi kassada hali aylanma yo'q.</p>}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-3">
-                            Musbat — haydovchida kompaniya puli (qarzi), manfiy — kassa unga qarzdor. Balans kassaga ta'sir qilmaydi.
-                        </p>
-                        {ov?.started_at && <p className="text-xs text-muted-foreground mt-1">Yangi kassa boshlangan: {fmtDate(ov.started_at)}</p>}
                     </div>
                 </CardContent>
             </Card>
