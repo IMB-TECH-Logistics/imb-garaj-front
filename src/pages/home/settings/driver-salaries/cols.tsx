@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { todayIso } from "@/lib/today-iso"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -76,18 +75,6 @@ export const useSalaryColumns = () => {
                 header: t("page.vt_valid_from"),
                 enableSorting: false,
                 cell: ({ row }) => formatDate(row.original.valid_from),
-            },
-            {
-                id: "upcoming",
-                header: t("page.vt_upcoming"),
-                enableSorting: false,
-                cell: ({ row }) =>
-                    row.original.upcoming ? (
-                        <Badge variant="outline" className="whitespace-nowrap">
-                            {formatDate(row.original.upcoming.valid_from)} —{" "}
-                            {formatMoney(row.original.upcoming.amount)}
-                        </Badge>
-                    ) : null,
             },
         ],
         [t],
