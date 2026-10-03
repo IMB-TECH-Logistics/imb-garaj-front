@@ -28,6 +28,7 @@ const HIDDEN_SALARY_COLUMNS = new Set([
     "owner_name",
     "load_place_display",
     "unload_place_display",
+    "distributor_name",
     "payment_type_name",
     "currency",
 ])
