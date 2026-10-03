@@ -127,7 +127,8 @@ export const useColumnsManagersOrders = (opts?: {
                 header: t("reys_confirm.trip_label"),
                 enableSorting: false,
                 cell: ({ row }) => {
-                    const unconfirmed = row.original?.trip_confirmed === false
+                    const unconfirmed =
+                        row.original?.trip_confirmed === false && Number(row.original?.status) !== -1
                     const isActiveOrder = ![2, 3, 4].includes(Number(row.original?.status))
                     const otherActive = isActiveOrder ? row.original?.vehicle_other_active_orders ?? 0 : 0
                     const openTrips = row.original?.vehicle_open_trips ?? 0
@@ -137,7 +138,7 @@ export const useColumnsManagersOrders = (opts?: {
                         openDays > 30 ? t("reys_confirm.open_days", { count: openDays }) : null,
                         otherActive > 0 ? t("form.dm_open_orders", { count: otherActive }) : null,
                     ].filter(Boolean) as string[]
-                    if (!unconfirmed && !otherActive) return null
+                    if (!unconfirmed && issues.length === 0) return null
                     const color = issues.length ? DIRECTION_MATCH_COLORS.not_found : DIRECTION_MATCH_COLORS.unpriced
                     return (
                         <Badge
