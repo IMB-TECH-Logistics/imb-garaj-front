@@ -79,6 +79,9 @@ export const COMMON_SELECTABLE_VEHICLE_TYPE = "vehicle-types"
 /** ===== DASHBOARD (was /owner/) ===== */
 export const OWNER_MAIN_STATISTIC = "dashboard/main-statistic"
 export const OWNER_TRIP_DAILY_STATISTIC = "dashboard/trip-daily-statistic"
+export const OWNER_VEHICLE_EXPENSES = "dashboard/vehicle-expenses"
+export const OWNER_MONTHLY_STATISTIC = "dashboard/monthly-statistic"
+export const OWNER_INVESTORS = "dashboard/investors"
 
 /** ===== MANAGER (BFF aggregator — unchanged) ===== */
 export const MANAGERS_VEHICLES = "manager/vehicles"

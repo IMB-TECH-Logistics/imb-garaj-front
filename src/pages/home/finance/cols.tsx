@@ -16,6 +16,9 @@ export interface OwnerStatistic {
     fuel_per_km: number
     income: string | number | null
     expense: string | number | null
+    vehicle_expense: string | number | null
+    owner_id: number | null
+    unpriced_count: number
     cargo_type_name: string | null
 }
 
@@ -62,6 +65,17 @@ export const useCostCols = () => {
                         {row.original.order_count_empty} / {row.original.order_count_busy}
                     </span>
                 ),
+            },
+            {
+                header: "Narxsiz reys",
+                accessorKey: "unpriced_count",
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.unpriced_count ?
+                        <span className="text-xs font-medium py-0.5 px-2 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                            {row.original.unpriced_count}
+                        </span>
+                    :   <span className="text-muted-foreground">—</span>,
             },
             {
                 header: t("table.mileage_km"),
@@ -135,12 +149,32 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: t("table.profit"),
+                header: "Reys foydasi",
                 id: "profit",
                 enableSorting: true,
                 cell: ({ row }) => {
                     const profit = round3(toNum(row.original.income) - toNum(row.original.expense))
                     return <span className={`font-medium ${profit >= 0 ? "text-blue-600" : "text-red-600"}`}>{formatMoney(profit)}</span>
+                },
+            },
+            {
+                header: "Mashina xarajati",
+                accessorKey: "vehicle_expense",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const v = round3(row.original.vehicle_expense)
+                    return <span className="text-red-600 font-medium">{v ? formatMoney(v) : "—"}</span>
+                },
+            },
+            {
+                header: "Sof natija",
+                id: "net",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const net = round3(
+                        toNum(row.original.income) - toNum(row.original.expense) - toNum(row.original.vehicle_expense),
+                    )
+                    return <span className={`font-semibold ${net >= 0 ? "text-blue-600" : "text-red-600"}`}>{formatMoney(net)}</span>
                 },
             },
         ],

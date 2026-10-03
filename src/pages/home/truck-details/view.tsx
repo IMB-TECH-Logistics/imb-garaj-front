@@ -1,3 +1,4 @@
+import ParamDateRange from "@/components/as-params/date-picker-range"
 import EmptyBox from "@/components/custom/empty-box"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,9 +11,11 @@ import { VEHICLES } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { ArrowLeft, Calendar, Truck } from "lucide-react"
+import { ArrowLeft, Truck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import VehicleTrips from "./truck-trips"
+import ParamTabs from "@/components/as-params/tabs"
+import { MonthlyReport, VehicleExpenses } from "@/pages/home/finance/investor-report"
 
 function ViewPage() {
     const { t } = useTranslation()
@@ -80,19 +83,25 @@ function ViewPage() {
                     )}
                 </h1>
 
-                <div className="flex-1 flex justify-end items-center gap-2 text-muted-foreground text-xs sm:text-sm font-medium pr-2 sm:pr-4">
-                    {search?.from_date && search?.to_date && (
-                        <>
-                            <Calendar size={14} className="opacity-80" />
-                            <span className="tabular-nums">{search.from_date}</span>
-                            <span className="opacity-50">—</span>
-                            <span className="tabular-nums">{search.to_date}</span>
-                        </>
-                    )}
+                <div className="flex-1 flex justify-end">
+                    <ParamDateRange
+                        from="from_date"
+                        to="to_date"
+                        addButtonProps={{
+                            className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
+                        }}
+                    />
                 </div>
             </div>
 
-            <VehicleTrips />
+            <ParamTabs
+                paramName="truck_tab"
+                options={[
+                    { value: "trips", label: "Aylanmalar", content: <VehicleTrips /> },
+                    { value: "expenses", label: "Mashina xarajatlari", content: <VehicleExpenses vehicleId={id} /> },
+                    { value: "monthly", label: "Oylar bo'yicha", content: <MonthlyReport vehicleId={id} /> },
+                ]}
+            />
         </div>
     )
 }
