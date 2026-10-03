@@ -89,21 +89,6 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => formatDateSafe(row.original.date),
             },
             {
-                accessorKey: "activity_display",
-                header: t("table.status"),
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const activity = row.original?.activity
-                    const colorClass =
-                        ACTIVITY_COLORS[activity] ||
-                        "bg-gray-500/10 text-gray-500 border-gray-200"
-                    return (
-                        <Badge variant="outline" className={`whitespace-nowrap ${colorClass}`}>
-                            {row.original?.activity_display || "-"}
-                        </Badge>
-                    )
-                },
-            },
             {
                 id: "direction_match",
                 header: t("form.direction"),
@@ -195,6 +180,22 @@ export const useColumnsManagersOrders = (opts?: {
                     }
 
                     return diffBadge ?? "-"
+                },
+            },
+            {
+                accessorKey: "activity_display",
+                header: t("table.status"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const activity = row.original?.activity
+                    const colorClass =
+                        ACTIVITY_COLORS[activity] ||
+                        "bg-gray-500/10 text-gray-500 border-gray-200"
+                    return (
+                        <Badge variant="outline" className={`whitespace-nowrap ${colorClass}`}>
+                            {row.original?.activity_display || "-"}
+                        </Badge>
+                    )
                 },
             },
             {
