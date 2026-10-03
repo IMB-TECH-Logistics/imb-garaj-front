@@ -1,12 +1,14 @@
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { type PetrolStationRow } from "./cols"
 import LocationPicker, { type LatLng } from "./location-picker"
@@ -17,6 +19,7 @@ type FormValues = {
     address: string
     latitude: number | null
     longitude: number | null
+    has_contract: boolean
 }
 
 const AddPetrolStationModal = () => {
@@ -32,6 +35,7 @@ const AddPetrolStationModal = () => {
             address: current?.address ?? "",
             latitude: current?.latitude ?? null,
             longitude: current?.longitude ?? null,
+            has_contract: current?.has_contract ?? false,
         },
     })
     const { handleSubmit, reset, watch, setValue } = form
@@ -78,6 +82,7 @@ const AddPetrolStationModal = () => {
         const payload = {
             name: values.name,
             address: values.address,
+            has_contract: values.has_contract,
             latitude: values.latitude,
             longitude: values.longitude,
         }
@@ -91,14 +96,44 @@ const AddPetrolStationModal = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormInput required name="name" label={t("form.name")} methods={form} />
-            <FormInput required name="address" label={t("form.address")} methods={form} />
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Asosiy</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <FormInput required name="name" label={t("form.name")} methods={form} />
 
-            <LocationPicker value={pickerValue} onChange={handlePick} />
-            <p className="text-xs text-muted-foreground -mt-2">
-                Xaritadan zapravka joyini tanlang — manzil avtomatik
-                to'ldiriladi.
-            </p>
+                    <FormInput required name="address" label={t("form.address")} methods={form} />
+
+                    <Controller
+                        control={form.control}
+                        name="has_contract"
+                        render={({ field }) => (
+                            <div className="flex items-start gap-3 rounded-md border bg-background p-3">
+                                <Switch id="has-contract" checked={!!field.value} onCheckedChange={field.onChange} />
+                                <Label htmlFor="has-contract" className="flex flex-col gap-1 cursor-pointer">
+                                    <span className="text-sm font-medium">Zapravka bilan shartnoma bor</span>
+                                    <span className="text-xs font-normal text-muted-foreground">
+                                        {field.value ?
+                                            "Yoqilg'i pul o'tkazish orqali to'lanadi — kassaga va haydovchi balansiga tegmaydi."
+                                        :   "Yoqilg'i naqd pul bilan to'lanadi — haydovchi balansidan chiqim bo'ladi."}
+                                    </span>
+                                </Label>
+                            </div>
+                        )}
+                    />
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Joylashuv</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <LocationPicker value={pickerValue} onChange={handlePick} />
+
+                    <p className="text-xs text-muted-foreground -mt-2">
+                        Xaritadan zapravka joyini tanlang — manzil avtomatik
+                        to'ldiriladi.
+                    </p>
+                </div>
+            </section>
 
             <div className="flex items-center justify-end mt-1">
                 <Button className="min-w-36" type="submit" loading={isPending}>

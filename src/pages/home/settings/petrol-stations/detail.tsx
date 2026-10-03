@@ -358,7 +358,7 @@ const PetrolStationDetail = () => {
                 </Tabs>
                 {hasControl && (
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" onClick={openExpense}>
+                        <Button onClick={openExpense}>
                             <Plus size={16} className="mr-1" />
                             {t("page.add_expense")}
                         </Button>
@@ -499,8 +499,8 @@ const PetrolStationDetail = () => {
             <Modal
                 title={
                     editCashFlow.get()?.action === -1
-                        ? t("actions.edit") + " " + t("form.expense").toLowerCase()
-                        : t("actions.edit") + " " + t("form.income").toLowerCase()
+                        ? "Chiqimni tahrirlash"
+                        : "Tushumni tahrirlash"
                 }
                 modalKey="petrol-cash-flow-edit"
                 size="max-w-md"

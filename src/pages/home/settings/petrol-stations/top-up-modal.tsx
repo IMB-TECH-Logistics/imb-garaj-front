@@ -65,28 +65,37 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-            <FormCombobox
-                control={control}
-                label={t("form.currency")}
-                name="currency"
-                options={CURRENCY_OPTIONS}
-                valueKey="id"
-                labelKey="name"
-            />
-            <FormNumberInput
-                required
-                control={control}
-                label={t("form.amount")}
-                name="amount"
-                placeholder="Ex: 1 000 000"
-                thousandSeparator=" "
-                decimalScale={2}
-                allowNegative={false}
-                registerOptions={{
-                    validate: (v) =>
-                        Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
-                }}
-            />
+            <div className="flex gap-3">
+                <div className="flex-1 min-w-0">
+                    <FormNumberInput
+                        required
+                        control={control}
+                        label={t("form.amount")}
+                        name="amount"
+                        placeholder="Ex: 1 000 000"
+                        thousandSeparator=" "
+                        decimalScale={2}
+                        allowNegative={false}
+                        registerOptions={{
+                            validate: (v) =>
+                                Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                        }}
+                    />
+                </div>
+                <div className="w-32 shrink-0">
+                    <FormCombobox
+                        control={control}
+                        label={t("form.currency")}
+                        name="currency"
+                        isClearIcon={false}
+                        options={CURRENCY_OPTIONS}
+                        valueKey="id"
+                        labelKey="name"
+                    />
+                </div>
+            </div>
+
+
             {currency === 2 && (
                 <FormNumberInput
                     required
@@ -98,7 +107,9 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                     decimalScale={0}
                 />
             )}
+
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
+
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>
                     {t("actions.save")}

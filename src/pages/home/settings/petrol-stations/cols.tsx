@@ -10,6 +10,7 @@ export type PetrolStationRow = {
     latitude: number | null
     longitude: number | null
     balance: string | number | null
+    has_contract?: boolean
 }
 
 export const usePetrolStationColumns = () => {

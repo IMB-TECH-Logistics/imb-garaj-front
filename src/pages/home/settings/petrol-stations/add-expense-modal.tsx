@@ -279,294 +279,325 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 no-scrollbar-x">
-            <div className="flex flex-col gap-1.5">
-                <span className="font-medium text-sm">{t("form.vehicle_type")}</span>
-                <div className="flex gap-2">
-                    {[
-                        { value: false, label: "Garaj furasi" },
-                        { value: true, label: "Boshqa mashina" },
-                    ].map((choice) => (
-                        <button
-                            key={String(choice.value)}
-                            type="button"
-                            onClick={() => {
-                                setIsOther(choice.value)
-                                setValue("vehicle", "")
-                                setValue("other_vehicle", "")
-                                setValue("trip", "")
-                            }}
-                            className={cn(
-                                "px-3 py-1.5 rounded-md text-sm border transition-colors",
-                                isOther === choice.value
-                                    ? "bg-primary text-primary-foreground border-primary"
-                                    : "bg-background text-muted-foreground hover:text-foreground",
-                            )}
-                        >
-                            {choice.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Avtomobil</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                        <span className="font-medium text-sm">{t("form.vehicle_type")}</span>
+                        <div className="flex gap-2">
+                            {[
+                                { value: false, label: "Garaj furasi" },
+                                { value: true, label: "Boshqa mashina" },
+                            ].map((choice) => (
+                                <button
+                                    key={String(choice.value)}
+                                    type="button"
+                                    onClick={() => {
+                                        setIsOther(choice.value)
+                                        setValue("vehicle", "")
+                                        setValue("other_vehicle", "")
+                                        setValue("trip", "")
+                                    }}
+                                    className={cn(
+                                        "px-3 py-1.5 rounded-md text-sm border transition-colors",
+                                        isOther === choice.value
+                                            ? "bg-primary text-primary-foreground border-primary"
+                                            : "bg-background text-muted-foreground hover:text-foreground",
+                                    )}
+                                >
+                                    {choice.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
-            {isOther ?
-                <div className="flex flex-col gap-2">
-                    <FormCombobox
-                        required
-                        control={control}
-                        label={t("form.truck_number")}
-                        name="other_vehicle"
-                        options={(otherVehicles ?? []).map((v) => ({
-                            ...v,
-                            label: `${v.number} (${UNIT_LABEL[v.fuel] ?? "litr"})`,
-                        }))}
-                        valueKey="id"
-                        labelKey="label"
-                        placeholder={t("form.truck_number")}
-                    />
-                    {isAdding ?
-                        <div className="flex flex-col gap-2 rounded-md border p-3">
-                            <Input
-                                fullWidth
-                                autoFocus
-                                placeholder="01 777 AAA"
-                                value={newNumber}
-                                onChange={(event) => {
-                                    setNewNumber(event.target.value)
-                                    setAddError("")
-                                }}
+                    {isOther ?
+                        <div className="flex flex-col gap-2">
+                            <FormCombobox
+                                required
+                                control={control}
+                                label={t("form.truck_number")}
+                                name="other_vehicle"
+                                options={(otherVehicles ?? []).map((v) => ({
+                                    ...v,
+                                    label: `${v.number} (${UNIT_LABEL[v.fuel] ?? "litr"})`,
+                                }))}
+                                valueKey="id"
+                                labelKey="label"
+                                placeholder={t("form.truck_number")}
                             />
-                            <div className="flex flex-col gap-1">
-                                <span className="text-sm font-medium">
-                                    {t("form.fuel_type")}
-                                </span>
-                                <div className="flex gap-2">
-                                    {[
-                                        { value: "methane", label: "Metan (m³)" },
-                                        { value: "diesel", label: "Dizel (litr)" },
-                                    ].map((choice) => (
-                                        <button
-                                            key={choice.value}
+                            {isAdding ?
+                                <div className="flex flex-col gap-2 rounded-md border p-3">
+                                    <Input
+                                        fullWidth
+                                        autoFocus
+                                        placeholder="01 777 AAA"
+                                        value={newNumber}
+                                        onChange={(event) => {
+                                            setNewNumber(event.target.value)
+                                            setAddError("")
+                                        }}
+                                    />
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium">
+                                            {t("form.fuel_type")}
+                                        </span>
+                                        <div className="flex gap-2">
+                                            {[
+                                                { value: "methane", label: "Metan (m³)" },
+                                                { value: "diesel", label: "Dizel (litr)" },
+                                            ].map((choice) => (
+                                                <button
+                                                    key={choice.value}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setNewFuel(
+                                                            choice.value as
+                                                                | "methane"
+                                                                | "diesel",
+                                                        )
+                                                    }
+                                                    className={cn(
+                                                        "px-3 py-1.5 rounded-md text-sm border transition-colors",
+                                                        newFuel === choice.value
+                                                            ? "bg-primary text-primary-foreground border-primary"
+                                                            : "bg-background text-muted-foreground hover:text-foreground",
+                                                    )}
+                                                >
+                                                    {choice.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <Input
+                                        fullWidth
+                                        placeholder="Izoh (ixtiyoriy)"
+                                        value={newComment}
+                                        onChange={(event) =>
+                                            setNewComment(event.target.value)
+                                        }
+                                    />
+                                    {!!addError && (
+                                        <span className="text-destructive text-xs">
+                                            {addError}
+                                        </span>
+                                    )}
+                                    <div className="flex gap-2 justify-end">
+                                        {!!editingId && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                loading={isDeleting}
+                                                className="text-destructive mr-auto"
+                                                onClick={() =>
+                                                    deleteOtherVehicle(
+                                                        `${PETROL_STATIONS_OTHER_VEHICLES}/${editingId}`,
+                                                    )
+                                                }
+                                            >
+                                                {t("actions.delete")}
+                                            </Button>
+                                        )}
+                                        <Button
                                             type="button"
-                                            onClick={() =>
-                                                setNewFuel(
-                                                    choice.value as
-                                                        | "methane"
-                                                        | "diesel",
-                                                )
-                                            }
-                                            className={cn(
-                                                "px-3 py-1.5 rounded-md text-sm border transition-colors",
-                                                newFuel === choice.value
-                                                    ? "bg-primary text-primary-foreground border-primary"
-                                                    : "bg-background text-muted-foreground hover:text-foreground",
-                                            )}
+                                            variant="ghost"
+                                            onClick={() => {
+                                                setIsAdding(false)
+                                                setEditingId(null)
+                                                setAddError("")
+                                            }}
                                         >
-                                            {choice.label}
-                                        </button>
-                                    ))}
+                                            {t("actions.cancel")}
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            loading={isCreating || isUpdating}
+                                            disabled={!newNumber.trim()}
+                                            onClick={() => {
+                                                const payload = {
+                                                    number: newNumber.trim(),
+                                                    fuel: newFuel,
+                                                    ...(newComment.trim()
+                                                        ? { comment: newComment.trim() }
+                                                        : {}),
+                                                } as any
+                                                if (editingId) {
+                                                    updateOtherVehicle(
+                                                        `${PETROL_STATIONS_OTHER_VEHICLES}/${editingId}`,
+                                                        payload,
+                                                    )
+                                                } else {
+                                                    createOtherVehicle(
+                                                        PETROL_STATIONS_OTHER_VEHICLES,
+                                                        payload,
+                                                    )
+                                                }
+                                            }}
+                                        >
+                                            {editingId ? t("actions.save") : t("actions.add")}
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                            <Input
-                                fullWidth
-                                placeholder="Izoh (ixtiyoriy)"
-                                value={newComment}
-                                onChange={(event) =>
-                                    setNewComment(event.target.value)
+                            :   <div className="flex gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingId(null)
+                                            setNewNumber("")
+                                            setNewComment("")
+                                            setNewFuel("methane")
+                                            setAddError("")
+                                            setIsAdding(true)
+                                        }}
+                                        className="text-sm text-primary w-max hover:underline"
+                                    >
+                                        + Yangi mashina qo'shish
+                                    </button>
+                                    {!!selectedOtherVehicle && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setEditingId(selectedOtherVehicle.id)
+                                                setNewNumber(selectedOtherVehicle.number)
+                                                setNewFuel(
+                                                    selectedOtherVehicle.fuel === "diesel"
+                                                        ? "diesel"
+                                                        : "methane",
+                                                )
+                                                setNewComment("")
+                                                setAddError("")
+                                                setIsAdding(true)
+                                            }}
+                                            className="text-sm text-muted-foreground w-max hover:underline"
+                                        >
+                                            {t("actions.edit")}
+                                        </button>
+                                    )}
+                                </div>
+                            }
+                        </div>
+                    :   <>
+                            <FormCombobox
+                                required
+                                control={control}
+                                label={t("form.truck")}
+                                name="vehicle"
+                                options={vehicleOptions}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder={t("form.truck")}
+                            />
+                            <FormCombobox
+                                control={control}
+                                label={t("form.trip_optional")}
+                                name="trip"
+                                options={tripOptions}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder={
+                                    vehicleId ?
+                                        t("form.select_trip")
+                                    :   t("form.select_vehicle_first")
                                 }
                             />
-                            {!!addError && (
-                                <span className="text-destructive text-xs">
-                                    {addError}
-                                </span>
+                            {!!tripId && !isOther && (
+                                <FormCombobox
+                                    control={control}
+                                    label={t("form.order_optional")}
+                                    name="order"
+                                    options={orderOptions}
+                                    valueKey="id"
+                                    labelKey="name"
+                                    placeholder={
+                                        orderOptions.length === 0
+                                            ? t("form.no_trips_in_turnover")
+                                            : t("form.select_order")
+                                    }
+                                />
                             )}
-                            <div className="flex gap-2 justify-end">
-                                {!!editingId && (
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        loading={isDeleting}
-                                        className="text-destructive mr-auto"
-                                        onClick={() =>
-                                            deleteOtherVehicle(
-                                                `${PETROL_STATIONS_OTHER_VEHICLES}/${editingId}`,
-                                            )
-                                        }
-                                    >
-                                        {t("actions.delete")}
-                                    </Button>
-                                )}
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => {
-                                        setIsAdding(false)
-                                        setEditingId(null)
-                                        setAddError("")
-                                    }}
-                                >
-                                    {t("actions.cancel")}
-                                </Button>
-                                <Button
-                                    type="button"
-                                    loading={isCreating || isUpdating}
-                                    disabled={!newNumber.trim()}
-                                    onClick={() => {
-                                        const payload = {
-                                            number: newNumber.trim(),
-                                            fuel: newFuel,
-                                            ...(newComment.trim()
-                                                ? { comment: newComment.trim() }
-                                                : {}),
-                                        } as any
-                                        if (editingId) {
-                                            updateOtherVehicle(
-                                                `${PETROL_STATIONS_OTHER_VEHICLES}/${editingId}`,
-                                                payload,
-                                            )
-                                        } else {
-                                            createOtherVehicle(
-                                                PETROL_STATIONS_OTHER_VEHICLES,
-                                                payload,
-                                            )
-                                        }
-                                    }}
-                                >
-                                    {editingId ? t("actions.save") : t("actions.add")}
-                                </Button>
-                            </div>
-                        </div>
-                    :   <div className="flex gap-4">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setEditingId(null)
-                                    setNewNumber("")
-                                    setNewComment("")
-                                    setNewFuel("methane")
-                                    setAddError("")
-                                    setIsAdding(true)
-                                }}
-                                className="text-sm text-primary w-max hover:underline"
-                            >
-                                + Yangi mashina qo'shish
-                            </button>
-                            {!!selectedOtherVehicle && (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setEditingId(selectedOtherVehicle.id)
-                                        setNewNumber(selectedOtherVehicle.number)
-                                        setNewFuel(
-                                            selectedOtherVehicle.fuel === "diesel"
-                                                ? "diesel"
-                                                : "methane",
-                                        )
-                                        setNewComment("")
-                                        setAddError("")
-                                        setIsAdding(true)
-                                    }}
-                                    className="text-sm text-muted-foreground w-max hover:underline"
-                                >
-                                    {t("actions.edit")}
-                                </button>
-                            )}
-                        </div>
+                        </>
                     }
                 </div>
-            :   <>
-                    <FormCombobox
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Miqdor va summa</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <FormNumberInput
                         required
                         control={control}
-                        label={t("form.truck")}
-                        name="vehicle"
-                        options={vehicleOptions}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("form.truck")}
+                        label={`${t("form.quantity")} (${unitLabel})`}
+                        name="quantity"
+                        placeholder="Ex: 120.5"
+                        thousandSeparator=" "
+                        decimalScale={2}
                     />
-                    <FormCombobox
-                        control={control}
-                        label={t("form.trip_optional")}
-                        name="trip"
-                        options={tripOptions}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={
-                            vehicleId ?
-                                t("form.select_trip")
-                            :   t("form.select_vehicle_first")
-                        }
-                    />
-                    {!!tripId && !isOther && (
-                        <FormCombobox
+
+                    <div className="flex gap-3">
+                        <div className="flex-1 min-w-0">
+                            <FormNumberInput
+                                required
+                                control={control}
+                                label={t("form.amount")}
+                                name="amount"
+                                placeholder="Ex: 1 000 000"
+                                thousandSeparator=" "
+                                decimalScale={currency === 2 ? 2 : 0}
+                            />
+                        </div>
+                        <div className="w-32 shrink-0">
+                            <FormCombobox
+                                control={control}
+                                label={t("form.currency")}
+                                name="currency"
+                                isClearIcon={false}
+                                options={CURRENCY_OPTIONS}
+                                valueKey="id"
+                                labelKey="name"
+                            />
+                        </div>
+                    </div>
+
+
+                    {currency === 2 && (
+                        <FormNumberInput
+                            required
                             control={control}
-                            label={t("form.order_optional")}
-                            name="order"
-                            options={orderOptions}
-                            valueKey="id"
-                            labelKey="name"
-                            placeholder={
-                                orderOptions.length === 0
-                                    ? t("form.no_trips_in_turnover")
-                                    : t("form.select_order")
-                            }
+                            label={t("form.currency_rate")}
+                            name="currency_course"
+                            placeholder="Ex: 12 000"
+                            thousandSeparator=" "
+                            decimalScale={0}
                         />
                     )}
-                </>
-            }
-            <FormNumberInput
-                required
-                control={control}
-                label={`${t("form.quantity")} (${unitLabel})`}
-                name="quantity"
-                placeholder="Ex: 120.5"
-                thousandSeparator=" "
-                decimalScale={2}
-            />
-            <FormCombobox
-                control={control}
-                label={t("form.currency")}
-                name="currency"
-                options={CURRENCY_OPTIONS}
-                valueKey="id"
-                labelKey="name"
-            />
-            <FormNumberInput
-                required
-                control={control}
-                label={t("form.amount")}
-                name="amount"
-                placeholder="Ex: 1 000 000"
-                thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
-            />
-            {currency === 2 && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label={t("form.currency_rate")}
-                    name="currency_course"
-                    placeholder="Ex: 12 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
-                />
-            )}
-            <FormDatePicker
-                control={control}
-                label={t("form.date_optional")}
-                name="paid_at"
-                placeholder={t("form.select_date")}
-                className="w-full"
-            />
-            <FormTextarea label={t("form.comment")} name="comment" methods={form} />
-            <FileUpload
-                control={control}
-                name="receipt"
-                multiple={false}
-                isPaste={true}
-                hideClearable={true}
-                label={t("form.receipt_optional")}
-            />
+
+                    <FormDatePicker
+                        fullWidth
+                        control={control}
+                        label={t("form.date_optional")}
+                        name="paid_at"
+                        placeholder={t("form.select_date")}
+                        className="w-full"
+                    />
+                </div>
+            </section>
+
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Izoh va chek</h3>
+                <div className="grid grid-cols-1 gap-4">
+                    <FormTextarea label={t("form.comment")} name="comment" methods={form} />
+
+                    <FileUpload
+                        control={control}
+                        name="receipt"
+                        multiple={false}
+                        isPaste={true}
+                        hideClearable={true}
+                        label={t("form.receipt_optional")}
+                    />
+                </div>
+            </section>
+
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>
                     {t("actions.save")}

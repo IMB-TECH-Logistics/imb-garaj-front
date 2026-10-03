@@ -251,7 +251,7 @@ const PetrolStationsPage = () => {
             />
             <Modal
                 title={
-                    item?.id ? t("actions.edit") + " " + t("nav.petrol").toLowerCase() : t("actions.add") + " " + t("nav.petrol").toLowerCase()
+                    item?.id ? "Zapravkani tahrirlash" : "Zapravka qo'shish"
                 }
                 modalKey="create"
                 size="max-w-2xl"
