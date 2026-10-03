@@ -101,19 +101,6 @@ export const useColumnsDriverTable = () => {
                 cell: ({ row }) => row.getValue("work_experience") as string,
                 id: "work_experience",
             },
-            {
-                header: t("form.license_expiry"),
-                enableSorting: false,
-                accessorFn: (row) => row.driver?.driver_license_date || "",
-                cell: ({ row }) => {
-                    const dateValue = row.getValue("license_expiry") as string
-                    if (!dateValue) return "-"
-
-                    const date = new Date(dateValue)
-                    return date.toLocaleDateString("en-GB")
-                },
-                id: "license_expiry",
-            },
             // {
             //     accessorKey: "is_active",
             //     header: "Aktiv",
