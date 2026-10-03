@@ -50,7 +50,6 @@ export const useStatusOptions = (): StatusOption[] => {
         { id: "7", name: t("status.unloading_status") },
         { id: "2", name: t("status.done") },
         { id: "3", name: t("status.cancelled") },
-        { id: "4", name: t("status.archived") },
     ]
 }
 
@@ -73,7 +72,6 @@ export const STATUS_OPTIONS: StatusOption[] = [
     { id: "7", name: "Tushirilmoqda" },
     { id: "2", name: "Tugallandi" },
     { id: "3", name: "Bekor qilindi" },
-    { id: "4", name: "Arxivlangan" },
 ]
 
 export const ACTIVITY_OPTIONS: StatusOption[] = [

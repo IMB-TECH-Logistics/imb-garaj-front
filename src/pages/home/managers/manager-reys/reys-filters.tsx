@@ -39,7 +39,7 @@ const TRIP_CONFIRMED_ID = "false"
 
 const LIST_STATUS_OPTIONS = [
     { id: "-1", name: "Tasdiqlanmagan" },
-    ...STATUS_OPTIONS.filter((option) => option.id !== "4"),
+    ...STATUS_OPTIONS,
 ]
 
 const filterButtonProps = {

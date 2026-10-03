@@ -5,8 +5,6 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
 import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS, VEHICLES } from "@/constants/api-endpoints"
@@ -35,7 +33,6 @@ export default function ManagersTrips() {
     const { openModal: createExpenses } = useModal(MANAGERS_EXPENSES)
     const { openModal: deleteTrip } = useModal(`${MANAGERS_TRIPS}-delete`)
     const hasControl = useHasAction("manager_vehicles_control")
-    const [isArchive, setIsArchive] = useState(false)
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
     const { name } = useSearch({ strict: false }) as any
@@ -61,10 +58,10 @@ export default function ManagersTrips() {
             options: { retry: false },
             params: {
                 ...(driver_id ? { driver_id } : { vehicle: id }),
-                ...(!isArchive ? { page_size: 2 } : {}),
-                ...(isArchive && from_date ? { from_date } : {}),
-                ...(isArchive && to_date ? { to_date } : {}),
-                ...(isArchive ? { page_size: search.page_size, page: search.page } : {}),
+                ...(from_date ? { from_date } : {}),
+                ...(to_date ? { to_date } : {}),
+                page_size: search.page_size,
+                page: search.page,
                 ordering: (search as any).ordering,
             },
         },
@@ -140,14 +137,11 @@ export default function ManagersTrips() {
                 manualSorting
                 data={data?.results}
                 columns={cols}
-                viewAll={!isArchive}
-                {...(isArchive ? {
-                    paginationProps: {
-                        totalPages: data?.total_pages,
-                        paramName: "page",
-                        pageSizeParamName: "page_size",
-                    },
-                } : {})}
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                }}
                 onRowClick={handleRowClick}
                 head={
                     <div className="mb-4">
@@ -157,7 +151,6 @@ export default function ManagersTrips() {
                                     trailing={
                                         <>
                                             <Badge>
-                                                {!isArchive && <>{data?.results?.length ?? 0} / </>}
                                                 {formatMoney(data?.count)}
                                             </Badge>
                                             <span className="text-muted-foreground">/</span>
@@ -167,20 +160,10 @@ export default function ManagersTrips() {
                                 />
                             </div>
                             <div className="flex items-center gap-3">
-                                {isArchive && (
-                                    <ParamDateRange
-                                        from="from_date"
-                                        to="to_date"
-                                    />
-                                )}
-                                <div className="flex items-center gap-2">
-                                    <Label htmlFor="archive-switch" className="text-sm cursor-pointer">{t("status.archive")}</Label>
-                                    <Switch
-                                        id="archive-switch"
-                                        checked={isArchive}
-                                        onCheckedChange={setIsArchive}
-                                    />
-                                </div>
+                                <ParamDateRange
+                                    from="from_date"
+                                    to="to_date"
+                                />
                                 {hasControl && (
                                     <Button onClick={handleAdd} disabled={hasOngoingTrip || isError || isNotFound}>
                                         <Plus size={16} />

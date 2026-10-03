@@ -65,7 +65,6 @@ const ORDER_STATUS_OPTIONS: { id: string; name: string }[] = [
     { id: "7", name: "Tushirilmoqda" },
     { id: "2", name: "Tugallandi" },
     { id: "3", name: "Bekor qilindi" },
-    { id: "4", name: "Arxivlangan" },
 ]
 
 const ORDER_TYPE_OPTIONS: Option[] = [

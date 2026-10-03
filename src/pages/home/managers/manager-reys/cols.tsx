@@ -288,12 +288,6 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.canceled_time)}</span>,
             },
             {
-                accessorKey: "archived_time",
-                header: t("status.archived"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.archived_time)}</span>,
-            },
-            {
                 id: "images",
                 header: t("table.image_col"),
                 size: 60,
