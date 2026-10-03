@@ -6,10 +6,10 @@ import { FileUploader } from "react-drag-drop-files"
 import { Control, FieldValues, Path, useController } from "react-hook-form"
 import { toast } from "sonner"
 import { Button } from "../ui/button"
-import { Input } from "../ui/input"
 import Spinner from "../ui/spinner"
 import FieldError from "./form-error"
 import FieldLabel from "./form-label"
+import PasteInput from "./paste-input"
 
 type TProps<Form extends FieldValues> = {
     control: Control<Form>
@@ -141,19 +141,6 @@ export default function FileUpload<TForm extends FieldValues>({
         }
     }
 
-    function onPaste(e: React.ClipboardEvent<HTMLDivElement>) {
-        e.preventDefault()
-        if (!e.clipboardData.files.length) return
-
-        const fileObject = e.clipboardData.files[0]
-        if (!fileObject.type.startsWith("image/")) {
-            toast.error("Faqat rasm yuklashingiz mumkin")
-            return
-        }
-
-        handleOnChange([fileObject])
-    }
-
     return (
         <fieldset
             className={cn(
@@ -167,14 +154,9 @@ export default function FileUpload<TForm extends FieldValues>({
                 </FieldLabel>
             )}
             {isPaste && (
-                <Input
-                    {...field}
-                    onPaste={onPaste}
-                    readOnly
-                    tabIndex={0}
-                    placeholder="(CTRL+V)"
-                    fullWidth
-                    className="!mb-1"
+                <PasteInput
+                    onFile={(file) => handleOnChange([file])}
+                    disabled={field.disabled}
                 />
             )}
 

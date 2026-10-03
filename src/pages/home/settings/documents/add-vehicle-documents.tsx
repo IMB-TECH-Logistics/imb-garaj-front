@@ -93,7 +93,7 @@ const AddVehicleDocumentsModal = () => {
     )
     const defaults = getDefaults(loadedRow)
     const form = useForm<FormValues>({ defaultValues: getDefaults(row) })
-    const { handleSubmit, control, watch } = form
+    const { handleSubmit, control, watch, formState } = form
 
     const { data: vehicles } = useGet<
         ListResponse<{
@@ -151,6 +151,7 @@ const AddVehicleDocumentsModal = () => {
     })
 
     const onSubmit = async (values: FormValues) => {
+        if (isPending) return
         if (!values.vehicle) return
         const formData = new FormData()
         formData.append(
@@ -313,7 +314,7 @@ const AddVehicleDocumentsModal = () => {
                 <Button
                     className="min-w-36 w-full md:w-max"
                     type="submit"
-                    loading={isPending || isLoadingExisting}
+                    loading={isPending || isLoadingExisting || formState.isSubmitting}
                 >
                     {t("actions.save")}
                 </Button>

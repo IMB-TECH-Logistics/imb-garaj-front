@@ -60,7 +60,7 @@ const AddDocumentModal = () => {
         defaultValues:
             current?.doc_type ? current : { doc_type: TAB_DOC_TYPES[tab][0] },
     })
-    const { handleSubmit, reset, control, watch } = form
+    const { handleSubmit, reset, control, watch, formState } = form
     const docType = watch("doc_type")
     const isDriverDoc = docType === "driver_license"
 
@@ -106,9 +106,11 @@ const AddDocumentModal = () => {
     const { mutate: updateMutate, isPending: isPendingUpdate } = usePatch({
         onSuccess,
     })
-    const isPending = isPendingCreate || isPendingUpdate
+    const isMutating = isPendingCreate || isPendingUpdate
+    const isPending = isMutating || formState.isSubmitting
 
     const onSubmit = async (values: FormValues) => {
+        if (isMutating) return
         const formData = new FormData()
         formData.append("doc_type", String(values.doc_type))
         if (isDriverDoc) {
