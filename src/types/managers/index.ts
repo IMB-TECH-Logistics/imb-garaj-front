@@ -85,6 +85,10 @@ type ManagerOrders = {
     manual_income?: boolean
     price_diff?: string | number
     price_diff_by_client?: boolean
+    direction_match?: "matched" | "created" | "ambiguous" | "not_found" | "manual" | ""
+    direction_name?: string | null
+    direction_has_price?: boolean
+    vehicle_other_active_orders?: number
 }
 
 type ManagerExpenses = {

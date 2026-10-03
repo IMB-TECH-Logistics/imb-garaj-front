@@ -24,6 +24,7 @@ export const REYS_FILTER_KEYS = [
     "status",
     "is_integration",
     "out_of_contract",
+    "direction_match",
     "from_date",
     "to_date",
 ] as const
@@ -50,6 +51,14 @@ export default function ReysFilters() {
     const TYPE_OPTIONS: Option[] = [
         { id: "1", name: t("status.loaded") },
         { id: "2", name: t("status.empty") },
+    ]
+
+    const DIRECTION_MATCH_OPTIONS: Option[] = [
+        { id: "matched", name: t("form.dm_has_price") },
+        { id: "created", name: t("form.dm_unpriced") },
+        { id: "ambiguous", name: t("form.dm_ambiguous") },
+        { id: "not_found", name: t("form.dm_not_found") },
+        { id: "manual", name: t("form.dm_manual") },
     ]
 
     const { data: regions } = useGet<Option[]>(SETTINGS_SELECTABLE_REGION)
@@ -83,7 +92,7 @@ export default function ReysFilters() {
                     </Button>
                 </div>
             )}
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-9">
                 <ParamCombobox
                     paramName="loading"
                     label={t("form.loading_location")}
@@ -147,6 +156,15 @@ export default function ReysFilters() {
                     paramName="out_of_contract"
                     label={t("form.contract")}
                     options={CONTRACT_OPTIONS}
+                    valueKey="id"
+                    labelKey="name"
+                    isSearch={false}
+                    addButtonProps={filterButtonProps}
+                />
+                <ParamCombobox
+                    paramName="direction_match"
+                    label={t("form.dm_filter")}
+                    options={DIRECTION_MATCH_OPTIONS}
                     valueKey="id"
                     labelKey="name"
                     isSearch={false}

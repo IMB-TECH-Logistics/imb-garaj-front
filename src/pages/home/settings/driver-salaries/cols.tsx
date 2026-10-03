@@ -26,6 +26,8 @@ export type SalaryFilterSourceKey = "regions" | "cargo_types" | "salary_amounts"
 const HIDDEN_SALARY_COLUMNS = new Set([
     "owner_code",
     "owner_name",
+    "load_place_display",
+    "unload_place_display",
     "payment_type_name",
     "currency",
 ])
