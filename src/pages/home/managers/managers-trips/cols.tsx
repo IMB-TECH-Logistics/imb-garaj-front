@@ -8,6 +8,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
+import AdvanceBadge from "./advance-badge"
 
 export const STATUS_TRIP: Record<number, string> = {
     0: "Kutilmoqda",
@@ -57,7 +58,16 @@ export const useColumnsManagersTrips = (opts?: {
                 accessorKey: "driver_name",
                 header: t("form.driver"),
                 enableSorting: true,
-                cell: ({ row }) => <div>{row.original.driver_name || "-"}</div>,
+                cell: ({ row }) => (
+                    <div className="flex flex-col gap-1">
+                        <span>{row.original.driver_name || "-"}</span>
+                        <AdvanceBadge
+                            compact
+                            pending={(row.original as any).pending_advance}
+                            rejected={(row.original as any).rejected_advance}
+                        />
+                    </div>
+                ),
             },
             {
                 accessorKey: "completed_order_count",

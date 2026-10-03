@@ -12,6 +12,7 @@ import { Plus, Truck, User } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { FormCombobox } from "@/components/form/combobox"
+import { Combobox } from "@/components/ui/combobox"
 import { FormNumberInput } from "@/components/form/number-input"
 import { FormDatePicker } from "@/components/form/date-picker"
 import FormTextarea from "@/components/form/textarea"
@@ -26,6 +27,9 @@ import { useGlobalStore } from "@/store/global-store"
 import { DRIVER_SALARIES, MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINGS_REGIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
+import PendingAdvances from "./pending-advances"
+import { ADVANCE_ACTION, ADVANCE_DELETE_MODAL, ADVANCE_EDIT_MODAL, ADVANCE_RETURN_MODAL, AdvanceChangeModals, AdvanceReturnModal, RowMarks, SALARY_REQUEST_MODAL, SalaryRequestModal } from "./row-extras"
+import { useUser } from "@/constants/useUser"
 import { useTranslation } from "react-i18next"
 import { isWithinMoneyLimit } from "@/lib/money-limit"
 
@@ -33,6 +37,8 @@ import { isWithinMoneyLimit } from "@/lib/money-limit"
 
 type FinanceRow = {
     id: number
+    return_id?: number
+    return_status?: number
     trip: number | null
     order: number | null
     loading_name: string | null
@@ -54,6 +60,14 @@ type FinanceRow = {
     petrol_station: number | null
     petrol_station_name: string | null
     added_after_close?: boolean
+    action?: number
+    category_code?: string | null
+    history_count?: number
+    pending_change?: { id: number; type: "edit" | "delete" | "return"; amount: number | null } | null
+    advance?: number | null
+    advance_spent?: number | null
+    advance_left?: number | null
+    advance_returned?: number | null
 }
 
 function formatAmount(row: FinanceRow) {
@@ -224,7 +238,13 @@ function AddFinanceForm({
     selectedCategoryId,
     selectedCategoryCode,
     action,
+    modalKey = "kirim-xarajat-add",
+    defaultPaymentMethod,
+    advanceId,
 }: {
+    advanceId?: number
+    defaultPaymentMethod?: number
+    modalKey?: string
     type: "tushum" | "xarajat"
     categoryName: string
     isFuel: boolean
@@ -234,7 +254,7 @@ function AddFinanceForm({
     action: 1 | -1
 }) {
     const { t } = useTranslation()
-    const { closeModal } = useModal("kirim-xarajat-add")
+    const { closeModal } = useModal(modalKey)
     const { getData, clearKey } = useGlobalStore()
     const queryClient = useQueryClient()
     const editItem = getData(MANAGERS_EXPENSES) as FinanceRow | undefined
@@ -278,6 +298,12 @@ function AddFinanceForm({
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 1000000 },
     })
+    useEffect(() => {
+        if (isEdit || !defaultPaymentMethod) return
+        const list = ((paymentTypes as any)?.results ?? paymentTypes ?? []) as { id: number; method?: number }[]
+        const match = Array.isArray(list) ? list.find((x) => x.method === defaultPaymentMethod) : undefined
+        if (match) setValue("payment_type", match.id as any)
+    }, [paymentTypes, defaultPaymentMethod, isEdit, setValue])
 
     const { data: ordersData } = useGet<ListResponse<{ id: number; loading: number; unloading: number; loading_name: string; unloading_name: string; date?: string }>>(
         MANAGERS_ORDERS,
@@ -404,12 +430,13 @@ function AddFinanceForm({
         fd.append("action", String(action))
         fd.append("currency", String(data.currency || 1))
         if (data.comment) fd.append("comment", data.comment)
-        if (data.payment_type) fd.append("payment_type", String(data.payment_type))
+        if (data.payment_type && !(isFuel && !isEdit)) fd.append("payment_type", String(data.payment_type))
         if (data.quantity) fd.append("quantity", String(data.quantity))
         if (data.currency === 2 && data.currency_course) fd.append("currency_course", String(data.currency_course))
         if (isFuel && data.petrol_station) fd.append("petrol_station", String(data.petrol_station))
         if (showOrderSelect && data.order) fd.append("order", String(data.order))
         if (data.receipt instanceof File) fd.append("receipt", data.receipt)
+        if (advanceId && action === -1) fd.append("advance", String(advanceId))
 
         if (isEdit) {
             patchMutate(`${MANAGERS_EXPENSES}/${editItem.id}`, fd as any, {
@@ -427,29 +454,49 @@ function AddFinanceForm({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 no-scrollbar-x"
         >
-            <FormCombobox
-                control={control}
-                label={t("form.currency")}
-                name="currency"
-                options={[
-                    { id: 1, name: "UZS" },
-                    { id: 2, name: "USD" },
-                ]}
-                valueKey="id"
-                labelKey="name"
-            />
-            <FormNumberInput
-                required
-                control={control}
-                label={t("form.amount")}
-                name="amount"
-                placeholder="Ex: 123 000"
-                thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
-                registerOptions={{
-                    validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
-                }}
-            />
+            {isFuel && (
+                <>
+                    <PetrolStationField control={control} />
+                    <FormNumberInput
+                        required
+                        control={control}
+                        label={`${t("form.quantity")} (litr)`}
+                        name="quantity"
+                        placeholder="Ex: 120.5"
+                        decimalScale={2}
+                    />
+                </>
+            )}
+            <div className="flex gap-3">
+                <div className="flex-1 min-w-0">
+                    <FormNumberInput
+                        required
+                        control={control}
+                        label={t("form.amount")}
+                        name="amount"
+                        placeholder="Ex: 123 000"
+                        thousandSeparator=" "
+                        decimalScale={currency === 2 ? 2 : 0}
+                        registerOptions={{
+                            validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                        }}
+                    />
+                </div>
+                <div className="w-32 shrink-0">
+                    <FormCombobox
+                        control={control}
+                        label={t("form.currency")}
+                        name="currency"
+                        isClearIcon={false}
+                        options={[
+                            { id: 1, name: "UZS" },
+                            { id: 2, name: "USD" },
+                        ]}
+                        valueKey="id"
+                        labelKey="name"
+                    />
+                </div>
+            </div>
             {currency === 2 && (
                 <FormNumberInput
                     required
@@ -525,27 +572,16 @@ function AddFinanceForm({
                     placeholder={t("form.order_type")}
                 />
             )}
-            {isFuel && (
-                <>
-                    <FormNumberInput
-                        required
-                        control={control}
-                        label={`${t("form.quantity")} (litr)`}
-                        name="quantity"
-                        placeholder="Ex: 120.5"
-                        decimalScale={2}
-                    />
-                    <PetrolStationField control={control} />
-                </>
+            {!(isFuel && !isEdit) && (
+                <FormCombobox
+                    control={control}
+                    label={t("form.payment_type")}
+                    name="payment_type"
+                    options={paymentTypes?.results ?? []}
+                    valueKey="id"
+                    labelKey="name"
+                />
             )}
-            <FormCombobox
-                control={control}
-                label={t("form.payment_type")}
-                name="payment_type"
-                options={paymentTypes?.results ?? []}
-                valueKey="id"
-                labelKey="name"
-            />
             <FormTextarea required label={t("form.comment")} methods={form} name="comment" />
             <FileUpload
                 control={control}
@@ -596,7 +632,17 @@ const useIncomeCols = (opts?: { withCategory?: boolean }) => {
             },
             { header: t("form.payment_type"), accessorKey: "payment_type_name", enableSorting: true },
             { header: t("form.comment"), accessorKey: "comment", enableSorting: true },
-            { header: t("table.created_at"), accessorKey: "created", enableSorting: true, cell: ({ row }) => formatDateTime(row.original.created) },
+            {
+                header: t("table.created_at"),
+                accessorKey: "created",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div className="flex items-center gap-2">
+                        {formatDateTime(row.original.created)}
+                        <RowMarks row={row.original} />
+                    </div>
+                ),
+            },
         ],
         [opts?.withCategory, t],
     )
@@ -640,6 +686,7 @@ const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => 
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2">
                         {formatDateTime(row.original.created)}
+                        <RowMarks row={row.original} />
                         {row.original.added_after_close && (
                             <Badge variant="outline" className="border-amber-500 text-amber-600 whitespace-nowrap">
                                 {t("page.added_after_close")}
@@ -726,6 +773,7 @@ function IncomeTab({ tripId, onCategoryChange, onCategoryIdChange, onCategoryCod
                     numeration
                     viewAll
                     onDelete={({ original }) => handleDelete(original)}
+                    onEdit={({ original }) => { setData(MANAGERS_EXPENSES, original); openModal() }}
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
@@ -824,6 +872,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                     numeration
                     viewAll
                     onDelete={({ original }) => handleDelete(original)}
+                    onEdit={({ original }) => { setData(MANAGERS_EXPENSES, original); openModal() }}
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
                             <div className="flex items-center gap-3">
@@ -891,7 +940,10 @@ function AvansForm({ tripId }: { tripId?: number }) {
             onSuccess: () => {
                 toast.success(t("toast.advance_given"))
                 queryClient.invalidateQueries({
-                    predicate: (q) => String(q.queryKey[0]).includes("cashflow"),
+                    predicate: (q) => {
+                        const k = String(q.queryKey[0])
+                        return k.includes("cashflow") || k.startsWith("checkout/kassa-v2") || k.startsWith(MANAGERS_TRIPS)
+                    },
                 })
                 reset()
                 closeModal()
@@ -901,29 +953,36 @@ function AvansForm({ tripId }: { tripId?: number }) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-            <FormCombobox
-                control={control}
-                label={t("form.currency")}
-                name="currency"
-                options={[
-                    { id: 1, name: "UZS" },
-                    { id: 2, name: "USD" },
-                ]}
-                valueKey="id"
-                labelKey="name"
-            />
-            <FormNumberInput
-                required
-                control={control}
-                label={t("form.amount")}
-                name="amount"
-                placeholder="Ex: 5 000 000"
-                thousandSeparator=" "
-                decimalScale={currency === 2 ? 2 : 0}
-                registerOptions={{
-                    validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
-                }}
-            />
+            <div className="flex gap-3">
+                <div className="flex-1 min-w-0">
+                    <FormNumberInput
+                        required
+                        control={control}
+                        label={t("form.amount")}
+                        name="amount"
+                        placeholder="Ex: 5 000 000"
+                        thousandSeparator=" "
+                        decimalScale={currency === 2 ? 2 : 0}
+                        registerOptions={{
+                            validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                        }}
+                    />
+                </div>
+                <div className="w-32 shrink-0">
+                    <FormCombobox
+                        control={control}
+                        label={t("form.currency")}
+                        name="currency"
+                        isClearIcon={false}
+                        options={[
+                            { id: 1, name: "UZS" },
+                            { id: 2, name: "USD" },
+                        ]}
+                        valueKey="id"
+                        labelKey="name"
+                    />
+                </div>
+            </div>
             {currency === 2 && (
                 <FormNumberInput
                     required
@@ -1015,17 +1074,27 @@ function SummaryCard({
     amountUsd,
     variant,
     unitUzs = "UZS",
+    active,
+    onClick,
+    sub,
 }: {
+    sub?: React.ReactNode
     label: string
     amountUzs: number
     amountUsd?: number
     variant: "income" | "expense" | "balance"
     unitUzs?: string
+    active?: boolean
+    onClick?: () => void
 }) {
     return (
         <div
+            onClick={onClick}
+            role={onClick ? "button" : undefined}
             className={cn(
                 "px-4 py-3 rounded-md border min-w-36 text-center",
+                onClick && "cursor-pointer transition hover:brightness-110",
+                active && "ring-2 ring-inset ring-primary",
                 variant === "income" && "bg-green-500/10 border-transparent",
                 variant === "expense" && "bg-red-600/10 border-transparent",
                 variant === "balance" && "bg-primary/10 border-transparent",
@@ -1041,6 +1110,7 @@ function SummaryCard({
                 )}
             >
                 {formatMoney(amountUzs)}{unitUzs && <> <span className="text-xs text-muted-foreground">{unitUzs}</span></>}
+                {sub && <span className="whitespace-nowrap"> · {sub}</span>}
             </p>
             {amountUsd != null && Number(amountUsd) > 0 && (
                 <p
@@ -1060,14 +1130,135 @@ function SummaryCard({
 
 // ──── Returnable breakdown ────
 
+// ──── Add from T hisob ────
+
+function AddFromTAccount({ type, tripId, presetCategoryCode, defaultPaymentMethod, advanceId }: { type: "tushum" | "xarajat"; tripId?: number; presetCategoryCode?: string; defaultPaymentMethod?: number; advanceId?: number }) {
+    const action: 1 | -1 = type === "xarajat" ? -1 : 1
+    const { data: categoriesData } = useGet<ListResponse<Category>>(
+        MANAGERS_EXPENSE_CATEGORIES,
+        {
+            params: { page_size: 100000, action, trip_id: tripId },
+            enabled: !!tripId,
+            options: { queryKey: [MANAGERS_EXPENSE_CATEGORIES, "t-hisob-add", action, tripId] },
+        },
+    )
+    const categories = (categoriesData?.results ?? []).filter((c) => c.code !== "salary")
+    const [catId, setCatId] = useState<number | null>(null)
+    useEffect(() => {
+        if (categories.length && !categories.some((c) => c.id === catId)) {
+            const preset = presetCategoryCode ? categories.find((c) => c.code === presetCategoryCode) : undefined
+            setCatId((preset ?? categories[0]).id ?? null)
+        }
+    }, [categoriesData, presetCategoryCode])
+    const cat = categories.find((c) => c.id === catId)
+    const isFuel = type === "xarajat" && (cat?.code === "fuel" || /yoqilg['ʻ']i|fuel|solyarka|metan|dizel|benzin/i.test(cat?.name ?? ""))
+
+    return (
+        <div className="flex flex-col gap-3">
+            {!(presetCategoryCode && cat?.code === presetCategoryCode) && (
+            <div className="flex flex-col gap-1.5 text-sm font-medium">
+                {type === "xarajat" ? "Xarajat turi" : "Tushum turi"}
+                <Combobox
+                    label={type === "xarajat" ? "Xarajat turi" : "Tushum turi"}
+                    options={categories}
+                    value={catId}
+                    setValue={(v: any) => v != null && v !== "" && setCatId(Number(v))}
+                    labelKey="name"
+                    valueKey="id"
+                    isClearIcon={false}
+                    isSearch={false}
+                />
+            </div>
+            )}
+            {cat && (
+                <AddFinanceForm
+                    key={`${type}-${cat.id}`}
+                    modalKey="t-hisob-add"
+                    type={type}
+                    categoryName={cat.name}
+                    isFuel={isFuel}
+                    tripId={tripId}
+                    selectedCategoryId={cat.id ?? null}
+                    selectedCategoryCode={cat.code ?? null}
+                    action={action}
+                    defaultPaymentMethod={defaultPaymentMethod}
+                    advanceId={advanceId}
+                />
+            )}
+        </div>
+    )
+}
+
 // ──── T hisob tab ────
 
-function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number }) {
+function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number; hideToggle?: boolean }) {
     const { t } = useTranslation()
     const { openModal: openAvansModal } = useModal("avans-berish")
     const { setData } = useGlobalStore()
+    const { data: me } = useUser()
+    const isKassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
     const { openModal: openDeleteIncomeModal } = useModal(`${MANAGERS_INCOMES}-thisob-delete`)
     const { openModal: openDeleteExpenseModal } = useModal(`${MANAGERS_EXPENSES}-thisob-delete`)
+    const { openModal: openAdvEdit } = useModal(ADVANCE_EDIT_MODAL)
+    const { openModal: openAdvDelete } = useModal(ADVANCE_DELETE_MODAL)
+    const { openModal: openRowEdit } = useModal("t-hisob-edit")
+    const [advRow, setAdvRow] = useState<FinanceRow | null>(null)
+    const [editRow, setEditRow] = useState<FinanceRow | null>(null)
+    const [addType, setAddType] = useState<"tushum" | "xarajat">("tushum")
+    const [addPreset, setAddPreset] = useState<{ category?: string; method?: number; advance?: number }>({})
+    const [selectedAdvance, setSelectedAdvance] = useState<number | null>(null)
+    const { openModal: openAdd } = useModal("t-hisob-add")
+    const { openModal: openSalaryRequest } = useModal(SALARY_REQUEST_MODAL)
+    const { openModal: openReturn } = useModal(ADVANCE_RETURN_MODAL)
+    const { clearKey } = useGlobalStore()
+    const startAdd = (type: "tushum" | "xarajat", preset: { category?: string; method?: number; advance?: number } = {}) => {
+        clearKey(MANAGERS_EXPENSES)
+        setAddType(type)
+        setAddPreset(preset)
+        openAdd()
+    }
+    const [filter, setFilter] = useState<"tushum" | "avans" | "zapravka" | "oylik">("avans")
+    const { mutate: postReturnAction } = usePost({ meta: { skipGlobalError: true } })
+    const { data: returnsData, refetch: refetchReturns } = useGet<{ results: { id: number; status: number; amount: string; comment: string | null; created: string; target_cash_flow?: number | null }[] }>(
+        "checkout/kassa-v2/requests",
+        { params: { trip: tripId, kind: "avans_qaytarish", status: "10,-10,20" }, enabled: !!tripId && !!hideToggle },
+    )
+    const returnRowsOf = (advanceId: number): FinanceRow[] =>
+        (returnsData?.results ?? [])
+            .filter((r) => r.target_cash_flow === advanceId)
+            .map((r) => ({
+                id: -r.id,
+                return_id: r.id,
+                return_status: r.status,
+                action: 1,
+                amount: Number(r.amount),
+                category_name: "Qoldiq kassaga qaytarildi",
+                comment: r.comment,
+                payment_type_name: "Naqd",
+                created: r.created,
+            }) as unknown as FinanceRow)
+    const returnRowAction = (row: FinanceRow, kind: "edit" | "delete") => {
+        if (row.return_status === 20) return toast.info("Kassir qabul qilgan. Bekor qilish faqat kassir storno qilishi orqali")
+        if (kind === "edit") return toast.info("Bekor qilib, qaytadan yuboring")
+        postReturnAction(`checkout/kassa-v2/requests/${row.return_id}/cancel`, {}, {
+            onSuccess: () => {
+                toast.success("Qaytarish so'rovi bekor qilindi")
+                refetchReturns()
+            },
+            onError: () => toast.error("Bekor qilib bo'lmadi"),
+        })
+    }
+    const startEdit = (row: FinanceRow) => {
+        if (row.return_id) return returnRowAction(row, "edit")
+        if (row.action === ADVANCE_ACTION) {
+            setAdvRow(row)
+            openAdvEdit()
+            return
+        }
+        setData(MANAGERS_EXPENSES, row)
+        setEditRow(row)
+        openRowEdit()
+    }
 
     const handleDeleteIncome = (row: FinanceRow) => {
         setData(MANAGERS_INCOMES, row)
@@ -1110,11 +1301,70 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
     )
 
     const incomeRows = incomeData?.results ?? []
+    const { data: allExpenseData } = useGet<ListResponse<FinanceRow>>(
+        MANAGERS_CASHFLOW,
+        {
+            params: { trip: tripId, action: -1, page_size: 100000 },
+            enabled: !!tripId && !!hideToggle,
+            options: { queryKey: [MANAGERS_CASHFLOW, "t-hisob-all-expense", tripId] },
+        },
+    )
+    const sumOf = (rows: FinanceRow[]) => rows.reduce((a, r) => a + Number(r.amount || 0), 0)
+    const avansSum = sumOf(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
+    const allExpenses = allExpenseData?.results ?? []
+    const transferFuelSum = sumOf(allExpenses.filter((r) => r.category_code === "fuel" && /o.?tkaz/i.test(r.payment_type_name ?? "")))
+    const salarySum = sumOf(allExpenses.filter((r) => r.category_code === "salary"))
     const expenseRows = expenseData?.results ?? []
 
     const incomeCols = useIncomeCols({ withCategory: true })
+    const mixedCols = useMemo<ColumnDef<FinanceRow>[]>(
+        () => [
+            {
+                header: "Summa",
+                accessorKey: "amount",
+                cell: ({ row }) => {
+                    const out = row.original.action === -1
+                    return (
+                        <span className={cn("font-medium whitespace-nowrap", out ? "text-red-500" : "text-green-600")}>
+                            {out ? "− " : "+ "}{formatAmount(row.original)}
+                        </span>
+                    )
+                },
+            },
+            {
+                header: "Nima uchun",
+                accessorKey: "category_name",
+                cell: ({ row }) => row.original.category_name || (row.original.action === ADVANCE_ACTION ? (row.original.comment?.toLowerCase().includes("qo'shimcha") ? "Qo'shimcha pul" : "Avans") : "—"),
+            },
+            {
+                header: "Reys",
+                id: "route",
+                cell: ({ row }) => row.original.order ? `${row.original.loading_name ?? ""} → ${row.original.unloading_name ?? ""}` : "—",
+            },
+            { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
+            { header: "To'lov turi", accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || "—" },
+            {
+                header: "Sana",
+                accessorKey: "created",
+                cell: ({ row }) => (
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                        {formatDateTime(row.original.created)}
+                        {row.original.return_id ?
+                            <Badge variant={(row.original.return_status === 20 ? "default" : row.original.return_status === -10 ? "destructive" : "orange") as any} className="w-fit whitespace-nowrap">
+                                {row.original.return_status === 20 ? "Qaytarildi" : row.original.return_status === -10 ? "Rad etildi" : "Kassir tasdig'i kutilmoqda"}
+                            </Badge>
+                        :   <RowMarks row={row.original} />}
+                    </div>
+                ),
+            },
+        ],
+        [],
+    )
     const expenseCols = useExpenseCols({ withCategory: true })
 
+    const moliyaTrip = useGlobalStore.getState().getData(`${MANAGERS_TRIPS}-moliya`) as any
+    const fuelKind = String(moliyaTrip?.fuel_type ?? moliyaTrip?.vehicle_fuel ?? "").toLowerCase()
+    const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : "litr"
     const stat = mode === "aylanma" ? tripStat : driverStat
     const incomeUzs = Number(stat?.income_uzs ?? 0)
     const incomeUsd = Number(stat?.income_usd ?? 0)
@@ -1127,36 +1377,195 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
         <div className="flex flex-col h-full overflow-hidden gap-4">
             <div className="shrink-0 flex flex-col gap-3">
                 {/* Mode switch */}
-                <ModeToggle mode={mode} onToggle={onToggle} />
+                {!hideToggle && <ModeToggle mode={mode} onToggle={onToggle} />}
 
                 {/* Summary row */}
                 <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-stretch gap-3 overflow-x-auto no-scrollbar">
-                        <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} amountUsd={incomeUsd} variant="income" />
-                        <SummaryCard label={t("page.all_expense")} amountUzs={expenseUzs} amountUsd={expenseUsd} variant="expense" />
+                    <div className={cn("flex items-stretch gap-3 overflow-x-auto no-scrollbar", hideToggle && "flex-1")}>
+                        {hideToggle ?
+                            <>
+                                <SummaryCard label="Avans" amountUzs={avansSum} variant="expense" active={filter === "avans"} onClick={() => setFilter("avans")} />
+                                <SummaryCard label="Zapravka (pul o'tkazish)" amountUzs={transferFuelSum} variant="expense" active={filter === "zapravka"} onClick={() => setFilter("zapravka")} />
+                                <SummaryCard label="Oylik" amountUzs={salarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />
+                                <SummaryCard label="Tushum reys" amountUzs={incomeUzs - avansSum} variant="income" active={filter === "tushum"} onClick={() => setFilter("tushum")} />
+                            </>
+                        :   <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} amountUsd={incomeUsd} variant="income" />}
+                        {hideToggle ? null
+                        :   <SummaryCard label={t("page.all_expense")} amountUzs={expenseUzs} amountUsd={expenseUsd} variant="expense" />}
+                        {hideToggle && <div className="ml-auto" />}
                         <SummaryCard label={mode === "haydovchi" ? t("form.balance") : t("table.profit")} amountUzs={balanceUzs} amountUsd={balanceUsd} variant="balance" />
                         {mode === "haydovchi" && driverStat && (
                             <>
-                                <SummaryCard label={`${t("form.fuel_type")} ${t("form.amount")}`} amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)} amountUsd={Number(driverStat.return_fuel_amount_usd ?? 0)} variant="balance" />
-                                {Number(driverStat.return_fuel ?? 0) > 0 && (
-                                    <SummaryCard label={`${t("form.fuel_type")} (litr)`} amountUzs={Number(driverStat.return_fuel)} variant="balance" unitUzs="" />
-                                )}
+                                <SummaryCard
+                                    label="Bakdagi yoqilg'i"
+                                    amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)}
+                                    amountUsd={Number(driverStat.return_fuel_amount_usd ?? 0)}
+                                    variant="balance"
+                                    sub={Number(driverStat.return_fuel ?? 0) > 0 ? <>{formatMoney(Number(driverStat.return_fuel))} {fuelUnit}</> : undefined}
+                                />
                             </>
                         )}
                     </div>
-                    {mode === "haydovchi" && (
+                    {mode === "haydovchi" && !hideToggle && (
                         <Button
                             onClick={() => openAvansModal()}
                             variant="outline"
                             className="gap-1.5 shrink-0"
                         >
                             <Plus size={16} />
-                            {t("actions.give_advance")}
+                            {isKassaV2 ? "Avans berish" : t("actions.give_advance")}
                         </Button>
                     )}
                 </div>
             </div>
 
+            {hideToggle ? (() => {
+                const byDate = (rows: FinanceRow[]) => [...rows].sort((x, y) => String(y.created).localeCompare(String(x.created)))
+                const isTransferFuel = (r: FinanceRow) => r.category_code === "fuel" && /o.?tkaz/i.test(r.payment_type_name ?? "")
+                if (filter === "avans") {
+                    const advances = byDate(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
+                    const spentOf = (a: FinanceRow) =>
+                        a.advance_spent != null ? Number(a.advance_spent) : sumOf((allExpenses.length ? allExpenses : expenseRows).filter((e) => e.advance === a.id))
+                    const returnedOf = (a: FinanceRow) => Number(a.advance_returned ?? 0)
+                    const leftOf = (a: FinanceRow) =>
+                        a.advance_left != null ? Number(a.advance_left) : Number(a.amount) - spentOf(a) - returnedOf(a)
+                    const advanceCols: ColumnDef<FinanceRow>[] = [
+                        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap text-red-500">− {formatAmount(row.original)}</span> },
+                        { header: "Nima uchun", id: "kind", cell: ({ row }) => (row.original.comment?.toLowerCase().includes("qo'shimcha") ? "Qo'shimcha pul" : "Avans") },
+                        { header: "Ishlatildi", id: "spent", cell: ({ row }) => <span className="text-red-500 whitespace-nowrap">{formatMoney(spentOf(row.original))}</span> },
+                        {
+                            header: "Qoldi",
+                            id: "left",
+                            cell: ({ row }) => {
+                                const left = leftOf(row.original)
+                                return <span className={cn("font-medium whitespace-nowrap", left < 0 ? "text-red-500" : "text-primary")}>{formatMoney(left)}</span>
+                            },
+                        },
+                        { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
+                        {
+                            header: "Sana",
+                            accessorKey: "created",
+                            cell: ({ row }) => (
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    {formatDateTime(row.original.created)}
+                                    <RowMarks row={row.original} />
+                                </div>
+                            ),
+                        },
+                    ]
+                    const sel = advances.find((a) => a.id === selectedAdvance)
+                    const deleteRow = (original: FinanceRow) => {
+                        if (original.return_id) return returnRowAction(original, "delete")
+                        if (original.action === ADVANCE_ACTION) {
+                            setAdvRow(original)
+                            openAdvDelete()
+                            return
+                        }
+                        handleDeleteExpense(original)
+                    }
+                    if (sel) {
+                        const linked = byDate([...(allExpenses.length ? allExpenses : expenseRows).filter((e) => e.advance === sel.id), ...returnRowsOf(sel.id)])
+                        const left = leftOf(sel)
+                        return (
+                            <div className="flex-1 min-h-0 overflow-y-auto">
+                                <DataTable
+                                    columns={mixedCols}
+                                    data={linked}
+                                    numeration
+                                    viewAll
+                                    onEdit={({ original }) => startEdit(original)}
+                                    onDelete={({ original }) => deleteRow(original)}
+                                    head={
+                                        <>
+                                        <div className="flex flex-wrap mb-3 items-center gap-3">
+                                            <Badge className="gap-1.5 cursor-pointer text-sm" onClick={() => setSelectedAdvance(null)}>
+                                                {sel.comment?.toLowerCase().includes("qo'shimcha") ? "Qo'shimcha pul" : "Avans"} · {formatDateTime(sel.created)} ✕
+                                            </Badge>
+                                            <div className="ml-auto flex items-center gap-2">
+                                                <Button size="sm" variant="outline" className="gap-1" onClick={() => openReturn()}>
+                                                    Qoldiqni qaytarish
+                                                </Button>
+                                                <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { advance: sel.id })}>
+                                                    <Plus size={16} />
+                                                    Chiqim qo'shish
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <AdvanceReturnModal advanceId={sel.id} left={left} />
+                                        </>
+                                    }
+                                />
+                            </div>
+                        )
+                    }
+                    return (
+                        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4">
+                            <DataTable
+                                columns={advanceCols}
+                                data={advances}
+                                numeration
+                                viewAll
+                                onRowClick={(row: FinanceRow) => setSelectedAdvance(row.id)}
+                                onEdit={({ original }) => startEdit(original)}
+                                onDelete={({ original }) => deleteRow(original)}
+                                head={
+                                    <>
+                                        <div className="flex mb-3 items-center gap-3">
+                                            <h1 className="text-lg font-semibold">Avanslar</h1>
+                                            <Badge className="text-sm">{advances.length}</Badge>
+                                            <span className="text-xs text-muted-foreground">Avans ustiga bosing — undan qilingan xarajatlar ochiladi</span>
+                                            <div className="ml-auto">
+                                                <Button size="sm" className="gap-1" onClick={() => openAvansModal()}><Plus size={16} />Avans berish</Button>
+                                            </div>
+                                        </div>
+                                        <PendingAdvances tripId={tripId} />
+                                    </>
+                                }
+                            />
+                        </div>
+                    )
+                }
+                const rows =
+                    filter === "tushum" ? incomeRows.filter((r) => r.action === 1)
+                    : filter === "zapravka" ? allExpenses.filter(isTransferFuel)
+                    : allExpenses.filter((r) => r.category_code === "salary")
+                const title = { tushum: "Tushum", avans: "Avans va undan qilingan naqd xarajatlar", zapravka: "Zapravka (pul o'tkazish)", oylik: "Oylik" }[filter]
+                const actions =
+                    filter === "tushum" ?
+                        <Button size="sm" className="gap-1" onClick={() => startAdd("tushum")}><Plus size={16} />Tushum qo'shish</Button>
+                    : filter === "zapravka" ?
+                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />Yoqilg'i quyish</Button>
+                    :   <Button size="sm" className="gap-1" onClick={() => openSalaryRequest()}><Plus size={16} />Oylik so'rash</Button>
+                return (
+                    <div className="flex-1 min-h-0 overflow-y-auto">
+                        <DataTable
+                            columns={mixedCols}
+                            data={rows}
+                            numeration
+                            viewAll
+                            onEdit={({ original }) => startEdit(original)}
+                            onDelete={({ original }) => {
+                                if (original.action === ADVANCE_ACTION) {
+                                    setAdvRow(original)
+                                    openAdvDelete()
+                                    return
+                                }
+                                if (original.action === 1) handleDeleteIncome(original)
+                                else handleDeleteExpense(original)
+                            }}
+                            head={
+                                <>
+                                    <div className="flex mb-3 items-center gap-3">
+                                        <h1 className="text-lg font-semibold">{title}</h1>
+                                        <Badge className="text-sm">{rows.length}</Badge>
+                                        <div className="ml-auto flex items-center gap-2">{actions}</div>
+                                    </div>
+                                </>
+                            }
+                        />
+                    </div>
+                )
+            })() : (
             <div className="flex-1 min-h-0 grid grid-cols-2 gap-4 overflow-hidden">
                 <div className="overflow-y-auto min-h-0">
                     <DataTable
@@ -1164,12 +1573,27 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         data={incomeRows}
                         numeration
                         viewAll
-                        onDelete={({ original }) => handleDeleteIncome(original)}
+                        onDelete={({ original }) => {
+                            if (original.action === ADVANCE_ACTION) {
+                                setAdvRow(original)
+                                openAdvDelete()
+                                return
+                            }
+                            handleDeleteIncome(original)
+                        }}
+                        onEdit={({ original }) => startEdit(original)}
                         head={
-                            <div className="flex mb-3 items-center gap-3">
-                                <h1 className="text-xl text-green-600">{t("form.income")}</h1>
-                                <Badge className="text-sm">{incomeRows.length}</Badge>
-                            </div>
+                            <>
+                                <div className="flex mb-3 items-center gap-3">
+                                    <h1 className="text-xl text-green-600">{t("form.income")}</h1>
+                                    <Badge className="text-sm">{incomeRows.length}</Badge>
+                                    <Button size="sm" className="ml-auto gap-1" onClick={() => startAdd("tushum")}>
+                                        <Plus size={16} />
+                                        Tushum qo'shish
+                                    </Button>
+                                </div>
+                                {isDriver && <PendingAdvances tripId={tripId} />}
+                            </>
                         }
                     />
                 </div>
@@ -1180,17 +1604,47 @@ function TAccountTab({ mode, onToggle, tripId }: { mode: "aylanma" | "haydovchi"
                         numeration
                         viewAll
                         onDelete={({ original }) => handleDeleteExpense(original)}
+                        onEdit={({ original }) => startEdit(original)}
                         head={
                             <div className="flex mb-3 items-center gap-3">
                                 <h1 className="text-xl text-red-600">{t("form.expense")}</h1>
                                 <Badge className="text-sm">{expenseRows.length}</Badge>
+                                <Button size="sm" className="ml-auto gap-1" onClick={() => startAdd("xarajat")}>
+                                    <Plus size={16} />
+                                    Chiqim qo'shish
+                                </Button>
                             </div>
                         }
                     />
                 </div>
             </div>
+            )}
 
-            <Modal modalKey="avans-berish" title={t("actions.give_advance")} size="max-w-md">
+            <AdvanceChangeModals row={advRow} />
+            <Modal modalKey="t-hisob-add" title={addType === "xarajat" ? (addPreset.category === "fuel" ? "Yoqilg'i quyish" : "Chiqim qo'shish") : "Tushum qo'shish"} size="max-w-md">
+                <AddFromTAccount type={addType} tripId={tripId} presetCategoryCode={addPreset.category} defaultPaymentMethod={addPreset.method} advanceId={addPreset.advance} />
+            </Modal>
+            <SalaryRequestModal tripId={tripId} driverId={moliyaTrip?.driver} />
+            <Modal
+                modalKey="t-hisob-edit"
+                title={editRow?.action === -1 ? "Xarajatni tahrirlash" : "Kirimni tahrirlash"}
+                size="max-w-md"
+            >
+                {editRow && (
+                    <AddFinanceForm
+                        modalKey="t-hisob-edit"
+                        advanceId={editRow.advance ?? undefined}
+                        type={editRow.action === -1 ? "xarajat" : "tushum"}
+                        categoryName={editRow.category_name ?? ""}
+                        isFuel={editRow.category_code === "fuel"}
+                        tripId={tripId}
+                        selectedCategoryId={editRow.category ?? null}
+                        selectedCategoryCode={editRow.category_code ?? null}
+                        action={editRow.action === -1 ? -1 : 1}
+                    />
+                )}
+            </Modal>
+            <Modal modalKey="avans-berish" title={isKassaV2 ? "Avans berish (kassirga so'rov)" : t("actions.give_advance")} size="max-w-md">
                 <AvansForm tripId={tripId} />
             </Modal>
             <DeleteModal
@@ -1248,6 +1702,16 @@ export default function KirimXarajatContent() {
 
     const handleCategoryCodeChange = (code: string | null) => {
         setSelectedCategoryCode(code)
+    }
+
+    const { data: me } = useUser()
+    if (me?.kassa_mode === "driver_cash" && me?.kassa_version === 2) {
+        return (
+            <div className="flex flex-col h-full overflow-hidden gap-3">
+                <div className="h-7 shrink-0" aria-hidden />
+                <TAccountTab mode="haydovchi" onToggle={() => {}} tripId={tripId} hideToggle />
+            </div>
+        )
     }
 
     return (

@@ -207,25 +207,41 @@ const AddTripOrders = () => {
                                 required
                                 label={t("form.payment_type")}
                                 name={`incomes.${index}.payment_type`}
+                                wrapperClassName="col-span-2"
                                 control={control}
                                 options={paymentType || undefined}
                                 valueKey="id"
                                 labelKey="name"
                                 placeholder="To'lov turini tanlang"
                             />
-                            <FormCombobox
-                                required
-                                label={t("form.currency")}
-                                name={`incomes.${index}.currency`}
-                                control={control}
-                                options={[
-                                    { value: 1, label: "UZS - So'm" },
-                                    { value: 2, label: "USD - AQSh dollari" },
-                                ]}
-                                valueKey="value"
-                                labelKey="label"
-                                placeholder={t("form.select_currency")}
-                            />
+                            <div className="flex gap-3 col-span-2">
+                                <div className="flex-1 min-w-0">
+                                    <FormNumberInput
+                                        required
+                                        name={`incomes.${index}.amount`}
+                                        thousandSeparator=" "
+                                        label={t("table.amount")}
+                                        placeholder="12 206 000 UZS"
+                                        control={control}
+                                    />
+                                </div>
+                                <div className="w-32 shrink-0">
+                                    <FormCombobox
+                                        required
+                                        label={t("form.currency")}
+                                        name={`incomes.${index}.currency`}
+                                        isClearIcon={false}
+                                        control={control}
+                                        options={[
+                                            { value: 1, label: "UZS - So'm" },
+                                            { value: 2, label: "USD - AQSh dollari" },
+                                        ]}
+                                        valueKey="value"
+                                        labelKey="label"
+                                        placeholder={t("form.select_currency")}
+                                    />
+                                </div>
+                            </div>
                             {selectedCurrency === 2 && (
                                 <FormNumberInput
                                     required
@@ -236,14 +252,6 @@ const AddTripOrders = () => {
                                     control={control}
                                 />
                             )}
-                            <FormNumberInput
-                                required
-                                name={`incomes.${index}.amount`}
-                                thousandSeparator=" "
-                                label={t("table.amount")}
-                                placeholder="12 206 000 UZS"
-                                control={control}
-                            />
 
                             {fields.length > 1 && (
                                 <Button

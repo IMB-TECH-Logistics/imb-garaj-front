@@ -148,128 +148,144 @@ export default function CreateManagerTrips() {
     return (
         <div className="max-h-[80vh] overflow-y-auto pr-2 pl-2 no-scrollbar-x">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-                <FormCombobox
-                    control={control}
-                    required
-                    name="driver"
-                    options={drivers}
-                    labelKey="full_name"
-                    valueKey="id"
-                    label={t("form.driver")}
-                />
-
-                {(!IS_READY || isEdit) && (
-                    <FormDatePicker
-                        control={control}
-                        required
-                        name="start"
-                        label={t("form.start_date")}
-                    />
-                )}
-
-                <FormNumberInput
-                    name="start_mileage"
-                    required
-                    allowNegative={false}
-                    label={`${t("table.start_mileage")}${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
-                    control={control}
-                />
-
-                {startImage ?
-                    <div className="relative w-24 h-24">
-                        <img
-                            src={
-                                startImage instanceof File ?
-                                    URL.createObjectURL(startImage)
-                                :   startImage
-                            }
-                            className="w-24 h-24 object-cover rounded-md"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => removeImage("start_mileage_image")}
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                        >
-                            <X width={12} />
-                        </button>
-                    </div>
-                : startMileage ?
-                    <FileUpload
-                        control={control}
-                        name="start_mileage_image"
-                        multiple={false}
-                        isPaste={true}
-                        hideClearable={true}
-                    />
-                :   null}
-
-                <FormNumberInput
-                    name="start_fuel"
-                    label={`${t("form.fuel_type")} (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
-                    control={control}
-                    decimalScale={2}
-                    allowNegative={false}
-                />
-                {!item?.id && (
-                    <FormNumberInput
-                        name="advance"
-                        label={t("form.advance")}
-                        control={control}
-                        thousandSeparator=" "
-                        decimalScale={0}
-                        allowNegative={false}
-                        placeholder="Ex: 5 000 000"
-                    />
-                )}
-                {item?.id && (
-                    <>
-                        <FormDatePicker
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{item?.id ? "Haydovchi" : "Haydovchi va avans"}</h3>
+                    <div className="grid grid-cols-1 gap-4">
+                        <FormCombobox
                             control={control}
-                            name="end"
-                            label={t("form.end_date")}
-                            calendarProps={minEndDate ? { disabled: { before: minEndDate } } : undefined}
+                            required
+                            name="driver"
+                            options={drivers}
+                            labelKey="full_name"
+                            valueKey="id"
+                            label={t("form.driver")}
                         />
+
+                        {!item?.id && (
+                            <FormNumberInput
+                                name="advance"
+                                label={t("form.advance")}
+                                control={control}
+                                thousandSeparator=" "
+                                decimalScale={0}
+                                allowNegative={false}
+                                placeholder="Ex: 5 000 000"
+                            />
+                        )}
+                    </div>
+                </section>
+
+                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Boshlanish</h3>
+                    <div className="grid grid-cols-1 gap-4">
+                        {(!IS_READY || isEdit) && (
+                            <FormDatePicker
+                                fullWidth
+                                control={control}
+                                required
+                                name="start"
+                                label={t("form.start_date")}
+                            />
+                        )}
+
                         <FormNumberInput
-                            name="end_mileage"
+                            name="start_mileage"
                             required
                             allowNegative={false}
-                            label={t("table.end_mileage")}
+                            label={`${t("table.start_mileage")}${mileageDiffers ? ` (${startData.end_mileage})` : ""}`}
                             control={control}
                         />
 
-                        {endImage ?
+                        {startImage ?
                             <div className="relative w-24 h-24">
                                 <img
                                     src={
-                                        endImage instanceof File ?
-                                            URL.createObjectURL(endImage)
-                                        :   endImage
+                                        startImage instanceof File ?
+                                            URL.createObjectURL(startImage)
+                                        :   startImage
                                     }
                                     className="w-24 h-24 object-cover rounded-md"
                                 />
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        removeImage("end_mileage_image")
-                                    }
+                                    onClick={() => removeImage("start_mileage_image")}
                                     className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
                                 >
                                     <X width={12} />
                                 </button>
                             </div>
-                        : endMileage ?
+                        : startMileage ?
                             <FileUpload
                                 control={control}
-                                name="end_mileage_image"
+                                name="start_mileage_image"
                                 multiple={false}
                                 isPaste={true}
                                 hideClearable={true}
                             />
                         :   null}
 
-                    </>
-                )}
+                        <FormNumberInput
+                            name="start_fuel"
+                            label={`Yoqilg'i (litr)${fuelDiffers ? ` (${startData.end_fuel})` : ""}`}
+                            control={control}
+                            decimalScale={2}
+                            allowNegative={false}
+                        />
+                    </div>
+                </section>
 
+                {item?.id && (
+                    <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tugash</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            <FormDatePicker
+                                fullWidth
+                                control={control}
+                                name="end"
+                                label={t("form.end_date")}
+                                calendarProps={minEndDate ? { disabled: { before: minEndDate } } : undefined}
+                            />
+                            <FormNumberInput
+                                name="end_mileage"
+                                required
+                                allowNegative={false}
+                                label={t("table.end_mileage")}
+                                control={control}
+                            />
+
+                            {endImage ?
+                                <div className="relative w-24 h-24">
+                                    <img
+                                        src={
+                                            endImage instanceof File ?
+                                                URL.createObjectURL(endImage)
+                                            :   endImage
+                                        }
+                                        className="w-24 h-24 object-cover rounded-md"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            removeImage("end_mileage_image")
+                                        }
+                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                                    >
+                                        <X width={12} />
+                                    </button>
+                                </div>
+                            : endMileage ?
+                                <FileUpload
+                                    control={control}
+                                    name="end_mileage_image"
+                                    multiple={false}
+                                    isPaste={true}
+                                    hideClearable={true}
+                                />
+                            :   null}
+
+                        </div>
+                    </section>
+                )}
                 <div className="flex justify-end">
                     <Button loading={isPending}>{t("actions.save")}</Button>
                 </div>

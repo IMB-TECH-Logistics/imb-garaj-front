@@ -221,107 +221,122 @@ const EditReysModal = () => {
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-4"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
-            <FormCombobox
-                label={t("form.company_name")}
-                name="client"
-                control={control}
-                options={clientsData ?? []}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.company_name")}
-            />
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Asosiy</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        label={t("form.company_name")}
+                        name="client"
+                        control={control}
+                        options={clientsData ?? []}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.company_name")}
+                    />
 
-            <FormDatePicker
-                label={t("form.date")}
-                control={control}
-                name="date"
-                placeholder={t("form.select_date")}
-                className="w-full"
-            />
+                    <FormDatePicker
+                        fullWidth
+                        label={t("form.date")}
+                        control={control}
+                        name="date"
+                        placeholder={t("form.select_date")}
+                        className="w-full"
+                    />
 
-            <FormCombobox
-                label={t("form.direction")}
-                name="direction"
-                control={control}
-                options={directionOptions}
-                valueKey="id"
-                labelKey="name"
-                placeholder="Yo'nalishni tanlang"
-            />
+                    <FormCombobox
+                        label={t("form.direction")}
+                        name="direction"
+                        control={control}
+                        options={directionOptions}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder="Yo'nalishni tanlang"
+                    />
 
-            <FormCombobox
-                label={t("table.status")}
-                name="status"
-                control={control}
-                options={ORDER_STATUS_OPTIONS}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("table.status")}
-            />
+                    <FormCombobox
+                        label={t("table.status")}
+                        name="status"
+                        control={control}
+                        options={ORDER_STATUS_OPTIONS}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("table.status")}
+                    />
 
-            <FormCombobox
-                label={t("form.loading_location")}
-                name="loading"
-                control={control}
-                options={loadsData}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.loading_location")}
-            />
+                    <FormCheckbox
+                        control={control}
+                        name="out_of_contract"
+                        label={t("form.out_of_contract")}
+                    />
+                </div>
+            </section>
 
-            <FormCombobox
-                label={t("form.unloading_location")}
-                name="unloading"
-                control={control}
-                options={unloadsData}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.unloading_location")}
-            />
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yo'nalish</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        label={t("form.loading_location")}
+                        name="loading"
+                        control={control}
+                        options={loadsData}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.loading_location")}
+                    />
 
-            <FormCombobox
-                label={t("form.cargo_type")}
-                name="cargo_type"
-                control={control}
-                options={cargoTypesData}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.cargo_type")}
-            />
+                    <FormCombobox
+                        label={t("form.unloading_location")}
+                        name="unloading"
+                        control={control}
+                        options={unloadsData}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.unloading_location")}
+                    />
+                </div>
+            </section>
 
-            <FormCombobox
-                label={t("form.trip_type")}
-                name="type"
-                control={control}
-                options={ORDER_TYPE_OPTIONS}
-                valueKey="id"
-                labelKey="name"
-                placeholder={t("form.trip_type")}
-            />
+            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yuk va avtomobil</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormCombobox
+                        label={t("form.cargo_type")}
+                        name="cargo_type"
+                        control={control}
+                        options={cargoTypesData}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.cargo_type")}
+                    />
 
-            <FormCombobox
-                label={t("form.truck")}
-                name="vehicle"
-                control={control}
-                options={vehicleOptions}
-                valueKey="id"
-                labelKey="label"
-                placeholder={t("form.truck")}
-            />
+                    <FormCombobox
+                        label={t("form.trip_type")}
+                        name="type"
+                        control={control}
+                        options={ORDER_TYPE_OPTIONS}
+                        valueKey="id"
+                        labelKey="name"
+                        placeholder={t("form.trip_type")}
+                    />
 
-            <FormCheckbox
-                control={control}
-                name="out_of_contract"
-                label={t("form.out_of_contract")}
-            />
+                    <FormCombobox
+                        label={t("form.truck")}
+                        name="vehicle"
+                        control={control}
+                        options={vehicleOptions}
+                        valueKey="id"
+                        labelKey="label"
+                        placeholder={t("form.truck")}
+                    />
+                </div>
+            </section>
 
             {current?.id ?
                 <TushumList orderId={current.id} />
             :   null}
-
-            <div className="col-span-2 flex justify-end pt-2">
+            <div className="md:col-span-2 flex justify-end pt-2">
                 <Button type="submit" loading={isPending} className="min-w-36">
                     {t("actions.save")}
                 </Button>

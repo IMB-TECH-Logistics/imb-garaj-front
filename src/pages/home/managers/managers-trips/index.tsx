@@ -31,6 +31,7 @@ export default function ManagersTrips() {
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal: createTripModal } = useModal(MANAGERS_TRIPS)
     const { openModal: editTripModal } = useModal(`${MANAGERS_TRIPS}-finished`)
+    const [finishTab, setFinishTab] = useState<"info" | "kassa">("info")
     const { openModal: createExpenses } = useModal(MANAGERS_EXPENSES)
     const { openModal: deleteTrip } = useModal(`${MANAGERS_TRIPS}-delete`)
     const hasControl = useHasAction("manager_vehicles_control")
@@ -119,6 +120,7 @@ export default function ManagersTrips() {
     }
     const handleFinished = (item: ManagerTrips) => {
         setData("finished", item)
+        setFinishTab("info")
         editTripModal()
     }
     const handleMoliya = (item: ManagerTrips) => {
@@ -158,16 +160,6 @@ export default function ManagersTrips() {
                                                 {!isArchive && <>{data?.results?.length ?? 0} / </>}
                                                 {formatMoney(data?.count)}
                                             </Badge>
-                                            {!isArchive &&
-                                                (data?.count ?? 0) > (data?.results?.length ?? 0) && (
-                                                    <Button
-                                                        variant="link"
-                                                        size="sm"
-                                                        onClick={() => setIsArchive(true)}
-                                                    >
-                                                        Barchasini ko'rish
-                                                    </Button>
-                                                )}
                                             <span className="text-muted-foreground">/</span>
                                             <span>{vehicleLabel}</span>
                                         </>
@@ -208,7 +200,7 @@ export default function ManagersTrips() {
 
             <Modal
                 modalKey={MANAGERS_TRIPS}
-                title={item?.id ? t("page.turnover_detail") : t("page.turnovers")}
+                title={item?.id ? "Aylanmani tahrirlash" : "Aylanmani boshlash"}
             >
                 <CreateManagerTrips />
             </Modal>
@@ -216,8 +208,8 @@ export default function ManagersTrips() {
             <Modal modalKey={MANAGERS_EXPENSES} title={t("page.add_expense")}>
                 <ExpensesModal expenses={expenses?.results} />
             </Modal>
-            <Modal modalKey={`${MANAGERS_TRIPS}-finished`} title={t("actions.finish")}>
-                <FinishedManagerTrips />
+            <Modal modalKey={`${MANAGERS_TRIPS}-finished`} title={t("actions.finish")} size={finishTab === "kassa" ? "max-w-4xl" : "max-w-lg"}>
+                <FinishedManagerTrips tab={finishTab} onTabChange={setFinishTab} />
             </Modal>
             <DeleteModal
                 path={MANAGERS_TRIPS}

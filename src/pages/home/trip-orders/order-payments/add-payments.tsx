@@ -98,19 +98,34 @@ const AddPayment = () => {
             className="grid grid-cols-2 gap-4"
         >
             {/* Row 2 */}
-            <FormCombobox
-                required
-                label={t("form.currency")}
-                name="currency"
-                control={control}
-                options={[
-                    { value: 1, label: "UZS - So'm" },
-                    { value: 2, label: "USD - AQSh dollari" },
-                ]}
-                valueKey="value"
-                labelKey="label"
-                placeholder={t("form.select_currency")}
-            />
+            <div className="flex gap-3 col-span-2">
+                <div className="flex-1 min-w-0">
+                    <FormNumberInput
+                        required
+                        name="amount"
+                        label={t("table.amount")}
+                        thousandSeparator=" "
+                        control={control}
+                        placeholder="0 UZS"
+                    />
+                </div>
+                <div className="w-32 shrink-0">
+                    <FormCombobox
+                        required
+                        label={t("form.currency")}
+                        name="currency"
+                        isClearIcon={false}
+                        control={control}
+                        options={[
+                            { value: 1, label: "UZS - So'm" },
+                            { value: 2, label: "USD - AQSh dollari" },
+                        ]}
+                        valueKey="value"
+                        labelKey="label"
+                        placeholder={t("form.select_currency")}
+                    />
+                </div>
+            </div>
             {selectedCurrency === 2 && (
                 <FormNumberInput
                     required
@@ -123,14 +138,6 @@ const AddPayment = () => {
             )}
 
             {/* Row 3 - These stay fixed in position */}
-            <FormNumberInput
-                required
-                name="amount"
-                label={t("table.amount")}
-                thousandSeparator=" "
-                control={control}
-                placeholder="0 UZS"
-            />
             <FormNumberInput
                 required
                 name="currency_amount"

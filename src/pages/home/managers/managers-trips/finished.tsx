@@ -8,6 +8,10 @@ import {
     SETTINGS_DRIVERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { usePost } from "@/hooks/usePost"
+import { useUser } from "@/constants/useUser"
+import KassaCloseSection, { KassaCloseState } from "./kassa-close-section"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
@@ -16,7 +20,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { startOfDay } from "date-fns"
 import { AlertTriangle, X } from "lucide-react"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -27,7 +31,7 @@ type TripOrder = {
     salary_given: boolean
 }
 
-export default function FinishManagerTrips() {
+export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?: "info" | "kassa"; onTabChange?: (t: "info" | "kassa") => void } = {}) {
     const { t } = useTranslation()
     const { id } = useParams({ strict: false })
     const navigate = useNavigate()
@@ -35,6 +39,18 @@ export default function FinishManagerTrips() {
     const queryClient = useQueryClient()
     const { getData } = useGlobalStore()
     const item = getData("finished") as ManagerTrips | undefined
+    const { data: me } = useUser()
+    const isKassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
+    const [kassa, setKassa] = useState<KassaCloseState | null>(null)
+    const [closing, setClosing] = useState(false)
+    const [tabState, setTabState] = useState<"info" | "kassa">("info")
+    const tab = tabProp ?? tabState
+    const setTab = (t: "info" | "kassa") => {
+        setTabState(t)
+        onTabChange?.(t)
+    }
+    const fuelKind = String((item as any)?.fuel_type ?? (item as any)?.vehicle_fuel ?? "").toLowerCase()
+    const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : "litr"
 
     const form = useForm<ManagerTrips>({
         defaultValues: {
@@ -63,7 +79,7 @@ export default function FinishManagerTrips() {
             ? `${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/orders`
             : "",
         {
-            enabled: !!driverId && !!tripId,
+            enabled: !!driverId && !!tripId && !isKassaV2,
         },
     )
 
@@ -73,7 +89,7 @@ export default function FinishManagerTrips() {
     )
     const totalOrders = tripOrders?.length ?? 0
     const paidOrders = totalOrders - unpaidOrders.length
-    const canFinish = !ordersLoading && unpaidOrders.length === 0
+    const canFinish = isKassaV2 ? !!kassa?.ready : !ordersLoading && unpaidOrders.length === 0
 
     const startImage = watch("start_mileage_image") as File | string | null
     void startImage
@@ -104,6 +120,44 @@ export default function FinishManagerTrips() {
         { onSuccess },
         { headers },
     )
+    const { mutateAsync: patchTripAsync } = usePatch({ meta: { skipGlobalError: true } }, { headers })
+    const { mutateAsync: postCloseAsync } = usePost({ meta: { skipGlobalError: true } })
+
+    const errorText = (e: any) => {
+        const d = e?.response?.data
+        if (!d) return "Xatolik yuz berdi"
+        if (d.detail) return String(d.detail)
+        const first = Object.values(d)[0]
+        return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : "Xatolik yuz berdi"
+    }
+
+    async function finishWithKassa(formData: FormData, tripId: number) {
+        if (!kassa) return
+        setClosing(true)
+        try {
+            await patchTripAsync(`${MANAGERS_TRIPS}/${tripId}`, formData)
+            const res: any = await postCloseAsync(`checkout/kassa-v2/trips/${tripId}/close`, {
+                amount: kassa.amount,
+                salary: kassa.salary,
+                salaries: kassa.salaries,
+                expenses: kassa.expenses,
+            })
+            queryClient.invalidateQueries({
+                predicate: (q) => {
+                    const k = String(q.queryKey[0])
+                    return k.startsWith(MANAGERS_TRIPS) || k.includes("cashflow") || k.startsWith("checkout/kassa-v2")
+                },
+            })
+            toast.success(res?.status === "yopildi" ? "Aylanma yopildi" : "Aylanma yopildi, qoldiq so'rovi kassirga yuborildi")
+            closeModal()
+            reset()
+        } catch (e) {
+            toast.error(errorText(e))
+            queryClient.invalidateQueries({ queryKey: [MANAGERS_TRIPS] })
+        } finally {
+            setClosing(false)
+        }
+    }
 
     function onSubmit(values: ManagerTrips) {
         if (!canFinish) {
@@ -120,6 +174,10 @@ export default function FinishManagerTrips() {
             formData.append("end_mileage_image", values.end_mileage_image)
         }
 
+        if (isKassaV2) {
+            finishWithKassa(formData, Number(values.id))
+            return
+        }
         editTrip(`${MANAGERS_TRIPS}/${values.id}`, formData)
     }
 
@@ -135,7 +193,7 @@ export default function FinishManagerTrips() {
 
     return (
         <div className="max-h-[80vh] overflow-y-auto pr-2 pl-2 no-scrollbar-x">
-            {!ordersLoading && totalOrders > 0 && (
+            {!isKassaV2 && !ordersLoading && totalOrders > 0 && (
                 <div
                     className={`mb-4 rounded-md border p-3 flex flex-col gap-2 ${
                         canFinish
@@ -177,7 +235,16 @@ export default function FinishManagerTrips() {
                     )}
                 </div>
             )}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+            <form onSubmit={handleSubmit(onSubmit, () => setTab("info"))} className="space-y-3">
+                {isKassaV2 && (
+                    <Tabs value={tab} onValueChange={(v) => setTab(v as "info" | "kassa")}>
+                        <TabsList className="w-full grid grid-cols-2">
+                            <TabsTrigger value="info">Aylanma ma'lumotlari</TabsTrigger>
+                            <TabsTrigger value="kassa">Kassa hisobi</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                )}
+                <div className={isKassaV2 && tab !== "info" ? "hidden" : "space-y-3"}>
                 {!IS_READY && (
                     <FormDatePicker
                         control={control}
@@ -230,17 +297,35 @@ export default function FinishManagerTrips() {
 
                 <FormNumberInput
                     name="end_fuel"
-                    label={t("form.fuel_type")}
+                    label={`Qolgan yoqilg'i (${fuelUnit})`}
                     required
                     decimalScale={2}
                     allowNegative={false}
                     control={control}
                 />
 
+                </div>
+
+                {isKassaV2 && (
+                    <div className={tab === "kassa" ? "" : "hidden"}>
+                        <KassaCloseSection tripId={item?.id} onChange={setKassa} />
+                    </div>
+                )}
+
                 <div className="flex justify-end">
-                    <Button loading={isEditing} disabled={!canFinish}>
-                        {t("actions.save")}
+                    {isKassaV2 && tab === "info" ?
+                    <Button
+                        type="button"
+                        onClick={async () => {
+                            if (await form.trigger()) setTab("kassa")
+                        }}
+                    >
+                        Keyingi: Kassa hisobi →
                     </Button>
+                    :
+                    <Button loading={isEditing || closing} disabled={!canFinish}>
+                        {isKassaV2 ? (kassa?.amount ? "Tugatish va so'rov yuborish" : "Tugatish") : t("actions.save")}
+                    </Button>}
                 </div>
             </form>
         </div>

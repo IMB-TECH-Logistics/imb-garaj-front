@@ -146,7 +146,7 @@ const BuxgalteriyaPage = () => {
 
             <Modal
                 modalKey="edit-reys"
-                title={t("page.trips")}
+                title="Reysni tahrirlash"
                 size="max-w-4xl"
             >
                 <EditReysModal />

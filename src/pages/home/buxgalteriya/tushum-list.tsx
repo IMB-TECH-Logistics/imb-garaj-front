@@ -250,13 +250,12 @@ const TushumList = ({ orderId }: { orderId: number }) => {
     const paymentTypeOptions = paymentTypes?.results ?? []
 
     return (
-        <div className="col-span-2 flex flex-col gap-3 rounded-lg border bg-card/50 p-3">
+        <div className="md:col-span-2 flex flex-col gap-3 rounded-lg border bg-card/50 p-3">
             <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">{t("page.income_list")}</span>
                 <Button
                     type="button"
                     size="sm"
-                    variant="outline"
                     onClick={addDraft}
                 >
                     <Plus size={14} className="mr-1" />
