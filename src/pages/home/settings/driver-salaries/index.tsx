@@ -62,6 +62,10 @@ const DriverSalariesPage = () => {
                         routeLabel(r, (name) => name)
                             .toLowerCase()
                             .includes(query),
+                )
+                .sort(
+                    (a, b) =>
+                        Number(a.amount == null) - Number(b.amount == null),
                 ),
         [data, viloyat, query],
     )
