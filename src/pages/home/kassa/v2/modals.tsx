@@ -1,4 +1,5 @@
 import { FormCombobox } from "@/components/form/combobox"
+import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
@@ -81,16 +82,13 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const body = { amount: Number(v.amount), comment: v.comment || null, date: new Date(v.date).toISOString() }
+                const body = { amount: Number(v.amount), comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString() }
                 if (editing) patch.mutate(`${KV2_INCOME}/${editing.id}`, body, { onSuccess: () => toast.success("Kirim o'zgartirildi"), onError: onErr })
                 else post.mutate(KV2_INCOME, body, { onSuccess: () => toast.success("Kassaga kirim qilindi"), onError: onErr })
             })}
         >
             <FormNumberInput required control={form.control} name="amount" label="Summa" placeholder="Ex: 1 000 000" thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
-            <label className="flex flex-col gap-1.5 text-sm font-medium">
-                Sana
-                <input type="datetime-local" {...form.register("date", { required: true })} className="h-10 rounded-md border bg-background px-3 text-sm font-normal" />
-            </label>
+            <FormDateTimePicker required control={form.control} name="date" label="Sana" addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
             <FormTextarea label="Izoh" name="comment" methods={form} />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">Oxirgi o'zgartirish: {fmtDate(editing.edited_at)}</p>}
             <Save label={editing ? "Saqlash" : "Kirim qilish"} loading={post.isPending || patch.isPending} />
