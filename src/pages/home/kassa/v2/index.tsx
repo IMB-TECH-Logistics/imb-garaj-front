@@ -10,7 +10,7 @@ import { endOfMonth, startOfMonth } from "date-fns"
 import { ArrowDownCircle, Send, X } from "lucide-react"
 import { ReactNode, useState } from "react"
 import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, n, useKassaRoles, useOverview, usePeriod } from "./api"
-import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal, TakeModal } from "./modals"
+import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
 import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
 const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => (
@@ -62,7 +62,6 @@ const KassaV2 = () => {
 
     const income = useModal(M.income)
     const delIncome = useModal(M.deleteIncome)
-    const take = useModal(M.take)
     const request = useModal(M.request)
     const reject = useModal(M.reject)
     const pay = useModal(M.pay)
@@ -195,7 +194,6 @@ const KassaV2 = () => {
 
             <Modal modalKey={M.income} title={incomeRow ? "Kirimni tahrirlash" : "Kassaga kirim"} size="max-w-md"><IncomeModal editing={incomeRow} /></Modal>
             <Modal modalKey={M.deleteIncome} title="Kirimni o'chirish" size="max-w-md"><DeleteIncomeModal row={incomeRow} /></Modal>
-            <Modal modalKey={M.take} title="Haydovchidan pul oldim" size="max-w-md"><TakeModal /></Modal>
             <Modal modalKey={M.request} title={!editing ? "Pul so'rovi" : editing.status === 10 ? "So'rovni tahrirlash" : "So'rovni tuzatish"} size="max-w-md"><RequestModal editing={editing} /></Modal>
             <Modal modalKey={M.reject} title="So'rovni rad etish" size="max-w-md"><RejectModal request={rejecting} /></Modal>
             <Modal modalKey={M.pay} title={paying && KIND_DIR[paying.kind] === "out" ? "Pul berish" : "Pul olish"} size="max-w-md"><PayModal request={paying} /></Modal>

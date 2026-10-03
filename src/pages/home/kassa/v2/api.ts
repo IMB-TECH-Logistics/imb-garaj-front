@@ -11,7 +11,6 @@ export const KV2_OVERVIEW = `${KV2}/overview`
 export const KV2_TRANSACTIONS = `${KV2}/transactions`
 export const KV2_EXCEL = `${KV2}/transactions/excel`
 export const KV2_INCOME = `${KV2}/income`
-export const KV2_TAKE = `${KV2}/take`
 export const KV2_REQUESTS = `${KV2}/requests`
 export const KV2_TRIPS = `${KV2}/trips`
 export const KV2_DRIVERS = `${KV2}/drivers`

@@ -24,7 +24,6 @@ import {
     KV2_CATEGORIES,
     KV2_INCOME,
     KV2_REQUESTS,
-    KV2_TAKE,
     KV2_TRIPS,
     money,
     n,
@@ -43,7 +42,6 @@ import { CloseLines } from "./tables"
 export const M = {
     income: "kv2-income",
     deleteIncome: "kv2-income-delete",
-    take: "kv2-take",
     request: "kv2-request",
     reject: "kv2-reject",
     reverse: "kv2-reverse",
@@ -157,32 +155,6 @@ export const ReverseModal = ({ row }: { row: KassaTx | null }) => {
             <div className="flex justify-end">
                 <Button variant="destructive" className="min-w-32" type="submit" disabled={short} loading={post.isPending}>Bekor qilish</Button>
             </div>
-        </form>
-    )
-}
-
-export const TakeModal = () => {
-    const { closeModal, isOpen } = useModal(M.take)
-    const { data: ov } = useOverview()
-    const post = useKassaPost(closeModal)
-    const form = useForm<{ amount: number | ""; comment: string; driver: number | null }>({ defaultValues: { amount: "", comment: "", driver: null } })
-    useEffect(() => { if (!isOpen) form.reset({ amount: "", comment: "", driver: null }) }, [isOpen, form])
-    const options = (ov?.drivers ?? []).map((d) => ({ id: d.id, name: `${d.name} — balansi ${money(d.balance)}` }))
-    return (
-        <form
-            className="flex flex-col gap-3"
-            onSubmit={form.handleSubmit((v) =>
-                post.mutate(KV2_TAKE, { driver: v.driver, amount: Number(v.amount), comment: v.comment || null }, {
-                    onSuccess: () => toast.success("Kassaga kirim qilindi"),
-                    onError: onErr,
-                }),
-            )}
-        >
-            <p className="text-sm text-muted-foreground">So'rovsiz olingan pul. Aylanmaga bog'lanmaydi — haydovchining umumiy balansidan ayriladi (eski qarz yoki depozit).</p>
-            <FormCombobox required control={form.control} name="driver" label="Haydovchi" options={options} valueKey="id" labelKey="name" />
-            <FormNumberInput required control={form.control} name="amount" label="Summa" placeholder="Ex: 1 000 000" thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
-            <FormTextarea label="Izoh" name="comment" methods={form} />
-            <Save label="Oldim" loading={post.isPending} />
         </form>
     )
 }
