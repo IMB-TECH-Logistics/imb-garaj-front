@@ -46,10 +46,28 @@ const DriverSalariesPage = () => {
 
     const internalLabel = (name: string) => t("page.vt_internal", { name })
 
+    const order = useMemo(
+        () => new Map((data?.viloyats ?? []).map((v, idx) => [v.id, idx])),
+        [data],
+    )
     const rows = useMemo<ViloyatTariffRow[]>(
         () =>
             (data?.results ?? [])
-                .map((r) => ({ ...r, id: r.key }))
+                .flatMap((r) =>
+                    r.from_region === r.to_region
+                        ? [{ ...r, id: r.key }]
+                        : [
+                              { ...r, id: r.key },
+                              {
+                                  ...r,
+                                  id: `${r.key}-r`,
+                                  from_region: r.to_region,
+                                  from_region_name: r.to_region_name,
+                                  to_region: r.from_region,
+                                  to_region_name: r.from_region_name,
+                              },
+                          ],
+                )
                 .filter(
                     (r) =>
                         !viloyat ||
@@ -63,11 +81,16 @@ const DriverSalariesPage = () => {
                             .toLowerCase()
                             .includes(query),
                 )
+                .map((r, index) => ({ r, index }))
                 .sort(
                     (a, b) =>
-                        Number(a.amount == null) - Number(b.amount == null),
-                ),
-        [data, viloyat, query],
+                        Number(a.r.amount == null) - Number(b.r.amount == null) ||
+                        (order.get(a.r.from_region) ?? 0) - (order.get(b.r.from_region) ?? 0) ||
+                        (order.get(a.r.to_region) ?? 0) - (order.get(b.r.to_region) ?? 0) ||
+                        a.index - b.index,
+                )
+                .map(({ r }) => r),
+        [data, viloyat, query, order],
     )
 
     const columns = useSalaryColumns()
