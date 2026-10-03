@@ -139,9 +139,9 @@ const SalaryAmountCell = ({ row }: { row: DirectionRow }) => {
     return (
         <div className="flex flex-wrap items-center gap-2">
             {row.driver_salary_amount == null ? (
-                <Badge variant="destructive" className="whitespace-nowrap">
+                <span className="whitespace-nowrap font-medium text-destructive">
                     {t("form.tariff_no")}
-                </Badge>
+                </span>
             ) : (
                 <span>{formatPriceLabel(row.driver_salary_amount)}</span>
             )}
