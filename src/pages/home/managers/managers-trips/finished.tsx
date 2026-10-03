@@ -43,6 +43,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
     const isKassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
     const [kassa, setKassa] = useState<KassaCloseState | null>(null)
     const [closing, setClosing] = useState(false)
+    const [unconfirmed, setUnconfirmed] = useState<number | null>(null)
     const [tabState, setTabState] = useState<"info" | "kassa">("info")
     const tab = tabProp ?? tabState
     const setTab = (t: "info" | "kassa") => {
@@ -116,10 +117,6 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
 
     const headers = { "Content-Type": "multipart/form-data" }
 
-    const { mutate: editTrip, isPending: isEditing } = usePatch(
-        { onSuccess },
-        { headers },
-    )
     const { mutateAsync: patchTripAsync } = usePatch({ meta: { skipGlobalError: true } }, { headers })
     const { mutateAsync: postCloseAsync } = usePost({ meta: { skipGlobalError: true } })
 
@@ -129,6 +126,18 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         if (d.detail) return String(d.detail)
         const first = Object.values(d)[0]
         return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : "Xatolik yuz berdi"
+    }
+
+    const unconfirmedCount = (e: any) => {
+        const v = e?.response?.data?.unconfirmed_orders
+        const n = Number(Array.isArray(v) ? v[0] : v)
+        return n > 0 ? n : null
+    }
+
+    const handleCloseError = (e: any) => {
+        const n = unconfirmedCount(e)
+        if (n) setUnconfirmed(n)
+        else toast.error(errorText(e))
     }
 
     async function finishWithKassa(formData: FormData, tripId: number) {
@@ -152,14 +161,14 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
             closeModal()
             reset()
         } catch (e) {
-            toast.error(errorText(e))
+            handleCloseError(e)
             queryClient.invalidateQueries({ queryKey: [MANAGERS_TRIPS] })
         } finally {
             setClosing(false)
         }
     }
 
-    function onSubmit(values: ManagerTrips) {
+    function onSubmit(values: ManagerTrips, force = false) {
         if (!canFinish) {
             toast.error(
                 `${unpaidOrders.length} ta reys uchun oylik berilmagan`,
@@ -173,12 +182,18 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         if (values.end_mileage_image instanceof File) {
             formData.append("end_mileage_image", values.end_mileage_image)
         }
+        if (force) formData.append("force_unconfirmed", "true")
+        setUnconfirmed(null)
 
         if (isKassaV2) {
             finishWithKassa(formData, Number(values.id))
             return
         }
-        editTrip(`${MANAGERS_TRIPS}/${values.id}`, formData)
+        setClosing(true)
+        patchTripAsync(`${MANAGERS_TRIPS}/${values.id}`, formData)
+            .then(onSuccess)
+            .catch(handleCloseError)
+            .finally(() => setClosing(false))
     }
 
     function goToSalaryPage() {
@@ -235,7 +250,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                     )}
                 </div>
             )}
-            <form onSubmit={handleSubmit(onSubmit, () => setTab("info"))} className="space-y-3">
+            <form onSubmit={handleSubmit((v) => onSubmit(v), () => setTab("info"))} className="space-y-3">
                 {isKassaV2 && (
                     <Tabs value={tab} onValueChange={(v) => setTab(v as "info" | "kassa")}>
                         <TabsList className="w-full grid grid-cols-2">
@@ -312,6 +327,22 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                     </div>
                 )}
 
+                {unconfirmed ? (
+                    <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 flex items-center justify-between gap-3 text-sm">
+                        <span>
+                            Aylanmada {unconfirmed} ta tasdiqlanmagan reys bor. Yopilsa ular ochiq aylanmaga ko'chiriladi.
+                        </span>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            loading={closing}
+                            onClick={handleSubmit((v) => onSubmit(v, true))}
+                        >
+                            Baribir yopish
+                        </Button>
+                    </div>
+                ) : null}
+
                 <div className="flex justify-end">
                     {isKassaV2 && tab === "info" ?
                     <Button
@@ -323,7 +354,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                         Keyingi: Kassa hisobi →
                     </Button>
                     :
-                    <Button loading={isEditing || closing} disabled={!canFinish}>
+                    <Button loading={closing} disabled={!canFinish}>
                         {isKassaV2 ? (kassa?.amount ? "Tugatish va so'rov yuborish" : "Tugatish") : t("actions.save")}
                     </Button>}
                 </div>
