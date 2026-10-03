@@ -22,6 +22,7 @@ type User = {
     disabled_modules?: string[]
     kassa_mode?: "standard" | "driver_cash"
     kassa_started_at?: string | null
+    kassa_version?: number
     uuid?: string
     full_name?: string
     phone?: string | null

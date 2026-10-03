@@ -296,7 +296,7 @@ export const useItems = () => {
                 icon: <CreditCard width={18} />,
                 path: "/kassa",
                 allowKey: "manager_cashflow_view",
-                allowKeys: ["kassa_payer_view", "kassa_payment_requests_view"],
+                allowKeys: ["kassa_payer_view", "kassa_payment_requests_view", "kassa_cashier_view", "kassa_operator_view"],
             },
             {
                 label: t("nav.accounting"),
