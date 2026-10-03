@@ -86,7 +86,6 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
                 else post.mutate(KV2_INCOME, body, { onSuccess: () => toast.success("Kassaga kirim qilindi"), onError: onErr })
             })}
         >
-            <p className="text-sm text-muted-foreground">Kassaga tashqaridan kelgan pul. Tarixda saqlanib qoladi.</p>
             <FormNumberInput required control={form.control} name="amount" label="Summa" placeholder="Ex: 1 000 000" thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <label className="flex flex-col gap-1.5 text-sm font-medium">
                 Sana
