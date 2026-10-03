@@ -18,7 +18,9 @@ export function formatExperience(
 ): string {
     if (months === null || months === undefined) {
         const years = Number(fallbackYears ?? 0) || 0
-        return years > 0 ? t("form.experience_years", { count: years }) : "-"
+        if (years <= 0) return "-"
+        months = Math.round(years * 12)
+        if (months === 0) return "-"
     }
     const years = Math.floor(months / 12)
     const rest = months % 12
