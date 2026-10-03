@@ -6,7 +6,6 @@ import {
     DRIVERS_OVERVIEW,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { formatExperience } from "@/lib/format-experience"
 import { formatMoney } from "@/lib/format-money"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { ColumnDef } from "@tanstack/react-table"
@@ -253,7 +252,7 @@ export default function HaydovchiDetail() {
         return (
             <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
                 <p className="text-lg font-medium">{t("page.not_found")}</p>
-                <Button variant="outline" onClick={() => navigate({ to: "/haydovchilar" })}>
+                <Button onClick={() => navigate({ to: "/haydovchilar" })}>
                     <ArrowLeft size={16} className="mr-2" />
                     {t("page.back_to_list")}
                 </Button>
@@ -296,7 +295,7 @@ export default function HaydovchiDetail() {
         <div className="space-y-4 pb-6">
             <div className="flex items-center gap-3">
                 <Button
-                    variant="ghost"
+                    variant="default"
                     size="icon"
                     onClick={() => navigate({ to: "/haydovchilar" })}
                     className="shrink-0"
@@ -315,16 +314,6 @@ export default function HaydovchiDetail() {
                             <Phone size={12} />
                             {formatPhoneNumber(overview.phone)}
                         </a>
-                    )}
-                    {overview && (
-                        <div className="text-sm text-muted-foreground mt-0.5">
-                            {t("form.work_experience")}:{" "}
-                            {formatExperience(
-                                t,
-                                overview.experience_months,
-                                overview.experience,
-                            )}
-                        </div>
                     )}
                 </div>
                 <div className="text-right shrink-0">

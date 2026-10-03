@@ -545,7 +545,7 @@ export default function AylanmaDetail() {
         <div className="space-y-4 pb-6">
             <div className="flex items-center gap-3">
                 <Button
-                    variant="ghost"
+                    variant="default"
                     size="icon"
                     onClick={() =>
                         navigate({

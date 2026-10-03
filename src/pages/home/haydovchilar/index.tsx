@@ -139,27 +139,17 @@ const useCols = () => {
                 },
             },
             {
-                header: "Qamrov (hudud)",
-                accessorKey: "coverage",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="tabular-nums">
-                        {row.original.coverage}
-                    </span>
-                ),
-            },
-            {
-                header: t("table.revenue"),
+                header: `${t("table.revenue")} (${t("page.som")})`,
                 accessorKey: "revenue_uzs",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="tabular-nums font-medium">
-                        {formatMoney(num(row.original.revenue_uzs))} {t("page.som")}
+                        {formatMoney(num(row.original.revenue_uzs))}
                     </span>
                 ),
             },
             {
-                header: t("form.balance"),
+                header: `${t("form.balance")} (${t("page.som")})`,
                 accessorKey: "balance_uzs",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -176,7 +166,7 @@ const useCols = () => {
                                           : ""
                                 }
                             >
-                                {formatMoney(v)} {t("page.som")}
+                                {formatMoney(v)}
                             </span>
                             {salary !== 0 && (
                                 <span
