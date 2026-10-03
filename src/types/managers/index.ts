@@ -75,6 +75,7 @@ type ManagerOrders = {
     canceled_time: string
     archived_time: string
     images?: { id: number; image: string }[]
+    incomes?: { id?: number; payment_type: number | null }[]
     truck_number?: string | null
     external_id?: string | null
     is_integration?: boolean

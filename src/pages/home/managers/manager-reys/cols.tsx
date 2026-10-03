@@ -8,6 +8,9 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { STATUS_TRIP } from "../managers-trips/cols"
 import { hasPriceDiff } from "./price-diff"
+import { PaymentType } from "./payment-fields"
+import { useGet } from "@/hooks/useGet"
+import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 
 const HOLAT_COLORS: Record<number, string> = {
     1: "bg-green-500/10 text-green-600 border-transparent",
@@ -37,8 +40,15 @@ export const useColumnsManagersOrders = (opts?: {
     onImageClick?: (images: { id: number; image: string }[]) => void
 }) => {
     const { t } = useTranslation()
+    const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
+        SETTINTS_PAYMENT_TYPE,
+        { params: { page_size: 1000000 } },
+    )
     return useMemo<ColumnDef<ManagerOrders>[]>(
         () => {
+            const paymentTypeNames = new Map(
+                (paymentTypesData?.results ?? []).map((p) => [p.id, p.name]),
+            )
             const holatLabels: Record<number, string> = {
                 1: t("table.status_loaded"),
                 2: t("table.status_empty"),
@@ -188,6 +198,22 @@ export const useColumnsManagersOrders = (opts?: {
                 },
             },
             {
+                id: "payment_type",
+                header: t("form.payment_type"),
+                size: 130,
+                cell: ({ row }) => {
+                    const names = [
+                        ...new Set(
+                            (row.original.incomes ?? [])
+                                .map((i) => (i.payment_type ? paymentTypeNames.get(i.payment_type) : undefined))
+                                .filter(Boolean),
+                        ),
+                    ]
+                    if (!names.length) return <span className="text-muted-foreground">—</span>
+                    return <span className="whitespace-nowrap">{names.join(", ")}</span>
+                },
+            },
+            {
                 accessorKey: "external_id",
                 header: t("table.cargo_id"),
                 size: 120,
@@ -310,7 +336,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             ]
         },
-        [opts?.onImageClick, t],
+        [opts?.onImageClick, t, paymentTypesData],
     )
 }
 
