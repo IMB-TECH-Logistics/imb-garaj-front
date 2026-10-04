@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
-import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS, VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS, MANAGERS_VEHICLES, VEHICLES } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -66,6 +66,7 @@ export default function ManagersTrips() {
             },
         },
     )
+    const { data: vehiclesCount } = useGet<ListResponse<ManagerVehicles>>(MANAGERS_VEHICLES, { params: { page_size: 1 } })
     const isNotFound =
         vehicleError?.response?.status === 404 ||
         (isError && [400, 404].includes(error?.response?.status))
@@ -148,15 +149,8 @@ export default function ManagersTrips() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <InlineBreadcrumb
-                                    trailing={
-                                        <>
-                                            <Badge>
-                                                {formatMoney(data?.count)}
-                                            </Badge>
-                                            <span className="text-muted-foreground">/</span>
-                                            <span>{vehicleLabel}</span>
-                                        </>
-                                    }
+                                    counts={[vehiclesCount?.count, data?.count]}
+                                    trailing={<span>{vehicleLabel}</span>}
                                 />
                             </div>
                             <div className="flex items-center gap-3">

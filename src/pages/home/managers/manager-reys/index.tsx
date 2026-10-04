@@ -7,35 +7,38 @@ import { DataTable } from "@/components/ui/datatable"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
 } from "@/components/ui/dialog"
 import {
     MANAGERS_ORDERS,
-    MANAGERS_ORDERS_INTEGRATION_COUNT,
     MANAGERS_TRIPS,
     MANAGERS_VEHICLES,
 } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
-import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
 import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 import { useColumnsManagersOrders } from "./cols"
 import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
 import ParamDateRange from "@/components/as-params/date-picker-range"
+
+type EmptyLeg = {
+    before_order: number
+    first: boolean
+    from_place: string | null
+    to_place: string | null
+    start: string
+    end: string
+    minutes: number
+    distance_km: number | null
+}
 
 export default function ManagerReys() {
     const { t } = useTranslation()
@@ -67,6 +70,12 @@ export default function ManagerReys() {
         (id === "all" ? t("reys_bulk.all_label") : null) ||
         [trip?.vehicle_number, trip?.driver_name].filter(Boolean).join(" - ") ||
         (tripError?.response?.status === 404 ? "Reys topilmadi" : "—")
+    const crumbVehicle = trip?.vehicle ?? getData("manager-trips-vehicle-id")
+    const { data: vehiclesCount } = useGet<ListResponse<ManagerVehicles>>(MANAGERS_VEHICLES, { params: { page_size: 1 } })
+    const { data: tripsCount } = useGet<ListResponse<ManagerTrips>>(MANAGERS_TRIPS, {
+        params: { vehicle: crumbVehicle, page_size: 1 },
+        enabled: !!crumbVehicle,
+    })
     const currentSelected = getData(MANAGERS_ORDERS)
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
         params: {
@@ -80,57 +89,6 @@ export default function ManagerReys() {
         },
     })
     const hasControl = useHasAction("manager_vehicles_control")
-    const queryClient = useQueryClient()
-    const { mutate: bulkDecide, isPending: bulkPending } = usePost({})
-    const canBulk = useHasAction("manager_flights_control")
-    const { openModal: openBulkModal, closeModal: closeBulkModal } = useModal(
-        `${MANAGERS_ORDERS}-bulk`,
-    )
-    const [selectedRows, setSelectedRows] = useState<ManagerOrders[]>([])
-    const [clearSelectionTick, setClearSelectionTick] = useState(0)
-    const [bulkAction, setBulkAction] = useState<"approve" | "cancel">("approve")
-    const draftIds = selectedRows.filter((r) => r.status === -1).map((r) => r.id)
-    const unconfirmedIds = selectedRows
-        .filter((r) => r.trip_confirmed === false)
-        .map((r) => r.id)
-    const bulkIds = bulkAction === "approve" ? unconfirmedIds : draftIds
-
-    const startBulk = (action: "approve" | "cancel") => {
-        setBulkAction(action)
-        openBulkModal()
-    }
-
-    const handleBulkConfirm = () => {
-        bulkDecide(
-            `${MANAGERS_ORDERS}/bulk-decision`,
-            { action: bulkAction, decision: bulkAction, ids: bulkIds },
-            {
-                onSuccess: (res: any) => {
-                    const done = res?.done?.length ?? 0
-                    const skipped = res?.skipped?.length ?? 0
-                    const key =
-                        bulkAction === "approve"
-                            ? "reys_bulk.approved"
-                            : "reys_bulk.canceled"
-                    toast.success(
-                        t(key, { count: done }) +
-                            (skipped > 0
-                                ? t("reys_bulk.skipped", { count: skipped })
-                                : ""),
-                    )
-                    queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS] })
-                    queryClient.invalidateQueries({
-                        queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT],
-                    })
-                    setClearSelectionTick((v) => v + 1)
-                    closeBulkModal()
-                },
-                onError: () => {
-                    toast.error(t("reys_bulk.error"))
-                },
-            },
-        )
-    }
     const [approveOrder, setApproveOrder] = useState<ManagerOrders | null>(null)
     const { openModal: openApproveModal } = useModal(APPROVE_TRIP_MODAL_KEY)
 
@@ -153,6 +111,35 @@ export default function ManagerReys() {
         deleteModal()
     }
 
+    const { data: legs } = useGet<EmptyLeg[]>(`${MANAGERS_TRIPS}/${tripId}/empty-legs`, { enabled: !!tripId })
+    const rows = useMemo(() => {
+        const list = data?.results ?? []
+        if (!legs?.length) return list
+        const byOrder = new Map(legs.map((l) => [l.before_order, l]))
+        const ordering = String((search as any).ordering ?? "")
+        const desc = !ordering || ordering.startsWith("-")
+        const out: ManagerOrders[] = []
+        for (const r of list) {
+            const leg = byOrder.get(r.id)
+            const legRow = leg && ({
+                id: -leg.before_order,
+                __leg: leg,
+                date: leg.start,
+                activity: 0,
+                activity_display: "Bo'sh yurish",
+                loading_name: leg.from_place || "Aylanma boshi",
+                unloading_name: leg.to_place,
+                loading_time: leg.start,
+                completed_time: leg.end,
+                incomes: [],
+                images: [],
+            } as unknown as ManagerOrders)
+            if (legRow && !desc) out.push(legRow)
+            out.push(r)
+            if (legRow && desc) out.push(legRow)
+        }
+        return out
+    }, [data, legs, search])
     const handleAdd = () => {
         clearKey(MANAGERS_ORDERS)
         openTripModal()
@@ -161,12 +148,11 @@ export default function ManagerReys() {
         <>
             <DataTable
                 columns={cols}
-                data={data?.results || []}
+                data={rows}
+                isRowLocked={(r: ManagerOrders) => !!(r as any).__leg}
+                rowColor={(r: ManagerOrders) => ((r as any).__leg ? "text-muted-foreground italic" : "")}
                 manualSorting
                 stickyActions
-                selecteds_row={canBulk}
-                onSelectedRowsChange={setSelectedRows}
-                clearSelectionTrigger={clearSelectionTick}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -198,13 +184,8 @@ export default function ManagerReys() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <InlineBreadcrumb
-                                    trailing={
-                                        <>
-                                            <Badge>{formatMoney(data?.count)}</Badge>
-                                            <span className="text-muted-foreground">/</span>
-                                            <span>{tripLabel}</span>
-                                        </>
-                                    }
+                                    counts={[vehiclesCount?.count, tripsCount?.count, data?.count]}
+                                    trailing={<span>{tripLabel}</span>}
                                 />
                             </div>
                             <div className="flex items-center gap-2">
@@ -215,25 +196,6 @@ export default function ManagerReys() {
                                         className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
                                     }}
                                 />
-                                {canBulk && unconfirmedIds.length > 0 && (
-                                    <Button
-                                        variant="outline"
-                                        className="text-green-600"
-                                        onClick={() => startBulk("approve")}
-                                    >
-                                        <Check size={16} />
-                                        {t("reys_bulk.approve_btn", { count: unconfirmedIds.length })}
-                                    </Button>
-                                )}
-                                {canBulk && draftIds.length > 0 && (
-                                    <Button
-                                        variant="destructive"
-                                        onClick={() => startBulk("cancel")}
-                                    >
-                                        <X size={16} />
-                                        {t("reys_bulk.cancel_btn", { count: draftIds.length })}
-                                    </Button>
-                                )}
                                 {hasControl && tripId && (
                                     <Button onClick={handleAdd}>
                                         <Plus size={16} />
@@ -259,46 +221,6 @@ export default function ManagerReys() {
                 }
             >
                 <AddTripOrders />
-            </Modal>
-
-            <Modal
-                size="max-w-md"
-                modalKey={`${MANAGERS_ORDERS}-bulk`}
-                titleInChildren
-            >
-                <DialogHeader>
-                    <DialogTitle className="font-normal max-w-sm">
-                        {t(
-                            bulkAction === "approve"
-                                ? "reys_bulk.confirm_approve"
-                                : "reys_bulk.confirm_cancel",
-                            { count: bulkIds.length },
-                        )}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {t(
-                            bulkAction === "approve"
-                                ? "reys_bulk.confirm_approve_hint"
-                                : "reys_bulk.confirm_cancel_hint",
-                        )}
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={closeBulkModal}
-                        disabled={bulkPending}
-                    >
-                        {t("actions.cancel")}
-                    </Button>
-                    <Button
-                        variant={bulkAction === "cancel" ? "destructive" : "default"}
-                        onClick={handleBulkConfirm}
-                        loading={bulkPending}
-                    >
-                        {t("actions.confirm")}
-                    </Button>
-                </DialogFooter>
             </Modal>
 
             <ApproveTripModal order={approveOrder} />

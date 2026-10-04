@@ -3,13 +3,15 @@ import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { endOfMonth, startOfMonth } from "date-fns"
-import { ArrowDownCircle, Send, X } from "lucide-react"
-import { ReactNode, useState } from "react"
-import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, n, useKassaRoles, useOverview, usePeriod } from "./api"
+import { ArrowDownCircle, X } from "lucide-react"
+import { ReactNode, useMemo, useState } from "react"
+import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRANSACTIONS, KV2_TRIPS, n, Paged, STATUS, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
 import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
@@ -38,11 +40,25 @@ const Box = ({ children, className }: { children: ReactNode; className?: string 
 
 type View = "kassa" | "requests" | "trips" | "driver"
 
+const TABS: [View, string][] = [["trips", "Aylanmalar"], ["kassa", "Transaksiyalar"]]
+
 const KassaV2 = () => {
     const { cashier, operator } = useKassaRoles()
-    const { from_date } = usePeriod()
+    const period = usePeriod()
+    const { from_date } = period
+    const { data: tripsData } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
+    const { data: txData } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
+    const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
+    const txCount = useMemo(() => {
+        if (!txData) return undefined
+        const closes = new Set(txData.results.filter((t) => t.close).map((t) => t.close!.id))
+        const plain = txData.results.filter((t) => !t.close).length
+        const reqs = (reqData?.results ?? []).filter((q) => q.status === STATUS.PENDING || q.can_unreject).length
+        return plain + closes.size + reqs
+    }, [txData, reqData])
+    const counts: Partial<Record<View, number | undefined>> = { trips: tripsData?.length, kassa: txCount }
     const { data: ov } = useOverview()
-    const [view, setView] = useState<View>("kassa")
+    const [view, setView] = useState<View>("trips")
     const [group, setGroup] = useState<string | null>(null)
     const pick = (g: string, label: string) => () => {
         setDriver(null)
@@ -68,7 +84,15 @@ const KassaV2 = () => {
     const close = useModal(M.close)
     const reverseM = useModal(M.reverse)
 
-    const switcher = <h1 className="text-lg font-semibold">Transaksiyalar</h1>
+    const switcher = (
+        <Tabs value={view === "trips" ? "trips" : "kassa"} onValueChange={(v) => { setDriver(null); setGroup(null); setView(v as View) }}>
+            <TabsList>
+                {TABS.map(([v, label]) => (
+                    <TabsTrigger key={v} value={v}>{label}{counts[v] != null ? ` (${counts[v]})` : ""}</TabsTrigger>
+                ))}
+            </TabsList>
+        </Tabs>
+    )
     const drivers = ov?.drivers ?? []
     const selected = drivers.find((d) => d.id === driver)
 
@@ -151,17 +175,13 @@ const KassaV2 = () => {
                         onReject={(r) => { setRejecting(r); reject.openModal() }}
                         onPay={(r) => { setPaying(r); pay.openModal() }}
                         onEdit={(r) => { setEditing(r); request.openModal() }}
-                        actions={operator && (
-                            <Button onClick={() => { setEditing(null); request.openModal() }}>
-                                <Send size={16} />
-                                Pul so'rovi
-                            </Button>
-                        )}
                     />
                 : view === "trips" ?
                     <TripsTable
                         switcher={switcher}
-                        onClose={(t) => { setClosing(t); close.openModal() }}
+                        onPay={(r) => { setPaying(r); pay.openModal() }}
+                        onReject={(r) => { setRejecting(r); reject.openModal() }}
+                        onReverse={(r) => { setReverseRow(r); reverseM.openModal() }}
                     />
                 :   <KassaTable
                         switcher={switcher}
@@ -175,12 +195,6 @@ const KassaV2 = () => {
                         onPay={(r) => { setPaying(r); pay.openModal() }}
                         onEditRequest={(r) => { setEditing(r); request.openModal() }}
                         actions={<>
-                            {operator && (
-                                <Button onClick={() => { setEditing(null); request.openModal() }}>
-                                    <Send size={16} />
-                                    Pul so'rovi
-                                </Button>
-                            )}
                             {cashier && <>
                             <Button onClick={() => { setIncomeRow(null); income.openModal() }}>
                                 <ArrowDownCircle size={16} />

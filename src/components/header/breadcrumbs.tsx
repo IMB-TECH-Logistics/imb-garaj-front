@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge"
+import { formatMoney } from "@/lib/format-money"
 import { Link, useLocation } from "@tanstack/react-router"
 import {
     Breadcrumb,
@@ -109,14 +111,22 @@ export function useBreadcrumbs() {
  * Inline breadcrumb for page headers.
  * Renders the breadcrumb trail with optional trailing content (badge, name, etc.)
  */
-export function InlineBreadcrumb({ trailing }: { trailing?: ReactNode }) {
+const withCount = (label: string, count?: number | null) =>
+    count != null ? (
+        <span className="inline-flex items-center gap-1.5">
+            {label}
+            <Badge>{formatMoney(count)}</Badge>
+        </span>
+    ) : label
+
+export function InlineBreadcrumb({ trailing, counts }: { trailing?: ReactNode; counts?: (number | null | undefined)[] }) {
     const trail = useBreadcrumbs()
 
     if (trail.length === 0) return null
 
     return (
         <Breadcrumb>
-            <BreadcrumbList className="flex-nowrap">
+            <BreadcrumbList className="flex-nowrap text-base">
                 {trail.map((item, index) => {
                     const isLast = index === trail.length - 1
                     return (
@@ -128,11 +138,11 @@ export function InlineBreadcrumb({ trailing }: { trailing?: ReactNode }) {
                                         className={
                                             isLast
                                                 ? "text-foreground font-medium text-base"
-                                                : undefined
+                                                : "text-base text-muted-foreground"
                                         }
                                     >
                                         <Link to={item.path}>
-                                            {item.label}
+                                            {withCount(item.label, counts?.[index])}
                                         </Link>
                                     </BreadcrumbLink>
                                 ) : (
@@ -140,10 +150,10 @@ export function InlineBreadcrumb({ trailing }: { trailing?: ReactNode }) {
                                         className={
                                             isLast
                                                 ? "font-medium text-base"
-                                                : "font-normal text-muted-foreground"
+                                                : "font-normal text-base text-muted-foreground"
                                         }
                                     >
-                                        {item.label}
+                                        {withCount(item.label, counts?.[index])}
                                     </BreadcrumbPage>
                                 )}
                             </BreadcrumbItem>
@@ -154,7 +164,7 @@ export function InlineBreadcrumb({ trailing }: { trailing?: ReactNode }) {
                     )
                 })}
                 {trailing && (
-                    <BreadcrumbItem className="text-sm text-primary font-medium">
+                    <BreadcrumbItem className="text-base text-primary font-medium">
                         {trailing}
                     </BreadcrumbItem>
                 )}

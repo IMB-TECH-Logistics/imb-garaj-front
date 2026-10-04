@@ -1,6 +1,7 @@
+import { ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
-import { MANAGERS_VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS, MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
@@ -21,6 +22,13 @@ export default function Managers() {
                 ordering:(search as Record<string, any>).ordering ?? "pending_orders",
             }
         })
+    const { data: tripsTotal } = useGet<ListResponse<ManagerTrips>>(MANAGERS_TRIPS, { params: { page_size: 1 } })
+    const { data: ordersTotal } = useGet<ListResponse<ManagerOrders>>(MANAGERS_ORDERS, { params: { page_size: 1 } })
+    const totals: [string, number | undefined][] = [
+        ["Transportlar", data?.count],
+        ["Aylanmalar", tripsTotal?.count],
+        ["Reyslar", ordersTotal?.count],
+    ]
     const navigate = useNavigate()
 
     const handleRowClick = (item: ManagerVehicles) => {
@@ -53,8 +61,17 @@ export default function Managers() {
                 head={
                     <div className="p-3">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl ">{t("page.list")}</h1>
-                            <Badge>{formatMoney(data?.count)}</Badge>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                                {totals.map(([label, value], i) => (
+                                    <div key={label} className="flex items-center gap-2">
+                                        {i > 0 && <ChevronRight size={16} className="text-muted-foreground" />}
+                                        <div className="flex items-center gap-1.5">
+                                            {i === 0 ? <h1 className="text-base font-medium">{label}</h1> : <span className="text-base text-muted-foreground">{label}</span>}
+                                            {value != null && <Badge>{formatMoney(value)}</Badge>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 }

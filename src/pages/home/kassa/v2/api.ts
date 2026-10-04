@@ -20,7 +20,7 @@ export const VEHICLES_LIST = "vehicles"
 export type Dir = "in" | "out"
 export type RequestKind = "avans" | "qoshimcha" | "qaytarish" | "berish" | "oylik" | "garaj_xarajat" | "avans_qaytarish"
 export type ExpenseType = "texnik_korik" | "tamir" | "ombor"
-export type TripStatus = "avans_kutilmoqda" | "yolda" | "yopilmoqda" | "yopildi"
+export type TripStatus = "avans_kutilmoqda" | "avans_rad_etildi" | "yolda" | "yopilmoqda" | "rad_etildi" | "yopildi"
 
 export const KIND_LABEL: Record<RequestKind, string> = {
     avans: "Avans",
@@ -77,6 +77,8 @@ export type KassaTx = {
     reversed: { at: string; reason: string; by: string | null } | null
     reversal_of: number | null
     close?: (CloseBreakdown & { id: number; request: number }) | null
+    can_reverse?: boolean
+    can_edit?: boolean
 }
 
 export type KassaRequest = {
@@ -103,6 +105,8 @@ export type KassaRequest = {
     paid_at: string | null
     created: string
     close?: CloseBreakdown | null
+    reverse_tx?: number | null
+    can_unreject?: boolean
 }
 
 export type KassaTrip = {
@@ -114,7 +118,9 @@ export type KassaTrip = {
     end: string | null
     created: string
     status: TripStatus
-    driver_balance: number
+    given: number
+    avans_request: KassaRequest | null
+    close_request: KassaRequest | null
 }
 
 export type CloseBreakdown = {

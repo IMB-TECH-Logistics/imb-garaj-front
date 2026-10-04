@@ -12,7 +12,7 @@ import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
-import { Check, Download, Pencil, X } from "lucide-react"
+import { Check, Download, Pencil, RotateCcw, X } from "lucide-react"
 import { format } from "date-fns"
 import { ReactNode, useEffect, useMemo, useState } from "react"
 import { DateRange } from "react-day-picker"
@@ -154,6 +154,21 @@ const requestRow = (r: KassaRequest): KassaRow => ({
     req: r,
 })
 
+const KIND_FILTERS: [string, string][] = [
+    ["all", "Barcha turlar"],
+    ["kirim", "Kassaga kirim"],
+    ["yopish", "Aylanmani yopish"],
+    ["avans", "Avans"],
+    ["garaj", "Garaj xarajati"],
+    ["bekor", "Bekor qilingan"],
+]
+
+const requestKindFilter = (r: KassaRequest) => {
+    if (r.close || r.kind === "qaytarish" || r.kind === "berish" || r.kind === "oylik") return "yopish"
+    if (r.kind === "garaj_xarajat") return "garaj"
+    return "avans"
+}
+
 const mergeCloses = (list: KassaRow[]): KassaRow[] => {
     const seen = new Set<number>()
     const out: KassaRow[] = []
@@ -172,6 +187,83 @@ const mergeCloses = (list: KassaRow[]): KassaRow[] => {
 
 const dm = (d: string | null) => (d ? `${d.slice(8, 10)}.${d.slice(5, 7)}` : "…")
 const tripPeriod = (a: string | null, b: string | null) => `${dm(a)} – ${b ? dm(b) : "davom etmoqda"}`
+
+const DETAIL_MODAL = "kassa-v2-close-detail"
+
+const DetailRow = ({ label, children, className }: { label: ReactNode; children: ReactNode; className?: string }) => (
+    <div className={cn("flex items-center justify-between gap-3 py-2 text-sm", className)}>
+        <span>{label}</span>
+        {children}
+    </div>
+)
+
+const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (r: KassaRequest) => void }) => {
+    const c = row?.close
+    const req = row?.req
+    const q = req && req.status === STATUS.PENDING ? req : undefined
+    const { cashier } = useKassaRoles()
+    const { data: ov } = useOverview()
+    const { closeModal } = useModal(DETAIL_MODAL)
+    const { mutate: post, isPending } = useKassaPost(closeModal)
+    const out = !!q && KIND_DIR[q.kind] === "out"
+    const short = out && !!q && n(ov?.balance) < n(q.amount)
+    return (
+        <Modal modalKey={DETAIL_MODAL} title={row?.trip ? `Aylanma #${row.trip} yopilishi` : "Aylanma yopilishi"} size="max-w-md">
+            {c && row && (
+                <div className="flex flex-col gap-3">
+                    <p className="text-sm text-muted-foreground">{row.party || "—"}</p>
+                    <div className="rounded-lg border px-3 divide-y">
+                        <DetailRow label="Aylanma davri"><span className="tabular-nums whitespace-nowrap">{tripPeriod(c.trip_start, c.trip_end)}</span></DetailRow>
+                        <DetailRow label="Berilgan avans"><Part v={c.given} sign="−" /></DetailRow>
+                        <DetailRow label="Avans qoldig'i"><Part v={c.avans_left} sign="+" /></DetailRow>
+                        <DetailRow label="Naqd reys puli"><Part v={c.earned} sign="+" /></DetailRow>
+                        <DetailRow label="Oylik"><Part v={c.salary} sign="−" /></DetailRow>
+                        <DetailRow label={row.dir === "in" ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"} className="font-semibold">
+                            <Money v={row.amount} dir={row.dir} />
+                        </DetailRow>
+                    </div>
+                    {q && cashier && (
+                        <div className="flex flex-col gap-1.5">
+                            <div className="flex justify-end gap-2">
+                                <Button
+                                    variant="destructive"
+                                    className="gap-1"
+                                    disabled={isPending}
+                                    onClick={() => { closeModal(); onReject(q) }}
+                                >
+                                    <X size={16} />
+                                    Rad etish
+                                </Button>
+                                <Button
+                                    className="min-w-32 gap-1"
+                                    loading={isPending}
+                                    disabled={short}
+                                    onClick={() => post(`${KV2_REQUESTS}/${q.id}/pay`, {}, {
+                                        onSuccess: () => toast.success(out ? "Kassadan chiqim qilindi, aylanma yopildi" : "Kassaga kirim qilindi, aylanma yopildi"),
+                                        onError: (e: unknown) => toast.error(errorText(e)),
+                                    })}
+                                >
+                                    <Check size={16} />
+                                    {out ? "Berdim" : "Oldim"}
+                                </Button>
+                            </div>
+                            {short && <span className="text-xs text-destructive text-right">Kassada yetarli pul yo'q</span>}
+                        </div>
+                    )}
+                    {q && !cashier && <Badge variant="orange" className="w-fit self-end">Kassir tasdig'i kutilmoqda</Badge>}
+                    {req && req.status === STATUS.PAID && (
+                        <span className="text-xs text-muted-foreground text-right">
+                            Tasdiqlangan{req.paid_by_name ? ` · ${req.paid_by_name}` : ""}{req.paid_at ? ` · ${fmtDate(req.paid_at)}` : ""}
+                        </span>
+                    )}
+                    {req && req.status === STATUS.REJECTED && (
+                        <span className="text-xs text-destructive text-right">Rad etildi{req.rejected_comment ? `: ${req.rejected_comment}` : ""}</span>
+                    )}
+                </div>
+            )}
+        </Modal>
+    )
+}
 
 const Part = ({ v, sign }: { v: number | string | undefined; sign: "+" | "−" }) => {
     const x = n(v)
@@ -196,57 +288,37 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const { cashier, operator } = useKassaRoles()
     const period = usePeriod()
     const [dir, setDir] = useState("all")
-    const params = { ...period, ...usePaging(), dir: dir === "all" ? undefined : dir, group: group || undefined }
+    const [kindF, setKindF] = useState("all")
+    const params = { ...period, ...usePaging(), dir: dir === "all" ? undefined : dir, kind: kindF === "all" ? undefined : kindF, group: group || undefined }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
-    const { data: pendingData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: STATUS.PENDING, page_size: 1000 } })
+    const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
+    const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => q.status === STATUS.PENDING || q.can_unreject), [reqData])
+    const pendingCount = reqs.filter((q) => q.status === STATUS.PENDING).length
     const { data: ov } = useOverview()
     const balance = n(ov?.balance)
     const { mutate: post, isPending } = useKassaPost()
     const act = (url: string, ok: string) =>
         post(url, {}, { onSuccess: () => toast.success(ok), onError: (e: unknown) => toast.error(errorText(e)) })
     const rows = useMemo<KassaRow[]>(() => {
-        const pend = group ? [] : (pendingData?.results ?? []).map(requestRow).filter((r) => dir === "all" || r.dir === dir)
-        return mergeCloses([...pend, ...(data?.results ?? [])])
-    }, [data, pendingData, dir, group])
+        const pend = group ? [] : reqs
+            .filter((q) => kindF === "all" || requestKindFilter(q) === kindF)
+            .map(requestRow)
+            .filter((r) => dir === "all" || r.dir === dir)
+        const list = [...pend, ...(data?.results ?? [])]
+        if (group) return list.map((r) => ({ ...r, close: null }))
+        const merged = mergeCloses(list)
+        return dir === "all" ? merged : merged.filter((r) => r.dir === dir)
+    }, [data, reqs, dir, kindF, group])
     const excelModal = useModal(EXCEL_MODAL)
+    const detailModal = useModal(DETAIL_MODAL)
+    const [detail, setDetail] = useState<KassaRow | null>(null)
+    const openDetail = (r: KassaRow) => {
+        setDetail(r)
+        detailModal.openModal()
+    }
 
     const columns = useMemo<ColumnDef<KassaRow>[]>(
         () => [
-            {
-                header: "Summa",
-                accessorKey: "amount",
-                cell: ({ row }) => (
-                    <div className={cn("flex flex-col", row.original.reversed && "line-through opacity-60")}>
-                        <Money v={row.original.amount} dir={row.original.dir} />
-                        {row.original.close && (
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {row.original.dir === "in" ? "kassa haydovchidan oladi" : "kassa haydovchiga beradi"}
-                            </span>
-                        )}
-                    </div>
-                ),
-            },
-            {
-                header: "Nima uchun",
-                accessorKey: "kind_label",
-                cell: ({ row }) => row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
-            },
-            { header: "Kimdan / kimga", accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
-            {
-                header: "Aylanma davri",
-                id: "close_period",
-                cell: ({ row }) => row.original.close ? <span className="whitespace-nowrap tabular-nums">{tripPeriod(row.original.close.trip_start, row.original.close.trip_end)}</span> : null,
-            },
-            {
-                header: "Berilgan avans",
-                id: "close_given",
-                cell: ({ row }) => row.original.close ? <span className="whitespace-nowrap tabular-nums">{n(row.original.close.given) ? money(row.original.close.given) : "—"}</span> : null,
-            },
-            { header: "Avans qoldig'i", id: "close_avans", cell: ({ row }) => row.original.close ? <Part v={row.original.close.avans_left} sign="+" /> : null },
-            { header: "Naqd reys puli", id: "close_earned", cell: ({ row }) => row.original.close ? <Part v={row.original.close.earned} sign="+" /> : null },
-            { header: "Oylik", id: "close_salary", cell: ({ row }) => row.original.close ? <Part v={row.original.close.salary} sign="−" /> : null },
-            { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
-            { header: "Kiritgan", accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
             {
                 header: "Sana",
                 accessorKey: "created",
@@ -254,9 +326,43 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     <div className="flex flex-col">
                         <DateCell v={row.original.created} />
                         {row.original.edited_at && <span className="text-xs text-muted-foreground">o'zgartirilgan</span>}
-                        {row.original.req && <span className="text-xs text-orange-500 whitespace-nowrap">so'rov</span>}
                     </div>
                 ),
+            },
+            { header: "Kim tomonidan", accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
+            { header: "Kimdan / kimga", accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
+            {
+                header: "Nima uchun",
+                accessorKey: "kind_label",
+                cell: ({ row }) => row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
+            },
+            {
+                header: "Umumiy summa",
+                accessorKey: "amount",
+                cell: ({ row }) => {
+                    const r = row.original
+                    const body = (
+                        <>
+                            <Money v={r.amount} dir={r.dir} />
+                            {r.close && (
+                                <span className="text-xs text-muted-foreground whitespace-nowrap underline decoration-dotted underline-offset-2">
+                                    {r.dir === "in" ? "kassa haydovchidan oladi" : "kassa haydovchiga beradi"}
+                                </span>
+                            )}
+                        </>
+                    )
+                    if (!r.close) return <div className={cn("flex flex-col", r.reversed && "line-through opacity-60")}>{body}</div>
+                    return (
+                        <button
+                            type="button"
+                            title="Batafsil"
+                            onClick={(e) => { e.stopPropagation(); openDetail(r) }}
+                            className={cn("flex flex-col items-start text-left rounded-md -mx-1.5 px-1.5 py-0.5 hover:bg-muted/80 cursor-pointer", r.reversed && "line-through opacity-60")}
+                        >
+                            {body}
+                        </button>
+                    )
+                },
             },
         ],
         [],
@@ -267,11 +373,26 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
             loading={isLoading}
             columns={columns}
             data={rows}
+            onRowClick={(r: KassaRow) => r.close && openDetail(r)}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
             paginationProps={paginationProps(data?.total_pages)}
             rowAction={(row: KassaRow) => {
                 const q = row.req
+                if (q && q.status === STATUS.REJECTED) {
+                    return (
+                        <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-1">
+                                <Badge variant="destructive" className="w-fit whitespace-nowrap">Rad etilgan</Badge>
+                                <Button size="sm" variant="outline" className="h-8 gap-1" disabled={isPending} onClick={() => act(`${KV2_REQUESTS}/${q.id}/unreject`, "Rad etish bekor qilindi, so'rov yana kutilmoqda")}>
+                                    <RotateCcw size={14} />
+                                    Qaytarish
+                                </Button>
+                            </div>
+                            {q.rejected_comment && <span className="text-xs text-muted-foreground max-w-56 text-right">{q.rejected_comment}</span>}
+                        </div>
+                    )
+                }
                 if (q) {
                     if (cashier) {
                         const out = KIND_DIR[q.kind] === "out"
@@ -279,15 +400,14 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                         return (
                             <div className="flex flex-col items-end gap-1">
                                 <div className="flex items-center gap-1">
-                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => onPay(q)}>
+                                    <Button size="sm" className="h-8 gap-1" disabled={short || isPending} onClick={() => (q.close ? openDetail(row) : onPay(q))}>
                                         <Check size={16} />
                                         {out ? "Berdim" : "Oldim"}
                                     </Button>
-                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-destructive hover:text-destructive" onClick={() => onReject(q)}>
+                                    <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={() => onReject(q)}>
                                         <X size={16} />
                                         Rad etish
                                     </Button>
-                                    {operator && <TableActions onEdit={() => onEditRequest(q)} onDelete={() => act(`${KV2_REQUESTS}/${q.id}/cancel`, "So'rov bekor qilindi")} />}
                                 </div>
                                 {short && <span className="text-xs text-destructive whitespace-nowrap">Kassada yetarli pul yo'q</span>}
                             </div>
@@ -296,7 +416,6 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     return (
                         <div className="flex items-center gap-2 justify-end">
                             <Badge variant="orange" className="w-fit whitespace-nowrap">Kutilmoqda</Badge>
-                            {operator && <TableActions onEdit={() => onEditRequest(q)} onDelete={() => act(`${KV2_REQUESTS}/${q.id}/cancel`, "So'rov bekor qilindi")} />}
                         </div>
                     )
                 }
@@ -309,25 +428,27 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                         </div>
                     )
                 if (!cashier) return null
-                if (r.kind === "income") return <TableActions onEdit={() => onEdit(r)} onDelete={() => onDelete(r)} />
-                if (r.kind !== "reversal") return <TableActions onUndo={() => onReverse(r)} />
+                if (r.can_edit) return <TableActions onEdit={() => onEdit(r)} onDelete={() => onDelete(r)} />
+                if (r.can_reverse) return <TableActions onUndo={() => onReverse(r)} />
                 return null
             }}
             head={
                 <Head
-                    left={<>{switcher}<Badge>{data?.count ?? 0}</Badge>{group && (
+                    left={<>{switcher}{group && (
                         <Badge variant="secondary" className="gap-1.5 cursor-pointer" onClick={onClearGroup}>
                             {groupLabel}
                             <X size={12} />
                         </Badge>
-                    )}{!!pendingData?.count && <Badge variant="orange">{pendingData.count} ta so'rov kutilmoqda</Badge>}</>}
+                    )}{!!pendingCount && <Badge variant="orange">{pendingCount} ta so'rov kutilmoqda</Badge>}</>}
                     right={<>
+                        <Filter value={kindF} onChange={setKindF} options={KIND_FILTERS} />
                         <Filter value={dir} onChange={setDir} options={[["all", "Kirim va chiqim"], ["in", "Faqat kirim"], ["out", "Faqat chiqim"]]} />
                         <Button onClick={() => excelModal.openModal()}>
                             <Download size={16} />
                             Excel
                         </Button>
                         <ExcelModal />
+                        <CloseDetailModal row={detail} onReject={onReject} />
                         {actions}
                     </>}
                 />
@@ -417,11 +538,11 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
-                                <Button size="sm" variant="outline" className="h-8 gap-1 text-green-600 hover:text-green-600" disabled={short || isPending} onClick={() => onPay(r)}>
+                                <Button size="sm" className="h-8 gap-1" disabled={short || isPending} onClick={() => onPay(r)}>
                                     <Check size={16} />
                                     {out ? "Berdim" : "Oldim"}
                                 </Button>
-                                <Button size="sm" variant="outline" className="h-8 gap-1 text-destructive hover:text-destructive" onClick={() => onReject(r)}>
+                                <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={() => onReject(r)}>
                                     <X size={16} />
                                     Rad etish
                                 </Button>
@@ -479,23 +600,116 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
     )
 }
 
-const TRIP_STATUS: Record<TripStatus, [string, "orange" | "default" | "secondary"]> = {
+const TRIP_STATUS: Record<TripStatus, [string, "orange" | "default" | "secondary" | "destructive"]> = {
     avans_kutilmoqda: ["Avans kutilmoqda", "orange"],
+    avans_rad_etildi: ["Avans rad etildi", "destructive"],
     yolda: ["Yo'lda", "default"],
-    yopilmoqda: ["Kassa tasdig'i kutilmoqda", "orange"],
+    yopilmoqda: ["Yopish kutilmoqda", "orange"],
+    rad_etildi: ["Yopish rad etildi", "destructive"],
     yopildi: ["Yopildi", "secondary"],
 }
 
-export const TripsTable = ({ switcher, onClose, actions }: { switcher: ReactNode; onClose: (t: KassaTrip) => void; actions?: ReactNode }) => {
-    const { operator } = useKassaRoles()
-    const { data, isLoading } = useGet<KassaTrip[]>(KV2_TRIPS)
+export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
+    switcher: ReactNode
+    onPay: (r: KassaRequest) => void
+    onReject: (r: KassaRequest) => void
+    onReverse: (r: KassaTx) => void
+    actions?: ReactNode
+}) => {
+    const { cashier } = useKassaRoles()
+    const period = usePeriod()
+    const { data, isLoading } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
+    const { data: ov } = useOverview()
+    const balance = n(ov?.balance)
+    const { mutate: postReq, isPending: posting } = useKassaPost()
+    const unreject = (q: KassaRequest) =>
+        postReq(`${KV2_REQUESTS}/${q.id}/unreject`, {}, {
+            onSuccess: () => toast.success("Rad etish bekor qilindi, so'rov yana kutilmoqda"),
+            onError: (e: unknown) => toast.error(errorText(e)),
+        })
+    const undoBtn = (q: KassaRequest) => (
+        <Button size="sm" variant="outline" className="h-8 gap-1" disabled={posting} onClick={() => unreject(q)}>
+            <RotateCcw size={14} />
+            Rad etishni qaytarish
+        </Button>
+    )
+    const detailModal = useModal(DETAIL_MODAL)
+    const [detail, setDetail] = useState<KassaRow | null>(null)
+    const openDetail = (t: KassaTrip) => {
+        if (!t.close_request) return
+        setDetail(requestRow(t.close_request))
+        detailModal.openModal()
+    }
     const columns = useMemo<ColumnDef<KassaTrip>[]>(
         () => [
-            { header: "Haydovchi balansi", accessorKey: "driver_balance", cell: ({ row }) => <span className="font-semibold tabular-nums whitespace-nowrap">{formatMoney(n(row.original.driver_balance))}</span> },
-            { header: "Aylanma", accessorKey: "id", cell: ({ row }) => `#${row.original.id}` },
-            { header: "Haydovchi", accessorKey: "driver_name" },
-            { header: "Mashina", accessorKey: "plate" },
-            { header: "Boshlangan", accessorKey: "created", cell: ({ row }) => <DateCell v={row.original.created} /> },
+            {
+                header: "Aylanma davri",
+                id: "period",
+                cell: ({ row }) => <span className="whitespace-nowrap tabular-nums">{tripPeriod(row.original.start, row.original.end)}</span>,
+            },
+            {
+                header: "Mashina / haydovchi",
+                accessorKey: "plate",
+                cell: ({ row }) => (
+                    <div className="flex flex-col">
+                        <span className="whitespace-nowrap tabular-nums">{row.original.plate || "—"}</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">{row.original.driver_name || "—"}</span>
+                    </div>
+                ),
+            },
+            {
+                header: "Berilgan avans",
+                id: "given",
+                cell: ({ row }) => {
+                    const t = row.original
+                    return (
+                        <div className="flex flex-col">
+                            <Part v={t.given} sign="−" />
+                            {t.avans_request && (
+                                <span className={cn("text-xs whitespace-nowrap", t.avans_request.status === STATUS.REJECTED ? "text-destructive" : "text-orange-500")}>
+                                    {t.avans_request.status === STATUS.REJECTED ? "rad etilgan" : "so'ralgan"}: {money(t.avans_request.amount)}
+                                </span>
+                            )}
+                        </div>
+                    )
+                },
+            },
+            {
+                header: "Holat",
+                id: "status",
+                cell: ({ row }) => {
+                    const t = row.original
+                    const [label, variant] = TRIP_STATUS[t.status]
+                    return (
+                        <div className="flex flex-col gap-0.5">
+                            <Badge variant={variant} className="w-fit whitespace-nowrap">{label}</Badge>
+                            {t.status === "rad_etildi" && t.close_request?.rejected_comment && (
+                                <span className="text-xs text-muted-foreground max-w-48">{t.close_request.rejected_comment}</span>
+                            )}
+                            {t.status === "avans_rad_etildi" && t.avans_request?.rejected_comment && (
+                                <span className="text-xs text-muted-foreground max-w-48">{t.avans_request.rejected_comment}</span>
+                            )}
+                        </div>
+                    )
+                },
+            },
+            {
+                header: "Umumiy summa",
+                id: "net",
+                cell: ({ row }) => {
+                    const q = row.original.close_request
+                    if (!q) return <span className="text-muted-foreground">—</span>
+                    const r = requestRow(q)
+                    return (
+                        <div className="flex flex-col">
+                            <Money v={r.amount} dir={r.dir} />
+                            <span className="text-xs text-muted-foreground whitespace-nowrap underline decoration-dotted underline-offset-2">
+                                {r.dir === "in" ? "kassa haydovchidan oladi" : "kassa haydovchiga beradi"}
+                            </span>
+                        </div>
+                    )
+                },
+            },
         ],
         [],
     )
@@ -505,20 +719,58 @@ export const TripsTable = ({ switcher, onClose, actions }: { switcher: ReactNode
             loading={isLoading}
             columns={columns}
             data={data}
+            onRowClick={(t: KassaTrip) => openDetail(t)}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
             rowAction={(t: KassaTrip) => {
-                const [label, variant] = TRIP_STATUS[t.status]
+                const av = t.avans_request
+                if (av && av.status === STATUS.REJECTED) return av.can_unreject ? undoBtn(av) : null
+                if (t.status === "rad_etildi" && t.close_request?.can_unreject) return undoBtn(t.close_request)
+                if (av && cashier) {
+                    const short = balance < n(av.amount)
+                    return (
+                        <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-1">
+                                <Button size="sm" className="h-8 gap-1" disabled={short} onClick={() => onPay(av)}>
+                                    <Check size={16} />
+                                    Avans berdim
+                                </Button>
+                                <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={() => onReject(av)}>
+                                    <X size={16} />
+                                    Rad etish
+                                </Button>
+                            </div>
+                            {short && <span className="text-xs text-destructive whitespace-nowrap">Kassada yetarli pul yo'q</span>}
+                        </div>
+                    )
+                }
+                if (t.status === "yopildi") {
+                    const q = t.close_request
+                    return q?.reverse_tx ? <TableActions onUndo={() => onReverse({ ...requestRow(q), id: q.reverse_tx as number })} /> : null
+                }
+                const ready = t.status === "yopilmoqda"
                 return (
-                    <div className="flex items-center gap-2 justify-end">
-                        <Badge variant={variant} className="w-fit whitespace-nowrap">{label}</Badge>
-                        {operator && (t.status === "yolda" || t.status === "avans_kutilmoqda") && (
-                            <Button size="sm" variant="outline" className="h-8" onClick={() => onClose(t)}>Aylanmani yopish</Button>
-                        )}
-                    </div>
+                    <Button
+                        size="sm"
+                        variant={ready ? "default" : "outline"}
+                        className="h-8"
+                        disabled={!ready || !cashier}
+                        title={ready ? "Hisobni ko'rish va tasdiqlash" : t.status === "rad_etildi" ? "Operator tuzatib qayta yuborishi kerak" : "Menejer aylanmani hali yakunlamagan"}
+                        onClick={() => openDetail(t)}
+                    >
+                        Yopish
+                    </Button>
                 )
             }}
-            head={<Head left={<>{switcher}<Badge>{data?.length ?? 0}</Badge></>} right={actions} />}
+            head={
+                <Head
+                    left={switcher}
+                    right={<>
+                        <CloseDetailModal row={detail} onReject={onReject} />
+                        {actions}
+                    </>}
+                />
+            }
         />
     )
 }

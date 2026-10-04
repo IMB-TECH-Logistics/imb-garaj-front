@@ -49,6 +49,7 @@ interface DataTableProps<TData> {
     onRowClick?: (data: TData) => void
     disabled?: boolean
     rowColor?: (data: TData) => string
+    isRowLocked?: (data: TData) => boolean
     paginationProps?: PaginationProps
     cursorPagination?: {
         next: string | null | undefined
@@ -105,6 +106,7 @@ export function DataTable<TData>({
     onRowClick,
     disabled,
     rowColor,
+    isRowLocked,
     paginationProps,
     cursorPagination,
     limitOffsetPagination,
@@ -175,7 +177,7 @@ export function DataTable<TData>({
                     id: ACTIONS_COLUMN_ID,
                     enableSorting: false,
                     size: 120,
-                    cell: ({ row }) => (
+                    cell: ({ row }) => isRowLocked?.(row.original) ? null : (
                         <div className="flex items-center justify-end gap-2 pr-2">
                             {rowAction?.(row.original)}
                             <TableActions
@@ -216,6 +218,7 @@ export function DataTable<TData>({
         onFinished,
         rowAction,
         canUseActions,
+        isRowLocked,
     ])
 
     React.useEffect(() => {
@@ -230,6 +233,7 @@ export function DataTable<TData>({
     const table = useReactTable({
         data: data || [],
         columns: orderedColumns,
+        enableRowSelection: isRowLocked ? (row) => !isRowLocked(row.original) : true,
         onSortingChange:
             manualSorting ?
                 (updater) => {
@@ -530,7 +534,7 @@ export function DataTable<TData>({
                                     >
                                         {selecteds_row && (
                                             <TableCell className="w-8 ">
-                                                <Checkbox
+                                                {isRowLocked?.(row.original) ? null : <Checkbox
                                                     checked={row.getIsSelected()}
                                                     onCheckedChange={(value) =>
                                                         row.toggleSelected(
@@ -538,7 +542,7 @@ export function DataTable<TData>({
                                                         )
                                                     }
                                                     aria-label="Select row"
-                                                />
+                                                />}
                                             </TableCell>
                                         )}
                                         {numeration && (

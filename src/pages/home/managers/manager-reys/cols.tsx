@@ -25,13 +25,7 @@ const ACTIVITY_COLORS: Record<number, string> = {
     5: "bg-yellow-500/10 text-yellow-600 border-transparent",
 }
 
-const DIRECTION_MATCH_COLORS = {
-    priced: "bg-green-500/10 text-green-600 border-transparent whitespace-nowrap",
-    unpriced: "bg-amber-500/10 text-amber-600 border-transparent whitespace-nowrap",
-    ambiguous: "bg-orange-500/10 text-orange-600 border-transparent whitespace-nowrap",
-    not_found: "bg-red-500/10 text-red-600 border-transparent whitespace-nowrap",
-    manual: "bg-blue-500/10 text-blue-600 border-transparent whitespace-nowrap",
-}
+const EMPTY_RUN_COLOR = "bg-slate-500/10 text-slate-600 border-transparent dark:text-slate-300"
 
 const isGarajOrTamirActivity = (activity?: number) =>
     activity === 2 || activity === 3
@@ -58,7 +52,32 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "date",
                 header: t("table.created_at"),
                 enableSorting: true,
-                cell: ({ row }) => formatDateSafe(row.original.date),
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDay(row.original.loading_time ?? row.original.date)}</span>,
+            },
+            {
+                accessorKey: "activity_display",
+                header: "Reys turi",
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const activity = row.original?.activity
+                    const colorClass =
+                        ACTIVITY_COLORS[activity] ||
+                        "bg-gray-500/10 text-gray-500 border-gray-200"
+                    const type = row.original?.type
+                    const isLeg = !!(row.original as any).__leg
+                    if (isLeg || (activity === 1 && type === 2)) {
+                        return (
+                            <Badge variant="outline" className={`whitespace-nowrap ${EMPTY_RUN_COLOR}`}>
+                                Bo'sh yurish
+                            </Badge>
+                        )
+                    }
+                    return (
+                        <Badge variant="outline" className={`whitespace-nowrap ${colorClass}`}>
+                            {row.original?.activity_display || "-"}
+                        </Badge>
+                    )
+                },
             },
             {
                 accessorKey: "loading_name",
@@ -83,69 +102,123 @@ export const useColumnsManagersOrders = (opts?: {
                 },
             },
             {
+                accessorKey: "status",
+                header: "Reys holati",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const status = row.original?.status
+                    if (status === -1) {
+                        return (
+                            <Badge
+                                variant="outline"
+                                className="bg-amber-500/10 text-amber-600 border-transparent"
+                            >
+                                Tasdiqlanmagan
+                            </Badge>
+                        )
+                    }
+                    return <div>{STATUS_TRIP[status] || "-"}</div>
+                },
+            },
+            {
+                id: "payment_type",
+                header: t("form.payment_type"),
+                size: 130,
+                cell: ({ row }) => {
+                    const names = [
+                        ...new Set(
+                            (row.original.incomes ?? [])
+                                .map((i) => (i.payment_type ? paymentTypeNames.get(i.payment_type) : undefined))
+                                .filter(Boolean),
+                        ),
+                    ]
+                    if (!names.length) return <span className="text-muted-foreground">—</span>
+                    return <span className="whitespace-nowrap">{names.join(", ")}</span>
+                },
+            },
+            {
+                accessorKey: "external_id",
+                header: t("table.cargo_id"),
+                size: 120,
+                cell: ({ row }) => {
+                    const extId = row.original.external_id
+                    if (!extId) return <span className="text-muted-foreground">—</span>
+                    return (
+                        <span
+                            className="inline-flex items-center gap-1 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                navigator.clipboard.writeText(String(extId))
+                                toast.success(`${extId} nusxaga olindi`)
+                            }}
+                        >
+                            <Copy width={14} className="shrink-0" />
+                            {extId}
+                        </span>
+                    )
+                },
+            },
+            {
+                accessorKey: "logistics_distributor_code",
+                header: t("form.company_code"),
+                size: 110,
+                cell: ({ row }) => row.original.logistics_distributor_code || <span className="text-muted-foreground">—</span>,
+            },
+            {
                 accessorKey: "cargo_type_name",
-                header: t("form.cargo_type"),
+                header: "Mahsulot turi",
                 enableSorting: true,
                 cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span>,
             },
             {
-                id: "direction_match",
-                header: t("form.direction"),
-                enableSorting: false,
+                accessorKey: "pending_time",
+                header: t("table.start_time"),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatMoment(row.original.loading_time ?? row.original.pending_time)}</span>,
+            },
+            {
+                accessorKey: "completed_time",
+                header: t("table.end_time"),
+                size: 150,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatMoment(row.original.completed_time)}</span>,
+            },
+            {
+                id: "duration",
+                header: t("table.duration"),
+                size: 130,
+                cell: ({ row }) => (
+                    <span className="whitespace-nowrap">
+                        {formatDuration(row.original.loading_time ?? row.original.pending_time, row.original.completed_time)}
+                    </span>
+                ),
+            },
+            {
+                id: "distance",
+                header: "Masofa",
+                size: 90,
                 cell: ({ row }) => {
-                    const match = row.original?.direction_match
-                    if (!match) return null
-                    const name = row.original?.direction_name || undefined
-                    if (match === "matched" || match === "created") {
-                        const priced = match === "matched" && row.original?.direction_has_price
-                        return priced ? (
-                            <Badge variant="outline" title={name} className={DIRECTION_MATCH_COLORS.priced}>
-                                {t("form.dm_has_price")}
-                            </Badge>
-                        ) : (
-                            <Badge
-                                variant="outline"
-                                title={t("form.dm_unpriced_hint")}
-                                className={DIRECTION_MATCH_COLORS.unpriced}
-                            >
-                                {t("form.dm_unpriced")}
-                            </Badge>
-                        )
-                    }
-                    if (match === "manual") {
-                        return (
-                            <Badge variant="outline" title={name} className={DIRECTION_MATCH_COLORS.manual}>
-                                {t("form.dm_manual")}
-                            </Badge>
-                        )
-                    }
-                    if (match === "ambiguous") {
-                        return (
-                            <Badge variant="outline" className={DIRECTION_MATCH_COLORS.ambiguous}>
-                                {t("form.dm_ambiguous")}
-                            </Badge>
-                        )
-                    }
-                    return (
-                        <Badge variant="outline" className={DIRECTION_MATCH_COLORS.not_found}>
-                            {t("form.dm_not_found")}
-                        </Badge>
-                    )
+                    const leg = (row.original as any).__leg as { distance_km: number | null } | undefined
+                    if (!leg) return <span className="text-muted-foreground">—</span>
+                    return <span className="whitespace-nowrap tabular-nums">{leg.distance_km != null ? <>{formatMoney(leg.distance_km)} km</> : "—"}</span>
                 },
             },
             {
-                accessorKey: "type",
-                header: t("table.status"),
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const type = row.original?.type
-                    const colorClass = HOLAT_COLORS[type] || "bg-gray-500/10 text-gray-500 border-gray-200"
-                    return (
-                        <Badge variant="outline" className={colorClass}>
-                            {holatLabels[type] || "-"}
-                        </Badge>
-                    )
-                },
+                accessorKey: "loading_time",
+                header: "Yuklashga",
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.loading_time, row.original.in_transit_time)}</span>,
+            },
+            {
+                accessorKey: "in_transit_time",
+                header: "Yo'lga",
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time)}</span>,
+            },
+            {
+                accessorKey: "unloading_time",
+                header: "Tushirishga",
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
             },
             {
                 accessorKey: "payment_amount_uzs",
@@ -182,110 +255,10 @@ export const useColumnsManagersOrders = (opts?: {
                 },
             },
             {
-                accessorKey: "activity_display",
-                header: t("table.status"),
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const activity = row.original?.activity
-                    const colorClass =
-                        ACTIVITY_COLORS[activity] ||
-                        "bg-gray-500/10 text-gray-500 border-gray-200"
-                    return (
-                        <Badge variant="outline" className={`whitespace-nowrap ${colorClass}`}>
-                            {row.original?.activity_display || "-"}
-                        </Badge>
-                    )
-                },
-            },
-            {
-                id: "payment_type",
-                header: t("form.payment_type"),
-                size: 130,
-                cell: ({ row }) => {
-                    const names = [
-                        ...new Set(
-                            (row.original.incomes ?? [])
-                                .map((i) => (i.payment_type ? paymentTypeNames.get(i.payment_type) : undefined))
-                                .filter(Boolean),
-                        ),
-                    ]
-                    if (!names.length) return <span className="text-muted-foreground">—</span>
-                    return <span className="whitespace-nowrap">{names.join(", ")}</span>
-                },
-            },
-            {
-                accessorKey: "external_id",
-                header: t("table.cargo_id"),
-                size: 120,
-                cell: ({ row }) => {
-                    const extId = row.original.external_id
-                    if (!extId) return <span className="text-muted-foreground">—</span>
-                    return (
-                        <span
-                            className="group inline-flex items-center gap-1 cursor-pointer transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                navigator.clipboard.writeText(String(extId))
-                                toast.success(`${extId} nusxaga olindi`)
-                            }}
-                        >
-                            {extId}
-                            <Copy width={14} className="opacity-0 transition-opacity group-hover:opacity-100" />
-                        </span>
-                    )
-                },
-            },
-            {
-                accessorKey: "logistics_distributor_code",
-                header: t("form.company_code"),
-                size: 110,
-                cell: ({ row }) => row.original.logistics_distributor_code || <span className="text-muted-foreground">—</span>,
-            },
-            {
-                accessorKey: "pending_time",
-                header: t("table.start_time"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.pending_time)}</span>,
-            },
-            {
-                accessorKey: "completed_time",
-                header: t("table.end_time"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.completed_time)}</span>,
-            },
-            {
-                id: "duration",
-                header: t("table.duration"),
-                size: 130,
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
-                        {formatDuration(row.original.pending_time, row.original.completed_time)}
-                    </span>
-                ),
-            },
-            {
-                accessorKey: "loading_time",
-                header: t("table.loading"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.loading_time)}</span>,
-            },
-            {
-                accessorKey: "in_transit_time",
-                header: t("status.transit"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.in_transit_time)}</span>,
-            },
-            {
-                accessorKey: "unloading_time",
-                header: t("table.unloading_short"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.unloading_time)}</span>,
-            },
-            {
                 accessorKey: "canceled_time",
                 header: t("status.cancelled"),
                 size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDateSafe(row.original.canceled_time)}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatMoment(row.original.canceled_time)}</span>,
             },
             {
                 id: "images",
@@ -309,25 +282,6 @@ export const useColumnsManagersOrders = (opts?: {
                     )
                 },
             },
-            {
-                accessorKey: "status",
-                header: t("table.status"),
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const status = row.original?.status
-                    if (status === -1) {
-                        return (
-                            <Badge
-                                variant="outline"
-                                className="bg-amber-500/10 text-amber-600 border-transparent"
-                            >
-                                Tasdiqlanmagan
-                            </Badge>
-                        )
-                    }
-                    return <div>{STATUS_TRIP[status] || "-"}</div>
-                },
-            },
             ]
         },
         [opts?.onImageClick, t, paymentTypesData],
@@ -346,17 +300,21 @@ const formatDuration = (start?: string, end?: string) => {
     const hours = Math.floor((totalMinutes % 1440) / 60)
     const minutes = totalMinutes % 60
 
-    if (days > 0) return `${days} kun ${hours} soat`
-    if (hours > 0) return `${hours} soat ${minutes} daq`
-    return `${minutes} daq`
+    if (days > 0) return `${days} kun ${hours} s. ${minutes} min`
+    if (hours > 0) return `${hours} s. ${minutes} min`
+    return `${minutes} min`
 }
 
-const formatDateSafe = (value?: string) => {
+const formatMoment = (value?: string) => {
     if (!value) return "-"
-
     const date = new Date(value)
-
     if (isNaN(date.getTime())) return "-"
+    return format(date, "dd.MM - HH:mm")
+}
 
-    return format(date, "yyyy-MM-dd HH:mm")
+const formatDay = (value?: string) => {
+    if (!value) return "-"
+    const date = new Date(value)
+    if (isNaN(date.getTime())) return "-"
+    return format(date, "dd.MM")
 }
