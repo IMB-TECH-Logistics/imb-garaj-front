@@ -445,6 +445,7 @@ export function DataTable<TData>({
                                                             stickyActions &&
                                                                 isActionsColumn(header.column.id) &&
                                                                 "sticky right-0 z-20 bg-secondary dark:bg-muted shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
+                                                            (header.column.columnDef.meta as { className?: string } | undefined)?.className,
                                                         )}
                                                         style={
                                                             (
@@ -588,6 +589,7 @@ export function DataTable<TData>({
                                                                     "before:bg-zinc-200/70 dark:before:bg-secondary/70",
                                                                 "group-hover:before:bg-zinc-200/90 dark:group-hover:before:bg-secondary",
                                                             ],
+                                                        (cell.column.columnDef.meta as { className?: string } | undefined)?.className,
                                                     )}
                                                 >
                                                     {flexRender(

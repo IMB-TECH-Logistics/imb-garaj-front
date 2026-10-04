@@ -53,6 +53,7 @@ const DELETE_MODAL = "kassa-close-expense-delete"
 const SALARY_MODAL = "kassa-close-salary-edit"
 const ORDER_STATUS: Record<number, string> = { [-1]: "Qoralama", 0: "Kutilmoqda", 1: "Boshlandi", 5: "Yuklanmoqda", 6: "Yo'lda", 7: "Tushirilmoqda", 2: "Tugallandi", 3: "Bekor qilindi", 4: "Arxivlangan" }
 
+const COMPACT = "min-w-0"
 const money = (v: number) => (v < 0 ? "−" : "") + Math.abs(Math.round(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
 
 const errorText = (e: any) => {
@@ -159,9 +160,9 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
         { header: "Sana", accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.date)}</span> },
     ], [])
     const advanceCols = useMemo<ColumnDef<FlowRow>[]>(() => [
-        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
-        { header: "Nima uchun", id: "kind", cell: ({ row }) => row.original.comment || "Avans" },
-        { header: "Sana", accessorKey: "created", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
+        { header: "Summa", accessorKey: "amount", meta: { className: "w-px whitespace-nowrap" }, cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
+        { header: "Nima uchun", id: "kind", meta: { className: "w-full" }, cell: ({ row }) => row.original.comment || "Avans" },
+        { header: "Sana", accessorKey: "created", meta: { className: "w-px whitespace-nowrap" }, cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
     ], [])
     const incomeCols = useMemo<ColumnDef<FlowRow>[]>(() => [
         { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
@@ -187,10 +188,9 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
             : list
     })()
 
-    const tabLabel = (label: string, sum: number, extra?: ReactNode) => (
+    const tabLabel = (label: string, _sum: number, extra?: ReactNode) => (
         <span className="flex items-center gap-1.5">
             {label}
-            <span className="text-xs text-muted-foreground tabular-nums">{money(sum)}</span>
             {extra}
         </span>
     )
@@ -218,12 +218,13 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
                 {inner === "given" && (
                     <>
                         <PendingAdvances tripId={tripId} />
-                        <DataTable columns={advanceCols} data={advances} numeration viewAll />
+                        <DataTable columns={advanceCols} data={advances} numeration viewAll className={COMPACT} />
                     </>
                 )}
-                {inner === "incomes" && <DataTable columns={incomeCols} data={incomes} numeration viewAll />}
+                {inner === "incomes" && <DataTable columns={incomeCols} data={incomes} numeration viewAll className={COMPACT} />}
                 {inner === "expenses" && (
                     <DataTable
+                        className={COMPACT}
                         columns={expenseCols}
                         data={preview.expenses}
                         numeration
@@ -234,6 +235,7 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
                 )}
                 {inner === "salaries" && (
                     <DataTable
+                        className={COMPACT}
                         columns={salaryCols}
                         data={salaryRows}
                         numeration
