@@ -23,19 +23,9 @@ export const REYS_FILTER_KEYS = [
     "type",
     "status",
     "is_integration",
-    "trip_confirmed",
-    "out_of_contract",
-    "direction_match",
     "from_date",
     "to_date",
 ] as const
-
-const CONTRACT_OPTIONS: Option[] = [
-    { id: "false", name: "Shartnoma bo'yicha" },
-    { id: "true", name: "Shartnomadan tashqari" },
-]
-
-const TRIP_CONFIRMED_ID = "false"
 
 const LIST_STATUS_OPTIONS = [
     { id: "-1", name: "Tasdiqlanmagan" },
@@ -54,18 +44,6 @@ export default function ReysFilters() {
     const TYPE_OPTIONS: Option[] = [
         { id: "1", name: t("status.loaded") },
         { id: "2", name: t("status.empty") },
-    ]
-
-    const TRIP_CONFIRMED_OPTIONS: Option[] = [
-        { id: TRIP_CONFIRMED_ID, name: t("reys_confirm.unconfirmed") },
-    ]
-
-    const DIRECTION_MATCH_OPTIONS: Option[] = [
-        { id: "matched", name: t("form.dm_has_price") },
-        { id: "created", name: t("form.dm_unpriced") },
-        { id: "ambiguous", name: t("form.dm_ambiguous") },
-        { id: "not_found", name: t("form.dm_not_found") },
-        { id: "manual", name: t("form.dm_manual") },
     ]
 
     const { data: regions } = useGet<Option[]>(SETTINGS_SELECTABLE_REGION)
@@ -154,33 +132,6 @@ export default function ReysFilters() {
                     paramName="status"
                     label={t("table.order_status")}
                     options={LIST_STATUS_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    isSearch={false}
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="trip_confirmed"
-                    label={t("reys_confirm.trip_label")}
-                    options={TRIP_CONFIRMED_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    isSearch={false}
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="out_of_contract"
-                    label={t("form.contract")}
-                    options={CONTRACT_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    isSearch={false}
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="direction_match"
-                    label={t("form.dm_filter")}
-                    options={DIRECTION_MATCH_OPTIONS}
                     valueKey="id"
                     labelKey="name"
                     isSearch={false}
