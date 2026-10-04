@@ -79,38 +79,6 @@ export default function ReysFilters() {
             )}
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-10">
                 <ParamCombobox
-                    paramName="loading"
-                    label={t("form.loading_location")}
-                    options={regions ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="unloading"
-                    label={t("form.unloading_location")}
-                    options={regions ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="cargo_type"
-                    label={t("form.cargo_type")}
-                    options={cargoTypes ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="client"
-                    label={t("form.cargo_owner")}
-                    options={clients ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
                     paramName="activity"
                     label={t("table.activity")}
                     options={ACTIVITY_OPTIONS}
@@ -129,12 +97,44 @@ export default function ReysFilters() {
                     addButtonProps={filterButtonProps}
                 />
                 <ParamCombobox
+                    paramName="loading"
+                    label={t("form.loading_location")}
+                    options={regions ?? []}
+                    valueKey="id"
+                    labelKey="name"
+                    addButtonProps={filterButtonProps}
+                />
+                <ParamCombobox
+                    paramName="unloading"
+                    label={t("form.unloading_location")}
+                    options={regions ?? []}
+                    valueKey="id"
+                    labelKey="name"
+                    addButtonProps={filterButtonProps}
+                />
+                <ParamCombobox
                     paramName="status"
                     label={t("table.order_status")}
                     options={LIST_STATUS_OPTIONS}
                     valueKey="id"
                     labelKey="name"
                     isSearch={false}
+                    addButtonProps={filterButtonProps}
+                />
+                <ParamCombobox
+                    paramName="cargo_type"
+                    label={t("form.cargo_type")}
+                    options={cargoTypes ?? []}
+                    valueKey="id"
+                    labelKey="name"
+                    addButtonProps={filterButtonProps}
+                />
+                <ParamCombobox
+                    paramName="client"
+                    label={t("form.cargo_owner")}
+                    options={clients ?? []}
+                    valueKey="id"
+                    labelKey="name"
                     addButtonProps={filterButtonProps}
                 />
             </div>
