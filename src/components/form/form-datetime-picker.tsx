@@ -91,7 +91,7 @@ export function FormDateTimePicker<TForm extends FieldValues>({
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {value ?
-                                        format(value, "yyyy-MM-dd, HH:mm")
+                                        format(value, "dd/MM/yyyy HH:mm")
                                     :   <span className="text-muted-foreground">
                                             {placeholder ||
                                                 "Sana va vaqt tanlang"}

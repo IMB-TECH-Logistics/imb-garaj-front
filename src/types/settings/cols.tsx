@@ -104,7 +104,7 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                 enableSorting: true,
                 cell: ({ row }) =>
                     row.original.created
-                        ? format(new Date(row.original.created), "yyyy-MM-dd  HH:mm")
+                        ? format(new Date(row.original.created), "dd/MM/yyyy HH:mm")
                         : "—",
             },
             {

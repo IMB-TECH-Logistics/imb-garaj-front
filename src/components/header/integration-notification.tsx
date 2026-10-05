@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -160,12 +161,7 @@ export function IntegrationNotification() {
                                             )}
                                             {order.pending_time && (
                                                 <span className="text-xs text-muted-foreground">
-                                                    {new Date(order.pending_time).toLocaleString("uz-UZ", {
-                                                        day: "2-digit",
-                                                        month: "2-digit",
-                                                        hour: "2-digit",
-                                                        minute: "2-digit",
-                                                    })}
+                                                    {format(new Date(order.pending_time), "dd/MM HH:mm")}
                                                 </span>
                                             )}
                                         </div>

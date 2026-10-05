@@ -192,7 +192,7 @@ function DayRow({
         >
             <div className="w-28 shrink-0 text-xs">
                 <span className="font-medium tabular-nums">
-                    {format(day, "dd.MM")}
+                    {format(day, "dd/MM")}
                 </span>{" "}
                 <span className="text-muted-foreground">
                     {UZ_WEEKDAYS[day.getDay()]}
@@ -219,7 +219,7 @@ function DayRow({
                             key={i}
                             type="button"
                             onClick={() => onSelect(s.status)}
-                            title={`${meta.label}: ${format(s.start, "dd.MM HH:mm")} → ${format(s.end, "dd.MM HH:mm")}`}
+                            title={`${meta.label}: ${format(s.start, "dd/MM HH:mm")} → ${format(s.end, "dd/MM HH:mm")}`}
                             className={cn(
                                 "absolute inset-y-0 cursor-pointer transition-opacity hover:brightness-110",
                                 meta.bar,

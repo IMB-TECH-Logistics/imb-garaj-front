@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/format-date"
 import { CalendarDays, Truck, User2 } from "lucide-react"
 import {
     DimensionEmpty,
@@ -60,8 +61,8 @@ export default function TripList({
                             {trip.start && (
                                 <span className="inline-flex items-center gap-1 font-mono">
                                     <CalendarDays className="h-3 w-3" />
-                                    {trip.start}
-                                    {trip.end ? ` → ${trip.end}` : ""}
+                                    {formatDate(trip.start)}
+                                    {trip.end ? ` → ${formatDate(trip.end)}` : ""}
                                 </span>
                             )}
                         </>

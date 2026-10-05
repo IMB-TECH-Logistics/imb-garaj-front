@@ -9,6 +9,10 @@ type ManagerVehicles = {
     loading_name: string
     unloading_name: string
     order_status: number
+    order_activity: number | null
+    order_type: number | null
+    next_loading_name: string | null
+    next_unloading_name: string | null
     phone?: string | null
 }
 

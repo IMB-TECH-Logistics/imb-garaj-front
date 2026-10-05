@@ -28,7 +28,7 @@ import {
     Minimize2,
     RefreshCcw,
 } from "lucide-react"
-import { endOfMonth, startOfMonth } from "date-fns"
+import { endOfMonth, format, startOfMonth } from "date-fns"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import ParamDateRange from "@/components/as-params/date-picker-range"
@@ -354,7 +354,6 @@ export default function MonitoringView() {
     // Hozircha xaritada faqat gps-backend trekerlari ko'rsatiladi.
     // Haydovchi/buyurtma/reys markerlarini qaytarish uchun liveMarkers'ni qo'shing:
     // () => [...liveMarkers, ...gpsMarkers], [liveMarkers, gpsMarkers]
-    const mapMarkers = useMemo(() => [...gpsMarkers], [gpsMarkers])
 
     function selectDriver(d: LiveDriver) {
         setFilters({
@@ -453,6 +452,15 @@ export default function MonitoringView() {
     // selected live driver, or directly from a selected vehicle.
     const ribbonVehicleId =
         filters.vehicle ?? selectedDriver?.vehicle ?? null
+
+    const mapMarkers = useMemo(() => {
+        if (trackerImei) return gpsMarkers.filter((m) => m.id === `gps-${trackerImei}`)
+        if (ribbonVehicleId != null) {
+            const imeis = new Set(cargoItems.filter((g) => g.vehicle === ribbonVehicleId).map((g) => `gps-${g.imei}`))
+            return gpsMarkers.filter((m) => imeis.has(String(m.id)))
+        }
+        return gpsMarkers
+    }, [gpsMarkers, trackerImei, ribbonVehicleId, cargoItems])
 
     const selectedDriverName = selectedDriver
         ? [selectedDriver.vehicle_number, selectedDriver.driver_name]
@@ -974,12 +982,7 @@ function formatStamp(raw: string | null): string {
     if (!raw) return "—"
     const d = new Date(raw)
     if (Number.isNaN(d.getTime())) return raw
-    return d.toLocaleString("uz-UZ", {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    return format(d, "dd/MM HH:mm")
 }
 
 function durationMinutes(from: string | null, to: string | null): number | null {

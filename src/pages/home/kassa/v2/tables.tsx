@@ -292,7 +292,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const params = { ...period, ...usePaging(), dir: dir === "all" ? undefined : dir, kind: kindF === "all" ? undefined : kindF, group: group || undefined }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
     const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
-    const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => q.status === STATUS.PENDING || q.can_unreject), [reqData])
+    const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)), [reqData])
     const pendingCount = reqs.filter((q) => q.status === STATUS.PENDING).length
     const { data: ov } = useOverview()
     const balance = n(ov?.balance)

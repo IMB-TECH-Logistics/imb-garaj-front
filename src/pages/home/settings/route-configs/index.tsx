@@ -1,4 +1,6 @@
 import DeleteModal from "@/components/custom/delete-modal"
+import { AlertTriangle } from "lucide-react"
+import { useNoPriceAlerts } from "@/hooks/use-no-price-alerts"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import {
@@ -50,6 +52,7 @@ type SelectItem = { id: number | string; name: string }
 const RouteConfigsPage = () => {
     const { t } = useTranslation()
     const hasControl = useHasAction("settings_directions_control")
+    const { count: noPriceCount } = useNoPriceAlerts()
     const search = useSearch({ strict: false }) as Record<string, any>
     const { getData, setData } = useGlobalStore()
     const item = getData<Direction>(COMMON_DIRECTIONS)
@@ -155,6 +158,7 @@ const RouteConfigsPage = () => {
                 data={enriched}
                 onDelete={hasControl ? handleDelete : undefined}
                 onEdit={hasControl ? handleEdit : undefined}
+                rowColor={(row: DirectionRow) => (row.no_price ? "bg-destructive/10 hover:bg-destructive/15" : "")}
                 numeration
                 paginationProps={{
                     totalPages: onlyNoPrice ? 1 : data?.total_pages,
@@ -163,6 +167,29 @@ const RouteConfigsPage = () => {
                     page_sizes: [25, 50, 100, 250, 500, 1000],
                 }}
                 head={
+                    <>
+                    {noPriceCount > 0 && (
+                        <div className="mb-3 flex items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-destructive">
+                            <AlertTriangle size={18} className="shrink-0" />
+                            <span className="text-sm font-medium">
+                                {noPriceCount} ta yo'nalishga narx belgilanmagan. Bu yo'nalishlardagi reyslarga tushum hisoblanmaydi.
+                            </span>
+                            {!onlyNoPrice && (
+                                <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="ml-auto"
+                                    onClick={() =>
+                                        navigate({
+                                            search: (prev: Record<string, unknown>) => ({ ...prev, no_price: "true", page: undefined }),
+                                        } as any)
+                                    }
+                                >
+                                    Ko'rsatish
+                                </Button>
+                            )}
+                        </div>
+                    )}
                     <TableHeader
                         fileName={t("nav.directions")}
                         url="excel"
@@ -187,6 +214,7 @@ const RouteConfigsPage = () => {
                             </Button>
                         }
                     />
+                    </>
                 }
             />
             <DeleteModal

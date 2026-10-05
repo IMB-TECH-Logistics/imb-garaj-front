@@ -84,16 +84,6 @@ export const useCostCols = () => {
                 cell: ({ row }) => <span>{row.original.total_mileage != null ? round3(row.original.total_mileage) : "—"}</span>,
             },
             {
-                header: t("form.fuel_type"),
-                accessorKey: "fuel",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="font-medium bg-muted py-0.5 px-2 rounded-sm text-xs capitalize">
-                        {row.original.fuel || "—"}
-                    </span>
-                ),
-            },
-            {
                 header: t("table.fuel_consumption"),
                 accessorKey: "fuel_consume",
                 enableSorting: true,
@@ -108,15 +98,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: t("form.cargo_type"),
-                accessorKey: "cargo_type_name",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="capitalize">{row.original.cargo_type_name || "—"}</span>
-                ),
-            },
-            {
-                header: t("table.fuel_per_km"),
+                header: "Sarfi / 100 km",
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -124,8 +106,8 @@ export const useCostCols = () => {
                     if (v == null) return <span>—</span>
                     return (
                         <span>
-                            {Number(toNum(v).toFixed(2))}{" "}
-                            {unitFor(row.original.fuel)}/km
+                            {Number((toNum(v) * 100).toFixed(1))}{" "}
+                            {unitFor(row.original.fuel)}
                         </span>
                     )
                 },
@@ -167,7 +149,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Sof natija",
+                header: "Sof foyda",
                 id: "net",
                 enableSorting: true,
                 cell: ({ row }) => {

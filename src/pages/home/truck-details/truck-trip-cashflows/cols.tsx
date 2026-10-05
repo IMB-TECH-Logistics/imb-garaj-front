@@ -49,7 +49,7 @@ export const useCostCols = () => {
       cell: ({ getValue }) => (
         <span>
           {getValue<string>()
-            ? format(new Date(getValue<string>()), "dd.MM.yyyy HH:mm")
+            ? format(new Date(getValue<string>()), "dd/MM/yyyy HH:mm")
             : "—"}
         </span>
       ),

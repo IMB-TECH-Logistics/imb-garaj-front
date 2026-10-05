@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -38,13 +39,7 @@ const formatDateTime = (s?: string | null) => {
     if (!s) return "—"
     const d = new Date(s)
     if (isNaN(d.getTime())) return s
-    return d.toLocaleString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    return format(d, "dd/MM/yyyy HH:mm")
 }
 
 export const formatQuantity = (
@@ -53,9 +48,12 @@ export const formatQuantity = (
 ) => {
     if (v == null) return "—"
     const label = unit ? (UNIT_LABEL[unit] ?? unit) : ""
-    const formatted = Number(v).toLocaleString("uz-UZ", {
-        maximumFractionDigits: 2,
-    })
+    const n = Math.round(Number(v) * 100) / 100
+    const [int, dec] = Math.abs(n).toString().split(".")
+    const formatted =
+        (n < 0 ? "-" : "") +
+        int.replace(/\B(?=(\d{3})+(?!\d))/g, " ") +
+        (dec ? `.${dec}` : "")
     return `${formatted}${label ? ` ${label}` : ""}`
 }
 
@@ -72,11 +70,13 @@ export const useStationCashFlowColumns = () => {
             {
                 accessorKey: "created",
                 header: t("table.time_col"),
+                meta: { className: "w-px whitespace-nowrap" },
                 cell: ({ row }) => formatDateTime(row.original.created),
             },
             {
                 accessorKey: "driver_name",
                 header: t("form.driver"),
+                meta: { className: "w-px whitespace-nowrap" },
                 cell: ({ row }) => {
                     if (!row.original.driver_name) return "—"
                     return (
@@ -96,6 +96,7 @@ export const useStationCashFlowColumns = () => {
             {
                 accessorKey: "liters",
                 header: t("form.quantity"),
+                meta: { className: "w-px whitespace-nowrap text-right" },
                 cell: ({ row }) => (
                     <span className="tabular-nums">
                         {formatQuantity(
@@ -108,36 +109,39 @@ export const useStationCashFlowColumns = () => {
             {
                 accessorKey: "price_per_liter",
                 header: t("table.price_col"),
+                meta: { className: "w-px whitespace-nowrap text-right" },
                 cell: ({ row }) =>
                     row.original.price_per_liter == null ? (
                         "—"
                     ) : (
                         <span className="tabular-nums text-muted-foreground">
-                            {formatMoney(Number(row.original.price_per_liter))}{" "}
-                            so'm
+                            {formatMoney(Number(row.original.price_per_liter))}
                         </span>
                     ),
             },
             {
                 accessorKey: "comment",
                 header: t("form.comment"),
+                meta: { className: "w-full" },
                 cell: ({ row }) => row.original.comment || "—",
             },
             {
                 accessorKey: "executor_name",
                 header: t("table.executor"),
+                meta: { className: "w-px whitespace-nowrap" },
                 cell: ({ row }) => row.original.executor_name ?? "—",
             },
             {
                 accessorKey: "amount",
                 header: t("form.amount"),
+                meta: { className: "w-px whitespace-nowrap text-right" },
                 cell: ({ row }) => {
                     const isIncome = row.original.action === 1
                     const amount = Number(row.original.amount ?? 0)
                     const currency = row.original.currency
                     const inUzs = getAmountInUzs(row.original)
                     return (
-                        <div className="flex flex-col">
+                        <div className="flex flex-col items-end">
                             <span
                                 className={`tabular-nums font-medium ${
                                     isIncome
@@ -146,7 +150,7 @@ export const useStationCashFlowColumns = () => {
                                 }`}
                             >
                                 {isIncome ? "+" : "−"}
-                                {formatMoney(inUzs)} so'm
+                                {formatMoney(inUzs)}
                             </span>
                             {currency === 2 && (
                                 <span className="text-[11px] text-muted-foreground tabular-nums">

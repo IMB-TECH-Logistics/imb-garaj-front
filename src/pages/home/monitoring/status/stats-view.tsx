@@ -108,7 +108,7 @@ export default function StatsView() {
                 size: 95,
                 cell: ({ row }) => (
                     <div className="whitespace-nowrap">
-                        <div>{row.original.started_at ? format(parseISO(row.original.started_at), "dd.MM.yyyy") : "—"}</div>
+                        <div>{row.original.started_at ? format(parseISO(row.original.started_at), "dd/MM/yyyy") : "—"}</div>
                         <div className="font-mono text-xs text-muted-foreground">#{row.original.external_id}</div>
                     </div>
                 ),
@@ -238,7 +238,7 @@ export default function StatsView() {
                 )}
                 {data?.synced_at && (
                     <span className="text-[11px] text-muted-foreground">
-                        {t("monitoring_stats.synced", { time: format(parseISO(data.synced_at), "dd.MM HH:mm") })}
+                        {t("monitoring_stats.synced", { time: format(parseISO(data.synced_at), "dd/MM HH:mm") })}
                     </span>
                 )}
             </div>

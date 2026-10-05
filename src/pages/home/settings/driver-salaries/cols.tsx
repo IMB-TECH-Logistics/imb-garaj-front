@@ -34,7 +34,7 @@ export const localTodayIso = () => todayIso()
 export const formatDate = (s?: string | null) => {
     if (!s) return "—"
     const [y, m, d] = s.slice(0, 10).split("-")
-    return y && m && d ? `${d}.${m}.${y}` : s
+    return y && m && d ? `${d}/${m}/${y}` : s
 }
 
 export const routeLabel = (

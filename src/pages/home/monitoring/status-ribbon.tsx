@@ -80,7 +80,7 @@ export default function StatusRibbon({
                     Holat lentasi
                     <span className="ml-2 font-normal text-muted-foreground">
                         {vehicleLabel || `#${vehicleId}`} ·{" "}
-                        {format(date, "dd.MM.yyyy")}
+                        {format(date, "dd/MM/yyyy")}
                     </span>
                 </CardTitle>
                 {active != null && (

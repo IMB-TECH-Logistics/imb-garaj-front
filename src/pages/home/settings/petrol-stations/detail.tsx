@@ -149,7 +149,7 @@ const PetrolStationDetail = () => {
             if (!groups[plate]) {
                 groups[plate] = {
                     vehicle_plate: plate,
-                    driver_name: row.driver_name || "-",
+                    driver_name: row.vehicle_plate ? row.driver_name || "-" : "-",
                     total_liters: 0,
                     total_gas: 0,
                     total_amount: 0,
@@ -260,7 +260,10 @@ const PetrolStationDetail = () => {
                                 Hozirgi balans
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate">
-                                {formatMoney(Number(stats?.balance ?? 0))} so'm
+                                {formatMoney(Number(stats?.balance ?? 0))}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">
+                                Kirim − chiqim
                             </div>
                         </div>
                     </CardContent>
@@ -275,12 +278,11 @@ const PetrolStationDetail = () => {
                                 Kirim
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-emerald-600">
-                                +
-                                {formatMoney(Number(stats?.total_top_ups ?? 0))}{" "}
-                                so'm
+                                {Number(stats?.total_top_ups ?? 0) > 0 ? "+" : ""}
+                                {formatMoney(Number(stats?.total_top_ups ?? 0))}
                             </div>
                             <div className="text-[11px] text-muted-foreground">
-                                {stats?.top_up_count ? `${stats.top_up_count} ta operatsiya` : "—"}
+                                {stats?.top_up_count ?? 0} ta operatsiya
                             </div>
                         </div>
                     </CardContent>
@@ -298,8 +300,7 @@ const PetrolStationDetail = () => {
                                 {Number(stats?.total_outcomes ?? 0) > 0 ? "−" : ""}
                                 {formatMoney(
                                     Number(stats?.total_outcomes ?? 0),
-                                )}{" "}
-                                so'm
+                                )}
                             </div>
                             <div className="text-[11px] text-muted-foreground">
                                 {stats?.expense_count ?? 0} ta operatsiya
@@ -317,8 +318,7 @@ const PetrolStationDetail = () => {
                                 Sarflangan litr
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
-                                {formatMoney(Number(stats?.total_liters ?? 0))}{" "}
-                                litr
+                                {formatQuantity(Number(stats?.total_liters ?? 0), "liter")}
                             </div>
                             <div className="text-[11px] text-muted-foreground">
                                 Dizel mashinalar
@@ -336,7 +336,7 @@ const PetrolStationDetail = () => {
                                 Sarflangan gaz
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-sky-600">
-                                {formatMoney(Number(stats?.total_gas ?? 0))} m³
+                                {formatQuantity(Number(stats?.total_gas ?? 0), "m3")}
                             </div>
                             <div className="text-[11px] text-muted-foreground">
                                 Gaz (metan) mashinalar
@@ -379,14 +379,14 @@ const PetrolStationDetail = () => {
                 </Card>
             : groupedVehicles.length > 0 ?
                 <Card className="overflow-hidden">
-                    <Accordion type="multiple">
+                    <Accordion type="multiple" className="divide-y">
                         {groupedVehicles.map((group) => (
                             <AccordionItem
                                 key={group.vehicle_plate}
                                 value={group.vehicle_plate}
-                                className="px-4 last:border-b-0"
+                                className="border-b-0"
                             >
-                                <AccordionTrigger className="hover:no-underline">
+                                <AccordionTrigger className="gap-3 px-4 py-3 hover:no-underline hover:bg-muted/40">
                                     <div className="flex flex-1 items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
                                             <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -410,7 +410,7 @@ const PetrolStationDetail = () => {
 
                                         <div className="flex items-center gap-2">
                                             {group.total_gas > 0 && (
-                                                <Badge className="hidden border-transparent bg-sky-500/10 text-sky-600 hover:bg-sky-500/10 sm:inline-flex">
+                                                <Badge className="hidden border-transparent bg-sky-500/10 text-sky-600 hover:bg-sky-500/10 sm:inline-flex tabular-nums whitespace-nowrap">
                                                     {formatQuantity(
                                                         group.total_gas,
                                                         "m3",
@@ -418,7 +418,7 @@ const PetrolStationDetail = () => {
                                                 </Badge>
                                             )}
                                             {group.total_liters > 0 && (
-                                                <Badge className="hidden border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 sm:inline-flex">
+                                                <Badge className="hidden border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 sm:inline-flex tabular-nums whitespace-nowrap">
                                                     {formatQuantity(
                                                         group.total_liters,
                                                         "liter",
@@ -427,7 +427,7 @@ const PetrolStationDetail = () => {
                                             )}
                                             <Badge
                                                 className={cn(
-                                                    "border-transparent tabular-nums",
+                                                    "border-transparent tabular-nums whitespace-nowrap",
                                                     group.total_amount >= 0 ?
                                                         "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
                                                     :   "bg-rose-500/10 text-rose-600 hover:bg-rose-500/10",
@@ -436,13 +436,12 @@ const PetrolStationDetail = () => {
                                                 {group.total_amount >= 0 ? "+" : "−"}
                                                 {formatMoney(
                                                     Math.abs(group.total_amount),
-                                                )}{" "}
-                                                so'm
+                                                )}
                                             </Badge>
                                         </div>
                                     </div>
                                 </AccordionTrigger>
-                                <AccordionContent className="px-0 pb-2">
+                                <AccordionContent className="border-t px-4 pb-4 pt-3">
                                     <DataTable
                                         columns={columns}
                                         data={group.items}

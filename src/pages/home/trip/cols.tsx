@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/format-date"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -22,13 +23,13 @@ export const useCostCols = () => {
                 header: t("form.start_date"),
                 accessorKey: "start",
                 enableSorting: true,
-                cell: ({ row }) => <span>{row.original.start}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.start)}</span>,
             },
             {
                 header: t("form.end_date"),
                 accessorKey: "end",
                 enableSorting: true,
-                cell: ({ row }) => <span>{row.original.end}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.end ?? undefined)}</span>,
             },
             {
                 header: t("table.orders_count"),

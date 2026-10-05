@@ -30,7 +30,7 @@ export const useCostCols = () => {
                         {getValue<string>() ?
                             format(
                                 new Date(getValue<string>()),
-                                "dd.MM.yyyy HH:mm",
+                                "dd/MM/yyyy HH:mm",
                             )
                         :   "—"}
                     </span>

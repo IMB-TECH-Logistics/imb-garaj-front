@@ -162,54 +162,6 @@ const PetrolStationsPage = () => {
                     </CardContent>
                 </Card>
             </div>
-            <div className="flex justify-end mb-4">
-                <Popover open={reportOpen} onOpenChange={setReportOpen}>
-                    <PopoverTrigger asChild>
-                        <Button size="sm" variant="outline" disabled={isDownloading} loading={isDownloading}>
-                            <Download size={16} className="mr-1" />
-                            {t("actions.download")}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[280px] p-3" align="end">
-                        <div className="flex justify-center relative items-center mb-2">
-                            <span className="text-sm font-medium">{reportYear}</span>
-                            <button
-                                onClick={() => setReportYear(y => y - 1)}
-                                className={cn(buttonVariants({ variant: "outline" }), "absolute left-0 h-7 w-7 p-0 flex items-center justify-center")}
-                            >
-                                <ChevronLeft size={14} />
-                            </button>
-                            <button
-                                onClick={() => setReportYear(y => y + 1)}
-                                className={cn(buttonVariants({ variant: "outline" }), "absolute right-0 h-7 w-7 p-0 flex items-center justify-center")}
-                            >
-                                <ChevronRight size={14} />
-                            </button>
-                        </div>
-                        <table className="w-full border-collapse">
-                            <tbody>
-                                {MONTHS.map((row, ri) => (
-                                    <tr key={ri} className="flex w-full">
-                                        {row.map((name, ci) => {
-                                            const idx = ri * 4 + ci
-                                            return (
-                                                <td key={idx} className="h-10 w-1/4 text-center p-0">
-                                                    <button
-                                                        onClick={() => handleMonthSelect(idx)}
-                                                        className={cn(buttonVariants({ variant: "ghost" }), "h-full w-full p-0 font-normal text-sm")}
-                                                    >
-                                                        {name}
-                                                    </button>
-                                                </td>
-                                            )
-                                        })}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </PopoverContent>
-                </Popover>
-            </div>
             <DataTable
                 loading={isLoading}
                 manualSorting
@@ -238,6 +190,54 @@ const PetrolStationsPage = () => {
                         }
                         pageKey="page"
                         count={data?.count}
+                        extraBeforeAdd={
+                        <Popover open={reportOpen} onOpenChange={setReportOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="shrink-0" disabled={isDownloading} loading={isDownloading}>
+                                    <Download size={16} className="mr-1" />
+                                    {t("actions.download")}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[280px] p-3" align="end">
+                                <div className="flex justify-center relative items-center mb-2">
+                                    <span className="text-sm font-medium">{reportYear}</span>
+                                    <button
+                                        onClick={() => setReportYear(y => y - 1)}
+                                        className={cn(buttonVariants({ variant: "outline" }), "absolute left-0 h-7 w-7 p-0 flex items-center justify-center")}
+                                    >
+                                        <ChevronLeft size={14} />
+                                    </button>
+                                    <button
+                                        onClick={() => setReportYear(y => y + 1)}
+                                        className={cn(buttonVariants({ variant: "outline" }), "absolute right-0 h-7 w-7 p-0 flex items-center justify-center")}
+                                    >
+                                        <ChevronRight size={14} />
+                                    </button>
+                                </div>
+                                <table className="w-full border-collapse">
+                                    <tbody>
+                                        {MONTHS.map((row, ri) => (
+                                            <tr key={ri} className="flex w-full">
+                                                {row.map((name, ci) => {
+                                                    const idx = ri * 4 + ci
+                                                    return (
+                                                        <td key={idx} className="h-10 w-1/4 text-center p-0">
+                                                            <button
+                                                                onClick={() => handleMonthSelect(idx)}
+                                                                className={cn(buttonVariants({ variant: "ghost" }), "h-full w-full p-0 font-normal text-sm")}
+                                                            >
+                                                                {name}
+                                                            </button>
+                                                        </td>
+                                                    )
+                                                })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </PopoverContent>
+                        </Popover>
+                        }
                     />
                 }
             />

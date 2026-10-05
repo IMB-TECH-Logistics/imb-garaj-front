@@ -50,6 +50,13 @@ export const WAREHOUSES = ["Asosiy ombor", "Ehtiyot qismlar ombori"]
 export const STATUS = { PENDING: 10, PAID: 20, REJECTED: -10, CANCELED: -20 } as const
 
 export type Overview = {
+    summary: {
+        opening: number | null
+        closing: number
+        income: { total: number; external: number; trip_cash: number; reversals: number }
+        expense: { total: number; cash: number; oylik: number; garaj: number; reversals: number }
+        drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
+    }
     balance: number
     start_balance: number | null
     started_at: string | null
@@ -170,7 +177,7 @@ export const fmtDate = (iso: string | null | undefined) => {
     if (!iso) return "—"
     const d = new Date(iso)
     const p = (x: number) => String(x).padStart(2, "0")
-    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`
+    return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
 export const usePeriod = () => {

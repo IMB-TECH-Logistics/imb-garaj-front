@@ -5,7 +5,7 @@ import FormTextarea from "@/components/form/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_ORDERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -46,7 +46,6 @@ export type KassaCloseState = {
     expenses: { id: number; amount: number; category: number | null; comment: string | null }[]
 }
 
-type InnerTab = "given" | "incomes" | "expenses" | "salaries"
 
 const EDIT_MODAL = "kassa-close-expense-edit"
 const DELETE_MODAL = "kassa-close-expense-delete"
@@ -73,10 +72,13 @@ const Row = ({ label, value, className }: { label: ReactNode; value: ReactNode; 
 
 const route = (a?: string | null, b?: string | null) => [a, b].filter(Boolean).join(" → ") || "—"
 
-export default function KassaCloseSection({ tripId, onChange }: { tripId?: number; onChange: (s: KassaCloseState) => void }) {
+export default function KassaCloseSection({ tripId, onChange, tech }: {
+    tripId?: number
+    onChange: (s: KassaCloseState) => void
+    tech?: ReactNode
+}) {
     const previewUrl = `checkout/kassa-v2/trips/${tripId}/close-preview`
     const qc = useQueryClient()
-    const [inner, setInner] = useState<InnerTab>("given")
     const { data: preview, isLoading } = useGet<Preview>(previewUrl, { enabled: !!tripId, options: { staleTime: 0, gcTime: 0 } })
     const { data: categories } = useGet<{ id: number; name: string }[]>("checkout/kassa-v2/expense-categories")
     const { data: flows } = useGet<{ results: FlowRow[] }>(MANAGERS_CASHFLOW, {
@@ -156,7 +158,6 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
     const expenseCols = useMemo<ColumnDef<Expense>[]>(() => [
         { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="text-red-500 font-medium whitespace-nowrap">−{formatMoney(Number(row.original.amount))}</span> },
         { header: "Turi", accessorKey: "category_name", cell: ({ row }) => row.original.category_name || "—" },
-        { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
         { header: "Sana", accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.date)}</span> },
     ], [])
     const advanceCols = useMemo<ColumnDef<FlowRow>[]>(() => [
@@ -167,7 +168,6 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
     const incomeCols = useMemo<ColumnDef<FlowRow>[]>(() => [
         { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
         { header: "Reys", id: "route", cell: ({ row }) => route(row.original.loading_name, row.original.unloading_name) },
-        { header: "To'lov turi", accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || "—" },
         { header: "Sana", accessorKey: "created", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
     ], [])
     const salaryCols = useMemo<ColumnDef<SalaryOrder>[]>(() => [
@@ -188,78 +188,84 @@ export default function KassaCloseSection({ tripId, onChange }: { tripId?: numbe
             : list
     })()
 
-    const tabLabel = (label: string, _sum: number, extra?: ReactNode) => (
-        <span className="flex items-center gap-1.5">
-            {label}
-            {extra}
+    const line = (label: ReactNode, value: string) => (
+        <span className="flex flex-1 items-center justify-between gap-3 text-left">
+            <span className="flex items-center gap-1.5">{label}</span>
+            <span className={cn("tabular-nums whitespace-nowrap", value.startsWith("+") && "text-green-600", value.startsWith("−") && "text-destructive")}>{value}</span>
         </span>
     )
+    const trigger = "-mx-3 px-3 gap-2 rounded-md py-2.5 text-sm font-normal hover:no-underline"
 
     return (
         <div className="flex flex-col gap-3">
-            <Tabs value={inner} onValueChange={(v) => setInner(v as InnerTab)}>
-                <TabsList className="w-full grid grid-cols-4 h-auto">
-                    <TabsTrigger value="given">
-                        {tabLabel("Kassadan berilgan", Number(preview.given), pendingCount ? <Badge variant="orange" className="h-5 px-1.5">{pendingCount}</Badge> : null)}
-                    </TabsTrigger>
-                    <TabsTrigger value="incomes">{tabLabel("Reys tushumlari", Number(preview.earned))}</TabsTrigger>
-                    <TabsTrigger value="expenses">{tabLabel("Xarajatlar", Number(preview.spent))}</TabsTrigger>
-                    <TabsTrigger value="salaries">{tabLabel("Oyliklar", salaryTotal)}</TabsTrigger>
-                </TabsList>
-            </Tabs>
+            {tech && <section className="rounded-lg border bg-muted/20 p-4 space-y-3">{tech}</section>}
 
-            {pendingCount > 0 && (
-                <div className="rounded-md border border-orange-500/30 bg-orange-500/5 px-3 py-2 text-sm text-orange-600">
-                    {pendingCount} ta so'rov kassirda kutilmoqda: {money(pendingSum)} so'm. U hisobga kirmagan — haydovchiga hali berilmagan.
-                </div>
-            )}
-
-            <div className="max-h-[38vh] overflow-y-auto">
-                {inner === "given" && (
-                    <>
-                        <PendingAdvances tripId={tripId} />
-                        <DataTable columns={advanceCols} data={advances} numeration viewAll className={COMPACT} />
-                    </>
-                )}
-                {inner === "incomes" && <DataTable columns={incomeCols} data={incomes} numeration viewAll className={COMPACT} />}
-                {inner === "expenses" && (
-                    <DataTable
-                        className={COMPACT}
-                        columns={expenseCols}
-                        data={preview.expenses}
-                        numeration
-                        viewAll
-                        onEdit={({ original }) => { setSelected(original); edit.openModal() }}
-                        onDelete={({ original }) => { setSelected(original); del.openModal() }}
-                    />
-                )}
-                {inner === "salaries" && (
-                    <DataTable
-                        className={COMPACT}
-                        columns={salaryCols}
-                        data={salaryRows}
-                        numeration
-                        viewAll
-                        onEdit={({ original }) => { setSalaryRow(original); salaryModal.openModal() }}
-                    />
-                )}
-            </div>
-
-            <div className="rounded-lg border px-3 py-1 divide-y">
-                <div>
-                    <Row label="Kassadan berilgan (avans + qo'shimcha)" value={`+${money(Number(preview.given))}`} />
-                    <Row label="Reyslardan olgan pul (naqd)" value={`+${money(Number(preview.earned))}`} />
-                    <Row label="Naqd xarajatlar" value={`−${money(Number(preview.spent))}`} />
-                </div>
-                <Row label="Haydovchi qo'lida qolgan" value={`${money(due)} so'm`} />
-                <Row label="Oylik («Oyliklar» tabidagi jami)" value={`−${money(salaryTotal)}`} />
+            <Accordion type="single" collapsible className="rounded-lg border bg-muted/20 px-4 py-1 divide-y">
+                <AccordionItem value="given" className="border-0">
+                    <AccordionTrigger className={trigger}>
+                        {line(
+                            <>Avans{pendingCount ? <Badge variant="orange" className="h-5 px-1.5">{pendingCount}</Badge> : null}</>,
+                            `+${money(Number(preview.given))}`,
+                        )}
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-3 space-y-2">
+                        {pendingCount > 0 && (
+                            <div className="rounded-md border border-orange-500/30 bg-orange-500/5 px-3 py-2 text-sm text-orange-600">
+                                {pendingCount} ta so'rov kassirda kutilmoqda: {money(pendingSum)} so'm. U hisobga kirmagan — haydovchiga hali berilmagan.
+                            </div>
+                        )}
+                        <div className="max-h-[38vh] overflow-y-auto">
+                            <PendingAdvances tripId={tripId} />
+                            <DataTable columns={advanceCols} data={advances} numeration viewAll className={COMPACT} />
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="incomes" className="border-0">
+                    <AccordionTrigger className={trigger}>{line("Naqd reys puli", `+${money(Number(preview.earned))}`)}</AccordionTrigger>
+                    <AccordionContent className="pb-3">
+                        <div className="max-h-[38vh] overflow-y-auto">
+                            <DataTable columns={incomeCols} data={incomes} numeration viewAll className={COMPACT} />
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="expenses" className="border-0">
+                    <AccordionTrigger className={trigger}>{line("Naqd xarajatlar", `−${money(Number(preview.spent))}`)}</AccordionTrigger>
+                    <AccordionContent className="pb-3">
+                        <div className="max-h-[38vh] overflow-y-auto">
+                            <DataTable
+                                className={COMPACT}
+                                columns={expenseCols}
+                                data={preview.expenses}
+                                numeration
+                                viewAll
+                                onEdit={({ original }) => { setSelected(original); edit.openModal() }}
+                                onDelete={({ original }) => { setSelected(original); del.openModal() }}
+                            />
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                <Row className="py-2.5 pr-6" label="Haydovchi qo'lida qolgan" value={<span className="text-blue-600 dark:text-blue-400">{money(due)}</span>} />
+                <AccordionItem value="salaries" className="border-0">
+                    <AccordionTrigger className={trigger}>{line("Oylik", `−${money(salaryTotal)}`)}</AccordionTrigger>
+                    <AccordionContent className="pb-3">
+                        <div className="max-h-[38vh] overflow-y-auto">
+                            <DataTable
+                                className={COMPACT}
+                                columns={salaryCols}
+                                data={salaryRows}
+                                numeration
+                                viewAll
+                                onEdit={({ original }) => { setSalaryRow(original); salaryModal.openModal() }}
+                            />
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
                 <Row
-                    className={cn("font-semibold", returns ? "text-green-600" : "text-destructive")}
+                    className={cn("font-semibold py-2.5 pr-6", returns ? "text-green-600" : "text-destructive")}
                     label={returns ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"}
-                    value={`${money(Math.abs(net))} so'm`}
+                    value={money(Math.abs(net))}
                 />
-            </div>
-            <span className="text-xs text-muted-foreground">Kassaga bitta so'rov boradi. Kassir tasdiqlagach, haydovchi balansi 0 bo'ladi.</span>
+            </Accordion>
 
             <Modal modalKey={EDIT_MODAL} title="Xarajatni tahrirlash" size="max-w-md">
                 <form

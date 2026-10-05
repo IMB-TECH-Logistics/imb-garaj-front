@@ -24,6 +24,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { formatDate } from "@/lib/format-date"
 
 type VehicleOption = {
     id: number
@@ -146,7 +147,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     )
     const tripOptions = (tripsData?.results ?? []).map((t) => ({
         id: t.id,
-        name: `${t.start ? t.start.slice(0, 10) : "??"} — ${t.driver_name ?? "Haydovchi yo'q"}`,
+        name: `${t.start ? formatDate(t.start) : "??"} — ${t.driver_name ?? "Haydovchi yo'q"}`,
     }))
 
     const { data: ordersData } = useGet<ListResponse<OrderOption>>(

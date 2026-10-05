@@ -55,7 +55,7 @@ const LogDetailSheet = ({ log, onClose }: Props) => {
                     <SheetDescription>
                         {log.model} #{log.obj_id} —{" "}
                         {log.created
-                            ? format(new Date(log.created), "yyyy-MM-dd HH:mm:ss")
+                            ? format(new Date(log.created), "dd/MM/yyyy HH:mm:ss")
                             : ""}
                     </SheetDescription>
                 </SheetHeader>

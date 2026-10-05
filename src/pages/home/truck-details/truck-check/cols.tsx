@@ -28,7 +28,7 @@ export const useTechnicInspect = () => {
                 accessorKey: "date",
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <span>{format(row.original.date, "yyyy-MM-dd")}</span>
+                    <span>{format(row.original.date, "dd/MM/yyyy")}</span>
                 ),
             },
             {

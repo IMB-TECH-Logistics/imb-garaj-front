@@ -474,6 +474,8 @@
         "depreciation": "Амортизация",
         "work_days": "Рабочих дней",
         "fuel_l": "Топливо",
+        "start_fuel": "Нач. топливо",
+        "end_fuel": "Кон. топливо",
         "auto_short": "Авто",
         "loading": "Погрузка",
         "unloading_short": "Выгрузка",

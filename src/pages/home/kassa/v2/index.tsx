@@ -53,11 +53,12 @@ const KassaV2 = () => {
         if (!txData) return undefined
         const closes = new Set(txData.results.filter((t) => t.close).map((t) => t.close!.id))
         const plain = txData.results.filter((t) => !t.close).length
-        const reqs = (reqData?.results ?? []).filter((q) => q.status === STATUS.PENDING || q.can_unreject).length
+        const reqs = (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)).length
         return plain + closes.size + reqs
     }, [txData, reqData])
     const counts: Partial<Record<View, number | undefined>> = { trips: tripsData?.length, kassa: txCount }
     const { data: ov } = useOverview()
+    const sm = ov?.summary
     const [view, setView] = useState<View>("trips")
     const [group, setGroup] = useState<string | null>(null)
     const pick = (g: string, label: string) => () => {
@@ -103,27 +104,36 @@ const KassaV2 = () => {
                     <ParamDateRange className="w-full" from="from_date" to="to_date" defaultValue={{ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }} addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
 
                     <Box className="bg-primary/5 border-primary/30">
-                        <Line strong label="Kassa qoldig'i" value={ov?.balance} />
-                        {from_date && <Line sub label="Davr boshida" value={ov?.start_balance} />}
+                        <Line strong label={from_date ? "Davr oxirida qoldiq" : "Kassa qoldig'i"} value={sm?.closing ?? ov?.balance} tone={n(sm?.closing ?? ov?.balance) < 0 ? "red" : undefined} />
+                        {from_date && <Line sub label="Davr boshida" value={sm?.opening} />}
                     </Box>
                     <Box className="bg-green-600/5 border-green-600/30">
-                        <Line strong tone="green" label="Kirim" value={ov?.income.total} {...lineProps("in", "Kirim")} />
-                        <Line sub label="Tashqi manbadan" value={ov?.income.external} {...lineProps("in_external", "Tashqi manbadan")} />
-                        <Line sub label="Naqd reys puli" value={ov?.income.trips} {...lineProps("in_trips", "Naqd reys puli")} />
-                        <Line sub label="Haydovchi qaytargan" value={ov?.income.drivers} {...lineProps("in_drivers", "Haydovchi qaytargan")} />
-                        {!!n(ov?.income.reversals) && <Line sub label="Bekor qilingan chiqimlar" value={ov?.income.reversals} {...lineProps("in_reversals", "Bekor qilingan chiqimlar")} />}
+                        <Line strong tone="green" label="Kirim" value={sm?.income.total} />
+                        <Line sub label="Tashqi manbadan" value={sm?.income.external} {...lineProps("in_external", "Tashqi manbadan")} />
+                        <Line sub label="Naqd reys puli" value={sm?.income.trip_cash} />
+                        {!!n(sm?.income.reversals) && <Line sub label="Bekor qilingan chiqimlar" value={sm?.income.reversals} {...lineProps("in_reversals", "Bekor qilingan chiqimlar")} />}
                     </Box>
                     <Box className="bg-red-600/5 border-red-600/30">
-                        <Line strong tone="red" label="Chiqim" value={ov?.outcome.total} {...lineProps("out", "Chiqim")} />
-                        <Line sub label="Haydovchilarga avans" value={ov?.outcome.avans} {...lineProps("out_avans", "Haydovchilarga avans")} />
-                        <Line sub label="Aylanma farqi (haydovchiga)" value={ov?.outcome.farq} {...lineProps("out_farq", "Aylanma farqi (haydovchiga)")} />
-                        <Line sub label="Oylik" value={ov?.outcome.oylik} {...lineProps("out_oylik", "Oylik")} />
-                        <Line sub label="Garaj xarajatlari (naqd)" value={ov?.outcome.garaj} {...lineProps("out_garaj", "Garaj xarajatlari (naqd)")} />
+                        <Line strong tone="red" label="Xarajat" value={-n(sm?.expense.total)} />
+                        <Line sub label="Naqd xarajat (haydovchilar)" value={-n(sm?.expense.cash)} />
+                        <Line sub label="Oylik" value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "Oylik")} />
+                        <Line sub label="Garaj xarajatlari (naqd)" value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "Garaj xarajatlari (naqd)")} />
+                        {!!n(sm?.expense.reversals) && <Line sub label="Bekor qilingan kirimlar" value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "Bekor qilingan kirimlar")} />}
                     </Box>
+                    <Box className="bg-amber-500/5 border-amber-500/30">
+                        <Line strong label="Haydovchilar qo'liga" value={-n(sm?.drivers.net)} />
+                        <Line sub label="Avans berildi" value={sm?.drivers.given} {...lineProps("drv_given", "Avans berildi")} />
+                        <Line sub label="Yo'lda olingan naqd reys puli" value={sm?.drivers.trip_cash} />
+                        <Line sub label="Naqd xarajatga ishlatildi" value={-n(sm?.drivers.cash)} />
+                        <Line sub label="Kassaga qaytardi" value={-n(sm?.drivers.returned)} {...lineProps("drv_returned", "Kassaga qaytardi")} />
+                    </Box>
+                    <p className="text-[11px] text-muted-foreground px-1">
+                        {from_date ? "Boshida + " : ""}Kirim − Xarajat − Haydovchilar qo'liga = Qoldiq
+                    </p>
 
                     <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-medium text-muted-foreground">Haydovchilar balansi · {drivers.length}</p>
+                            <p className="text-sm font-medium text-muted-foreground">Haydovchilar qo'lida (hozir) · {drivers.length}</p>
                             <span className="text-sm font-semibold tabular-nums">{formatMoney(n(ov?.drivers_total))}</span>
                         </div>
                         <div className="space-y-0.5">

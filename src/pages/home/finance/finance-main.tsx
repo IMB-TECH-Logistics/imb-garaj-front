@@ -114,7 +114,7 @@ const FinanceStatisticMain = () => {
         { title: "Reys xarajati", value: totals.totalExpense, icon: ArrowDownCircle, tone: "red" },
         { title: "Reys foydasi", value: totals.totalProfit, icon: TrendingUp, tone: totals.totalProfit >= 0 ? "blue" : "orange" },
         { title: "Mashina xarajati", value: totals.totalVehicleExpense, icon: Wrench, tone: "red" },
-        { title: "Sof natija", value: totals.totalNet, icon: TrendingUp, tone: totals.totalNet >= 0 ? "blue" : "orange" },
+        { title: "Sof foyda", value: totals.totalNet, icon: TrendingUp, tone: totals.totalNet >= 0 ? "blue" : "orange" },
     ] as const
 
     const toneClass: Record<string, { card: string; icon: string }> = {

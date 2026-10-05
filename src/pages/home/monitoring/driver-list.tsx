@@ -70,7 +70,7 @@ export default function DriverList({
                             {driver.last_seen ?
                                 format(
                                     parseISO(driver.last_seen),
-                                    "dd.MM.yyyy HH:mm",
+                                    "dd/MM/yyyy HH:mm",
                                 )
                             :   "—"}
                         </span>

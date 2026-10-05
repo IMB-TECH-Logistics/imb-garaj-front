@@ -474,6 +474,8 @@
         "depreciation": "Depreciation",
         "work_days": "Work Days",
         "fuel_l": "Fuel",
+        "start_fuel": "Start Fuel",
+        "end_fuel": "End Fuel",
         "auto_short": "Vehicle",
         "loading": "Loading",
         "unloading_short": "Unloading",

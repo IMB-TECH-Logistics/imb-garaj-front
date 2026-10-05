@@ -19,6 +19,7 @@ interface TableHeaderProps {
     extraTitle?: ReactNode
     extraLeft?: ReactNode
     extraRight?: ReactNode
+    extraBeforeAdd?: ReactNode
 }
 
 const TableHeader = ({
@@ -31,6 +32,7 @@ const TableHeader = ({
     extraTitle,
     extraLeft,
     extraRight,
+    extraBeforeAdd,
 }: TableHeaderProps) => {
     const { t } = useTranslation()
     const { openModal: openCreateModal } = useModal("create")
@@ -90,6 +92,8 @@ const TableHeader = ({
                 )}
 
                 {/* <DownloadAsExcel url={"settings_url"} name={`${fileName}`} /> */}
+
+                {extraBeforeAdd}
 
                 {(onAdd || storeKey) && (
                     <Button

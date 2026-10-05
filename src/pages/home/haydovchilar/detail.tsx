@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -101,11 +102,7 @@ function formatDate(s?: string | null) {
     if (!s) return "—"
     const d = new Date(s)
     if (isNaN(d.getTime())) return s
-    return d.toLocaleDateString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    })
+    return format(d, "dd/MM/yyyy")
 }
 
 function statusBadge(s: DriverTripRow["status"]) {

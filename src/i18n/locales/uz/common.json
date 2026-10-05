@@ -505,6 +505,8 @@
         "depreciation": "Eskirish",
         "work_days": "Ish kunlari",
         "fuel_l": "Yoqilg'i",
+        "start_fuel": "Boshlash yoqilg'isi",
+        "end_fuel": "Tugash yoqilg'isi",
         "auto_short": "Avto",
         "loading": "Yuklash",
         "unloading_short": "Tushirish",

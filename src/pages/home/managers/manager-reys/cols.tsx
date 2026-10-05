@@ -309,12 +309,12 @@ const formatMoment = (value?: string) => {
     if (!value) return "-"
     const date = new Date(value)
     if (isNaN(date.getTime())) return "-"
-    return format(date, "dd.MM - HH:mm")
+    return format(date, "dd/MM HH:mm")
 }
 
 const formatDay = (value?: string) => {
     if (!value) return "-"
     const date = new Date(value)
     if (isNaN(date.getTime())) return "-"
-    return format(date, "dd.MM")
+    return format(date, "dd/MM")
 }

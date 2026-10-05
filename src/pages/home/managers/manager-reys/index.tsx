@@ -27,7 +27,6 @@ import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
-import ParamDateRange from "@/components/as-params/date-picker-range"
 
 type EmptyLeg = {
     before_order: number
@@ -189,13 +188,6 @@ export default function ManagerReys() {
                                 />
                             </div>
                             <div className="flex items-center gap-2">
-                                <ParamDateRange
-                                    from="from_date"
-                                    to="to_date"
-                                    addButtonProps={{
-                                        className: "!bg-background dark:!bg-secondary min-w-32 justify-start",
-                                    }}
-                                />
                                 {hasControl && tripId && (
                                     <Button onClick={handleAdd}>
                                         <Plus size={16} />

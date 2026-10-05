@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 export type VstDriverRow = {
     driver_id: number
     full_name: string
@@ -103,11 +104,5 @@ export const formatDateTime = (value?: string | null) => {
     if (!value) return "—"
     const d = new Date(value)
     if (isNaN(d.getTime())) return "—"
-    return d.toLocaleString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    return format(d, "dd/MM/yyyy HH:mm")
 }

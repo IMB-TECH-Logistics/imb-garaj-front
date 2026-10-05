@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -195,23 +196,14 @@ function formatDate(raw: string | null | undefined): string {
     if (!raw) return "—"
     const d = new Date(raw)
     if (Number.isNaN(d.getTime())) return raw
-    return d.toLocaleDateString("uz-UZ", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    })
+    return format(d, "dd/MM/yyyy")
 }
 
 function formatStamp(raw: string | null | undefined): string {
     if (!raw) return "—"
     const d = new Date(raw)
     if (Number.isNaN(d.getTime())) return raw
-    return d.toLocaleString("uz-UZ", {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    return format(d, "dd/MM HH:mm")
 }
 
 function formatDuration(from: string | null, to: string | null): string {

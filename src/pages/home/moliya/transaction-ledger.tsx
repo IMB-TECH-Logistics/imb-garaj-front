@@ -53,7 +53,7 @@ const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 const formatDate = (iso: string) => {
     const d = new Date(iso)
     const pad = (n: number) => String(n).padStart(2, "0")
-    return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`
 }
 
 export default function TransactionLedger() {

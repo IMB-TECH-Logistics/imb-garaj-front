@@ -45,11 +45,11 @@ export function DatePickerWithRange({
                         {date?.from ? (
                             date.to ? (
                                 <>
-                                    {format(date.from, "yyy-MM-dd")} -{" "}
-                                    {format(date.to, "yyy-MM-dd")}
+                                    {format(date.from, "dd/MM/yyyy")} -{" "}
+                                    {format(date.to, "dd/MM/yyyy")}
                                 </>
                             ) : (
-                                format(date.from, "yyy-MM-dd")
+                                format(date.from, "dd/MM/yyyy")
                             )
                         ) : (
                             <span>Kunlarni tanlang</span>

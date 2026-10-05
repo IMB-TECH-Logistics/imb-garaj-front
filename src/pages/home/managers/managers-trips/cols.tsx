@@ -60,7 +60,7 @@ export const useColumnsManagersTrips = (opts?: {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div className="flex flex-col gap-1">
-                        <span>{row.original.driver_name || "-"}</span>
+                        <span className="whitespace-nowrap">{row.original.driver_name || "-"}</span>
                         <AdvanceBadge
                             compact
                             pending={(row.original as any).pending_advance}
@@ -113,7 +113,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "start_fuel",
-                header: t("table.fuel_l"),
+                header: t("table.start_fuel"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney((row.original as any).start_fuel)}</div>
@@ -121,7 +121,7 @@ export const useColumnsManagersTrips = (opts?: {
             },
             {
                 accessorKey: "end_fuel",
-                header: t("table.fuel_l"),
+                header: t("table.end_fuel"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <div>{formatMoney((row.original as any).end_fuel)}</div>
@@ -159,14 +159,6 @@ export const useColumnsManagersTrips = (opts?: {
                 ),
             },
             {
-                accessorKey: "income_usd",
-                header: `${t("form.income")} (usd)`,
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <div>{formatMoney(row.original.income_usd)}</div>
-                ),
-            },
-            {
                 accessorKey: "cash_flow_sum",
                 header: t("form.expense"),
                 enableSorting: true,
@@ -194,15 +186,16 @@ export const useColumnsManagersTrips = (opts?: {
                             </Button>
                         )}
                         <Button
-                            icon={<HandCoins className="text-blue-500" size={16} />}
                             size="sm"
-                            className="p-0 h-3"
-                            variant="ghost"
+                            className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/15 dark:text-blue-400"
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onMoliya?.(row.original)
                             }}
-                        />
+                        >
+                            <HandCoins size={14} />
+                            Moliya
+                        </Button>
                         {hasControl && (
                             <>
                                 <Button

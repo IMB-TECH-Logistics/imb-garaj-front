@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import { FormDatePicker } from "@/components/form/date-picker"
 import FileUpload from "@/components/form/file-upload"
 import { FormNumberInput } from "@/components/form/number-input"
@@ -11,7 +12,6 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { useUser } from "@/constants/useUser"
 import KassaCloseSection, { KassaCloseState } from "./kassa-close-section"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
@@ -20,7 +20,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams } from "@tanstack/react-router"
 import { startOfDay } from "date-fns"
 import { AlertTriangle, X } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -42,6 +42,9 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
     const { data: me } = useUser()
     const isKassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
     const [kassa, setKassa] = useState<KassaCloseState | null>(null)
+    useEffect(() => {
+        if (isKassaV2) onTabChange?.("kassa")
+    }, [isKassaV2])
     const [closing, setClosing] = useState(false)
     const [unconfirmed, setUnconfirmed] = useState<number | null>(null)
     const [tabState, setTabState] = useState<"info" | "kassa">("info")
@@ -204,6 +207,72 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         })
     }
 
+    const techFields = (
+        <>
+
+                <div className={cn("grid gap-3 items-start", IS_READY ? "grid-cols-2" : "grid-cols-3")}>
+                    {!IS_READY && (
+                        <FormDatePicker
+                            control={control}
+                            required
+                            name="end"
+                            label={t("form.end_date")}
+                            calendarProps={{ disabled: { before: minEndDate } }}
+                        />
+                    )}
+                    <FormNumberInput
+                        name="end_mileage"
+                        required
+                        label={t("table.end_mileage")}
+                        control={control}
+                        registerOptions={{
+                            min: {
+                                value: item?.start_mileage || 0,
+                                message: `Tugash probegi ${item?.start_mileage || 0} dan kam bo’lmasligi kerak`,
+                            },
+                        }}
+                    />
+                    <FormNumberInput
+                        name="end_fuel"
+                        label={`Qolgan yoqilg'i (${fuelUnit})`}
+                        required
+                        decimalScale={2}
+                        allowNegative={false}
+                        control={control}
+                    />
+                </div>
+
+                {endImage ? (
+                    <div className="relative w-24 h-24">
+                        <img
+                            src={
+                                endImage instanceof File
+                                    ? URL.createObjectURL(endImage)
+                                    : endImage
+                            }
+                            className="w-24 h-24 object-cover rounded-md"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => removeImage("end_mileage_image")}
+                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                        >
+                            <X width={12} />
+                        </button>
+                    </div>
+                ) : endMileage ? (
+                    <FileUpload
+                        control={control}
+                        name="end_mileage_image"
+                        multiple={false}
+                        isPaste={true}
+                        hideClearable={true}
+                    />
+                ) : null}
+
+        </>
+    )
+
     return (
         <div className="max-h-[80vh] overflow-y-auto pr-2 pl-2 no-scrollbar-x">
             {!isKassaV2 && !ordersLoading && totalOrders > 0 && (
@@ -248,81 +317,11 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                     )}
                 </div>
             )}
-            <form onSubmit={handleSubmit((v) => onSubmit(v), () => setTab("info"))} className="space-y-3">
-                {isKassaV2 && (
-                    <Tabs value={tab} onValueChange={(v) => setTab(v as "info" | "kassa")}>
-                        <TabsList className="w-full grid grid-cols-2">
-                            <TabsTrigger value="info">Aylanma ma'lumotlari</TabsTrigger>
-                            <TabsTrigger value="kassa">Kassa hisobi</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                )}
-                <div className={isKassaV2 && tab !== "info" ? "hidden" : "space-y-3"}>
-                {!IS_READY && (
-                    <FormDatePicker
-                        control={control}
-                        required
-                        name="end"
-                        label={t("form.end_date")}
-                        calendarProps={{ disabled: { before: minEndDate } }}
-                    />
-                )}
-                <FormNumberInput
-                    name="end_mileage"
-                    required
-                    label={t("table.end_mileage")}
-                    control={control}
-                    registerOptions={{
-                        min: {
-                            value: item?.start_mileage || 0,
-                            message: `Tugash probegi ${item?.start_mileage || 0} dan kam bo’lmasligi kerak`,
-                        },
-                    }}
-                />
-
-                {endImage ? (
-                    <div className="relative w-24 h-24">
-                        <img
-                            src={
-                                endImage instanceof File
-                                    ? URL.createObjectURL(endImage)
-                                    : endImage
-                            }
-                            className="w-24 h-24 object-cover rounded-md"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => removeImage("end_mileage_image")}
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                        >
-                            <X width={12} />
-                        </button>
-                    </div>
-                ) : endMileage ? (
-                    <FileUpload
-                        control={control}
-                        name="end_mileage_image"
-                        multiple={false}
-                        isPaste={true}
-                        hideClearable={true}
-                    />
-                ) : null}
-
-                <FormNumberInput
-                    name="end_fuel"
-                    label={`Qolgan yoqilg'i (${fuelUnit})`}
-                    required
-                    decimalScale={2}
-                    allowNegative={false}
-                    control={control}
-                />
-
-                </div>
-
-                {isKassaV2 && (
-                    <div className={tab === "kassa" ? "" : "hidden"}>
-                        <KassaCloseSection tripId={item?.id} onChange={setKassa} />
-                    </div>
+            <form onSubmit={handleSubmit((v) => onSubmit(v))} className="space-y-3">
+                {isKassaV2 ? (
+                    <KassaCloseSection tripId={item?.id} onChange={setKassa} tech={techFields} />
+                ) : (
+                    <div className="space-y-3">{techFields}</div>
                 )}
 
                 {unconfirmed ? (
@@ -342,19 +341,9 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                 ) : null}
 
                 <div className="flex justify-end">
-                    {isKassaV2 && tab === "info" ?
-                    <Button
-                        type="button"
-                        onClick={async () => {
-                            if (await form.trigger()) setTab("kassa")
-                        }}
-                    >
-                        Keyingi: Kassa hisobi →
-                    </Button>
-                    :
                     <Button loading={closing} disabled={!canFinish}>
                         {isKassaV2 ? (kassa?.amount ? "Tugatish va so'rov yuborish" : "Tugatish") : t("actions.save")}
-                    </Button>}
+                    </Button>
                 </div>
             </form>
         </div>

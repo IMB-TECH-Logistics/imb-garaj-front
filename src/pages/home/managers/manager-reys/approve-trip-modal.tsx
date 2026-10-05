@@ -26,7 +26,7 @@ type TripOption = { id: number; name: string }
 const formatDate = (value?: string | null) => {
     if (!value) return "-"
     const date = new Date(value)
-    return isNaN(date.getTime()) ? "-" : format(date, "yyyy-MM-dd")
+    return isNaN(date.getTime()) ? "-" : format(date, "dd/MM/yyyy")
 }
 
 export default function ApproveTripModal({ order }: { order: ManagerOrders | null }) {

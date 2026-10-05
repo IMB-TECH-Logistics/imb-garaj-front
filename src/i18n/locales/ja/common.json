@@ -474,6 +474,8 @@
         "depreciation": "減価償却",
         "work_days": "勤務日数",
         "fuel_l": "燃料",
+        "start_fuel": "開始燃料",
+        "end_fuel": "終了燃料",
         "auto_short": "車両",
         "loading": "積載",
         "unloading_short": "荷卸し",

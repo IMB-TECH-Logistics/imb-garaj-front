@@ -1,4 +1,5 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
+import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Button } from "@/components/ui/button"
 import {
     SETTINGS_SELECTABLE_CARGO_TYPE,
@@ -33,7 +34,7 @@ const LIST_STATUS_OPTIONS = [
 ]
 
 const filterButtonProps = {
-    className: "!bg-background dark:!bg-secondary",
+    className: "w-auto gap-2 whitespace-nowrap font-normal !bg-background dark:!bg-secondary",
 }
 
 export default function ReysFilters() {
@@ -70,14 +71,14 @@ export default function ReysFilters() {
     return (
         <div className="mt-3 flex flex-col gap-2">
             {hasActiveFilters && (
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                     <Button onClick={clearAllFilters} className="flex items-center gap-2">
                         <X size={16} />
                         {t("page.clear_filters")}
                     </Button>
                 </div>
             )}
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-10">
+            <div className="flex flex-wrap items-center justify-end gap-2">
                 <ParamCombobox
                     paramName="activity"
                     label={t("table.activity")}
@@ -136,6 +137,11 @@ export default function ReysFilters() {
                     valueKey="id"
                     labelKey="name"
                     addButtonProps={filterButtonProps}
+                />
+                <ParamDateRange
+                    from="from_date"
+                    to="to_date"
+                    addButtonProps={{ className: "w-auto gap-2 whitespace-nowrap justify-start !bg-background dark:!bg-secondary" }}
                 />
             </div>
         </div>

@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamInput from "@/components/as-params/input"
@@ -43,13 +44,7 @@ const EVENT_VARIANT: Record<CheckoutLogEvent, "default" | "secondary" | "destruc
 const formatDateTime = (value: string) => {
     const d = new Date(value)
     if (isNaN(d.getTime())) return "-"
-    return d.toLocaleString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    return format(d, "dd/MM/yyyy HH:mm")
 }
 
 const useCheckoutLogCols = () => {

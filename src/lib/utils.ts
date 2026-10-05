@@ -116,7 +116,7 @@ export function formatDateChat(dateString: string): string {
     } else if (date.toDateString() === yesterday.toDateString()) {
         return "Kecha"
     } else {
-        return format(String(date), "yyyy-MM-dd")
+        return format(String(date), "dd/MM/yyyy")
     }
 }
 

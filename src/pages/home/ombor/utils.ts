@@ -1,7 +1,7 @@
 import { format, parseISO } from "date-fns"
 
 export const fmtDate = (value?: string | null) =>
-    value ? format(parseISO(value), "dd.MM.yyyy") : "—"
+    value ? format(parseISO(value), "dd/MM/yyyy") : "—"
 
 export const todayISO = () => format(new Date(), "yyyy-MM-dd")
 

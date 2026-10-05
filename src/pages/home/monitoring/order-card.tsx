@@ -22,7 +22,7 @@ export function orderStatusMeta(garageStatus: number | null | undefined) {
 }
 
 export function clock(value: string | null) {
-    return value ? format(parseISO(value), "dd.MM HH:mm") : "—"
+    return value ? format(parseISO(value), "dd/MM HH:mm") : "—"
 }
 
 export function minutes(value: number | null | undefined) {

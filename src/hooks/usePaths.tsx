@@ -1,6 +1,7 @@
 import { moduleOfCode, useUser, useWarehouseOwner } from "@/constants/useUser"
 import { useDocumentAlerts } from "@/hooks/use-document-alerts"
 import { useTechCheckAlerts } from "@/hooks/use-tech-check-alerts"
+import { useNoPriceAlerts } from "@/hooks/use-no-price-alerts"
 import { useLocation } from "@tanstack/react-router"
 import {
     Activity,
@@ -192,6 +193,7 @@ export const usePaths = () => {
 
     const { count: documentAlerts } = useDocumentAlerts()
     const { count: techCheckAlerts } = useTechCheckAlerts()
+    const { count: noPriceAlerts } = useNoPriceAlerts()
 
     const filteredItems = useMemo(
         () =>
@@ -199,9 +201,9 @@ export const usePaths = () => {
                 isSuperuser
                     ? enabledItems
                     : filterMenuItems(enabledItems, safeActions),
-                { "/documents": documentAlerts, "/technic-check": techCheckAlerts },
+                { "/documents": documentAlerts, "/technic-check": techCheckAlerts, "/route-configs": noPriceAlerts },
             ),
-        [enabledItems, safeActions, isSuperuser, documentAlerts, techCheckAlerts],
+        [enabledItems, safeActions, isSuperuser, documentAlerts, techCheckAlerts, noPriceAlerts],
     )
 
     const childPaths = useMemo(
@@ -273,11 +275,6 @@ export const useItems = () => {
                         path: "/managers",
                         extraPaths: ["/manager-trips"],
                         allowKey: "manager_vehicles_view",
-                    },
-                    {
-                        label: t("nav.flights"),
-                        path: "/flights",
-                        allowKey: "manager_flights_view",
                     },
                     {
                         label: t("nav.tech_check"),

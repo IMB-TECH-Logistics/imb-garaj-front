@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
 import DownloadAsExcel from "@/components/download-as-excel"
 import { Badge } from "@/components/ui/badge"
@@ -126,13 +127,7 @@ const useTransactionCols = () => {
                 cell: ({ row }) => {
                     const d = new Date(row.original.created)
                     if (isNaN(d.getTime())) return "-"
-                    return d.toLocaleString("uz-UZ", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
+                    return format(d, "dd/MM/yyyy HH:mm")
                 },
             },
             {

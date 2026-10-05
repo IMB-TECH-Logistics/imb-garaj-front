@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -58,24 +59,14 @@ export const formatDate = (s?: string | null) => {
     if (!s) return "—"
     const d = new Date(s)
     if (isNaN(d.getTime())) return s
-    return d.toLocaleDateString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    })
+    return format(d, "dd/MM/yyyy")
 }
 
 const formatDateTime = (s?: string | null) => {
     if (!s) return "—"
     const d = new Date(s)
     if (isNaN(d.getTime())) return s
-    return d.toLocaleString("uz-UZ", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    return format(d, "dd/MM/yyyy HH:mm")
 }
 
 const CURRENCY_LABELS: Record<number, string> = {
