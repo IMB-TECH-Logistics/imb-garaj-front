@@ -24,6 +24,13 @@ type Expense = { id: number; amount: number; category: number | null; category_n
 
 type SalaryOrder = { order: number; route: string; date: string | null; status_label: string | null; tariff: number | null; amount: number | null }
 
+type EmptyLegSalary = {
+    label: string
+    count: number
+    amount: number
+    legs: { id: number; route: string; start: string | null; end: string | null; km: number | null; amount: number }[]
+}
+
 type Preview = {
     given: number
     earned: number
@@ -32,6 +39,7 @@ type Preview = {
     salary_default: number
     expenses: Expense[]
     salary_orders?: SalaryOrder[]
+    empty_leg_salary?: EmptyLegSalary | null
 }
 
 type FlowRow = { id: number; action: number; amount: number; comment: string | null; created: string; loading_name: string | null; unloading_name: string | null; payment_type_name: string | null; category_code?: string | null }
@@ -130,19 +138,21 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
         setSalaries(init)
     }, [salaryRows])
 
+    const emptyLegs = preview?.empty_leg_salary
+    const emptyLegAmount = Number(emptyLegs?.amount ?? 0)
     const salaryTotal = Object.values(salaries).reduce((a, v) => a + (Number(v) || 0), 0)
     const due = preview ? Number(preview.due) : 0
-    const net = due - salaryTotal
+    const net = due - salaryTotal - emptyLegAmount
 
     useEffect(() => {
         onChange({
             ready: !!preview,
             amount: net,
-            salary: salaryTotal,
+            salary: salaryTotal + emptyLegAmount,
             salaries: Object.entries(salaries).map(([order, value]) => ({ order: Number(order), amount: Number(value) || 0 })),
             expenses: [],
         })
-    }, [preview, net, salaryTotal, salaries])
+    }, [preview, net, salaryTotal, emptyLegAmount, salaries])
 
     const { mutate: patch, isPending: saving } = usePatch({ meta: { skipGlobalError: true } })
     const form = useForm<{ amount: number | ""; category: string; comment: string }>({ defaultValues: { amount: "", category: "", comment: "" } })
@@ -177,6 +187,13 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
         { header: "Tarif bo'yicha", accessorKey: "tariff", cell: ({ row }) => <span className="text-muted-foreground whitespace-nowrap">{row.original.tariff != null ? formatMoney(Number(row.original.tariff)) : "—"}</span> },
         { header: "Sana", accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{row.original.date || "—"}</span> },
     ], [salaries])
+
+    const emptyLegCols = useMemo<ColumnDef<EmptyLegSalary["legs"][number]>[]>(() => [
+        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(Number(row.original.amount))}</span> },
+        { header: "Yo'nalish", accessorKey: "route" },
+        { header: "Km", accessorKey: "km", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.km != null ? `${formatMoney(Number(row.original.km))} km` : "—"}</span> },
+        { header: "Sana", accessorKey: "start", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.start ?? undefined)}</span> },
+    ], [])
 
     if (isLoading || !preview) return <p className="text-sm text-muted-foreground">Kassa hisobi yuklanmoqda…</p>
 
@@ -260,6 +277,21 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                         </div>
                     </AccordionContent>
                 </AccordionItem>
+                {emptyLegs && emptyLegAmount > 0 && (
+                    <AccordionItem value="empty-legs" className="border-0">
+                        <AccordionTrigger className={trigger}>
+                            {line(
+                                <>{emptyLegs.label || "Bo'sh yurish"}<Badge variant="outline" className="h-5 px-1.5">{emptyLegs.count}</Badge></>,
+                                `−${money(emptyLegAmount)}`,
+                            )}
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-3">
+                            <div className="max-h-[38vh] overflow-y-auto">
+                                <DataTable className={COMPACT} columns={emptyLegCols} data={emptyLegs.legs} numeration viewAll />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                )}
                 <Row
                     className={cn("font-semibold py-2.5 pr-6", returns ? "text-green-600" : "text-destructive")}
                     label={returns ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"}

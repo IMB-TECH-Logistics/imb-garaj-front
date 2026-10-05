@@ -27,17 +27,7 @@ import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
-
-type EmptyLeg = {
-    before_order: number
-    first: boolean
-    from_place: string | null
-    to_place: string | null
-    start: string
-    end: string
-    minutes: number
-    distance_km: number | null
-}
+import EmptyLegPayModal, { EMPTY_LEG_PAY_MODAL_KEY, type EmptyLeg } from "./empty-leg-pay-modal"
 
 export default function ManagerReys() {
     const { t } = useTranslation()
@@ -94,7 +84,16 @@ export default function ManagerReys() {
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
     const [previewIndex, setPreviewIndex] = useState<number | null>(null)
 
+    const [payLeg, setPayLeg] = useState<EmptyLeg | null>(null)
+    const { openModal: openPayModal } = useModal(EMPTY_LEG_PAY_MODAL_KEY)
+
     const cols = useColumnsManagersOrders({
+        onLegPay: hasControl
+            ? (leg) => {
+                  setPayLeg(leg)
+                  openPayModal()
+              }
+            : undefined,
         onImageClick: (images) => {
             setPreviewImages(images)
             setPreviewIndex(0)
@@ -216,6 +215,8 @@ export default function ManagerReys() {
             </Modal>
 
             <ApproveTripModal order={approveOrder} />
+
+            <EmptyLegPayModal leg={payLeg} />
 
             <DeleteModal
                 path={MANAGERS_ORDERS}

@@ -11,8 +11,11 @@ import {
     MONITORING_ORDERS,
     MONITORING_ROUTES_POLYLINE,
     MONITORING_STATUS_ROUTE,
+    MONITORING_STATUS_GPS_TIMELINE,
+    MONITORING_STATUS_TIMELINE,
     MONITORING_TRIPS_TRACKING,
     MONITORING_VEHICLES,
+    VEHICLES,
     MONITORING_GPS_LIVE,
     MONITORING_VEHICLE_LAST_ORDERS,
 } from "@/constants/api-endpoints"
@@ -29,22 +32,22 @@ import {
     RefreshCcw,
 } from "lucide-react"
 import { endOfMonth, format, startOfMonth } from "date-fns"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import { DimensionEmpty } from "./dimension-row"
-import GpsList, { ConnectionFilterBar, TruckStatusFilterBar, type ConnectionFilter } from "./gps-list"
+import GpsList, { ConnectionFilterBar, NoGpsFilterButton, TruckStatusFilterBar, UnlinkedVehicles, type ConnectionFilter, type UnlinkedVehicle } from "./gps-list"
 import { LastOrderCard, useVehicleLastOrder } from "./order-card"
 import { useGpsLiveSocket } from "./gps-socket"
-import { TrackerHistoryPanel, useTrackerHistory } from "./tracker-history"
-import MonitoringFilterBar from "./filter-bar"
-import { LinkDeviceButton } from "./link-device-modal"
+import { TrackerHeader, TrackerHistoryPanel, useTrackerHistory } from "./tracker-history"
+import { ReplayMapControl } from "./route-replay"
 import OrderList from "./order-list"
-import RouteMap, { type LiveMarker } from "./route-map"
+import RouteMap, { type LiveMarker, type MapBounds } from "./route-map"
 import StatusReport from "./status"
 import {
     type ApiStatusRoute,
+    type ApiStatusSegment,
     type ColoredPathSegment,
     STATUS_META,
 } from "./status/data"
@@ -228,8 +231,11 @@ export default function MonitoringView() {
     const truckStatus: TruckStatusFilter = TRUCK_STATUS_FILTERS.includes(search?.truck_status)
         ? search.truck_status
         : "all"
+    const noGpsOnly = String(search?.nogps ?? "") === "1"
+    const setNoGps = (on: boolean) =>
+        patchSearch({ nogps: on ? "1" : undefined, truck_status: undefined, conn: undefined })
     const setTruckStatus = (next: TruckStatusFilter) =>
-        patchSearch({ truck_status: next === "all" ? undefined : next })
+        patchSearch({ truck_status: next === "all" ? undefined : next, conn: undefined, nogps: undefined })
     const truckStatusCounts = useMemo(() => {
         const counts: Record<TruckStatusFilter, number> = { all: 0, loaded: 0, empty: 0, repair: 0 }
         for (const g of gpsLive.data ?? []) {
@@ -241,7 +247,7 @@ export default function MonitoringView() {
     const connection: ConnectionFilter =
         search?.conn === "online" || search?.conn === "offline" ? search.conn : "all"
     const setConnection = (next: ConnectionFilter) =>
-        patchSearch({ conn: next === "all" ? undefined : next })
+        patchSearch({ conn: next === "all" ? undefined : next, truck_status: undefined, nogps: undefined })
     const connectionCounts = useMemo(() => {
         const all = gpsLive.data ?? []
         const online = all.filter((g) => g.status === "online").length
@@ -249,14 +255,40 @@ export default function MonitoringView() {
     }, [gpsLive.data])
     const cargoItems = useMemo(
         () =>
-            (gpsLive.data ?? []).filter(
+            noGpsOnly ? [] : (gpsLive.data ?? []).filter(
                 (g) =>
                     (truckStatus === "all" ||
                         truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined) ===
                             truckStatus) &&
                     (connection === "all" || (g.status === "online") === (connection === "online")),
             ),
-        [gpsLive.data, ordersByVehicle, truckStatus, connection],
+        [gpsLive.data, ordersByVehicle, truckStatus, connection, noGpsOnly],
+    )
+    const allVehicles = useGet<{ results: (UnlinkedVehicle & { gps_imei: string | null })[] }>(VEHICLES, {
+        params: { page_size: 1000 },
+        enabled: mode === "map" && dimension === "driver" && !historical,
+        options: { staleTime: 60 * 1000 },
+    })
+    const allUnlinked = useMemo(
+        () => (allVehicles.data?.results ?? []).filter((v) => !v.gps_imei),
+        [allVehicles.data],
+    )
+    const unlinkedVehicles = truckStatus === "all" && connection === "all" && !noGpsOnly ? allUnlinked : []
+    const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
+    const visibleItems = useMemo(
+        () =>
+            mapBounds
+                ? cargoItems.filter(
+                      (g) =>
+                          g.lat != null &&
+                          g.lng != null &&
+                          g.lat <= mapBounds.north &&
+                          g.lat >= mapBounds.south &&
+                          g.lng <= mapBounds.east &&
+                          g.lng >= mapBounds.west,
+                  )
+                : cargoItems,
+        [cargoItems, mapBounds],
     )
     const selectTracker = (imei: string | null) => {
         setShowOrderRoute(false)
@@ -280,6 +312,7 @@ export default function MonitoringView() {
                 icon: "truck" as const,
                 tone: truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined),
                 russia: isRussiaTruck(g),
+                course: g.course,
                 selected: g.imei === trackerImei,
                 onClick: () => selectTracker(g.imei),
             }))
@@ -420,8 +453,50 @@ export default function MonitoringView() {
     // Eski hisob: liveDrivers.filter((d) => d.seconds_since <= 5 * 60).length
     const gpsItems = gpsLive.data ?? []
     const selectedTracker = gpsItems.find((g) => g.imei === trackerImei) ?? null
+    const replayTimeline = useGet<ApiStatusSegment[]>(MONITORING_STATUS_TIMELINE, {
+        params: {
+            vehicle: selectedTracker?.vehicle ?? undefined,
+            from_date: history.range?.from,
+            to_date: history.range?.to,
+        },
+        enabled: selectedTracker?.vehicle != null && !!history.range,
+    })
+    const replayGpsTimeline = useGet<ApiStatusSegment[]>(MONITORING_STATUS_GPS_TIMELINE, {
+        params: {
+            vehicle: selectedTracker?.vehicle ?? undefined,
+            from_date: history.range?.from,
+            to_date: history.range?.to,
+        },
+        enabled: selectedTracker?.vehicle != null && !!history.range,
+    })
+    const replaySegments = replayGpsTimeline.data?.length
+        ? replayGpsTimeline.data
+        : replayTimeline.data
+    const replayStatuses = useMemo(
+        () =>
+            (replaySegments ?? []).map((s) => ({
+                status: s.status,
+                start: Date.parse(s.start),
+                end: Date.parse(s.end),
+                order: (s as { order_id?: number | null }).order_id ?? null,
+                from: (s as { from_place?: string | null }).from_place ?? null,
+                to: (s as { to_place?: string | null }).to_place ?? null,
+            })),
+        [replaySegments],
+    )
+    const setHistoryStatuses = history.setStatusSegments
+    useEffect(() => {
+        setHistoryStatuses(replayStatuses)
+    }, [replayStatuses, setHistoryStatuses])
     const lastOrder = useVehicleLastOrder(selectedTracker?.vehicle ?? null)
+    const trackerHeaderVisible =
+        mode === "map" && !historical && dimension === "driver" && selectedTracker != null
     const trackerMap = showOrderRoute ? lastOrder.map : null
+    const replayBar = mode === "map" && !!trackerImei && !trackerMap && history.replay.points.length >= 2
+    const backToAll = () => {
+        selectTracker(null)
+        if (selectedId != null) setFilters(EMPTY_FILTERS)
+    }
     const freshCount =
         dimension === "driver"
             ? gpsItems.filter((g) => g.status === "online").length
@@ -454,13 +529,29 @@ export default function MonitoringView() {
         filters.vehicle ?? selectedDriver?.vehicle ?? null
 
     const mapMarkers = useMemo(() => {
-        if (trackerImei) return gpsMarkers.filter((m) => m.id === `gps-${trackerImei}`)
+        if (trackerImei) {
+            const own = gpsMarkers.filter((m) => m.id === `gps-${trackerImei}`)
+            const at = history.replay.position
+            if (!at) return own
+            const replayMarker: LiveMarker = {
+                id: "replay",
+                lat: at.lat,
+                lng: at.lng,
+                label: new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Tashkent", hour: "2-digit", minute: "2-digit" }).format(at.t),
+                sub: `${Math.round(at.speed)} km/h`,
+                icon: "truck",
+                tone: "loaded",
+                course: at.course,
+                selected: true,
+            }
+            return [replayMarker]
+        }
         if (ribbonVehicleId != null) {
             const imeis = new Set(cargoItems.filter((g) => g.vehicle === ribbonVehicleId).map((g) => `gps-${g.imei}`))
             return gpsMarkers.filter((m) => imeis.has(String(m.id)))
         }
         return gpsMarkers
-    }, [gpsMarkers, trackerImei, ribbonVehicleId, cargoItems])
+    }, [gpsMarkers, trackerImei, ribbonVehicleId, cargoItems, history.replay.position])
 
     const selectedDriverName = selectedDriver
         ? [selectedDriver.vehicle_number, selectedDriver.driver_name]
@@ -505,54 +596,9 @@ export default function MonitoringView() {
 
     return (
         <div className="flex flex-col gap-3">
+            {mode === "report" && (
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="text-xl font-semibold">
-                        {mode === "report" ? t("table.status") : t("nav.monitoring")}
-                    </h1>
-                    {mode === "map" &&
-                        (freshCount != null ? (
-                            <>
-                                {liveConnected && (
-                                    <Badge
-                                        variant="outline"
-                                        className="gap-1.5 border-emerald-500/40 text-emerald-500"
-                                    >
-                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                        {t("page.live")}
-                                    </Badge>
-                                )}
-                            </>
-                        ) : (
-                            <Badge variant="secondary">
-                                {activeList.data?.length ?? 0} ta
-                            </Badge>
-                        ))}
-                </div>
-                {mode === "map" && (
-                    <div className="flex items-center gap-2">
-                        <LinkDeviceButton />
-                        <MonitoringFilterBar
-                            value={filters}
-                            onChange={setFilters}
-                        />
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={handleRefresh}
-                            disabled={refreshing}
-                            aria-label={t("actions.refresh")}
-                            className="h-9 w-9 shrink-0"
-                        >
-                            <RefreshCcw
-                                className={cn(
-                                    "h-4 w-4",
-                                    refreshing && "animate-spin",
-                                )}
-                            />
-                        </Button>
-                    </div>
-                )}
+                <h1 className="text-xl font-semibold">{t("table.status")}</h1>
                 {mode === "report" && (
                     <div className="flex flex-wrap items-center justify-end gap-2">
                         <ParamDateRange
@@ -571,6 +617,7 @@ export default function MonitoringView() {
                     </div>
                 )}
             </div>
+            )}
 
             {/* One persistent grid: the map collapses + fades while the panel
                 track grows from sidebar-width to full — a true expand, not a
@@ -619,20 +666,72 @@ export default function MonitoringView() {
                             {!historical && !trackerImei && (gpsLive.data?.length ?? 0) > 0 && (
                                 <div className="absolute left-3 right-3 top-3 z-[500] flex flex-wrap items-start gap-2 pointer-events-none [&>*]:pointer-events-auto [&>*]:max-w-full [&>*]:overflow-x-auto">
                                     <TruckStatusFilterBar
-                                        value={truckStatus}
+                                        value={noGpsOnly || connection !== "all" ? ("none" as TruckStatusFilter) : truckStatus}
                                         onChange={setTruckStatus}
                                         counts={truckStatusCounts}
-                                    />
-                                    <ConnectionFilterBar
-                                        value={connection}
-                                        onChange={setConnection}
-                                        counts={connectionCounts}
+                                        extra={
+                                            <>
+                                                <ConnectionFilterBar
+                                                    bare
+                                                    value={noGpsOnly ? "all" : connection}
+                                                    onChange={setConnection}
+                                                    counts={connectionCounts}
+                                                />
+                                                {allUnlinked.length > 0 && (
+                                                    <NoGpsFilterButton
+                                                        active={noGpsOnly}
+                                                        count={allUnlinked.length}
+                                                        onToggle={() => setNoGps(!noGpsOnly)}
+                                                    />
+                                                )}
+                                            </>
+                                        }
                                     />
                                 </div>
                             )}
+                            {mode === "map" && (trackerImei || selectedId != null) && (
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="absolute left-3 top-3 z-[500] h-10 w-10 shadow-md"
+                                    onClick={backToAll}
+                                    aria-label={t("page.back_to_list")}
+                                    title={t("page.back_to_list")}
+                                >
+                                    <ArrowLeft className="h-5 w-5" />
+                                </Button>
+                            )}
+                            {mode === "map" && trackerImei && !trackerMap && (
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className={cn(
+                                        "absolute left-3 top-[60px] z-[500] h-10 w-10 font-mono text-base font-bold shadow-md",
+                                        history.showStops
+                                            ? "bg-amber-500 text-amber-950 hover:bg-amber-400"
+                                            : "text-muted-foreground",
+                                    )}
+                                    onClick={() => history.setShowStops(!history.showStops)}
+                                    aria-pressed={history.showStops}
+                                    aria-label="To'xtashlarni ko'rsatish"
+                                    title="To'xtashlarni ko'rsatish"
+                                >
+                                    P
+                                </Button>
+                            )}
+                            {replayBar && (
+                                <ReplayMapControl
+                                    replay={history.replay}
+                                    statuses={replayStatuses}
+                                    focusKey={history.focus?.kind === "status" ? history.focus.key : null}
+                                    onFocus={(key) => history.setFocus(key ? { kind: "status", key } : null)}
+                                    className="absolute left-16 right-3 top-3 z-[500]"
+                                />
+                            )}
                             <RouteMap
-                                height="calc(100vh - 200px)"
+                                height="calc(100vh - 112px)"
                                 markers={mapMarkers}
+                                onBoundsChange={setMapBounds}
                                 segments={
                                     trackerImei
                                         ? (trackerMap?.segments ?? history.map.segments)
@@ -662,13 +761,17 @@ export default function MonitoringView() {
 
                 <Card
                     className={cn(
-                        "flex h-full max-h-[calc(100vh-200px)] min-w-0 flex-col transition-opacity duration-500",
+                        "flex h-full max-h-[calc(100vh-112px)] min-w-0 flex-col transition-opacity duration-500",
                         mode === "map" &&
                             !panelOpen &&
                             "lg:pointer-events-none lg:invisible lg:overflow-hidden lg:border-0 lg:opacity-0",
                     )}
                 >
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 py-3">
+                    {(mode === "report" || historical || selectedId != null || trackerHeaderVisible) && (
+                    <CardHeader className={cn("flex flex-row items-center justify-between gap-2 py-3", trackerHeaderVisible && "mb-4 border-b-2 border-muted-foreground/60")}>
+                        {trackerHeaderVisible ? (
+                            <TrackerHeader tracker={selectedTracker} onBack={() => selectTracker(null)} />
+                        ) : (
                         <div className="flex min-w-0 items-center gap-2">
                             {mode === "map" && selectedId != null && (
                                 <button
@@ -680,30 +783,19 @@ export default function MonitoringView() {
                                     <ArrowLeft className="h-3.5 w-3.5" />
                                 </button>
                             )}
-                            <CardTitle className="truncate text-sm font-semibold">
-                                {mode === "report"
-                                    ? t("table.orders_history")
-                                    : selectedId != null && selectedDriverName
-                                      ? selectedDriverName
-                                      : panelTitle}
-                            </CardTitle>
-                            {mode === "map" &&
-                                !historical &&
-                                activeList.data && (
-                                    <Badge
-                                        variant="outline"
-                                        className="shrink-0"
-                                    >
-                                        {dimension === "driver"
-                                            ? gpsItems.length
-                                            : activeList.data.length}
-                                    </Badge>
-                                )}
+                            {(mode === "report" || historical || selectedId != null) && (
+                                <CardTitle className="truncate text-sm font-semibold">
+                                    {mode === "report"
+                                        ? t("table.orders_history")
+                                        : selectedId != null && selectedDriverName
+                                          ? selectedDriverName
+                                          : panelTitle}
+                                </CardTitle>
+                            )}
                         </div>
+                        )}
                         <div className="flex items-center gap-1.5">
-                            {/* Hide expand while an avtomobil is selected — the
-                                back button takes priority there. */}
-                            {!(mode === "map" && selectedId != null) && (
+                            {mode === "report" && (
                                 <button
                                     type="button"
                                     onClick={() =>
@@ -734,7 +826,8 @@ export default function MonitoringView() {
                             )}
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 overflow-auto pt-0">
+                    )}
+                    <CardContent className={cn("flex-1", trackerHeaderVisible ? "flex min-h-0 flex-col overflow-hidden" : "overflow-auto", mode === "report" || historical || selectedId != null || trackerHeaderVisible ? "pt-0" : "pt-4")}>
                         {mode === "report" ? (
                             <StatusReport onSelectOnMap={selectFromStatus} />
                         ) : historical ? (
@@ -753,11 +846,7 @@ export default function MonitoringView() {
                             // <DriverList items={liveDrivers} loading={drivers.isLoading}
                             //     activeId={filters.driver} onSelect={selectDriver} />
                             selectedTracker ? (
-                                <TrackerHistoryPanel
-                                    tracker={selectedTracker}
-                                    history={history}
-                                    onBack={() => selectTracker(null)}
-                                >
+                                <TrackerHistoryPanel history={history}>
                                     {selectedTracker.vehicle != null && (
                                         <LastOrderCard
                                             lastOrder={lastOrder}
@@ -768,17 +857,30 @@ export default function MonitoringView() {
                                 </TrackerHistoryPanel>
                             ) : (
                                 <>
-                                {(truckStatus !== "all" || connection !== "all") && cargoItems.length === 0 && gpsItems.length > 0 ? (
+                                {noGpsOnly ? (
+                                    <UnlinkedVehicles items={allUnlinked} />
+                                ) : (truckStatus !== "all" || connection !== "all") && cargoItems.length === 0 && gpsItems.length > 0 ? (
                                     <DimensionEmpty title={t("page.not_found")} />
                                 ) : (
+                                <>
+                                {visibleItems.length < cargoItems.length && (
+                                    <div className="mb-2 flex items-center justify-between gap-2 rounded-md bg-muted/60 px-3 py-1.5 text-xs text-muted-foreground">
+                                        <span>Xaritadagi hudud</span>
+                                        <span className="font-mono font-semibold tabular-nums text-foreground">
+                                            {visibleItems.length} / {cargoItems.length}
+                                        </span>
+                                    </div>
+                                )}
                                 <GpsList
-                                    items={cargoItems}
+                                    items={visibleItems}
                                     loading={gpsLive.isLoading}
                                     unavailable={gpsLive.isError}
                                     orders={ordersByVehicle}
                                     activeImei={trackerImei}
                                     onSelect={(item) => selectTracker(item.imei)}
+                                    unlinked={unlinkedVehicles}
                                 />
+                                </>
                                 )}
                                 </>
                             )

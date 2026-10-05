@@ -65,6 +65,9 @@ export const COMMON_DIRECTIONS_CLIENTS = "routes/clients"
 export const COMMON_DIRECTIONS_CARGO_TYPES = "routes/cargo-types"
 export const COMMON_DIRECTIONS_DISTRIBUTORS = "routes/distributors"
 
+export const PLACES_GEO_ZONES = "places/geo-zones"
+export const PLACES_GEO_ZONES_SELECT = "places/geo-zones/select"
+
 /** ===== SELECTABLE (was /common/selectable/*) ===== */
 export const SETTINGS_SELECTABLE_VEHICLE_TYPE = "selectable/vehicle-type"
 export const SETTINGS_SELECTABLE_USERS = "selectable/user"
@@ -86,6 +89,7 @@ export const OWNER_INVESTORS = "dashboard/investors"
 /** ===== MANAGER (BFF aggregator — unchanged) ===== */
 export const MANAGERS_VEHICLES = "manager/vehicles"
 export const MANAGERS_TRIPS = "manager/trips"
+export const MANAGERS_EMPTY_LEGS = "manager/empty-legs"
 export const MANAGERS_TRIPS_START_DATA = "manager/trips/start-data"
 export const MANAGERS_ORDERS = "manager/orders"
 export const MANAGERS_ORDERS_INTEGRATION_COUNT = "manager/orders/integration-count"
@@ -124,6 +128,7 @@ export const MONITORING_VEHICLE_LAST_ORDERS = "monitoring/vehicles/last-orders"
 export const MONITORING_VEHICLE_LAST_ORDER = "monitoring/vehicles"
 export const MONITORING_LOGISTICS_STATS = "monitoring/stats"
 export const MONITORING_STATUS_TIMELINE = "monitoring/status/timeline"
+export const MONITORING_STATUS_GPS_TIMELINE = "monitoring/status/gps-timeline"
 export const MONITORING_STATUS_ROUTE = "monitoring/status/route"
 
 /** ===== WAREHOUSE / OMBOR ===== */

@@ -347,6 +347,11 @@ export const useItems = () => {
                         allowKey: "settings_directions_view",
                     },
                     {
+                        label: t("nav.geo_zones"),
+                        path: "/geo-zones",
+                        allowKey: "settings_geo_zones_view",
+                    },
+                    {
                         label: t("nav.drivers"),
                         path: "/drivers",
                         allowKey: "settings_drivers_view",

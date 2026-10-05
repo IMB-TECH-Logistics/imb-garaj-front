@@ -15,6 +15,7 @@
         "settings": "Settings",
         "locations": "Locations",
         "directions": "Routes",
+        "geo_zones": "Places",
         "trucks": "Vehicles",
         "documents": "Documents",
         "users": "Users",

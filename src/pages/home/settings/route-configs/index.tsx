@@ -1,6 +1,4 @@
 import DeleteModal from "@/components/custom/delete-modal"
-import { AlertTriangle } from "lucide-react"
-import { useNoPriceAlerts } from "@/hooks/use-no-price-alerts"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import {
@@ -11,7 +9,8 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -36,6 +35,8 @@ type Direction = {
     unload_city_name?: string | null
     load_place_display?: string | null
     unload_place_display?: string | null
+    load_zone_name?: string | null
+    unload_zone_name?: string | null
     cargo_type: number
     cargo_type_name: string
     payment_type: number
@@ -52,7 +53,6 @@ type SelectItem = { id: number | string; name: string }
 const RouteConfigsPage = () => {
     const { t } = useTranslation()
     const hasControl = useHasAction("settings_directions_control")
-    const { count: noPriceCount } = useNoPriceAlerts()
     const search = useSearch({ strict: false }) as Record<string, any>
     const { getData, setData } = useGlobalStore()
     const item = getData<Direction>(COMMON_DIRECTIONS)
@@ -120,6 +120,8 @@ const RouteConfigsPage = () => {
                 unload_city_name: d.unload_city_name,
                 load_place_display: d.load_place_display,
                 unload_place_display: d.unload_place_display,
+                load_zone_name: d.load_zone_name,
+                unload_zone_name: d.unload_zone_name,
                 distributor_id: d.distributor_id,
                 distributor_name: d.distributor_name,
                 distributor_code: d.distributor_code,
@@ -161,57 +163,39 @@ const RouteConfigsPage = () => {
                 rowColor={(row: DirectionRow) => (row.no_price ? "bg-destructive/10 hover:bg-destructive/15" : "")}
                 numeration
                 paginationProps={{
-                    totalPages: onlyNoPrice ? 1 : data?.total_pages,
+                    totalPages: data?.total_pages,
                     paramName: "page",
                     pageSizeParamName: "page_size",
                     page_sizes: [25, 50, 100, 250, 500, 1000],
                 }}
                 head={
                     <>
-                    {noPriceCount > 0 && (
-                        <div className="mb-3 flex items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-destructive">
-                            <AlertTriangle size={18} className="shrink-0" />
-                            <span className="text-sm font-medium">
-                                {noPriceCount} ta yo'nalishga narx belgilanmagan. Bu yo'nalishlardagi reyslarga tushum hisoblanmaydi.
-                            </span>
-                            {!onlyNoPrice && (
-                                <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    className="ml-auto"
-                                    onClick={() =>
-                                        navigate({
-                                            search: (prev: Record<string, unknown>) => ({ ...prev, no_price: "true", page: undefined }),
-                                        } as any)
-                                    }
-                                >
-                                    Ko'rsatish
-                                </Button>
-                            )}
-                        </div>
-                    )}
                     <TableHeader
                         fileName={t("nav.directions")}
                         url="excel"
                         storeKey={hasControl ? COMMON_DIRECTIONS : undefined}
                         searchKey="route_configs_search"
                         pageKey="page"
-                        count={onlyNoPrice ? enriched.length : data?.count}
+                        count={data?.count}
                         extraLeft={
-                            <Button
-                                variant={onlyNoPrice ? "default" : "outline"}
-                                onClick={() =>
-                                    navigate({
-                                        search: (prev: Record<string, unknown>) => ({
-                                            ...prev,
-                                            no_price: onlyNoPrice ? undefined : "true",
-                                            page: undefined,
-                                        }),
-                                    } as any)
-                                }
-                            >
-                                {t("form.dm_no_price_filter")}
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <Switch
+                                    id="route-configs-no-price"
+                                    checked={onlyNoPrice}
+                                    onCheckedChange={(checked) =>
+                                        navigate({
+                                            search: (prev: Record<string, unknown>) => ({
+                                                ...prev,
+                                                no_price: checked ? "true" : undefined,
+                                                page: undefined,
+                                            }),
+                                        } as any)
+                                    }
+                                />
+                                <Label htmlFor="route-configs-no-price" className="cursor-pointer whitespace-nowrap">
+                                    {t("form.dm_no_price_filter")}
+                                </Label>
+                            </div>
                         }
                     />
                     </>

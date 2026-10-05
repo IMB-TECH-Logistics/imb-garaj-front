@@ -10,6 +10,8 @@ const ALL_ACTIONS = [
     "monitoring_view",
     "settings_locations_view",
     "settings_directions_view",
+    "settings_geo_zones_view",
+    "settings_geo_zones_control",
     "settings_users_view",
     "settings_drivers_view",
     "settings_roles_view",

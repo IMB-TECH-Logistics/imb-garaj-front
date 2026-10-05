@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Copy, ImageIcon } from "lucide-react"
+import { Banknote, Copy, ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { STATUS_TRIP } from "../managers-trips/cols"
 import { hasPriceDiff } from "./price-diff"
 import { PaymentType } from "./payment-fields"
+import type { EmptyLeg } from "./empty-leg-pay-modal"
 import { useGet } from "@/hooks/useGet"
 import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 
@@ -32,6 +33,7 @@ const isGarajOrTamirActivity = (activity?: number) =>
 
 export const useColumnsManagersOrders = (opts?: {
     onImageClick?: (images: { id: number; image: string }[]) => void
+    onLegPay?: (leg: EmptyLeg) => void
 }) => {
     const { t } = useTranslation()
     const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
@@ -197,9 +199,51 @@ export const useColumnsManagersOrders = (opts?: {
                 header: "Masofa",
                 size: 90,
                 cell: ({ row }) => {
-                    const leg = (row.original as any).__leg as { distance_km: number | null } | undefined
+                    const leg = (row.original as any).__leg as EmptyLeg | undefined
                     if (!leg) return <span className="text-muted-foreground">—</span>
-                    return <span className="whitespace-nowrap tabular-nums">{leg.distance_km != null ? <>{formatMoney(leg.distance_km)} km</> : "—"}</span>
+                    const km = leg.km ?? leg.distance_km
+                    const manual = leg.distance_km_manual != null
+                    return (
+                        <span
+                            className="whitespace-nowrap tabular-nums"
+                            title={manual ? `GPS: ${leg.distance_km != null ? formatMoney(leg.distance_km) : "—"} km` : undefined}
+                        >
+                            {km != null ? <>{formatMoney(km)} km{manual ? " *" : ""}</> : "—"}
+                        </span>
+                    )
+                },
+            },
+            {
+                id: "empty_leg_pay",
+                header: "Bo'sh yurish to'lovi",
+                size: 150,
+                cell: ({ row }) => {
+                    const leg = (row.original as any).__leg as EmptyLeg | undefined
+                    if (!leg) return <span className="text-muted-foreground">—</span>
+                    const amount = leg.payment_amount != null ? Number(leg.payment_amount) : null
+                    return (
+                        <div className="flex items-center gap-2 not-italic">
+                            {amount != null && (
+                                <span className="whitespace-nowrap font-medium text-green-600 tabular-nums">
+                                    {formatMoney(amount)}
+                                </span>
+                            )}
+                            {opts?.onLegPay && leg.id != null && (
+                                <button
+                                    type="button"
+                                    disabled={leg.locked}
+                                    title={leg.locked ? "Aylanma yopilgan, o'zgartirib bo'lmaydi" : "Bo'sh yurish to'lovi"}
+                                    className="text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-40"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        opts.onLegPay?.(leg)
+                                    }}
+                                >
+                                    <Banknote size={16} />
+                                </button>
+                            )}
+                        </div>
+                    )
                 },
             },
             {
@@ -284,7 +328,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             ]
         },
-        [opts?.onImageClick, t, paymentTypesData],
+        [opts?.onImageClick, opts?.onLegPay, t, paymentTypesData],
     )
 }
 

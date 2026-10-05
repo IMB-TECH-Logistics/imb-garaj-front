@@ -34,6 +34,8 @@ export type DirectionRow = {
     unload_city_name?: string | null
     load_place_display?: string | null
     unload_place_display?: string | null
+    load_zone_name?: string | null
+    unload_zone_name?: string | null
     cargo_type?: number
     cargo_type_name: string
     payment_type?: number
@@ -82,8 +84,10 @@ export const useDirectionColumns = () => {
             { accessorKey: "owner_code", header: t("form.company_code"), enableSorting: true, size: 100 },
             { accessorKey: "load_city_name", header: t("form.load_region"), enableSorting: true, cell: ({ row }) => row.original.load_city_name || row.original.load_name || "—" },
             { accessorKey: "load_place_display", header: t("form.load_place"), enableSorting: false, cell: ({ row }) => row.original.load_place_display || "—" },
+            { accessorKey: "load_zone_name", header: "Yuklash lokatsiyasi", enableSorting: false, cell: ({ row }) => row.original.load_zone_name || "—" },
             { accessorKey: "unload_city_name", header: t("form.unload_region"), enableSorting: true, cell: ({ row }) => row.original.unload_city_name || row.original.unload_name || "—" },
             { accessorKey: "unload_place_display", header: t("form.unload_place"), enableSorting: false, cell: ({ row }) => row.original.unload_place_display || "—" },
+            { accessorKey: "unload_zone_name", header: "Tushirish lokatsiyasi", enableSorting: false, cell: ({ row }) => row.original.unload_zone_name || "—" },
             {
                 accessorKey: "distributor_name",
                 header: t("form.distributor"),

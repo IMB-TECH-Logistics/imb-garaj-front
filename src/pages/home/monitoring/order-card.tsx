@@ -89,9 +89,7 @@ export function LastOrderCard({ lastOrder, showRoute, onToggleRoute }: CardProps
             </div>
         )
     }
-    if (!data.order) {
-        return <div className="rounded-lg border p-3 text-xs text-muted-foreground">Bu mashinada Logistika buyurtmasi yo'q.</div>
-    }
+    if (!data.order) return null
 
     const { order, stats } = data
     const meta = orderStatusMeta(order.garage_status)
