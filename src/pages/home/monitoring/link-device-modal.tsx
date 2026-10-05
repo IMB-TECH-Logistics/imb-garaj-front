@@ -12,6 +12,7 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
+import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
@@ -41,13 +42,57 @@ type LinkForm = {
     imei: string | null
 }
 
+type LinkPreset = { id: number; truck_number: string } | null
+
 type DeviceForm = {
     imei: string
     name: string
 }
 
-export function LinkDeviceButton() {
+export function LinkDeviceModal() {
+    const hasControl = useHasAction("monitoring_control")
+    if (!hasControl) return null
+    return (
+        <Modal
+            modalKey={LINK_MODAL}
+            title="Mashinaga GPS qurilma biriktirish"
+            size="max-w-xl"
+        >
+            <LinkDeviceForm />
+        </Modal>
+    )
+}
+
+export function LinkGpsIconButton({ vehicle }: { vehicle: { id: number; truck_number: string } }) {
     const { openModal } = useModal(LINK_MODAL)
+    const { setData } = useGlobalStore()
+    const hasControl = useHasAction("monitoring_control")
+    if (!hasControl) return null
+    return (
+        <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+            aria-label="GPS biriktirish"
+            title="GPS biriktirish"
+            onClick={() => {
+                setData<LinkPreset>(LINK_MODAL, { id: vehicle.id, truck_number: vehicle.truck_number })
+                openModal()
+            }}
+        >
+            <Link2 className="h-4 w-4" />
+        </Button>
+    )
+}
+
+export function LinkDeviceButton({ compact = false }: { compact?: boolean }) {
+    const { openModal: openLinkModal } = useModal(LINK_MODAL)
+    const { setData } = useGlobalStore()
+    const openModal = () => {
+        setData<LinkPreset>(LINK_MODAL, null)
+        openLinkModal()
+    }
     const hasControl = useHasAction("monitoring_control")
 
     const { t } = useTranslation()
@@ -57,9 +102,9 @@ export function LinkDeviceButton() {
             <Button
                 variant="outline"
                 onClick={openModal}
-                className="h-9 shrink-0 gap-2"
+                className={compact ? "h-7 shrink-0 gap-1.5 px-2 text-xs" : "h-9 shrink-0 gap-2"}
             >
-                <Link2 className="h-4 w-4" />
+                <Link2 className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
                 GPS biriktirish
             </Button>
             <Modal
@@ -78,11 +123,13 @@ function LinkDeviceForm() {
     const { closeModal } = useModal(LINK_MODAL)
     const { openModal: openAddDevice } = useModal(ADD_DEVICE_MODAL)
     const queryClient = useQueryClient()
+    const { getData } = useGlobalStore()
+    const preset = getData<LinkPreset>(LINK_MODAL) ?? null
     const form = useForm<LinkForm>({
-        defaultValues: { vehicle: null, imei: null },
+        defaultValues: { vehicle: preset?.id ?? null, imei: null },
     })
     const { control, handleSubmit, setValue } = form
-    const [vehicleSearch, setVehicleSearch] = useState("")
+    const [vehicleSearch, setVehicleSearch] = useState(preset?.truck_number ?? "")
     const [deviceSearch, setDeviceSearch] = useState("")
     const { mutate, isPending } = usePost()
 

@@ -36,6 +36,7 @@ export type ColoredSegment = {
     speeds?: number[]
     /** epoch ms at each point, shown next to the speed. */
     times?: number[]
+    opacity?: number
 }
 
 export type RouteHover = { lat: number; lng: number; speed: number; time?: number }
@@ -67,6 +68,7 @@ export type LiveMarker = {
     icon?: "truck"
     tone?: "loaded" | "empty" | "repair"
     russia?: boolean
+    course?: number | null
     onClick?: () => void
 }
 
@@ -76,6 +78,10 @@ export type MapPoi = {
     lng: number
     kind: "stop"
     title?: string
+    dimmed?: boolean
+    label?: string
+    highlight?: boolean
+    onClick?: () => void
 }
 
 export type RouteMapProps = {
@@ -92,7 +98,10 @@ export type RouteMapProps = {
     segments?: ColoredSegment[]
     /** Small markers drawn above the route, such as stops. */
     pois?: MapPoi[]
+    onBoundsChange?: (bounds: MapBounds) => void
 }
+
+export type MapBounds = { north: number; south: number; east: number; west: number }
 
 export default function RouteMap(props: RouteMapProps) {
     return MAP_PROVIDER === "google" ? (

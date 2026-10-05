@@ -19,6 +19,7 @@ export function DatePickerWithRange({
     date,
     setDate,
     addButtonProps,
+    dateFormat = "dd/MM/yyyy",
 }: {
     date: DateRange | undefined;
     setDate: SelectRangeEventHandler;
@@ -26,6 +27,7 @@ export function DatePickerWithRange({
 } & {
     className?: React.HTMLAttributes<HTMLDivElement>;
      addButtonProps?: ButtonProps
+     dateFormat?: string
 }) {
     return (
         <div className={cn("grid gap-2 w-full", className)}>
@@ -45,11 +47,11 @@ export function DatePickerWithRange({
                         {date?.from ? (
                             date.to ? (
                                 <>
-                                    {format(date.from, "dd/MM/yyyy")} -{" "}
-                                    {format(date.to, "dd/MM/yyyy")}
+                                    {format(date.from, dateFormat)} -{" "}
+                                    {format(date.to, dateFormat)}
                                 </>
                             ) : (
-                                format(date.from, "dd/MM/yyyy")
+                                format(date.from, dateFormat)
                             )
                         ) : (
                             <span>Kunlarni tanlang</span>

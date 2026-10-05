@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
@@ -16,10 +17,10 @@ import { Clock, Unlink } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { DimensionEmpty, DimensionListSkeleton } from "./dimension-row"
-import { RussiaFlag } from "./map-markers"
 import { clock, minutes, orderStatusMeta } from "./order-card"
 import type { GpsLiveVehicle, TruckStatusFilter, VehicleOrderBadge } from "./types"
-import { isRussiaTruck, TRUCK_STATUS_FILTERS } from "./types"
+import { TRUCK_STATUS_FILTERS } from "./types"
+import { LinkDeviceModal, LinkGpsIconButton } from "./link-device-modal"
 
 const TRUCK_STATUS_LABELS: Record<TruckStatusFilter, string> = {
     all: "page.truck_status_all",
@@ -40,11 +41,13 @@ export function TruckStatusFilterBar({
     onChange,
     counts,
     className,
+    extra,
 }: {
     value: TruckStatusFilter
     onChange: (next: TruckStatusFilter) => void
     counts: Record<TruckStatusFilter, number>
     className?: string
+    extra?: ReactNode
 }) {
     const { t } = useTranslation()
     return (
@@ -77,7 +80,7 @@ export function TruckStatusFilterBar({
                         <span>{t(TRUCK_STATUS_LABELS[key])}</span>
                         <span
                             className={cn(
-                                "rounded px-1 font-mono text-[10px] tabular-nums",
+                                "rounded px-1.5 font-mono text-xs font-semibold tabular-nums",
                                 active ? "bg-primary-foreground/20" : "bg-muted",
                             )}
                         >
@@ -86,13 +89,19 @@ export function TruckStatusFilterBar({
                     </button>
                 )
             })}
+            {extra && (
+                <>
+                    <span aria-hidden className="mx-0.5 h-5 w-px shrink-0 bg-border" />
+                    {extra}
+                </>
+            )}
         </div>
     )
 }
 
 export type ConnectionFilter = "all" | "online" | "offline"
 
-const CONNECTION_FILTERS: ConnectionFilter[] = ["all", "online", "offline"]
+const CONNECTION_FILTERS: ConnectionFilter[] = ["offline"]
 
 const CONNECTION_LABELS: Record<ConnectionFilter, string> = {
     all: "page.truck_status_all",
@@ -106,16 +115,54 @@ const CONNECTION_DOTS: Record<ConnectionFilter, string | null> = {
     offline: "bg-muted-foreground/60",
 }
 
+export function NoGpsFilterButton({
+    active,
+    count,
+    onToggle,
+}: {
+    active: boolean
+    count: number
+    onToggle: () => void
+}) {
+    return (
+        <button
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={onToggle}
+            className={cn(
+                "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-xs font-medium transition",
+                active
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+            )}
+        >
+            <span aria-hidden className="h-2 w-2 rounded-full border border-dashed border-current" />
+            <span>GPS yo'q</span>
+            <span
+                className={cn(
+                    "rounded px-1.5 font-mono text-xs font-semibold tabular-nums",
+                    active ? "bg-primary-foreground/20" : "bg-muted",
+                )}
+            >
+                {count}
+            </span>
+        </button>
+    )
+}
+
 export function ConnectionFilterBar({
     value,
     onChange,
     counts,
     className,
+    bare = false,
 }: {
     value: ConnectionFilter
     onChange: (next: ConnectionFilter) => void
     counts: Record<ConnectionFilter, number>
     className?: string
+    bare?: boolean
 }) {
     const { t } = useTranslation()
     return (
@@ -123,7 +170,9 @@ export function ConnectionFilterBar({
             role="tablist"
             aria-label={t("status.online")}
             className={cn(
-                "flex items-center gap-0.5 rounded-lg border bg-background/90 p-0.5 shadow-md backdrop-blur",
+                bare
+                    ? "flex items-center gap-0.5"
+                    : "flex items-center gap-0.5 rounded-lg border bg-background/90 p-0.5 shadow-md backdrop-blur",
                 className,
             )}
         >
@@ -136,7 +185,7 @@ export function ConnectionFilterBar({
                         type="button"
                         role="tab"
                         aria-selected={active}
-                        onClick={() => onChange(key)}
+                        onClick={() => onChange(active ? "all" : key)}
                         className={cn(
                             "inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-xs font-medium transition",
                             active
@@ -148,7 +197,7 @@ export function ConnectionFilterBar({
                         <span>{t(CONNECTION_LABELS[key])}</span>
                         <span
                             className={cn(
-                                "rounded px-1 font-mono text-[10px] tabular-nums",
+                                "rounded px-1.5 font-mono text-xs font-semibold tabular-nums",
                                 active ? "bg-primary-foreground/20" : "bg-muted",
                             )}
                         >
@@ -168,9 +217,44 @@ type Props = {
     unavailable?: boolean
     activeImei?: string | null
     onSelect?: (item: GpsLiveVehicle) => void
+    unlinked?: UnlinkedVehicle[]
 }
 
-export default function GpsList({ items, orders, loading, unavailable, activeImei, onSelect }: Props) {
+export type UnlinkedVehicle = { id: number; truck_number: string; driver_name: string | null }
+
+export function UnlinkedVehicles({ items }: { items: UnlinkedVehicle[] }) {
+    if (items.length === 0) return null
+    return (
+        <div className="mt-3 flex flex-col gap-1.5">
+            <LinkDeviceModal />
+            <div className="flex items-center gap-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                GPS yo'q
+                <span className="rounded bg-muted px-1.5 font-mono text-[11px] tabular-nums">{items.length}</span>
+            </div>
+            <ul className="flex flex-col gap-1">
+                {items.map((v) => (
+                    <li
+                        key={v.id}
+                        className="flex items-center justify-between gap-2 rounded-md border border-dashed border-border/70 py-1 pl-3 pr-1"
+                    >
+                        <span className="flex min-w-0 items-center gap-2 opacity-70">
+                            <span className="shrink-0 font-mono text-sm font-bold tracking-wide">{v.truck_number}</span>
+                            {v.driver_name && (
+                                <span className="min-w-0 truncate text-xs text-muted-foreground">{v.driver_name}</span>
+                            )}
+                        </span>
+                        <span className="flex shrink-0 items-center gap-1 text-[11px] font-medium text-muted-foreground">
+                            GPS yo'q
+                            <LinkGpsIconButton vehicle={v} />
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
+export default function GpsList({ items, orders, loading, unavailable, activeImei, onSelect, unlinked = [] }: Props) {
     const { t } = useTranslation()
     const confirm = useConfirm()
     const queryClient = useQueryClient()
@@ -237,7 +321,6 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                 const color = meta?.color ?? "hsl(var(--muted-foreground) / 0.4)"
                 const active = item.imei === activeImei
                 const stale = item.last_update && !isToday(parseISO(item.last_update))
-                const russia = isRussiaTruck(item)
                 return (
                     <li
                         key={item.imei}
@@ -248,61 +331,44 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                             type="button"
                             onClick={() => onSelect?.(item)}
                             className={cn(
-                                "relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-1 overflow-hidden rounded-lg border bg-card py-2.5 pl-4 pr-3 text-left transition",
+                                "relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-0.5 overflow-hidden rounded-md border bg-card py-1.5 pl-3 pr-2 text-left transition",
                                 "hover:border-primary/40 hover:bg-accent/40",
                                 active ? "border-primary/60 ring-1 ring-primary/20" : "border-border/70",
-                                russia && !active && "border-[#0039a6]/40 bg-[#0039a6]/[0.04]",
                             )}
                         >
-                            {russia && (
-                                <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: "linear-gradient(to right, #ffffff 0 33.33%, #0039a6 33.33% 66.66%, #d52b1e 66.66% 100%)" }} />
-                            )}
                             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
 
-                            <span className={cn("flex items-center justify-between gap-2", item.vehicle && hasControl && "pr-7")}>
-                                <span className="flex min-w-0 items-baseline gap-2">
-                                    {russia && <RussiaFlag className="self-center" />}
-                                    <span className="max-w-full shrink-0 truncate font-mono text-base font-bold leading-tight tracking-wider sm:text-lg">
-                                        {item.vehicle_number || item.tracker_name || item.imei}
-                                    </span>
-                                    {item.driver_name && (
-                                        <span className="truncate text-sm font-medium text-muted-foreground">
-                                            {item.driver_name}
-                                        </span>
+                            <span className={cn("flex min-w-0 items-center gap-2", item.vehicle && hasControl && "pr-6")}>
+                                <span className="shrink-0 font-mono text-sm font-bold leading-5 tracking-wide">
+                                    {item.vehicle_number || item.tracker_name || item.imei}
+                                </span>
+                                <span className="ml-auto min-w-0 truncate text-right text-[11px] text-muted-foreground tabular-nums">
+                                    {order ? (
+                                        <>
+                                            <span className="font-medium text-foreground">
+                                                {order.from && order.to ? `${order.from} → ${order.to}` : "Yo'nalish noma'lum"}
+                                            </span>
+                                            <span className="font-mono"> · #{order.external_id}</span>
+                                            {" · "}
+                                            yuklangan <b className="font-medium text-foreground">{clock(order.loaded_at)}</b>
+                                            {", "}
+                                            <b className="font-medium text-foreground">{minutes(order.spent_minutes)}</b>
+                                        </>
+                                    ) : (
+                                        "Buyurtma yo'q"
                                     )}
                                 </span>
                                 {meta && (
-                                    <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-semibold" style={{ color: meta.color }}>
+                                    <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold" style={{ color: meta.color }}>
                                         <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
                                         {meta.label}
                                     </span>
                                 )}
                             </span>
 
-                            <span className="flex min-w-0 items-center justify-between gap-2">
-                                <span className={cn("min-w-0 truncate text-sm font-medium", !order && "text-muted-foreground")}>
-                                    {order
-                                        ? order.from && order.to
-                                            ? `${order.from} → ${order.to}`
-                                            : "Yo'nalish noma'lum"
-                                        : "Buyurtma yo'q"}
-                                </span>
-                                {order && (
-                                    <span className="shrink-0 font-mono text-[11px] text-muted-foreground">#{order.external_id}</span>
-                                )}
-                            </span>
-
-                            <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground tabular-nums">
-                                {order && (
-                                    <>
-                                        <span>
-                                            Yuklangan{" "}
-                                            <b className="font-medium text-foreground">{clock(order.loaded_at)}</b>
-                                        </span>
-                                        <b className="font-medium text-foreground">{minutes(order.spent_minutes)}</b>
-                                    </>
-                                )}
-                                <span className={cn("ml-auto inline-flex items-center gap-1", stale && "text-destructive")}>
+                            <span className="flex min-w-0 items-center gap-2 text-[11px] leading-4 text-muted-foreground tabular-nums">
+                                <span className="min-w-0 truncate text-xs">{item.driver_name || "—"}</span>
+                                <span className={cn("ml-auto inline-flex shrink-0 items-center gap-1", stale && "text-destructive")}>
                                     <Clock className="h-3 w-3 shrink-0" />
                                     {item.last_update ? format(parseISO(item.last_update), "dd/MM HH:mm") : "—"}
                                 </span>
@@ -318,9 +384,9 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                                         disabled={isPending}
                                         aria-label={t("actions.unlink_gps")}
                                         onClick={() => unlink(item)}
-                                        className="absolute right-1.5 top-1.5 z-10 h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                        className="absolute right-1 top-1 z-10 h-6 w-6 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                     >
-                                        <Unlink className="h-4 w-4" />
+                                        <Unlink className="h-3.5 w-3.5" />
                                     </Button>
                                 </TooltipTrigger>
                                 <TooltipContent side="left">{t("actions.unlink_gps")}</TooltipContent>
@@ -330,6 +396,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                 )
             })}
         </ul>
+        <UnlinkedVehicles items={unlinked} />
         </TooltipProvider>
         </>
     )
