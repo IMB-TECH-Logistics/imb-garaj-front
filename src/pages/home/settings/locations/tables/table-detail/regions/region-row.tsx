@@ -7,14 +7,21 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
-import { TableCell, TableRow } from "@/components/ui/table"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 import { SETTINGS_REGIONS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { ChevronDown, CirclePlus, MoreVertical, Pencil, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { cn } from "@/lib/utils"
+import { CirclePlus, MoreVertical, Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 interface RegionRowActionsProps {
@@ -64,119 +71,138 @@ const RegionRowActions = ({ onEdit, onDelete }: RegionRowActionsProps) => {
 interface RegionRowProps {
     region: RegionsType
     index: number
-    colSpan: number
+    selected: boolean
+    onSelect: () => void
 }
 
-export const RegionRowTable = ({ region, index, colSpan }: RegionRowProps) => {
+export const RegionRowTable = ({ region, index, selected, onSelect }: RegionRowProps) => {
+    const hasControl = useHasAction("settings_locations_control")
+    const { setData } = useGlobalStore()
+    const { openModal: openCreateModal } = useModal("create-region")
+    const { openModal: openDeleteModal } = useModal("delete-region")
+
+    return (
+        <TableRow
+            className={cn("cursor-pointer", selected && "!bg-primary/10")}
+            onClick={onSelect}
+        >
+            <TableCell>{index + 1}</TableCell>
+            <TableCell className="max-w-0 w-full truncate font-bold" title={region.name}>
+                {region.name}
+                <Badge variant="secondary" className="ml-2 font-normal">
+                    {region.children_count ?? 0}
+                </Badge>
+            </TableCell>
+            <TableCell className="p-0 text-right w-[40px]">
+                {hasControl && (
+                    <RegionRowActions
+                        onEdit={() => {
+                            setData(SETTINGS_REGIONS, region)
+                            openCreateModal()
+                        }}
+                        onDelete={() => {
+                            setData(SETTINGS_REGIONS, region)
+                            openDeleteModal()
+                        }}
+                    />
+                )}
+            </TableCell>
+        </TableRow>
+    )
+}
+
+export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
     const { t } = useTranslation()
     const hasControl = useHasAction("settings_locations_control")
     const { setData } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("create-region")
     const { openModal: openDeleteModal } = useModal("delete-region")
-    const [expanded, setExpanded] = useState(false)
 
-    const { data: children, isLoading } = useGet<ListResponse<RegionsType>>(
-        SETTINGS_REGIONS,
-        {
-            params: { parent: region.id, page_size: 1000 },
-            enabled: expanded,
-        },
-    )
+    const { data, isLoading } = useGet<ListResponse<RegionsType>>(SETTINGS_REGIONS, {
+        params: { parent: region?.id, page_size: 1000 },
+        enabled: !!region,
+    })
 
-    const handleEdit = (item: RegionsType) => {
-        setData(SETTINGS_REGIONS, item)
-        openCreateModal()
-    }
-
-    const handleDelete = (item: RegionsType) => {
-        setData(SETTINGS_REGIONS, item)
-        openDeleteModal()
-    }
-
-    const handleAddPlace = () => {
+    const handleAdd = () => {
+        if (!region) return
         setData(SETTINGS_REGIONS, { parent: region.id, country: region.country })
         openCreateModal()
     }
 
-    const toggle = () => setExpanded((prev) => !prev)
-
     return (
-        <>
-            <TableRow className="cursor-pointer" onClick={toggle}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell className="max-w-0 w-full truncate font-bold" title={region.name}>
-                    {region.name}
-                    <Badge variant="secondary" className="ml-2 font-normal">
-                        {region.children_count ?? 0}
-                    </Badge>
-                </TableCell>
-                <TableCell className="p-0 text-right w-[40px] sticky right-10 bg-card">
-                    {hasControl && (
-                        <RegionRowActions
-                            onEdit={() => handleEdit(region)}
-                            onDelete={() => handleDelete(region)}
-                        />
-                    )}
-                </TableCell>
-                <TableCell className="text-right p-0 w-[40px] sticky right-0 bg-card">
+        <div className="flex flex-col min-h-0 h-full">
+            <div className="flex items-center justify-between gap-2 px-3 pt-3 pb-2">
+                <div className="flex items-center gap-2 min-w-0">
+                    <h3 className="font-semibold truncate">
+                        {region ? region.name : t("form.place")}
+                    </h3>
+                    {region && <Badge>{data?.count ?? 0}</Badge>}
+                </div>
+                {hasControl && region && (
                     <Button
-                        variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            toggle()
-                        }}
+                        className="flex items-center gap-2"
+                        onClick={handleAdd}
+                        icon={<CirclePlus size={16} />}
                     >
-                        <ChevronDown
-                            className={`h-5 w-5 transition-transform ${expanded ? "rotate-180" : ""}`}
-                        />
+                        {t("actions.add")}
                     </Button>
-                </TableCell>
-            </TableRow>
-
-            {expanded && isLoading && (
-                <TableRow>
-                    <TableCell colSpan={colSpan}>
-                        <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                </TableRow>
-            )}
-
-            {expanded &&
-                children?.results?.map((child) => (
-                    <TableRow key={child.id} className="bg-muted/40">
-                        <TableCell />
-                        <TableCell className="max-w-0 w-full truncate pl-8" title={child.name}>
-                            {child.name}
-                        </TableCell>
-                        <TableCell className="p-0 text-right w-[40px] sticky right-10 bg-card">
-                            {hasControl && (
-                                <RegionRowActions
-                                    onEdit={() => handleEdit(child)}
-                                    onDelete={() => handleDelete(child)}
-                                />
+                )}
+            </div>
+            <div className="flex-1 overflow-y-auto">
+                {!region ?
+                    <p className="py-10 text-center text-sm text-muted-foreground">
+                        {t("form.region")} tanlang
+                    </p>
+                :   <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-10">#</TableHead>
+                                <TableHead>{t("form.place")}</TableHead>
+                                <TableHead className="w-[40px]" />
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading && (
+                                <TableRow>
+                                    <TableCell colSpan={3}>
+                                        <Skeleton className="h-6 w-full" />
+                                    </TableCell>
+                                </TableRow>
                             )}
-                        </TableCell>
-                        <TableCell className="w-[40px] sticky right-0 bg-card" />
-                    </TableRow>
-                ))}
-
-            {expanded && hasControl && !isLoading && (
-                <TableRow className="bg-muted/40">
-                    <TableCell colSpan={colSpan} className="pl-8">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-2"
-                            onClick={handleAddPlace}
-                            icon={<CirclePlus size={16} />}
-                        >
-                            {t("actions.add")} {t("form.place").toLowerCase()}
-                        </Button>
-                    </TableCell>
-                </TableRow>
-            )}
-        </>
+                            {data?.results?.map((child, index) => (
+                                <TableRow key={child.id}>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell className="max-w-0 w-full truncate" title={child.name}>
+                                        {child.name}
+                                    </TableCell>
+                                    <TableCell className="p-0 text-right w-[40px]">
+                                        {hasControl && (
+                                            <RegionRowActions
+                                                onEdit={() => {
+                                                    setData(SETTINGS_REGIONS, child)
+                                                    openCreateModal()
+                                                }}
+                                                onDelete={() => {
+                                                    setData(SETTINGS_REGIONS, child)
+                                                    openDeleteModal()
+                                                }}
+                                            />
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {!isLoading && data?.results?.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="py-8 text-center text-sm text-muted-foreground">
+                                        —
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                }
+            </div>
+        </div>
     )
 }

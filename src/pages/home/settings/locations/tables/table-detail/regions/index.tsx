@@ -16,11 +16,11 @@ import { SETTINGS_REGIONS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
-import { useSearch } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import TableHeaderLocation from "../../table-header"
 import AddRegionsModal from "./add-regions"
-import { RegionRowTable } from "./region-row"
+import { PlacesTable, RegionRowTable } from "./region-row"
 import { useColumnsRegionsTable } from "./regions-cols"
 const REGION_PAGE_KEY = "region_page"
 const REGION_PAGE_SIZE_KEY = "region_page_size"
@@ -28,6 +28,12 @@ const REGION_PAGE_SIZE_KEY = "region_page_size"
 const RegionsTable = ({ country_id }: { country_id: number }) => {
     const { t } = useTranslation()
     const search = useSearch({ strict: false })
+    const navigate = useNavigate()
+    const selectedId = Number((search as Record<string, unknown>).region) || null
+    const selectRegion = (id: number) =>
+        navigate({
+            search: (prev: Record<string, unknown>) => ({ ...prev, region: id }),
+        } as never)
 
     const isSearching = !!search.region_search
 
@@ -70,6 +76,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
     // }
 
     const simpleColumns = useColumnsRegionsTable()
+    const selectedRegion = data?.results?.find((r) => r.id === selectedId) ?? null
     return (
         <div className="h-[500px] flex flex-col   overflow-hidden bg-background">
             <div className="px-3 pt-3">
@@ -86,22 +93,22 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar-x ">
                 {!isSearching && (
-                    <>
-                        <Table className="min-w-[400px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 h-full min-h-0 p-3 pt-0">
+                    <div className="rounded-md border overflow-y-auto">
+                        <Table>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-10">#</TableHead>
                                     <TableHead className="whitespace-nowrap">
                                         {t("form.region")}
                                     </TableHead>
-                                    <TableHead className="sticky right-10 bg-card" />
-                                    <TableHead className="w-[40px] sticky right-0 bg-card" />
+                                    <TableHead className="w-[40px]" />
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading && (
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={3}>
                                             <Skeleton className="h-6 w-full" />
                                         </TableCell>
                                     </TableRow>
@@ -111,12 +118,13 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                                         key={region.id}
                                         region={region}
                                         index={index}
-                                        colSpan={4}
+                                        selected={region.id === selectedId}
+                                        onSelect={() => selectRegion(region.id)}
                                     />
                                 ))}
                                 {data?.results?.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={3}>
                                             <EmptyBox height="h-40" />
                                         </TableCell>
                                     </TableRow>
@@ -130,7 +138,11 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                                 pageSizeParamName={REGION_PAGE_SIZE_KEY}
                             />
                         </div>
-                    </>
+                    </div>
+                    <div className="rounded-md border min-h-0">
+                        <PlacesTable region={selectedRegion} />
+                    </div>
+                    </div>
                 )}
                 {isSearching && (
                 <DataTable
