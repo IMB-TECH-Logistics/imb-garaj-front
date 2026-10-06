@@ -93,7 +93,7 @@ export const useLineCheck = (
         !!lotsOf(productId)?.some((l) => l.factory_number)
 
     const isAuto = (l: LineValues) =>
-        !!l.product && l.source !== "qr" && !isSerialized(l.product)
+        !!l.product && !isSerialized(l.product)
 
     const sums = new Map<number, number>()
     const autoSums = new Map<number, number>()

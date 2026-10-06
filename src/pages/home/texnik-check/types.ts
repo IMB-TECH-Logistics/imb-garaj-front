@@ -2,8 +2,6 @@ import type { WhLot, WhProduct } from "../ombor/types"
 
 export const TECH_INSPECTION_CODE = "technical_inspection"
 
-export type LineSource = "qr" | "manual"
-
 export type ExpenseItem = {
     id: number
     lot: number
@@ -15,7 +13,6 @@ export type ExpenseItem = {
     unit_price: string
     total: string
     unit_name: string
-    source: LineSource
     factory_number?: string | null
     odometer?: number | null
 }
@@ -43,7 +40,6 @@ export type LineValues = {
     lot: number | null
     quantity: string
     odometer?: string
-    source: LineSource
 }
 
 export type ExpenseForm = {

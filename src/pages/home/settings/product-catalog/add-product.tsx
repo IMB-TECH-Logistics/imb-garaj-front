@@ -26,7 +26,6 @@ type FormValues = {
     life_years: string
     life_months: string
     life_days: string
-    gtin: string
 }
 
 const numberText = (value: string | number | null | undefined) =>
@@ -53,7 +52,6 @@ const AddProductModal = () => {
             life_years: numberText(current?.life_years),
             life_months: numberText(current?.life_months),
             life_days: numberText(current?.life_days),
-            gtin: current?.gtin ?? "",
         },
     })
     const { control, handleSubmit } = form
@@ -91,7 +89,6 @@ const AddProductModal = () => {
             life_years: Number(values.life_years) || 0,
             life_months: Number(values.life_months) || 0,
             life_days: Number(values.life_days) || 0,
-            gtin: values.gtin.trim() || null,
         }
         if (current?.id) {
             updateMutate(`${WAREHOUSE_PRODUCTS}/${current.id}`, payload)
@@ -137,16 +134,6 @@ const AddProductModal = () => {
                         allowNegative={false}
                         suffix={unitName ? ` ${unitName}` : undefined}
                         wrapperClassName="md:col-span-1"
-                    />
-
-                    <FormInput
-                        name="gtin"
-                        label="GTIN"
-                        placeholder="04640012345017"
-                        inputMode="numeric"
-                        className="font-mono"
-                        methods={form}
-                        wrapperClassName="md:col-span-2"
                     />
 
                     <Controller

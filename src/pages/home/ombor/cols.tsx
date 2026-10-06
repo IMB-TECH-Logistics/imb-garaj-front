@@ -1,25 +1,12 @@
 import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
-import { QrCode } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import type { WhProduct, WhReceiptLine, WhWithdrawal } from "./types"
 import { fmtDate } from "./utils"
 
 const Dash = () => <span className="text-muted-foreground">—</span>
-
-const SourceBadge = ({ source }: { source: "qr" | "manual" }) => {
-    const { t } = useTranslation()
-    return source === "qr" ?
-            <Badge className="gap-1 !px-1.5">
-                <QrCode size={12} />
-                QR
-            </Badge>
-        :   <Badge variant="secondary" className="!px-1.5">
-                {t("wh.manual")}
-            </Badge>
-}
 
 export const useProductCols = () => {
     const { t } = useTranslation()
@@ -36,11 +23,6 @@ export const useProductCols = () => {
                                 <Badge>{t("wh.serialized_yes")}</Badge>
                             )}
                         </div>
-                        {row.original.gtin && (
-                            <div className="text-xs text-muted-foreground font-mono">
-                                {row.original.gtin}
-                            </div>
-                        )}
                     </div>
                 ),
             },
@@ -114,10 +96,9 @@ export const useReceiptCols = (hideProduct: boolean) => {
                 id: "expires",
                 header: t("wh.expiry"),
                 cell: ({ row }) => (
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                        <span>{fmtDate(row.original.expires_at)}</span>
-                        <SourceBadge source={row.original.source} />
-                    </div>
+                    <span className="whitespace-nowrap">
+                        {fmtDate(row.original.expires_at)}
+                    </span>
                 ),
             },
             {

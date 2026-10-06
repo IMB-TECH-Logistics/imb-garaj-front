@@ -10,7 +10,6 @@ export type WhProduct = {
     unit: number
     unit_name: string
     is_serialized: boolean
-    gtin: string | null
     min_quantity: string | null
     life_years: number
     life_months: number
@@ -26,13 +25,10 @@ export type WhLot = {
     product_name: string
     receipt: number | null
     lot_number: string
-    serial: string
-    produced_at: string | null
     expires_at: string | null
     unit_price: string
     qty_in: string
     qty_left: string
-    source: "qr" | "manual"
     expiry_status: string
     created_at: string
 }
@@ -46,7 +42,6 @@ export type WhReceiptLine = {
     unit_name: string
     lot_number: string
     expires_at: string | null
-    source: "qr" | "manual"
     quantity: string
     unit_price: string
     total: string
@@ -75,18 +70,6 @@ export type WhWithdrawal = {
     executor_name: string
     is_debt: boolean
     created_at: string
-}
-
-export type WhScanResponse = {
-    gtin: string | null
-    lot_number: string | null
-    serial: string | null
-    produced_at: string | null
-    expires_at: string | null
-    errors: string[]
-    product: WhProduct | null
-    lot: WhLot | null
-    expiry_status: string
 }
 
 export type WhLowStock = {

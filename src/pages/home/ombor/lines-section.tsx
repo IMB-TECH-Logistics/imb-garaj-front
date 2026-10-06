@@ -49,17 +49,6 @@ const ProductHeader = ({
                             {product.name}
                         </h2>
                         <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-                            {product.gtin && (
-                                <>
-                                    <span>
-                                        GTIN{" "}
-                                        <span className="font-mono text-foreground">
-                                            {product.gtin}
-                                        </span>
-                                    </span>
-                                    <span>·</span>
-                                </>
-                            )}
                             <span>{product.unit_name}</span>
                             {product.avg_price !== null && (
                                 <>

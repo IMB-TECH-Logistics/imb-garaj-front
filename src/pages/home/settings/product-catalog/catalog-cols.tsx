@@ -38,16 +38,6 @@ export const useColumnsCatalogTable = () => {
                 header: t("wh.life"),
                 cell: ({ row }) => <LifeText product={row.original} />,
             },
-            {
-                accessorKey: "gtin",
-                header: "GTIN",
-                cell: ({ row }) =>
-                    row.original.gtin ?
-                        <span className="font-mono text-xs text-muted-foreground">
-                            {row.original.gtin}
-                        </span>
-                    :   <span className="text-muted-foreground">—</span>,
-            },
         ],
         [t],
     )

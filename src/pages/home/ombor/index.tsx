@@ -1,7 +1,4 @@
 import DownloadAsExcel from "@/components/download-as-excel"
-import { parseGs1 } from "@/components/scanner/gs1"
-import ScannerDialog from "@/components/scanner/scanner-dialog"
-import { useUsbScanner } from "@/components/scanner/use-usb-scanner"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -11,19 +8,15 @@ import { useHasAction, useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Plus, ScanLine } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 import { useProductCols } from "./cols"
 import ItemsTab from "./items"
 import LinesSection from "./lines-section"
-import ReceiptModal, { RECEIPT_MODAL_KEY, RECEIPT_SCAN_KEY } from "./receipt-modal"
+import ReceiptModal, { RECEIPT_MODAL_KEY } from "./receipt-modal"
 import type { OmborSearchParams, WhProduct } from "./types"
 import { useOmborSearch } from "./use-ombor-search"
-import { useScanLookup } from "./use-scan-lookup"
-
-const FIND_SCAN_KEY = "wh-find-scan"
 
 const Stock = () => {
     const { t } = useTranslation()
@@ -32,13 +25,9 @@ const Stock = () => {
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
     const { product, select, clear } = useOmborSearch()
-    const lookup = useScanLookup()
     const sectionRef = useRef<HTMLDivElement>(null)
 
-    const { openModal: openScan, isOpen: scanOpen } = useModal(FIND_SCAN_KEY)
-    const { openModal: openReceipt, isOpen: receiptOpen } =
-        useModal(RECEIPT_MODAL_KEY)
-    const { isOpen: receiptScanOpen } = useModal(RECEIPT_SCAN_KEY)
+    const { openModal: openReceipt } = useModal(RECEIPT_MODAL_KEY)
 
     const receiptParam = (search as OmborSearchParams).receipt
 
@@ -55,7 +44,7 @@ const Stock = () => {
     }, [receiptParam])
 
     const query = String(search.search ?? "").trim()
-    const searchValue = parseGs1(query).gtin ?? query
+    const searchValue = query
 
     const { data, isLoading } = useGet<ListResponse<WhProduct>>(
         WAREHOUSE_PRODUCTS,
@@ -70,14 +59,6 @@ const Stock = () => {
     )
 
     const columns = useProductCols()
-
-    useUsbScanner(
-        async (code) => {
-            const message = await lookup(code)
-            if (message) toast.error(message)
-        },
-        !scanOpen && !receiptOpen && !receiptScanOpen,
-    )
 
     useEffect(() => {
         if (!product) return
@@ -126,13 +107,6 @@ const Stock = () => {
                             <Badge>{data?.count ?? 0}</Badge>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <Button
-                                variant="outline"
-                                icon={<ScanLine size={16} />}
-                                onClick={openScan}
-                            >
-                                {t("wh.scan_btn")}
-                            </Button>
                             <DownloadAsExcel
                                 url={`${WAREHOUSE_PRODUCTS}/excel`}
                                 name={t("nav.warehouse")}
@@ -157,12 +131,6 @@ const Stock = () => {
             />
 
             <LinesSection ref={sectionRef} />
-
-            <ScannerDialog
-                modalKey={FIND_SCAN_KEY}
-                title={t("wh.scan_title")}
-                onScan={lookup}
-            />
 
             {isOwner && hasControl && <ReceiptModal />}
         </div>

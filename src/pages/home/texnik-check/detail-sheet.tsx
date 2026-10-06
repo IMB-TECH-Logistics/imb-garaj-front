@@ -148,9 +148,6 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                             <TableHead>
                                                 {t("form.quantity")}
                                             </TableHead>
-                                            <TableHead>
-                                                {t("form.source")}
-                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -189,19 +186,6 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                                 <TableCell className="tabular-nums whitespace-nowrap">
                                                     {toNumber(item.quantity)}{" "}
                                                     {item.unit_name}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge
-                                                        variant={
-                                                            item.source === "qr" ?
-                                                                "default"
-                                                            :   "secondary"
-                                                        }
-                                                    >
-                                                        {item.source === "qr" ?
-                                                            t("wh.qr")
-                                                        :   t("wh.manual")}
-                                                    </Badge>
                                                 </TableCell>
                                             </TableRow>
                                         ))}

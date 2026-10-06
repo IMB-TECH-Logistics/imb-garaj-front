@@ -1,5 +1,4 @@
 import { FormNumberInput } from "@/components/form/number-input"
-import ScannerDialog from "@/components/scanner/scanner-dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
@@ -8,18 +7,16 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { useQueryClient } from "@tanstack/react-query"
-import { Plus, ScanLine, Trash2 } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import { Fragment, useMemo } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useFieldArray, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { useScanResolve } from "../ombor/use-scan-lookup"
 import { fmtDate, isPast, toNumber } from "../ombor/utils"
 import type { VehicleExpenseRow } from "./cols"
 import type { ExpenseForm, LineValues, SerialLot, SerialProduct } from "./types"
 import type { LineCheckResult } from "./use-line-check"
 
-const SCAN_KEY = "tech-scan"
 const GRID =
     "grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_140px_auto] gap-2 items-center"
 
@@ -53,8 +50,6 @@ const WarehouseLines = ({ form, current, check }: Props) => {
         name: "items",
     })
     const lines = useWatch({ control, name: "items" })
-    const { openModal: openScan } = useModal(SCAN_KEY)
-    const resolve = useScanResolve()
 
     const { data } = useGet<ListResponse<SerialProduct>>(WAREHOUSE_PRODUCTS, {
         params: { in_stock: 1, page_size: 1000 },
@@ -94,7 +89,6 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                     "1"
                 :   (lines[index]?.quantity ?? ""),
             odometer: "",
-            source: "manual",
         })
     }
 
@@ -102,49 +96,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
         update(index, {
             ...lines[index],
             lot: value ? Number(value) : null,
-            source: "manual",
         })
-    }
-
-    const handleScan = async (code: string) => {
-        const resolved = await resolve(code)
-        if ("error" in resolved) return resolved.error
-
-        const { product, lot } = resolved.response
-        if (!lot) return t("wh.tech.lot_missing", { name: product.name })
-        if (isPast(lot.expires_at)) {
-            return t("wh.tech.expired", {
-                lot: lot.lot_number,
-                date: fmtDate(lot.expires_at),
-            })
-        }
-        if (toNumber(lot.qty_left) <= 0) {
-            return t("wh.tech.lot_empty", {
-                name: product.name,
-                lot: lot.lot_number,
-            })
-        }
-
-        queryClient.invalidateQueries({
-            queryKey: [`${WAREHOUSE_PRODUCTS}/${product.id}/lots`],
-        })
-        if (
-            products.find((p) => p.id === product.id)?.is_serialized &&
-            form.getValues("items").some((l) => l.lot === lot.id)
-        ) {
-            return t("texnik.serial.duplicate")
-        }
-        const line: LineValues = {
-            product: product.id,
-            lot: lot.id,
-            quantity: "1",
-            odometer: "",
-            source: "qr",
-        }
-        const emptyIndex = form.getValues("items").findIndex((l) => !l.product)
-        if (emptyIndex >= 0) update(emptyIndex, line)
-        else append(line)
-        return null
     }
 
     return (
@@ -157,15 +109,6 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                     <Button
                         type="button"
                         size="sm"
-                        variant="outline"
-                        icon={<ScanLine size={16} />}
-                        onClick={openScan}
-                    >
-                        {t("wh.tech.scan_qr")}
-                    </Button>
-                    <Button
-                        type="button"
-                        size="sm"
                         icon={<Plus size={16} />}
                         onClick={() =>
                             append({
@@ -173,8 +116,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                 lot: null,
                                 quantity: "",
                                 odometer: "",
-                                source: "manual",
-                            })
+                                                })
                         }
                     >
                         {t("wh.tech.add_product")}
@@ -211,7 +153,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                             const lots =
                                 line.product ? check.lotsOf(line.product) : []
                             const serialized = !!product?.is_serialized
-                            const auto = !serialized && line.source !== "qr"
+                            const auto = !serialized
                             const lotOptions: LotOption[] = (lots ?? []).map((l) => ({
                                 id: l.id,
                                 factory_number: l.factory_number,
@@ -354,12 +296,6 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                     </div>
                 }
             </div>
-
-            <ScannerDialog
-                modalKey={SCAN_KEY}
-                title={t("wh.tech.scan_title")}
-                onScan={handleScan}
-            />
         </fieldset>
     )
 }

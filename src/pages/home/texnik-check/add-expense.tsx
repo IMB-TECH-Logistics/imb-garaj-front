@@ -55,7 +55,6 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                 lot: item.lot,
                 quantity: String(Number(item.quantity)),
                 odometer: item.odometer ? String(item.odometer) : "",
-                source: item.source ?? "manual",
             })),
         },
     })
@@ -125,7 +124,6 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                         ...(item.odometer ?
                             { odometer: Number(item.odometer) }
                         :   {}),
-                        source: item.source,
                     })),
                 }
             :   { ...base, amount: values.amount }
