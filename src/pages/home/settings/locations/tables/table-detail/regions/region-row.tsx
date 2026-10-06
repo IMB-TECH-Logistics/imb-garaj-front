@@ -129,7 +129,7 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
     >
     const hasControl = useHasAction("settings_locations_control")
     const { setData } = useGlobalStore()
-    const { openModal: openCreateModal } = useModal("create-region")
+    const { openModal: openCreateModal } = useModal("create-place")
     const { openModal: openDeleteModal } = useModal("delete-region")
 
     const { data, isLoading } = useGet<ListResponse<RegionsType>>(
@@ -158,7 +158,7 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
             <div className="px-3 pt-3">
                 <TableHeaderLocation
                     disabled={!region}
-                    modalKey="create-region"
+                    modalKey="create-place"
                     name="place"
                     searchKey="place_search"
                     pageKey="place_page"

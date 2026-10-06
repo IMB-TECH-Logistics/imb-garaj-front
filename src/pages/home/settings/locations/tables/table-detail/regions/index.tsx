@@ -59,10 +59,12 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
 
     const { openModal: openDeleteModal } = useModal("delete-region")
     const { openModal: openCreateModal } = useModal("create-region")
+    const { openModal: openPlaceModal } = useModal("create-place")
 
     const handleEdit = (row: { original: RegionsType }) => {
         setData(SETTINGS_REGIONS, row.original)
-        openCreateModal()
+        if (row.original.parent) openPlaceModal()
+        else openCreateModal()
     }
 
     const handleDelete = (row: { original: RegionsType }) => {
@@ -182,14 +184,22 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                 title={
                     (item?.id ? t("actions.edit") : t("actions.add")) +
                     " " +
-                    (item?.parent ?
-                        t("form.place")
-                    :   t("form.region")
-                    ).toLowerCase()
+                    t("form.region").toLowerCase()
                 }
-                modalKey={"create-region"}
+                modalKey="create-region"
             >
-                <AddRegionsModal country_id={country_id} />
+                <AddRegionsModal country_id={country_id} kind="region" />
+            </Modal>
+            <Modal
+                size="max-w-2xl"
+                title={
+                    (item?.id ? t("actions.edit") : t("actions.add")) +
+                    " " +
+                    t("form.place").toLowerCase()
+                }
+                modalKey="create-place"
+            >
+                <AddRegionsModal country_id={country_id} kind="place" />
             </Modal>
         </div>
     )

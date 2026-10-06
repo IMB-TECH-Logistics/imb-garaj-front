@@ -9,17 +9,19 @@ import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 
 interface AddRegionsModalProps {
     country_id: number
+    kind: "region" | "place"
 }
 
-const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
+const AddRegionsModal = ({ country_id, kind }: AddRegionsModalProps) => {
+    const isPlace = kind === "place"
     const { t } = useTranslation()
     const queryClient = useQueryClient()
-    const { closeModal } = useModal("create-region")
+    const { closeModal } = useModal(isPlace ? "create-place" : "create-region")
     const { getData, clearKey } = useGlobalStore()
     const { data: countries } =
         useGet<ListResponse<RolesType>>(SETTINGS_COUNTRIES)
@@ -49,7 +51,9 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
 
     const onSuccess = () => {
         toast.success(
-            currentRegion?.id ? t("messages.success_edit") : t("messages.success_add"),
+            currentRegion?.id ?
+                t("messages.success_edit")
+            :   t("messages.success_add"),
         )
 
         reset()
@@ -71,7 +75,7 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
     const onSubmit = (values: RegionsType) => {
         const formData = {
             name: values.name,
-            parent: values.parent ? Number(values.parent) : null,
+            parent: isPlace && values.parent ? Number(values.parent) : null,
             country: currentRegion?.id ? values.country : String(country_id),
         }
 
@@ -91,15 +95,14 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                 <FormInput
                     required
                     name="name"
-                    label={t("form.region")}
+                    label={isPlace ? t("form.place") : t("form.region")}
                     maxLength={255}
                     methods={form}
                 />
 
- 
-                <div className="space-y-2">
+                {isPlace && (
                     <FormCombobox
-                        isClearIcon
+                        required
                         label={t("form.region")}
                         name="parent"
                         control={form.control}
@@ -108,26 +111,27 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                         labelKey="name"
                         isLoading={isLoadingViloyats}
                     />
-                    <p className="text-xs text-muted-foreground">
-                        {t("form.region_parent_hint")}
-                    </p>
-                </div>
+                )}
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">{t("form.country")}</label>
+                {!isPlace && (
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                            {t("form.country")}
+                        </label>
 
-                    <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
-                        {countries?.results?.find(
-                            (c) => String(c.id) === String(country_id),
-                        )?.name || "Davlat"}
+                        <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
+                            {countries?.results?.find(
+                                (c) => String(c.id) === String(country_id),
+                            )?.name || "Davlat"}
+                        </div>
+
+                        <input
+                            type="hidden"
+                            {...form.register("country")}
+                            value={String(country_id)}
+                        />
                     </div>
-
-                    <input
-                        type="hidden"
-                        {...form.register("country")}
-                        value={String(country_id)}
-                    />
-                </div>
+                )}
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button
