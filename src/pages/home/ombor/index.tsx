@@ -4,6 +4,7 @@ import { parseGs1 } from "@/components/scanner/gs1"
 import ScannerDialog from "@/components/scanner/scanner-dialog"
 import { useUsbScanner } from "@/components/scanner/use-usb-scanner"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { WAREHOUSE_CATEGORIES, WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
@@ -16,6 +17,7 @@ import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { useProductCols } from "./cols"
+import ItemsTab from "./items"
 import LinesSection from "./lines-section"
 import ReceiptModal, { RECEIPT_MODAL_KEY, RECEIPT_SCAN_KEY } from "./receipt-modal"
 import type { OmborSearchParams, WhCategory, WhProduct } from "./types"
@@ -24,7 +26,7 @@ import { useScanLookup } from "./use-scan-lookup"
 
 const FIND_SCAN_KEY = "wh-find-scan"
 
-const Ombor = () => {
+const Stock = () => {
     const { t } = useTranslation()
     const isOwner = useWarehouseOwner()
     const hasControl = useHasAction("warehouse_control")
@@ -177,6 +179,36 @@ const Ombor = () => {
             />
 
             {isOwner && hasControl && <ReceiptModal />}
+        </div>
+    )
+}
+
+const Ombor = () => {
+    const { t } = useTranslation()
+    const navigate = useNavigate()
+    const { section } = useSearch({ strict: false }) as OmborSearchParams
+
+    return (
+        <div className="flex flex-col w-full gap-3">
+            <Tabs
+                value={section ?? "stock"}
+                onValueChange={(value) =>
+                    navigate({
+                        search: (prev: Record<string, unknown>) => ({
+                            ...prev,
+                            section: value === "items" ? "items" : undefined,
+                        }),
+                    } as never)
+                }
+            >
+                <TabsList>
+                    <TabsTrigger value="stock">
+                        {t("page.warehouse_products")}
+                    </TabsTrigger>
+                    <TabsTrigger value="items">{t("wh.items.title")}</TabsTrigger>
+                </TabsList>
+            </Tabs>
+            {section === "items" ? <ItemsTab /> : <Stock />}
         </div>
     )
 }

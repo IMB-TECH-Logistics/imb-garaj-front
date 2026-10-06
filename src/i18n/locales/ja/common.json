@@ -873,7 +873,65 @@
         "serialized": "製造番号あり",
         "serialized_yes": "個体管理",
         "serialized_label": "1個ごとに製造番号を管理",
-        "factory_number": "製造番号"
+        "factory_number": "製造番号",
+        "items": {
+            "title": "シリアル管理商品",
+            "factory_number": "製造番号",
+            "model": "モデル",
+            "category": "カテゴリ",
+            "state_label": "状態",
+            "condition_label": "新品 / 中古",
+            "vehicle": "車両",
+            "holder": "保有会社",
+            "installed_at": "取付日",
+            "installed_odometer": "取付時オドメーター",
+            "km_total": "走行距離",
+            "km": "km",
+            "price": "価格",
+            "receipt_date": "入庫日",
+            "history": "履歴",
+            "no_events": "履歴はまだありません",
+            "km_driven": "走行距離 (km)",
+            "odometer": "オドメーター (km)",
+            "km_hint_gps": "GPS 基準",
+            "km_hint_odometer": "オドメーター基準",
+            "km_hint_none": "自動取得できませんでした。手動で入力してください",
+            "write_off_confirm": "この商品は除却されます。この操作は元に戻せません。",
+            "state": {
+                "in_stock": "在庫",
+                "installed": "取付済み",
+                "repair": "修理中",
+                "written_off": "除却済み"
+            },
+            "condition": {
+                "new": "新品",
+                "used": "中古"
+            },
+            "action": {
+                "remove": "取り外し",
+                "repair": "修理に出す",
+                "repair_return": "修理から戻った",
+                "write_off": "除却"
+            },
+            "done": {
+                "remove": "取り外しました",
+                "repair": "修理に出しました",
+                "repair_return": "修理から戻りました",
+                "write_off": "除却しました"
+            },
+            "event": {
+                "received": "入庫",
+                "installed": "取付",
+                "removed": "取り外し",
+                "repair": "修理に出した",
+                "repair_returned": "修理から戻った",
+                "written_off": "除却"
+            },
+            "km_source": {
+                "gps": "GPS",
+                "manual": "手動"
+            }
+        }
     },
     "reys_confirm": {
         "short": "未確認",

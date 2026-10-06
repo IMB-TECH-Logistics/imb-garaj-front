@@ -904,7 +904,65 @@
         "serialized": "Zavod raqami bilan",
         "serialized_yes": "Indeksli",
         "serialized_label": "Har bir dona zavod raqami bilan",
-        "factory_number": "Zavod raqami"
+        "factory_number": "Zavod raqami",
+        "items": {
+            "title": "Indeksli mahsulotlar",
+            "factory_number": "Zavod raqami",
+            "model": "Model",
+            "category": "Kategoriya",
+            "state_label": "Holat",
+            "condition_label": "Yangi / Ishlatilgan",
+            "vehicle": "Mashina",
+            "holder": "Egasi (korxona)",
+            "installed_at": "O'rnatilgan sana",
+            "installed_odometer": "O'rnatilgandagi spidometr",
+            "km_total": "Yurgan km",
+            "km": "km",
+            "price": "Narx",
+            "receipt_date": "Kirim sanasi",
+            "history": "Tarix",
+            "no_events": "Tarix hali yo'q",
+            "km_driven": "Yurgan masofa (km)",
+            "odometer": "Spidometr (km)",
+            "km_hint_gps": "GPS bo'yicha",
+            "km_hint_odometer": "Spidometr bo'yicha",
+            "km_hint_none": "Avtomatik aniqlanmadi, qo'lda kiriting",
+            "write_off_confirm": "Mahsulot hisobdan chiqariladi. Bu amalni qaytarib bo'lmaydi.",
+            "state": {
+                "in_stock": "Omborda",
+                "installed": "O'rnatilgan",
+                "repair": "Ta'mirda",
+                "written_off": "Hisobdan chiqarilgan"
+            },
+            "condition": {
+                "new": "Yangi",
+                "used": "Ishlatilgan"
+            },
+            "action": {
+                "remove": "Yechish",
+                "repair": "Ta'mirga berish",
+                "repair_return": "Ta'mirdan qaytdi",
+                "write_off": "Hisobdan chiqarish"
+            },
+            "done": {
+                "remove": "Mahsulot yechildi",
+                "repair": "Mahsulot ta'mirga berildi",
+                "repair_return": "Mahsulot ta'mirdan qaytdi",
+                "write_off": "Mahsulot hisobdan chiqarildi"
+            },
+            "event": {
+                "received": "Omborga kirim",
+                "installed": "O'rnatildi",
+                "removed": "Yechildi",
+                "repair": "Ta'mirga berildi",
+                "repair_returned": "Ta'mirdan qaytdi",
+                "written_off": "Hisobdan chiqarildi"
+            },
+            "km_source": {
+                "gps": "GPS",
+                "manual": "qo'lda"
+            }
+        }
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",

@@ -13,5 +13,12 @@ export const Route = createFileRoute("/_main/ombor/")({
         receipt: search.receipt ? 1 : undefined,
         lpage: Number(search.lpage) || undefined,
         lpage_size: Number(search.lpage_size) || undefined,
+        section: search.section === "items" ? "items" : undefined,
+        item: Number(search.item) || undefined,
+        icat: search.icat ? (Number(search.icat) || String(search.icat)) : undefined,
+        istate: search.istate ? String(search.istate) : undefined,
+        icond: search.icond ? String(search.icond) : undefined,
+        ipage: Number(search.ipage) || undefined,
+        ipage_size: Number(search.ipage_size) || undefined,
     }),
 })
