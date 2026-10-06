@@ -924,5 +924,16 @@
         "skipped": ", {{count}} tasi o'tkazib yuborildi",
         "error": "Amalni bajarishda xatolik",
         "view_all": "Barchasini ko'rish va ommaviy tasdiqlash"
+    },
+    "texnik": {
+        "serial": {
+            "factory_number": "Zavod raqami",
+            "new": "Yangi",
+            "used": "Ishlatilgan",
+            "odometer": "Spidometr (km)",
+            "odometer_value": "Spidometr: {{value}} km",
+            "choose_piece": "Zavod raqamini tanlang",
+            "duplicate": "Bu dona allaqachon qo'shilgan"
+        }
     }
 }

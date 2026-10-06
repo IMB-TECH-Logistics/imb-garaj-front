@@ -1,3 +1,5 @@
+import type { WhLot, WhProduct } from "../ombor/types"
+
 export const TECH_INSPECTION_CODE = "technical_inspection"
 
 export type LineSource = "qr" | "manual"
@@ -14,6 +16,20 @@ export type ExpenseItem = {
     total: string
     unit_name: string
     source: LineSource
+    factory_number?: string | null
+    odometer?: number | null
+}
+
+export type SerialProduct = WhProduct & {
+    category?: number | null
+    category_name?: string | null
+    is_serialized?: boolean
+}
+
+export type SerialLot = WhLot & {
+    factory_number?: string | null
+    state?: "in_stock" | "installed" | "repair" | "written_off"
+    condition?: "new" | "used"
 }
 
 export type ExpenseCategory = {
@@ -26,6 +42,7 @@ export type LineValues = {
     product: number | null
     lot: number | null
     quantity: string
+    odometer?: string
     source: LineSource
 }
 

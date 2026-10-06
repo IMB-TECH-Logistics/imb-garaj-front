@@ -896,5 +896,16 @@
         "skipped": ", {{count}} skipped",
         "error": "Failed to perform the action",
         "view_all": "View all and bulk approve"
+    },
+    "texnik": {
+        "serial": {
+            "factory_number": "Factory number",
+            "new": "New",
+            "used": "Used",
+            "odometer": "Odometer (km)",
+            "odometer_value": "Odometer: {{value}} km",
+            "choose_piece": "Choose factory number",
+            "duplicate": "This piece is already added"
+        }
     }
 }

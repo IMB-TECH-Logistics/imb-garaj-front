@@ -1,6 +1,7 @@
 import { FormNumberInput } from "@/components/form/number-input"
 import ScannerDialog from "@/components/scanner/scanner-dialog"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
 import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -12,18 +13,30 @@ import { Fragment, useMemo } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useFieldArray, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import type { WhProduct } from "../ombor/types"
 import { useScanResolve } from "../ombor/use-scan-lookup"
 import { fmtDate, isPast, toNumber } from "../ombor/utils"
 import type { VehicleExpenseRow } from "./cols"
-import type { ExpenseForm, LineValues } from "./types"
+import type { ExpenseForm, LineValues, SerialLot, SerialProduct } from "./types"
 import type { LineCheckResult } from "./use-line-check"
 
 const SCAN_KEY = "tech-scan"
 const GRID =
     "grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_140px_auto] gap-2 items-center"
 
-type ProductOption = { id: number; name: string; unit_name: string }
+type ProductOption = {
+    id: number
+    name: string
+    unit_name: string
+    is_serialized: boolean
+}
+
+type LotOption = {
+    id: number
+    name: string
+    disabled: boolean
+    factory_number: string | null
+    condition: SerialLot["condition"] | null
+}
 
 type Props = {
     form: UseFormReturn<ExpenseForm>
@@ -43,14 +56,19 @@ const WarehouseLines = ({ form, current, check }: Props) => {
     const { openModal: openScan } = useModal(SCAN_KEY)
     const resolve = useScanResolve()
 
-    const { data } = useGet<ListResponse<WhProduct>>(WAREHOUSE_PRODUCTS, {
+    const { data } = useGet<ListResponse<SerialProduct>>(WAREHOUSE_PRODUCTS, {
         params: { in_stock: 1, page_size: 1000 },
     })
 
     const products = useMemo<ProductOption[]>(() => {
         const map = new Map<number, ProductOption>()
         data?.results.forEach((p) =>
-            map.set(p.id, { id: p.id, name: p.name, unit_name: p.unit_name }),
+            map.set(p.id, {
+                id: p.id,
+                name: p.name,
+                unit_name: p.unit_name,
+                is_serialized: !!p.is_serialized,
+            }),
         )
         current?.items?.forEach((item) => {
             if (!map.has(item.product)) {
@@ -58,6 +76,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                     id: item.product,
                     name: item.product_name,
                     unit_name: "",
+                    is_serialized: !!item.factory_number,
                 })
             }
         })
@@ -70,7 +89,11 @@ const WarehouseLines = ({ form, current, check }: Props) => {
         update(index, {
             product: next,
             lot: null,
-            quantity: lines[index]?.quantity ?? "",
+            quantity:
+                products.find((p) => p.id === next)?.is_serialized ?
+                    "1"
+                :   (lines[index]?.quantity ?? ""),
+            odometer: "",
             source: "manual",
         })
     }
@@ -105,10 +128,17 @@ const WarehouseLines = ({ form, current, check }: Props) => {
         queryClient.invalidateQueries({
             queryKey: [`${WAREHOUSE_PRODUCTS}/${product.id}/lots`],
         })
+        if (
+            products.find((p) => p.id === product.id)?.is_serialized &&
+            form.getValues("items").some((l) => l.lot === lot.id)
+        ) {
+            return t("texnik.serial.duplicate")
+        }
         const line: LineValues = {
             product: product.id,
             lot: lot.id,
             quantity: "1",
+            odometer: "",
             source: "qr",
         }
         const emptyIndex = form.getValues("items").findIndex((l) => !l.product)
@@ -142,6 +172,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                 product: null,
                                 lot: null,
                                 quantity: "",
+                                odometer: "",
                                 source: "manual",
                             })
                         }
@@ -175,12 +206,22 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                             const unit = product?.unit_name ?? ""
                             const lots =
                                 line.product ? check.lotsOf(line.product) : []
-                            const lotOptions = (lots ?? []).map((l) => ({
+                            const serialized = !!product?.is_serialized
+                            const lotOptions: LotOption[] = (lots ?? []).map((l) => ({
                                 id: l.id,
+                                factory_number: l.factory_number,
+                                condition: l.condition,
                                 disabled:
                                     isPast(l.expires_at) ||
-                                    check.availableOf(l) <= 0,
-                                name: [
+                                    check.availableOf(l) <= 0 ||
+                                    (serialized &&
+                                        lines.some(
+                                            (o, i) =>
+                                                i !== index && o.lot === l.id,
+                                        )),
+                                name: serialized ?
+                                    (l.factory_number ?? l.lot_number)
+                                :   [
                                     l.lot_number,
                                     l.expires_at ? fmtDate(l.expires_at) : "",
                                     `${check.availableOf(l)} ${unit}`.trim(),
@@ -210,7 +251,36 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                             setValue={(v) =>
                                                 changeLot(index, v)
                                             }
-                                            label={t("wh.tech.choose_lot")}
+                                            label={
+                                                serialized ?
+                                                    t("texnik.serial.choose_piece")
+                                                :   t("wh.tech.choose_lot")
+                                            }
+                                            contentClassName={
+                                                serialized ? "min-w-72" : undefined
+                                            }
+                                            renderOption={
+                                                serialized ?
+                                                    (o: LotOption) => (
+                                                        <span className="flex items-center gap-2 min-w-0">
+                                                            <span className="font-mono truncate">
+                                                                {o.name}
+                                                            </span>
+                                                            {o.condition && (
+                                                                <Badge
+                                                                    variant={
+                                                                        o.condition === "new" ?
+                                                                            "default"
+                                                                        :   "secondary"
+                                                                    }
+                                                                >
+                                                                    {t(`texnik.serial.${o.condition}`)}
+                                                                </Badge>
+                                                            )}
+                                                        </span>
+                                                    )
+                                                :   undefined
+                                            }
                                             valueKey="id"
                                             labelKey="name"
                                             disabledKey="disabled"
@@ -220,22 +290,34 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                                 disabled: !line.product,
                                             }}
                                         />
-                                        <FormNumberInput
-                                            hideError
-                                            control={control}
-                                            name={`items.${index}.quantity`}
-                                            allowNegative={false}
-                                            decimalScale={2}
-                                            suffix={
-                                                unit ? ` ${unit}` : undefined
-                                            }
-                                            placeholder="0"
-                                            className={
-                                                c?.quantity || c?.stock ?
-                                                    "!border-destructive"
-                                                :   undefined
-                                            }
-                                        />
+                                        {serialized ?
+                                            <FormNumberInput
+                                                key="odometer"
+                                                hideError
+                                                control={control}
+                                                name={`items.${index}.odometer`}
+                                                allowNegative={false}
+                                                decimalScale={0}
+                                                placeholder={t("texnik.serial.odometer")}
+                                            />
+                                        :   <FormNumberInput
+                                                key="quantity"
+                                                hideError
+                                                control={control}
+                                                name={`items.${index}.quantity`}
+                                                allowNegative={false}
+                                                decimalScale={2}
+                                                suffix={
+                                                    unit ? ` ${unit}` : undefined
+                                                }
+                                                placeholder="0"
+                                                className={
+                                                    c?.quantity || c?.stock ?
+                                                        "!border-destructive"
+                                                    :   undefined
+                                                }
+                                            />
+                                        }
                                         <Button
                                             type="button"
                                             variant="ghost"

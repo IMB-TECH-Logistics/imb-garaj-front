@@ -893,5 +893,16 @@
         "skipped": "、{{count}}件はスキップされました",
         "error": "操作に失敗しました",
         "view_all": "すべて表示して一括承認"
+    },
+    "texnik": {
+        "serial": {
+            "factory_number": "製造番号",
+            "new": "新品",
+            "used": "中古",
+            "odometer": "走行距離 (km)",
+            "odometer_value": "走行距離: {{value}} km",
+            "choose_piece": "製造番号を選択",
+            "duplicate": "この製品は既に追加されています"
+        }
     }
 }

@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { isPast, toNumber } from "../ombor/utils"
 import type { VehicleExpenseRow } from "./cols"
-import type { LineValues } from "./types"
+import type { LineValues, SerialLot } from "./types"
 import { useProductLots } from "./use-product-lots"
 
 export type LotInfo = {
@@ -10,6 +10,8 @@ export type LotInfo = {
     lot_number: string
     expires_at: string | null
     qty_left: number
+    factory_number: string | null
+    condition: SerialLot["condition"] | null
 }
 
 export type LineCheck = {
@@ -61,6 +63,8 @@ export const useLineCheck = (
             lot_number: l.lot_number,
             expires_at: l.expires_at,
             qty_left: toNumber(l.qty_left),
+            factory_number: l.factory_number ?? null,
+            condition: l.condition ?? null,
         }))
         const extra: LotInfo[] = []
         items?.forEach((item) => {
@@ -74,6 +78,8 @@ export const useLineCheck = (
                     lot_number: item.lot_number,
                     expires_at: item.expires_at,
                     qty_left: 0,
+                    factory_number: item.factory_number ?? null,
+                    condition: null,
                 })
             }
         })
