@@ -978,6 +978,21 @@
             "choose_piece": "Выберите заводской номер",
             "duplicate": "Эта единица уже добавлена"
         },
-        "tab_expenses": "Расходы"
+        "tab_expenses": "Расходы",
+        "vehicles": {
+            "title": "Машины",
+            "driver": "Водитель",
+            "installed": "Установлено",
+            "status": "Статус",
+            "installed_at": "Установлено",
+            "expires_at": "Истекает",
+            "ok": "В сроке",
+            "empty": "Нет установленных товаров",
+            "all": "Все",
+            "expired": "Просрочено",
+            "soon": "Скоро истекает",
+            "expired_count": "{{count}} просрочено",
+            "soon_count": "{{count}} скоро истекает"
+        }
     }
 }

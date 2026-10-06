@@ -23,7 +23,7 @@ import AddExpenseModal from "./add-expense"
 import ExpenseDetailSheet from "./detail-sheet"
 import { useTranslation } from "react-i18next"
 import ParamTabs from "@/components/as-params/tabs"
-import ItemsTab from "../ombor/items"
+import VehiclesTab from "./vehicles-tab"
 
 type SelectItem = { id: number | string; name: string }
 
@@ -180,7 +180,7 @@ const Inspections = () => {
 export const TexnikCheck = () => {
     const { t } = useTranslation()
     const search = useSearch({ strict: false }) as Record<string, unknown>
-    const tab = search.ti_tab === "items" ? "items" : "expenses"
+    const tab = search.ti_tab === "vehicles" ? "vehicles" : "expenses"
 
     return (
         <div className="flex flex-col w-full gap-3">
@@ -188,10 +188,10 @@ export const TexnikCheck = () => {
                 paramName="ti_tab"
                 options={[
                     { value: "expenses", label: t("texnik.tab_expenses") },
-                    { value: "items", label: t("wh.items.title") },
+                    { value: "vehicles", label: t("texnik.vehicles.title") },
                 ]}
             />
-            {tab === "items" ? <ItemsTab searchKey="vehicle_search" /> : <Inspections />}
+            {tab === "vehicles" ? <VehiclesTab /> : <Inspections />}
         </div>
     )
 }

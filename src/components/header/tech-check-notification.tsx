@@ -50,6 +50,33 @@ export function TechCheckNotification() {
                         {data?.expired ?? 0} ta muddati o'tgan, {data?.expiring ?? 0} ta 7 kun ichida tugaydi
                     </p>
                 </div>
+                {!!(data?.items_expired || data?.items_expiring) && (
+                    <button
+                        type="button"
+                        className="w-full text-left px-4 py-3 flex items-start justify-between gap-2 border-b border-border hover:bg-muted/50"
+                        onClick={() => {
+                            setOpen(false)
+                            navigate({
+                                to: "/technic-check",
+                                search: {
+                                    ti_tab: "vehicles",
+                                    ti_status: data?.items_expired ? "expired" : "soon",
+                                } as any,
+                            })
+                        }}
+                    >
+                        <div className="min-w-0">
+                            <p className="text-sm font-medium">O'rnatilgan mahsulotlar</p>
+                            <p className="text-xs mt-1 font-semibold text-red-600">
+                                {data?.items_expired ?? 0} ta eskirgan
+                                <span className="text-amber-600">
+                                    {" "}· {data?.items_expiring ?? 0} ta yaqinlashmoqda
+                                </span>
+                            </p>
+                        </div>
+                        <ArrowRight size={14} className="mt-0.5 text-muted-foreground shrink-0" />
+                    </button>
+                )}
                 <div className="divide-y divide-border max-h-72 overflow-y-auto">
                     {isLoading ?
                         <p className="text-sm text-muted-foreground text-center py-6">

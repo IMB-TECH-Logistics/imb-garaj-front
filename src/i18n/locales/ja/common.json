@@ -969,6 +969,21 @@
             "choose_piece": "製造番号を選択",
             "duplicate": "この製品は既に追加されています"
         },
-        "tab_expenses": "費用"
+        "tab_expenses": "費用",
+        "vehicles": {
+            "title": "車両",
+            "driver": "運転手",
+            "installed": "取付済み",
+            "status": "状態",
+            "installed_at": "取付日",
+            "expires_at": "期限",
+            "ok": "期限内",
+            "empty": "取付品なし",
+            "all": "すべて",
+            "expired": "期限切れ",
+            "soon": "期限間近",
+            "expired_count": "{{count}}件 期限切れ",
+            "soon_count": "{{count}}件 期限間近"
+        }
     }
 }

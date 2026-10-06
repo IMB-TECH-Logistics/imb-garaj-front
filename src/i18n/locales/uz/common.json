@@ -1000,6 +1000,21 @@
             "choose_piece": "Zavod raqamini tanlang",
             "duplicate": "Bu dona allaqachon qo'shilgan"
         },
-        "tab_expenses": "Xarajatlar"
+        "tab_expenses": "Xarajatlar",
+        "vehicles": {
+            "title": "Mashinalar",
+            "driver": "Haydovchi",
+            "installed": "O'rnatilganlar",
+            "status": "Holat",
+            "installed_at": "O'rnatilgan",
+            "expires_at": "Eskiradi",
+            "ok": "Muddati bor",
+            "empty": "O'rnatilgan mahsulot yo'q",
+            "all": "Hammasi",
+            "expired": "Eskirgan",
+            "soon": "Yaqinlashmoqda",
+            "expired_count": "{{count}} ta eskirgan",
+            "soon_count": "{{count}} ta yaqinlashmoqda"
+        }
     }
 }

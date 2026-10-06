@@ -972,6 +972,21 @@
             "choose_piece": "Choose factory number",
             "duplicate": "This piece is already added"
         },
-        "tab_expenses": "Expenses"
+        "tab_expenses": "Expenses",
+        "vehicles": {
+            "title": "Vehicles",
+            "driver": "Driver",
+            "installed": "Installed",
+            "status": "Status",
+            "installed_at": "Installed",
+            "expires_at": "Expires",
+            "ok": "Valid",
+            "empty": "No installed items",
+            "all": "All",
+            "expired": "Expired",
+            "soon": "Expiring soon",
+            "expired_count": "{{count}} expired",
+            "soon_count": "{{count}} expiring"
+        }
     }
 }

@@ -8,6 +8,8 @@ export type TechCheckAlerts = {
     expired: number
     expiring: number
     results: VehicleExpenseRow[]
+    items_expired?: number
+    items_expiring?: number
 }
 
 export const useTechCheckAlerts = () => {
@@ -16,5 +18,5 @@ export const useTechCheckAlerts = () => {
         enabled: canSee,
         options: { refetchInterval: 60_000, staleTime: 55_000 },
     })
-    return { ...query, canSee, count: canSee ? query.data?.count ?? 0 : 0 }
+    return { ...query, canSee, count: canSee ? (query.data?.count ?? 0) + (query.data?.items_expired ?? 0) : 0 }
 }
