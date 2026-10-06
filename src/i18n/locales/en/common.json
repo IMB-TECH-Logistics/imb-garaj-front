@@ -930,7 +930,7 @@
             }
         },
         "tab_stock": "Stock",
-        "tab_moves": "Movements"
+        "tab_moves": "Warehouse operations"
     },
     "reys_confirm": {
         "short": "Unconfirmed",
