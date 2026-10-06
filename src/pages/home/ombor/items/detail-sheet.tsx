@@ -190,9 +190,7 @@ const ItemDetailSheet = ({ itemId, onClose }: Props) => {
                                         {item.factory_number}
                                     </SheetTitle>
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {[item.product_name, item.category_name].join(
-                                            " · ",
-                                        )}
+                                        {item.product_name}
                                     </div>
                                     <div className="mt-2 flex items-center gap-2 flex-wrap">
                                         <StateBadge state={item.state} />

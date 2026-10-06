@@ -1,4 +1,3 @@
-import { ParamCombobox } from "@/components/as-params/combobox"
 import DownloadAsExcel from "@/components/download-as-excel"
 import { parseGs1 } from "@/components/scanner/gs1"
 import ScannerDialog from "@/components/scanner/scanner-dialog"
@@ -7,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { WAREHOUSE_CATEGORIES, WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
+import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
 import { useHasAction, useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -20,7 +19,7 @@ import { useProductCols } from "./cols"
 import ItemsTab from "./items"
 import LinesSection from "./lines-section"
 import ReceiptModal, { RECEIPT_MODAL_KEY, RECEIPT_SCAN_KEY } from "./receipt-modal"
-import type { OmborSearchParams, WhCategory, WhProduct } from "./types"
+import type { OmborSearchParams, WhProduct } from "./types"
 import { useOmborSearch } from "./use-ombor-search"
 import { useScanLookup } from "./use-scan-lookup"
 
@@ -64,14 +63,12 @@ const Stock = () => {
             params: {
                 in_stock: 1,
                 search: searchValue || undefined,
-                category: (search as OmborSearchParams).category,
                 page: search.page,
                 page_size: search.page_size,
             },
         },
     )
 
-    const { data: categories } = useGet<WhCategory[]>(WAREHOUSE_CATEGORIES)
     const columns = useProductCols()
 
     useUsbScanner(
@@ -129,17 +126,6 @@ const Stock = () => {
                             <Badge>{data?.count ?? 0}</Badge>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <ParamCombobox
-                                paramName="category"
-                                options={categories ?? []}
-                                valueKey="id"
-                                labelKey="name"
-                                label={t("wh.category")}
-                                addButtonProps={{
-                                    className:
-                                        "!bg-background dark:!bg-secondary",
-                                }}
-                            />
                             <Button
                                 variant="outline"
                                 icon={<ScanLine size={16} />}

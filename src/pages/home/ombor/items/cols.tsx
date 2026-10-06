@@ -62,15 +62,6 @@ export const useItemCols = () => {
                 ),
             },
             {
-                id: "category",
-                header: t("wh.items.category"),
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
-                        {row.original.category_name}
-                    </span>
-                ),
-            },
-            {
                 id: "state",
                 header: t("wh.items.state_label"),
                 cell: ({ row }) => <StateBadge state={row.original.state} />,

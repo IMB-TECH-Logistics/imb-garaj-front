@@ -1,7 +1,7 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
-import { WAREHOUSE_CATEGORIES, WAREHOUSE_ITEMS } from "@/constants/api-endpoints"
+import { WAREHOUSE_ITEMS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useMemo, useRef } from "react"
@@ -10,7 +10,6 @@ import type { OmborSearchParams } from "../types"
 import { useItemCols } from "./cols"
 import ItemDetailSheet from "./detail-sheet"
 import {
-    type ItemCategory,
     type ItemCondition,
     type ItemState,
     type WhItem,
@@ -30,7 +29,6 @@ const ItemsTab = () => {
 
     const { data, isLoading } = useGet<ListResponse<WhItem>>(WAREHOUSE_ITEMS, {
         params: {
-            category: search.icat,
             state: search.istate,
             condition: search.icond,
             search: query || undefined,
@@ -39,12 +37,6 @@ const ItemsTab = () => {
         },
     })
 
-    const { data: categories } = useGet<ItemCategory[]>(WAREHOUSE_CATEGORIES)
-
-    const serialized = useMemo(
-        () => (categories ?? []).filter((c) => c.is_serialized),
-        [categories],
-    )
     const stateOptions = useMemo(
         () =>
             STATES.map((value) => ({
@@ -62,7 +54,7 @@ const ItemsTab = () => {
         [t],
     )
 
-    const filterKey = [search.icat, search.istate, search.icond, query].join("|")
+    const filterKey = [search.istate, search.icond, query].join("|")
     const prevFilterKey = useRef(filterKey)
     useEffect(() => {
         if (prevFilterKey.current === filterKey) return
@@ -105,15 +97,6 @@ const ItemsTab = () => {
                             <Badge>{data?.count ?? 0}</Badge>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <ParamCombobox
-                                paramName="icat"
-                                options={serialized}
-                                valueKey="id"
-                                labelKey="name"
-                                label={t("wh.items.category")}
-                                asloClear={["ipage"]}
-                                addButtonProps={buttonClass}
-                            />
                             <ParamCombobox
                                 paramName="istate"
                                 options={stateOptions}

@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import type { WhProduct } from "@/pages/home/ombor/types"
 import { LifeText } from "@/pages/home/ombor/life-text"
@@ -13,16 +14,13 @@ export const useColumnsCatalogTable = () => {
                 accessorKey: "name",
                 header: t("form.name"),
                 cell: ({ row }) => (
-                    <span className="font-medium">{row.original.name}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium">{row.original.name}</span>
+                        {row.original.is_serialized && (
+                            <Badge>{t("wh.serialized_yes")}</Badge>
+                        )}
+                    </div>
                 ),
-            },
-            {
-                id: "category",
-                header: t("wh.category"),
-                cell: ({ row }) =>
-                    row.original.category_name ?
-                        <span>{row.original.category_name}</span>
-                    :   <span className="text-muted-foreground">—</span>,
             },
             {
                 id: "min_quantity",

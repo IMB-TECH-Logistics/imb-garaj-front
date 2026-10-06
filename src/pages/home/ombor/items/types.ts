@@ -19,8 +19,6 @@ export type WhItem = {
     factory_number: string
     product: number
     product_name: string
-    category: number
-    category_name: string
     state: ItemState
     state_display: string
     condition: ItemCondition
@@ -72,12 +70,4 @@ export type ItemActionPayload = {
     comment?: string
 }
 
-export type ItemCategory = {
-    id: number
-    name: string
-    unit: number
-    unit_name: string
-    is_serialized: boolean
-    products_count: number
-}
 

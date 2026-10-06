@@ -30,7 +30,12 @@ export const useProductCols = () => {
                 header: t("form.name"),
                 cell: ({ row }) => (
                     <div>
-                        <div>{row.original.name}</div>
+                        <div className="flex items-center gap-2">
+                            <span>{row.original.name}</span>
+                            {row.original.is_serialized && (
+                                <Badge>{t("wh.serialized_yes")}</Badge>
+                            )}
+                        </div>
                         {row.original.gtin && (
                             <div className="text-xs text-muted-foreground font-mono">
                                 {row.original.gtin}
@@ -38,16 +43,6 @@ export const useProductCols = () => {
                         )}
                     </div>
                 ),
-            },
-            {
-                id: "category",
-                header: t("wh.category"),
-                cell: ({ row }) =>
-                    row.original.category_name ?
-                        <span className="whitespace-nowrap">
-                            {row.original.category_name}
-                        </span>
-                    :   <Dash />,
             },
             {
                 id: "quantity",

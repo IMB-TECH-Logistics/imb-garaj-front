@@ -134,7 +134,6 @@ export const MONITORING_STATUS_ROUTE = "monitoring/status/route"
 /** ===== WAREHOUSE / OMBOR ===== */
 export const WAREHOUSE_UNITS = "warehouse/units"
 export const WAREHOUSE_PRODUCTS = "warehouse/products"
-export const WAREHOUSE_CATEGORIES = "warehouse/categories"
 export const WAREHOUSE_RECEIPTS = "warehouse/receipts"
 export const WAREHOUSE_RECEIPT_LINES = "warehouse/receipts/lines"
 export const WAREHOUSE_WITHDRAWALS = "warehouse/withdrawals"
