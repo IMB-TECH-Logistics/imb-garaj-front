@@ -1,4 +1,5 @@
 import Modal from "@/components/custom/modal"
+import { cn } from "@/lib/utils"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import FormInput from "@/components/form/input"
@@ -235,8 +236,13 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                 />
             )}
 
-            {!isQr && (
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr_150px] gap-3">
+            <div
+                className={cn(
+                    "grid grid-cols-1 gap-3",
+                    isQr ? "sm:grid-cols-3" : "sm:grid-cols-[minmax(0,1fr)_130px_160px_auto]",
+                )}
+            >
+                {!isQr && (
                     <FormCombobox
                         required
                         name={`lines.${index}.product`}
@@ -247,16 +253,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                         valueKey="id"
                         labelKey="name"
                     />
-                    <FormInput
-                        name={`lines.${index}.lot_number`}
-                        label={t("wh.lot")}
-                        className="font-mono"
-                        methods={form}
-                    />
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                )}
                 <FormNumberInput
                     required
                     name={`lines.${index}.quantity`}
@@ -274,7 +271,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     allowNegative={false}
                     decimalScale={2}
                 />
-                <div className="flex flex-col justify-end sm:text-right pb-2">
+                <div className="flex flex-col justify-end sm:text-right pb-2 whitespace-nowrap">
                     <div className="text-xs text-muted-foreground">
                         {t("form.amount")}
                     </div>
