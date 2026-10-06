@@ -26,6 +26,9 @@ type FormValues = {
     life_years: string
     life_months: string
     life_days: string
+    service_years: string
+    service_months: string
+    service_days: string
 }
 
 const numberText = (value: string | number | null | undefined) =>
@@ -52,6 +55,9 @@ const AddProductModal = () => {
             life_years: numberText(current?.life_years),
             life_months: numberText(current?.life_months),
             life_days: numberText(current?.life_days),
+            service_years: numberText(current?.service_years),
+            service_months: numberText(current?.service_months),
+            service_days: numberText(current?.service_days),
         },
     })
     const { control, handleSubmit } = form
@@ -89,6 +95,9 @@ const AddProductModal = () => {
             life_years: Number(values.life_years) || 0,
             life_months: Number(values.life_months) || 0,
             life_days: Number(values.life_days) || 0,
+            service_years: Number(values.service_years) || 0,
+            service_months: Number(values.service_months) || 0,
+            service_days: Number(values.service_days) || 0,
         }
         if (current?.id) {
             updateMutate(`${WAREHOUSE_PRODUCTS}/${current.id}`, payload)
@@ -179,6 +188,37 @@ const AddProductModal = () => {
                             />
                             <FormNumberInput
                                 name="life_days"
+                                control={control}
+                                placeholder={t("wh.days")}
+                                decimalScale={0}
+                                allowNegative={false}
+                                suffix={` ${t("wh.days")}`}
+                            />
+                        </div>
+                    </div>
+                    <div className="md:col-span-2 flex flex-col">
+                        <FieldLabel htmlFor="service_years" required={false} isError={false}>
+                            {t("wh.service_life")}
+                        </FieldLabel>
+                        <div className="grid grid-cols-3 gap-3">
+                            <FormNumberInput
+                                name="service_years"
+                                control={control}
+                                placeholder={t("wh.years")}
+                                decimalScale={0}
+                                allowNegative={false}
+                                suffix={` ${t("wh.years")}`}
+                            />
+                            <FormNumberInput
+                                name="service_months"
+                                control={control}
+                                placeholder={t("wh.months")}
+                                decimalScale={0}
+                                allowNegative={false}
+                                suffix={` ${t("wh.months")}`}
+                            />
+                            <FormNumberInput
+                                name="service_days"
                                 control={control}
                                 placeholder={t("wh.days")}
                                 decimalScale={0}

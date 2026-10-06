@@ -763,7 +763,7 @@
         "product_add": "商品を追加",
         "product_edit": "商品を編集",
         "min_quantity": "最小数量",
-        "life": "使用期限",
+        "life": "使用期限（在庫）",
         "no_expiry": "期限なし",
         "life_years": "{{count}}年",
         "life_months": "{{count}}か月",
@@ -927,7 +927,8 @@
             }
         },
         "tab_stock": "在庫",
-        "tab_moves": "倉庫操作"
+        "tab_moves": "倉庫操作",
+        "service_life": "耐用期間（取付後）"
     },
     "reys_confirm": {
         "short": "未確認",

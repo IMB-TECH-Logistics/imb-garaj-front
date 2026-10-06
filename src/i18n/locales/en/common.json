@@ -763,7 +763,7 @@
         "product_add": "Add product",
         "product_edit": "Edit product",
         "min_quantity": "Minimum quantity",
-        "life": "Shelf life",
+        "life": "Shelf life (in stock)",
         "no_expiry": "does not expire",
         "life_years_one": "{{count}} year",
         "life_years_other": "{{count}} years",
@@ -930,7 +930,8 @@
             }
         },
         "tab_stock": "Stock",
-        "tab_moves": "Warehouse operations"
+        "tab_moves": "Warehouse operations",
+        "service_life": "Service life (after installation)"
     },
     "reys_confirm": {
         "short": "Unconfirmed",

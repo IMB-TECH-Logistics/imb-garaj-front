@@ -14,6 +14,9 @@ export type WhProduct = {
     life_years: number
     life_months: number
     life_days: number
+    service_years: number | null
+    service_months: number | null
+    service_days: number | null
     qty_left: string
     avg_price: string | null
     value: string

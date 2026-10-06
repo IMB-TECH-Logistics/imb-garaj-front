@@ -794,7 +794,7 @@
         "product_add": "Mahsulot qo'shish",
         "product_edit": "Mahsulotni tahrirlash",
         "min_quantity": "Minimal miqdor",
-        "life": "Eskirish muddati",
+        "life": "Yaroqlilik muddati (omborda)",
         "no_expiry": "eskirmaydi",
         "life_years": "{{count}} yil",
         "life_months": "{{count}} oy",
@@ -958,7 +958,8 @@
             }
         },
         "tab_stock": "Qoldiq",
-        "tab_moves": "Ombor operatsiyalari"
+        "tab_moves": "Ombor operatsiyalari",
+        "service_life": "Xizmat muddati (o'rnatilgandan keyin)"
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",
