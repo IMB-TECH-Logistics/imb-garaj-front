@@ -262,7 +262,8 @@ const ReceiptForm = () => {
         >
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
                 <div className="grid grid-cols-1 gap-4">
-                    <div className="flex items-center justify-end gap-2 flex-wrap">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="font-medium text-sm">{t("wh.products")}</span>
                         <Button
                             type="button"
                             size="sm"
