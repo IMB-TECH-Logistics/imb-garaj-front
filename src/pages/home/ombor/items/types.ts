@@ -81,4 +81,3 @@ export type ItemCategory = {
     products_count: number
 }
 
-export const WAREHOUSE_CATEGORIES = "warehouse/categories"

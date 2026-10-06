@@ -1,7 +1,7 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
-import { WAREHOUSE_ITEMS } from "@/constants/api-endpoints"
+import { WAREHOUSE_CATEGORIES, WAREHOUSE_ITEMS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useMemo, useRef } from "react"
@@ -10,7 +10,6 @@ import type { OmborSearchParams } from "../types"
 import { useItemCols } from "./cols"
 import ItemDetailSheet from "./detail-sheet"
 import {
-    WAREHOUSE_CATEGORIES,
     type ItemCategory,
     type ItemCondition,
     type ItemState,
@@ -40,13 +39,10 @@ const ItemsTab = () => {
         },
     })
 
-    const { data: categories } = useGet<ListResponse<ItemCategory>>(
-        WAREHOUSE_CATEGORIES,
-        { params: { page_size: 1000 } },
-    )
+    const { data: categories } = useGet<ItemCategory[]>(WAREHOUSE_CATEGORIES)
 
     const serialized = useMemo(
-        () => (categories?.results ?? []).filter((c) => c.is_serialized),
+        () => (categories ?? []).filter((c) => c.is_serialized),
         [categories],
     )
     const stateOptions = useMemo(
