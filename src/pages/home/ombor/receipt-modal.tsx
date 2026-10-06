@@ -261,10 +261,8 @@ const ReceiptForm = () => {
             className="flex flex-col gap-3 p-0.5"
         >
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Mahsulotlar</h3>
                 <div className="grid grid-cols-1 gap-4">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <span className="font-medium text-sm">{t("wh.products")}</span>
+                    <div className="flex items-center justify-end gap-2 flex-wrap">
                         <Button
                             type="button"
                             size="sm"
@@ -299,7 +297,6 @@ const ReceiptForm = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Sana va izoh</h3>
                 <div className="grid grid-cols-1 gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <FormDatePicker
