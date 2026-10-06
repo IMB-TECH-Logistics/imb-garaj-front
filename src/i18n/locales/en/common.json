@@ -971,6 +971,7 @@
             "odometer_value": "Odometer: {{value}} km",
             "choose_piece": "Choose factory number",
             "duplicate": "This piece is already added"
-        }
+        },
+        "tab_expenses": "Expenses"
     }
 }

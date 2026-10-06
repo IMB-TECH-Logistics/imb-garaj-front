@@ -20,12 +20,12 @@ const CONDITIONS: ItemCondition[] = ["new", "used"]
 
 const buttonClass = { className: "!bg-background dark:!bg-secondary" }
 
-const ItemsTab = () => {
+const ItemsTab = ({ searchKey = "search" }: { searchKey?: string }) => {
     const { t } = useTranslation()
     const search = useSearch({ strict: false }) as OmborSearchParams
     const navigate = useNavigate()
 
-    const query = String(search.search ?? "").trim()
+    const query = String((search as Record<string, unknown>)[searchKey] ?? "").trim()
 
     const { data, isLoading } = useGet<ListResponse<WhItem>>(WAREHOUSE_ITEMS, {
         params: {

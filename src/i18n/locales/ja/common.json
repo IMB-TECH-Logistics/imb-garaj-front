@@ -968,6 +968,7 @@
             "odometer_value": "走行距離: {{value}} km",
             "choose_piece": "製造番号を選択",
             "duplicate": "この製品は既に追加されています"
-        }
+        },
+        "tab_expenses": "費用"
     }
 }

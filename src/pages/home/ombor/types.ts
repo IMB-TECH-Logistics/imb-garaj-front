@@ -93,7 +93,7 @@ export type OmborSearchParams = {
     to_date?: string
     tenant?: number
     vehicle_plate?: string
-    section?: "items" | "moves"
+    section?: "moves"
     item?: number
     istate?: string
     icond?: string

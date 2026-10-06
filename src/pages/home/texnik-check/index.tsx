@@ -22,10 +22,12 @@ import { useExpenseCols, type VehicleExpenseRow } from "./cols"
 import AddExpenseModal from "./add-expense"
 import ExpenseDetailSheet from "./detail-sheet"
 import { useTranslation } from "react-i18next"
+import ParamTabs from "@/components/as-params/tabs"
+import ItemsTab from "../ombor/items"
 
 type SelectItem = { id: number | string; name: string }
 
-export const TexnikCheck = () => {
+const Inspections = () => {
     const search: any = useSearch({ strict: false })
     const navigate = useNavigate()
     const onlyAlerts = search?.ti_alert === "1" || search?.ti_alert === 1
@@ -171,6 +173,25 @@ export const TexnikCheck = () => {
             />
 
             <DeleteModal path={TECHNICAL_INSPECT} id={current?.id} />
+        </div>
+    )
+}
+
+export const TexnikCheck = () => {
+    const { t } = useTranslation()
+    const search = useSearch({ strict: false }) as Record<string, unknown>
+    const tab = search.ti_tab === "items" ? "items" : "expenses"
+
+    return (
+        <div className="flex flex-col w-full gap-3">
+            <ParamTabs
+                paramName="ti_tab"
+                options={[
+                    { value: "expenses", label: t("texnik.tab_expenses") },
+                    { value: "items", label: t("wh.items.title") },
+                ]}
+            />
+            {tab === "items" ? <ItemsTab searchKey="vehicle_search" /> : <Inspections />}
         </div>
     )
 }

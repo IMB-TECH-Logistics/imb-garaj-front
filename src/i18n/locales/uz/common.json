@@ -999,6 +999,7 @@
             "odometer_value": "Spidometr: {{value}} km",
             "choose_piece": "Zavod raqamini tanlang",
             "duplicate": "Bu dona allaqachon qo'shilgan"
-        }
+        },
+        "tab_expenses": "Xarajatlar"
     }
 }
