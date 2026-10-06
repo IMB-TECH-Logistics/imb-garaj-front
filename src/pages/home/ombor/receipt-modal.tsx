@@ -116,10 +116,15 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                         <Badge>{t("wh.serialized_yes")}</Badge>
                     )}
                 </div>
-                {remove}
+                <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-sm font-medium tabular-nums whitespace-nowrap">
+                        {formatMoney(sum)} {t("page.som")}
+                    </span>
+                    {remove}
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_130px_160px_auto]">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_130px_160px]">
                 <FormCombobox
                     required
                     name={`lines.${index}.product`}
@@ -147,14 +152,6 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     allowNegative={false}
                     decimalScale={2}
                 />
-                <div className="flex flex-col justify-end sm:text-right pb-2 whitespace-nowrap">
-                    <div className="text-xs text-muted-foreground">
-                        {t("form.amount")}
-                    </div>
-                    <div className="font-medium tabular-nums">
-                        {formatMoney(sum)} {t("page.som")}
-                    </div>
-                </div>
             </div>
 
             {serialized && count > 0 && (
