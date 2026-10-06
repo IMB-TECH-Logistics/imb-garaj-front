@@ -37,16 +37,6 @@ export const useProductCols = () => {
                 ),
             },
             {
-                id: "avg_price",
-                header: t("form.unit_price"),
-                cell: ({ row }) =>
-                    row.original.avg_price === null ?
-                        <Dash />
-                    :   <span className="whitespace-nowrap">
-                            {formatMoney(row.original.avg_price)} {t("page.som")}
-                        </span>,
-            },
-            {
                 id: "value",
                 header: t("wh.total_sum"),
                 cell: ({ row }) => (
