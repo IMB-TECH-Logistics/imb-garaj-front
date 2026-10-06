@@ -84,10 +84,8 @@ export const useDirectionColumns = () => {
             { accessorKey: "owner_code", header: t("form.company_code"), enableSorting: true, size: 100 },
             { accessorKey: "load_city_name", header: t("form.load_region"), enableSorting: true, cell: ({ row }) => row.original.load_city_name || row.original.load_name || "—" },
             { id: "load_place_sort", accessorKey: "load_place_display", header: t("form.load_place"), enableSorting: true, cell: ({ row }) => row.original.load_place_display || "—" },
-            { accessorKey: "load_zone_name", header: "Yuklash lokatsiyasi", enableSorting: true, cell: ({ row }) => row.original.load_zone_name || "—" },
             { accessorKey: "unload_city_name", header: t("form.unload_region"), enableSorting: true, cell: ({ row }) => row.original.unload_city_name || row.original.unload_name || "—" },
             { id: "unload_place_sort", accessorKey: "unload_place_display", header: t("form.unload_place"), enableSorting: true, cell: ({ row }) => row.original.unload_place_display || "—" },
-            { accessorKey: "unload_zone_name", header: "Tushirish lokatsiyasi", enableSorting: true, cell: ({ row }) => row.original.unload_zone_name || "—" },
             {
                 accessorKey: "distributor_name",
                 header: t("form.distributor"),
