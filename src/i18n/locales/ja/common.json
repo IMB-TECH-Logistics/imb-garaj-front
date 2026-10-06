@@ -834,7 +834,10 @@
             "err_product": "カタログから商品を選択してください",
             "err_quantity": "数量を入力してください",
             "err_price": "単価を入力してください",
-            "saved": "入庫を保存しました"
+            "saved": "入庫を保存しました",
+            "factory_numbers": "製造番号",
+            "err_factory_empty": "すべての製造番号を入力してください",
+            "err_factory_dup": "製造番号は重複できません"
         },
         "tech": {
             "block": "倉庫からの商品",
@@ -862,7 +865,15 @@
             "empty": "在庫なし",
             "ok": "すべての商品の在庫は十分です",
             "receipt": "入庫する"
-        }
+        },
+        "categories": "カテゴリ",
+        "category": "カテゴリ",
+        "category_add": "カテゴリを追加",
+        "category_edit": "カテゴリを編集",
+        "serialized": "製造番号あり",
+        "serialized_yes": "個体管理",
+        "serialized_label": "1個ごとに製造番号を管理",
+        "factory_number": "製造番号"
     },
     "reys_confirm": {
         "short": "未確認",

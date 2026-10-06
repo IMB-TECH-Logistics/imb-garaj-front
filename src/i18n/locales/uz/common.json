@@ -865,7 +865,10 @@
             "err_product": "Mahsulotni katalogdan tanlang",
             "err_quantity": "Miqdorni kiriting",
             "err_price": "Birlik narxini kiriting",
-            "saved": "Kirim saqlandi"
+            "saved": "Kirim saqlandi",
+            "factory_numbers": "Zavod raqamlari",
+            "err_factory_empty": "Barcha zavod raqamlarini kiriting",
+            "err_factory_dup": "Zavod raqamlari takrorlanmasligi kerak"
         },
         "tech": {
             "block": "Ombordan mahsulotlar",
@@ -893,7 +896,15 @@
             "empty": "omborda yo'q",
             "ok": "Hamma mahsulot yetarli",
             "receipt": "Kirim qilish"
-        }
+        },
+        "categories": "Kategoriyalar",
+        "category": "Kategoriya",
+        "category_add": "Kategoriya qo'shish",
+        "category_edit": "Kategoriyani tahrirlash",
+        "serialized": "Zavod raqami bilan",
+        "serialized_yes": "Indeksli",
+        "serialized_label": "Har bir dona zavod raqami bilan",
+        "factory_number": "Zavod raqami"
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",

@@ -418,6 +418,12 @@ export const useItems = () => {
                         ownerOnly: true,
                     },
                     {
+                        label: t("wh.categories"),
+                        path: "/product-categories",
+                        allowKey: "warehouse_view",
+                        ownerOnly: true,
+                    },
+                    {
                         label: t("wh.catalog"),
                         path: "/product-catalog",
                         allowKey: "warehouse_view",

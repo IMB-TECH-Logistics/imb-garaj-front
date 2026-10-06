@@ -837,7 +837,10 @@
             "err_product": "Choose a product from the catalog",
             "err_quantity": "Enter the quantity",
             "err_price": "Enter the unit price",
-            "saved": "Receipt saved"
+            "saved": "Receipt saved",
+            "factory_numbers": "Factory numbers",
+            "err_factory_empty": "Enter all factory numbers",
+            "err_factory_dup": "Factory numbers must be unique"
         },
         "tech": {
             "block": "Products from warehouse",
@@ -865,7 +868,15 @@
             "empty": "out of stock",
             "ok": "All products are sufficiently stocked",
             "receipt": "Add receipt"
-        }
+        },
+        "categories": "Categories",
+        "category": "Category",
+        "category_add": "Add category",
+        "category_edit": "Edit category",
+        "serialized": "With factory number",
+        "serialized_yes": "Tracked",
+        "serialized_label": "Each piece has a factory number",
+        "factory_number": "Factory number"
     },
     "reys_confirm": {
         "short": "Unconfirmed",

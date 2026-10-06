@@ -4,11 +4,23 @@ export type WhUnit = {
     products_count: number
 }
 
+export type WhCategory = {
+    id: number
+    name: string
+    unit: number
+    unit_name: string
+    is_serialized: boolean
+    products_count: number
+}
+
 export type WhProduct = {
     id: number
     name: string
     unit: number
     unit_name: string
+    category: number | null
+    category_name: string | null
+    is_serialized: boolean
     gtin: string | null
     min_quantity: string | null
     life_years: number
@@ -102,6 +114,7 @@ export type OmborSearchParams = {
     product?: number
     lot?: number
     tab?: WhTab
+    category?: number
     receipt?: 1
     lpage?: number
     lpage_size?: number

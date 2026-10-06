@@ -40,6 +40,16 @@ export const useProductCols = () => {
                 ),
             },
             {
+                id: "category",
+                header: t("wh.category"),
+                cell: ({ row }) =>
+                    row.original.category_name ?
+                        <span className="whitespace-nowrap">
+                            {row.original.category_name}
+                        </span>
+                    :   <Dash />,
+            },
+            {
                 id: "quantity",
                 header: t("form.quantity"),
                 cell: ({ row }) => (

@@ -56,6 +56,7 @@ type SearchParams = {
     cargo_search?:string
     unit_search?:string
     catalog_search?:string
+    category_search?:string
     country_search?:string
     vehicle_search?:string
     roles_search?:string

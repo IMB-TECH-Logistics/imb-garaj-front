@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_main/ombor/")({
             search.tab === "receipts" || search.tab === "withdrawals" ?
                 search.tab
             :   undefined,
+        category: Number(search.category) || undefined,
         receipt: search.receipt ? 1 : undefined,
         lpage: Number(search.lpage) || undefined,
         lpage_size: Number(search.lpage_size) || undefined,

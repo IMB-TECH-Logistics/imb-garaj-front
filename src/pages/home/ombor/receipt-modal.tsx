@@ -45,6 +45,7 @@ type LineValues = {
     expires_at: string
     quantity: string
     unit_price: string
+    factory_numbers: string[]
 }
 
 type FormValues = {
@@ -64,7 +65,18 @@ const emptyLine = (): LineValues => ({
     expires_at: "",
     quantity: "1",
     unit_price: "",
+    factory_numbers: [],
 })
+
+const MAX_SERIAL_QTY = 500
+
+const serialCount = (quantity: string) =>
+    Math.min(Math.max(Math.trunc(toNumber(quantity)), 0), MAX_SERIAL_QTY)
+
+const cleanNumbers = (line: LineValues) =>
+    Array.from({ length: serialCount(line.quantity) }, (_, i) =>
+        (line.factory_numbers?.[i] ?? "").trim(),
+    )
 
 const KeyValue = ({ label, children }: { label: string; children: ReactNode }) => (
     <div className="min-w-0">
@@ -141,6 +153,8 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
     }
 
     const unit = product?.unit_name ?? ""
+    const serialized = !!product?.is_serialized
+    const count = serialized ? serialCount(line.quantity) : 0
     const sum = toNumber(line.quantity) * toNumber(line.unit_price)
 
     return (
@@ -160,6 +174,9 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     </span>
                     {product && (
                         <Badge variant="secondary">{product.unit_name}</Badge>
+                    )}
+                    {serialized && (
+                        <Badge>{t("wh.serialized_yes")}</Badge>
                     )}
                     {gtinUnknown && (
                         <Badge variant="orange">
@@ -246,7 +263,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     label={t("form.quantity")}
                     control={control}
                     allowNegative={false}
-                    decimalScale={2}
+                    decimalScale={serialized ? 0 : 2}
                     suffix={unit ? ` ${unit}` : undefined}
                 />
                 <FormNumberInput
@@ -266,6 +283,25 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     </div>
                 </div>
             </div>
+
+            {serialized && count > 0 && (
+                <div className="rounded-md bg-muted/60 p-2.5">
+                    <div className="text-xs font-medium text-muted-foreground mb-2">
+                        {t("wh.receipt.factory_numbers")}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Array.from({ length: count }, (_, i) => (
+                            <FormInput
+                                key={i}
+                                name={`lines.${index}.factory_numbers.${i}`}
+                                placeholder={`${t("wh.factory_number")} ${i + 1}`}
+                                className="font-mono"
+                                methods={form}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
@@ -295,6 +331,9 @@ const ReceiptForm = () => {
         0,
     )
 
+    const serializedOf = (id: number | "") =>
+        !!products.find((p) => p.id === Number(id))?.is_serialized
+
     const validationError = (() => {
         if (!lines.length) return t("wh.receipt.err_empty")
         if (lines.some((l) => l.source === "qr" && isPast(l.expires_at))) {
@@ -303,6 +342,13 @@ const ReceiptForm = () => {
         if (lines.some((l) => !l.product)) return t("wh.receipt.err_product")
         if (lines.some((l) => !(toNumber(l.quantity) > 0))) {
             return t("wh.receipt.err_quantity")
+        }
+        const numbers = lines.flatMap((l) =>
+            serializedOf(l.product) ? cleanNumbers(l) : [],
+        )
+        if (numbers.some((n) => !n)) return t("wh.receipt.err_factory_empty")
+        if (new Set(numbers).size !== numbers.length) {
+            return t("wh.receipt.err_factory_dup")
         }
         if (lines.some((l) => l.unit_price === "")) {
             return t("wh.receipt.err_price")
@@ -346,6 +392,7 @@ const ReceiptForm = () => {
             produced_at: parsed.producedAt ?? "",
             expires_at: parsed.expiresAt ?? "",
             quantity: "1",
+            factory_numbers: [],
             unit_price:
                 product?.avg_price ? String(toNumber(product.avg_price)) : "",
         })
@@ -359,9 +406,15 @@ const ReceiptForm = () => {
             comment: values.comment.trim() || undefined,
             lines: values.lines.map((line) => ({
                 product: Number(line.product),
-                quantity: line.quantity,
+                quantity:
+                    serializedOf(line.product) ?
+                        serialCount(line.quantity)
+                    :   line.quantity,
                 unit_price: line.unit_price,
                 lot_number: line.lot_number || undefined,
+                ...(serializedOf(line.product) && {
+                    factory_numbers: cleanNumbers(line),
+                }),
                 ...(line.source === "qr" && {
                     raw_code: line.raw_code,
                     gtin: line.gtin,

@@ -1,11 +1,12 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
-import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
+import { ParamCombobox } from "@/components/as-params/combobox"
+import { WAREHOUSE_CATEGORIES, WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import type { WhProduct } from "@/pages/home/ombor/types"
+import type { WhCategory, WhProduct } from "@/pages/home/ombor/types"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
@@ -22,11 +23,14 @@ const ProductCatalogPage = () => {
         {
             params: {
                 search: search.catalog_search,
+                category: search.category,
                 page: search.page,
                 page_size: search.page_size,
             },
         },
     )
+
+    const { data: categories } = useGet<WhCategory[]>(WAREHOUSE_CATEGORIES)
 
     const { getData, setData } = useGlobalStore()
     const item = getData<WhProduct>(WAREHOUSE_PRODUCTS)
@@ -70,6 +74,19 @@ const ProductCatalogPage = () => {
                         searchKey="catalog_search"
                         pageKey="page"
                         count={data?.count}
+                        extraBeforeAdd={
+                            <ParamCombobox
+                                paramName="category"
+                                options={categories ?? []}
+                                valueKey="id"
+                                labelKey="name"
+                                label={t("wh.category")}
+                                addButtonProps={{
+                                    className:
+                                        "!bg-background dark:!bg-secondary",
+                                }}
+                            />
+                        }
                     />
                 }
             />

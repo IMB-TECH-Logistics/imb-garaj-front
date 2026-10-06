@@ -17,6 +17,14 @@ export const useColumnsCatalogTable = () => {
                 ),
             },
             {
+                id: "category",
+                header: t("wh.category"),
+                cell: ({ row }) =>
+                    row.original.category_name ?
+                        <span>{row.original.category_name}</span>
+                    :   <span className="text-muted-foreground">—</span>,
+            },
+            {
                 id: "min_quantity",
                 header: t("wh.min_quantity"),
                 cell: ({ row }) =>

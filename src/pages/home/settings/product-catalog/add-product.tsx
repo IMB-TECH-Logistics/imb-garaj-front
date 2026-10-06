@@ -3,15 +3,20 @@ import FieldLabel from "@/components/form/form-label"
 import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
-import { WAREHOUSE_PRODUCTS, WAREHOUSE_UNITS } from "@/constants/api-endpoints"
+import {
+    WAREHOUSE_CATEGORIES,
+    WAREHOUSE_PRODUCTS,
+    WAREHOUSE_UNITS,
+} from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { handleFormError } from "@/lib/show-form-errors"
-import type { WhProduct, WhUnit } from "@/pages/home/ombor/types"
+import type { WhCategory, WhProduct, WhUnit } from "@/pages/home/ombor/types"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -19,6 +24,7 @@ import { toast } from "sonner"
 type FormValues = {
     name: string
     unit: number | ""
+    category: number | ""
     min_quantity: string
     life_years: string
     life_months: string
@@ -40,11 +46,14 @@ const AddProductModal = () => {
 
     const { data: units, isLoading: unitsLoading } =
         useGet<WhUnit[]>(WAREHOUSE_UNITS)
+    const { data: categories, isLoading: categoriesLoading } =
+        useGet<WhCategory[]>(WAREHOUSE_CATEGORIES)
 
     const form = useForm<FormValues>({
         defaultValues: {
             name: current?.name ?? "",
             unit: current?.unit ?? "",
+            category: current?.category ?? "",
             min_quantity: numberText(current?.min_quantity),
             life_years: numberText(current?.life_years),
             life_months: numberText(current?.life_months),
@@ -52,10 +61,17 @@ const AddProductModal = () => {
             gtin: current?.gtin ?? "",
         },
     })
-    const { control, handleSubmit } = form
+    const { control, handleSubmit, setValue } = form
 
     const unitId = useWatch({ control, name: "unit" })
     const unitName = units?.find((unit) => unit.id === unitId)?.name
+    const categoryId = useWatch({ control, name: "category" })
+
+    useEffect(() => {
+        if (!categoryId || categoryId === current?.category) return
+        const category = categories?.find((item) => item.id === categoryId)
+        if (category) setValue("unit", category.unit)
+    }, [categoryId, categories])
 
     const onSuccess = () => {
         toast.success(
@@ -82,6 +98,7 @@ const AddProductModal = () => {
         const payload = {
             name: values.name.trim(),
             unit: values.unit,
+            category: values.category || null,
             min_quantity: values.min_quantity,
             life_years: Number(values.life_years) || 0,
             life_months: Number(values.life_months) || 0,
@@ -108,6 +125,18 @@ const AddProductModal = () => {
                         name="name"
                         label={t("form.name")}
                         methods={form}
+                        wrapperClassName="md:col-span-2"
+                    />
+
+                    <FormCombobox
+                        name="category"
+                        label={t("wh.category")}
+                        placeholder={t("wh.choose")}
+                        control={control}
+                        options={categories}
+                        valueKey="id"
+                        labelKey="name"
+                        isLoading={categoriesLoading}
                         wrapperClassName="md:col-span-2"
                     />
 
