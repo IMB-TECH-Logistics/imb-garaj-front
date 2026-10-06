@@ -109,9 +109,6 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                             </span>
                         )}
                     </span>
-                    {product && (
-                        <Badge variant="secondary">{product.unit_name}</Badge>
-                    )}
                     {serialized && (
                         <Badge>{t("wh.serialized_yes")}</Badge>
                     )}
@@ -320,9 +317,6 @@ const ReceiptForm = () => {
             <div className="rounded-lg bg-muted/60 p-3 flex items-center justify-between gap-3">
                 <div className="font-medium">{t("page.total")}</div>
                 <div className="text-right">
-                    <div className="text-xs text-muted-foreground">
-                        {t("form.amount")}
-                    </div>
                     <div className="font-medium tabular-nums">
                         {formatMoney(total)} {t("page.som")}
                     </div>
