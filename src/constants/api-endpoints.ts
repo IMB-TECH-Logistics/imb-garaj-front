@@ -140,6 +140,7 @@ export const WAREHOUSE_WITHDRAWALS = "warehouse/withdrawals"
 export const WAREHOUSE_WITHDRAWAL_FILTERS = "warehouse/withdrawals/filters"
 export const WAREHOUSE_SCAN = "warehouse/scan"
 export const WAREHOUSE_LOW_STOCK = "warehouse/low-stock"
+export const WAREHOUSE_ITEMS = "warehouse/items"
 
 /** ===== CHECKOUT extras ===== */
 export const CHECKOUT_TOP_UP = "checkout/top-up"

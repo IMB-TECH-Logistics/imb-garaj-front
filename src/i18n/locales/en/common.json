@@ -865,6 +865,64 @@
             "empty": "out of stock",
             "ok": "All products are sufficiently stocked",
             "receipt": "Add receipt"
+        },
+        "items": {
+            "title": "Serialized items",
+            "factory_number": "Serial number",
+            "model": "Model",
+            "category": "Category",
+            "state_label": "Status",
+            "condition_label": "New / Used",
+            "vehicle": "Vehicle",
+            "holder": "Holder (company)",
+            "installed_at": "Installed on",
+            "installed_odometer": "Odometer at install",
+            "km_total": "Distance driven",
+            "km": "km",
+            "price": "Price",
+            "receipt_date": "Receipt date",
+            "history": "History",
+            "no_events": "No history yet",
+            "km_driven": "Distance driven (km)",
+            "odometer": "Odometer (km)",
+            "km_hint_gps": "Based on GPS",
+            "km_hint_odometer": "Based on odometer",
+            "km_hint_none": "Could not be determined automatically, enter manually",
+            "write_off_confirm": "The item will be written off. This cannot be undone.",
+            "state": {
+                "in_stock": "In stock",
+                "installed": "Installed",
+                "repair": "In repair",
+                "written_off": "Written off"
+            },
+            "condition": {
+                "new": "New",
+                "used": "Used"
+            },
+            "action": {
+                "remove": "Remove",
+                "repair": "Send to repair",
+                "repair_return": "Returned from repair",
+                "write_off": "Write off"
+            },
+            "done": {
+                "remove": "Item removed",
+                "repair": "Item sent to repair",
+                "repair_return": "Item returned from repair",
+                "write_off": "Item written off"
+            },
+            "event": {
+                "received": "Received into warehouse",
+                "installed": "Installed",
+                "removed": "Removed",
+                "repair": "Sent to repair",
+                "repair_returned": "Returned from repair",
+                "written_off": "Written off"
+            },
+            "km_source": {
+                "gps": "GPS",
+                "manual": "manual"
+            }
         }
     },
     "reys_confirm": {

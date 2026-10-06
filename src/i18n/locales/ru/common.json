@@ -871,6 +871,64 @@
             "empty": "нет на складе",
             "ok": "Всех товаров достаточно",
             "receipt": "Оприходовать"
+        },
+        "items": {
+            "title": "Индексируемые товары",
+            "factory_number": "Заводской номер",
+            "model": "Модель",
+            "category": "Категория",
+            "state_label": "Состояние",
+            "condition_label": "Новый / Б/у",
+            "vehicle": "Машина",
+            "holder": "Владелец (компания)",
+            "installed_at": "Дата установки",
+            "installed_odometer": "Одометр при установке",
+            "km_total": "Пробег",
+            "km": "км",
+            "price": "Цена",
+            "receipt_date": "Дата прихода",
+            "history": "История",
+            "no_events": "История пока пуста",
+            "km_driven": "Пройдено (км)",
+            "odometer": "Одометр (км)",
+            "km_hint_gps": "По GPS",
+            "km_hint_odometer": "По одометру",
+            "km_hint_none": "Не определено автоматически, введите вручную",
+            "write_off_confirm": "Товар будет списан. Это действие нельзя отменить.",
+            "state": {
+                "in_stock": "На складе",
+                "installed": "Установлено",
+                "repair": "В ремонте",
+                "written_off": "Списано"
+            },
+            "condition": {
+                "new": "Новый",
+                "used": "Б/у"
+            },
+            "action": {
+                "remove": "Снять",
+                "repair": "Отдать в ремонт",
+                "repair_return": "Вернулось из ремонта",
+                "write_off": "Списать"
+            },
+            "done": {
+                "remove": "Товар снят",
+                "repair": "Товар отдан в ремонт",
+                "repair_return": "Товар вернулся из ремонта",
+                "write_off": "Товар списан"
+            },
+            "event": {
+                "received": "Приход на склад",
+                "installed": "Установлено",
+                "removed": "Снято",
+                "repair": "Отдано в ремонт",
+                "repair_returned": "Вернулось из ремонта",
+                "written_off": "Списано"
+            },
+            "km_source": {
+                "gps": "GPS",
+                "manual": "вручную"
+            }
         }
     },
     "reys_confirm": {

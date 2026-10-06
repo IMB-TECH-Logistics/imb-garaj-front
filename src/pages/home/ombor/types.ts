@@ -109,6 +109,14 @@ export type OmborSearchParams = {
     to_date?: string
     tenant?: number
     vehicle_plate?: string
+    section?: "items"
+    item?: number
+    icat?: number | string
+    istate?: string
+    icond?: string
+    ipage?: number
+    ipage_size?: number
+    search?: string
 }
 
 export type WhWithdrawalFilters = {
