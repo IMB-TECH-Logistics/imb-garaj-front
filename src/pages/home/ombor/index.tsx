@@ -1,6 +1,5 @@
 import DownloadAsExcel from "@/components/download-as-excel"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
@@ -9,7 +8,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useProductCols } from "./cols"
 import ItemsTab from "./items"
@@ -24,9 +23,6 @@ const Stock = () => {
     const hasControl = useHasAction("warehouse_control")
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
-    const { product, select, clear } = useOmborSearch()
-    const sectionRef = useRef<HTMLDivElement>(null)
-
     const { openModal: openReceipt } = useModal(RECEIPT_MODAL_KEY)
 
     const receiptParam = (search as OmborSearchParams).receipt
@@ -60,23 +56,16 @@ const Stock = () => {
 
     const columns = useProductCols()
 
-    useEffect(() => {
-        if (!product) return
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && !e.defaultPrevented) clear()
-        }
-        window.addEventListener("keydown", onKeyDown)
-        return () => window.removeEventListener("keydown", onKeyDown)
-    }, [product])
-
-    useEffect(() => {
-        const node = sectionRef.current
-        if (!product || !node) return
-        const { top } = node.getBoundingClientRect()
-        if (top > window.innerHeight - 160) {
-            node.scrollIntoView({ behavior: "smooth", block: "start" })
-        }
-    }, [product])
+    const openMoves = (id: number) =>
+        navigate({
+            search: (prev: Record<string, unknown>) => ({
+                ...prev,
+                product: id,
+                lot: undefined,
+                lpage: undefined,
+                section: "moves",
+            }),
+        } as never)
 
     return (
         <div className="flex flex-col w-full gap-3">
@@ -85,13 +74,7 @@ const Stock = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onRowClick={(row) =>
-                    row.id === product ? clear() : select(row.id)
-                }
-                rowColor={(row) =>
-                    row.id === product ? "!bg-primary/10" : ""
-                }
-                height="h-40"
+                onRowClick={(row) => openMoves(row.id)}
                 className="min-w-[760px]"
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -130,39 +113,36 @@ const Stock = () => {
                 }
             />
 
-            <LinesSection ref={sectionRef} />
-
             {isOwner && hasControl && <ReceiptModal />}
         </div>
     )
 }
 
+const Moves = () => {
+    const { product, clear } = useOmborSearch()
+
+    useEffect(() => {
+        if (!product) return
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && !e.defaultPrevented) clear()
+        }
+        window.addEventListener("keydown", onKeyDown)
+        return () => window.removeEventListener("keydown", onKeyDown)
+    }, [product])
+
+    return <LinesSection />
+}
+
 const Ombor = () => {
-    const { t } = useTranslation()
-    const navigate = useNavigate()
     const { section } = useSearch({ strict: false }) as OmborSearchParams
 
     return (
         <div className="flex flex-col w-full gap-3">
-            <Tabs
-                value={section ?? "stock"}
-                onValueChange={(value) =>
-                    navigate({
-                        search: (prev: Record<string, unknown>) => ({
-                            ...prev,
-                            section: value === "items" ? "items" : undefined,
-                        }),
-                    } as never)
-                }
-            >
-                <TabsList>
-                    <TabsTrigger value="stock">
-                        {t("page.warehouse_products")}
-                    </TabsTrigger>
-                    <TabsTrigger value="items">{t("wh.items.title")}</TabsTrigger>
-                </TabsList>
-            </Tabs>
-            {section === "items" ? <ItemsTab /> : <Stock />}
+            {section === "items" ?
+                <ItemsTab />
+            : section === "moves" ?
+                <Moves />
+            :   <Stock />}
         </div>
     )
 }

@@ -928,7 +928,9 @@
                 "gps": "GPS",
                 "manual": "manual"
             }
-        }
+        },
+        "tab_stock": "Stock",
+        "tab_moves": "Movements"
     },
     "reys_confirm": {
         "short": "Unconfirmed",

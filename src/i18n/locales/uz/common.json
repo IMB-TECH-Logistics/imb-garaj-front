@@ -956,7 +956,9 @@
                 "gps": "GPS",
                 "manual": "qo'lda"
             }
-        }
+        },
+        "tab_stock": "Qoldiq",
+        "tab_moves": "Kirim-chiqim"
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",

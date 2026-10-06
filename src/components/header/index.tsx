@@ -15,6 +15,7 @@ import { TenantFilter } from "./tenant-filter"
 import { TenantSwitcher } from "./tenant-switcher"
 import { useHasAction } from "@/constants/useUser"
 import OmborHeaderSearch from "@/pages/home/ombor/header-search"
+import OmborHeaderTabs from "@/pages/home/ombor/header-tabs"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -130,6 +131,9 @@ const Header = () => {
                         GARAJ
                     </h1>
                 </div>
+                {!childPaths.length && pathname.startsWith("/ombor") && (
+                    <OmborHeaderTabs />
+                )}
                 {!!childPaths.length && (
                     <Tabs
                         className="hidden xl:flex overflow-x-auto custom-scrollbar max-w-full"

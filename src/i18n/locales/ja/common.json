@@ -925,7 +925,9 @@
                 "gps": "GPS",
                 "manual": "手動"
             }
-        }
+        },
+        "tab_stock": "在庫",
+        "tab_moves": "入出庫"
     },
     "reys_confirm": {
         "short": "未確認",
