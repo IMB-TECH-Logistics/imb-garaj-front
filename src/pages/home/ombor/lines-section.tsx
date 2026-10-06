@@ -209,8 +209,9 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                         labelKey="name"
                         label={t("wh.product")}
                         asloClear={["lot", "lpage"]}
+                        className="w-80"
                         addButtonProps={{
-                            className: "!bg-background dark:!bg-secondary",
+                            className: "!bg-background dark:!bg-secondary min-w-44",
                         }}
                     />
                     {activeTab === "withdrawals" && isOwner && (
