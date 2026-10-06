@@ -135,11 +135,10 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                 <FormNumberInput
                     required
                     name={`lines.${index}.quantity`}
-                    label={t("form.quantity")}
+                    label={unit ? `${t("form.quantity")} (${unit})` : t("form.quantity")}
                     control={control}
                     allowNegative={false}
                     decimalScale={serialized ? 0 : 2}
-                    suffix={unit ? ` ${unit}` : undefined}
                 />
                 <FormNumberInput
                     required
