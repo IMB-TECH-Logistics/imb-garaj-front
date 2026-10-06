@@ -54,6 +54,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                 product: item.product,
                 lot: item.lot,
                 quantity: String(Number(item.quantity)),
+                odometer: item.odometer ? String(item.odometer) : "",
                 source: item.source ?? "manual",
             })),
         },
@@ -121,6 +122,9 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                     items: values.items.map((item) => ({
                         lot: item.lot,
                         quantity: item.quantity,
+                        ...(item.odometer ?
+                            { odometer: Number(item.odometer) }
+                        :   {}),
                         source: item.source,
                     })),
                 }

@@ -15,7 +15,7 @@ import {
 import { DEBOUNCETIME } from "@/constants/default"
 import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronDown, Plus, X } from "lucide-react"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { ClassNameValue } from "tailwind-merge"
 import { Skeleton } from "./skeleton"
 
@@ -40,6 +40,8 @@ export type ComboboxProps<T extends Record<string, any>> = {
     emptyText?: string
     id?: string
     ariaLabel?: string
+    renderOption?: (option: T) => ReactNode
+    contentClassName?: ClassNameValue
 }
 
 export function Combobox<T extends Record<string, any>>({
@@ -62,6 +64,8 @@ export function Combobox<T extends Record<string, any>>({
     emptyText = "Mavjud emas",
     id,
     ariaLabel,
+    renderOption,
+    contentClassName,
 }: ComboboxProps<T>) {
     const [open, setOpen] = useState(false)
     const [inputValue, setInputValue] = useState("")
@@ -151,7 +155,7 @@ export function Combobox<T extends Record<string, any>>({
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-0">
+            <PopoverContent className={cn("p-0", contentClassName)}>
                 <Command shouldFilter={onSearchChange ? false : true}>
                     {isSearch && (
                         <CommandInput
@@ -181,7 +185,7 @@ export function Combobox<T extends Record<string, any>>({
                                         disabled={!!disabledKey && !!d[disabledKey]}
                                         onSelect={() => handleSelect(d)}
                                     >
-                                        {d[labelKey]}
+                                        {renderOption ? renderOption(d) : d[labelKey]}
                                         <CheckIcon
                                             className={cn(
                                                 "ml-auto h-4 w-4",

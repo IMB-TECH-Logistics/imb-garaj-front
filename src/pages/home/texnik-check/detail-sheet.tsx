@@ -139,7 +139,9 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                             <TableHead>
                                                 {t("wh.product")}
                                             </TableHead>
-                                            <TableHead>{t("wh.lot")}</TableHead>
+                                            <TableHead>
+                                                {t("wh.lot")} / {t("texnik.serial.factory_number")}
+                                            </TableHead>
                                             <TableHead>
                                                 {t("wh.expiry")}
                                             </TableHead>
@@ -159,7 +161,16 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                                     {item.product_name}
                                                 </TableCell>
                                                 <TableCell className="font-mono whitespace-nowrap">
-                                                    {item.lot_number}
+                                                    {item.factory_number ?
+                                                        <div className="flex flex-col">
+                                                            <span>{item.factory_number}</span>
+                                                            {!!item.odometer && (
+                                                                <span className="text-xs text-muted-foreground font-sans">
+                                                                    {t("texnik.serial.odometer_value", { value: item.odometer })}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    :   item.lot_number}
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-1.5 whitespace-nowrap">
