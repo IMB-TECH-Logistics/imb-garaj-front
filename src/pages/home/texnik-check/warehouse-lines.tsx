@@ -192,7 +192,11 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                             )}
                         >
                             <span>{t("wh.product")}</span>
-                            <span>{t("wh.lot")}</span>
+                            <span>
+                                {lines.some((l) => !check.isAuto(l)) ?
+                                    t("wh.factory_number")
+                                :   ""}
+                            </span>
                             <span>{t("form.quantity")}</span>
                             <span className="w-8" />
                         </div>
@@ -207,6 +211,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                             const lots =
                                 line.product ? check.lotsOf(line.product) : []
                             const serialized = !!product?.is_serialized
+                            const auto = !serialized && line.source !== "qr"
                             const lotOptions: LotOption[] = (lots ?? []).map((l) => ({
                                 id: l.id,
                                 factory_number: l.factory_number,
@@ -243,9 +248,12 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                             valueKey="id"
                                             labelKey="name"
                                             isError={c?.product}
-                                            className="min-w-0"
+                                            className={cn(
+                                                "min-w-0",
+                                                auto && "sm:col-span-2",
+                                            )}
                                         />
-                                        <Combobox
+                                        {!auto && <Combobox
                                             options={lotOptions}
                                             value={line.lot}
                                             setValue={(v) =>
@@ -289,7 +297,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                             addButtonProps={{
                                                 disabled: !line.product,
                                             }}
-                                        />
+                                        />}
                                         {serialized ?
                                             <FormNumberInput
                                                 key="odometer"

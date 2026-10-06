@@ -119,7 +119,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
             isWarehouse ?
                 {
                     ...base,
-                    items: values.items.map((item) => ({
+                    items: check.allocate(values.items).map((item) => ({
                         lot: item.lot,
                         quantity: item.quantity,
                         ...(item.odometer ?
