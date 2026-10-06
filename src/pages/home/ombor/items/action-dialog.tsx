@@ -36,6 +36,9 @@ type Props = {
     action: ItemAction
 }
 
+const toKm = (value: unknown) => String(value ?? "").replace(/\s/g, "")
+const sameKm = (a: unknown, b: unknown) => toKm(a) === toKm(b)
+
 const ActionForm = ({ item, action }: Props) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
@@ -67,10 +70,10 @@ const ActionForm = ({ item, action }: Props) => {
 
     useEffect(() => {
         if (!suggest) return
-        const km = suggest.km_driven === null ? "" : String(suggest.km_driven)
+        const km = suggest.km_driven === null ? "" : String(Math.round(suggest.km_driven))
         const odometer =
             suggest.last_odometer === null ? "" : String(suggest.last_odometer)
-        if (getValues("km_driven") === suggestedKm.current) {
+        if (sameKm(getValues("km_driven"), suggestedKm.current)) {
             setValue("km_driven", km)
             suggestedKm.current = km
         }
@@ -104,7 +107,7 @@ const ActionForm = ({ item, action }: Props) => {
         if (leavesVehicle) {
             if (values.km_driven !== "") {
                 payload.km_driven = toNumber(values.km_driven)
-                const untouched = values.km_driven === suggestedKm.current
+                const untouched = sameKm(values.km_driven, suggestedKm.current)
                 payload.km_source =
                     untouched && suggest?.source === "gps" ? "gps" : "manual"
             }
