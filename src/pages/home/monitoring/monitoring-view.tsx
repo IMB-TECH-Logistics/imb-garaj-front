@@ -38,7 +38,6 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import DriverList from "./driver-list"
 import { DimensionEmpty } from "./dimension-row"
 import GpsList, { ConnectionFilterBar, NoGpsFilterButton, TruckStatusFilterBar, UnlinkedVehicles, type ConnectionFilter, type UnlinkedVehicle } from "./gps-list"
-import { LastOrderCard, useVehicleLastOrder } from "./order-card"
 import { useGpsLiveSocket } from "./gps-socket"
 import { TrackerHeader, TrackerHistoryPanel, useTrackerHistory } from "./tracker-history"
 import { ReplayMapControl } from "./route-replay"
@@ -218,7 +217,6 @@ export default function MonitoringView() {
 
     const [trackerImei, setTrackerImei] = useState<string | null>(null)
     const [panelOpen, setPanelOpen] = useState(true)
-    const [showOrderRoute, setShowOrderRoute] = useState(false)
     const history = useTrackerHistory(trackerImei)
     const lastOrders = useGet<VehicleLastOrders>(MONITORING_VEHICLE_LAST_ORDERS, {
         enabled: !historical,
@@ -291,7 +289,6 @@ export default function MonitoringView() {
         [cargoItems, mapBounds],
     )
     const selectTracker = (imei: string | null) => {
-        setShowOrderRoute(false)
         setTrackerImei(imei)
     }
 
@@ -460,6 +457,10 @@ export default function MonitoringView() {
             to_date: history.range?.to,
         },
         enabled: selectedTracker?.vehicle != null && !!history.range,
+        options: {
+            refetchInterval: history.live ? LIVE_REFRESH_MS : false,
+            refetchIntervalInBackground: false,
+        },
     })
     const replayGpsTimeline = useGet<ApiStatusSegment[]>(MONITORING_STATUS_GPS_TIMELINE, {
         params: {
@@ -468,6 +469,10 @@ export default function MonitoringView() {
             to_date: history.range?.to,
         },
         enabled: selectedTracker?.vehicle != null && !!history.range,
+        options: {
+            refetchInterval: history.live ? LIVE_REFRESH_MS : false,
+            refetchIntervalInBackground: false,
+        },
     })
     const replaySegments = replayGpsTimeline.data?.length
         ? replayGpsTimeline.data
@@ -488,11 +493,9 @@ export default function MonitoringView() {
     useEffect(() => {
         setHistoryStatuses(replayStatuses)
     }, [replayStatuses, setHistoryStatuses])
-    const lastOrder = useVehicleLastOrder(selectedTracker?.vehicle ?? null)
     const trackerHeaderVisible =
         mode === "map" && !historical && dimension === "driver" && selectedTracker != null
-    const trackerMap = showOrderRoute ? lastOrder.map : null
-    const replayBar = mode === "map" && !!trackerImei && !trackerMap && history.replay.points.length >= 2
+    const replayBar = mode === "map" && !!trackerImei && history.replay.points.length >= 2
     const backToAll = () => {
         selectTracker(null)
         if (selectedId != null) setFilters(EMPTY_FILTERS)
@@ -701,7 +704,7 @@ export default function MonitoringView() {
                                     <ArrowLeft className="h-5 w-5" />
                                 </Button>
                             )}
-                            {mode === "map" && trackerImei && !trackerMap && (
+                            {mode === "map" && trackerImei && (
                                 <Button
                                     size="icon"
                                     variant="secondary"
@@ -734,26 +737,26 @@ export default function MonitoringView() {
                                 onBoundsChange={setMapBounds}
                                 segments={
                                     trackerImei
-                                        ? (trackerMap?.segments ?? history.map.segments)
+                                        ? history.map.segments
                                         : historical
                                           ? routeSegments
                                           : undefined
                                 }
                                 points={
                                     trackerImei
-                                        ? (trackerMap?.points ?? history.map.points)
+                                        ? history.map.points
                                         : historical
                                           ? polylineData?.points
                                           : undefined
                                 }
                                 bbox={
                                     trackerImei
-                                        ? (trackerMap ? trackerMap.bbox : history.map.bbox)
+                                        ? history.map.bbox
                                         : historical
                                           ? (polylineData?.bbox ?? null)
                                           : null
                                 }
-                                pois={trackerImei && !trackerMap ? history.map.pois : undefined}
+                                pois={trackerImei ? history.map.pois : undefined}
                             />
                         </CardContent>
                     </Card>
@@ -846,15 +849,7 @@ export default function MonitoringView() {
                             // <DriverList items={liveDrivers} loading={drivers.isLoading}
                             //     activeId={filters.driver} onSelect={selectDriver} />
                             selectedTracker ? (
-                                <TrackerHistoryPanel history={history}>
-                                    {selectedTracker.vehicle != null && (
-                                        <LastOrderCard
-                                            lastOrder={lastOrder}
-                                            showRoute={showOrderRoute}
-                                            onToggleRoute={() => setShowOrderRoute((v) => !v)}
-                                        />
-                                    )}
-                                </TrackerHistoryPanel>
+                                <TrackerHistoryPanel history={history} />
                             ) : (
                                 <>
                                 {noGpsOnly ? (

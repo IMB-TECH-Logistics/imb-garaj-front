@@ -17,7 +17,7 @@ import { Clock, Unlink } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { DimensionEmpty, DimensionListSkeleton } from "./dimension-row"
-import { clock, minutes, orderStatusMeta } from "./order-card"
+import { orderStatusMeta } from "./order-card"
 import type { GpsLiveVehicle, TruckStatusFilter, VehicleOrderBadge } from "./types"
 import { TRUCK_STATUS_FILTERS } from "./types"
 import { LinkDeviceModal, LinkGpsIconButton } from "./link-device-modal"
@@ -235,12 +235,13 @@ export function UnlinkedVehicles({ items }: { items: UnlinkedVehicle[] }) {
                 {items.map((v) => (
                     <li
                         key={v.id}
-                        className="flex items-center justify-between gap-2 rounded-md border border-dashed border-border/70 py-1 pl-3 pr-1"
+                        className="relative flex items-center justify-between gap-2 overflow-hidden rounded-md border border-dashed border-border/70 py-1.5 pl-3 pr-1"
                     >
-                        <span className="flex min-w-0 items-center gap-2 opacity-70">
+                        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: "hsl(var(--muted-foreground) / 0.4)" }} />
+                        <span className="flex min-w-0 flex-col items-start opacity-70">
                             <span className="shrink-0 font-mono text-sm font-bold tracking-wide">{v.truck_number}</span>
                             {v.driver_name && (
-                                <span className="min-w-0 truncate text-xs text-muted-foreground">{v.driver_name}</span>
+                                <span className="w-full min-w-0 truncate text-xs text-muted-foreground">{v.driver_name}</span>
                             )}
                         </span>
                         <span className="flex shrink-0 items-center gap-1 text-[11px] font-medium text-muted-foreground">
@@ -339,20 +340,15 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
 
                             <span className={cn("flex min-w-0 items-center gap-2", item.vehicle && hasControl && "pr-6")}>
-                                <span className="shrink-0 font-mono text-sm font-bold leading-5 tracking-wide">
+                                <span className="w-[11ch] shrink-0 truncate font-mono text-sm font-bold leading-5 tracking-wide">
                                     {item.vehicle_number || item.tracker_name || item.imei}
                                 </span>
-                                <span className="ml-auto min-w-0 truncate text-right text-[11px] text-muted-foreground tabular-nums">
+                                <span className="ml-4 min-w-0 flex-1 truncate text-left text-[11px] text-muted-foreground tabular-nums">
                                     {order ? (
                                         <>
                                             <span className="font-medium text-foreground">
                                                 {order.from && order.to ? `${order.from} → ${order.to}` : "Yo'nalish noma'lum"}
                                             </span>
-                                            <span className="font-mono"> · #{order.external_id}</span>
-                                            {" · "}
-                                            yuklangan <b className="font-medium text-foreground">{clock(order.loaded_at)}</b>
-                                            {", "}
-                                            <b className="font-medium text-foreground">{minutes(order.spent_minutes)}</b>
                                         </>
                                     ) : (
                                         "Buyurtma yo'q"

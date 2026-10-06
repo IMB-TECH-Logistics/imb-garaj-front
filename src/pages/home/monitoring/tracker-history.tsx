@@ -9,7 +9,7 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
-import { type ReactNode, useEffect, useMemo, useState, useCallback } from "react"
+import { type ReactNode, useEffect, useMemo, useRef, useState, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import { type ReplayStatus, useRouteReplay } from "./route-replay"
@@ -31,6 +31,7 @@ type DayRange = { from: string; to: string }
 
 const timeFormat = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit" })
 
+const LIVE_HISTORY_MS = 30_000
 const dayKey = (ms: number) => new Date(ms + TZ_OFFSET_MS).toISOString().slice(0, 10)
 
 function toPoint(p: GpsPosition): Point {
@@ -214,6 +215,8 @@ export function useTrackerHistory(imei: string | null) {
         }
     }, [imei, days.data, initialisedFor])
 
+    const [replayActive, setReplayActive] = useState(false)
+    const live = !!range && range.to >= dayKey(Date.now()) && !replayActive
     const positions = useGet<GpsPosition[]>(MONITORING_GPS_HISTORY, {
         params: {
             imei,
@@ -221,6 +224,10 @@ export function useTrackerHistory(imei: string | null) {
             to: range ? `${range.to}T23:59:59+05:00` : undefined,
         },
         enabled: !!imei && !!range,
+        options: {
+            refetchInterval: live ? LIVE_HISTORY_MS : false,
+            refetchIntervalInBackground: false,
+        },
     })
 
     const colors = useMemo<Record<string, string>>(
@@ -263,6 +270,9 @@ export function useTrackerHistory(imei: string | null) {
 
     const replayPoints = useMemo(() => (focus ? points.filter((p) => inFocus(p.t)) : points), [points, focus, inFocus])
     const replay = useRouteReplay(replayPoints)
+    useEffect(() => {
+        setReplayActive(replay.active)
+    }, [replay.active])
 
     const dim = (t: number) => (inFocus(t) ? 1 : 0.22)
 
@@ -353,13 +363,18 @@ export function useTrackerHistory(imei: string | null) {
         return out
     }, [points, bySpeed, colors, colorBy, statusSegments, trips, inFocus])
 
+    const bboxKey = `${imei}|${range?.from}|${range?.to}|${focus?.kind}:${focus?.key}`
+    const framed = useRef<{ key: string; bbox: [number, number, number, number] } | null>(null)
     const bbox = useMemo<[number, number, number, number] | null>(() => {
+        if (framed.current?.key === bboxKey) return framed.current.bbox
         const scope = focus ? points.filter((p) => inFocus(p.t)) : points
         if (scope.length === 0) return null
         const lngs = scope.map((p) => p.lng)
         const lats = scope.map((p) => p.lat)
-        return [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)]
-    }, [points, focus, inFocus])
+        const next: [number, number, number, number] = [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)]
+        framed.current = { key: bboxKey, bbox: next }
+        return next
+    }, [points, focus, inFocus, bboxKey])
 
     const stopGroups = useMemo(() => {
         const groups: { lat: number; lng: number; stops: Stop[] }[] = []
@@ -428,6 +443,7 @@ export function useTrackerHistory(imei: string | null) {
         idleKm,
         idleMs,
         setStatusSegments,
+        live,
         trips,
         showStops,
         setShowStops,
