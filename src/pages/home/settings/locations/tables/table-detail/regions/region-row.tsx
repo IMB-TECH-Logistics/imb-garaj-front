@@ -19,8 +19,8 @@ import { SETTINGS_REGIONS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { useGlobalStore } from "@/store/global-store"
 import { cn } from "@/lib/utils"
+import { useGlobalStore } from "@/store/global-store"
 import { CirclePlus, MoreVertical, Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -75,7 +75,12 @@ interface RegionRowProps {
     onSelect: () => void
 }
 
-export const RegionRowTable = ({ region, index, selected, onSelect }: RegionRowProps) => {
+export const RegionRowTable = ({
+    region,
+    index,
+    selected,
+    onSelect,
+}: RegionRowProps) => {
     const hasControl = useHasAction("settings_locations_control")
     const { setData } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("create-region")
@@ -87,7 +92,10 @@ export const RegionRowTable = ({ region, index, selected, onSelect }: RegionRowP
             onClick={onSelect}
         >
             <TableCell>{index + 1}</TableCell>
-            <TableCell className="max-w-0 w-full truncate font-bold" title={region.name}>
+            <TableCell
+                className="max-w-0 w-full truncate font-bold"
+                title={region.name}
+            >
                 {region.name}
                 <Badge variant="secondary" className="ml-2 font-normal">
                     {region.children_count ?? 0}
@@ -118,14 +126,20 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
     const { openModal: openCreateModal } = useModal("create-region")
     const { openModal: openDeleteModal } = useModal("delete-region")
 
-    const { data, isLoading } = useGet<ListResponse<RegionsType>>(SETTINGS_REGIONS, {
-        params: { parent: region?.id, page_size: 1000 },
-        enabled: !!region,
-    })
+    const { data, isLoading } = useGet<ListResponse<RegionsType>>(
+        SETTINGS_REGIONS,
+        {
+            params: { parent: region?.id, page_size: 1000 },
+            enabled: !!region,
+        },
+    )
 
     const handleAdd = () => {
         if (!region) return
-        setData(SETTINGS_REGIONS, { parent: region.id, country: region.country })
+        setData(SETTINGS_REGIONS, {
+            parent: region.id,
+            country: region.country,
+        })
         openCreateModal()
     }
 
@@ -173,18 +187,27 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
                             {data?.results?.map((child, index) => (
                                 <TableRow key={child.id}>
                                     <TableCell>{index + 1}</TableCell>
-                                    <TableCell className="max-w-0 w-full truncate" title={child.name}>
+                                    <TableCell
+                                        className="max-w-0 w-full truncate"
+                                        title={child.name}
+                                    >
                                         {child.name}
                                     </TableCell>
                                     <TableCell className="p-0 text-right w-[40px]">
                                         {hasControl && (
                                             <RegionRowActions
                                                 onEdit={() => {
-                                                    setData(SETTINGS_REGIONS, child)
+                                                    setData(
+                                                        SETTINGS_REGIONS,
+                                                        child,
+                                                    )
                                                     openCreateModal()
                                                 }}
                                                 onDelete={() => {
-                                                    setData(SETTINGS_REGIONS, child)
+                                                    setData(
+                                                        SETTINGS_REGIONS,
+                                                        child,
+                                                    )
                                                     openDeleteModal()
                                                 }}
                                             />
@@ -194,7 +217,10 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
                             ))}
                             {!isLoading && data?.results?.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={3} className="py-8 text-center text-sm text-muted-foreground">
+                                    <TableCell
+                                        colSpan={3}
+                                        className="py-8 text-center text-sm text-muted-foreground"
+                                    >
                                         —
                                     </TableCell>
                                 </TableRow>

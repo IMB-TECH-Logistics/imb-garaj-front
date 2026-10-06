@@ -29,10 +29,14 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
     const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
-    const selectedId = Number((search as Record<string, unknown>).region) || null
+    const selectedId =
+        Number((search as Record<string, unknown>).region) || null
     const selectRegion = (id: number) =>
         navigate({
-            search: (prev: Record<string, unknown>) => ({ ...prev, region: id }),
+            search: (prev: Record<string, unknown>) => ({
+                ...prev,
+                region: id,
+            }),
         } as never)
 
     const isSearching = !!search.region_search
@@ -76,93 +80,96 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
     // }
 
     const simpleColumns = useColumnsRegionsTable()
-    const selectedRegion = data?.results?.find((r) => r.id === selectedId) ?? null
+    const selectedRegion =
+        data?.results?.find((r) => r.id === selectedId) ?? null
     return (
-        <div className="h-[500px] flex flex-col   overflow-hidden bg-background">
-            <div className="px-3 pt-3">
-                <TableHeaderLocation
-                    disabled={!country_id}
-                    storeKey={SETTINGS_REGIONS}
-                    modalKey="create-region"
-                    name="Viloyatlar"
-                    searchKey="region_search"
-                    pageKey={REGION_PAGE_KEY}
-                    title={t("page.locations_title")}
-                    count={data?.count}
-                />
+        <div className="h-[560px] grid grid-cols-1 md:grid-cols-2 gap-3 overflow-hidden bg-background p-3">
+            <div className="rounded-md border flex flex-col min-h-0">
+                <div className="px-3 pt-3">
+                    <TableHeaderLocation
+                        disabled={!country_id}
+                        storeKey={SETTINGS_REGIONS}
+                        modalKey="create-region"
+                        name="Viloyatlar"
+                        searchKey="region_search"
+                        pageKey={REGION_PAGE_KEY}
+                        title={t("page.locations_title")}
+                        count={data?.count}
+                    />
+                </div>
+                <div className="flex-1 overflow-y-auto no-scrollbar-x">
+                    {isSearching ?
+                        <DataTable
+                            manualSorting
+                            loading={isLoading}
+                            columns={simpleColumns}
+                            data={data?.results}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            className="min-w-[400px]"
+                            numeration={true}
+                            actionPermissions={["settings_locations_control"]}
+                            paginationProps={{
+                                totalPages: data?.total_pages,
+                                paramName: REGION_PAGE_KEY,
+                                pageSizeParamName: REGION_PAGE_SIZE_KEY,
+                            }}
+                            wrapperClassName="!bg-transparent"
+                        />
+                    :   <>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-10">
+                                            #
+                                        </TableHead>
+                                        <TableHead className="whitespace-nowrap">
+                                            {t("form.region")}
+                                        </TableHead>
+                                        <TableHead className="w-[40px]" />
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {isLoading && (
+                                        <TableRow>
+                                            <TableCell colSpan={3}>
+                                                <Skeleton className="h-6 w-full" />
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                    {data?.results?.map((region, index) => (
+                                        <RegionRowTable
+                                            key={region.id}
+                                            region={region}
+                                            index={index}
+                                            selected={region.id === selectedId}
+                                            onSelect={() =>
+                                                selectRegion(region.id)
+                                            }
+                                        />
+                                    ))}
+                                    {data?.results?.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={3}>
+                                                <EmptyBox height="h-40" />
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                            <div className="flex my-3 justify-center">
+                                <ParamPagination
+                                    totalPages={data?.total_pages}
+                                    paramName={REGION_PAGE_KEY}
+                                    pageSizeParamName={REGION_PAGE_SIZE_KEY}
+                                />
+                            </div>
+                        </>
+                    }
+                </div>
             </div>
-            <div className="flex-1 overflow-y-auto no-scrollbar-x ">
-                {!isSearching && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 h-full min-h-0 p-3 pt-0">
-                    <div className="rounded-md border overflow-y-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-10">#</TableHead>
-                                    <TableHead className="whitespace-nowrap">
-                                        {t("form.region")}
-                                    </TableHead>
-                                    <TableHead className="w-[40px]" />
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {isLoading && (
-                                    <TableRow>
-                                        <TableCell colSpan={3}>
-                                            <Skeleton className="h-6 w-full" />
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                                {data?.results?.map((region, index) => (
-                                    <RegionRowTable
-                                        key={region.id}
-                                        region={region}
-                                        index={index}
-                                        selected={region.id === selectedId}
-                                        onSelect={() => selectRegion(region.id)}
-                                    />
-                                ))}
-                                {data?.results?.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={3}>
-                                            <EmptyBox height="h-40" />
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                        <div className="flex my-3 justify-center">
-                            <ParamPagination
-                                totalPages={data?.total_pages}
-                                paramName={REGION_PAGE_KEY}
-                                pageSizeParamName={REGION_PAGE_SIZE_KEY}
-                            />
-                        </div>
-                    </div>
-                    <div className="rounded-md border min-h-0">
-                        <PlacesTable region={selectedRegion} />
-                    </div>
-                    </div>
-                )}
-                {isSearching && (
-                <DataTable
-                    manualSorting
-                    loading={isLoading}
-                    columns={simpleColumns}
-                    data={data?.results}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    className="min-w-[400px]"
-                    numeration={true}
-                    actionPermissions={["settings_locations_control"]}
-                    paginationProps={{
-                        totalPages: data?.total_pages,
-                        paramName: REGION_PAGE_KEY,
-                        pageSizeParamName: REGION_PAGE_SIZE_KEY,
-                    }}
-                    wrapperClassName="!bg-transparent"
-                />
-                )}
+            <div className="rounded-md border min-h-0">
+                <PlacesTable region={selectedRegion} />
             </div>
             <DeleteModal
                 modalKey="delete-region"
@@ -172,7 +179,14 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             />
             <Modal
                 size="max-w-2xl"
-                title={(item?.id ? t("actions.edit") : t("actions.add")) + " " + (item?.parent ? t("form.place") : t("form.region")).toLowerCase()}
+                title={
+                    (item?.id ? t("actions.edit") : t("actions.add")) +
+                    " " +
+                    (item?.parent ?
+                        t("form.place")
+                    :   t("form.region")
+                    ).toLowerCase()
+                }
                 modalKey={"create-region"}
             >
                 <AddRegionsModal country_id={country_id} />
