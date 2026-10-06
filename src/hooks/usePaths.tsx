@@ -418,7 +418,7 @@ export const useItems = () => {
                         ownerOnly: true,
                     },
                     {
-                        label: t("wh.catalog"),
+                        label: t("nav.warehouse"),
                         path: "/product-catalog",
                         allowKey: "warehouse_view",
                         ownerOnly: true,
