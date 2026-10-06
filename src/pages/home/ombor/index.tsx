@@ -55,17 +55,6 @@ const Stock = () => {
 
     const columns = useProductCols()
 
-    const openMoves = (id: number) =>
-        navigate({
-            search: (prev: Record<string, unknown>) => ({
-                ...prev,
-                product: id,
-                lot: undefined,
-                lpage: undefined,
-                section: "moves",
-            }),
-        } as never)
-
     return (
         <div className="flex flex-col w-full gap-3">
             <DataTable
@@ -73,7 +62,6 @@ const Stock = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
-                onRowClick={(row) => openMoves(row.id)}
                 className="min-w-[760px]"
                 paginationProps={{
                     totalPages: data?.total_pages,
