@@ -21,8 +21,10 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { useGlobalStore } from "@/store/global-store"
-import { CirclePlus, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { useSearch } from "@tanstack/react-router"
+import { MoreVertical, Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import TableHeaderLocation from "../../table-header"
 
 interface RegionRowActionsProps {
     onEdit: () => void
@@ -121,6 +123,10 @@ export const RegionRowTable = ({
 
 export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
     const { t } = useTranslation()
+    const search = useSearch({ strict: false }) as Record<
+        string,
+        string | undefined
+    >
     const hasControl = useHasAction("settings_locations_control")
     const { setData } = useGlobalStore()
     const { openModal: openCreateModal } = useModal("create-region")
@@ -129,7 +135,11 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
     const { data, isLoading } = useGet<ListResponse<RegionsType>>(
         SETTINGS_REGIONS,
         {
-            params: { parent: region?.id, page_size: 1000 },
+            params: {
+                parent: region?.id,
+                page_size: 1000,
+                search: search.place_search || undefined,
+            },
             enabled: !!region,
         },
     )
@@ -145,23 +155,17 @@ export const PlacesTable = ({ region }: { region: RegionsType | null }) => {
 
     return (
         <div className="flex flex-col min-h-0 h-full">
-            <div className="flex items-center justify-between gap-2 px-3 pt-3 pb-2">
-                <div className="flex items-center gap-2 min-w-0">
-                    <h3 className="font-semibold truncate">
-                        {region ? region.name : t("form.place")}
-                    </h3>
-                    {region && <Badge>{data?.count ?? 0}</Badge>}
-                </div>
-                {hasControl && region && (
-                    <Button
-                        size="sm"
-                        className="flex items-center gap-2"
-                        onClick={handleAdd}
-                        icon={<CirclePlus size={16} />}
-                    >
-                        {t("actions.add")}
-                    </Button>
-                )}
+            <div className="px-3 pt-3">
+                <TableHeaderLocation
+                    disabled={!region}
+                    modalKey="create-region"
+                    name="place"
+                    searchKey="place_search"
+                    pageKey="place_page"
+                    title={region ? region.name : t("form.place")}
+                    count={region ? (data?.count ?? 0) : undefined}
+                    onAdd={handleAdd}
+                />
             </div>
             <div className="flex-1 overflow-y-auto">
                 {!region ?

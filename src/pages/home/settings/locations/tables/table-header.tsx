@@ -16,6 +16,7 @@ interface TableHeaderProps {
     disabled: boolean
     title?: string
     count?: number
+    onAdd?: () => void
 }
 
 const TableHeaderLocation = ({
@@ -27,6 +28,7 @@ const TableHeaderLocation = ({
     pageKey,
     title,
     count,
+    onAdd,
 }: TableHeaderProps) => {
     const { t } = useTranslation()
     const { openModal: openCreateModal } = useModal(modalKey)
@@ -34,6 +36,10 @@ const TableHeaderLocation = ({
     const hasControl = useHasAction("settings_locations_control")
 
     const handleAdd = () => {
+        if (onAdd) {
+            onAdd()
+            return
+        }
         if (storeKey) {
             clearKey(storeKey)
         }
@@ -54,9 +60,9 @@ const TableHeaderLocation = ({
             )}
             <div
                 className={
-                    showTitle
-                        ? "flex items-center gap-3 ml-auto"
-                        : "flex items-center justify-between gap-3 w-full"
+                    showTitle ?
+                        "flex items-center gap-3 ml-auto"
+                    :   "flex items-center justify-between gap-3 w-full"
                 }
             >
                 <div className={showTitle ? "w-72" : "flex-1"}>
