@@ -77,6 +77,7 @@ type ManagerOrders = {
     unloading_time: string
     completed_time: string
     canceled_time: string
+    logistics_canceled_at?: string | null
     archived_time: string
     images?: { id: number; image: string }[]
     incomes?: { id?: number; payment_type: number | null }[]

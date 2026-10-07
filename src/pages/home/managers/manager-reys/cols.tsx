@@ -119,6 +119,24 @@ export const useColumnsManagersOrders = (opts?: {
                             </Badge>
                         )
                     }
+                    const canceledAt = row.original?.logistics_canceled_at
+                    const logisticsBadge = canceledAt ? (
+                        <Badge
+                            variant="outline"
+                            title={`Logistikada bekor qilingan (${format(new Date(canceledAt), "dd.MM.yyyy HH:mm")}). Pul allaqachon berilgan — qo'lda hal qiling.`}
+                            className="whitespace-nowrap bg-red-500/10 text-red-600 border-transparent"
+                        >
+                            Logistikada bekor qilingan
+                        </Badge>
+                    ) : null
+                    if (logisticsBadge) {
+                        return (
+                            <div className="flex flex-wrap items-center gap-1">
+                                <span>{STATUS_TRIP[status] || "-"}</span>
+                                {logisticsBadge}
+                            </div>
+                        )
+                    }
                     return <div>{STATUS_TRIP[status] || "-"}</div>
                 },
             },
