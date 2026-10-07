@@ -186,21 +186,22 @@ export default function ManagerReys() {
                                     trailing={<span>{tripLabel}</span>}
                                 />
                             </div>
-                            <div className="flex items-center gap-2">
-                                {hasControl && tripId && (
-                                    <Button onClick={handleAdd}>
-                                        <Plus size={16} />
-                                        {t("actions.add")}
-                                    </Button>
-                                )}
-                            </div>
                         </div>
                         {(trip?.pending_advance || trip?.rejected_advance) && (
                             <div className="mt-2">
                                 <AdvanceBadge pending={trip?.pending_advance} rejected={trip?.rejected_advance} />
                             </div>
                         )}
-                        <ReysFilters />
+                        <ReysFilters
+                            trailing={
+                                hasControl && tripId ? (
+                                    <Button onClick={handleAdd}>
+                                        <Plus size={16} />
+                                        {t("actions.add")}
+                                    </Button>
+                                ) : null
+                            }
+                        />
                     </div>
                 }
             />

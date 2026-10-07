@@ -122,7 +122,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: t("table.income"),
+                header: "Reys daromadi",
                 accessorKey: "income",
                 enableSorting: true,
                 cell: ({ row }) => {

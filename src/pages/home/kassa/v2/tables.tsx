@@ -329,7 +329,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     </div>
                 ),
             },
-            { header: "Kim tomonidan", accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
+            { header: "Foydalanuvchi", accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
             { header: "Kimdan / kimga", accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
             {
                 header: "Nima uchun",

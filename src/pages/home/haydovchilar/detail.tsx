@@ -39,6 +39,7 @@ type DriverOverview = {
     computed_balance_uzs: string | number
     price_diff_uzs?: string | number
     salary_balance_uzs?: string | number
+    salary_due_uzs?: string | number
     price_diff_debt_uzs?: string | number
     debt_total_uzs?: string | number
     total_distance_km: string | number
@@ -73,21 +74,12 @@ type DriverTripRow = {
     income_usd: string | number
     expense_uzs: string | number
     driver_earnings: string | number
+    salary_unpaid_uzs?: string | number
     status: "completed" | "ongoing" | "pending"
 }
 
 const num = (v: unknown) => Number(v ?? 0) || 0
 
-const fuelPer100kmText = (overview: DriverOverview) => {
-    const diesel = num(overview.fuel_per_100km)
-    const gas = num(overview.fuel_gas_per_100km)
-    if (diesel > 0 && gas > 0) {
-        return `${diesel.toFixed(1)} l + ${gas.toFixed(1)} m³/100km`
-    }
-    if (gas > 0) return `${gas.toFixed(1)} m³/100km`
-    if (diesel > 0) return `${diesel.toFixed(1)} l/100km`
-    return "—"
-}
 
 function formatMoneyText(n: number): string {
     const negative = n < 0
@@ -158,15 +150,6 @@ const useAylanmaCols = () => {
                 ),
             },
             {
-                header: "Kirim (UZS)",
-                accessorKey: "income_uzs",
-                cell: ({ row }) => (
-                    <span className="tabular-nums text-green-600">
-                        {formatMoney(num(row.original.income_uzs))}
-                    </span>
-                ),
-            },
-            {
                 header: t("table.status"),
                 id: "status",
                 cell: ({ row }) => {
@@ -175,16 +158,43 @@ const useAylanmaCols = () => {
                 },
             },
             {
-                header: t("table.driver_income"),
+                header: "Olib kelgan summa (naqd)",
+                accessorKey: "income_uzs",
+                cell: ({ row }) => (
+                    <span className="tabular-nums text-green-600">
+                        {formatMoney(num(row.original.income_uzs))}
+                    </span>
+                ),
+            },
+            {
+                header: "Oylik maoshi",
                 accessorKey: "driver_earnings",
                 cell: ({ row }) => {
                     const v = num(row.original.driver_earnings)
                     return v > 0 ? (
-                        <span className="text-green-500 font-medium whitespace-nowrap">
-                            {formatMoney(v)} UZS
+                        <span className="text-amber-600 font-medium whitespace-nowrap tabular-nums">
+                            {formatMoney(v)}
                         </span>
                     ) : (
                         <span className="text-muted-foreground">—</span>
+                    )
+                },
+            },
+            {
+                header: "Oylik holati",
+                id: "salary_status",
+                cell: ({ row }) => {
+                    const total = num(row.original.driver_earnings)
+                    const unpaid = num(row.original.salary_unpaid_uzs)
+                    if (total <= 0) return <span className="text-muted-foreground">—</span>
+                    if (unpaid <= 0)
+                        return <Badge className="border-transparent bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10">Berildi</Badge>
+                    if (unpaid >= total)
+                        return <Badge className="border-transparent bg-rose-500/10 text-rose-600 hover:bg-rose-500/10">Berilmadi</Badge>
+                    return (
+                        <Badge className="border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 whitespace-nowrap">
+                            Qisman · {formatMoney(unpaid)} qoldi
+                        </Badge>
                     )
                 },
             },
@@ -193,8 +203,6 @@ const useAylanmaCols = () => {
     )
 }
 
-const debtAccent = (v: number) =>
-    v > 0 ? "text-red-500" : v < 0 ? "text-green-500" : undefined
 
 const StatCard = ({
     label,
@@ -280,13 +288,6 @@ export default function HaydovchiDetail() {
             : balance > 0
               ? "text-green-500"
               : "text-muted-foreground"
-    const salaryDebt = num(overview?.salary_balance_uzs)
-    const priceDebt = num(overview?.price_diff_debt_uzs)
-    const debtTotal = num(overview?.debt_total_uzs)
-    const debtHint = (v: number) =>
-        v > 0 ? t("form.debt_driver_owes")
-        : v < 0 ? t("form.debt_company_owes")
-        : undefined
 
     return (
         <div className="space-y-4 pb-6">
@@ -311,27 +312,6 @@ export default function HaydovchiDetail() {
                             <Phone size={12} />
                             {formatPhoneNumber(overview.phone)}
                         </a>
-                    )}
-                </div>
-                <div className="text-right shrink-0">
-                    <div className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
-                        {t("form.balance")}
-                    </div>
-                    <div
-                        className={`text-lg font-semibold tabular-nums ${balanceColor}`}
-                    >
-                        {formatMoneyText(balance)}
-                        <span className="text-xs font-normal text-muted-foreground ml-1">
-                            UZS
-                        </span>
-                    </div>
-                    {overview && (salaryDebt !== 0 || priceDebt !== 0) && (
-                        <div className="text-xs text-muted-foreground">
-                            {t("form.debt_total")}:{" "}
-                            <span className={`font-medium tabular-nums ${debtAccent(debtTotal) || ""}`}>
-                                {formatMoneyText(debtTotal)} UZS
-                            </span>
-                        </div>
                     )}
                 </div>
             </div>
@@ -361,30 +341,27 @@ export default function HaydovchiDetail() {
                         </CardContent>
                     </Card>
                     <StatCard
-                        label={t("form.revenue_uzs")}
+                        label="Olib kelgan summa (naqd)"
                         value={formatMoneyText(num(overview.revenue_uzs))}
                         accent="text-green-600"
                     />
                     <StatCard
-                        label={`${t("form.give_salary")} (UZS)`}
-                        value={formatMoneyText(num(overview.salary_paid_uzs))}
-                        accent="text-rose-600"
+                        label="Yoqilg'i (l/100km)"
+                        value={num(overview.fuel_per_100km) > 0 ? num(overview.fuel_per_100km).toFixed(1) : "—"}
                     />
                     <StatCard
-                        label={t("table.fuel_l")}
-                        value={fuelPer100kmText(overview)}
+                        label="Yoqilg'i (m³/100km)"
+                        value={num(overview.fuel_gas_per_100km) > 0 ? num(overview.fuel_gas_per_100km).toFixed(1) : "—"}
                     />
                     <StatCard
-                        label={t("form.price_diff_driver")}
-                        value={formatMoneyText(priceDebt)}
-                        accent={debtAccent(priceDebt)}
-                        hint={debtHint(priceDebt)}
+                        label="Qo'lidagi pul"
+                        value={formatMoneyText(balance)}
+                        accent={balanceColor}
                     />
                     <StatCard
-                        label={t("form.salary_diff_driver")}
-                        value={formatMoneyText(salaryDebt)}
-                        accent={debtAccent(salaryDebt)}
-                        hint={debtHint(salaryDebt) ?? t("form.not_in_balance")}
+                        label="Oylik maoshi"
+                        value={formatMoneyText(num(overview.salary_due_uzs))}
+                        accent={num(overview.salary_due_uzs) > 0 ? "text-amber-600" : num(overview.salary_due_uzs) < 0 ? "text-red-500" : undefined}
                     />
                 </div>
             )}

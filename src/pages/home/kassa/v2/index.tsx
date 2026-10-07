@@ -94,7 +94,7 @@ const KassaV2 = () => {
             </TabsList>
         </Tabs>
     )
-    const drivers = ov?.drivers ?? []
+    const drivers = [...(ov?.drivers ?? [])].sort((a, b) => n(b.balance) - n(a.balance))
     const selected = drivers.find((d) => d.id === driver)
 
     return (
@@ -132,8 +132,8 @@ const KassaV2 = () => {
                     </p>
 
                     <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-medium text-muted-foreground">Haydovchilar qo'lida (hozir) · {drivers.length}</p>
+                        <div className="flex items-center justify-between mb-2 pb-2 border-b border-muted-foreground/20">
+                            <p className="text-sm font-medium text-muted-foreground">Haydovchilar qo'lida · {drivers.length}</p>
                             <span className="text-sm font-semibold tabular-nums">{formatMoney(n(ov?.drivers_total))}</span>
                         </div>
                         <div className="space-y-0.5">
@@ -146,12 +146,12 @@ const KassaV2 = () => {
                                         driver === d.id && view === "driver" && "bg-primary/10",
                                     )}
                                 >
-                                    <span className="text-sm flex items-center gap-2 min-w-0">
-                                        <span className="text-xs text-muted-foreground w-4 text-right">{i + 1}</span>
-                                        <span className="truncate">{d.name}</span>
-                                        {d.plate && <span className="text-xs text-muted-foreground">{d.plate}</span>}
+                                    <span className="text-sm flex items-center gap-2 min-w-0 flex-1">
+                                        <span className="text-xs text-muted-foreground w-4 text-right shrink-0">{i + 1}</span>
+                                        <span className="truncate" title={d.name}>{d.name}</span>
+                                        {d.plate && <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{d.plate}</span>}
                                     </span>
-                                    <span className={cn("text-sm font-medium tabular-nums", n(d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.balance))}</span>
+                                    <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", n(d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.balance))}</span>
                                 </div>
                             ))}
                             {!drivers.length && <p className="text-xs text-muted-foreground">Yangi kassada hali aylanma yo'q.</p>}

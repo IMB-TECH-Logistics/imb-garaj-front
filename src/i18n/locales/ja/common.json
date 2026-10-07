@@ -984,7 +984,8 @@
             "expired": "期限切れ",
             "soon": "期限間近",
             "expired_count": "{{count}}件 期限切れ",
-            "soon_count": "{{count}}件 期限間近"
+            "soon_count": "{{count}}件 期限間近",
+            "no_expenses": "この期間の費用はありません"
         }
     }
 }

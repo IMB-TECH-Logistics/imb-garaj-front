@@ -9,7 +9,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { ArrowDownCircle, ArrowUpCircle, TriangleAlert, TrendingUp, Wrench } from "lucide-react"
+import { ArrowDownCircle, ArrowUpCircle, TrendingDown, TrendingUp, Wrench } from "lucide-react"
 import { useMemo } from "react"
 import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
 import { useCostCols, OwnerStatistic } from "./cols"
@@ -110,17 +110,18 @@ const FinanceStatisticMain = () => {
     const investors = useInvestors()
 
     const cards = [
-        { title: "Daromad", value: totals.totalIncome, icon: ArrowUpCircle, tone: "green" },
-        { title: "Reys xarajati", value: totals.totalExpense, icon: ArrowDownCircle, tone: "red" },
-        { title: "Reys foydasi", value: totals.totalProfit, icon: TrendingUp, tone: totals.totalProfit >= 0 ? "blue" : "orange" },
-        { title: "Mashina xarajati", value: totals.totalVehicleExpense, icon: Wrench, tone: "red" },
-        { title: "Sof foyda", value: totals.totalNet, icon: TrendingUp, tone: totals.totalNet >= 0 ? "blue" : "orange" },
+        { title: "Reys daromadi", value: totals.totalIncome, icon: ArrowUpCircle, tone: "green", signed: true },
+        { title: "Reys xarajati", value: totals.totalExpense, icon: ArrowDownCircle, tone: "yellow", expense: true },
+        { title: "Reys foydasi", value: totals.totalProfit, icon: totals.totalProfit >= 0 ? TrendingUp : TrendingDown, tone: totals.totalProfit >= 0 ? "green" : "red", signed: true },
+        { title: "Mashina xarajati", value: totals.totalVehicleExpense, icon: Wrench, tone: "yellow", expense: true },
+        { title: "Sof foyda", value: totals.totalNet, icon: totals.totalNet >= 0 ? TrendingUp : TrendingDown, tone: totals.totalNet >= 0 ? "green" : "red", signed: true },
     ] as const
 
     const toneClass: Record<string, { card: string; icon: string }> = {
         green: { card: "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400", icon: "bg-green-100 dark:bg-green-900/50" },
         red: { card: "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400", icon: "bg-red-100 dark:bg-red-900/50" },
         blue: { card: "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400", icon: "bg-blue-100 dark:bg-blue-900/50" },
+        yellow: { card: "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400", icon: "bg-amber-100 dark:bg-amber-900/50" },
         orange: { card: "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400", icon: "bg-orange-100 dark:bg-orange-900/50" },
     }
 
@@ -149,15 +150,6 @@ const FinanceStatisticMain = () => {
                 />
             </div>
 
-            {totals.unpriced > 0 && (
-                <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-3 text-sm text-amber-800 dark:text-amber-300">
-                    <TriangleAlert className="h-4 w-4 mt-0.5 shrink-0" />
-                    <span>
-                        <b>{totals.unpriced} ta reysga</b> buxgalter hali narx belgilamagan. Ularning xarajati hisobda bor, daromadi esa narx qo'yilgandan keyin qo'shiladi — natija hozircha to'liq emas.
-                    </span>
-                </div>
-            )}
-
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
                 {cards.map((c) => (
                     <Card key={c.title} className={`relative overflow-hidden border-none shadow-none ${toneClass[c.tone].card}`}>
@@ -171,7 +163,7 @@ const FinanceStatisticMain = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="text-xl font-bold tabular-nums">
-                                {isError ? "—" : <>{formatMoney(c.value)} so'm</>}
+                                {isError ? "—" : <>{"signed" in c && c.signed && c.value > 0 ? "+" : ""}{"expense" in c && c.expense && c.value > 0 ? "−" : ""}{formatMoney(c.value)} so'm</>}
                             </div>
                         </CardContent>
                     </Card>

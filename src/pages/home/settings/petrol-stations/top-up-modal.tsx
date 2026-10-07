@@ -1,4 +1,5 @@
 import { FormCombobox } from "@/components/form/combobox"
+import { FormDatePicker } from "@/components/form/date-picker"
 import FormTextarea from "@/components/form/textarea"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
@@ -15,12 +16,9 @@ type FormValues = {
     currency: 1 | 2
     currency_course: string | number | ""
     comment: string
+    paid_at: string | null
 }
 
-const CURRENCY_OPTIONS = [
-    { id: 1, name: "UZS" },
-    { id: 2, name: "USD" },
-]
 
 const TopUpModal = ({ stationId }: { stationId: number }) => {
     const { t } = useTranslation()
@@ -33,6 +31,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
             currency: 1,
             currency_course: "",
             comment: "",
+            paid_at: null,
         },
     })
     const { control, handleSubmit, watch, reset } = form
@@ -60,6 +59,7 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                     ? Number(values.currency_course)
                     : null,
             comment: values.comment || null,
+            paid_at: values.paid_at ? new Date(values.paid_at).toISOString() : null,
         })
     }
 
@@ -82,31 +82,16 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                         }}
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        control={control}
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        options={CURRENCY_OPTIONS}
-                        valueKey="id"
-                        labelKey="name"
-                    />
-                </div>
             </div>
 
-
-            {currency === 2 && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label={t("form.currency_rate")}
-                    name="currency_course"
-                    placeholder="Ex: 12 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
-                />
-            )}
+            <FormDatePicker
+                fullWidth
+                control={control}
+                label={t("form.date_optional")}
+                name="paid_at"
+                placeholder={t("form.select_date")}
+                className="w-full"
+            />
 
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
 

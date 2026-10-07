@@ -1,5 +1,8 @@
 import ParamTabs from "@/components/as-params/tabs"
+import DeleteModal from "@/components/custom/delete-modal"
+import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import {
     Sheet,
@@ -15,17 +18,25 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { TECHNICAL_INSPECT_INSTALLED } from "@/constants/api-endpoints"
+import {
+    TECHNICAL_INSPECT,
+    TECHNICAL_INSPECT_INSTALLED,
+} from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
+import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import type { ColumnDef } from "@tanstack/react-table"
+import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import ItemDetailSheet from "../ombor/items/detail-sheet"
 import { fmtDate, toNumber } from "../ombor/utils"
-import { lifespanHint } from "./cols"
+import AddExpenseModal from "./add-expense"
+import { lifespanHint, type VehicleExpenseRow } from "./cols"
+import ExpenseDetailSheet from "./detail-sheet"
 
 type ItemStatus = "expired" | "soon" | "ok" | null
 
@@ -78,14 +89,75 @@ const StatusBadge = ({ item }: { item: InstalledItem }) => {
     )
 }
 
+const VehicleExpenses = ({
+    vehicleId,
+    onOpen,
+}: {
+    vehicleId: number
+    onOpen: (row: VehicleExpenseRow) => void
+}) => {
+    const { t } = useTranslation()
+    const search = useSearch({ strict: false }) as Record<string, unknown>
+    const { data, isLoading } = useGet<ListResponse<VehicleExpenseRow>>(TECHNICAL_INSPECT, {
+        params: {
+            vehicle: vehicleId,
+            from_date: search.from_date || undefined,
+            to_date: search.to_date || undefined,
+            page_size: 500,
+        },
+    })
+    const rows = data?.results ?? []
+
+    if (isLoading) {
+        return <p className="py-6 text-center text-sm text-muted-foreground">…</p>
+    }
+    if (rows.length === 0) {
+        return (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+                {t("texnik.vehicles.no_expenses")}
+            </p>
+        )
+    }
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>{t("form.date")}</TableHead>
+                    <TableHead>{t("form.expense_type")}</TableHead>
+                    <TableHead className="text-right">{t("form.amount")}</TableHead>
+                    <TableHead>{t("form.lifespan")}</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {rows.map((r) => (
+                    <TableRow key={r.id} className="cursor-pointer" onClick={() => onOpen(r)}>
+                        <TableCell className="whitespace-nowrap">{fmtDate(r.date)}</TableCell>
+                        <TableCell>{r.category_name || "—"}</TableCell>
+                        <TableCell className="text-right whitespace-nowrap font-medium text-red-600">
+                            {formatMoney(Number(r.amount ?? r.warehouse_total ?? 0) || 0)}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                            {r.lifespan ? fmtDate(r.lifespan) : "—"}
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    )
+}
+
 const VehicleItemsSheet = ({
     row,
     onClose,
     onOpenItem,
+    onOpenExpense,
+    onAddExpense,
 }: {
     row: VehicleRow | null
     onClose: () => void
     onOpenItem: (lot: number) => void
+    onOpenExpense: (row: VehicleExpenseRow) => void
+    onAddExpense: (vehicleId: number) => void
 }) => {
     const { t } = useTranslation()
     return (
@@ -101,11 +173,22 @@ const VehicleItemsSheet = ({
                         )}
                     </SheetTitle>
                 </SheetHeader>
+                <div className="mt-4 flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold">{t("texnik.tab_expenses")}</h3>
+                    {row && (
+                        <Button size="sm" onClick={() => onAddExpense(row.id)}>
+                            <Plus size={16} />
+                            {t("actions.add")}
+                        </Button>
+                    )}
+                </div>
+                {row && <VehicleExpenses vehicleId={row.id} onOpen={onOpenExpense} />}
+                <h3 className="mt-6 text-sm font-semibold">{t("texnik.vehicles.installed")}</h3>
                 {row && row.items.length === 0 ?
                     <p className="py-8 text-center text-sm text-muted-foreground">
                         {t("texnik.vehicles.empty")}
                     </p>
-                :   <Table className="mt-4">
+                :   <Table className="mt-2">
                         <TableHeader>
                             <TableRow>
                                 <TableHead>{t("wh.product")}</TableHead>
@@ -158,6 +241,24 @@ const VehiclesTab = () => {
     const search = useSearch({ strict: false }) as Record<string, unknown>
     const status = search.ti_status === "expired" || search.ti_status === "soon" ? search.ti_status : undefined
     const [openId, setOpenId] = useState<number | null>(null)
+    const [expense, setExpense] = useState<VehicleExpenseRow | null>(null)
+    const [addVehicle, setAddVehicle] = useState<number | undefined>(undefined)
+    const { setData, getData, clearKey } = useGlobalStore()
+    const { openModal } = useModal("add-expense")
+    const currentExpense = getData<VehicleExpenseRow>(TECHNICAL_INSPECT)
+
+    const addExpense = (vehicleId?: number) => {
+        clearKey(TECHNICAL_INSPECT)
+        setAddVehicle(vehicleId)
+        openModal()
+    }
+
+    const editExpense = (row: VehicleExpenseRow) => {
+        setExpense(null)
+        setData(TECHNICAL_INSPECT, row)
+        setAddVehicle(undefined)
+        openModal()
+    }
     const itemId = typeof search.item === "number" ? search.item : search.item ? Number(search.item) : undefined
 
     const { data, isLoading } = useGet<VehicleRow[]>(TECHNICAL_INSPECT_INSTALLED, {
@@ -227,7 +328,7 @@ const VehiclesTab = () => {
                 data={data ?? []}
                 onRowClick={(row) => setOpenId(row.id)}
                 head={
-                    <div className="mb-3">
+                    <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
                         <ParamTabs
                             paramName="ti_status"
                             options={[
@@ -236,14 +337,33 @@ const VehiclesTab = () => {
                                 { value: "soon", label: t("texnik.vehicles.soon") },
                             ]}
                         />
+                        <Button onClick={() => addExpense()}>
+                            <Plus size={16} />
+                            {t("actions.add")}
+                        </Button>
                     </div>
                 }
             />
             <VehicleItemsSheet
-                row={itemId ? null : openRow}
+                row={itemId || expense ? null : openRow}
                 onClose={() => setOpenId(null)}
                 onOpenItem={(lot) => setItem(lot)}
+                onOpenExpense={setExpense}
+                onAddExpense={addExpense}
             />
+            <ExpenseDetailSheet
+                row={expense}
+                onClose={() => setExpense(null)}
+                onEdit={editExpense}
+            />
+            <Modal
+                modalKey="add-expense"
+                title={currentExpense?.id ? "Xarajatni tahrirlash" : "Xarajat qo'shish"}
+                size="max-w-2xl"
+            >
+                <AddExpenseModal vehicleId={addVehicle} />
+            </Modal>
+            <DeleteModal path={TECHNICAL_INSPECT} id={currentExpense?.id} />
             <ItemDetailSheet itemId={itemId} onClose={() => setItem(undefined)} />
         </>
     )

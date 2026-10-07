@@ -14,19 +14,48 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { toast } from "sonner"
-import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Download, Wallet } from "lucide-react"
+import { DollarSign, ArrowUpCircle, ChevronLeft, ChevronRight, Download, Fuel, Wallet } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddPetrolStationModal from "./add-petrol"
+import { formatQuantity } from "./cashflow-cols"
 import { type PetrolStationRow, usePetrolStationColumns } from "./cols"
 
 type PetrolStats = {
     total_balance: number
     total_top_ups: number
     total_outcomes: number
+    total_liters: number
+    total_gas: number
     station_count: number
 }
+
+const StatCard = ({
+    icon,
+    tone,
+    label,
+    value,
+    valueClass,
+}: {
+    icon: React.ReactNode
+    tone: string
+    label: string
+    value: React.ReactNode
+    valueClass?: string
+}) => (
+    <Card className="h-full">
+        <CardContent className="p-4 h-full flex items-center gap-3">
+            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", tone)}>
+                {icon}
+            </div>
+            <div className="min-w-0">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">{label}</div>
+                <div className={cn("text-xl font-semibold tabular-nums truncate", valueClass)}>{value}</div>
+            </div>
+        </CardContent>
+    </Card>
+)
 
 const PetrolStationsPage = () => {
     const { t } = useTranslation()
@@ -109,58 +138,31 @@ const PetrolStationsPage = () => {
 
     return (
         <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                            <Wallet size={20} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                {t("page.total_balance")}
-                            </div>
-                            <div className="text-xl font-semibold tabular-nums truncate">
-                                {formatMoney(Number(stats?.total_balance ?? 0))}{" "}
-                                so'm
-                            </div>
-                            <div className="text-[11px] text-muted-foreground">
-                                {stats?.station_count ?? 0} ta zapravka
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
-                            <ArrowUpCircle size={20} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                {t("page.add_income")}
-                            </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-emerald-600">
-                                +{formatMoney(Number(stats?.total_top_ups ?? 0))}{" "}
-                                so'm
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-rose-500/10 text-rose-600 flex items-center justify-center shrink-0">
-                            <ArrowDownCircle size={20} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                {t("page.add_expense")}
-                            </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-rose-600">
-                                {Number(stats?.total_outcomes ?? 0) > 0 ? "−" : ""}{formatMoney(Number(stats?.total_outcomes ?? 0))}{" "}
-                                so'm
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                <StatCard
+                    icon={<Fuel size={20} />}
+                    tone="bg-amber-500/10 text-amber-600"
+                    label="Olingan yoqilg'i"
+                    value={`${formatQuantity(Number(stats?.total_liters ?? 0), "liter")} · ${formatQuantity(Number(stats?.total_gas ?? 0), "m3")}`}
+                    valueClass="text-amber-600"
+                />
+                <StatCard
+                    icon={<DollarSign size={20} />}
+                    tone="bg-amber-500/10 text-amber-600"
+                    label="Summa"
+                    value={<>{formatMoney(Number(stats?.total_outcomes ?? 0))}</>}
+                    valueClass="text-amber-600"
+                />
+                <StatCard
+                    icon={<Wallet size={20} />}
+                    tone="bg-primary/10 text-primary"
+                    label="Zapravka balansi"
+                    value={<>{formatMoney(Number(stats?.total_balance ?? 0))}</>}
+                    valueClass={cn(
+                        Number(stats?.total_balance ?? 0) < 0 && "text-rose-600",
+                        Number(stats?.total_balance ?? 0) > 0 && "text-emerald-600",
+                    )}
+                />
             </div>
             <DataTable
                 loading={isLoading}

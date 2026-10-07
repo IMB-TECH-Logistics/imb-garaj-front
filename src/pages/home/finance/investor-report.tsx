@@ -10,6 +10,7 @@ import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 export type Investor = { id: number; name: string; vehicle_count: number }
 
@@ -22,6 +23,13 @@ type ExpenseItem = {
     comment: string
     vehicle_id: number
     truck_number: string
+}
+
+type VehicleExpenseGroup = {
+    id: number
+    truck_number: string
+    count: number
+    total: number
 }
 
 type ExpenseResponse = {
@@ -69,7 +77,8 @@ const Money = ({ value, tone }: { value: string | number; tone?: "income" | "exp
         : tone === "expense" ? "text-red-600"
         : tone === "auto" ? (n >= 0 ? "text-blue-600" : "text-red-600")
         : ""
-    return <span className={`font-medium tabular-nums ${color}`}>{n ? formatMoney(n) : "—"}</span>
+    const sign = tone === "expense" && n > 0 ? "−" : ""
+    return <span className={`font-medium tabular-nums ${color}`}>{n ? <>{sign}{formatMoney(n)}</> : "—"}</span>
 }
 
 export const useInvestors = () => {
@@ -96,11 +105,7 @@ export const VehicleExpenses = ({ vehicleId }: { vehicleId?: string | number }) 
         enabled: !!params.from_date && !!params.to_date,
     })
 
-    const [category, setCategory] = useState<string | null>(null)
-    const items = useMemo(
-        () => (data?.items ?? []).filter((i) => !category || i.category === category),
-        [data, category],
-    )
+    const items = data?.items ?? []
 
     const columns = useMemo<ColumnDef<ExpenseItem>[]>(
         () => [
@@ -141,46 +146,84 @@ export const VehicleExpenses = ({ vehicleId }: { vehicleId?: string | number }) 
         [vehicleId],
     )
 
+    const [openVehicle, setOpenVehicle] = useState<number | null>(null)
+
+    const vehicles = useMemo(() => {
+        const map = new Map<number, VehicleExpenseGroup>()
+        for (const item of items) {
+            const g = map.get(item.vehicle_id) ?? {
+                id: item.vehicle_id,
+                truck_number: item.truck_number,
+                count: 0,
+                total: 0,
+            }
+            g.count += 1
+            g.total += toNum(item.amount)
+            map.set(item.vehicle_id, g)
+        }
+        return [...map.values()].sort((a, b) => b.total - a.total)
+    }, [items])
+
+    const vehicleColumns = useMemo<ColumnDef<VehicleExpenseGroup>[]>(
+        () => [
+            {
+                header: "Mashina",
+                accessorKey: "truck_number",
+                cell: ({ row }) => <span className="font-medium">{row.original.truck_number}</span>,
+            },
+            { header: "Xarajatlar soni", accessorKey: "count" },
+            {
+                header: "Jami xarajat",
+                accessorKey: "total",
+                cell: ({ row }) => <Money value={row.original.total} tone="expense" />,
+            },
+        ],
+        [],
+    )
+
+    if (vehicleId) {
+        return (
+            <div className="space-y-3">
+                <DataTable
+                    columns={columns}
+                    data={items}
+                    loading={isLoading}
+                    numeration
+                    viewAll
+                />
+            </div>
+        )
+    }
+
+    const opened = vehicles.find((v) => v.id === openVehicle) ?? null
+    const openedItems = opened ? items.filter((i) => i.vehicle_id === opened.id) : []
+    const detailColumns = columns.filter(
+        (c) => (c as { accessorKey?: string }).accessorKey !== "truck_number",
+    )
+
     return (
         <div className="space-y-3">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <button
-                    type="button"
-                    onClick={() => setCategory(null)}
-                    className={cn(
-                        "rounded-lg border bg-red-50 dark:bg-red-950/30 p-3 text-left transition-colors hover:border-red-400",
-                        !category && "border-red-500 ring-1 ring-red-500",
-                    )}
-                >
-                    <p className="text-xs text-muted-foreground">Jami mashina xarajati</p>
-                    <p className="text-lg font-bold text-red-700 dark:text-red-400 tabular-nums">
-                        {formatMoney(toNum(data?.total))} so'm
-                    </p>
-                </button>
-                {(data?.by_category ?? []).map((c) => (
-                    <button
-                        type="button"
-                        key={c.category}
-                        onClick={() => setCategory(category === c.category ? null : c.category)}
-                        className={cn(
-                            "rounded-lg border bg-muted/20 p-3 text-left transition-colors hover:border-primary/60",
-                            category === c.category && "border-primary ring-1 ring-primary bg-primary/10",
-                        )}
-                    >
-                        <p className="text-xs text-muted-foreground">{c.category}</p>
-                        <p className="text-lg font-semibold tabular-nums">
-                            {formatMoney(toNum(c.amount))} so'm
-                        </p>
-                    </button>
-                ))}
-            </div>
             <DataTable
-                columns={columns}
-                data={items}
+                columns={vehicleColumns}
+                data={vehicles}
                 loading={isLoading}
                 numeration
                 viewAll
+                onRowClick={(row: VehicleExpenseGroup) => setOpenVehicle(row.id)}
             />
+            <Sheet open={!!opened} onOpenChange={(open) => !open && setOpenVehicle(null)}>
+                <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto">
+                    <SheetHeader>
+                        <SheetTitle className="flex items-center gap-3">
+                            {opened?.truck_number}
+                            {opened && <Money value={opened.total} tone="expense" />}
+                        </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-4">
+                        <DataTable columns={detailColumns} data={openedItems} numeration viewAll />
+                    </div>
+                </SheetContent>
+            </Sheet>
         </div>
     )
 }

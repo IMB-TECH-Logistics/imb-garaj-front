@@ -1015,7 +1015,8 @@
             "expired": "Eskirgan",
             "soon": "Yaqinlashmoqda",
             "expired_count": "{{count}} ta eskirgan",
-            "soon_count": "{{count}} ta yaqinlashmoqda"
+            "soon_count": "{{count}} ta yaqinlashmoqda",
+            "no_expenses": "Bu davrda xarajat yo'q"
         }
     }
 }

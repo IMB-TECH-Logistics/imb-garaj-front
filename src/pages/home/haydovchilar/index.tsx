@@ -8,7 +8,6 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useMemo } from "react"
-import { ParamCombobox } from "@/components/as-params/combobox"
 import { useTranslation } from "react-i18next"
 
 type DriverRow = {
@@ -27,6 +26,7 @@ type DriverRow = {
     completed_orders: number
     total_orders: number
     revenue_uzs: string | number
+    salary_due_uzs: string | number
     revenue_usd: string | number
     salary_paid_uzs: string | number
     total_distance_km: string | number
@@ -45,12 +45,6 @@ type DriverRow = {
 
 const num = (v: unknown) => Number(v ?? 0) || 0
 
-const TIER_STYLES: Record<DriverRow["tier"], string> = {
-    A: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
-    B: "bg-primary/10 text-primary border-primary/30",
-    C: "bg-amber-500/15 text-amber-500 border-amber-500/30",
-    D: "bg-rose-500/15 text-rose-500 border-rose-500/30",
-}
 
 const useCols = () => {
     const { t } = useTranslation()
@@ -139,7 +133,7 @@ const useCols = () => {
                 },
             },
             {
-                header: `${t("table.revenue")} (${t("page.som")})`,
+                header: "Olib kelgan summa (naqd)",
                 accessorKey: "revenue_uzs",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -149,60 +143,23 @@ const useCols = () => {
                 ),
             },
             {
-                header: `${t("form.balance")} (${t("page.som")})`,
-                accessorKey: "balance_uzs",
+                header: "Oylik maoshi",
+                accessorKey: "salary_due_uzs",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const v = num(row.original.balance_uzs)
-                    const salary = num(row.original.salary_balance_uzs)
+                    const v = num(row.original.salary_due_uzs)
                     return (
-                        <div className="flex flex-col">
-                            <span
-                                className={
-                                    v < 0
-                                        ? "text-red-500 font-medium"
-                                        : v > 0
-                                          ? "text-green-500 font-medium"
-                                          : ""
-                                }
-                            >
-                                {formatMoney(v)}
-                            </span>
-                            {salary !== 0 && (
-                                <span
-                                    className={`text-[11px] ${salary > 0 ? "text-red-500" : "text-green-500"}`}
-                                    title={t(salary > 0 ? "form.debt_driver_owes" : "form.debt_company_owes")}
-                                >
-                                    {t("form.salary_diff_driver")}: {formatMoney(salary)}
-                                </span>
-                            )}
-                        </div>
+                        <span className={v > 0 ? "font-medium text-amber-600" : v < 0 ? "font-medium text-red-500" : "text-muted-foreground"}>
+                            {formatMoney(v)}
+                        </span>
                     )
                 },
-            },
-            {
-                header: t("table.rating"),
-                accessorKey: "score",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span
-                        className={`inline-flex items-center justify-center w-7 h-7 rounded-md border text-[11px] font-bold ${TIER_STYLES[row.original.tier]}`}
-                    >
-                        {row.original.tier}
-                    </span>
-                ),
             },
         ],
         [t],
     )
 }
 
-const TIER_OPTIONS = [
-    { id: "A", name: "A" },
-    { id: "B", name: "B" },
-    { id: "C", name: "C" },
-    { id: "D", name: "D" },
-]
 
 export default function HaydovchilarList() {
     const { t } = useTranslation()
@@ -214,12 +171,7 @@ export default function HaydovchilarList() {
         params: { search: search.driver_search },
     })
 
-    const rows = useMemo(() => {
-        const all = data ?? []
-        return search.tier
-            ? all.filter((r) => r.tier === search.tier)
-            : all
-    }, [data, search.tier])
+    const rows = data ?? []
 
     const handleRowClick = (row: DriverRow) => {
         navigate({
@@ -247,17 +199,6 @@ export default function HaydovchilarList() {
                         <Badge className="text-sm">
                             {formatMoney(rows.length)}
                         </Badge>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                        <ParamCombobox
-                            paramName="tier"
-                            options={TIER_OPTIONS}
-                            label={t("table.rating")}
-                            addButtonProps={{
-                                className:
-                                    "!bg-background dark:!bg-secondary min-w-36 justify-start",
-                            }}
-                        />
                     </div>
                 </div>
             }

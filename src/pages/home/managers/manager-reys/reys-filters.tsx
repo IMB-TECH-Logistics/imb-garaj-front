@@ -37,7 +37,7 @@ const filterButtonProps = {
     className: "w-auto gap-2 whitespace-nowrap font-normal !bg-background dark:!bg-secondary",
 }
 
-export default function ReysFilters() {
+export default function ReysFilters({ trailing }: { trailing?: React.ReactNode } = {}) {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
@@ -143,6 +143,7 @@ export default function ReysFilters() {
                     to="to_date"
                     addButtonProps={{ className: "w-auto gap-2 whitespace-nowrap justify-start !bg-background dark:!bg-secondary" }}
                 />
+                {trailing}
             </div>
         </div>
     )

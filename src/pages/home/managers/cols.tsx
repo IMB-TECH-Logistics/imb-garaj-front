@@ -32,32 +32,12 @@ const REYS_STAGES: Record<number, { label: string; color: string }> = {
     3: { label: "Bo'sh", color: "bg-gray-500/10 text-gray-500 border-transparent" },
 }
 
-const pad = (n: number) => String(n).padStart(2, "0")
-
-const formatEta = (d: Date) =>
-    `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`
-
 const ACTIVE_ORDER_STATUSES = [1, 5, 6, 7]
 
-const mockEta = (v: ManagerVehicles) => {
-    if (v.order_activity !== 1 || !ACTIVE_ORDER_STATUSES.includes(v.order_status)) return null
-    const d = new Date()
-    d.setMinutes(0, 0, 0)
-    d.setHours(d.getHours() + 4 + ((v.id * 7) % 44))
-    return d
-}
-
-const MOCK_CITIES = ["Toshkent", "Samarqand", "Buxoro", "Farg'ona", "Andijon", "Navoiy", "Qarshi", "Jizzax", "Namangan", "Termiz"]
-
-const mockPending = (v: ManagerVehicles) => {
-    if (v.pending_orders) {
-        return { from: v.next_loading_name, to: v.next_unloading_name, count: v.pending_orders }
-    }
-    if (v.id % 3 === 0) return null
-    const from = MOCK_CITIES[v.id % MOCK_CITIES.length]
-    const to = MOCK_CITIES[(v.id * 3 + 1) % MOCK_CITIES.length]
-    return { from, to: to === from ? MOCK_CITIES[(v.id + 5) % MOCK_CITIES.length] : to, count: (v.id % 4) + 1 }
-}
+const nextPending = (v: ManagerVehicles) =>
+    v.pending_orders
+        ? { from: v.next_loading_name, to: v.next_unloading_name, count: v.pending_orders }
+        : null
 
 export const useColumnsManagersVehicles = () => {
     const { t } = useTranslation()
@@ -127,26 +107,11 @@ export const useColumnsManagersVehicles = () => {
                 },
             },
             {
-                accessorKey: "eta",
-                header: "Taxminiy tugash",
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const d = mockEta(row.original)
-                    if (!d) return <span className="text-muted-foreground">-</span>
-                    const late = d.getTime() < Date.now()
-                    return (
-                        <span className={`whitespace-nowrap tabular-nums ${late ? "text-destructive" : ""}`}>
-                            ~ {formatEta(d)}
-                        </span>
-                    )
-                },
-            },
-            {
                 accessorKey: "pending_orders",
                 header: t("table.pending_trips"),
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const next = mockPending(row.original)
+                    const next = nextPending(row.original)
                     if (!next) return <span className="text-muted-foreground">-</span>
                     return (
                         <div className="flex items-center gap-1.5 whitespace-nowrap">

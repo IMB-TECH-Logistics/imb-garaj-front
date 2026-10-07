@@ -55,10 +55,6 @@ type OrderOption = {
 // aniqlanadi, hech qachon hardcoded "litr" ishlatilmaydi.
 const UNIT_LABEL: Record<string, string> = { methane: "m³", diesel: "litr" }
 
-const CURRENCY_OPTIONS = [
-    { id: 1, name: "UZS" },
-    { id: 2, name: "USD" },
-]
 
 type FormValues = {
     vehicle: number | ""
@@ -111,7 +107,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const { data: otherVehicles, refetch: refetchOtherVehicles } =
         useGet<OtherVehicleOption[]>(PETROL_STATIONS_OTHER_VEHICLES)
 
-    const [isOther, setIsOther] = useState(last?.isOther ?? false)
+    const isOther = false
     const [isAdding, setIsAdding] = useState(false)
     const [newNumber, setNewNumber] = useState("")
     const [newComment, setNewComment] = useState("")
@@ -281,37 +277,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 no-scrollbar-x">
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Avtomobil</h3>
                 <div className="grid grid-cols-1 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <span className="font-medium text-sm">{t("form.vehicle_type")}</span>
-                        <div className="flex gap-2">
-                            {[
-                                { value: false, label: "Garaj furasi" },
-                                { value: true, label: "Boshqa mashina" },
-                            ].map((choice) => (
-                                <button
-                                    key={String(choice.value)}
-                                    type="button"
-                                    onClick={() => {
-                                        setIsOther(choice.value)
-                                        setValue("vehicle", "")
-                                        setValue("other_vehicle", "")
-                                        setValue("trip", "")
-                                    }}
-                                    className={cn(
-                                        "px-3 py-1.5 rounded-md text-sm border transition-colors",
-                                        isOther === choice.value
-                                            ? "bg-primary text-primary-foreground border-primary"
-                                            : "bg-background text-muted-foreground hover:text-foreground",
-                                    )}
-                                >
-                                    {choice.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
                     {isOther ?
                         <div className="flex flex-col gap-2">
                             <FormCombobox
@@ -522,7 +488,6 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Miqdor va summa</h3>
                 <div className="grid grid-cols-1 gap-4">
                     <FormNumberInput
                         required
@@ -546,31 +511,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                 decimalScale={currency === 2 ? 2 : 0}
                             />
                         </div>
-                        <div className="w-32 shrink-0">
-                            <FormCombobox
-                                control={control}
-                                label={t("form.currency")}
-                                name="currency"
-                                isClearIcon={false}
-                                options={CURRENCY_OPTIONS}
-                                valueKey="id"
-                                labelKey="name"
-                            />
-                        </div>
                     </div>
-
-
-                    {currency === 2 && (
-                        <FormNumberInput
-                            required
-                            control={control}
-                            label={t("form.currency_rate")}
-                            name="currency_course"
-                            placeholder="Ex: 12 000"
-                            thousandSeparator=" "
-                            decimalScale={0}
-                        />
-                    )}
 
                     <FormDatePicker
                         fullWidth
@@ -584,7 +525,6 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Izoh va chek</h3>
                 <div className="grid grid-cols-1 gap-4">
                     <FormTextarea label={t("form.comment")} name="comment" methods={form} />
 

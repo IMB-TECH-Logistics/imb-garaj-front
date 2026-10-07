@@ -23,10 +23,6 @@ type FormValues = {
     comment: string
 }
 
-const CURRENCY_OPTIONS = [
-    { id: 1, name: "UZS" },
-    { id: 2, name: "USD" },
-]
 
 export const useEditCashFlowStore = () => {
     const { setData, getData, clearKey } = useGlobalStore()
@@ -112,17 +108,6 @@ const EditCashFlowModal = () => {
                         decimalScale={currency === 2 ? 2 : 0}
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        control={control}
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        options={CURRENCY_OPTIONS}
-                        valueKey="id"
-                        labelKey="name"
-                    />
-                </div>
             </div>
 
 
@@ -134,18 +119,6 @@ const EditCashFlowModal = () => {
                     placeholder="Ex: 50"
                     thousandSeparator=" "
                     decimalScale={2}
-                />
-            )}
-
-            {currency === 2 && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label={t("form.currency_rate")}
-                    name="currency_course"
-                    placeholder="Ex: 12 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
                 />
             )}
 

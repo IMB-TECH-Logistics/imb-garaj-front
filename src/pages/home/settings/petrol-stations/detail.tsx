@@ -1,20 +1,17 @@
 import ParamDateRange from "@/components/as-params/date-picker-range"
-import ParamPagination from "@/components/as-params/pagination"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import TableActions from "@/components/custom/table-actions"
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
 import { DataTable } from "@/components/ui/datatable"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select2"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
@@ -24,23 +21,20 @@ import { formatMoney } from "@/lib/format-money"
 import EmptyBox from "@/components/custom/empty-box"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import {
-    ArrowDownCircle,
+    DollarSign,
     ArrowLeft,
     ArrowUpCircle,
-    Flame,
     Fuel,
     MapPin,
     Plus,
-    Truck,
     Wallet,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import AddExpenseModal from "./add-expense-modal"
 import {
     formatQuantity,
-    getAmountInUzs,
     type StationCashFlowRow,
     useStationCashFlowColumns,
 } from "./cashflow-cols"
@@ -65,7 +59,7 @@ const CASH_FLOW_DELETE_KEY = "petrol-cash-flow-delete"
 const TABS: { key: string; label: string; action: number | null }[] = [
     { key: "all", label: "Barchasi", action: null },
     { key: "topups", label: "Kirim", action: 1 },
-    { key: "expenses", label: "Chiqim", action: -1 },
+    { key: "expenses", label: "Xarajat", action: -1 },
 ]
 
 const PetrolStationDetail = () => {
@@ -126,65 +120,6 @@ const PetrolStationDetail = () => {
 
     const columns = useStationCashFlowColumns()
 
-    // Kelgan natijalarni mashina raqami (vehicle_plate) bo'yicha guruhlash
-    const groupedVehicles = useMemo(() => {
-        const results = cashflows?.results ?? []
-        const groups: Record<
-            string,
-            {
-                vehicle_plate: string
-                driver_name: string
-                total_liters: number
-                total_gas: number
-                total_amount: number
-                items: StationCashFlowRow[]
-            }
-        > = {}
-
-        results.forEach((row) => {
-            const plate =
-                row.vehicle_plate ||
-                (row.action === 1 ? "Kirim operatsiyalari" : "Boshqa operatsiyalar")
-
-            if (!groups[plate]) {
-                groups[plate] = {
-                    vehicle_plate: plate,
-                    driver_name: row.vehicle_plate ? row.driver_name || "-" : "-",
-                    total_liters: 0,
-                    total_gas: 0,
-                    total_amount: 0,
-                    items: [],
-                }
-            }
-
-            groups[plate].items.push(row)
-            const amountInUzs = getAmountInUzs(row)
-            groups[plate].total_amount +=
-                row.action === 1 ? amountInUzs : -amountInUzs
-
-            if (row.unit === "m3") {
-                groups[plate].total_gas += Number(row.liters || 0)
-            } else {
-                groups[plate].total_liters += Number(row.liters || 0)
-            }
-        })
-
-        // Sintetik (mashinasiz) guruhlar oxirida, haydovchi mashinalari
-        // esa raqami bo'yicha tartiblanadi
-        const SYNTHETIC = ["Kirim operatsiyalari", "Boshqa operatsiyalar"]
-        return Object.values(groups).sort((a, b) => {
-            const aSyn = SYNTHETIC.indexOf(a.vehicle_plate)
-            const bSyn = SYNTHETIC.indexOf(b.vehicle_plate)
-            if (aSyn !== -1 || bSyn !== -1) {
-                if (aSyn === -1) return -1
-                if (bSyn === -1) return 1
-                return aSyn - bSyn
-            }
-            return a.vehicle_plate.localeCompare(b.vehicle_plate, "uz", {
-                numeric: true,
-            })
-        })
-    }, [cashflows?.results])
 
     const handleEditCashFlow = (row: StationCashFlowRow) => {
         editCashFlow.open(row)
@@ -244,252 +179,132 @@ const PetrolStationDetail = () => {
                         )}
                     </div>
                 </div>
-                <div className="w-64 shrink-0 ml-auto">
-                    <ParamDateRange from="from_date" to="to_date" />
+                <div className="flex items-center gap-2 ml-auto flex-wrap justify-end">
+                    <div className="w-64 shrink-0">
+                        <ParamDateRange from="from_date" to="to_date" />
+                    </div>
+                    <Select value={activeTab} onValueChange={setTab}>
+                        <SelectTrigger className="w-36 !bg-background dark:!bg-secondary">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {TABS.map((t) => (
+                                <SelectItem key={t.key} value={t.key}>
+                                    {t.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {hasControl && (
+                        <div className="flex items-center gap-2">
+                            <Button onClick={openExpense} className="gap-1.5">
+                                <Plus size={16} />
+                                Xarajat
+                            </Button>
+                            <Button onClick={openTopUp} className="gap-1.5">
+                                <Plus size={16} />
+                                Oldindan to'lov
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                            <Wallet size={20} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Hozirgi balans
-                            </div>
-                            <div className="text-xl font-semibold tabular-nums truncate">
-                                {formatMoney(Number(stats?.balance ?? 0))}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground">
-                                Kirim − chiqim
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
-                            <ArrowUpCircle size={20} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Kirim
-                            </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-emerald-600">
-                                {Number(stats?.total_top_ups ?? 0) > 0 ? "+" : ""}
-                                {formatMoney(Number(stats?.total_top_ups ?? 0))}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground">
-                                {stats?.top_up_count ?? 0} ta operatsiya
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-rose-500/10 text-rose-600 flex items-center justify-center shrink-0">
-                            <ArrowDownCircle size={20} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Chiqim
-                            </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-rose-600">
-                                {Number(stats?.total_outcomes ?? 0) > 0 ? "−" : ""}
-                                {formatMoney(
-                                    Number(stats?.total_outcomes ?? 0),
-                                )}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground">
-                                {stats?.expense_count ?? 0} ta operatsiya
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <Card className="h-full">
+                    <CardContent className="p-4 h-full flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
                             <Fuel size={20} />
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Sarflangan litr
+                                Olingan yoqilg'i
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
                                 {formatQuantity(Number(stats?.total_liters ?? 0), "liter")}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground">
-                                Dizel mashinalar
+                                {" · "}
+                                {formatQuantity(Number(stats?.total_gas ?? 0), "m3")}
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-sky-500/10 text-sky-600 flex items-center justify-center shrink-0">
-                            <Flame size={20} />
+                <Card className="h-full">
+                    <CardContent className="p-4 h-full flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                            <DollarSign size={20} />
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Sarflangan gaz
+                                Summa
                             </div>
-                            <div className="text-xl font-semibold tabular-nums truncate text-sky-600">
-                                {formatQuantity(Number(stats?.total_gas ?? 0), "m3")}
+                            <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
+                                {formatMoney(
+                                    Number(stats?.total_outcomes ?? 0),
+                                )}
                             </div>
-                            <div className="text-[11px] text-muted-foreground">
-                                Gaz (metan) mashinalar
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="h-full">
+                    <CardContent className="p-4 h-full flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <Wallet size={20} />
+                        </div>
+                        <div className="min-w-0">
+                            <div className="text-xs text-muted-foreground uppercase tracking-wider">
+                                Zapravka balansi
+                            </div>
+                            <div
+                                className={cn(
+                                    "text-xl font-semibold tabular-nums truncate",
+                                    Number(stats?.balance ?? 0) < 0 && "text-rose-600",
+                                    Number(stats?.balance ?? 0) > 0 && "text-emerald-600",
+                                )}
+                            >
+                                {formatMoney(Number(stats?.balance ?? 0))}
                             </div>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="flex items-center justify-between gap-3">
-                <Tabs value={activeTab} onValueChange={setTab}>
-                    <TabsList>
-                        {TABS.map((t) => (
-                            <TabsTrigger key={t.key} value={t.key}>
-                                {t.label}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-                </Tabs>
-                {hasControl && (
-                    <div className="flex items-center gap-2">
-                        <Button onClick={openExpense}>
-                            <Plus size={16} className="mr-1" />
-                            {t("page.add_expense")}
-                        </Button>
-                        <Button onClick={openTopUp}>
-                            <Plus size={16} className="mr-1" />
-                            {t("page.add_income")}
-                        </Button>
-                    </div>
-                )}
-            </div>
 
-            {/* Guruh: mashina raqami bo`yicha */}
-            {isLoading ?
-                <Card className="p-4 space-y-3">
-                    {Array.from({ length: 6 }).map((_, index) => (
-                        <Skeleton key={index} className="h-14 w-full" />
-                    ))}
-                </Card>
-            : groupedVehicles.length > 0 ?
-                <Card className="overflow-hidden">
-                    <Accordion type="multiple" className="divide-y">
-                        {groupedVehicles.map((group) => (
-                            <AccordionItem
-                                key={group.vehicle_plate}
-                                value={group.vehicle_plate}
-                                className="border-b-0"
-                            >
-                                <AccordionTrigger className="gap-3 px-4 py-3 hover:no-underline hover:bg-muted/40">
-                                    <div className="flex flex-1 items-center justify-between gap-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                                <Truck size={18} />
-                                            </div>
-                                            <div className="text-left">
-                                                <div className="font-semibold text-sm flex items-center gap-2">
-                                                    {group.vehicle_plate}
-                                                    {group.driver_name &&
-                                                        group.driver_name !== "-" && (
-                                                            <span className="text-xs font-normal text-muted-foreground">
-                                                                ({group.driver_name})
-                                                            </span>
-                                                        )}
-                                                </div>
-                                                <div className="text-xs font-normal text-muted-foreground">
-                                                    {group.items.length} ta operatsiya
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            {group.total_gas > 0 && (
-                                                <Badge className="hidden border-transparent bg-sky-500/10 text-sky-600 hover:bg-sky-500/10 sm:inline-flex tabular-nums whitespace-nowrap">
-                                                    {formatQuantity(
-                                                        group.total_gas,
-                                                        "m3",
-                                                    )}
-                                                </Badge>
-                                            )}
-                                            {group.total_liters > 0 && (
-                                                <Badge className="hidden border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 sm:inline-flex tabular-nums whitespace-nowrap">
-                                                    {formatQuantity(
-                                                        group.total_liters,
-                                                        "liter",
-                                                    )}
-                                                </Badge>
-                                            )}
-                                            <Badge
-                                                className={cn(
-                                                    "border-transparent tabular-nums whitespace-nowrap",
-                                                    group.total_amount >= 0 ?
-                                                        "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
-                                                    :   "bg-rose-500/10 text-rose-600 hover:bg-rose-500/10",
-                                                )}
-                                            >
-                                                {group.total_amount >= 0 ? "+" : "−"}
-                                                {formatMoney(
-                                                    Math.abs(group.total_amount),
-                                                )}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="border-t px-4 pb-4 pt-3">
-                                    <DataTable
-                                        columns={columns}
-                                        data={group.items}
-                                        viewAll
-                                        numeration
-                                        rowAction={
-                                            hasControl ?
-                                                (row: StationCashFlowRow) => (
-                                                    <TableActions
-                                                        onEdit={() =>
-                                                            handleEditCashFlow(row)
-                                                        }
-                                                        onDelete={() =>
-                                                            handleDeleteCashFlow(row)
-                                                        }
-                                                    />
-                                                )
-                                            :   undefined
-                                        }
-                                    />
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                    </Accordion>
-                </Card>
-            :   <div className="text-center py-10 text-muted-foreground border rounded-lg">
-                    Ma'lumotlar topilmadi
-                </div>
-            }
-
-            {!isLoading && groupedVehicles.length > 0 && (
-                <div className="flex justify-center pt-2">
-                    <ParamPagination
-                        totalPages={cashflows?.total_pages || 1}
-                        disabled={isLoading}
-                    />
-                </div>
-            )}
+            <DataTable
+                columns={columns}
+                data={cashflows?.results ?? []}
+                loading={isLoading}
+                numeration
+                rowAction={
+                    hasControl ?
+                        (row: StationCashFlowRow) => (
+                            <TableActions
+                                onEdit={() =>
+                                    handleEditCashFlow(row)
+                                }
+                                onDelete={() =>
+                                    handleDeleteCashFlow(row)
+                                }
+                            />
+                        )
+                    :   undefined
+                }
+                paginationProps={{
+                    totalPages: cashflows?.total_pages,
+                    paramName: "page",
+                    pageSizeParamName: "page_size",
+                    page_sizes: [25, 50, 100, 250],
+                }}
+            />
 
             <Modal
-                title={t("page.add_income")}
+                title="Oldindan to'lov"
                 modalKey="petrol-top-up"
                 size="max-w-md"
             >
                 <TopUpModal stationId={stationId} />
             </Modal>
             <Modal
-                title={t("page.add_expense")}
+                title="Xarajat"
                 modalKey="petrol-expense"
                 size="max-w-md"
             >
@@ -498,8 +313,8 @@ const PetrolStationDetail = () => {
             <Modal
                 title={
                     editCashFlow.get()?.action === -1
-                        ? "Chiqimni tahrirlash"
-                        : "Tushumni tahrirlash"
+                        ? "Xarajatni tahrirlash"
+                        : "Oldindan to'lovni tahrirlash"
                 }
                 modalKey="petrol-cash-flow-edit"
                 size="max-w-md"

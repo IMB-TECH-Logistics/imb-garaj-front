@@ -1,31 +1,14 @@
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { DRIVERS_OVERVIEW } from "@/constants/api-endpoints"
-import { useHasAction } from "@/constants/useUser"
-import { handleFormError } from "@/lib/show-form-errors"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { useGet } from "@/hooks/useGet"
-import { useModal } from "@/hooks/useModal"
-import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
-import { FormNumberInput } from "@/components/form/number-input"
-import FormTextarea from "@/components/form/textarea"
-import { useQueryClient } from "@tanstack/react-query"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 type OrderRow = {
@@ -153,7 +136,9 @@ const useOrderCols = () => {
                 header: t("table.status"),
                 id: "salary_status",
                 cell: ({ row }) =>
-                    row.original.salary_given ? (
+                    num(row.original.salary_paid_uzs) <= 0 && !row.original.salary_given ? (
+                        <span className="text-muted-foreground">—</span>
+                    ) : row.original.salary_given ? (
                         <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 w-fit">
                             {t("status.given")}
                         </Badge>
@@ -168,331 +153,7 @@ const useOrderCols = () => {
     )
 }
 
-type PayoutForm = {
-    amount_per_order: number | string | ""
-    given_amount: number | string | ""
-    comment: string
-}
 
-function SalaryPayoutModal({
-    driverId,
-    tripId,
-    pending,
-    refetchKey,
-}: {
-    driverId: string
-    tripId: string
-    pending: OrderRow[]
-    refetchKey: string
-}) {
-    const { t } = useTranslation()
-    const qc = useQueryClient()
-    const { closeModal, isOpen } = useModal("aylanma-pay-salary")
-
-    const tariffed = useMemo(
-        () => pending.filter((o) => o.salary_tariff_uzs != null),
-        [pending],
-    )
-    const untariffedCount = pending.length - tariffed.length
-
-    const tariffSum = useMemo(
-        () =>
-            tariffed.reduce(
-                (acc, o) => acc + num(o.salary_tariff_uzs),
-                0,
-            ),
-        [tariffed],
-    )
-
-    const { data: overview } = useGet<{ salary_balance_uzs?: string | number }>(
-        `${DRIVERS_OVERVIEW}/${driverId}/overview`,
-        { enabled: isOpen },
-    )
-    const balance = num(overview?.salary_balance_uzs)
-
-    const form = useForm<PayoutForm>({
-        defaultValues: {
-            amount_per_order: "",
-            given_amount: "",
-            comment: "",
-        },
-    })
-    const { control, handleSubmit, reset, watch } = form
-    const watchedAmount = watch("amount_per_order")
-    const watchedGiven = watch("given_amount")
-    const total = tariffSum + num(watchedAmount) * untariffedCount
-    const suggested = Math.max(total - balance, 0)
-    const given = watchedGiven === "" || watchedGiven == null ? suggested : num(watchedGiven)
-    const difference = given - total
-
-    useEffect(() => {
-        if (isOpen) {
-            reset({ amount_per_order: "", given_amount: "", comment: "" })
-        }
-    }, [isOpen, reset])
-
-    const { mutate, isPending } = usePost({
-        onSuccess: (res: { warning?: string | null }) => {
-            toast.success(t("toast.salary_given"))
-            if (res?.warning) toast.warning(`${res.warning} — oylik 0`)
-            qc.refetchQueries({ queryKey: [refetchKey] })
-            qc.refetchQueries({
-                predicate: (q) =>
-                    typeof q.queryKey[0] === "string" &&
-                    String(q.queryKey[0]).startsWith(
-                        `${DRIVERS_OVERVIEW}/${driverId}`,
-                    ),
-            })
-            closeModal()
-        },
-    })
-
-    const onSubmit = (data: PayoutForm) => {
-        const amt = Number(data.amount_per_order)
-        const hasAmt = Number.isFinite(amt) && amt > 0
-        if (untariffedCount > 0 && tariffed.length === 0 && !hasAmt) {
-            toast.error(t("toast.error_amount"))
-            return
-        }
-        mutate(`${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/pay-salary`, {
-            order_ids: pending.map((r) => r.id),
-            ...(untariffedCount > 0 && hasAmt ? { amount_per_order: amt } : {}),
-            given_amount: given,
-            comment: data.comment || null,
-        })
-    }
-
-    return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-            <div className="rounded-md bg-muted/40 border p-3 text-sm flex flex-col gap-1">
-                <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("page.selected_trip")}</span>
-                    <span className="font-medium tabular-nums">
-                        {pending.length} ta
-                    </span>
-                </div>
-                {tariffed.length > 0 && (
-                    <div className="flex justify-between text-emerald-600">
-                        <span>Tarif bo‘yicha ({tariffed.length} ta, o‘zgartirilmaydi)</span>
-                        <span className="font-medium tabular-nums">
-                            {formatMoney(tariffSum)} UZS
-                        </span>
-                    </div>
-                )}
-                {untariffedCount > 0 && (
-                    <div className="text-xs font-medium text-red-600">
-                        {untariffedCount} ta reysda tarif yo‘q — summa kiritilmasa oylik 0.
-                    </div>
-                )}
-            </div>
-
-            {untariffedCount > 0 && (
-                <FormNumberInput
-                    required={tariffed.length === 0}
-                    control={control}
-                    name="amount_per_order"
-                    label={
-                        tariffed.length > 0
-                            ? `${t("form.amount_per_order")} (tarifsiz ${untariffedCount} ta)`
-                            : t("form.amount_per_order")
-                    }
-                    placeholder="Ex: 500 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
-                />
-            )}
-
-            {balance !== 0 && (
-                <div className="text-xs text-amber-600">
-                    Oldingi oylik farqi:{" "}
-                    {balance > 0
-                        ? `haydovchi qarzi ${plainMoney(balance)} UZS`
-                        : `haydovchiga qarzdormiz ${plainMoney(-balance)} UZS`}
-                </div>
-            )}
-
-            <FormNumberInput
-                control={control}
-                name="given_amount"
-                label="Berilgan pul"
-                placeholder={plainMoney(suggested)}
-                thousandSeparator=" "
-                decimalScale={0}
-            />
-
-            <FormTextarea
-                methods={form}
-                label={t("form.optional_comment")}
-                name="comment"
-            />
-
-            <div className="rounded-md border border-dashed p-2 text-sm flex flex-col gap-1">
-                <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("form.expense")}</span>
-                    <span className="font-semibold tabular-nums">
-                        {formatMoney(total)} UZS
-                    </span>
-                </div>
-                <div className="flex justify-between">
-                    <span className="text-muted-foreground">Berilgan pul</span>
-                    <span className="font-semibold tabular-nums">
-                        {formatMoney(given)} UZS
-                    </span>
-                </div>
-                {difference !== 0 && (
-                    <div className="flex justify-between text-amber-600">
-                        <span>Farq haydovchi balansida qoladi</span>
-                        <span className="font-semibold tabular-nums">
-                            {difference > 0 ? "+" : "−"}
-                            {formatMoney(Math.abs(difference))} UZS
-                        </span>
-                    </div>
-                )}
-            </div>
-
-            <div className="flex justify-end pt-1 gap-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={closeModal}
-                    disabled={isPending}
-                >
-                    {t("actions.cancel")}
-                </Button>
-                <Button
-                    type="submit"
-                    loading={isPending}
-                    className="min-w-32"
-                >
-                    {t("actions.confirm")}
-                </Button>
-            </div>
-        </form>
-    )
-}
-
-type PayoutRow = {
-    id: number
-    created: string
-    accrued: string | number
-    given: string | number
-    difference: string | number
-    comment: string | null
-    executor: string | null
-    orders: number[]
-}
-
-function PayoutHistory({
-    driverId,
-    tripId,
-    ordersUrl,
-}: {
-    driverId: string
-    tripId: string
-    ordersUrl: string
-}) {
-    const { t } = useTranslation()
-    const qc = useQueryClient()
-    const canReverse = useHasAction("manager_cashflow_approve_control")
-    const payoutsUrl = `${DRIVERS_OVERVIEW}/${driverId}/trips/${tripId}/payouts`
-    const { data: payouts } = useGet<PayoutRow[]>(payoutsUrl, { enabled: !!tripId })
-    const { openModal, closeModal } = useModal("aylanma-payout-reverse")
-    const [target, setTarget] = useState<PayoutRow | null>(null)
-
-    const { mutate, isPending } = usePost({
-        onSuccess: () => {
-            toast.success(t("toast.salary_reversed"))
-            qc.refetchQueries({ queryKey: [payoutsUrl] })
-            qc.refetchQueries({ queryKey: [ordersUrl] })
-            qc.refetchQueries({
-                predicate: (q) =>
-                    typeof q.queryKey[0] === "string" &&
-                    String(q.queryKey[0]).startsWith(`${DRIVERS_OVERVIEW}/${driverId}`),
-            })
-            closeModal()
-        },
-        onError: (error) => {
-            handleFormError(error)
-            closeModal()
-        },
-    })
-
-    if (!payouts?.length) return null
-
-    return (
-        <Card>
-            <CardContent className="p-4 space-y-2">
-                <h3 className="font-medium">{t("page.salary_payouts")}</h3>
-                {payouts.map((p) => {
-                    const diff = num(p.difference)
-                    return (
-                        <div
-                            key={p.id}
-                            className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2 text-sm"
-                        >
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 tabular-nums">
-                                <span>{formatDate(p.created)}</span>
-                                <span>{t("form.expense")}: {formatMoney(num(p.accrued))}</span>
-                                <span>Berilgan pul: {formatMoney(num(p.given))}</span>
-                                {diff !== 0 && (
-                                    <span className="text-amber-600">
-                                        {diff > 0 ? "+" : "−"}
-                                        {formatMoney(Math.abs(diff))}
-                                    </span>
-                                )}
-                                <span className="text-muted-foreground">
-                                    {p.orders.length} ta reys{p.executor ? ` · ${p.executor}` : ""}
-                                </span>
-                            </div>
-                            {canReverse && (
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setTarget(p)
-                                        openModal()
-                                    }}
-                                >
-                                    {t("actions.reverse_salary")}
-                                </Button>
-                            )}
-                        </div>
-                    )
-                })}
-            </CardContent>
-            <Modal size="max-w-md" modalKey="aylanma-payout-reverse" titleInChildren>
-                <DialogHeader>
-                    <DialogTitle className="font-normal">
-                        {t("actions.reverse_salary")}?
-                    </DialogTitle>
-                    <DialogDescription>
-                        {target ? (
-                            <>
-                                {formatMoney(num(target.given))} UZS ·{" "}
-                                {t("messages.reverse_salary_trips", { count: target.orders.length })}.{" "}
-                                {t("messages.reverse_salary_hint")}
-                            </>
-                        ) : null}
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="gap-2">
-                    <Button variant="outline" onClick={closeModal} disabled={isPending}>
-                        {t("actions.cancel")}
-                    </Button>
-                    <Button
-                        variant="destructive"
-                        loading={isPending}
-                        onClick={() =>
-                            target && mutate(`${payoutsUrl}/${target.id}/reverse`, {})
-                        }
-                    >
-                        {t("actions.reverse_salary")}
-                    </Button>
-                </DialogFooter>
-            </Modal>
-        </Card>
-    )
-}
 
 export default function AylanmaDetail() {
     const { t } = useTranslation()
@@ -507,8 +168,6 @@ export default function AylanmaDetail() {
         end?: string
     }
 
-    const [selectedRows, setSelectedRows] = useState<OrderRow[]>([])
-    const { openModal } = useModal("aylanma-pay-salary")
 
     const ordersUrl = `${DRIVERS_OVERVIEW}/${id}/trips/${tripId}/orders`
     const { data: rawOrders, isLoading } = useGet<OrderRow[]>(ordersUrl, {
@@ -528,9 +187,6 @@ export default function AylanmaDetail() {
 
     const orderCols = useOrderCols()
 
-    const pendingSelected = (selectedRows ?? []).filter(
-        (r) => !r.salary_given && r.status === 2,
-    )
 
     const driverName = search?.name?.trim()
     const dateRange =
@@ -577,41 +233,13 @@ export default function AylanmaDetail() {
                 data={orders ?? []}
                 numeration
                 viewAll
-                selecteds_row
-                onSelectedRowsChange={setSelectedRows}
                 head={
-                    <div className="mb-3 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                            <h3 className="font-medium">{t("page.trips")}</h3>
-                            <Badge>{orders?.length ?? 0}</Badge>
-                        </div>
-                        <Button
-                            size="sm"
-                            disabled={pendingSelected.length === 0}
-                            onClick={openModal}
-                        >
-                            {t("actions.give_salary_btn")}
-                            {pendingSelected.length > 0 &&
-                                ` (${pendingSelected.length})`}
-                        </Button>
+                    <div className="mb-3 flex items-center gap-2">
+                        <h3 className="font-medium">{t("page.trips")}</h3>
+                        <Badge>{orders?.length ?? 0}</Badge>
                     </div>
                 }
             />
-
-            <Modal
-                modalKey="aylanma-pay-salary"
-                title={t("actions.give_salary_btn")}
-                size="max-w-md"
-            >
-                <SalaryPayoutModal
-                    driverId={id}
-                    tripId={tripId}
-                    pending={pendingSelected}
-                    refetchKey={ordersUrl}
-                />
-            </Modal>
-
-            <PayoutHistory driverId={id} tripId={tripId} ordersUrl={ordersUrl} />
         </div>
     )
 }

@@ -987,7 +987,8 @@
             "expired": "Expired",
             "soon": "Expiring soon",
             "expired_count": "{{count}} expired",
-            "soon_count": "{{count}} expiring"
+            "soon_count": "{{count}} expiring",
+            "no_expenses": "No expenses in this period"
         }
     }
 }

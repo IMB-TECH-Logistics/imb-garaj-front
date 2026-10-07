@@ -64,41 +64,65 @@ export const getAmountInUzs = (row: StationCashFlowRow) => {
         :   amount
 }
 
+
+const COLUMN_ORDER = [
+    "created",
+    "type",
+    "vehicle_plate",
+    "driver_name",
+    "comment",
+    "executor_name",
+    "liters",
+    "price_per_liter",
+    "amount",
+    "running_balance",
+]
+
 export const useStationCashFlowColumns = () => {
     const { t } = useTranslation()
-    return useMemo<ColumnDef<StationCashFlowRow>[]>(() => [
+    return useMemo<ColumnDef<StationCashFlowRow>[]>(() => ([
             {
                 accessorKey: "created",
                 header: t("table.time_col"),
-                meta: { className: "w-px whitespace-nowrap" },
+                meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => formatDateTime(row.original.created),
             },
             {
-                accessorKey: "driver_name",
-                header: t("form.driver"),
-                meta: { className: "w-px whitespace-nowrap" },
+                id: "type",
+                header: "Turi",
+                meta: { className: "whitespace-nowrap px-4" },
+                cell: ({ row }) =>
+                    row.original.action === 1 ? (
+                        <span className="inline-flex rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                            Oldindan to'lov
+                        </span>
+                    ) : (
+                        <span className="inline-flex rounded-md bg-rose-500/10 px-2 py-0.5 text-xs font-medium text-rose-600">
+                            Xarajat
+                        </span>
+                    ),
+            },
+            {
+                accessorKey: "vehicle_plate",
+                header: "Mashina",
+                meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => {
-                    if (!row.original.driver_name) return "—"
-                    return (
-                        <div className="flex flex-col">
-                            <span className="font-medium">
-                                {row.original.driver_name}
-                            </span>
-                            {row.original.vehicle_plate && (
-                                <span className="text-[11px] text-muted-foreground">
-                                    {row.original.vehicle_plate}
-                                </span>
-                            )}
-                        </div>
-                    )
+                    if (!row.original.vehicle_plate) return "—"
+                    return <span className="font-medium">{row.original.vehicle_plate}</span>
                 },
+            },
+            {
+                accessorKey: "driver_name",
+                header: "Haydovchi",
+                meta: { className: "whitespace-nowrap px-4" },
+                cell: ({ row }) => row.original.driver_name || "—",
             },
             {
                 accessorKey: "liters",
                 header: t("form.quantity"),
-                meta: { className: "w-px whitespace-nowrap text-right" },
+                meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => (
-                    <span className="tabular-nums">
+                    <span className="tabular-nums text-amber-600">
                         {formatQuantity(
                             row.original.liters,
                             row.original.unit,
@@ -109,7 +133,7 @@ export const useStationCashFlowColumns = () => {
             {
                 accessorKey: "price_per_liter",
                 header: t("table.price_col"),
-                meta: { className: "w-px whitespace-nowrap text-right" },
+                meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) =>
                     row.original.price_per_liter == null ? (
                         "—"
@@ -122,26 +146,26 @@ export const useStationCashFlowColumns = () => {
             {
                 accessorKey: "comment",
                 header: t("form.comment"),
-                meta: { className: "w-full" },
+                meta: { className: "min-w-[220px] px-4" },
                 cell: ({ row }) => row.original.comment || "—",
             },
             {
                 accessorKey: "executor_name",
                 header: t("table.executor"),
-                meta: { className: "w-px whitespace-nowrap" },
+                meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => row.original.executor_name ?? "—",
             },
             {
                 accessorKey: "amount",
                 header: t("form.amount"),
-                meta: { className: "w-px whitespace-nowrap text-right" },
+                meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => {
                     const isIncome = row.original.action === 1
                     const amount = Number(row.original.amount ?? 0)
                     const currency = row.original.currency
                     const inUzs = getAmountInUzs(row.original)
                     return (
-                        <div className="flex flex-col items-end">
+                        <div className="flex flex-col items-start">
                             <span
                                 className={`tabular-nums font-medium ${
                                     isIncome
@@ -167,7 +191,29 @@ export const useStationCashFlowColumns = () => {
                     )
                 },
             },
-        ],
+            {
+                accessorKey: "running_balance",
+                header: "Balans",
+                meta: { className: "whitespace-nowrap px-4" },
+                cell: ({ row }) => {
+                    const v = row.original.running_balance
+                    if (v == null) return "—"
+                    return (
+                        <span
+                            className={`tabular-nums font-medium ${
+                                Number(v) < 0 ? "text-rose-600" : "text-emerald-600"
+                            }`}
+                        >
+                            {formatMoney(Number(v))}
+                        </span>
+                    )
+                },
+            },
+        ] as ColumnDef<StationCashFlowRow>[]).sort(
+            (a, b) =>
+                COLUMN_ORDER.indexOf(String((a as { accessorKey?: string }).accessorKey ?? a.id)) -
+                COLUMN_ORDER.indexOf(String((b as { accessorKey?: string }).accessorKey ?? b.id)),
+        ),
         [t],
     )
 }
