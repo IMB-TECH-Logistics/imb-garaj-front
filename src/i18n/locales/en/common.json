@@ -930,7 +930,7 @@
             }
         },
         "tab_stock": "Stock",
-        "tab_moves": "Warehouse operations",
+        "tab_moves": "Archive",
         "service_life": "Service life (after installation)"
     },
     "reys_confirm": {

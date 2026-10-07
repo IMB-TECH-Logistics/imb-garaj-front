@@ -927,7 +927,7 @@
             }
         },
         "tab_stock": "在庫",
-        "tab_moves": "倉庫操作",
+        "tab_moves": "アーカイブ",
         "service_life": "耐用期間（取付後）"
     },
     "reys_confirm": {
