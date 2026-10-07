@@ -179,29 +179,27 @@ export default function ManagerReys() {
                 }
                 head={
                     <div className="mb-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <InlineBreadcrumb
-                                    counts={[vehiclesCount?.count, tripsCount?.count, data?.count]}
-                                    trailing={<span>{tripLabel}</span>}
-                                />
-                            </div>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <InlineBreadcrumb
+                                counts={[vehiclesCount?.count, tripsCount?.count, data?.count]}
+                                trailing={<span>{tripLabel}</span>}
+                            />
+                            <ReysFilters
+                                trailing={
+                                    hasControl && tripId ? (
+                                        <Button onClick={handleAdd}>
+                                            <Plus size={16} />
+                                            {t("actions.add")}
+                                        </Button>
+                                    ) : null
+                                }
+                            />
                         </div>
                         {(trip?.pending_advance || trip?.rejected_advance) && (
                             <div className="mt-2">
                                 <AdvanceBadge pending={trip?.pending_advance} rejected={trip?.rejected_advance} />
                             </div>
                         )}
-                        <ReysFilters
-                            trailing={
-                                hasControl && tripId ? (
-                                    <Button onClick={handleAdd}>
-                                        <Plus size={16} />
-                                        {t("actions.add")}
-                                    </Button>
-                                ) : null
-                            }
-                        />
                     </div>
                 }
             />

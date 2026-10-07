@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button"
 import {
     SETTINGS_SELECTABLE_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_REGION,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { X } from "lucide-react"
-import { ACTIVITY_OPTIONS, STATUS_OPTIONS } from "./create-reys"
+import { ACTIVITY_OPTIONS } from "./create-reys"
 import { useTranslation } from "react-i18next"
 
 type Option = { id: number | string; name: string }
@@ -28,11 +27,6 @@ export const REYS_FILTER_KEYS = [
     "to_date",
 ] as const
 
-const LIST_STATUS_OPTIONS = [
-    { id: "-1", name: "Tasdiqlanmagan" },
-    ...STATUS_OPTIONS,
-]
-
 const filterButtonProps = {
     className: "w-auto gap-2 whitespace-nowrap font-normal !bg-background dark:!bg-secondary",
 }
@@ -42,12 +36,7 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
 
-    const TYPE_OPTIONS: Option[] = [
-        { id: "1", name: t("status.loaded") },
-        { id: "2", name: t("status.empty") },
-    ]
 
-    const { data: regions } = useGet<Option[]>(SETTINGS_SELECTABLE_REGION)
     const { data: cargoTypes } = useGet<Option[]>(SETTINGS_SELECTABLE_CARGO_TYPE, {
         params: { model_name: "cargo-type" },
     })
@@ -69,82 +58,44 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
         } as any)
     }
     return (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
             {hasActiveFilters && (
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                    <Button onClick={clearAllFilters} className="flex items-center gap-2">
-                        <X size={16} />
-                        {t("page.clear_filters")}
-                    </Button>
-                </div>
+                <Button onClick={clearAllFilters} className="flex items-center gap-2">
+                    <X size={16} />
+                    {t("page.clear_filters")}
+                </Button>
             )}
-            <div className="flex flex-wrap items-center justify-end gap-2">
-                <ParamCombobox
-                    paramName="activity"
-                    label={t("table.activity")}
-                    options={ACTIVITY_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    isSearch={false}
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="type"
-                    label={t("table.cargo_state")}
-                    options={TYPE_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    isSearch={false}
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="loading"
-                    label={t("form.loading_location")}
-                    options={regions ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="unloading"
-                    label={t("form.unloading_location")}
-                    options={regions ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="status"
-                    label={t("table.order_status")}
-                    options={LIST_STATUS_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    isSearch={false}
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="cargo_type"
-                    label={t("form.cargo_type")}
-                    options={cargoTypes ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamCombobox
-                    paramName="client"
-                    label={t("form.cargo_owner")}
-                    options={clients ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={filterButtonProps}
-                />
-                <ParamDateRange
-                    from="from_date"
-                    to="to_date"
-                    addButtonProps={{ className: "w-auto gap-2 whitespace-nowrap justify-start !bg-background dark:!bg-secondary" }}
-                />
-                {trailing}
-            </div>
+            <ParamCombobox
+                paramName="activity"
+                label={t("table.activity")}
+                options={ACTIVITY_OPTIONS}
+                valueKey="id"
+                labelKey="name"
+                isSearch={false}
+                addButtonProps={filterButtonProps}
+            />
+            <ParamCombobox
+                paramName="cargo_type"
+                label={t("form.cargo_type")}
+                options={cargoTypes ?? []}
+                valueKey="id"
+                labelKey="name"
+                addButtonProps={filterButtonProps}
+            />
+            <ParamCombobox
+                paramName="client"
+                label={t("form.cargo_owner")}
+                options={clients ?? []}
+                valueKey="id"
+                labelKey="name"
+                addButtonProps={filterButtonProps}
+            />
+            <ParamDateRange
+                from="from_date"
+                to="to_date"
+                addButtonProps={{ className: "w-auto gap-2 whitespace-nowrap justify-start !bg-background dark:!bg-secondary" }}
+            />
+            {trailing}
         </div>
     )
 }
