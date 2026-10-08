@@ -35,8 +35,6 @@ type Direction = {
     unload_city_name?: string | null
     load_place_display?: string | null
     unload_place_display?: string | null
-    load_zone_name?: string | null
-    unload_zone_name?: string | null
     cargo_type: number
     cargo_type_name: string
     payment_type: number
@@ -120,8 +118,6 @@ const RouteConfigsPage = () => {
                 unload_city_name: d.unload_city_name,
                 load_place_display: d.load_place_display,
                 unload_place_display: d.unload_place_display,
-                load_zone_name: d.load_zone_name,
-                unload_zone_name: d.unload_zone_name,
                 distributor_id: d.distributor_id,
                 distributor_name: d.distributor_name,
                 distributor_code: d.distributor_code,

@@ -66,8 +66,6 @@ export const COMMON_DIRECTIONS_CLIENTS = "routes/clients"
 export const COMMON_DIRECTIONS_CARGO_TYPES = "routes/cargo-types"
 export const COMMON_DIRECTIONS_DISTRIBUTORS = "routes/distributors"
 
-export const PLACES_GEO_ZONES = "places/geo-zones"
-export const PLACES_GEO_ZONES_SELECT = "places/geo-zones/select"
 
 /** ===== SELECTABLE (was /common/selectable/*) ===== */
 export const SETTINGS_SELECTABLE_VEHICLE_TYPE = "selectable/vehicle-type"

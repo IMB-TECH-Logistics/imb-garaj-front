@@ -1,5 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_COUNTRIES, SETTINGS_REGIONS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -8,9 +9,13 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import ZoneMap, { type ZonePoint } from "./zone-map"
+
+const DEFAULT_RADIUS = 1000
 
 interface AddRegionsModalProps {
     country_id: number
@@ -42,8 +47,18 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
             ...currentRegion,
             country: currentRegion?.country,
             parent: currentRegion?.parent ?? "",
+            address: currentRegion?.address ?? "",
+            radius_m: currentRegion?.radius_m ?? DEFAULT_RADIUS,
         },
     })
+
+    const [point, setPoint] = useState<ZonePoint | null>(
+        currentRegion?.lat != null && currentRegion?.lng != null
+            ? { lat: currentRegion.lat, lng: currentRegion.lng }
+            : null,
+    )
+    const isPlace = !!form.watch("parent")
+    const radius = Number(form.watch("radius_m")) || 0
 
     const { handleSubmit, reset } = form
 
@@ -73,6 +88,14 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
             name: values.name,
             parent: values.parent ? Number(values.parent) : null,
             country: currentRegion?.id ? values.country : String(country_id),
+            ...(values.parent
+                ? {
+                      lat: point ? Number(point.lat.toFixed(6)) : null,
+                      lng: point ? Number(point.lng.toFixed(6)) : null,
+                      radius_m: Number(values.radius_m) || DEFAULT_RADIUS,
+                      address: values.address || null,
+                  }
+                : {}),
         }
 
         if (currentRegion?.id) {
@@ -128,6 +151,34 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                         value={String(country_id)}
                     />
                 </div>
+
+                {isPlace && (
+                    <>
+                        <FormNumberInput
+                            allowNegative={false}
+                            decimalScale={0}
+                            name="radius_m"
+                            label={t("form.radius_m")}
+                            control={form.control}
+                        />
+                        <FormInput
+                            name="address"
+                            label={t("form.address")}
+                            placeholder={t("form.address")}
+                            methods={form}
+                        />
+                        <div className="md:col-span-2">
+                            <div className="h-[320px] overflow-hidden rounded-md border md:h-[380px]">
+                                <ZoneMap point={point} radius={radius} onChange={setPoint} />
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                {point
+                                    ? point.lat.toFixed(6) + ", " + point.lng.toFixed(6)
+                                    : t("form.map_pick_hint")}
+                            </p>
+                        </div>
+                    </>
+                )}
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button

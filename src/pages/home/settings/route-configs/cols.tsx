@@ -34,8 +34,6 @@ export type DirectionRow = {
     unload_city_name?: string | null
     load_place_display?: string | null
     unload_place_display?: string | null
-    load_zone_name?: string | null
-    unload_zone_name?: string | null
     cargo_type?: number
     cargo_type_name: string
     payment_type?: number

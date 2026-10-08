@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import {
     COMMON_DIRECTIONS,
     COMMON_DIRECTIONS_DISTRIBUTORS,
-    PLACES_GEO_ZONES_SELECT,
     SETTINGS_SELECTABLE_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
     SETTINGS_SELECTABLE_PAYMENT_TYPE,
@@ -38,10 +37,6 @@ type Direction = {
     cargo_type: number | null
     payment_type: number | null
     currency: number | null
-    load_zone: number | null
-    unload_zone: number | null
-    load_zone_name?: string | null
-    unload_zone_name?: string | null
     distributor_id: number | null
     distributor_name?: string | null
     distributor_code?: string | null
@@ -57,14 +52,6 @@ type Direction = {
 }
 
 type SelectItem = { id: number | string; name: string }
-
-type GeoZoneOption = {
-    id: number
-    name: string
-    lat: number
-    lng: number
-    radius_m: number
-}
 
 type DistributorOption = {
     id: number
@@ -107,8 +94,6 @@ const AddRouteConfigModal = () => {
             unload: current?.unload ?? null,
             load_place: current?.load_place ?? "",
             unload_place: current?.unload_place ?? "",
-            load_zone: current?.load_zone ?? null,
-            unload_zone: current?.unload_zone ?? null,
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
             currency: current?.currency ?? 1,
@@ -135,7 +120,6 @@ const AddRouteConfigModal = () => {
     const { data: paymentType } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_PAYMENT_TYPE, {
         params: { model_name: "payment-type" },
     })
-    const { data: zonesData } = useGet<GeoZoneOption[]>(PLACES_GEO_ZONES_SELECT)
     const { data: distributorsData } = useGet<DistributorOption[]>(COMMON_DIRECTIONS_DISTRIBUTORS)
     const distributorOptions = withCurrent(
         distributorsData?.map((d) => ({ id: d.id, name: distributorLabel(d.name, d.code, d.district_name) })),
@@ -209,16 +193,6 @@ const AddRouteConfigModal = () => {
                         placeholder={t("form.load_place")}
                         methods={form}
                     />
-
-                    <FormCombobox
-                        label="Yuklash joyi (lokatsiya)"
-                        name="load_zone"
-                        control={form.control}
-                        options={withCurrent(zonesData, current?.load_zone, current?.load_zone_name ?? undefined)}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder="Lokatsiyani tanlang"
-                    />
                 </div>
             </section>
 
@@ -241,16 +215,6 @@ const AddRouteConfigModal = () => {
                         label={t("form.unload_place")}
                         placeholder={t("form.unload_place")}
                         methods={form}
-                    />
-
-                    <FormCombobox
-                        label="Tushirish joyi (lokatsiya)"
-                        name="unload_zone"
-                        control={form.control}
-                        options={withCurrent(zonesData, current?.unload_zone, current?.unload_zone_name ?? undefined)}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder="Lokatsiyani tanlang"
                     />
                 </div>
             </section>

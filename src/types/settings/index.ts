@@ -257,6 +257,11 @@ type RegionsType = {
     parent_name?: string | null
     viloyat_name?: string
     children_count?: number
+    lat?: number | null
+    lng?: number | null
+    radius_m?: number | string | null
+    address?: string | null
+    has_location?: boolean
 }
 
 // district

@@ -110,6 +110,8 @@ export const RegionRowTable = ({ region, index, colSpan }: RegionRowProps) => {
                         {region.children_count ?? 0}
                     </Badge>
                 </TableCell>
+                <TableCell />
+                <TableCell />
                 <TableCell className="p-0 text-right w-[40px] sticky right-10 bg-card">
                     {hasControl && (
                         <RegionRowActions
@@ -149,6 +151,12 @@ export const RegionRowTable = ({ region, index, colSpan }: RegionRowProps) => {
                         <TableCell />
                         <TableCell className="max-w-0 w-full truncate pl-8" title={child.name}>
                             {child.name}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                            {child.address || "—"}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                            {child.radius_m ?? "—"}
                         </TableCell>
                         <TableCell className="p-0 text-right w-[40px] sticky right-10 bg-card">
                             {hasControl && (

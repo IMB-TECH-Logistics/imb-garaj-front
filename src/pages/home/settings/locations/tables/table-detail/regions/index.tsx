@@ -87,12 +87,18 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
             <div className="flex-1 overflow-y-auto no-scrollbar-x ">
                 {!isSearching && (
                     <>
-                        <Table className="min-w-[400px]">
+                        <Table className="min-w-[600px]">
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="w-10">#</TableHead>
                                     <TableHead className="whitespace-nowrap">
                                         {t("form.region")}
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        {t("form.address")}
+                                    </TableHead>
+                                    <TableHead className="whitespace-nowrap">
+                                        {t("form.radius_m")}
                                     </TableHead>
                                     <TableHead className="sticky right-10 bg-card" />
                                     <TableHead className="w-[40px] sticky right-0 bg-card" />
@@ -101,7 +107,7 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                             <TableBody>
                                 {isLoading && (
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={6}>
                                             <Skeleton className="h-6 w-full" />
                                         </TableCell>
                                     </TableRow>
@@ -111,12 +117,12 @@ const RegionsTable = ({ country_id }: { country_id: number }) => {
                                         key={region.id}
                                         region={region}
                                         index={index}
-                                        colSpan={4}
+                                        colSpan={6}
                                     />
                                 ))}
                                 {data?.results?.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={6}>
                                             <EmptyBox height="h-40" />
                                         </TableCell>
                                     </TableRow>
