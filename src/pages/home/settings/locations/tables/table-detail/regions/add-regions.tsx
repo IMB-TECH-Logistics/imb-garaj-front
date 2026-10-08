@@ -111,13 +111,6 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="grid md:grid-cols-2 gap-4"
             >
-                <FormInput
-                    required
-                    name="name"
-                    label={t("form.region")}
-                    maxLength={255}
-                    methods={form}
-                />
 
  
                 <div className="space-y-2">
@@ -135,6 +128,14 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                         {t("form.region_parent_hint")}
                     </p>
                 </div>
+
+                <FormInput
+                    required
+                    name="name"
+                    label={t("form.name")}
+                    maxLength={255}
+                    methods={form}
+                />
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium">{t("form.country")}</label>
@@ -187,6 +188,11 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                             </p>
                         </div>
                     </>
+                )}
+                {!isPlace && (
+                    <div className="md:col-span-2 flex h-[120px] items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+                        {t("form.map_choose_viloyat")}
+                    </div>
                 )}
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
