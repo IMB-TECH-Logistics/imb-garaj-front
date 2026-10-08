@@ -13,7 +13,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
-import ZoneMap, { type ZonePoint } from "./zone-map"
+import ZoneMap, { type ZonePoint, viloyatCenter } from "./zone-map"
 
 const DEFAULT_RADIUS = 1000
 
@@ -169,7 +169,16 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                         />
                         <div className="md:col-span-2">
                             <div className="h-[320px] overflow-hidden rounded-md border md:h-[380px]">
-                                <ZoneMap point={point} radius={radius} onChange={setPoint} />
+                                <ZoneMap
+                                    point={point}
+                                    radius={radius}
+                                    onChange={setPoint}
+                                    defaultCenter={viloyatCenter(
+                                        viloyatOptions?.find(
+                                            (v) => String(v.id) === String(form.watch("parent")),
+                                        )?.name,
+                                    )}
+                                />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
                                 {point
