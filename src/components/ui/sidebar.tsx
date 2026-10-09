@@ -376,10 +376,11 @@ SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
     HTMLDivElement,
-    React.ComponentProps<"main">
+    React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
+    // Yagona <main> landmark — _main.tsx dagi #main-content; bu yerda oddiy konteyner.
     return (
-        <main
+        <div
             ref={ref}
             className={cn(
                 "relative flex min-h-svh flex-1 flex-col dark:bg-background bg-zinc-100 overflow-x-auto ",

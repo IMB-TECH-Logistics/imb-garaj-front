@@ -127,9 +127,9 @@ const Header = () => {
                     )}
                 >
                     <SidebarTrigger className="text-gray-500 dark:text-white" />
-                    <h1 className="font-bold text-primary text-2xl ">
+                    <span className="font-bold text-primary text-2xl ">
                         GARAJ
-                    </h1>
+                    </span>
                 </div>
                 {!childPaths.length && pathname.startsWith("/ombor") && (
                     <OmborHeaderTabs />
