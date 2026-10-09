@@ -464,6 +464,7 @@ function AddFinanceForm({
                         name="quantity"
                         placeholder="Ex: 120.5"
                         decimalScale={2}
+                        allowNegative={false}
                     />
                 </>
             )}
