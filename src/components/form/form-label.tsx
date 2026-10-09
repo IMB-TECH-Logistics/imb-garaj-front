@@ -18,7 +18,7 @@ export default function FieldLabel({
 }: IProps) {
     return (
         <label className={cn("font-medium select-none leading-[1.4] pb-1.5 text-sm cursor-pointer", isError && "text-destructive", className)} htmlFor={htmlFor}>
-            {children} {required && <span className="text-destructive">*</span>}
+            {children} {required && <span className="text-red-600 dark:text-destructive">*</span>}
         </label>
     )
 }

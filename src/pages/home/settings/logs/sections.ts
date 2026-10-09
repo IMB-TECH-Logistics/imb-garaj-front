@@ -50,6 +50,8 @@ const SECTION_LABELS: Record<string, string> = {
     tranzaksiya: "Tranzaksiya",
     tranzaksiyalar: "Tranzaksiyalar",
     checkout: "To'lov",
+    checkoutrequest: "Kassa so'rovi",
+    paymentrequest: "Pul so'rovi",
 
     cargotype: "Yuk turi",
     cargo_type: "Yuk turi",
@@ -73,6 +75,7 @@ const SECTION_LABELS: Record<string, string> = {
     routes: "Yo'nalishlar",
     direction: "Yo'nalish",
     directions: "Yo'nalishlar",
+    directionprice: "Yo'nalish narxi",
     location: "Manzil",
     locations: "Manzillar",
     place: "Manzil",
@@ -90,6 +93,12 @@ const SECTION_LABELS: Record<string, string> = {
 
     warehouse: "Ombor",
     ombor: "Ombor",
+    warehouseproduct: "Ombor mahsuloti",
+    warehousewithdrawal: "Ombordan chiqarish",
+    vehicledocument: "Hujjat",
+
+    // Backend LogSectionService: bo'limi yozilmagan yozuvlar tabi (?section=__null__)
+    __null__: "Boshqa",
 
     accounting: "Buxgalteriya",
     buxgalteriya: "Buxgalteriya",

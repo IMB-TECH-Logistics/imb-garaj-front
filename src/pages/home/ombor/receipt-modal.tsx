@@ -19,7 +19,13 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import type { WhProduct } from "./types"
 import { useCatalog } from "./use-catalog"
-import { collectErrors, toNumber, todayISO } from "./utils"
+import {
+    centsToNumber,
+    collectErrors,
+    lineAmountCents,
+    toNumber,
+    todayISO,
+} from "./utils"
 
 export const RECEIPT_MODAL_KEY = "wh-receipt"
 
@@ -92,7 +98,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
     const unit = product?.unit_name ?? ""
     const serialized = !!product?.is_serialized
     const count = serialized ? serialCount(line.quantity) : 0
-    const sum = toNumber(line.quantity) * toNumber(line.unit_price)
+    const sum = centsToNumber(lineAmountCents(line.quantity, line.unit_price))
 
     return (
         <div className="rounded-lg border bg-card p-3 flex flex-col gap-3">
@@ -188,9 +194,11 @@ const ReceiptForm = () => {
 
     const lines = useWatch({ control, name: "lines" })
 
-    const total = lines.reduce(
-        (sum, line) => sum + toNumber(line.quantity) * toNumber(line.unit_price),
-        0,
+    const total = centsToNumber(
+        lines.reduce(
+            (sum, line) => sum + lineAmountCents(line.quantity, line.unit_price),
+            0n,
+        ),
     )
 
     const serializedOf = (id: number | "") =>
