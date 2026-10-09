@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { todayIso } from "@/lib/today-iso"
+import { handleFormError } from "@/lib/show-form-errors"
 
 export default function CreateManagerTrips() {
     const { t } = useTranslation()
@@ -101,7 +102,7 @@ export default function CreateManagerTrips() {
         { onSuccess },
     )
     const { mutate: editTrip, isPending: isEditing } = usePatch(
-        { onSuccess },
+        { onSuccess, onError: (e: unknown) => handleFormError(e, form) },
     )
 
     function onSubmit(values: any) {
