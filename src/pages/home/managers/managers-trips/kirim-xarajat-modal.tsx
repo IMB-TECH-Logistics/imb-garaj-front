@@ -939,8 +939,10 @@ function AvansForm({ tripId }: { tripId?: number }) {
             currency: data.currency || 1,
             currency_course: data.currency === 2 ? data.currency_course || null : null,
         }, {
-            onSuccess: () => {
-                toast.success(t("toast.advance_given"))
+            onSuccess: (res: any) => {
+                // Haydovchi-kassa rejimida server pul bermaydi — kassirga so'rov (PaymentRequest, 202) yaratadi
+                const isRequest = res != null && typeof res === "object" && "recipient_type" in res
+                toast.success(isRequest ? "Avans so'rovi kassirga yuborildi" : t("toast.advance_given"))
                 queryClient.invalidateQueries({
                     predicate: (q) => {
                         const k = String(q.queryKey[0])
@@ -966,7 +968,9 @@ function AvansForm({ tripId }: { tripId?: number }) {
                         thousandSeparator=" "
                         decimalScale={currency === 2 ? 2 : 0}
                         registerOptions={{
-                            validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                            // backend v1 (ExpenseCashFlowSerializer) matni; v2 so'rov yo'li 0 ni jim tashlab 202 qaytaradi
+                            validate: (v) =>
+                                Number(String(v ?? "").replace(/\s/g, "")) > 0 ? isWithinMoneyLimit(v) || t("validation.max_amount") : "Summa 0 dan katta bo'lishi kerak.",
                         }}
                     />
                 </div>
