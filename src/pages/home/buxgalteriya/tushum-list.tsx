@@ -191,6 +191,7 @@ const TushumRow = ({
                     <FormNumberInput
                         required
                         name="currency_course"
+                        allowNegative={false}
                         control={control}
                         thousandSeparator=" "
                         placeholder={t("form.currency_rate")}

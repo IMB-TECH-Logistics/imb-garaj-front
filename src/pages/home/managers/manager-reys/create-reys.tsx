@@ -759,6 +759,7 @@ const AddTripOrders = () => {
                                         required
                                         control={control}
                                         name={`incomes.${index}.currency_course`}
+                                        allowNegative={false}
                                         label={t("form.currency_rate")}
                                         placeholder={t("form.currency_rate")}
                                     />
