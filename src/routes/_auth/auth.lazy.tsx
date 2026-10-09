@@ -124,7 +124,8 @@ function AuthComponent() {
                     <p className="sm:mb-6 mb-2 text-gray-600 sm:text-lg text-sm">
                         {t("auth.subtitle")}
                     </p>
-                    <form onSubmit={onSubmit} className="space-y-4 flex flex-col items-center">
+                    {/* Sahifa har doim oq fonda (mavzudan qat'i nazar) — majburiy '*' ham yorug' rangda: red-600, 4.8:1 */}
+                    <form onSubmit={onSubmit} className="space-y-4 flex flex-col items-center [&_label_span]:!text-red-600">
                         <FormInput
                             name="username"
                             label={t("auth.username")}
