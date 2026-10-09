@@ -21,6 +21,9 @@ import { useTranslation } from "react-i18next"
 import { todayIso } from "@/lib/today-iso"
 import { handleFormError } from "@/lib/show-form-errors"
 
+// Trip.start_fuel / end_fuel: DecimalField(max_digits=10, decimal_places=2)
+const MAX_FUEL_LITERS = 99_999_999.99
+
 export default function CreateManagerTrips() {
     const { t } = useTranslation()
     const { id } = useParams({ strict: false })
@@ -99,7 +102,7 @@ export default function CreateManagerTrips() {
     }
 
     const { mutate: createTrip, isPending: isCreating } = usePost(
-        { onSuccess },
+        { onSuccess, onError: (e: unknown) => handleFormError(e, form) },
     )
     const { mutate: editTrip, isPending: isEditing } = usePatch(
         { onSuccess, onError: (e: unknown) => handleFormError(e, form) },
@@ -231,6 +234,7 @@ export default function CreateManagerTrips() {
                             control={control}
                             decimalScale={2}
                             allowNegative={false}
+                            isAllowed={({ floatValue }) => floatValue == null || floatValue <= MAX_FUEL_LITERS}
                         />
                     </div>
                 </section>
