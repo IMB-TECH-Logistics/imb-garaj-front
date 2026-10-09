@@ -636,7 +636,9 @@ const SidebarMenuButton = React.forwardRef<
                 {...props}
             />
         )
-        if (!tooltip) {
+        // Mobil (Sheet) rejimida tooltip baribir yashirin; uni render qilish fokusda
+        // ochilib/yopilib Sheet FocusScope'ini Tab paytida konteynerga qaytarardi.
+        if (!tooltip || isMobile) {
             return button
         }
 
