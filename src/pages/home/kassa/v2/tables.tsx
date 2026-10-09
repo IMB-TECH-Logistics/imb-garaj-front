@@ -609,6 +609,20 @@ const TRIP_STATUS: Record<TripStatus, [string, "orange" | "default" | "secondary
     yopildi: ["Yopildi", "secondary"],
 }
 
+// Tor ekranda (<1024px) 270px li amallar ustuni yopishqoq bo'lsa ma'lumot ustunlarini butunlay yopadi (U6-01).
+function useMinWidth(px: number) {
+    const query = `(min-width: ${px}px)`
+    const [ok, setOk] = useState(() => typeof window === "undefined" || window.matchMedia(query).matches)
+    useEffect(() => {
+        const m = window.matchMedia(query)
+        const onChange = () => setOk(m.matches)
+        onChange()
+        m.addEventListener("change", onChange)
+        return () => m.removeEventListener("change", onChange)
+    }, [query])
+    return ok
+}
+
 export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     switcher: ReactNode
     onPay: (r: KassaRequest) => void
@@ -617,6 +631,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     actions?: ReactNode
 }) => {
     const { cashier } = useKassaRoles()
+    const wideTable = useMinWidth(1024)
     const period = usePeriod()
     const { data, isLoading } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
     const { data: ov } = useOverview()
@@ -653,7 +668,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                 cell: ({ row }) => (
                     <div className="flex flex-col">
                         <span className="whitespace-nowrap tabular-nums">{row.original.plate || "—"}</span>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">{row.original.driver_name || "—"}</span>
+                        <span className="text-xs text-muted-foreground block truncate max-w-48" title={row.original.driver_name || undefined}>{row.original.driver_name || "—"}</span>
                     </div>
                 ),
             },
@@ -720,6 +735,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
             columns={columns}
             data={data}
             onRowClick={(t: KassaTrip) => openDetail(t)}
+            stickyActions={wideTable}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
             rowAction={(t: KassaTrip) => {
