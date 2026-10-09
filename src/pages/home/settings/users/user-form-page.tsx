@@ -6,6 +6,8 @@ import { useGet } from "@/hooks/useGet"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useNavigate, useParams } from "@tanstack/react-router"
+import { useHasAction } from "@/constants/useUser"
+import Forbidden from "@/components/custom/forbidden"
 import { ArrowLeft } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
@@ -20,6 +22,7 @@ const UserFormPage = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const { id } = useParams({ strict: false })
+    const hasControl = useHasAction("settings_users_control")
 
     const { data: userData, error: userError } = useGet<UserType>(
         id ? `${SETTINGS_USERS}/${id}` : "",
@@ -77,6 +80,9 @@ const UserFormPage = () => {
             navigate({ to: "/users" })
         } catch { }
     }
+
+    // POST /users/ va PATCH /users/<pk>/ — settings_users_control (ro'yxatdagi hasControl bilan bir xil)
+    if (!hasControl) return <Forbidden to="/users" />
 
     if (id && (userError as any)?.response?.status === 404) {
         return (
