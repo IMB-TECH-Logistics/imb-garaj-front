@@ -35,8 +35,11 @@ type RowValues = {
     amount: number | string
     payment_type: number | null
     currency: number
+    currency_course?: number | string | null
     comment?: string | null
 }
+
+const USD = 2
 
 const CURRENCY_OPTIONS = [
     { id: 1, name: "UZS" },
@@ -73,10 +76,12 @@ const TushumRow = ({
             amount: initial?.gross_amount ?? initial?.amount ?? "",
             payment_type: initial?.payment_type ?? null,
             currency: initial?.currency ?? 1,
+            currency_course: initial?.currency_course ?? "",
         },
     })
 
-    const { control, handleSubmit } = form
+    const { control, handleSubmit, watch } = form
+    const isUsd = watch("currency") === USD
 
     const refresh = () =>
         queryClient.invalidateQueries({ queryKey: [CASHFLOWS_QUERY_PREFIX] })
@@ -115,6 +120,11 @@ const TushumRow = ({
             return
         }
 
+        // USD kirim kassaga kurs bo'yicha so'mda tushadi — kurs majburiy
+        // (backend: kassa_utils.ensure_usd_course, create-reys bilan bir xil).
+        const currency_course =
+            v.currency === USD ? Number(v.currency_course) || null : null
+
         if (isNew) {
             create(ORDER_CASHFLOWS, {
                 order: orderId,
@@ -123,6 +133,7 @@ const TushumRow = ({
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
                 currency: v.currency,
+                currency_course,
                 comment: v?.comment,
             })
         } else {
@@ -130,6 +141,7 @@ const TushumRow = ({
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
                 currency: v.currency,
+                currency_course,
                 comment: v?.comment,
             })
         }
@@ -171,6 +183,18 @@ const TushumRow = ({
                     isClearIcon={false}
                 />
             </div>
+
+            {isUsd && (
+                <div className="w-32">
+                    <FormNumberInput
+                        required
+                        name="currency_course"
+                        control={control}
+                        thousandSeparator=" "
+                        placeholder={t("form.currency_rate")}
+                    />
+                </div>
+            )}
 
             <div>
                 <FormInput
