@@ -167,7 +167,7 @@ const Header = () => {
                         key={searchConfig.prefix}
                         searchKey={searchConfig.searchKey}
                         placeholder={searchConfig.placeholder}
-                        wrapperClassName="!h-9 !w-56 hidden sm:block"
+                        wrapperClassName="!h-9 !w-36 sm:!w-56 shrink-0"
                         className="!h-9 !bg-muted/40 text-sm"
                     />
                 )}
