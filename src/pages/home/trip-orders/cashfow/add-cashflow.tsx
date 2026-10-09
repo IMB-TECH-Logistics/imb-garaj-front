@@ -147,6 +147,8 @@ const AddCashflow = () => {
                 name="amount"
                 label={t("table.amount")}
                 thousandSeparator=" "
+                allowNegative={false}
+                decimalScale={2}
                 control={control}
                 placeholder="0 UZS"
             />

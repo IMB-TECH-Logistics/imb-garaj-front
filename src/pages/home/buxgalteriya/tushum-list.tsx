@@ -156,6 +156,8 @@ const TushumRow = ({
                     name="amount"
                     control={control}
                     thousandSeparator=" "
+                    allowNegative={false}
+                    decimalScale={2}
                     placeholder="0"
                 />
             </div>

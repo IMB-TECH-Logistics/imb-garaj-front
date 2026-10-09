@@ -97,6 +97,8 @@ const AddVehicleCashflowModal = () => {
                     name="amount"
                     label={t("table.amount")}
                     thousandSeparator=" "
+                    allowNegative={false}
+                    decimalScale={2}
                     control={form.control}
                     placeholder="0"
                 />
