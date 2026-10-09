@@ -29,6 +29,7 @@ export type OrderCashflow = {
     currency: number
     currency_course: string | number | null
     category: number | null
+    comment?: string | null
 }
 
 type RowValues = {
@@ -77,6 +78,7 @@ const TushumRow = ({
             payment_type: initial?.payment_type ?? null,
             currency: initial?.currency ?? 1,
             currency_course: initial?.currency_course ?? "",
+            comment: initial?.comment ?? "",
         },
     })
 
