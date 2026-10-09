@@ -75,7 +75,7 @@ const UsersPage = () => {
                     <TableHeader
                         fileName={t("nav.users")}
                         url="excel"
-                        storeKey={SETTINGS_USERS}
+                        storeKey={hasControl ? SETTINGS_USERS : undefined}
                         searchKey="first_name"
                         pageKey="page"
                         onAdd={hasControl ? () => navigate({ to: "/users/create" }) : undefined}

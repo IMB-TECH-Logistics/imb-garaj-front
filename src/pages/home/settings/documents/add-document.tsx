@@ -13,6 +13,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import compressImg from "@/lib/compress-img"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
@@ -100,11 +101,15 @@ const AddDocumentModal = () => {
         })
     }
 
+    // Server maydon xatolari (guvohnoma raqami formati / muddati) formaga bog'lanadi
+    const onError = (e: unknown) => handleFormError(e, form)
     const { mutate: postMutate, isPending: isPendingCreate } = usePost({
         onSuccess,
+        onError,
     })
     const { mutate: updateMutate, isPending: isPendingUpdate } = usePatch({
         onSuccess,
+        onError,
     })
     const isMutating = isPendingCreate || isPendingUpdate
     const isPending = isMutating || formState.isSubmitting

@@ -161,11 +161,16 @@ const withBadges = (
 const matches = (pathname: string, path: string) =>
     pathname === path || pathname.startsWith(path + "/")
 
-const GUARDED_EXTRA: Record<string, string> = {
+// Menyuda yo'q yo'llar: kalitlardan biri bo'lsa ochiladi (backend permission_codes GET bilan bir xil).
+const GUARDED_EXTRA: Record<string, string | string[]> = {
     "/trip": "manager_flights_view",
     "/orders": "manager_flights_view",
     "/dashboard": "investor_view",
     "/truck-detail": "investor_view",
+    // RunOrderListView GET: manager_flights_view/control yoki accounting_view/control
+    "/flights": ["manager_flights_view", "manager_flights_control", "accounting_view", "accounting_control"],
+    // shared_warehouse UnitViewSet — APP_MODULES bo'yicha warehouse_view
+    "/units": "warehouse_view",
 }
 
 export const usePaths = () => {
@@ -240,8 +245,9 @@ export const usePaths = () => {
                 matches(pathname, path),
             )
             if (extra) {
-                if (disabledModules?.includes(moduleOfCode(extra[1]))) return true
-                if (!isSuperuser) return !safeActions.includes(extra[1])
+                const codes = Array.isArray(extra[1]) ? extra[1] : [extra[1]]
+                if (codes.every((c) => disabledModules?.includes(moduleOfCode(c)))) return true
+                if (!isSuperuser) return !codes.some((c) => safeActions.includes(c))
             }
 
             if (allowedPaths.some((path) => matches(pathname, path))) return false

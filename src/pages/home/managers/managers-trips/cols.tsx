@@ -135,7 +135,9 @@ export const useColumnsManagersTrips = (opts?: {
                     const startFuel = Number((row as any).start_fuel ?? 0)
                     const endFuel = Number((row as any).end_fuel ?? 0)
                     const distance = Number(row.end_mileage ?? 0) - Number(row.start_mileage ?? 0)
-                    const liters = startFuel - endFuel
+                    // Backend used_fuel = boshlang'ich + reysda quyilgan - qolgan (TripService.used_fuel)
+                    const usedFuel = (row as any).used_fuel
+                    const liters = usedFuel != null ? Number(usedFuel) : startFuel - endFuel
                     if (distance <= 0 || liters <= 0) return 0
                     return (liters / distance) * 100
                 },
@@ -145,7 +147,8 @@ export const useColumnsManagersTrips = (opts?: {
                     const distance =
                         Number(row.original.end_mileage ?? 0) -
                         Number(row.original.start_mileage ?? 0)
-                    const liters = startFuel - endFuel
+                    const usedFuel = (row.original as any).used_fuel
+                    const liters = usedFuel != null ? Number(usedFuel) : startFuel - endFuel
                     if (distance <= 0 || liters <= 0) return <div>-</div>
                     return <div>{((liters / distance) * 100).toFixed(1)}</div>
                 },

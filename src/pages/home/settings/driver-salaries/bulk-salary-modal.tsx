@@ -24,7 +24,22 @@ const BulkSalaryModal = ({ selected, onApplied }: Props) => {
     const { handleSubmit, control, reset } = useForm<FormValues>({
         defaultValues: { amount: null, valid_from: localTodayIso() },
     })
-    const { mutateAsync, isPending } = usePost()
+    // Ommaviy javob {items: [{amount: [...]}, ...]} — har qator uchun bir xil xabar bitta toastga qisqartiriladi
+    const { mutateAsync, isPending } = usePost({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (error: any) => {
+            if (error?.response?.status === 401 || error?.response?.status === 403) return
+            const leaves: string[] = []
+            const walk = (v: unknown) => {
+                if (Array.isArray(v)) v.forEach(walk)
+                else if (v && typeof v === "object") Object.values(v).forEach(walk)
+                else if (v != null) leaves.push(String(v))
+            }
+            walk(error?.response?.data)
+            const unique = [...new Set(leaves)]
+            toast.error(unique.length ? unique.join(" · ") : t("messages.error", "Xatolik yuz berdi"), { duration: 5000 })
+        },
+    })
     const submitting = useRef(false)
 
     const onSubmit = async ({ amount, valid_from }: FormValues) => {

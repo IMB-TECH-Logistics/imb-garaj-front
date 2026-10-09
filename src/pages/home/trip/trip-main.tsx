@@ -6,6 +6,7 @@ import { DataTable } from "@/components/ui/datatable"
 import { CASHFLOW_STATISTICS, MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { useHasAction } from "@/constants/useUser"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { CirclePlus, TrendingDown, CreditCard } from "lucide-react"
@@ -19,6 +20,8 @@ const ShiftStatisticMain = () => {
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
     const { getData, setData, clearKey } = useGlobalStore()
+    // TripsViewSet/TripsUpdateView: apps.manager -> manager_flights_control (yozish)
+    const hasControl = useHasAction("manager_flights_control")
     const { openModal: openCreateModal } = useModal("create")
     const { openModal: openDeleteModal } = useModal("delete")
 
@@ -121,13 +124,15 @@ const ShiftStatisticMain = () => {
                     searchKey="driver_name"
                 />
 
-                <Button
-                    className="flex items-center gap-2"
-                    onClick={handleCreate}
-                >
-                    <CirclePlus size={18} />
-                    {t("actions.add")}
-                </Button>
+                {hasControl && (
+                    <Button
+                        className="flex items-center gap-2"
+                        onClick={handleCreate}
+                    >
+                        <CirclePlus size={18} />
+                        {t("actions.add")}
+                    </Button>
+                )}
             </div>
 
             <DataTable
@@ -136,8 +141,8 @@ const ShiftStatisticMain = () => {
                 columns={columns}
                 data={data?.results}
                 numeration
-                onEdit={({ original }) => handleEdit(original)}
-                onDelete={handleDelete}
+                onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                onDelete={hasControl ? handleDelete : undefined}
                 onRowClick={handleRowClick}
                 head={
                     <div className="flex items-center gap-3 mb-3">
