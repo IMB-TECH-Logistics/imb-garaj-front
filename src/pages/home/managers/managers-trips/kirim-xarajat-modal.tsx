@@ -1321,7 +1321,12 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
             options: { queryKey: [MANAGERS_CASHFLOW, "t-hisob-all-expense", tripId] },
         },
     )
-    const sumOf = (rows: FinanceRow[]) => rows.reduce((a, r) => a + Number(r.amount || 0), 0)
+    // UZS kartalar: USD qator kurs bilan (ro'yxatdagi «USD (=… UZS)» ko'rinishi bilan bir xil qoida)
+    const uzsOf = (r: FinanceRow) =>
+        r.currency === 2 && r.currency_course ?
+            Number(r.amount || 0) * Number(r.currency_course)
+        :   Number(r.amount || 0)
+    const sumOf = (rows: FinanceRow[]) => rows.reduce((a, r) => a + uzsOf(r), 0)
     const avansSum = sumOf(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
     const allExpenses = allExpenseData?.results ?? []
     const transferFuelSum = sumOf(allExpenses.filter((r) => r.category_code === "fuel" && /o.?tkaz/i.test(r.payment_type_name ?? "")))
