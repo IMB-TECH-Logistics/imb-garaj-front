@@ -127,9 +127,9 @@ const Header = () => {
                     )}
                 >
                     <SidebarTrigger className="text-gray-500 dark:text-white" />
-                    <h1 className="font-bold text-primary text-2xl ">
+                    <span className="font-bold text-primary text-2xl ">
                         GARAJ
-                    </h1>
+                    </span>
                 </div>
                 {!childPaths.length && pathname.startsWith("/ombor") && (
                     <OmborHeaderTabs />
@@ -167,7 +167,7 @@ const Header = () => {
                         key={searchConfig.prefix}
                         searchKey={searchConfig.searchKey}
                         placeholder={searchConfig.placeholder}
-                        wrapperClassName="!h-9 !w-56 hidden sm:block"
+                        wrapperClassName="!h-9 !w-36 sm:!w-56 shrink-0"
                         className="!h-9 !bg-muted/40 text-sm"
                     />
                 )}

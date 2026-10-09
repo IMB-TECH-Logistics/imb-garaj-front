@@ -98,8 +98,8 @@ const KassaV2 = () => {
     const selected = drivers.find((d) => d.id === driver)
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-3 md:h-full min-h-0">
-            <Card className="md:h-full min-h-0 overflow-hidden">
+        <div className="grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-3 xl:h-full min-h-0">
+            <Card className="xl:h-full min-h-0 overflow-hidden">
                 <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
                     <ParamDateRange className="w-full" from="from_date" to="to_date" defaultValue={{ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }} addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
 
@@ -160,7 +160,7 @@ const KassaV2 = () => {
                 </CardContent>
             </Card>
 
-            <div className="w-full min-w-0 md:h-full min-h-0">
+            <div className="w-full min-w-0 xl:h-full min-h-0">
                 {view === "driver" && selected ?
                     <LedgerTable
                         driver={selected.id}

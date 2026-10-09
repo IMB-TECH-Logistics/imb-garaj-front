@@ -19,7 +19,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
                 <SidebarTrigger className="text-gray-500 dark:text-white" />
                 <Link to="/">
-                    <h1 className="font-bold text-primary text-2xl">GARAJ</h1>
+                    <span className="font-bold text-primary text-2xl">GARAJ</span>
                 </Link>
             </div>
             <SidebarContent className="lg:pt-16">

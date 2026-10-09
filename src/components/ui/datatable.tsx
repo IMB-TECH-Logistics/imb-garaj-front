@@ -300,7 +300,7 @@ export function DataTable<TData>({
     }, [rowSelection])
 
     return (
-        <main
+        <div
             className={cn("w-full   p-4 bg-card rounded-md ", wrapperClassName)}
         >
             {!!head && <div>{head}</div>}
@@ -645,7 +645,7 @@ export function DataTable<TData>({
                     }
                 </div>
             :   ""}
-        </main>
+        </div>
     )
 }
 

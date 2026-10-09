@@ -26,7 +26,7 @@ import { TECH_INSPECTION_CODE } from "./types"
 type Props = {
     row: VehicleExpenseRow | null
     onClose: () => void
-    onEdit: (row: VehicleExpenseRow) => void
+    onEdit?: (row: VehicleExpenseRow) => void
 }
 
 const Block = ({
@@ -207,12 +207,14 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                             <Button variant="outline" onClick={onClose}>
                                 {t("actions.close")}
                             </Button>
-                            <Button
-                                icon={<SquarePen size={16} />}
-                                onClick={() => onEdit(row)}
-                            >
-                                {t("actions.edit")}
-                            </Button>
+                            {onEdit && (
+                                <Button
+                                    icon={<SquarePen size={16} />}
+                                    onClick={() => onEdit(row)}
+                                >
+                                    {t("actions.edit")}
+                                </Button>
+                            )}
                         </div>
                     </>
                 )}
