@@ -247,6 +247,7 @@ const AddExpenses = () => {
                                     required
                                     thousandSeparator=" "
                                     name={`incomes.${index}.currency_course`}
+                                    allowNegative={false}
                                     label={t("form.currency_rate")}
                                     placeholder="12 206 UZS"
                                     control={control}

@@ -504,6 +504,7 @@ function AddFinanceForm({
                     control={control}
                     label={t("form.currency_rate")}
                     name="currency_course"
+                    allowNegative={false}
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
                     decimalScale={0}
@@ -990,6 +991,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
                     control={control}
                     label={t("form.currency_rate")}
                     name="currency_course"
+                    allowNegative={false}
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
                     decimalScale={0}

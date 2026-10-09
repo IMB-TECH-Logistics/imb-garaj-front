@@ -131,6 +131,7 @@ const AddPayment = () => {
                     required
                     thousandSeparator=" "
                     name="currency_course"
+                    allowNegative={false}
                     label={t("form.currency_rate")}
                     placeholder="12 206 UZS"
                     control={control}

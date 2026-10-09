@@ -140,6 +140,7 @@ export default function ExpenseEditForm() {
                     control={control}
                     label={t("form.currency_rate")}
                     name="currency_course"
+                    allowNegative={false}
                     placeholder="Ex: 12 000"
                     thousandSeparator=" "
                     decimalScale={0}
