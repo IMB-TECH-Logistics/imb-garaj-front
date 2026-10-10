@@ -259,6 +259,10 @@ function AddFinanceForm({
     const queryClient = useQueryClient()
     const editItem = getData(MANAGERS_EXPENSES) as FinanceRow | undefined
     const isEdit = !!editItem?.id
+    // Zapravka moduli o'chiq tenantda stansiya maydoni ko'rsatilmaydi va yuborilmaydi.
+    const { data: profile } = useUser()
+    const withStation =
+        isFuel && !(profile?.disabled_modules ?? []).includes("settings_petrol_stations")
 
     const isOrderCategory = type === "tushum" && selectedCategoryCode === "order"
     const isCodedExpense = type === "xarajat" && !!selectedCategoryCode
@@ -430,10 +434,10 @@ function AddFinanceForm({
         fd.append("action", String(action))
         fd.append("currency", String(data.currency || 1))
         if (data.comment) fd.append("comment", data.comment)
-        if (data.payment_type && !(isFuel && !isEdit)) fd.append("payment_type", String(data.payment_type))
+        if (data.payment_type && !(withStation && !isEdit)) fd.append("payment_type", String(data.payment_type))
         if (data.quantity) fd.append("quantity", String(data.quantity))
         if (data.currency === 2 && data.currency_course) fd.append("currency_course", String(data.currency_course))
-        if (isFuel && data.petrol_station) fd.append("petrol_station", String(data.petrol_station))
+        if (withStation && data.petrol_station) fd.append("petrol_station", String(data.petrol_station))
         if (showOrderSelect && data.order) fd.append("order", String(data.order))
         if (data.receipt instanceof File) fd.append("receipt", data.receipt)
         if (advanceId && action === -1) fd.append("advance", String(advanceId))
@@ -456,7 +460,7 @@ function AddFinanceForm({
         >
             {isFuel && (
                 <>
-                    <PetrolStationField control={control} />
+                    {withStation && <PetrolStationField control={control} />}
                     <FormNumberInput
                         required
                         control={control}
@@ -574,7 +578,7 @@ function AddFinanceForm({
                     placeholder={t("form.order_type")}
                 />
             )}
-            {!(isFuel && !isEdit) && (
+            {!(withStation && !isEdit) && (
                 <FormCombobox
                     control={control}
                     label={t("form.payment_type")}
