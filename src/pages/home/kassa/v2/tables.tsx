@@ -38,7 +38,6 @@ import {
     TripStatus,
     useKassaPost,
     useKassaRoles,
-    useOverview,
     usePeriod,
 } from "./api"
 
@@ -202,11 +201,9 @@ const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (
     const req = row?.req
     const q = req && req.status === STATUS.PENDING ? req : undefined
     const { cashier } = useKassaRoles()
-    const { data: ov } = useOverview()
     const { closeModal } = useModal(DETAIL_MODAL)
     const { mutate: post, isPending } = useKassaPost(closeModal)
     const out = !!q && KIND_DIR[q.kind] === "out"
-    const short = out && !!q && n(ov?.balance) < n(q.amount)
     return (
         <Modal modalKey={DETAIL_MODAL} title={row?.trip ? `Aylanma #${row.trip} yopilishi` : "Aylanma yopilishi"} size="max-w-md">
             {c && row && (
@@ -237,7 +234,6 @@ const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (
                                 <Button
                                     className="min-w-32 gap-1"
                                     loading={isPending}
-                                    disabled={short}
                                     onClick={() => post(`${KV2_REQUESTS}/${q.id}/pay`, {}, {
                                         onSuccess: () => toast.success(out ? "Kassadan chiqim qilindi, aylanma yopildi" : "Kassaga kirim qilindi, aylanma yopildi"),
                                         onError: (e: unknown) => toast.error(errorText(e)),
@@ -247,7 +243,6 @@ const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (
                                     {out ? "Berdim" : "Oldim"}
                                 </Button>
                             </div>
-                            {short && <span className="text-xs text-destructive text-right">Kassada yetarli pul yo'q</span>}
                         </div>
                     )}
                     {q && !cashier && <Badge variant="orange" className="w-fit self-end">Kassir tasdig'i kutilmoqda</Badge>}
@@ -294,8 +289,6 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
     const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)), [reqData])
     const pendingCount = reqs.filter((q) => q.status === STATUS.PENDING).length
-    const { data: ov } = useOverview()
-    const balance = n(ov?.balance)
     const { mutate: post, isPending } = useKassaPost()
     const act = (url: string, ok: string) =>
         post(url, {}, { onSuccess: () => toast.success(ok), onError: (e: unknown) => toast.error(errorText(e)) })
@@ -396,11 +389,10 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 if (q) {
                     if (cashier) {
                         const out = KIND_DIR[q.kind] === "out"
-                        const short = out && balance < n(q.amount)
                         return (
                             <div className="flex flex-col items-end gap-1">
                                 <div className="flex items-center gap-1">
-                                    <Button size="sm" className="h-8 gap-1" disabled={short || isPending} onClick={() => (q.close ? openDetail(row) : onPay(q))}>
+                                    <Button size="sm" className="h-8 gap-1" disabled={isPending} onClick={() => (q.close ? openDetail(row) : onPay(q))}>
                                         <Check size={16} />
                                         {out ? "Berdim" : "Oldim"}
                                     </Button>
@@ -409,7 +401,6 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                                         Rad etish
                                     </Button>
                                 </div>
-                                {short && <span className="text-xs text-destructive whitespace-nowrap">Kassada yetarli pul yo'q</span>}
                             </div>
                         )
                     }
@@ -481,8 +472,6 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
     const [status, setStatus] = useState("all")
     const params = { ...usePaging(), status: status === "all" ? undefined : status }
     const { data, isLoading } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params })
-    const { data: ov } = useOverview()
-    const balance = n(ov?.balance)
     const { mutate: post, isPending } = useKassaPost()
 
     const act = (url: string, ok: string) =>
@@ -534,11 +523,10 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
             rowAction={(r: KassaRequest) => {
                 if (r.status === STATUS.PENDING && cashier) {
                     const out = KIND_DIR[r.kind] === "out"
-                    const short = out && balance < n(r.amount)
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
-                                <Button size="sm" className="h-8 gap-1" disabled={short || isPending} onClick={() => onPay(r)}>
+                                <Button size="sm" className="h-8 gap-1" disabled={isPending} onClick={() => onPay(r)}>
                                     <Check size={16} />
                                     {out ? "Berdim" : "Oldim"}
                                 </Button>
@@ -548,7 +536,6 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                                 </Button>
                                 {operator && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />}
                             </div>
-                            {short && <span className="text-xs text-destructive whitespace-nowrap">Kassada yetarli pul yo'q</span>}
                         </div>
                     )
                 }
@@ -634,8 +621,6 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     const wideTable = useMinWidth(1024)
     const period = usePeriod()
     const { data, isLoading } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
-    const { data: ov } = useOverview()
-    const balance = n(ov?.balance)
     const { mutate: postReq, isPending: posting } = useKassaPost()
     const unreject = (q: KassaRequest) =>
         postReq(`${KV2_REQUESTS}/${q.id}/unreject`, {}, {
@@ -743,11 +728,10 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                 if (av && av.status === STATUS.REJECTED) return av.can_unreject ? undoBtn(av) : null
                 if (t.status === "rad_etildi" && t.close_request?.can_unreject) return undoBtn(t.close_request)
                 if (av && cashier) {
-                    const short = balance < n(av.amount)
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
-                                <Button size="sm" className="h-8 gap-1" disabled={short} onClick={() => onPay(av)}>
+                                <Button size="sm" className="h-8 gap-1" onClick={() => onPay(av)}>
                                     <Check size={16} />
                                     Avans berdim
                                 </Button>
@@ -756,7 +740,6 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                                     Rad etish
                                 </Button>
                             </div>
-                            {short && <span className="text-xs text-destructive whitespace-nowrap">Kassada yetarli pul yo'q</span>}
                         </div>
                     )
                 }

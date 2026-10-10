@@ -75,11 +75,6 @@ const withCurrent = (
     return [{ id, name: name ? `${name} (o‘chirilgan)` : `#${id}` }, ...list]
 }
 
-const CURRENCY_OPTIONS = [
-    { id: 1, name: "UZS - So'm" },
-    { id: 2, name: "USD - AQSh dollari" },
-]
-
 const AddRouteConfigModal = () => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
@@ -96,7 +91,7 @@ const AddRouteConfigModal = () => {
             unload_place: current?.unload_place ?? "",
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
-            currency: current?.currency ?? 1,
+            currency: 1,
             distributor_id: current?.distributor_id ?? null,
             price:
                 current?.current_price?.price != null
@@ -165,7 +160,9 @@ const AddRouteConfigModal = () => {
 
     const onSubmit = (values: Direction) => {
         if (current?.id) {
-            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, values)
+            // Yo'nalish narxi faqat so'mda: tahrirda valyuta yuborilmaydi (mavjud qiymat o'zgarmaydi).
+            const { currency: _currency, ...rest } = values
+            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, rest)
         } else {
             postMutate(`${COMMON_DIRECTIONS}/create`, values)
         }
@@ -283,19 +280,9 @@ const AddRouteConfigModal = () => {
                                 label={t("form.amount")}
                                 placeholder="12 206 000"
                                 control={control}
-                            />
-                        </div>
-                        <div className="w-32 shrink-0">
-                            <FormCombobox
-                                required
-                                label={t("form.currency")}
-                                name="currency"
-                                isClearIcon={false}
-                                control={control}
-                                options={CURRENCY_OPTIONS}
-                                valueKey="id"
-                                labelKey="name"
-                                placeholder={t("form.select_currency")}
+                                registerOptions={{
+                                    validate: (v) => Number(v) > 0 || t("kassa.amount_gt_zero"),
+                                }}
                             />
                         </div>
                     </div>

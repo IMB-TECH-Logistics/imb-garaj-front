@@ -471,7 +471,9 @@ const AddTripOrders = () => {
             if (!isNaqdSel && matchedDirection) {
                 formData.append("direction", String(matchedDirection.id))
             }
-            if (isNaqdSel || !currentTripOrder?.manual_income) {
+            // Yo'nalish narxi yo'q bo'lsa kirim yuborilmaydi (0 so'mlik kirim taqiqlangan).
+            const hasIncomeAmount = isNaqdSel || Number(matchedDirection?.amount) > 0
+            if (hasIncomeAmount && (isNaqdSel || !currentTripOrder?.manual_income)) {
                 formData.append("incomes", JSON.stringify(incomes))
             }
         } else if (isCityOnlySel) {
@@ -781,7 +783,10 @@ const AddTripOrders = () => {
                                               : undefined
                                     }
                                     registerOptions={{
-                                        validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                                        validate: (v) =>
+                                            Number(v) > 0
+                                                ? isWithinMoneyLimit(v) || t("validation.max_amount")
+                                                : t("kassa.amount_gt_zero"),
                                     }}
                                 />
 
