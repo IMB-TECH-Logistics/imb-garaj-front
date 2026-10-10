@@ -481,7 +481,7 @@ function AddFinanceForm({
                         name="amount"
                         placeholder="Ex: 123 000"
                         thousandSeparator=" "
-                        decimalScale={currency === 2 ? 2 : 0}
+                        decimalScale={2}
                         registerOptions={{
                             validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
                         }}
@@ -970,7 +970,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
                         name="amount"
                         placeholder="Ex: 5 000 000"
                         thousandSeparator=" "
-                        decimalScale={currency === 2 ? 2 : 0}
+                        decimalScale={2}
                         registerOptions={{
                             // backend v1 (ExpenseCashFlowSerializer) matni; v2 so'rov yo'li 0 ni jim tashlab 202 qaytaradi
                             validate: (v) =>

@@ -508,7 +508,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                 name="amount"
                                 placeholder="Ex: 1 000 000"
                                 thousandSeparator=" "
-                                decimalScale={currency === 2 ? 2 : 0}
+                                decimalScale={2}
                             />
                         </div>
                     </div>
