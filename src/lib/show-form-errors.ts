@@ -100,6 +100,11 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleQueryError(err: any) {
   const status = Number(err?.response?.status)
+  // S-10-W2C-04: «Hamma tenant» ko'rinishida chuqur sahifa chegarasi — server xabari ko'rsatiladi
+  if (status === 400 && err?.response?.data?.code === "deep_page_limit") {
+    toast.error(String(err.response.data.detail), { id: "query-error", duration: 6000 })
+    return
+  }
   if (status && status < 500) return
   const message =
     err?.code === "ECONNABORTED" || err?.code === "ETIMEDOUT"
