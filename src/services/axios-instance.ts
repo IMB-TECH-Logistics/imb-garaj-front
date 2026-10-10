@@ -86,12 +86,23 @@ const isAuthUrl = (url?: string) =>
 const getBearer = (header: unknown) =>
     typeof header === "string" ? header.replace(/^Bearer /, "") : null
 
+// GARAJ-PERF-P-11: sessiya tugaganda login sahifasiga xabar (`expired=1`) va qaytish manzili (`redirect`) bilan o'tiladi
+export const SESSION_EXPIRED_PARAM = "expired"
+export const REDIRECT_PARAM = "redirect"
+
+let loggingOut = false
+
 const logoutToAuth = () => {
+    if (loggingOut) return
+    loggingOut = true
     localStorage.removeItem("token")
     localStorage.removeItem(REFRESH_STORAGE_KEY)
     localStorage.removeItem(TENANT_STORAGE_KEY)
     localStorage.removeItem(TENANT_FILTER_STORAGE_KEY)
-    window.location.href = "/auth"
+    const { pathname, search, hash } = window.location
+    const params = new URLSearchParams({ [SESSION_EXPIRED_PARAM]: "1" })
+    if (pathname !== "/") params.set(REDIRECT_PARAM, `${pathname}${search}${hash}`)
+    window.location.href = `/auth?${params.toString()}`
 }
 
 let refreshPromise: Promise<string | null> | null = null
