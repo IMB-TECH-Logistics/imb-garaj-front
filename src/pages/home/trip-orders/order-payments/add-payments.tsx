@@ -10,6 +10,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
@@ -66,8 +67,18 @@ const AddPayment = () => {
         })
     }
 
-    const { mutate: create, isPending: creating } = usePost({ onSuccess })
-    const { mutate: update, isPending: updating } = usePatch({ onSuccess })
+    // `trips/order-payments/` backendda mavjud emas (404, Django HTML sahifasi) — xom HTML o'rniga tushunarli xabar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onError = (err: any) => {
+        if (err?.response?.status === 404) {
+            toast.error(t("messages.payment_unavailable"), { id: "order-payment-unavailable", duration: 6000 })
+            return
+        }
+        handleFormError(err, form)
+    }
+
+    const { mutate: create, isPending: creating } = usePost({ onSuccess, onError })
+    const { mutate: update, isPending: updating } = usePatch({ onSuccess, onError })
 
     const onSubmit = (data: CashflowForm) => {
         if (!childId) return
