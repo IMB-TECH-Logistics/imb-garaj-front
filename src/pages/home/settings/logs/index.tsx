@@ -42,7 +42,14 @@ export default function LogsPage() {
         params: { ...search, ordering: (search as any).ordering },
     })
 
-    const { section: _section, ...sectionParams } = search as any
+    // Tab sonlari sahifalanmaydi: section/page/page_size so'rovga ketmaydi (chuqur sahifada
+    // «Hamma tenant» chegarasi tab so'rovini ham 400 qilib yubormasin).
+    const {
+        section: _section,
+        page: _page,
+        page_size: _pageSize,
+        ...sectionParams
+    } = search as any
     const { data: logs_sections } = useGet<LogSection[]>(LOGS_SECTION, {
         params: sectionParams,
     })
@@ -63,15 +70,25 @@ export default function LogsPage() {
         [users],
     )
 
+    // «Hamma tenant» rejimida backend har tenant uchun bo'limlar ro'yxatini qaytaradi —
+    // bo'limlar nom bo'yicha birlashtiriladi (sonlar yig'iladi), tartib birinchi uchragan bo'yicha.
+    const mergedSections = useMemo(() => {
+        const bySection = new Map<string, number>()
+        for (const item of (logs_sections as LogSection[]) || []) {
+            bySection.set(item.section, (bySection.get(item.section) ?? 0) + (item.count ?? 0))
+        }
+        return Array.from(bySection, ([section, count]) => ({ section, count }))
+    }, [logs_sections])
+
     const tabOptions = useMemo(
         () => [
             { value: "", label: t("page.all_label") },
-            ...((logs_sections as LogSection[]) || []).map((item) => ({
+            ...mergedSections.map((item) => ({
                 value: item.section,
                 label: `${getSectionLabel(item.section)} (${item.count})`,
             })),
         ],
-        [logs_sections, t],
+        [mergedSections, t],
     )
 
     return (
