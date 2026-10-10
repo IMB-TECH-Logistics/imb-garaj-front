@@ -2,6 +2,7 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { MANAGERS_ORDERS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -20,6 +21,8 @@ const TripOrderMain = () => {
     const search = useSearch({ strict: false })
     const page = Number(search.page ?? 1)
     const { getData, setData, clearKey } = useGlobalStore()
+    // OrdersListCreateView (POST) / OrderUpdateView (PATCH, DELETE): manager_flights_control | accounting_control
+    const hasControl = useHasAction(["manager_flights_control", "accounting_control"])
     const { openModal: openCreateModal } = useModal("create")
     const { openModal: AddExpenseModal } = useModal("add-expenses")
 
@@ -97,10 +100,12 @@ const TripOrderMain = () => {
                     <h1 className="font-bold">{t("page.trip_list")}</h1>
                 </div>
                 <div className="flex justify-end">
-                    <Button onClick={handleCreate} disabled={isError}>
-                        <CirclePlus size={18} />
-                        {t("actions.add")}
-                    </Button>
+                    {hasControl && (
+                        <Button onClick={handleCreate} disabled={isError}>
+                            <CirclePlus size={18} />
+                            {t("actions.add")}
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -116,8 +121,8 @@ const TripOrderMain = () => {
                         columns={columns}
                         data={data?.results}
                         numeration
-                        onEdit={({ original }) => handleEdit(original)}
-                        onDelete={({ original }) => handleDelete(original)}
+                        onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+                        onDelete={hasControl ? ({ original }) => handleDelete(original) : undefined}
                         paginationProps={{
                             totalPages: 1,
                         }}

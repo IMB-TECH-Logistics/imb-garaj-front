@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { endOfMonth, startOfMonth } from "date-fns"
 import { ArrowDownCircle, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
-import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRANSACTIONS, KV2_TRIPS, n, Paged, STATUS, useKassaRoles, useOverview, usePeriod } from "./api"
+import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRIPS, n, Paged, STATUS, useAllPeriodTx, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
 import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
@@ -47,15 +47,15 @@ const KassaV2 = () => {
     const period = usePeriod()
     const { from_date } = period
     const { data: tripsData } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
-    const { data: txData } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
+    const txAll = useAllPeriodTx(period)
     const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
     const txCount = useMemo(() => {
-        if (!txData) return undefined
-        const closes = new Set(txData.results.filter((t) => t.close).map((t) => t.close!.id))
-        const plain = txData.results.filter((t) => !t.close).length
+        if (!txAll) return undefined
+        const closes = new Set(txAll.filter((t) => t.close).map((t) => t.close!.id))
+        const plain = txAll.filter((t) => !t.close).length
         const reqs = (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)).length
         return plain + closes.size + reqs
-    }, [txData, reqData])
+    }, [txAll, reqData])
     const counts: Partial<Record<View, number | undefined>> = { trips: tripsData?.length, kassa: txCount }
     const { data: ov } = useOverview()
     const sm = ov?.summary

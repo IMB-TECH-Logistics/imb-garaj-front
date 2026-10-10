@@ -92,7 +92,9 @@
         "server_error": "Amal bajarilmadi — serverda xatolik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring. ({{status}})",
         "request_timeout": "So'rov javobi kutilgan vaqtda kelmadi. Iltimos, qayta urinib ko'ring.",
         "load_error": "Ma'lumotni yuklab bo'lmadi — serverda xatolik yuz berdi. Ko'rsatilgan raqamlar to'liq emas bo'lishi mumkin, birozdan so'ng sahifani yangilang. ({{status}})",
-        "not_loaded": "Yuklanmadi"
+        "not_loaded": "Yuklanmadi",
+        "payment_unavailable": "To'lovni saqlab bo'lmadi — bu amal serverda hozircha mavjud emas (manzil topilmadi). Administratorga murojaat qiling.",
+        "session_expired": "Sessiya muddati tugadi. Iltimos, qayta kiring."
     },
     "lang": {
         "uz": "O'zbek",

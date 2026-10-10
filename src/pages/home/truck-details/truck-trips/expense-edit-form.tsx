@@ -116,7 +116,7 @@ export default function ExpenseEditForm() {
                         name="amount"
                         placeholder="Ex: 123 000"
                         thousandSeparator=" "
-                        decimalScale={currency === 2 ? 2 : 0}
+                        decimalScale={2}
                     />
                 </div>
                 <div className="w-32 shrink-0">
