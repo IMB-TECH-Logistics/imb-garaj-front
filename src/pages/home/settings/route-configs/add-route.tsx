@@ -280,6 +280,9 @@ const AddRouteConfigModal = () => {
                                 label={t("form.amount")}
                                 placeholder="12 206 000"
                                 control={control}
+                                registerOptions={{
+                                    validate: (v) => Number(v) > 0 || t("kassa.amount_gt_zero"),
+                                }}
                             />
                         </div>
                     </div>
