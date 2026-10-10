@@ -1,9 +1,9 @@
 import { useHasAction } from "@/constants/useUser"
 import { useDelete } from "@/hooks/useDelete"
-import { useGet } from "@/hooks/useGet"
+import { buildQueryKey, getRequest, useGet } from "@/hooks/useGet"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
-import { useQueryClient } from "@tanstack/react-query"
+import { useQueries, useQueryClient } from "@tanstack/react-query"
 import { useSearch } from "@tanstack/react-router"
 
 export const KV2 = "checkout/kassa-v2"
@@ -197,6 +197,30 @@ export const useRefreshKassa = () => {
         qc.invalidateQueries({
             predicate: (q) => typeof q.queryKey[0] === "string" && (q.queryKey[0] as string).startsWith(KV2),
         })
+}
+
+// Backend sahifani 1000 qatorga kesadi (HeavyListPagination), shuning uchun davr tranzaksiyalari
+// bitta so'rovga sig'masligi mumkin: 1-sahifa (total_pages bilan) + qolgan sahifalar. Hammasi
+// kelmaguncha `undefined` qaytadi (yorliqda noto'liq son ko'rinmasin).
+const TX_PAGE_SIZE = 1000
+
+export const useAllPeriodTx = (period: { from_date?: string; to_date?: string }): KassaTx[] | undefined => {
+    const params = { ...period, page_size: TX_PAGE_SIZE }
+    const { data: first } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
+    const extraPages = Math.max((first?.total_pages ?? 1) - 1, 0)
+    const rest = useQueries({
+        queries: Array.from({ length: extraPages }, (_, i) => {
+            const pageParams = { ...params, page: i + 2 }
+            return {
+                queryKey: buildQueryKey(KV2_TRANSACTIONS, pageParams),
+                queryFn: (): Promise<Paged<KassaTx>> => getRequest(KV2_TRANSACTIONS, { params: pageParams }),
+                staleTime: 1000 * 5 * 60,
+            }
+        }),
+        combine: (results) => (results.every((r) => r.data) ? results.flatMap((r) => r.data!.results) : undefined),
+    })
+    if (!first || !rest) return undefined
+    return [...first.results, ...rest]
 }
 
 export const useOverview = () => useGet<Overview>(KV2_OVERVIEW, { params: usePeriod() })
