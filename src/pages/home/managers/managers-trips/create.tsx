@@ -171,7 +171,7 @@ export default function CreateManagerTrips() {
                                 label={t("form.advance")}
                                 control={control}
                                 thousandSeparator=" "
-                                decimalScale={0}
+                                decimalScale={2}
                                 allowNegative={false}
                                 placeholder="Ex: 5 000 000"
                             />
