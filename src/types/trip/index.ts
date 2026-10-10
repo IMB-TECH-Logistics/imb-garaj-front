@@ -98,6 +98,7 @@ type TripOrdersRow = {
     status:number
     activity: number
     activity_display: string
+    external_id?: string | null
     incomes?: {
         id?: number
         payment_type: number | null

@@ -372,6 +372,16 @@ const AddTripOrders = () => {
     }, [unloadingValue, setValue])
 
     const isDraft = currentTripOrder?.status === -1
+    // S-06-03: integratsiyadan (logistikadan) kelgan buyurtma ma'lumotlari tahrirlanmaydi.
+    const externalId = String(currentTripOrder?.external_id ?? "").trim()
+    const isLogisticsOrder =
+        !!currentTripOrder?.id && !!externalId && !externalId.startsWith("garaj:")
+    const logisticsLocked = (
+        field: "loading" | "unloading" | "date" | "client" | "cargo_type",
+    ) => {
+        const value = currentTripOrder?.[field]
+        return isLogisticsOrder && value != null && value !== ""
+    }
 
     const finalize = (approved: boolean) => {
         toast.success(
@@ -551,7 +561,14 @@ const AddTripOrders = () => {
                             valueKey="id"
                             labelKey="name"
                             placeholder={t("table.status")}
+                            addButtonProps={{ disabled: isLogisticsOrder }}
                         />
+                        {isLogisticsOrder && (
+                            <p className="text-xs text-muted-foreground">
+                                Integratsiyadan kelgan buyurtma: buyurtma
+                                ma'lumotlari tahrirlanmaydi.
+                            </p>
+                        )}
 
                         {isReysActivity && (
                             <>
@@ -577,6 +594,9 @@ const AddTripOrders = () => {
                                         valueKey="id"
                                         labelKey="name"
                                         placeholder={t("form.cargo_owner")}
+                                        addButtonProps={{
+                                            disabled: logisticsLocked("client"),
+                                        }}
                                     />
                                 )}
 
@@ -607,7 +627,9 @@ const AddTripOrders = () => {
                                                 labelKey="name"
                                                 placeholder={t("form.loading_location")}
                                                 addButtonProps={{
-                                                    disabled: !isNaqd && !watch("client"),
+                                                    disabled:
+                                                        logisticsLocked("loading") ||
+                                                        (!isNaqd && !watch("client")),
                                                 }}
                                             />
                                             <FormCombobox
@@ -619,7 +641,11 @@ const AddTripOrders = () => {
                                                 valueKey="id"
                                                 labelKey="name"
                                                 placeholder={t("form.unloading_location")}
-                                                addButtonProps={{ disabled: !loadingValue }}
+                                                addButtonProps={{
+                                                    disabled:
+                                                        logisticsLocked("unloading") ||
+                                                        !loadingValue,
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -666,7 +692,10 @@ const AddTripOrders = () => {
                                         labelKey="name"
                                         placeholder={t("status.empty")}
                                         addButtonProps={{
-                                            disabled: !loadingValue || !unloadingValue,
+                                            disabled:
+                                                logisticsLocked("cargo_type") ||
+                                                !loadingValue ||
+                                                !unloadingValue,
                                         }}
                                     />
                                 </div>
@@ -681,6 +710,7 @@ const AddTripOrders = () => {
                                     name="date"
                                     placeholder={t("form.select_date")}
                                     className="w-full"
+                                    disabled={logisticsLocked("date")}
                                 />
                             </div>
                         </div>
@@ -710,6 +740,7 @@ const AddTripOrders = () => {
                                 valueKey="id"
                                 labelKey="name"
                                 placeholder={t("table.status")}
+                                addButtonProps={{ disabled: isLogisticsOrder }}
                             />
                         )}
                     </div>
