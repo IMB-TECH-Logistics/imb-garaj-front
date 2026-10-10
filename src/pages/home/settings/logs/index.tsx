@@ -42,7 +42,14 @@ export default function LogsPage() {
         params: { ...search, ordering: (search as any).ordering },
     })
 
-    const { section: _section, ...sectionParams } = search as any
+    // Tab sonlari sahifalanmaydi: section/page/page_size so'rovga ketmaydi (chuqur sahifada
+    // «Hamma tenant» chegarasi tab so'rovini ham 400 qilib yubormasin).
+    const {
+        section: _section,
+        page: _page,
+        page_size: _pageSize,
+        ...sectionParams
+    } = search as any
     const { data: logs_sections } = useGet<LogSection[]>(LOGS_SECTION, {
         params: sectionParams,
     })
