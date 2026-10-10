@@ -235,7 +235,9 @@
 }
 
 .tv-ohlc-change.up { color: var(--tv-green); background: rgba(38, 166, 154, 0.12); }
-.tv-ohlc-change.down { color: var(--tv-red); background: rgba(239, 83, 80, 0.12); }
+/* GARAJ-UI-U6-07: matn/fon kontrasti >= 4.5:1 (yorug' mavzuda to'qroq, qorong'i mavzuda ochroq qizil) */
+.tv-ohlc-change.down { color: #c62828; background: rgba(239, 83, 80, 0.12); }
+.dark .tv-ohlc-change.down { color: #ff6b68; }
 
 /* ---- Main: chart + sidebar side by side ---- */
 .tv-main {
