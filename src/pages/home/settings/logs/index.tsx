@@ -63,15 +63,25 @@ export default function LogsPage() {
         [users],
     )
 
+    // «Hamma tenant» rejimida backend har tenant uchun bo'limlar ro'yxatini qaytaradi —
+    // bo'limlar nom bo'yicha birlashtiriladi (sonlar yig'iladi), tartib birinchi uchragan bo'yicha.
+    const mergedSections = useMemo(() => {
+        const bySection = new Map<string, number>()
+        for (const item of (logs_sections as LogSection[]) || []) {
+            bySection.set(item.section, (bySection.get(item.section) ?? 0) + (item.count ?? 0))
+        }
+        return Array.from(bySection, ([section, count]) => ({ section, count }))
+    }, [logs_sections])
+
     const tabOptions = useMemo(
         () => [
             { value: "", label: t("page.all_label") },
-            ...((logs_sections as LogSection[]) || []).map((item) => ({
+            ...mergedSections.map((item) => ({
                 value: item.section,
                 label: `${getSectionLabel(item.section)} (${item.count})`,
             })),
         ],
-        [logs_sections, t],
+        [mergedSections, t],
     )
 
     return (
