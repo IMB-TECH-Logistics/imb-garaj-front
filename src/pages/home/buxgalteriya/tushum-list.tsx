@@ -6,10 +6,12 @@ import {
     ORDER_CASHFLOWS,
     SETTINTS_PAYMENT_TYPE,
 } from "@/constants/api-endpoints"
+import { useConfirm } from "@/hooks/useConfirm"
 import { useDelete } from "@/hooks/useDelete"
 import { useGet } from "@/hooks/useGet"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { Plus, Trash2, X } from "lucide-react"
 import { useRef, useState } from "react"
@@ -70,6 +72,7 @@ const TushumRow = ({
 }) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
+    const confirm = useConfirm()
     const isNew = !initial
 
     const form = useForm<RowValues>({
@@ -224,7 +227,13 @@ const TushumRow = ({
                     type="button"
                     size="icon"
                     variant="ghost"
-                    onClick={() => remove(`${ORDER_CASHFLOWS}/${initial!.id}`)}
+                    onClick={async () => {
+                        const ok = await confirm({
+                            title: t("messages.confirm_delete"),
+                            description: formatMoney(Number(initial!.amount)),
+                        })
+                        if (ok) remove(`${ORDER_CASHFLOWS}/${initial!.id}`)
+                    }}
                     disabled={pending}
                     title={t("actions.delete")}
                 >
