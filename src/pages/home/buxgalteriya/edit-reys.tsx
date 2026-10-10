@@ -106,6 +106,17 @@ const EditReysModal = () => {
 
     const { handleSubmit, control, setValue } = form
 
+    // S-06-03: integratsiyadan (logistikadan) kelgan buyurtma ma'lumotlari tahrirlanmaydi.
+    const externalId = String(current?.external_id ?? "").trim()
+    const isLogisticsOrder =
+        !!current?.id && !!externalId && !externalId.startsWith("garaj:")
+    const logisticsLocked = (
+        field: "client" | "loading" | "unloading" | "cargo_type",
+    ) => {
+        const value = current?.[field]
+        return isLogisticsOrder && value != null && (value as unknown) !== ""
+    }
+
     const { data: directionsResponse } = useGet<ListResponse<Direction>>(
         COMMON_DIRECTIONS,
         { params: { page_size: 10000 } },
@@ -229,6 +240,7 @@ const EditReysModal = () => {
                         label={t("form.company_name")}
                         name="client"
                         control={control}
+                        addButtonProps={{ disabled: logisticsLocked("client") }}
                         options={clientsData ?? []}
                         valueKey="id"
                         labelKey="name"
@@ -242,6 +254,7 @@ const EditReysModal = () => {
                         name="date"
                         placeholder={t("form.select_date")}
                         className="w-full"
+                        disabled={isLogisticsOrder}
                     />
                 </div>
             </section>
@@ -253,6 +266,7 @@ const EditReysModal = () => {
                         label={t("form.loading_location")}
                         name="loading"
                         control={control}
+                        addButtonProps={{ disabled: logisticsLocked("loading") }}
                         options={loadsData}
                         valueKey="id"
                         labelKey="name"
@@ -264,6 +278,7 @@ const EditReysModal = () => {
                         label={t("form.unloading_location")}
                         name="unloading"
                         control={control}
+                        addButtonProps={{ disabled: logisticsLocked("unloading") }}
                         options={unloadsData}
                         valueKey="id"
                         labelKey="name"
@@ -279,6 +294,7 @@ const EditReysModal = () => {
                         label={t("form.cargo_type")}
                         name="cargo_type"
                         control={control}
+                        addButtonProps={{ disabled: logisticsLocked("cargo_type") }}
                         options={cargoTypesData}
                         valueKey="id"
                         labelKey="name"
@@ -290,6 +306,7 @@ const EditReysModal = () => {
                         label={t("form.trip_type")}
                         name="type"
                         control={control}
+                        addButtonProps={{ disabled: isLogisticsOrder }}
                         options={ORDER_TYPE_OPTIONS}
                         valueKey="id"
                         labelKey="name"
@@ -312,6 +329,7 @@ const EditReysModal = () => {
                         label={t("table.status")}
                         name="status"
                         control={control}
+                        addButtonProps={{ disabled: isLogisticsOrder }}
                         options={ORDER_STATUS_OPTIONS}
                         valueKey="id"
                         labelKey="name"
