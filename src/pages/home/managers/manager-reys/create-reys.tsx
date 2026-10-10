@@ -463,7 +463,8 @@ const AddTripOrders = () => {
 
             formData.append("loading", data.loading)
             formData.append("unloading", data.unloading)
-            formData.append("type", isEmpty ? "2" : "1")
+            // S-06-03: integratsiya buyurtmasining turi (yukli/yuksiz) qulf — yuborilmaydi.
+            if (!isLogisticsOrder) formData.append("type", isEmpty ? "2" : "1")
             formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
             if (!isNaqdSel && data.client) {
                 formData.append("client", String(data.client))
