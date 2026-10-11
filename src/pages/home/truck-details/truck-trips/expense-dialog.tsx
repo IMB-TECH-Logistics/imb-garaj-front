@@ -38,11 +38,10 @@ type ExpenseRow = {
     quantity: string | null
 }
 
+// Eski USD yozuvlar so'mdagi ekvivalenti bilan o'qiladi (yangi USD kiritilmaydi).
 function formatAmount(row: ExpenseRow) {
     if (row.currency === 2 && row.currency_course) {
-        const usd = Number(row.amount)
-        const uzs = usd * Number(row.currency_course)
-        return <>{formatMoney(usd)} USD (={formatMoney(uzs)} UZS)</>
+        return formatMoney(Number(row.amount) * Number(row.currency_course))
     }
     return formatMoney(row.amount)
 }
