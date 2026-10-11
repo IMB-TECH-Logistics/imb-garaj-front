@@ -28,9 +28,6 @@ export type OrderCashflow = {
     amount: number | string
     gross_amount?: number | string | null
     payment_type: number
-    // Eski (legacy) USD yozuvlar ro'yxatda so'mda ko'rsatiladi; yangisi yaratilmaydi
-    currency?: number
-    currency_course?: string | number | null
     category: number | null
     comment?: string | null
 }
@@ -41,15 +38,9 @@ type RowValues = {
     comment?: string | null
 }
 
-// Eski USD yozuv summasi kurs bo'yicha so'mga o'giriladi (faqat o'qish/tahrirlash uchun)
-const toUzsAmount = (row: OrderCashflow | null): number | string => {
-    if (!row) return ""
-    const amount = row.gross_amount ?? row.amount
-    if (row.currency === 2 && row.currency_course) {
-        return Number(amount) * Number(row.currency_course)
-    }
-    return amount
-}
+// Backend javobdagi summa doim so'mda (eski USD yozuvlarni ham server o'giradi)
+const initialAmount = (row: OrderCashflow | null): number | string =>
+    row ? (row.gross_amount ?? row.amount) : ""
 
 // Income action — matches manager-reys/create-reys submission and the backend's
 // CashFlow.Action.INCOME used when an order is created with incomes.
@@ -79,7 +70,7 @@ const TushumRow = ({
 
     const form = useForm<RowValues>({
         defaultValues: {
-            amount: toUzsAmount(initial),
+            amount: initialAmount(initial),
             payment_type: initial?.payment_type ?? null,
             comment: initial?.comment ?? "",
         },
@@ -135,12 +126,23 @@ const TushumRow = ({
                 comment: v?.comment,
             })
         } else {
-            update(`${ORDER_CASHFLOWS}/${initial!.id}`, {
-                amount: Number(v.amount),
-                payment_type: v.payment_type,
-                currency: 1,
-                comment: v?.comment,
-            })
+            // Faqat o'zgargan maydonlar yuboriladi (summa o'zgarmasa amount/currency ketmaydi)
+            const payload: Record<string, unknown> = {}
+            if (Number(v.amount) !== Number(initialAmount(initial))) {
+                payload.amount = Number(v.amount)
+                payload.currency = 1
+            }
+            if (v.payment_type !== initial!.payment_type) {
+                payload.payment_type = v.payment_type
+            }
+            if ((v.comment ?? "") !== (initial!.comment ?? "")) {
+                payload.comment = v.comment
+            }
+            if (Object.keys(payload).length === 0) {
+                onDone()
+                return
+            }
+            update(`${ORDER_CASHFLOWS}/${initial!.id}`, payload)
         }
     }
 

@@ -8,8 +8,6 @@ export type StationCashFlowRow = {
     id: number
     action: number
     amount: string | number
-    currency: number
-    currency_course: string | number | null
     comment: string | null
     petrol_station: number
     petrol_station_name: string | null
@@ -52,13 +50,9 @@ export const formatQuantity = (
     return `${formatted}${label ? ` ${label}` : ""}`
 }
 
-// Eski USD yozuvlar ro'yxatda so'mdagi ekvivalenti bilan o'qiladi (yangi USD kiritilmaydi).
-export const getAmountInUzs = (row: StationCashFlowRow) => {
-    const amount = Number(row.amount ?? 0)
-    return row.currency === 2 ?
-            amount * Number(row.currency_course ?? 0)
-        :   amount
-}
+// Backend javobdagi summa doim so'mda.
+export const getAmountInUzs = (row: StationCashFlowRow) =>
+    Number(row.amount ?? 0)
 
 
 const COLUMN_ORDER = [

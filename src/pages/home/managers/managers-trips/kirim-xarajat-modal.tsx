@@ -55,9 +55,6 @@ type FinanceRow = {
     quantity: string | null
     created: string
     updated: string
-    // Eski (legacy) USD yozuvlar so'mda ko'rsatiladi; yangisi yaratilmaydi
-    currency?: number
-    currency_course?: string | null
     petrol_station: number | null
     petrol_station_name: string | null
     added_after_close?: boolean
@@ -71,11 +68,9 @@ type FinanceRow = {
     advance_returned?: number | null
 }
 
-// Eski USD yozuv kurs bo'yicha so'mga o'giriladi
+// Backend javobdagi summa doim so'mda
 function uzsOf(r: FinanceRow) {
-    return r.currency === 2 && r.currency_course ?
-            Number(r.amount || 0) * Number(r.currency_course)
-        :   Number(r.amount || 0)
+    return Number(r.amount || 0)
 }
 
 function formatAmount(row: FinanceRow) {
@@ -1229,7 +1224,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
             options: { queryKey: [MANAGERS_CASHFLOW, "t-hisob-all-expense", tripId] },
         },
     )
-    // UZS kartalar: eski USD qator kurs bo'yicha so'mga o'giriladi (uzsOf)
+    // UZS kartalar: summa serverdan so'mda keladi (uzsOf)
     const sumOf = (rows: FinanceRow[]) => rows.reduce((a, r) => a + uzsOf(r), 0)
     const avansSum = sumOf(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
     const allExpenses = allExpenseData?.results ?? []

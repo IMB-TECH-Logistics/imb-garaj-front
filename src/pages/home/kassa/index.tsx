@@ -46,8 +46,6 @@ type Transaction = {
     type: number
     status: number
     checkout_kind: "cash" | "card"
-    currency: number
-    currency_course: string | null
     through: string | null
     driver_name: string | null
     vehicle_plate: string | null
@@ -84,11 +82,7 @@ const useTransactionCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className={row.original.awaiting_order_completion ? "text-muted-foreground" : undefined}>
-                        {formatMoney(
-                            row.original.currency === 2 && row.original.currency_course
-                                ? Number(row.original.amount) * Number(row.original.currency_course)
-                                : Number(row.original.amount),
-                        )}
+                        {formatMoney(Number(row.original.amount))}
                     </span>
                 ),
             },

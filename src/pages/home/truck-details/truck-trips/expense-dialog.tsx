@@ -33,16 +33,11 @@ type ExpenseRow = {
     payment_type: number | null
     payment_type_name: string
     created: string
-    currency: number
-    currency_course: string | null
     quantity: string | null
 }
 
-// Eski USD yozuvlar so'mdagi ekvivalenti bilan o'qiladi (yangi USD kiritilmaydi).
+// Backend javobdagi summa doim so'mda.
 function formatAmount(row: ExpenseRow) {
-    if (row.currency === 2 && row.currency_course) {
-        return formatMoney(Number(row.amount) * Number(row.currency_course))
-    }
     return formatMoney(row.amount)
 }
 
