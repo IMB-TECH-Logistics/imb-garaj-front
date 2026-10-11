@@ -93,7 +93,6 @@ type Direction = {
     cargo_type: number
     cargo_type_name: string
     payment_type: number
-    currency: 1 | 2
     amount: string | null
     load_place_display?: string | null
     unload_place_display?: string | null
@@ -149,8 +148,6 @@ const AddTripOrders = () => {
                 currentTripOrder?.incomes?.length
                     ? currentTripOrder.incomes.map((p) => ({
                         payment_type: p.payment_type,
-                        currency: p.currency ?? 1,
-                        currency_course: p.currency_course,
                         amount: p.amount,
                     }))
                     : [
@@ -218,7 +215,7 @@ const AddTripOrders = () => {
     )
 
     const isNaqd = !!watch("is_naqd")
-    const incomes = watch("incomes") as { payment_type: number | null; currency?: number; amount: string }[]
+    const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
     const selectedPaymentTypeIds = useMemo(
         () => new Set((incomes ?? []).map((inc) => inc.payment_type).filter(Boolean)),
         [incomes],
@@ -444,14 +441,13 @@ const AddTripOrders = () => {
             const incomes = isNaqdSel
                 ? (data.incomes ?? []).map((inc: any) => ({
                     payment_type: inc.payment_type,
-                    currency: inc.currency ?? 1,
-                    currency_course: inc.currency === 2 ? inc.currency_course : null,
+                    currency: 1,
                     amount: String(inc.amount ?? "0"),
                 }))
                 : [
                     {
                         payment_type: matchedDirection!.payment_type,
-                        currency: matchedDirection!.currency,
+                        currency: 1,
                         amount:
                             matchedDirection!.amount != null
                                 ? String(matchedDirection!.amount)
@@ -776,13 +772,7 @@ const AddTripOrders = () => {
                                     control={control}
                                     name={`incomes.${index}.amount`}
                                     placeholder={t("form.amount")}
-                                    label={
-                                        incomes[index]?.currency === 2
-                                            ? "USD"
-                                            : index === 0
-                                              ? t("form.amount")
-                                              : undefined
-                                    }
+                                    label={index === 0 ? t("form.amount") : undefined}
                                     registerOptions={{
                                         validate: (v) =>
                                             Number(v) > 0
@@ -790,17 +780,6 @@ const AddTripOrders = () => {
                                                 : t("kassa.amount_gt_zero"),
                                     }}
                                 />
-
-                                {incomes[index]?.currency === 2 && (
-                                    <FormNumberInput
-                                        required
-                                        control={control}
-                                        name={`incomes.${index}.currency_course`}
-                                        allowNegative={false}
-                                        label={t("form.currency_rate")}
-                                        placeholder={t("form.currency_rate")}
-                                    />
-                                )}
 
                                 {incomeFields.length > 1 && (
                                     <Button

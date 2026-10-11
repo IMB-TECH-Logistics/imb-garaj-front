@@ -24,7 +24,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
-import { DRIVER_SALARIES, MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_CURRENCY, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINGS_REGIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { DRIVER_SALARIES, MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_ORDERS, MANAGERS_TRIPS, SETTINGS_EXPENSES, SETTINGS_PETROL_STATIONS, SETTINGS_REGIONS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { useQueryClient } from "@tanstack/react-query"
 import FormInput from "@/components/form/input"
 import PendingAdvances from "./pending-advances"
@@ -55,8 +55,9 @@ type FinanceRow = {
     quantity: string | null
     created: string
     updated: string
-    currency: number
-    currency_course: string | null
+    // Eski (legacy) USD yozuvlar so'mda ko'rsatiladi; yangisi yaratilmaydi
+    currency?: number
+    currency_course?: string | null
     petrol_station: number | null
     petrol_station_name: string | null
     added_after_close?: boolean
@@ -70,13 +71,15 @@ type FinanceRow = {
     advance_returned?: number | null
 }
 
+// Eski USD yozuv kurs bo'yicha so'mga o'giriladi
+function uzsOf(r: FinanceRow) {
+    return r.currency === 2 && r.currency_course ?
+            Number(r.amount || 0) * Number(r.currency_course)
+        :   Number(r.amount || 0)
+}
+
 function formatAmount(row: FinanceRow) {
-    if (row.currency === 2 && row.currency_course) {
-        const usd = Number(row.amount)
-        const uzs = usd * Number(row.currency_course)
-        return <>{formatMoney(usd)} USD (={formatMoney(uzs)} UZS)</>
-    }
-    return formatMoney(row.amount)
+    return formatMoney(uzsOf(row))
 }
 
 type Category = {
@@ -85,7 +88,6 @@ type Category = {
     amount?: number
     total_amount?: number
     total_amount_uzs?: string
-    total_amount_usd?: string
     code?: string | null
 }
 
@@ -124,9 +126,6 @@ function CategoryTabs({
                         {cat.total_amount_uzs != null ? (
                             <div>
                                 <p className="font-semibold">{formatMoney(cat.total_amount_uzs)} <span className="text-xs text-muted-foreground">UZS</span></p>
-                                {Number(cat.total_amount_usd) > 0 && (
-                                    <p className="font-semibold text-sm">{formatMoney(cat.total_amount_usd)} <span className="text-xs text-muted-foreground">USD</span></p>
-                                )}
                             </div>
                         ) : (
                             <p className="font-semibold">{formatMoney(cat.total_amount ?? cat.amount ?? 0)}</p>
@@ -277,8 +276,6 @@ function AddFinanceForm({
             comment: editItem?.comment ?? "",
             receipt: null as any,
             order: editItem?.order ?? "",
-            currency: editItem?.currency ?? 1,
-            currency_course: editItem?.currency_course ?? "",
             petrol_station: editItem?.petrol_station ?? "",
             from_region: (editItem as any)?.from_region ?? "",
             to_region: (editItem as any)?.to_region ?? "",
@@ -286,19 +283,6 @@ function AddFinanceForm({
         },
     })
     const { handleSubmit, control, reset, watch, setValue } = form
-    const currency = watch("currency")
-
-    const { data: currencyData } = useGet(MANAGERS_CASHFLOW_CURRENCY, {
-        enabled: currency === 2,
-        options: { staleTime: 0, gcTime: 0, refetchOnMount: "always" },
-    })
-
-    useEffect(() => {
-        if (currency === 2 && currencyData?.currency_course && !isEdit) {
-            setValue("currency_course", currencyData.currency_course)
-        }
-    }, [currency, currencyData, isEdit, setValue])
-
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 1000000 },
     })
@@ -386,8 +370,6 @@ function AddFinanceForm({
                 comment: editItem.comment ?? "",
                 receipt: null,
                 order: editItem.order ?? "",
-                currency: editItem.currency ?? 1,
-                currency_course: editItem.currency_course ?? "",
                 petrol_station: editItem.petrol_station ?? "",
                 from_region: (editItem as any).from_region ?? "",
                 to_region: (editItem as any).to_region ?? "",
@@ -401,8 +383,6 @@ function AddFinanceForm({
                 comment: "",
                 receipt: null,
                 order: "",
-                currency: 1,
-                currency_course: "",
                 petrol_station: "",
                 from_region: "",
                 to_region: "",
@@ -432,11 +412,11 @@ function AddFinanceForm({
         fd.append("amount", String(data.amount))
         if (selectedCategoryId != null) fd.append("category", String(selectedCategoryId))
         fd.append("action", String(action))
-        fd.append("currency", String(data.currency || 1))
+        // Faqat so'm: tahrirda valyuta yuborilmaydi (eski yozuv valyutasi o'zgarmaydi)
+        if (!isEdit) fd.append("currency", "1")
         if (data.comment) fd.append("comment", data.comment)
         if (data.payment_type && !(withStation && !isEdit)) fd.append("payment_type", String(data.payment_type))
         if (data.quantity) fd.append("quantity", String(data.quantity))
-        if (data.currency === 2 && data.currency_course) fd.append("currency_course", String(data.currency_course))
         if (withStation && data.petrol_station) fd.append("petrol_station", String(data.petrol_station))
         if (showOrderSelect && data.order) fd.append("order", String(data.order))
         if (data.receipt instanceof File) fd.append("receipt", data.receipt)
@@ -487,33 +467,7 @@ function AddFinanceForm({
                         }}
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        control={control}
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        options={[
-                            { id: 1, name: "UZS" },
-                            { id: 2, name: "USD" },
-                        ]}
-                        valueKey="id"
-                        labelKey="name"
-                    />
-                </div>
             </div>
-            {currency === 2 && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label={t("form.currency_rate")}
-                    name="currency_course"
-                    allowNegative={false}
-                    placeholder="Ex: 12 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
-                />
-            )}
                         {isSalaryExpense && (
                 <div className="rounded-md border bg-muted/40 p-3 flex flex-col gap-2">
                     <div className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -911,23 +865,10 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
 function AvansForm({ tripId }: { tripId?: number }) {
     const { t } = useTranslation()
     const { closeModal } = useModal("avans-berish")
-    const form = useForm({ defaultValues: { amount: "", payment_type: "", comment: "", date: "", currency: 1, currency_course: "" } })
+    const form = useForm({ defaultValues: { amount: "", payment_type: "", comment: "", date: "" } })
     const { handleSubmit, control, reset, watch, setValue } = form
     const { mutate, isPending } = usePost()
     const queryClient = useQueryClient()
-    const currency = watch("currency")
-
-    const { data: currencyData } = useGet(MANAGERS_CASHFLOW_CURRENCY, {
-        enabled: currency === 2,
-        options: { staleTime: 0, gcTime: 0, refetchOnMount: "always" },
-    })
-
-    useEffect(() => {
-        if (currency === 2 && currencyData?.currency_course) {
-            setValue("currency_course", currencyData.currency_course)
-        }
-    }, [currency, currencyData, setValue])
-
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 1000000 },
     })
@@ -940,8 +881,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
             comment: data.comment || null,
             date: data.date || null,
             action: 2,
-            currency: data.currency || 1,
-            currency_course: data.currency === 2 ? data.currency_course || null : null,
+            currency: 1,
         }, {
             onSuccess: (res: any) => {
                 // Haydovchi-kassa rejimida server pul bermaydi — kassirga so'rov (PaymentRequest, 202) yaratadi
@@ -978,33 +918,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
                         }}
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        control={control}
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        options={[
-                            { id: 1, name: "UZS" },
-                            { id: 2, name: "USD" },
-                        ]}
-                        valueKey="id"
-                        labelKey="name"
-                    />
-                </div>
             </div>
-            {currency === 2 && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label={t("form.currency_rate")}
-                    name="currency_course"
-                    allowNegative={false}
-                    placeholder="Ex: 12 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
-                />
-            )}
             <FormCombobox
                 control={control}
                 required
@@ -1082,7 +996,6 @@ function ModeToggle({
 function SummaryCard({
     label,
     amountUzs,
-    amountUsd,
     variant,
     unitUzs = "UZS",
     active,
@@ -1094,7 +1007,6 @@ function SummaryCard({
     hideAmount?: boolean
     label: string
     amountUzs: number
-    amountUsd?: number
     variant: "income" | "expense" | "balance" | "advance"
     unitUzs?: string
     active?: boolean
@@ -1132,18 +1044,6 @@ function SummaryCard({
                     </>
                 }
             </p>
-            {!hideAmount && amountUsd != null && Number(amountUsd) > 0 && (
-                <p
-                    className={cn(
-                        "font-semibold text-sm",
-                        variant === "income" && "text-green-600",
-                        variant === "expense" && "text-red-600",
-                        variant === "balance" && "text-primary",
-                    )}
-                >
-                    {formatMoney(amountUsd)} <span className="text-xs text-muted-foreground">USD</span>
-                </p>
-            )}
         </div>
     )
 }
@@ -1329,11 +1229,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
             options: { queryKey: [MANAGERS_CASHFLOW, "t-hisob-all-expense", tripId] },
         },
     )
-    // UZS kartalar: USD qator kurs bilan (ro'yxatdagi «USD (=… UZS)» ko'rinishi bilan bir xil qoida)
-    const uzsOf = (r: FinanceRow) =>
-        r.currency === 2 && r.currency_course ?
-            Number(r.amount || 0) * Number(r.currency_course)
-        :   Number(r.amount || 0)
+    // UZS kartalar: eski USD qator kurs bo'yicha so'mga o'giriladi (uzsOf)
     const sumOf = (rows: FinanceRow[]) => rows.reduce((a, r) => a + uzsOf(r), 0)
     const avansSum = sumOf(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
     const allExpenses = allExpenseData?.results ?? []
@@ -1407,11 +1303,8 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
     const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : "litr"
     const stat = mode === "aylanma" ? tripStat : driverStat
     const incomeUzs = Number(stat?.income_uzs ?? 0)
-    const incomeUsd = Number(stat?.income_usd ?? 0)
     const expenseUzs = Number(stat?.expense_uzs ?? 0)
-    const expenseUsd = Number(stat?.expense_usd ?? 0)
     const balanceUzs = incomeUzs - expenseUzs
-    const balanceUsd = incomeUsd - expenseUsd
 
     return (
         <div className="flex flex-col h-full overflow-hidden gap-4">
@@ -1430,19 +1323,18 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                 <SummaryCard label="Oylik" amountUzs={salarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />
                                 {profit != null && <SummaryCard label="Qoldiq" amountUzs={profit} variant={profit < 0 ? "expense" : "balance"} />}
                             </>
-                        :   <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} amountUsd={incomeUsd} variant="income" />}
+                        :   <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} variant="income" />}
                         {hideToggle ? null
-                        :   <SummaryCard label={t("page.all_expense")} amountUzs={expenseUzs} amountUsd={expenseUsd} variant="expense" />}
+                        :   <SummaryCard label={t("page.all_expense")} amountUzs={expenseUzs} variant="expense" />}
                         {hideToggle && <div className="ml-auto" />}
                         {hideToggle ?
                             <SummaryCard label="Zapravka (pul o'tkazma)" amountUzs={transferFuelSum} variant="expense" active={filter === "zapravka"} onClick={() => setFilter("zapravka")} />
-                        :   <SummaryCard label={mode === "haydovchi" ? t("form.balance") : t("table.profit")} amountUzs={balanceUzs} amountUsd={balanceUsd} variant="balance" />}
+                        :   <SummaryCard label={mode === "haydovchi" ? t("form.balance") : t("table.profit")} amountUzs={balanceUzs} variant="balance" />}
                         {mode === "haydovchi" && driverStat && (
                             <>
                                 <SummaryCard
                                     label="Bakdagi yoqilg'i"
                                     amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)}
-                                    amountUsd={Number(driverStat.return_fuel_amount_usd ?? 0)}
                                     variant="balance"
                                     hideAmount
                                     sub={Number(driverStat.return_fuel ?? 0) > 0 ? <>{formatMoney(Number(driverStat.return_fuel))} {fuelUnit}</> : undefined}

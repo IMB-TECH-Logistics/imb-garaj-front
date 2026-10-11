@@ -26,7 +26,6 @@ interface ManagerTrips {
     vehicle_number?: string | null
     id?: number
     vehicle?: number | string
-    income_usd: string
     cash_flow_sum: string
     start_mileage: number
     end_mileage: number
@@ -44,10 +43,7 @@ interface ManagerTrips {
 type ManagerOrdersPayments = {
     id: number
     order: number
-    currency: number
-    currency_course: string
     amount: string
-    currency_amount: string
     payment_type: number
 }
 
@@ -69,7 +65,6 @@ type ManagerOrders = {
     activity_display: string
     payment_amount: number
     payment_amount_uzs: string
-    payment_amount_usd: string
     pending_time: string
     started_time: string
     loading_time: string
