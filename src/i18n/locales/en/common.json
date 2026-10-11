@@ -26,7 +26,8 @@
         "expense_types": "Income & Expense Types",
         "monthly_rates": "Monthly Rates",
         "activity_log": "Activity Log",
-        "distributors": "Distributors"
+        "distributors": "Distributors",
+        "route_norms": "Route norms"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -992,6 +993,80 @@
             "expired_count": "{{count}} expired",
             "soon_count": "{{count}} expiring",
             "no_expenses": "No expenses in this period"
+        }
+    },
+    "route_norms": {
+        "few_data": "limited data",
+        "error": "Could not load the data. Please try again later.",
+        "excel_name": "Route norms",
+        "per_100km": "100 km",
+        "stops_detail": "{{count}} times, longest {{longest}}",
+        "fuel_pending": "trip not closed",
+        "fuel_check": "needs review",
+        "units": {
+            "km": "km",
+            "day": "d",
+            "hour": "h",
+            "minute": "min",
+            "liter": "l",
+            "m3": "m³"
+        },
+        "fuel_types": {
+            "diesel": "Diesel",
+            "methane": "Methane"
+        },
+        "cols": {
+            "load_point": "Loading point",
+            "unload_point": "Unloading point",
+            "trips": "Trips",
+            "drivers": "Drivers",
+            "distance": "Distance",
+            "total_time": "Time on road",
+            "moving": "Moving",
+            "stopped": "Stopped",
+            "fuel_per_100km": "Fuel (per 100 km)",
+            "fuel_per_trip": "Fuel (per trip)",
+            "date": "Date",
+            "driver": "Driver",
+            "vehicle": "Vehicle",
+            "load_time": "Loading",
+            "unload_time": "Unloading",
+            "fuel": "Fuel",
+            "status": "Status"
+        },
+        "filters": {
+            "fuel_type": "Fuel type",
+            "vehicle": "Vehicle",
+            "driver": "Driver",
+            "search": "Place name"
+        },
+        "summary": {
+            "total": "{{count}} trips in the period",
+            "in_norm": "{{count}} counted in the norm",
+            "not_in_norm": "{{count}} not counted",
+            "reasons": "Why trips were not counted",
+            "pending": "{{count}} trips not calculated yet",
+            "last_computed": "Last calculation: {{date}}",
+            "no_data": "No data collected yet",
+            "error": "Could not load the summary."
+        },
+        "sheet": {
+            "title": "Route trips",
+            "tab_in": "In the norm",
+            "tab_out": "Not counted",
+            "tab_all": "All"
+        },
+        "issues": {
+            "no_gps_device": "No GPS device linked",
+            "no_gps_points": "No GPS data",
+            "no_window": "Time not determined",
+            "time_from_status": "Time set manually",
+            "no_zone": "No location geozone",
+            "gps_gap": "GPS gap",
+            "overlap": "Overlaps another trip",
+            "too_short": "Too short",
+            "same_point": "Loading and unloading point are the same",
+            "fuel_km_from_gps": "Fuel distance calculated from GPS"
         }
     }
 }

@@ -26,7 +26,8 @@
         "expense_types": "Kirim-chiqim turlari",
         "monthly_rates": "Oylik tariflar",
         "activity_log": "Faoliyat jurnali",
-        "distributors": "Distributorlar"
+        "distributors": "Distributorlar",
+        "route_norms": "Yo'nalish normalari"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -1020,6 +1021,80 @@
             "expired_count": "{{count}} ta eskirgan",
             "soon_count": "{{count}} ta yaqinlashmoqda",
             "no_expenses": "Bu davrda xarajat yo'q"
+        }
+    },
+    "route_norms": {
+        "few_data": "ma'lumot kam",
+        "error": "Ma'lumotni yuklab bo'lmadi. Keyinroq qayta urinib ko'ring.",
+        "excel_name": "Yo'nalish normalari",
+        "per_100km": "100 km",
+        "stops_detail": "{{count}} marta, eng uzuni {{longest}}",
+        "fuel_pending": "aylanma yopilmagan",
+        "fuel_check": "tekshirilsin",
+        "units": {
+            "km": "km",
+            "day": "kun",
+            "hour": "s",
+            "minute": "daq",
+            "liter": "l",
+            "m3": "m³"
+        },
+        "fuel_types": {
+            "diesel": "Dizel",
+            "methane": "Metan"
+        },
+        "cols": {
+            "load_point": "Yuklash joyi",
+            "unload_point": "Tushirish joyi",
+            "trips": "Reyslar",
+            "drivers": "Haydovchilar",
+            "distance": "Masofa",
+            "total_time": "Yo'lda vaqt",
+            "moving": "Harakatda",
+            "stopped": "To'xtab turgan",
+            "fuel_per_100km": "Yoqilg'i (100 km ga)",
+            "fuel_per_trip": "Yoqilg'i (reysga)",
+            "date": "Sana",
+            "driver": "Haydovchi",
+            "vehicle": "Mashina",
+            "load_time": "Yuklashda",
+            "unload_time": "Tushirishda",
+            "fuel": "Yoqilg'i",
+            "status": "Holat"
+        },
+        "filters": {
+            "fuel_type": "Yoqilg'i turi",
+            "vehicle": "Mashina",
+            "driver": "Haydovchi",
+            "search": "Joy nomi"
+        },
+        "summary": {
+            "total": "Davrda {{count}} reys",
+            "in_norm": "{{count}} tasi normaga kirdi",
+            "not_in_norm": "{{count}} tasi kirmadi",
+            "reasons": "Normaga kirmagan sabablar",
+            "pending": "{{count}} ta reys hali hisoblanmagan",
+            "last_computed": "Oxirgi hisoblash: {{date}}",
+            "no_data": "Hali ma'lumot yig'ilmagan",
+            "error": "Qamrov ma'lumotini yuklab bo'lmadi."
+        },
+        "sheet": {
+            "title": "Yo'nalish reyslari",
+            "tab_in": "Normaga kirgan",
+            "tab_out": "Kirmagan",
+            "tab_all": "Hammasi"
+        },
+        "issues": {
+            "no_gps_device": "GPS qurilma ulanmagan",
+            "no_gps_points": "GPS ma'lumot yo'q",
+            "no_window": "Vaqt aniqlanmadi",
+            "time_from_status": "Vaqt qo'lda belgilangan",
+            "no_zone": "Joylashuv geozonasi yo'q",
+            "gps_gap": "GPS uzilgan",
+            "overlap": "Boshqa reys bilan ustma-ust",
+            "too_short": "Juda qisqa",
+            "same_point": "Yuklash va tushirish joyi bir xil",
+            "fuel_km_from_gps": "Yoqilg'i masofasi GPS bo'yicha hisoblangan"
         }
     }
 }

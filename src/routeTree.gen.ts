@@ -34,6 +34,7 @@ const MainTexnikCheckIndexLazyRouteImport = createFileRoute(
 const MainMonitoringIndexLazyRouteImport =
   createFileRoute('/_main/monitoring/')()
 const MainMoliyaIndexLazyRouteImport = createFileRoute('/_main/moliya/')()
+const MainRouteNormsIndexLazyRouteImport = createFileRoute('/_main/route-norms/')()
 const MainKassaIndexLazyRouteImport = createFileRoute('/_main/kassa/')()
 const MainHaydovchilarIndexLazyRouteImport = createFileRoute(
   '/_main/haydovchilar/',
@@ -167,6 +168,13 @@ const MainMoliyaIndexLazyRoute = MainMoliyaIndexLazyRouteImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/moliya/index.lazy').then((d) => d.Route),
+)
+const MainRouteNormsIndexLazyRoute = MainRouteNormsIndexLazyRouteImport.update({
+  id: '/route-norms/',
+  path: '/route-norms/',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/route-norms/index.lazy').then((d) => d.Route),
 )
 const MainKassaIndexLazyRoute = MainKassaIndexLazyRouteImport.update({
   id: '/kassa/',
@@ -511,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/kassa/': typeof MainKassaIndexLazyRoute
   '/moliya/': typeof MainMoliyaIndexLazyRoute
+  '/route-norms/': typeof MainRouteNormsIndexLazyRoute
   '/monitoring/': typeof MainMonitoringIndexLazyRoute
   '/texnik-check/': typeof MainTexnikCheckIndexLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
@@ -559,6 +568,7 @@ export interface FileRoutesByTo {
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/kassa': typeof MainKassaIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
+  '/route-norms': typeof MainRouteNormsIndexLazyRoute
   '/monitoring': typeof MainMonitoringIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
@@ -611,6 +621,7 @@ export interface FileRoutesById {
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/_main/kassa/': typeof MainKassaIndexLazyRoute
   '/_main/moliya/': typeof MainMoliyaIndexLazyRoute
+  '/_main/route-norms/': typeof MainRouteNormsIndexLazyRoute
   '/_main/monitoring/': typeof MainMonitoringIndexLazyRoute
   '/_main/texnik-check/': typeof MainTexnikCheckIndexLazyRoute
   '/_main/_managers/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
@@ -662,6 +673,7 @@ export interface FileRouteTypes {
     | '/haydovchilar/'
     | '/kassa/'
     | '/moliya/'
+    | '/route-norms/'
     | '/monitoring/'
     | '/texnik-check/'
     | '/manager-trips/$id'
@@ -710,6 +722,7 @@ export interface FileRouteTypes {
     | '/haydovchilar'
     | '/kassa'
     | '/moliya'
+    | '/route-norms'
     | '/monitoring'
     | '/texnik-check'
     | '/manager-trips/$id'
@@ -761,6 +774,7 @@ export interface FileRouteTypes {
     | '/_main/haydovchilar/'
     | '/_main/kassa/'
     | '/_main/moliya/'
+    | '/_main/route-norms/'
     | '/_main/monitoring/'
     | '/_main/texnik-check/'
     | '/_main/_managers/manager-trips/$id'
@@ -861,6 +875,13 @@ declare module '@tanstack/react-router' {
       path: '/moliya'
       fullPath: '/moliya/'
       preLoaderRoute: typeof MainMoliyaIndexLazyRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/route-norms/': {
+      id: '/_main/route-norms/'
+      path: '/route-norms'
+      fullPath: '/route-norms/'
+      preLoaderRoute: typeof MainRouteNormsIndexLazyRouteImport
       parentRoute: typeof MainRoute
     }
     '/_main/kassa/': {
@@ -1186,6 +1207,7 @@ interface MainRouteChildren {
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
   MainKassaIndexLazyRoute: typeof MainKassaIndexLazyRoute
   MainMoliyaIndexLazyRoute: typeof MainMoliyaIndexLazyRoute
+  MainRouteNormsIndexLazyRoute: typeof MainRouteNormsIndexLazyRoute
   MainMonitoringIndexLazyRoute: typeof MainMonitoringIndexLazyRoute
   MainTexnikCheckIndexLazyRoute: typeof MainTexnikCheckIndexLazyRoute
   MainManagersManagerTripsIdRoute: typeof MainManagersManagerTripsIdRoute
@@ -1233,6 +1255,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
   MainKassaIndexLazyRoute: MainKassaIndexLazyRoute,
   MainMoliyaIndexLazyRoute: MainMoliyaIndexLazyRoute,
+  MainRouteNormsIndexLazyRoute: MainRouteNormsIndexLazyRoute,
   MainMonitoringIndexLazyRoute: MainMonitoringIndexLazyRoute,
   MainTexnikCheckIndexLazyRoute: MainTexnikCheckIndexLazyRoute,
   MainManagersManagerTripsIdRoute: MainManagersManagerTripsIdRoute,

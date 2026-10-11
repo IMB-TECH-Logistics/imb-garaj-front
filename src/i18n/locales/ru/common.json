@@ -26,7 +26,8 @@
         "expense_types": "Виды приходов и расходов",
         "monthly_rates": "Ежемес. тарифы",
         "activity_log": "Журнал активности",
-        "distributors": "Дистрибьюторы"
+        "distributors": "Дистрибьюторы",
+        "route_norms": "Нормы маршрутов"
     },
     "actions": {
         "reverse_salary": "Сторнировать",
@@ -998,6 +999,80 @@
             "expired_count": "{{count}} просрочено",
             "soon_count": "{{count}} скоро истекает",
             "no_expenses": "За этот период расходов нет"
+        }
+    },
+    "route_norms": {
+        "few_data": "мало данных",
+        "error": "Не удалось загрузить данные. Повторите попытку позже.",
+        "excel_name": "Нормы маршрутов",
+        "per_100km": "100 км",
+        "stops_detail": "{{count}} раз, самая долгая {{longest}}",
+        "fuel_pending": "оборот не закрыт",
+        "fuel_check": "проверить",
+        "units": {
+            "km": "км",
+            "day": "дн",
+            "hour": "ч",
+            "minute": "мин",
+            "liter": "л",
+            "m3": "м³"
+        },
+        "fuel_types": {
+            "diesel": "Дизель",
+            "methane": "Метан"
+        },
+        "cols": {
+            "load_point": "Место погрузки",
+            "unload_point": "Место разгрузки",
+            "trips": "Рейсы",
+            "drivers": "Водители",
+            "distance": "Расстояние",
+            "total_time": "Время в пути",
+            "moving": "В движении",
+            "stopped": "Стоянки",
+            "fuel_per_100km": "Топливо (на 100 км)",
+            "fuel_per_trip": "Топливо (на рейс)",
+            "date": "Дата",
+            "driver": "Водитель",
+            "vehicle": "Машина",
+            "load_time": "На погрузке",
+            "unload_time": "На разгрузке",
+            "fuel": "Топливо",
+            "status": "Статус"
+        },
+        "filters": {
+            "fuel_type": "Вид топлива",
+            "vehicle": "Машина",
+            "driver": "Водитель",
+            "search": "Название места"
+        },
+        "summary": {
+            "total": "За период {{count}} рейсов",
+            "in_norm": "{{count}} вошли в норму",
+            "not_in_norm": "{{count}} не вошли",
+            "reasons": "Причины, почему рейсы не вошли в норму",
+            "pending": "{{count}} рейсов ещё не рассчитано",
+            "last_computed": "Последний расчёт: {{date}}",
+            "no_data": "Данные ещё не собраны",
+            "error": "Не удалось загрузить сводку."
+        },
+        "sheet": {
+            "title": "Рейсы маршрута",
+            "tab_in": "Вошли в норму",
+            "tab_out": "Не вошли",
+            "tab_all": "Все"
+        },
+        "issues": {
+            "no_gps_device": "GPS-устройство не подключено",
+            "no_gps_points": "Нет данных GPS",
+            "no_window": "Время не определено",
+            "time_from_status": "Время задано вручную",
+            "no_zone": "Нет геозоны места",
+            "gps_gap": "Обрыв GPS",
+            "overlap": "Пересекается с другим рейсом",
+            "too_short": "Слишком короткий",
+            "same_point": "Места погрузки и разгрузки совпадают",
+            "fuel_km_from_gps": "Расстояние для топлива рассчитано по GPS"
         }
     }
 }

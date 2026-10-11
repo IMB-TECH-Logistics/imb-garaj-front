@@ -26,7 +26,8 @@
         "expense_types": "収支タイプ",
         "monthly_rates": "月額料金",
         "activity_log": "活動ログ",
-        "distributors": "ディストリビューター"
+        "distributors": "ディストリビューター",
+        "route_norms": "ルート基準値"
     },
     "actions": {
         "reverse_salary": "取り消す",
@@ -989,6 +990,80 @@
             "expired_count": "{{count}}件 期限切れ",
             "soon_count": "{{count}}件 期限間近",
             "no_expenses": "この期間の費用はありません"
+        }
+    },
+    "route_norms": {
+        "few_data": "データ少",
+        "error": "データを読み込めませんでした。後でもう一度お試しください。",
+        "excel_name": "ルート基準値",
+        "per_100km": "100 km",
+        "stops_detail": "{{count}}回、最長 {{longest}}",
+        "fuel_pending": "運行未完了",
+        "fuel_check": "要確認",
+        "units": {
+            "km": "km",
+            "day": "日",
+            "hour": "時間",
+            "minute": "分",
+            "liter": "L",
+            "m3": "m³"
+        },
+        "fuel_types": {
+            "diesel": "ディーゼル",
+            "methane": "メタン"
+        },
+        "cols": {
+            "load_point": "積込地",
+            "unload_point": "荷下ろし地",
+            "trips": "便数",
+            "drivers": "運転手数",
+            "distance": "距離",
+            "total_time": "走行時間",
+            "moving": "移動中",
+            "stopped": "停車中",
+            "fuel_per_100km": "燃料(100 kmあたり)",
+            "fuel_per_trip": "燃料(1便あたり)",
+            "date": "日付",
+            "driver": "運転手",
+            "vehicle": "車両",
+            "load_time": "積込",
+            "unload_time": "荷下ろし",
+            "fuel": "燃料",
+            "status": "状態"
+        },
+        "filters": {
+            "fuel_type": "燃料の種類",
+            "vehicle": "車両",
+            "driver": "運転手",
+            "search": "場所名"
+        },
+        "summary": {
+            "total": "期間内 {{count}} 便",
+            "in_norm": "{{count}} 便が基準値に反映",
+            "not_in_norm": "{{count}} 便が対象外",
+            "reasons": "基準値に含まれない理由",
+            "pending": "{{count}} 便は未計算",
+            "last_computed": "最終計算: {{date}}",
+            "no_data": "まだデータが集計されていません",
+            "error": "概要を読み込めませんでした。"
+        },
+        "sheet": {
+            "title": "ルートの便",
+            "tab_in": "基準値に反映",
+            "tab_out": "対象外",
+            "tab_all": "すべて"
+        },
+        "issues": {
+            "no_gps_device": "GPS端末が未接続",
+            "no_gps_points": "GPSデータなし",
+            "no_window": "時間を特定できません",
+            "time_from_status": "時間が手動設定",
+            "no_zone": "場所のジオゾーンなし",
+            "gps_gap": "GPS途切れ",
+            "overlap": "他の便と重複",
+            "too_short": "短すぎる",
+            "same_point": "積込地と荷下ろし地が同じ",
+            "fuel_km_from_gps": "燃料の距離をGPSから算出"
         }
     }
 }
