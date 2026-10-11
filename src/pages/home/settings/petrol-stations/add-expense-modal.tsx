@@ -61,8 +61,6 @@ type FormValues = {
     other_vehicle: number | ""
     amount: string | number | ""
     quantity: string | number | ""
-    currency: 1 | 2
-    currency_course: string | number | ""
     comment: string
     trip: number | ""
     order: number | ""
@@ -86,8 +84,6 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             other_vehicle: last?.other_vehicle ?? "",
             amount: "",
             quantity: "",
-            currency: 1,
-            currency_course: "",
             comment: "",
             trip: "",
             order: "",
@@ -96,7 +92,6 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
         },
     })
     const { control, handleSubmit, watch, reset, setValue } = form
-    const currency = watch("currency")
     const vehicleId = watch("vehicle")
     const tripId = watch("trip")
 
@@ -227,8 +222,6 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 other_vehicle: current.other_vehicle,
                 amount: "",
                 quantity: "",
-                currency: 1,
-                currency_course: "",
                 comment: "",
                 trip: "",
                 order: "",
@@ -250,11 +243,6 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                 : { vehicle: values.vehicle }),
             amount: Number(values.amount),
             quantity: Number(values.quantity),
-            currency: values.currency,
-            currency_course:
-                values.currency === 2 && values.currency_course !== ""
-                    ? Number(values.currency_course)
-                    : null,
             comment: values.comment || null,
             trip: isOther ? null : values.trip || null,
             order: isOther ? null : values.order || null,
