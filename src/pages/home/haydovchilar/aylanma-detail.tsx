@@ -21,7 +21,6 @@ type OrderRow = {
     date: string
     status: number
     payment_amount_uzs: string | number
-    payment_amount_usd: string | number
     salary_paid_uzs: string | number
     salary_given: boolean
     salary_tariff_uzs: string | number | null
