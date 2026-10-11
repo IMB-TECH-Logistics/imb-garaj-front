@@ -41,6 +41,7 @@ type Direction = {
     distributor_code?: string | null
     distributor_district?: string | null
     price: string | null
+    currency?: number
     valid_from: string | null
     current_price?: DirectionPrice | null
     prices?: DirectionPrice[]
@@ -158,7 +159,11 @@ const AddRouteConfigModal = () => {
 
     const onSubmit = (values: Direction) => {
         if (current?.id) {
-            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, values)
+            // Yo'nalish narxi faqat so'mda: eski USD (currency=2) yo'nalish ham so'mga o'tkaziladi
+            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, {
+                ...values,
+                currency: 1,
+            })
         } else {
             postMutate(`${COMMON_DIRECTIONS}/create`, values)
         }
