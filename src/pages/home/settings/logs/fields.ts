@@ -365,6 +365,12 @@ const FIELD_LABELS: Record<string, string> = {
 
 const ID_SUFFIX_RE = /_id$/
 
+// USD olib tashlangan: valyuta maydonlari tafsilotda ko'rsatilmaydi (eski log kalitlari saqlanadi)
+const HIDDEN_FIELDS = new Set(["currency", "currency_course"])
+
+export const isHiddenField = (field: string): boolean =>
+    HIDDEN_FIELDS.has(field.toString().trim().toLowerCase())
+
 const titleCase = (s: string) =>
     s
         .split("_")
