@@ -36,7 +36,6 @@ type Direction = {
     unload_place?: string | null
     cargo_type: number | null
     payment_type: number | null
-    currency: number | null
     distributor_id: number | null
     distributor_name?: string | null
     distributor_code?: string | null
@@ -91,7 +90,6 @@ const AddRouteConfigModal = () => {
             unload_place: current?.unload_place ?? "",
             cargo_type: current?.cargo_type ?? null,
             payment_type: current?.payment_type ?? null,
-            currency: 1,
             distributor_id: current?.distributor_id ?? null,
             price:
                 current?.current_price?.price != null
@@ -160,9 +158,7 @@ const AddRouteConfigModal = () => {
 
     const onSubmit = (values: Direction) => {
         if (current?.id) {
-            // Yo'nalish narxi faqat so'mda: tahrirda valyuta yuborilmaydi (mavjud qiymat o'zgarmaydi).
-            const { currency: _currency, ...rest } = values
-            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, rest)
+            updateMutate(`${COMMON_DIRECTIONS}/${current.id}/update`, values)
         } else {
             postMutate(`${COMMON_DIRECTIONS}/create`, values)
         }

@@ -38,7 +38,6 @@ type Direction = {
     cargo_type: number
     cargo_type_name: string
     payment_type: number
-    currency: 1 | 2
     current_price: DirectionPrice | null
     no_price?: boolean
     prices?: DirectionPrice[]
@@ -125,7 +124,6 @@ const RouteConfigsPage = () => {
                 cargo_type_name: d.cargo_type_name ?? String(d.cargo_type),
                 payment_type_name:
                     paymentMap[d.payment_type] ?? String(d.payment_type),
-                currency: d.currency,
                 current_price: d.current_price,
                 no_price: d.no_price,
                 prices: d.prices,
