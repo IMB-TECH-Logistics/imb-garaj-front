@@ -1,4 +1,3 @@
-import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import FormTextarea from "@/components/form/textarea"
 import { FormNumberInput } from "@/components/form/number-input"
@@ -13,8 +12,6 @@ import { useTranslation } from "react-i18next"
 
 type FormValues = {
     amount: string | number | ""
-    currency: 1 | 2
-    currency_course: string | number | ""
     comment: string
     paid_at: string | null
 }
@@ -28,14 +25,11 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
     const form = useForm<FormValues>({
         defaultValues: {
             amount: "",
-            currency: 1,
-            currency_course: "",
             comment: "",
             paid_at: null,
         },
     })
-    const { control, handleSubmit, watch, reset } = form
-    const currency = watch("currency")
+    const { control, handleSubmit, reset } = form
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
@@ -53,11 +47,6 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
     const onSubmit = (values: FormValues) => {
         mutate(`${SETTINGS_PETROL_STATIONS}/${stationId}/top-up`, {
             amount: Number(values.amount),
-            currency: values.currency,
-            currency_course:
-                values.currency === 2 && values.currency_course !== ""
-                    ? Number(values.currency_course)
-                    : null,
             comment: values.comment || null,
             paid_at: values.paid_at ? new Date(values.paid_at).toISOString() : null,
         })
