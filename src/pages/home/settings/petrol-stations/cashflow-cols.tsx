@@ -8,8 +8,6 @@ export type StationCashFlowRow = {
     id: number
     action: number
     amount: string | number
-    currency: number
-    currency_course: string | number | null
     comment: string | null
     petrol_station: number
     petrol_station_name: string | null
@@ -23,11 +21,6 @@ export type StationCashFlowRow = {
     unit: "liter" | "m3" | null
     running_balance: number | null
     created: string
-}
-
-const CURRENCY_LABEL: Record<number, string> = {
-    1: "UZS",
-    2: "USD",
 }
 
 // `unit` — "liter" yoki "m3" (yoki null, kirim yozuvlarida yoki mashina/FuelLog
@@ -57,12 +50,9 @@ export const formatQuantity = (
     return `${formatted}${label ? ` ${label}` : ""}`
 }
 
-export const getAmountInUzs = (row: StationCashFlowRow) => {
-    const amount = Number(row.amount ?? 0)
-    return row.currency === 2 ?
-            amount * Number(row.currency_course ?? 0)
-        :   amount
-}
+// Backend javobdagi summa doim so'mda.
+export const getAmountInUzs = (row: StationCashFlowRow) =>
+    Number(row.amount ?? 0)
 
 
 const COLUMN_ORDER = [
@@ -161,8 +151,6 @@ export const useStationCashFlowColumns = () => {
                 meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => {
                     const isIncome = row.original.action === 1
-                    const amount = Number(row.original.amount ?? 0)
-                    const currency = row.original.currency
                     const inUzs = getAmountInUzs(row.original)
                     return (
                         <div className="flex flex-col items-start">
@@ -176,17 +164,6 @@ export const useStationCashFlowColumns = () => {
                                 {isIncome ? "+" : "−"}
                                 {formatMoney(inUzs)}
                             </span>
-                            {currency === 2 && (
-                                <span className="text-[11px] text-muted-foreground tabular-nums">
-                                    {formatMoney(amount)}{" "}
-                                    {CURRENCY_LABEL[currency]} ×{" "}
-                                    {formatMoney(
-                                        Number(
-                                            row.original.currency_course ?? 0,
-                                        ),
-                                    )}
-                                </span>
-                            )}
                         </div>
                     )
                 },

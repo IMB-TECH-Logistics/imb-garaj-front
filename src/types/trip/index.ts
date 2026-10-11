@@ -89,26 +89,20 @@ type TripOrdersRow = {
     date: string | number
     client: string
     payment_type: string | number
-    currency: number | number
-    currency_course: number | string
     amount: number | string
     type: number | string
     payment_amount_uzs: string
-    payment_amount_usd: string
     status:number
     activity: number
     activity_display: string
+    external_id?: string | null
     incomes?: {
         id?: number
         payment_type: number | null
-        currency: number | null
-        currency_course: number | string | null
         amount: number | string | null
     }[]
     payments: [
         {
-            currency: number | null
-            currency_course: string | null
             amount: string | null
             payment_type: number | null
         },
@@ -142,21 +136,10 @@ type ExpenseCategory = {
 type OrderPaymentType = {
     id: number
     payment_type_name: string
-    currency: number
-    currency_course: string
     amount: string
-    currency_amount: number
     order: number
     payment_type: number
 }
-
-//   "currency": 1,
-//   "currency_course": "-7354.24",
-//   "amount": "-284127952717280608.1",
-//   "currency_amount": "1844",
-//   "order": 0,
-//   "payment_type": 0
-// }
 
 type TruckInfo = {
     driver_name: string

@@ -10,6 +10,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams, useSearch } from "@tanstack/react-router"
@@ -18,10 +19,7 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
 interface CashflowForm {
-    currency: number
-    currency_course: string
     amount: string
-    currency_amount: string
     order: number|string
     payment_type: number
 }
@@ -51,8 +49,7 @@ const AddPayment = () => {
         },
     })
 
-    const { handleSubmit, control, reset, watch } = form
-    const selectedCurrency = watch("currency")
+    const { handleSubmit, control, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -66,15 +63,26 @@ const AddPayment = () => {
         })
     }
 
-    const { mutate: create, isPending: creating } = usePost({ onSuccess })
-    const { mutate: update, isPending: updating } = usePatch({ onSuccess })
+    // `trips/order-payments/` backendda mavjud emas (404, Django HTML sahifasi) — xom HTML o'rniga tushunarli xabar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onError = (err: any) => {
+        if (err?.response?.status === 404) {
+            toast.error(t("messages.payment_unavailable"), { id: "order-payment-unavailable", duration: 6000 })
+            return
+        }
+        handleFormError(err, form)
+    }
+
+    const { mutate: create, isPending: creating } = usePost({ onSuccess, onError })
+    const { mutate: update, isPending: updating } = usePatch({ onSuccess, onError })
 
     const onSubmit = (data: CashflowForm) => {
         if (!childId) return
 
         const payload = {
-            ...data,
-            order:childId,
+            amount: data.amount,
+            payment_type: data.payment_type,
+            order: childId,
         }
 
         if (currentCashflow?.id) {
@@ -109,43 +117,9 @@ const AddPayment = () => {
                         placeholder="0 UZS"
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        required
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        control={control}
-                        options={[
-                            { value: 1, label: "UZS - So'm" },
-                            { value: 2, label: "USD - AQSh dollari" },
-                        ]}
-                        valueKey="value"
-                        labelKey="label"
-                        placeholder={t("form.select_currency")}
-                    />
-                </div>
             </div>
-            {selectedCurrency === 2 && (
-                <FormNumberInput
-                    required
-                    thousandSeparator=" "
-                    name="currency_course"
-                    label={t("form.currency_rate")}
-                    placeholder="12 206 UZS"
-                    control={control}
-                />
-            )}
 
-            {/* Row 3 - These stay fixed in position */}
-            <FormNumberInput
-                required
-                name="currency_amount"
-                label={t("form.currency_amount")}
-                thousandSeparator=" "
-                control={control}
-            />
-
+            {/* Row 3 */}
             <FormCombobox
                 required
                 label={t("form.payment_type")}

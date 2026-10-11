@@ -33,7 +33,6 @@ import {
     useKassaDelete,
     useKassaPatch,
     useKassaPost,
-    useOverview,
     VEHICLES_LIST,
     WAREHOUSES,
 } from "./api"
@@ -99,21 +98,17 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
 
 export const DeleteIncomeModal = ({ row }: { row: KassaTx | null }) => {
     const { closeModal } = useModal(M.deleteIncome)
-    const { data: ov } = useOverview()
     const del = useKassaDelete(closeModal)
     if (!row) return null
-    const short = n(ov?.balance) < n(row.amount)
     return (
         <div className="flex flex-col gap-4">
             <p className="text-sm">
                 <b>{money(row.amount)} so'm</b> kirim ({fmtDate(row.created)}) o'chiriladi. Kassa qoldig'i shu summaga kamayadi.
             </p>
-            {short && <p className="text-sm text-destructive">Kassada bu summa yo'q — o'chirib bo'lmaydi. Avval kassani to'ldiring.</p>}
             <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={closeModal}>Bekor qilish</Button>
                 <Button
                     variant="destructive"
-                    disabled={short}
                     loading={del.isPending}
                     onClick={() => del.mutate(`${KV2_INCOME}/${row.id}`, { onSuccess: () => toast.success("Kirim o'chirildi"), onError: onErr })}
                 >
@@ -126,12 +121,10 @@ export const DeleteIncomeModal = ({ row }: { row: KassaTx | null }) => {
 
 export const ReverseModal = ({ row }: { row: KassaTx | null }) => {
     const { closeModal, isOpen } = useModal(M.reverse)
-    const { data: ov } = useOverview()
     const post = useKassaPost(closeModal)
     const form = useForm<{ comment: string }>({ defaultValues: { comment: "" } })
     useEffect(() => { if (!isOpen) form.reset({ comment: "" }) }, [isOpen, form])
     if (!row) return null
-    const short = row.dir === "in" && n(ov?.balance) < n(row.amount)
     return (
         <form
             className="flex flex-col gap-3"
@@ -150,10 +143,9 @@ export const ReverseModal = ({ row }: { row: KassaTx | null }) => {
                 Yozuv o'chirilmaydi. Teskari yozuv qo'shiladi: kassa {row.dir === "in" ? "kamayadi" : "ko'payadi"}
                 {row.driver ? ", haydovchi balansi ham qaytariladi" : ""}.
             </p>
-            {short && <p className="text-sm text-destructive">Kassada yetarli pul yo'q — bekor qilib bo'lmaydi.</p>}
             <FormTextarea required label="Sabab" name="comment" methods={form} />
             <div className="flex justify-end">
-                <Button variant="destructive" className="min-w-32" type="submit" disabled={short} loading={post.isPending}>Bekor qilish</Button>
+                <Button variant="destructive" className="min-w-32" type="submit" loading={post.isPending}>Bekor qilish</Button>
             </div>
         </form>
     )

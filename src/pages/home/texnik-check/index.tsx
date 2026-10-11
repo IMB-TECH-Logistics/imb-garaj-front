@@ -11,6 +11,7 @@ import {
     TECHNICAL_INSPECT,
     SETTINGS_EXPENSES,
 } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
@@ -104,6 +105,8 @@ const Inspections = () => {
     }
 
     const { t } = useTranslation()
+    // Yozish (POST/PATCH/DELETE) backendda manager_tech_check_control talab qiladi
+    const canControl = useHasAction("manager_tech_check_control")
     return (
         <div className="space-y-3">
             <DataTable
@@ -115,6 +118,7 @@ const Inspections = () => {
                 onRowClick={setDetail}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                actionPermissions={["manager_tech_check_control"]}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -149,10 +153,12 @@ const Inspections = () => {
                                     className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
                                 }}
                             />}
-                            <Button onClick={handleAdd}>
-                                <Plus size={16} />
-                                {t("actions.add")}
-                            </Button>
+                            {canControl && (
+                                <Button onClick={handleAdd}>
+                                    <Plus size={16} />
+                                    {t("actions.add")}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 }
@@ -169,7 +175,7 @@ const Inspections = () => {
             <ExpenseDetailSheet
                 row={detail}
                 onClose={() => setDetail(null)}
-                onEdit={handleDetailEdit}
+                onEdit={canControl ? handleDetailEdit : undefined}
             />
 
             <DeleteModal path={TECHNICAL_INSPECT} id={current?.id} />

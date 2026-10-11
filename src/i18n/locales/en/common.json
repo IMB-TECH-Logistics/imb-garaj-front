@@ -93,7 +93,9 @@
         "server_error": "Action failed — a server error occurred. Please try again later. ({{status}})",
         "request_timeout": "The request did not receive a response in time. Please try again.",
         "load_error": "Could not load data — a server error occurred. Figures shown may be incomplete; please refresh later. ({{status}})",
-        "not_loaded": "Not loaded"
+        "not_loaded": "Not loaded",
+        "payment_unavailable": "The payment could not be saved — this action is not available on the server (endpoint not found). Please contact the administrator.",
+        "session_expired": "Your session has expired. Please sign in again."
     },
     "lang": {
         "uz": "O'zbek",

@@ -21,7 +21,6 @@ type OrderRow = {
     date: string
     status: number
     payment_amount_uzs: string | number
-    payment_amount_usd: string | number
     salary_paid_uzs: string | number
     salary_given: boolean
     salary_tariff_uzs: string | number | null
@@ -170,8 +169,9 @@ export default function AylanmaDetail() {
 
 
     const ordersUrl = `${DRIVERS_OVERVIEW}/${id}/trips/${tripId}/orders`
-    const { data: rawOrders, isLoading } = useGet<OrderRow[]>(ordersUrl, {
+    const { data: rawOrders, isLoading, isError } = useGet<OrderRow[]>(ordersUrl, {
         enabled: !!tripId,
+        options: { retry: false },
     })
 
     const orders = useMemo(() => {
@@ -193,6 +193,19 @@ export default function AylanmaDetail() {
         search?.start || search?.end
             ? `${formatDate(search?.start)} → ${formatDate(search?.end)}`
             : null
+
+    // Profil sahifasi (detail.tsx) naqshi: xato/404 da «Ma'lumot topilmadi» va ro'yxatga qaytish
+    if (isError) {
+        return (
+            <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
+                <p className="text-lg font-medium">{t("page.not_found")}</p>
+                <Button onClick={() => navigate({ to: "/haydovchilar/$id", params: { id: String(id) } })}>
+                    <ArrowLeft size={16} className="mr-2" />
+                    {t("page.back_to_list")}
+                </Button>
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-4 pb-6">

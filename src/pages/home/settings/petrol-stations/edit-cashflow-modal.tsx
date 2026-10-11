@@ -1,4 +1,3 @@
-import { FormCombobox } from "@/components/form/combobox"
 import FormTextarea from "@/components/form/textarea"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
@@ -18,8 +17,6 @@ const STORE_KEY = "petrol-cash-flow"
 type FormValues = {
     amount: string | number | ""
     quantity: string | number | ""
-    currency: 1 | 2
-    currency_course: string | number | ""
     comment: string
 }
 
@@ -48,21 +45,16 @@ const EditCashFlowModal = () => {
         defaultValues: {
             amount: current?.amount ?? "",
             quantity: current?.liters ?? "",
-            currency: (current?.currency as 1 | 2) ?? 1,
-            currency_course: current?.currency_course ?? "",
             comment: current?.comment ?? "",
         },
     })
-    const { control, handleSubmit, reset, watch } = form
-    const currency = watch("currency")
+    const { control, handleSubmit, reset } = form
 
     useEffect(() => {
         if (!current?.id) return
         reset({
             amount: current.amount ?? "",
             quantity: current.liters ?? "",
-            currency: (current.currency as 1 | 2) ?? 1,
-            currency_course: current.currency_course ?? "",
             comment: current.comment ?? "",
         })
     }, [current?.id, reset])
@@ -85,11 +77,6 @@ const EditCashFlowModal = () => {
         mutate(`${SETTINGS_PETROL_STATIONS}/cash-flows/${current.id}`, {
             amount: Number(values.amount),
             ...(values.quantity !== "" && { quantity: Number(values.quantity) }),
-            currency: values.currency,
-            currency_course:
-                values.currency === 2 && values.currency_course !== ""
-                    ? Number(values.currency_course)
-                    : null,
             comment: values.comment || null,
         })
     }
@@ -105,7 +92,7 @@ const EditCashFlowModal = () => {
                         name="amount"
                         placeholder="Ex: 1 000 000"
                         thousandSeparator=" "
-                        decimalScale={currency === 2 ? 2 : 0}
+                        decimalScale={2}
                     />
                 </div>
             </div>

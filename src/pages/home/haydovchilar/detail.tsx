@@ -34,7 +34,6 @@ type DriverOverview = {
     completed_orders: number
     total_orders: number
     revenue_uzs: string | number
-    revenue_usd: string | number
     salary_paid_uzs: string | number
     computed_balance_uzs: string | number
     price_diff_uzs?: string | number
@@ -54,7 +53,6 @@ type DriverOverview = {
         end: string | null
         vehicle_plate: string | null
         income_uzs: string | number
-        income_usd: string | number
         expense_uzs: string | number
         orders_count: number
     }
@@ -71,7 +69,6 @@ type DriverTripRow = {
     end_mileage: number
     orders_count: number
     income_uzs: string | number
-    income_usd: string | number
     expense_uzs: string | number
     driver_earnings: string | number
     salary_unpaid_uzs?: string | number

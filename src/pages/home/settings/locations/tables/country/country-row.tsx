@@ -105,6 +105,7 @@ export const CountryRowTable = ({
                                     variant="ghost"
                                     size="sm"
                                     className="h-8 w-8 p-0"
+                                    aria-label={t("actions.more")}
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     <MoreVertical className="h-4 w-4" />
@@ -132,6 +133,8 @@ export const CountryRowTable = ({
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0"
+                        aria-label={t("actions.view")}
+                        aria-expanded={country == String(countries.id)}
                         onClick={handleChevronClick}
                     >
                         <ChevronDown

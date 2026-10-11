@@ -93,7 +93,6 @@ type Direction = {
     cargo_type: number
     cargo_type_name: string
     payment_type: number
-    currency: 1 | 2
     amount: string | null
     load_place_display?: string | null
     unload_place_display?: string | null
@@ -149,8 +148,6 @@ const AddTripOrders = () => {
                 currentTripOrder?.incomes?.length
                     ? currentTripOrder.incomes.map((p) => ({
                         payment_type: p.payment_type,
-                        currency: p.currency ?? 1,
-                        currency_course: p.currency_course,
                         amount: p.amount,
                     }))
                     : [
@@ -218,7 +215,7 @@ const AddTripOrders = () => {
     )
 
     const isNaqd = !!watch("is_naqd")
-    const incomes = watch("incomes") as { payment_type: number | null; currency?: number; amount: string }[]
+    const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
     const selectedPaymentTypeIds = useMemo(
         () => new Set((incomes ?? []).map((inc) => inc.payment_type).filter(Boolean)),
         [incomes],
@@ -372,6 +369,16 @@ const AddTripOrders = () => {
     }, [unloadingValue, setValue])
 
     const isDraft = currentTripOrder?.status === -1
+    // S-06-03: integratsiyadan (logistikadan) kelgan buyurtma ma'lumotlari tahrirlanmaydi.
+    const externalId = String(currentTripOrder?.external_id ?? "").trim()
+    const isLogisticsOrder =
+        !!currentTripOrder?.id && !!externalId && !externalId.startsWith("garaj:")
+    const logisticsLocked = (
+        field: "loading" | "unloading" | "date" | "client" | "cargo_type",
+    ) => {
+        const value = currentTripOrder?.[field]
+        return isLogisticsOrder && value != null && value !== ""
+    }
 
     const finalize = (approved: boolean) => {
         toast.success(
@@ -434,14 +441,13 @@ const AddTripOrders = () => {
             const incomes = isNaqdSel
                 ? (data.incomes ?? []).map((inc: any) => ({
                     payment_type: inc.payment_type,
-                    currency: inc.currency ?? 1,
-                    currency_course: inc.currency === 2 ? inc.currency_course : null,
+                    currency: 1,
                     amount: String(inc.amount ?? "0"),
                 }))
                 : [
                     {
                         payment_type: matchedDirection!.payment_type,
-                        currency: matchedDirection!.currency,
+                        currency: 1,
                         amount:
                             matchedDirection!.amount != null
                                 ? String(matchedDirection!.amount)
@@ -453,7 +459,8 @@ const AddTripOrders = () => {
 
             formData.append("loading", data.loading)
             formData.append("unloading", data.unloading)
-            formData.append("type", isEmpty ? "2" : "1")
+            // S-06-03: integratsiya buyurtmasining turi (yukli/yuksiz) qulf — yuborilmaydi.
+            if (!isLogisticsOrder) formData.append("type", isEmpty ? "2" : "1")
             formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
             if (!isNaqdSel && data.client) {
                 formData.append("client", String(data.client))
@@ -461,7 +468,9 @@ const AddTripOrders = () => {
             if (!isNaqdSel && matchedDirection) {
                 formData.append("direction", String(matchedDirection.id))
             }
-            if (isNaqdSel || !currentTripOrder?.manual_income) {
+            // Yo'nalish narxi yo'q bo'lsa kirim yuborilmaydi (0 so'mlik kirim taqiqlangan).
+            const hasIncomeAmount = isNaqdSel || Number(matchedDirection?.amount) > 0
+            if (hasIncomeAmount && (isNaqdSel || !currentTripOrder?.manual_income)) {
                 formData.append("incomes", JSON.stringify(incomes))
             }
         } else if (isCityOnlySel) {
@@ -551,7 +560,14 @@ const AddTripOrders = () => {
                             valueKey="id"
                             labelKey="name"
                             placeholder={t("table.status")}
+                            addButtonProps={{ disabled: isLogisticsOrder }}
                         />
+                        {isLogisticsOrder && (
+                            <p className="text-xs text-muted-foreground">
+                                Integratsiyadan kelgan buyurtma: buyurtma
+                                ma'lumotlari tahrirlanmaydi.
+                            </p>
+                        )}
 
                         {isReysActivity && (
                             <>
@@ -577,6 +593,9 @@ const AddTripOrders = () => {
                                         valueKey="id"
                                         labelKey="name"
                                         placeholder={t("form.cargo_owner")}
+                                        addButtonProps={{
+                                            disabled: logisticsLocked("client"),
+                                        }}
                                     />
                                 )}
 
@@ -607,7 +626,9 @@ const AddTripOrders = () => {
                                                 labelKey="name"
                                                 placeholder={t("form.loading_location")}
                                                 addButtonProps={{
-                                                    disabled: !isNaqd && !watch("client"),
+                                                    disabled:
+                                                        logisticsLocked("loading") ||
+                                                        (!isNaqd && !watch("client")),
                                                 }}
                                             />
                                             <FormCombobox
@@ -619,7 +640,11 @@ const AddTripOrders = () => {
                                                 valueKey="id"
                                                 labelKey="name"
                                                 placeholder={t("form.unloading_location")}
-                                                addButtonProps={{ disabled: !loadingValue }}
+                                                addButtonProps={{
+                                                    disabled:
+                                                        logisticsLocked("unloading") ||
+                                                        !loadingValue,
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -666,7 +691,10 @@ const AddTripOrders = () => {
                                         labelKey="name"
                                         placeholder={t("status.empty")}
                                         addButtonProps={{
-                                            disabled: !loadingValue || !unloadingValue,
+                                            disabled:
+                                                logisticsLocked("cargo_type") ||
+                                                !loadingValue ||
+                                                !unloadingValue,
                                         }}
                                     />
                                 </div>
@@ -681,6 +709,7 @@ const AddTripOrders = () => {
                                     name="date"
                                     placeholder={t("form.select_date")}
                                     className="w-full"
+                                    disabled={logisticsLocked("date")}
                                 />
                             </div>
                         </div>
@@ -710,6 +739,7 @@ const AddTripOrders = () => {
                                 valueKey="id"
                                 labelKey="name"
                                 placeholder={t("table.status")}
+                                addButtonProps={{ disabled: isLogisticsOrder }}
                             />
                         )}
                     </div>
@@ -742,27 +772,14 @@ const AddTripOrders = () => {
                                     control={control}
                                     name={`incomes.${index}.amount`}
                                     placeholder={t("form.amount")}
-                                    label={
-                                        incomes[index]?.currency === 2
-                                            ? "USD"
-                                            : index === 0
-                                              ? t("form.amount")
-                                              : undefined
-                                    }
+                                    label={index === 0 ? t("form.amount") : undefined}
                                     registerOptions={{
-                                        validate: (v) => isWithinMoneyLimit(v) || t("validation.max_amount"),
+                                        validate: (v) =>
+                                            Number(v) > 0
+                                                ? isWithinMoneyLimit(v) || t("validation.max_amount")
+                                                : t("kassa.amount_gt_zero"),
                                     }}
                                 />
-
-                                {incomes[index]?.currency === 2 && (
-                                    <FormNumberInput
-                                        required
-                                        control={control}
-                                        name={`incomes.${index}.currency_course`}
-                                        label={t("form.currency_rate")}
-                                        placeholder={t("form.currency_rate")}
-                                    />
-                                )}
 
                                 {incomeFields.length > 1 && (
                                     <Button

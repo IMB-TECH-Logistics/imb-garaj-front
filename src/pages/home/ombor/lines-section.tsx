@@ -1,19 +1,23 @@
 import { ParamCombobox } from "@/components/as-params/combobox"
+import DeleteModal from "@/components/custom/delete-modal"
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import { DataTable } from "@/components/ui/datatable"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     WAREHOUSE_PRODUCTS,
     WAREHOUSE_RECEIPT_LINES,
+    WAREHOUSE_RECEIPTS,
     WAREHOUSE_WITHDRAWAL_FILTERS,
     WAREHOUSE_WITHDRAWALS,
 } from "@/constants/api-endpoints"
-import { useWarehouseOwner } from "@/constants/useUser"
+import { useHasAction, useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
+import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { Package, X } from "lucide-react"
-import { forwardRef, useEffect, useRef } from "react"
+import { forwardRef, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useReceiptCols, useWithdrawalCols } from "./cols"
 import type {
@@ -165,6 +169,14 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
     })
 
     const receiptCols = useReceiptCols(!!product)
+
+    // Xato kiritilgan kirimni o'chirish (S-U3-02): faqat ombor egasi + warehouse_control.
+    const canDeleteReceipt = useHasAction("warehouse_control") && isOwner
+    const queryClient = useQueryClient()
+    const { openModal: openReceiptDelete } = useModal("receipt-delete")
+    const [receiptToDelete, setReceiptToDelete] = useState<WhReceiptLine | null>(
+        null,
+    )
     const withdrawalCols = useWithdrawalCols({
         hideProduct: !!product,
         showTenant: isOwner,
@@ -262,6 +274,14 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                     className="min-w-[900px]"
                     paginationProps={pagination(receipts)}
                     head={head}
+                    onDelete={
+                        canDeleteReceipt ?
+                            (row) => {
+                                setReceiptToDelete(row.original)
+                                openReceiptDelete()
+                            }
+                        :   undefined
+                    }
                 />
             :   <DataTable
                     loading={withdrawalsLoading}
@@ -274,6 +294,23 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                     head={head}
                 />
             }
+            <DeleteModal
+                modalKey="receipt-delete"
+                path={WAREHOUSE_RECEIPTS}
+                id={receiptToDelete?.receipt_id}
+                name={
+                    receiptToDelete ?
+                        `Kirim №${receiptToDelete.receipt_id} (${receiptToDelete.date}) — kirimning barcha qatorlari o'chiriladi. `
+                    :   ""
+                }
+                disableRefetch
+                onSuccessAction={() =>
+                    queryClient.invalidateQueries({
+                        predicate: (query) =>
+                            String(query.queryKey[0]).startsWith("warehouse/"),
+                    })
+                }
+            />
         </div>
     )
 })

@@ -6,10 +6,12 @@ import {
     ORDER_CASHFLOWS,
     SETTINTS_PAYMENT_TYPE,
 } from "@/constants/api-endpoints"
+import { useConfirm } from "@/hooks/useConfirm"
 import { useDelete } from "@/hooks/useDelete"
 import { useGet } from "@/hooks/useGet"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
+import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { Plus, Trash2, X } from "lucide-react"
 import { useRef, useState } from "react"
@@ -26,22 +28,19 @@ export type OrderCashflow = {
     amount: number | string
     gross_amount?: number | string | null
     payment_type: number
-    currency: number
-    currency_course: string | number | null
     category: number | null
+    comment?: string | null
 }
 
 type RowValues = {
     amount: number | string
     payment_type: number | null
-    currency: number
     comment?: string | null
 }
 
-const CURRENCY_OPTIONS = [
-    { id: 1, name: "UZS" },
-    { id: 2, name: "USD" },
-]
+// Backend javobdagi summa doim so'mda (eski USD yozuvlarni ham server o'giradi)
+const initialAmount = (row: OrderCashflow | null): number | string =>
+    row ? (row.gross_amount ?? row.amount) : ""
 
 // Income action — matches manager-reys/create-reys submission and the backend's
 // CashFlow.Action.INCOME used when an order is created with incomes.
@@ -66,13 +65,14 @@ const TushumRow = ({
 }) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
+    const confirm = useConfirm()
     const isNew = !initial
 
     const form = useForm<RowValues>({
         defaultValues: {
-            amount: initial?.gross_amount ?? initial?.amount ?? "",
+            amount: initialAmount(initial),
             payment_type: initial?.payment_type ?? null,
-            currency: initial?.currency ?? 1,
+            comment: initial?.comment ?? "",
         },
     })
 
@@ -122,16 +122,27 @@ const TushumRow = ({
                 category: inheritedCategory,
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
-                currency: v.currency,
+                currency: 1,
                 comment: v?.comment,
             })
         } else {
-            update(`${ORDER_CASHFLOWS}/${initial!.id}`, {
-                amount: Number(v.amount),
-                payment_type: v.payment_type,
-                currency: v.currency,
-                comment: v?.comment,
-            })
+            // Faqat o'zgargan maydonlar yuboriladi (summa o'zgarmasa amount/currency ketmaydi)
+            const payload: Record<string, unknown> = {}
+            if (Number(v.amount) !== Number(initialAmount(initial))) {
+                payload.amount = Number(v.amount)
+                payload.currency = 1
+            }
+            if (v.payment_type !== initial!.payment_type) {
+                payload.payment_type = v.payment_type
+            }
+            if ((v.comment ?? "") !== (initial!.comment ?? "")) {
+                payload.comment = v.comment
+            }
+            if (Object.keys(payload).length === 0) {
+                onDone()
+                return
+            }
+            update(`${ORDER_CASHFLOWS}/${initial!.id}`, payload)
         }
     }
 
@@ -144,6 +155,8 @@ const TushumRow = ({
                     name="amount"
                     control={control}
                     thousandSeparator=" "
+                    allowNegative={false}
+                    decimalScale={2}
                     placeholder="0"
                 />
             </div>
@@ -156,19 +169,6 @@ const TushumRow = ({
                     valueKey="id"
                     labelKey="name"
                     placeholder={t("form.payment_type")}
-                />
-            </div>
-
-            <div className="w-28">
-                <FormCombobox
-                    name="currency"
-                    control={control}
-                    options={CURRENCY_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    placeholder="Val."
-                    isSearch={false}
-                    isClearIcon={false}
                 />
             </div>
 
@@ -195,7 +195,13 @@ const TushumRow = ({
                     type="button"
                     size="icon"
                     variant="ghost"
-                    onClick={() => remove(`${ORDER_CASHFLOWS}/${initial!.id}`)}
+                    onClick={async () => {
+                        const ok = await confirm({
+                            title: t("messages.confirm_delete"),
+                            description: formatMoney(Number(initial!.amount)),
+                        })
+                        if (ok) remove(`${ORDER_CASHFLOWS}/${initial!.id}`)
+                    }}
                     disabled={pending}
                     title={t("actions.delete")}
                 >

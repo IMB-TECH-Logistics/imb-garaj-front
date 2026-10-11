@@ -162,7 +162,7 @@ export default function ExpensesModal({ expenses }: Props) {
                                 label={t("form.amount")}
                                 disabled={!field.editable}
                                 thousandSeparator=" "
-                                decimalScale={0}
+                                decimalScale={2}
                                 required
                             />
 

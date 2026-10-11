@@ -4,6 +4,7 @@ import { MANAGERS_RUNS } from "@/constants/api-endpoints"
 import { useRunFilterOptions } from "./loading-options"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { useHasAction } from "@/constants/useUser"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
 import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
@@ -71,6 +72,9 @@ const BuxgalteriyaPage = () => {
         className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
     }
 
+    // PATCH /manager/orders/<pk>/ CONTROL: manager_flights_control yoki accounting_control
+    const canEdit = useHasAction(["manager_flights_control", "accounting_control"])
+
     const handleEdit = (row: { original: ReysOrder }) => {
         setData(MANAGERS_RUNS, row.original)
         openModal()
@@ -85,7 +89,7 @@ const BuxgalteriyaPage = () => {
                 data={data?.results || []}
                 numeration
                 manualSorting
-                onEdit={handleEdit}
+                onEdit={canEdit ? handleEdit : undefined}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",

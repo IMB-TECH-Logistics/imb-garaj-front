@@ -22,6 +22,7 @@ import {
     TECHNICAL_INSPECT,
     TECHNICAL_INSPECT_INSTALLED,
 } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
@@ -157,7 +158,7 @@ const VehicleItemsSheet = ({
     onClose: () => void
     onOpenItem: (lot: number) => void
     onOpenExpense: (row: VehicleExpenseRow) => void
-    onAddExpense: (vehicleId: number) => void
+    onAddExpense?: (vehicleId: number) => void
 }) => {
     const { t } = useTranslation()
     return (
@@ -175,7 +176,7 @@ const VehicleItemsSheet = ({
                 </SheetHeader>
                 <div className="mt-4 flex items-center justify-between gap-2">
                     <h3 className="text-sm font-semibold">{t("texnik.tab_expenses")}</h3>
-                    {row && (
+                    {row && onAddExpense && (
                         <Button size="sm" onClick={() => onAddExpense(row.id)}>
                             <Plus size={16} />
                             {t("actions.add")}
@@ -245,6 +246,7 @@ const VehiclesTab = () => {
     const [addVehicle, setAddVehicle] = useState<number | undefined>(undefined)
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal } = useModal("add-expense")
+    const canControl = useHasAction("manager_tech_check_control")
     const currentExpense = getData<VehicleExpenseRow>(TECHNICAL_INSPECT)
 
     const addExpense = (vehicleId?: number) => {
@@ -337,10 +339,12 @@ const VehiclesTab = () => {
                                 { value: "soon", label: t("texnik.vehicles.soon") },
                             ]}
                         />
-                        <Button onClick={() => addExpense()}>
-                            <Plus size={16} />
-                            {t("actions.add")}
-                        </Button>
+                        {canControl && (
+                            <Button onClick={() => addExpense()}>
+                                <Plus size={16} />
+                                {t("actions.add")}
+                            </Button>
+                        )}
                     </div>
                 }
             />
@@ -349,12 +353,12 @@ const VehiclesTab = () => {
                 onClose={() => setOpenId(null)}
                 onOpenItem={(lot) => setItem(lot)}
                 onOpenExpense={setExpense}
-                onAddExpense={addExpense}
+                onAddExpense={canControl ? addExpense : undefined}
             />
             <ExpenseDetailSheet
                 row={expense}
                 onClose={() => setExpense(null)}
-                onEdit={editExpense}
+                onEdit={canControl ? editExpense : undefined}
             />
             <Modal
                 modalKey="add-expense"

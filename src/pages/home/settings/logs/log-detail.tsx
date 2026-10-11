@@ -9,7 +9,7 @@ import {
 import { format } from "date-fns"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { getFieldLabel } from "./fields"
+import { getFieldLabel, isHiddenField } from "./fields"
 import { getSectionLabel } from "./sections"
 
 type Props = {
@@ -45,6 +45,7 @@ const LogDetailSheet = ({ log, onClose }: Props) => {
         const keys = new Set<string>([...Object.keys(before), ...Object.keys(after)])
         const rows: { field: string; old: string; new: string; changed: boolean }[] = []
         keys.forEach((k) => {
+            if (isHiddenField(k)) return
             const o = formatValue(before[k])
             const n = formatValue(after[k])
             rows.push({ field: k, old: o, new: n, changed: o !== n })

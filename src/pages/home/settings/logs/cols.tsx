@@ -155,6 +155,7 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                         type="button"
                         size="icon"
                         variant="ghost"
+                        aria-label={t("page.details")}
                         onClick={() => onView(row.original)}
                     >
                         <Eye className="h-4 w-4" />

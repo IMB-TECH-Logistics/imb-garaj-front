@@ -27,7 +27,6 @@ type DriverRow = {
     total_orders: number
     revenue_uzs: string | number
     salary_due_uzs: string | number
-    revenue_usd: string | number
     salary_paid_uzs: string | number
     total_distance_km: string | number
     total_fuel_liters: string | number

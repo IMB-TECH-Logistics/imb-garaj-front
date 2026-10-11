@@ -284,11 +284,10 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "payment_amount_uzs",
-                header: `${t("form.income")} (uzs / usd)`,
+                header: `${t("form.income")} (UZS)`,
                 enableSorting: true,
                 cell: ({ row }) => {
                     const moneyUzs = row.original?.payment_amount_uzs
-                    const moneyUsd = row.original?.payment_amount_usd
                     const diff = Number(row.original?.price_diff ?? 0)
                     const diffBadge =
                         hasPriceDiff(row.original) && diff !== 0 ? (
@@ -304,10 +303,6 @@ export const useColumnsManagersOrders = (opts?: {
                                 {t("form.price_diff")}: {formatMoney(diff)}
                             </Badge>
                         ) : null
-
-                    if (moneyUsd) {
-                        return <div className="flex items-center gap-1">{formatMoney(moneyUsd)} USD {diffBadge}</div>
-                    }
 
                     if (moneyUzs) {
                         return <div className="flex items-center gap-1">{formatMoney(moneyUzs)} UZS {diffBadge}</div>

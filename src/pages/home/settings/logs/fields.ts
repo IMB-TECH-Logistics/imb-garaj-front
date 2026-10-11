@@ -259,9 +259,10 @@ const FIELD_LABELS: Record<string, string> = {
 
     amount: "Summa",
     payment_amount_uzs: "To'lov (UZS)",
-    payment_amount_usd: "To'lov (USD)",
+    payment_amount_usd: "To'lov (eski valyuta)",
     income_uzs: "Daromad (UZS)",
-    income_usd: "Daromad (USD)",
+    income_usd: "Daromad (eski valyuta)",
+    // Eski (USD) yozuvlar tarixi o'qilishi uchun kalitlar saqlanadi; yangi yozuvlarda ishlatilmaydi.
     currency: "Valyuta",
     currency_amount: "Valyuta summasi",
     currency_course: "Valyuta kursi",
@@ -363,6 +364,12 @@ const FIELD_LABELS: Record<string, string> = {
 }
 
 const ID_SUFFIX_RE = /_id$/
+
+// USD olib tashlangan: valyuta maydonlari tafsilotda ko'rsatilmaydi (eski log kalitlari saqlanadi)
+const HIDDEN_FIELDS = new Set(["currency", "currency_course"])
+
+export const isHiddenField = (field: string): boolean =>
+    HIDDEN_FIELDS.has(field.toString().trim().toLowerCase())
 
 const titleCase = (s: string) =>
     s

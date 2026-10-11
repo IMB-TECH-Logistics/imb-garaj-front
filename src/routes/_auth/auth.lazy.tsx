@@ -8,7 +8,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LOGIN } from "@/constants/api-endpoints"
 import {
+    REDIRECT_PARAM,
     REFRESH_STORAGE_KEY,
+    SESSION_EXPIRED_PARAM,
     TENANT_STORAGE_KEY,
 } from "@/services/axios-instance"
 import { usePost } from "@/hooks/usePost"
@@ -28,6 +30,10 @@ type Form = {
     password: string
 }
 
+// Faqat ichki yo'l (`/...`) qabul qilinadi: tashqi manzilga yo'naltirish (open redirect) yo'q
+const getRedirectPath = (value: string | null) =>
+    value && /^\/(?![/\\])/.test(value) && !value.startsWith("/auth") ? value : "/"
+
 const LANGS = [
     { code: "uz", label: "O'zbek", flag: "🇺🇿" },
     { code: "ru", label: "Русский", flag: "🇷🇺" },
@@ -36,6 +42,9 @@ const LANGS = [
 ]
 
 function AuthComponent() {
+    const query = new URLSearchParams(window.location.search)
+    const sessionExpired = query.get(SESSION_EXPIRED_PARAM) === "1"
+    const redirectPath = getRedirectPath(query.get(REDIRECT_PARAM))
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
     const { t, i18n } = useTranslation()
     const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
@@ -51,7 +60,7 @@ function AuthComponent() {
                 localStorage.setItem("token", res.access)
                 localStorage.setItem(REFRESH_STORAGE_KEY, res.refresh)
                 localStorage.removeItem(TENANT_STORAGE_KEY)
-                window.location.href = "/"
+                window.location.href = redirectPath
             },
             onError: (error) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,7 +133,16 @@ function AuthComponent() {
                     <p className="sm:mb-6 mb-2 text-gray-600 sm:text-lg text-sm">
                         {t("auth.subtitle")}
                     </p>
-                    <form onSubmit={onSubmit} className="space-y-4 flex flex-col items-center">
+                    {/* Sahifa har doim oq fonda (mavzudan qat'i nazar) — majburiy '*' ham yorug' rangda: red-600, 4.8:1 */}
+                    {sessionExpired && (
+                        <p
+                            role="alert"
+                            className="mb-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                        >
+                            {t("messages.session_expired")}
+                        </p>
+                    )}
+                    <form onSubmit={onSubmit} className="space-y-4 flex flex-col items-center [&_label_span]:!text-red-600">
                         <FormInput
                             name="username"
                             label={t("auth.username")}

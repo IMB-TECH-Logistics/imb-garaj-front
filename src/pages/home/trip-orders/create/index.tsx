@@ -66,15 +66,13 @@ const AddTripOrders = () => {
                     {
 
                         payment_type: null,
-                        currency: null,
-                        currency_course: null,
                         amount: null,
                     },
                 ],
         },
     })
 
-    const { handleSubmit, control, reset, watch } = form
+    const { handleSubmit, control, reset } = form
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -98,12 +96,9 @@ const AddTripOrders = () => {
     const onSubmit = (data: TripOrdersRow) => {
         const formattedIncomes = data.incomes!.map((p: any) => {
             const payment: any = {
-                currency: p.currency,
+                currency: 1,
                 amount: String(p.amount),
                 payment_type: p.payment_type,
-            }
-            if (p.currency === 2) {
-                payment.currency_course = String(p.currency_course)
             }
             return payment
         })
@@ -191,8 +186,6 @@ const AddTripOrders = () => {
             />
             <div className="col-span-2 flex flex-col gap-4">
                 {fields.map((field, index) => {
-                    const selectedCurrency = watch(`incomes.${index}.currency`)
-
                     return (
                         <div
                             key={field.id}
@@ -225,33 +218,7 @@ const AddTripOrders = () => {
                                         control={control}
                                     />
                                 </div>
-                                <div className="w-32 shrink-0">
-                                    <FormCombobox
-                                        required
-                                        label={t("form.currency")}
-                                        name={`incomes.${index}.currency`}
-                                        isClearIcon={false}
-                                        control={control}
-                                        options={[
-                                            { value: 1, label: "UZS - So'm" },
-                                            { value: 2, label: "USD - AQSh dollari" },
-                                        ]}
-                                        valueKey="value"
-                                        labelKey="label"
-                                        placeholder={t("form.select_currency")}
-                                    />
-                                </div>
                             </div>
-                            {selectedCurrency === 2 && (
-                                <FormNumberInput
-                                    required
-                                    thousandSeparator=" "
-                                    name={`incomes.${index}.currency_course`}
-                                    label={t("form.currency_rate")}
-                                    placeholder="12 206 UZS"
-                                    control={control}
-                                />
-                            )}
 
                             {fields.length > 1 && (
                                 <Button
@@ -275,8 +242,6 @@ const AddTripOrders = () => {
                     onClick={() =>
                         append({
                             payment_type: null,
-                            currency: null,
-                            currency_course: null,
                             amount: null,
                         })
                     }

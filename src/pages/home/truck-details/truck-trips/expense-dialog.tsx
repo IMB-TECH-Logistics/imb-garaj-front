@@ -33,17 +33,11 @@ type ExpenseRow = {
     payment_type: number | null
     payment_type_name: string
     created: string
-    currency: number
-    currency_course: string | null
     quantity: string | null
 }
 
+// Backend javobdagi summa doim so'mda.
 function formatAmount(row: ExpenseRow) {
-    if (row.currency === 2 && row.currency_course) {
-        const usd = Number(row.amount)
-        const uzs = usd * Number(row.currency_course)
-        return <>{formatMoney(usd)} USD (={formatMoney(uzs)} UZS)</>
-    }
     return formatMoney(row.amount)
 }
 
