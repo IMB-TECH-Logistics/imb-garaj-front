@@ -28,8 +28,9 @@ export type OrderCashflow = {
     amount: number | string
     gross_amount?: number | string | null
     payment_type: number
-    currency: number
-    currency_course: string | number | null
+    // Eski (legacy) USD yozuvlar ro'yxatda so'mda ko'rsatiladi; yangisi yaratilmaydi
+    currency?: number
+    currency_course?: string | number | null
     category: number | null
     comment?: string | null
 }
@@ -37,17 +38,18 @@ export type OrderCashflow = {
 type RowValues = {
     amount: number | string
     payment_type: number | null
-    currency: number
-    currency_course?: number | string | null
     comment?: string | null
 }
 
-const USD = 2
-
-const CURRENCY_OPTIONS = [
-    { id: 1, name: "UZS" },
-    { id: 2, name: "USD" },
-]
+// Eski USD yozuv summasi kurs bo'yicha so'mga o'giriladi (faqat o'qish/tahrirlash uchun)
+const toUzsAmount = (row: OrderCashflow | null): number | string => {
+    if (!row) return ""
+    const amount = row.gross_amount ?? row.amount
+    if (row.currency === 2 && row.currency_course) {
+        return Number(amount) * Number(row.currency_course)
+    }
+    return amount
+}
 
 // Income action — matches manager-reys/create-reys submission and the backend's
 // CashFlow.Action.INCOME used when an order is created with incomes.
@@ -77,16 +79,13 @@ const TushumRow = ({
 
     const form = useForm<RowValues>({
         defaultValues: {
-            amount: initial?.gross_amount ?? initial?.amount ?? "",
+            amount: toUzsAmount(initial),
             payment_type: initial?.payment_type ?? null,
-            currency: initial?.currency ?? 1,
-            currency_course: initial?.currency_course ?? "",
             comment: initial?.comment ?? "",
         },
     })
 
-    const { control, handleSubmit, watch } = form
-    const isUsd = watch("currency") === USD
+    const { control, handleSubmit } = form
 
     const refresh = () =>
         queryClient.invalidateQueries({ queryKey: [CASHFLOWS_QUERY_PREFIX] })
@@ -125,11 +124,6 @@ const TushumRow = ({
             return
         }
 
-        // USD kirim kassaga kurs bo'yicha so'mda tushadi — kurs majburiy
-        // (backend: kassa_utils.ensure_usd_course, create-reys bilan bir xil).
-        const currency_course =
-            v.currency === USD ? Number(v.currency_course) || null : null
-
         if (isNew) {
             create(ORDER_CASHFLOWS, {
                 order: orderId,
@@ -137,16 +131,14 @@ const TushumRow = ({
                 category: inheritedCategory,
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
-                currency: v.currency,
-                currency_course,
+                currency: 1,
                 comment: v?.comment,
             })
         } else {
             update(`${ORDER_CASHFLOWS}/${initial!.id}`, {
                 amount: Number(v.amount),
                 payment_type: v.payment_type,
-                currency: v.currency,
-                currency_course,
+                currency: 1,
                 comment: v?.comment,
             })
         }
@@ -177,32 +169,6 @@ const TushumRow = ({
                     placeholder={t("form.payment_type")}
                 />
             </div>
-
-            <div className="w-28">
-                <FormCombobox
-                    name="currency"
-                    control={control}
-                    options={CURRENCY_OPTIONS}
-                    valueKey="id"
-                    labelKey="name"
-                    placeholder="Val."
-                    isSearch={false}
-                    isClearIcon={false}
-                />
-            </div>
-
-            {isUsd && (
-                <div className="w-32">
-                    <FormNumberInput
-                        required
-                        name="currency_course"
-                        allowNegative={false}
-                        control={control}
-                        thousandSeparator=" "
-                        placeholder={t("form.currency_rate")}
-                    />
-                </div>
-            )}
 
             <div>
                 <FormInput
