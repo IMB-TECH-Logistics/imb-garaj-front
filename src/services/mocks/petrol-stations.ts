@@ -202,10 +202,8 @@ const SEED_FLOWS: CashFlow[] = [
         "70 D 552 ZX",
         "Reys #B-120",
     ),
-    topUp(9, 3, "Uzgazoil — Chilonzor", 1_000, "2026-05-05T16:20:00Z", {
-        currency: 2,
-        currency_course: 12_650,
-        comment: "USD to'ldirish",
+    topUp(9, 3, "Uzgazoil — Chilonzor", 12_650_000, "2026-05-05T16:20:00Z", {
+        comment: "To'ldirish",
     }),
     expense(
         10,
@@ -486,11 +484,8 @@ export const petrolStationHandlers: MockHandler[] = [
                 id: nextId(flows),
                 action: 1,
                 amount: Number(body?.amount ?? 0),
-                currency: (body?.currency ?? 1) as 1 | 2,
-                currency_course:
-                    body?.currency_course != null
-                        ? Number(body.currency_course)
-                        : null,
+                currency: 1,
+                currency_course: null,
                 comment: body?.comment ?? null,
                 petrol_station: stationId,
                 petrol_station_name: station?.name ?? null,
@@ -518,11 +513,6 @@ export const petrolStationHandlers: MockHandler[] = [
             const next = {
                 ...flows[idx],
                 amount: Number(body?.amount ?? flows[idx].amount),
-                currency: (body?.currency ?? flows[idx].currency) as 1 | 2,
-                currency_course:
-                    body?.currency_course != null
-                        ? Number(body.currency_course)
-                        : null,
                 comment: body?.comment ?? null,
             }
             flows[idx] = next
