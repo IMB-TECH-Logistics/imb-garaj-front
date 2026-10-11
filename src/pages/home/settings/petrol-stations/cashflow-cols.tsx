@@ -25,11 +25,6 @@ export type StationCashFlowRow = {
     created: string
 }
 
-const CURRENCY_LABEL: Record<number, string> = {
-    1: "UZS",
-    2: "USD",
-}
-
 // `unit` — "liter" yoki "m3" (yoki null, kirim yozuvlarida yoki mashina/FuelLog
 // bo'lmagan chiqimlarda). Bu doim mashina/yozuvning `fuel`iga qarab aniqlanadi —
 // hardcoded "litr" ishlatilmaydi.
@@ -57,6 +52,7 @@ export const formatQuantity = (
     return `${formatted}${label ? ` ${label}` : ""}`
 }
 
+// Eski USD yozuvlar ro'yxatda so'mdagi ekvivalenti bilan o'qiladi (yangi USD kiritilmaydi).
 export const getAmountInUzs = (row: StationCashFlowRow) => {
     const amount = Number(row.amount ?? 0)
     return row.currency === 2 ?
@@ -161,8 +157,6 @@ export const useStationCashFlowColumns = () => {
                 meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => {
                     const isIncome = row.original.action === 1
-                    const amount = Number(row.original.amount ?? 0)
-                    const currency = row.original.currency
                     const inUzs = getAmountInUzs(row.original)
                     return (
                         <div className="flex flex-col items-start">
@@ -176,17 +170,6 @@ export const useStationCashFlowColumns = () => {
                                 {isIncome ? "+" : "−"}
                                 {formatMoney(inUzs)}
                             </span>
-                            {currency === 2 && (
-                                <span className="text-[11px] text-muted-foreground tabular-nums">
-                                    {formatMoney(amount)}{" "}
-                                    {CURRENCY_LABEL[currency]} ×{" "}
-                                    {formatMoney(
-                                        Number(
-                                            row.original.currency_course ?? 0,
-                                        ),
-                                    )}
-                                </span>
-                            )}
                         </div>
                     )
                 },
