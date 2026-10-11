@@ -4,7 +4,6 @@ import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import {
     MANAGERS_CASHFLOW,
-    MANAGERS_CASHFLOW_CURRENCY,
     MANAGERS_EXPENSES,
     SETTINGS_SELECTABLE_EXPENSE_CATEGORY,
     SETTINTS_PAYMENT_TYPE,
@@ -27,8 +26,6 @@ type EditFormValues = {
     category: number | string
     payment_type: number | string
     comment: string
-    currency: number
-    currency_course: number | string
 }
 
 export default function ExpenseEditForm() {
@@ -45,12 +42,9 @@ export default function ExpenseEditForm() {
             category: editItem?.category ?? "",
             payment_type: editItem?.payment_type ?? "",
             comment: editItem?.comment ?? "",
-            currency: editItem?.currency ?? 1,
-            currency_course: editItem?.currency_course ?? "",
         },
     })
-    const { handleSubmit, control, reset, watch, setValue } = form
-    const currency = watch("currency")
+    const { handleSubmit, control, reset } = form
 
     useEffect(() => {
         reset({
@@ -58,8 +52,6 @@ export default function ExpenseEditForm() {
             category: editItem?.category ?? "",
             payment_type: editItem?.payment_type ?? "",
             comment: editItem?.comment ?? "",
-            currency: editItem?.currency ?? 1,
-            currency_course: editItem?.currency_course ?? "",
         })
     }, [editItem?.id, reset])
 
@@ -70,17 +62,6 @@ export default function ExpenseEditForm() {
     const { data: categoryData } = useGet<ExpenseCategory[]>(
         SETTINGS_SELECTABLE_EXPENSE_CATEGORY,
     )
-    const { data: currencyData } = useGet(MANAGERS_CASHFLOW_CURRENCY, {
-        enabled: currency === 2,
-        options: { staleTime: 0, gcTime: 0, refetchOnMount: "always" },
-    })
-
-    useEffect(() => {
-        if (currency === 2 && currencyData?.currency_course && !editItem?.currency_course) {
-            setValue("currency_course", currencyData.currency_course)
-        }
-    }, [currency, currencyData, editItem?.currency_course, setValue])
-
     const { mutate: update, isPending } = usePatch()
 
     const onSubmit = (data: EditFormValues) => {
@@ -91,8 +72,6 @@ export default function ExpenseEditForm() {
             category: data.category || null,
             payment_type: data.payment_type || null,
             comment: data.comment || null,
-            currency: data.currency || 1,
-            currency_course: data.currency === 2 ? data.currency_course || null : null,
         }
 
         update(`${MANAGERS_EXPENSES}/${editItem.id}`, payload, {
@@ -119,33 +98,7 @@ export default function ExpenseEditForm() {
                         decimalScale={2}
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        control={control}
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        options={[
-                            { id: 1, name: "UZS" },
-                            { id: 2, name: "USD" },
-                        ]}
-                        valueKey="id"
-                        labelKey="name"
-                    />
-                </div>
             </div>
-            {currency === 2 && (
-                <FormNumberInput
-                    required
-                    control={control}
-                    label={t("form.currency_rate")}
-                    name="currency_course"
-                    allowNegative={false}
-                    placeholder="Ex: 12 000"
-                    thousandSeparator=" "
-                    decimalScale={0}
-                />
-            )}
             <FormCombobox
                 required
                 control={control}

@@ -38,7 +38,6 @@ export type DirectionRow = {
     cargo_type_name: string
     payment_type?: number
     payment_type_name: string
-    currency: 1 | 2
     current_price: DirectionPrice | null
     no_price?: boolean
     prices?: DirectionPrice[]
@@ -67,11 +66,6 @@ const formatDateTime = (s?: string | null) => {
     const d = new Date(s)
     if (isNaN(d.getTime())) return s
     return format(d, "dd/MM/yyyy HH:mm")
-}
-
-const CURRENCY_LABELS: Record<number, string> = {
-    1: "UZS",
-    2: "USD",
 }
 
 
@@ -113,13 +107,6 @@ export const useDirectionColumns = () => {
                             )}
                         </span>
                     ),
-            },
-            {
-                accessorKey: "currency",
-                header: t("form.currency"),
-                enableSorting: true,
-                cell: ({ row }) =>
-                    CURRENCY_LABELS[row.original.currency] ?? "-",
             },
         ],
         [t],

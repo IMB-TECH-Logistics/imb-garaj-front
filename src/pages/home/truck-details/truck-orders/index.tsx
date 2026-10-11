@@ -72,7 +72,6 @@ const TruckTripOrderMain = () => {
                             <TableHead>{t("form.unloading_location")}</TableHead>
                             <TableHead>{t("form.cargo_type")}</TableHead>
                             <TableHead>{t("form.amount")}</TableHead>
-                            <TableHead>{t("form.currency")}</TableHead>
                             <TableHead>{t("table.created_at")}</TableHead>
                             <TableHead className="text-right" />
                             <TableHead className="text-right" />
@@ -83,7 +82,7 @@ const TruckTripOrderMain = () => {
                         {isLoading && (
                             <TableRow className="border-none">
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={8}
                                     className="text-center py-6"
                                 >
                                     {t("messages.loading")}
@@ -94,7 +93,7 @@ const TruckTripOrderMain = () => {
                         {!isLoading && isError && (
                             <TableRow className="border-none">
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={8}
                                     className={cn(
                                         "text-center py-6",
                                         isNotFound ? "text-muted-foreground" : "text-destructive",
@@ -108,7 +107,7 @@ const TruckTripOrderMain = () => {
                         {!isLoading && !isError && !data?.results?.length && (
                             <TableRow className="border-none">
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={8}
                                     className="text-center py-6 text-muted-foreground"
                                 >
                                     {t("page.not_found")}
@@ -151,22 +150,10 @@ const TruckTripOrderMain = () => {
                                         </TableCell>
 
                                         <TableCell className="border-r border-secondary last:border-none font-semibold">
-                                            {(
-                                                order.payment_amount_usd ||
-                                                order.payment_amount_uzs
-                                            ) ?
+                                            {order.payment_amount_uzs ?
                                                 formatMoney(
-                                                    order.payment_amount_usd ||
-                                                        order.payment_amount_uzs,
+                                                    order.payment_amount_uzs,
                                                 )
-                                            :   "—"}
-                                        </TableCell>
-
-                                        <TableCell className="border-r border-secondary last:border-none">
-                                            {order.payment_amount_usd ?
-                                                "USD"
-                                            : order.payment_amount_uzs ?
-                                                "UZS"
                                             :   "—"}
                                         </TableCell>
 
@@ -195,7 +182,7 @@ const TruckTripOrderMain = () => {
                                     {isExpanded && (
                                         <TableRow className="border-none bg-secondary">
                                             <TableCell
-                                                colSpan={9}
+                                                colSpan={8}
                                                 className="p-0"
                                             >
                                                 <TruckTripCashflowRow />

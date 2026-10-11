@@ -259,9 +259,10 @@ const FIELD_LABELS: Record<string, string> = {
 
     amount: "Summa",
     payment_amount_uzs: "To'lov (UZS)",
-    payment_amount_usd: "To'lov (USD)",
+    payment_amount_usd: "To'lov (eski valyuta)",
     income_uzs: "Daromad (UZS)",
-    income_usd: "Daromad (USD)",
+    income_usd: "Daromad (eski valyuta)",
+    // Eski (USD) yozuvlar tarixi o'qilishi uchun kalitlar saqlanadi; yangi yozuvlarda ishlatilmaydi.
     currency: "Valyuta",
     currency_amount: "Valyuta summasi",
     currency_course: "Valyuta kursi",
