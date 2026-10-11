@@ -24,8 +24,6 @@ interface CashflowForm {
     amount: number
     category: number
     comment: string
-    currency: number | string
-    currency_course: number | string
 }
 
 const AddCashflow = () => {
@@ -52,14 +50,11 @@ const AddCashflow = () => {
             amount: currentCashflow?.amount,
             category: currentCashflow?.category,
             comment: currentCashflow?.comment,
-            currency: currentCashflow?.currency,
-            currency_course: currentCashflow?.currency_course,
             payment_type: currentCashflow?.payment_type,
         },
     })
 
-    const { handleSubmit, control, reset, watch } = form
-    const selectedCurrency = watch("currency")
+    const { handleSubmit, control, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -85,8 +80,6 @@ const AddCashflow = () => {
             amount: Number(data.amount),
             category: data.category,
             comment: data.comment,
-            currency: data.currency,
-            currency_course: data.currency_course,
             payment_type: data.payment_type,
         }
 

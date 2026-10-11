@@ -19,10 +19,7 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
 interface CashflowForm {
-    currency: number
-    currency_course: string
     amount: string
-    currency_amount: string
     order: number|string
     payment_type: number
 }
@@ -52,8 +49,7 @@ const AddPayment = () => {
         },
     })
 
-    const { handleSubmit, control, reset, watch } = form
-    const selectedCurrency = watch("currency")
+    const { handleSubmit, control, reset } = form
 
     const onSuccess = () => {
         toast.success(
@@ -84,8 +80,9 @@ const AddPayment = () => {
         if (!childId) return
 
         const payload = {
-            ...data,
-            order:childId,
+            amount: data.amount,
+            payment_type: data.payment_type,
+            order: childId,
         }
 
         if (currentCashflow?.id) {
@@ -120,44 +117,9 @@ const AddPayment = () => {
                         placeholder="0 UZS"
                     />
                 </div>
-                <div className="w-32 shrink-0">
-                    <FormCombobox
-                        required
-                        label={t("form.currency")}
-                        name="currency"
-                        isClearIcon={false}
-                        control={control}
-                        options={[
-                            { value: 1, label: "UZS - So'm" },
-                            { value: 2, label: "USD - AQSh dollari" },
-                        ]}
-                        valueKey="value"
-                        labelKey="label"
-                        placeholder={t("form.select_currency")}
-                    />
-                </div>
             </div>
-            {selectedCurrency === 2 && (
-                <FormNumberInput
-                    required
-                    thousandSeparator=" "
-                    name="currency_course"
-                    allowNegative={false}
-                    label={t("form.currency_rate")}
-                    placeholder="12 206 UZS"
-                    control={control}
-                />
-            )}
 
-            {/* Row 3 - These stay fixed in position */}
-            <FormNumberInput
-                required
-                name="currency_amount"
-                label={t("form.currency_amount")}
-                thousandSeparator=" "
-                control={control}
-            />
-
+            {/* Row 3 */}
             <FormCombobox
                 required
                 label={t("form.payment_type")}
