@@ -28,6 +28,7 @@ import { useTranslation } from "react-i18next"
 
 const LANGS = [
     { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+    { code: "uz-Cyrl", label: "Ўзбек", flag: "🇺🇿" },
     { code: "ru", label: "Русский", flag: "🇷🇺" },
     { code: "en", label: "English", flag: "🇬🇧" },
     { code: "ja", label: "日本語", flag: "🇯🇵" },
@@ -42,7 +43,7 @@ export function NavUser() {
     const fullName =
         [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
         user?.username ||
-        (user ? "Super Admin" : t("messages.loading"))
+        (user ? t("ui.nav_user.super_admin") : t("messages.loading"))
 
     const logOut = async () => {
         try {
@@ -56,7 +57,8 @@ export function NavUser() {
         navigate({ to: "/auth" })
     }
 
-    const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
+    const lng = i18n.resolvedLanguage ?? i18n.language
+    const langCode = LANGS.some((l) => l.code === lng) ? lng : lng.split("-")[0]
     const currentLang = LANGS.find((l) => l.code === langCode) ?? LANGS[0]
 
     return (

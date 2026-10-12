@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import i18n from "@/i18n/i18n"
 import { STATUS_TRIP } from "../managers-trips/cols"
 import { hasPriceDiff } from "./price-diff"
 import { PaymentType } from "./payment-fields"
@@ -58,7 +59,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "activity_display",
-                header: "Reys turi",
+                header: t("form.trip_type"),
                 enableSorting: false,
                 cell: ({ row }) => {
                     const activity = row.original?.activity
@@ -70,7 +71,7 @@ export const useColumnsManagersOrders = (opts?: {
                     if (isLeg || (activity === 1 && type === 2)) {
                         return (
                             <Badge variant="outline" className={`whitespace-nowrap ${EMPTY_RUN_COLOR}`}>
-                                Bo'sh yurish
+                                {t("trips.managers.empty_run")}
                             </Badge>
                         )
                     }
@@ -105,7 +106,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "status",
-                header: "Reys holati",
+                header: t("trips.reys_cols.trip_status"),
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
@@ -115,7 +116,7 @@ export const useColumnsManagersOrders = (opts?: {
                                 variant="outline"
                                 className="bg-amber-500/10 text-amber-600 border-transparent"
                             >
-                                Tasdiqlanmagan
+                                {t("reys_confirm.short")}
                             </Badge>
                         )
                     }
@@ -123,21 +124,21 @@ export const useColumnsManagersOrders = (opts?: {
                     const logisticsBadge = canceledAt ? (
                         <Badge
                             variant="outline"
-                            title={`Logistikada bekor qilingan (${format(new Date(canceledAt), "dd.MM.yyyy HH:mm")}). Pul allaqachon berilgan — qo'lda hal qiling.`}
+                            title={t("trips.reys_cols.logistics_canceled_hint", { date: format(new Date(canceledAt), "dd.MM.yyyy HH:mm") })}
                             className="whitespace-nowrap bg-red-500/10 text-red-600 border-transparent"
                         >
-                            Logistikada bekor qilingan
+                            {t("trips.reys_cols.logistics_canceled")}
                         </Badge>
                     ) : null
                     if (logisticsBadge) {
                         return (
                             <div className="flex flex-wrap items-center gap-1">
-                                <span>{STATUS_TRIP[status] || "-"}</span>
+                                <span>{STATUS_TRIP[status] ? t(STATUS_TRIP[status]) : "-"}</span>
                                 {logisticsBadge}
                             </div>
                         )
                     }
-                    return <div>{STATUS_TRIP[status] || "-"}</div>
+                    return <div>{STATUS_TRIP[status] ? t(STATUS_TRIP[status]) : "-"}</div>
                 },
             },
             {
@@ -169,7 +170,7 @@ export const useColumnsManagersOrders = (opts?: {
                             onClick={(e) => {
                                 e.stopPropagation()
                                 navigator.clipboard.writeText(String(extId))
-                                toast.success(`${extId} nusxaga olindi`)
+                                toast.success(t("trips.reys_cols.copied", { id: extId }))
                             }}
                         >
                             <Copy width={14} className="shrink-0" />
@@ -186,7 +187,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "cargo_type_name",
-                header: "Mahsulot turi",
+                header: t("trips.reys_cols.product_type"),
                 enableSorting: true,
                 cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span>,
             },
@@ -214,7 +215,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 id: "distance",
-                header: "Masofa",
+                header: t("form.distance"),
                 size: 90,
                 cell: ({ row }) => {
                     const leg = (row.original as any).__leg as EmptyLeg | undefined
@@ -224,16 +225,16 @@ export const useColumnsManagersOrders = (opts?: {
                     return (
                         <span
                             className="whitespace-nowrap tabular-nums"
-                            title={manual ? `GPS: ${leg.distance_km != null ? formatMoney(leg.distance_km) : "—"} km` : undefined}
+                            title={manual ? `GPS: ${leg.distance_km != null ? formatMoney(leg.distance_km) : "—"} ${t("trips.units.km")}` : undefined}
                         >
-                            {km != null ? <>{formatMoney(km)} km{manual ? " *" : ""}</> : "—"}
+                            {km != null ? <>{formatMoney(km)} {t("trips.units.km")}{manual ? " *" : ""}</> : "—"}
                         </span>
                     )
                 },
             },
             {
                 id: "empty_leg_pay",
-                header: "Bo'sh yurish to'lovi",
+                header: t("trips.reys_cols.empty_run_pay"),
                 size: 150,
                 cell: ({ row }) => {
                     const leg = (row.original as any).__leg as EmptyLeg | undefined
@@ -250,7 +251,7 @@ export const useColumnsManagersOrders = (opts?: {
                                 <button
                                     type="button"
                                     disabled={leg.locked}
-                                    title={leg.locked ? "Aylanma yopilgan, o'zgartirib bo'lmaydi" : "Bo'sh yurish to'lovi"}
+                                    title={leg.locked ? t("trips.reys_cols.trip_locked") : t("trips.reys_cols.empty_run_pay")}
                                     className="text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-40"
                                     onClick={(e) => {
                                         e.stopPropagation()
@@ -266,19 +267,19 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 accessorKey: "loading_time",
-                header: "Yuklashga",
+                header: t("trips.reys_cols.to_loading"),
                 size: 120,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.loading_time, row.original.in_transit_time)}</span>,
             },
             {
                 accessorKey: "in_transit_time",
-                header: "Yo'lga",
+                header: t("trips.reys_cols.to_road"),
                 size: 120,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time)}</span>,
             },
             {
                 accessorKey: "unloading_time",
-                header: "Tushirishga",
+                header: t("trips.reys_cols.to_unloading"),
                 size: 120,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
             },
@@ -357,9 +358,9 @@ const formatDuration = (start?: string, end?: string) => {
     const hours = Math.floor((totalMinutes % 1440) / 60)
     const minutes = totalMinutes % 60
 
-    if (days > 0) return `${days} kun ${hours} s. ${minutes} min`
-    if (hours > 0) return `${hours} s. ${minutes} min`
-    return `${minutes} min`
+    if (days > 0) return i18n.t("trips.units.duration_dhm", { d: days, h: hours, m: minutes })
+    if (hours > 0) return i18n.t("trips.units.duration_hm", { h: hours, m: minutes })
+    return i18n.t("trips.units.duration_m", { m: minutes })
 }
 
 const formatMoment = (value?: string) => {

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useDelete } from "@/hooks/useDelete"
 import { useModal } from "@/hooks/useModal"
 import { useQueryClient } from "@tanstack/react-query"
@@ -39,12 +40,13 @@ export default function DeleteModal({
     restorable = false,
 }: IProps) {
     const { closeModal } = useModal(modalKey)
+    const { t } = useTranslation()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
 
     const { mutate, isPending } = useDelete({
         onSuccess: () => {
-            toast.success("Muvaffaqiyatli o'chirildi", { icon: "✅" })
+            toast.success(t("messages.success_delete"), { icon: "✅" })
             if (onSuccessAction) {
                 onSuccessAction()
             }
@@ -86,12 +88,12 @@ export default function DeleteModal({
                             {name}
                         </span>
                     :   null}
-                    {`Siz haqiqatdan ham o'chirishni xohlaysizmi?`}
+                    {t("ui.delete_modal.question")}
                 </DialogTitle>
                 <DialogDescription>
                     {restorable
-                        ? "O'chirilgan yozuvni «Arxiv» bo'limidan tiklash mumkin"
-                        : "Bu qaytarib bo'lmas jarayon!!!"}
+                        ? t("ui.delete_modal.restorable_hint")
+                        : t("ui.delete_modal.irreversible")}
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2">
@@ -100,14 +102,14 @@ export default function DeleteModal({
                     onClick={closeModal}
                     disabled={isPending}
                 >
-                    {"Bekor qilish"}
+                    {t("actions.cancel")}
                 </Button>
                 <Button
                     variant={"destructive"}
                     onClick={handleDelete}
                     loading={isPending}
                 >
-                    {"O'chirish"}
+                    {t("actions.delete")}
                 </Button>
             </DialogFooter>
         </Modal>

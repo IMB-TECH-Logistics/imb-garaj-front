@@ -112,8 +112,8 @@ const AddDestrictsModal = ({
                     <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
                         {selectedRegion?.name ||
                             (region_id ?
-                                `Viloyat ID: ${region_id}`
-                            :   "Viloyat tanlanmagan")}
+                                t("settings.locations.region_id_label", { id: region_id })
+                            :   t("settings.locations.region_not_selected"))}
                     </div>
 
                     <input

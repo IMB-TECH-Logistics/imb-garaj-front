@@ -11,14 +11,14 @@ import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
 import AdvanceBadge from "./advance-badge"
 
 export const STATUS_TRIP: Record<number, string> = {
-    0: "Kutilmoqda",
-    1: "Boshlandi",
-    5: "Yuklanmoqda",
-    6: "Yo'lda",
-    7: "Tushirilmoqda",
-    2: "Tugallandi",
-    3: "Bekor qilindi",
-    4: "Arxivlangan",
+    0: "trips.status.pending",
+    1: "trips.status.started",
+    5: "trips.status.loading",
+    6: "trips.status.on_road",
+    7: "trips.status.unloading",
+    2: "trips.status.finished",
+    3: "trips.status.cancelled",
+    4: "trips.status.archived",
 }
 
 export const useColumnsManagersTrips = (opts?: {
@@ -197,7 +197,7 @@ export const useColumnsManagersTrips = (opts?: {
                             }}
                         >
                             <HandCoins size={14} />
-                            Moliya
+                            {t("trips.managers_trips.finance")}
                         </Button>
                         {hasControl && (
                             <>

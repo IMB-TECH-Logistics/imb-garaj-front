@@ -107,7 +107,7 @@ const UserFormPage = () => {
                     <ArrowLeft className="h-4" />
                 </Button>
                 <h1 className="text-xl font-semibold">
-                    {id ? "Foydalanuvchini tahrirlash" : "Foydalanuvchi qo'shish"}
+                    {id ? t("settings.users.edit_title") : t("settings.users.add_title")}
                 </h1>
             </div>
 
@@ -117,7 +117,7 @@ const UserFormPage = () => {
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                 >
                     <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Shaxsiy ma'lumotlar</h3>
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.users.personal_info")}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormInput
                                 required
@@ -138,7 +138,7 @@ const UserFormPage = () => {
                     </section>
 
                     <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Login va parol</h3>
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.common.login_and_password")}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormInput
                                 required
@@ -165,7 +165,7 @@ const UserFormPage = () => {
                     </section>
 
                     <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Rol va ruxsatlar</h3>
+                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.users.role_and_permissions")}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormCombobox
                                 options={userRole?.results ?? []}
@@ -181,11 +181,10 @@ const UserFormPage = () => {
                                 <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
                                     <div>
                                         <p className="text-sm font-medium">
-                                            Rol ruxsatlarini meros olsin
+                                            {t("settings.users.inherit_role")}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
-                                            O‘chirilsa, xodimga faqat quyida
-                                            belgilangan ruxsatlar amal qiladi.
+                                            {t("settings.users.inherit_role_hint")}
                                         </p>
                                     </div>
                                     <Switch

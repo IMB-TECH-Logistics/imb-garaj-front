@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import {
     SidebarGroup,
     SidebarGroupContent,
@@ -19,6 +20,7 @@ import { Fragment, useState } from "react"
 export function NavMain() {
     const { toggleSidebar, open: sidebarOpen } = useSidebar()
     const mobile = useIsMobile()
+    const { t } = useTranslation()
     const location = useLocation()
 
     const pathname = location.pathname
@@ -75,7 +77,7 @@ export function NavMain() {
 
                                 {pending && (
                                     <Badge variant="secondary" className="ml-auto text-[10px] bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400 leading-none py-0 px-2 border-none font-bold">
-                                        Pending
+                                        {t("status.pending")}
                                     </Badge>
                                 )}
                             </>

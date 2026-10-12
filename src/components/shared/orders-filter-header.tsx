@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import { ParamMultiCombobox } from "@/components/as-params/multi-combobox"
 import { useCodes } from "@/constants/useCodes"
@@ -26,18 +27,19 @@ const OrdersFilterHeader = ({
 }: Props) => {
     const { codes } = useCodes()
     const { regions } = useRegionsFilter()
+    const { t } = useTranslation()
 
     return (
         <div className="flex items-center justify-between gap-6 mb-3">
             <div className="flex items-center gap-3">
                 <div className="flex  gap-2">
-                    <p className="text-xl">Soni</p>
+                    <p className="text-xl">{t("ui.list.count")}</p>
                     <Badge>{formatMoney(count)}</Badge>
                 </div>
                 <ParamMultiCombobox
                     options={codes}
                     paramName="codes"
-                    label="Firma kodi"
+                    label={t("ui.orders_filter.firm_code")}
                     className="w-max"
                     labelKey="label"
                     valueKey="value"
@@ -48,12 +50,12 @@ const OrdersFilterHeader = ({
                 <ParamCombobox
                     options={regions || []}
                     paramName="loading"
-                    label="Qayerdan"
+                    label={t("ui.orders_filter.from")}
                 />
                 <ParamCombobox
                     options={regions || []}
                     paramName="unloading"
-                    label="Qayerga"
+                    label={t("ui.orders_filter.to")}
                 />
                 <div>
                     {isRanchParam && <ParamDateRange className="min-w-32" />}

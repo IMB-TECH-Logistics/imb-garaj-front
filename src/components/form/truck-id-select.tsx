@@ -71,7 +71,7 @@ export default function TruckIdSelect<IForm extends FieldValues>({
             />
             {open && (
                 <div className="bg-secondary p-1 mt-1 rounded-md select-none flex flex-col gap-1 absolute w-full z-20">
-                    <p className="text-muted-foreground text-xs">Tavsiyalar</p>
+                    <p className="text-muted-foreground text-xs">{t("ui.truck_select.suggestions")}</p>
                     <div className="flex flex-col">
                         {options?.map((opt) => (
                             <button

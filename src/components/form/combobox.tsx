@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Controller, Control, FieldValues, Path, useFormState } from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
@@ -57,6 +58,7 @@ export function FormCombobox<
     const { errors } = useFormState({ control, name })
     const error = getNestedValue(errors, name)
 
+    const { t } = useTranslation()
     return (
         <fieldset className={cn("flex flex-col w-full", wrapperClassName)}>
             {label && (
@@ -72,14 +74,14 @@ export function FormCombobox<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
+                    required ? { required: label ? t("ui.common.select_item", { label }) : t("ui.common.select_value") } : {}
                 }
                 render={({ field, fieldState }) => (
                     <ShadcnCombobox
                         options={options}
                         value={field.value || ""}
                         setValue={field.onChange}
-                        label={placeholder || label || "Tanlang"}
+                        label={placeholder || label || t("ui.common.select")}
                         id={name}
                         ariaLabel={label || placeholder}
                         isError={!!fieldState.error}

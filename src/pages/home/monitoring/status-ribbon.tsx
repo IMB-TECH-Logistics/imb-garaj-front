@@ -6,25 +6,19 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { RotateCcw } from "lucide-react"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import {
     ACTIVE_STATUSES,
     type ApiStatusSegment,
     IDLE,
     type Segment,
+    formatDurationShort,
     splitByDay,
     STATUS_META,
 } from "./status/data"
 
 const MAJOR_HOURS = new Set([0, 3, 6, 9, 12, 15, 18, 21, 24])
 const HOURS = Array.from({ length: 25 }, (_, i) => i)
-
-function fmtDur(mins: number): string {
-    const total = Math.round(mins)
-    const h = Math.floor(total / 60)
-    const m = total % 60
-    if (h === 0) return `${m}m`
-    return m ? `${h}s ${m}m` : `${h}s`
-}
 
 export default function StatusRibbon({
     vehicleId,
@@ -39,6 +33,7 @@ export default function StatusRibbon({
     active?: number | null
     onToggle?: (status: number) => void
 }) {
+    const { t } = useTranslation()
     const dayParam = format(date, "yyyy-MM-dd")
 
     const { data: apiSegments = [], isLoading } = useGet<ApiStatusSegment[]>(
@@ -77,7 +72,7 @@ export default function StatusRibbon({
         <Card>
             <CardHeader className="flex flex-row items-center justify-between gap-2 py-3">
                 <CardTitle className="text-sm font-semibold">
-                    Holat lentasi
+                    {t("mon.ribbon.title")}
                     <span className="ml-2 font-normal text-muted-foreground">
                         {vehicleLabel || `#${vehicleId}`} ·{" "}
                         {format(date, "dd/MM/yyyy")}
@@ -91,7 +86,7 @@ export default function StatusRibbon({
                         className="h-7 gap-1.5 px-2 text-xs text-muted-foreground"
                     >
                         <RotateCcw className="h-3.5 w-3.5" />
-                        Barchasi
+                        {t("status.all")}
                     </Button>
                 )}
             </CardHeader>
@@ -136,7 +131,7 @@ export default function StatusRibbon({
                                 key={i}
                                 type="button"
                                 onClick={() => toggle(s.status)}
-                                title={`${meta.label}: ${format(s.start, "HH:mm")} → ${format(s.end, "HH:mm")}`}
+                                title={`${t(meta.labelKey)}: ${format(s.start, "HH:mm")} → ${format(s.end, "HH:mm")}`}
                                 className={cn(
                                     "absolute inset-y-0 cursor-pointer transition-opacity hover:brightness-110",
                                     meta.bar,
@@ -153,7 +148,7 @@ export default function StatusRibbon({
                     })}
                     {!isLoading && segments.length === 0 && (
                         <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">
-                            Bu kun uchun holat ma'lumoti yo'q
+                            {t("mon.ribbon.empty")}
                         </div>
                     )}
                 </div>
@@ -183,10 +178,10 @@ export default function StatusRibbon({
                                     )}
                                 />
                                 <span className="text-muted-foreground">
-                                    {meta.label}
+                                    {t(meta.labelKey)}
                                 </span>
                                 <span className="font-semibold tabular-nums">
-                                    {fmtDur(totals[k] ?? 0)}
+                                    {formatDurationShort(totals[k] ?? 0, t)}
                                 </span>
                             </button>
                         )

@@ -111,7 +111,7 @@ const AddCustomerModal = () => {
                         name="code"
                         label={t("form.company_code")}
                         methods={form}
-                        placeholder="Masalan: 100A"
+                        placeholder={t("settings.customers.code_placeholder")}
                     />
 
                     <div className="flex items-center justify-end gap-2 md:col-span-2">

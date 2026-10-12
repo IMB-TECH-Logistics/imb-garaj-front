@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSearch } from "@tanstack/react-router"
 import clsx from "clsx"
+import { useTranslation } from "react-i18next"
 
 type Props = {
     data: {
@@ -18,6 +19,7 @@ type Props = {
 }
 
 const FinanceCard = ({ data }: Props) => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
 
     const {
@@ -48,14 +50,14 @@ const FinanceCard = ({ data }: Props) => {
                 </div>
             </CardHeader>
             <CardContent>
-                <div className={`text-2xl font-bold `}>{value} so'm</div>
+                <div className={`text-2xl font-bold `}>{value} {t("page.som")}</div>
                 {change && (
                     <div className="flex items-center mt-2">
                         <Badge className={`${badgeBg} ${textColor}  border-0`}>
                             {change}
                         </Badge>
                         <span className="text-sm ml-2 opacity-80">
-                            o'tgan oyga nisbatan
+                            {t("fin.finance_card.vs_last_month")}
                         </span>
                     </div>
                 )}

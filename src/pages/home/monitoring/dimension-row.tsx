@@ -1,14 +1,16 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
+import type { TFunction } from "i18next"
 import type { ReactNode } from "react"
+import { useTranslation } from "react-i18next"
 
-export function formatStaleness(seconds: number | null): string {
+export function formatStaleness(seconds: number | null, t: TFunction): string {
     if (seconds == null) return "—"
-    if (seconds < 60) return `${seconds}s`
+    if (seconds < 60) return t("mon.staleness.seconds", { s: seconds })
     const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) return `${minutes} min`
+    if (minutes < 60) return t("mon.staleness.minutes", { m: minutes })
     const hours = Math.floor(minutes / 60)
-    return `${hours}h ${minutes % 60} min`
+    return t("mon.staleness.hours_minutes", { h: hours, m: minutes % 60 })
 }
 
 export const STALE_THRESHOLD_SECONDS = 5 * 60
@@ -36,6 +38,7 @@ export function DimensionRow({
     badge,
     action,
 }: DimensionRowProps) {
+    const { t } = useTranslation()
     const stale =
         secondsSince == null || secondsSince > STALE_THRESHOLD_SECONDS
 
@@ -78,7 +81,7 @@ export function DimensionRow({
                                 : "text-emerald-600 dark:text-emerald-400",
                         )}
                     >
-                        {formatStaleness(secondsSince)}
+                        {formatStaleness(secondsSince, t)}
                     </span>
                 </div>
 

@@ -71,7 +71,7 @@ const AddDriverModal = () => {
         if (digitsOnly.length !== 9) {
             form.setError("driver.phone", {
                 type: "manual",
-                message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+                message: t("settings.driver.phone_12_digits"),
             })
             toast.error(t("toast.error_phone"))
             return
@@ -82,7 +82,7 @@ const AddDriverModal = () => {
             if (digits.length > 0 && digits.length !== 9) {
                 form.setError(`driver.${key}`, {
                     type: "manual",
-                    message: "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
+                    message: t("settings.driver.phone_12_digits"),
                 })
                 toast.error(t("toast.error_phone"))
                 return
@@ -106,7 +106,7 @@ const AddDriverModal = () => {
                 className="grid md:grid-cols-2 gap-4"
             >
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">F.I.O</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.driver.fio")}</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                     <FormInput
                         required
@@ -127,7 +127,7 @@ const AddDriverModal = () => {
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Telefon raqamlar</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.driver.phones")}</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                         <FormFormatNumberInput
@@ -152,7 +152,7 @@ const AddDriverModal = () => {
                         name="driver.relative_contact_1"
                         label={t("form.relative_contact_1")}
                         methods={form}
-                        registerOptions={{ maxLength: { value: 255, message: "255 ta belgidan oshmasin" } }}
+                        registerOptions={{ maxLength: { value: 255, message: t("settings.driver.max_255") } }}
                         placeholder={`${t("form.example")}: Akasi - Anvar`}
                     />
 
@@ -168,14 +168,14 @@ const AddDriverModal = () => {
                         name="driver.relative_contact_2"
                         label={t("form.relative_contact_2")}
                         methods={form}
-                        registerOptions={{ maxLength: { value: 255, message: "255 ta belgidan oshmasin" } }}
+                        registerOptions={{ maxLength: { value: 255, message: t("settings.driver.max_255") } }}
                         placeholder={`${t("form.example")}: Akasi - Anvar`}
                     />
                     </div>
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Hujjatlar</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("nav.documents")}</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                     <FormInput
                         required
@@ -184,7 +184,7 @@ const AddDriverModal = () => {
                             maxLength: {
                                 value: 9,
                                 message:
-                                    "Passport seriya 9 ta belgidan iborat bo'lishi kerak",
+                                    t("settings.driver.passport_len"),
                             },
                         }}
                         uppercase={true}
@@ -198,11 +198,11 @@ const AddDriverModal = () => {
                         registerOptions={{
                             maxLength: {
                                 value: 14,
-                                message: "14 xonali bo'lishi kerak",
+                                message: t("settings.driver.digits_14"),
                             },
                             minLength: {
                                 value: 14,
-                                message: "14 xonali bo'lishi kerak",
+                                message: t("settings.driver.digits_14"),
                             },
                         }}
                         thousandSeparator={""}
@@ -249,7 +249,7 @@ const AddDriverModal = () => {
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Login va parol</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.common.login_and_password")}</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                     <FormInput
                         required

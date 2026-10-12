@@ -1,5 +1,6 @@
 import { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
+import i18n from "@/i18n/i18n"
 import { isAllTenantsMode } from "@/lib/tenant-scope"
 import { useGet } from "./useGet"
 import { useUpdateQueryCache } from "./useUpdateQuery"
@@ -113,7 +114,7 @@ export function useSocket<T>({
                 }
             }
 
-            ws.onerror = () => setWsError("WebSocket error occurred")
+            ws.onerror = () => setWsError(i18n.t("core.errors.ws_error"))
 
             ws.onclose = () => {
                 setIsConnected(false)
@@ -128,7 +129,7 @@ export function useSocket<T>({
                     }, reconnectDelay)
                 } else {
                     setWsError(
-                        "WebSocket connection failed after multiple retries",
+                        i18n.t("core.errors.ws_failed"),
                     )
                 }
             }
@@ -181,7 +182,7 @@ export function useSocket<T>({
         if (isConnected && wsRef.current) {
             wsRef.current.send(JSON.stringify(message))
         } else {
-            setWsError("Cannot send message. WebSocket is not connected.")
+            setWsError(i18n.t("core.errors.ws_not_connected"))
         }
     }
 

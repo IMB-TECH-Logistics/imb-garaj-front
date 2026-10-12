@@ -1,3 +1,4 @@
+import i18n from "@/i18n/i18n"
 import { isAllTenantsMode } from "@/lib/tenant-scope"
 import { useEffect, useRef, useState } from "react"
 import {
@@ -77,7 +78,7 @@ export const useWebSocket = <T = unknown>(
             }
 
             ws.onerror = () => {
-                setWsError("WebSocket error occurred")
+                setWsError(i18n.t("core.errors.ws_error"))
                 setIsFetching(false)
                 if (!hasConnected) {
                     setIsLoading(false)
@@ -96,7 +97,7 @@ export const useWebSocket = <T = unknown>(
                         connectWebSocket()
                     }, 2000)
                 } else {
-                    setWsError("WebSocket connection failed after 5 retries")
+                    setWsError(i18n.t("core.errors.ws_failed"))
                 }
             }
         }
@@ -117,7 +118,7 @@ export const useWebSocket = <T = unknown>(
             wsRef.current.send(JSON.stringify(message))
         } else {
             console.error("WebSocket is not connected. Message not sent.")
-            setWsError("Cannot send message. WebSocket is not connected.")
+            setWsError(i18n.t("core.errors.ws_not_connected"))
         }
     }
 

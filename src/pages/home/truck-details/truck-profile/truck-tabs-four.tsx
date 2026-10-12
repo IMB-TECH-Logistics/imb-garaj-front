@@ -105,7 +105,7 @@ export const TruckTabsFour = () => {
                             {t("page.trip_list")}
                         </h1>
                         <Badge className="text-sm">
-                            {`${totalDistance} km umumiy masofa`}
+                            {t("fleet.tabs.total_distance_badge", { value: totalDistance })}
                         </Badge>
                     </div>
                 }
@@ -116,19 +116,19 @@ export const TruckTabsFour = () => {
 
             <div className="mt-4 bg-muted p-4 rounded-lg text-sm">
                 <p>
-                    <strong>Umumiy masofa:</strong> {totalDistance} km
+                    <strong>{t("fleet.tabs.total_distance")}:</strong> {totalDistance} {t("fleet.units.km")}
                 </p>
                 <p>
-                    <strong>O‘rtacha 100 km uchun sarf:</strong>{" "}
-                    {Math.round(totalFuel / allData.length)} litr
+                    <strong>{t("fleet.tabs.avg_per_100")}:</strong>{" "}
+                    {Math.round(totalFuel / allData.length)} {t("fleet.units.litr")}
                 </p>
                 <p>
-                    <strong>Umumiy zavat holati:</strong>{" "}
-                    {totalIdleHours.toFixed(1)} soat
+                    <strong>{t("fleet.tabs.total_idle")}:</strong>{" "}
+                    {totalIdleHours.toFixed(1)} {t("fleet.units.hour")}
                 </p>
                 <p>
-                    <strong>Zavat paytidagi yoqilg‘i sarfi:</strong>{" "}
-                    {formatMoney(totalIdleFuel)} litr
+                    <strong>{t("fleet.tabs.idle_fuel")}:</strong>{" "}
+                    {formatMoney(totalIdleFuel)} {t("fleet.units.litr")}
                 </p>
             </div>
         </div>
@@ -173,34 +173,34 @@ const cols = (t: TFunction) => {
             {
                 header: t("table.distance_km"),
                 accessorKey: "distance_km",
-                cell: ({ row }) => <span>{row.original.distance_km} km</span>,
+                cell: ({ row }) => <span>{row.original.distance_km} {t("fleet.units.km")}</span>,
             },
             {
                 header: t("table.fuel_per_km"),
                 accessorKey: "fuel_per_100km",
                 cell: ({ row }) => (
-                    <span>{row.original.fuel_per_100km} litr</span>
+                    <span>{row.original.fuel_per_100km} {t("fleet.units.litr")}</span>
                 ),
             },
             {
                 header: t("table.mileage_km"),
                 accessorKey: "avg_speed",
                 cell: ({ row }) => (
-                    <span>{row.original.avg_speed} km/soat</span>
+                    <span>{row.original.avg_speed} {t("fleet.units.km_per_hour")}</span>
                 ),
             },
             {
                 header: t("table.duration"),
                 accessorKey: "idle_hours",
-                cell: ({ row }) => <span>{row.original.idle_hours} soat</span>,
+                cell: ({ row }) => <span>{row.original.idle_hours} {t("fleet.units.hour")}</span>,
             },
             {
                 header: t("table.fuel_consumption"),
                 accessorKey: "idle_fuel",
                 cell: ({ row }) => (
                     <span>
-                        {row.original.idle_hours} soat /{" "}
-                        {row.original.idle_fuel} litr
+                        {row.original.idle_hours} {t("fleet.units.hour")} /{" "}
+                        {row.original.idle_fuel} {t("fleet.units.litr")}
                     </span>
                 ),
             },

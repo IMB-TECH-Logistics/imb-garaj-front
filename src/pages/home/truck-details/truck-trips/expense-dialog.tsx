@@ -152,7 +152,7 @@ export default function ExpenseDialog({ tripId, totalExpense, open, onClose }: E
                         <DialogTitle className="flex flex-wrap items-center gap-3 pr-10">
                             <span className="text-lg font-semibold">{t("page.expense_list")}</span>
                             <Badge variant="secondary" className="text-sm">
-                                {totalCount} ta
+                                {t("fleet.trips.count_pcs", { count: totalCount })}
                             </Badge>
                             {totalExpense != null && (
                                 <span className="ml-auto text-sm font-normal text-muted-foreground">

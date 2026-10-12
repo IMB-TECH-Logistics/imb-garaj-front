@@ -15,6 +15,29 @@ import { PromptWithCauseProvider } from "@/layouts/prompt-with-causer"
 import { ThemeProvider } from "@/layouts/theme"
 import { ViewProvider } from "@/layouts/view"
 import { ModalProvider } from "@/providers/modal-provider"
+import { useTranslation } from "react-i18next"
+
+function NotFound() {
+    const { t } = useTranslation()
+    return (
+        <main className="grid place-items-center h-screen w-full bg-primary-foreground">
+            <div className="shadow rounded-md p-4 flex flex-col gap-2">
+                <Link to="/">
+                    <Button>{t("core.not_found.back_home")}</Button>
+                </Link>
+                <Badge
+                    variant={"destructive"}
+                    className="text-center justify-center"
+                >
+                    {t("messages.not_found")}
+                </Badge>
+                <Link to="/auth">
+                    <Button>{t("core.not_found.back_login")}</Button>
+                </Link>
+            </div>
+        </main>
+    )
+}
 
 export const Route = createRootRoute({
     component: RootComponent,
@@ -24,26 +47,7 @@ export const Route = createRootRoute({
             page_size: search?.page_size ?? undefined,
         }
     },
-    notFoundComponent: () => {
-        return (
-            <main className="grid place-items-center h-screen w-full bg-primary-foreground">
-                <div className="shadow rounded-md p-4 flex flex-col gap-2">
-                    <Link to="/">
-                        <Button>Back to home page</Button>
-                    </Link>
-                    <Badge
-                        variant={"destructive"}
-                        className="text-center justify-center"
-                    >
-                        Not found
-                    </Badge>
-                    <Link to="/auth">
-                        <Button>Back to login page</Button>
-                    </Link>
-                </div>
-            </main>
-        )
-    },
+    notFoundComponent: NotFound,
 })
 
 function RootComponent() {

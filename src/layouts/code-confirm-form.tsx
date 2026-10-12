@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useSearch } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 export default function CodeConfirmForm() {
+    const { t } = useTranslation()
     const form = useForm<{ password: string }>()
     const search: any = useSearch({ from: "__root__" })
 
@@ -19,8 +21,10 @@ export default function CodeConfirmForm() {
             className="w-full flex flex-col gap-3"
             onSubmit={form.handleSubmit(handleSubmit)}
         >
-            <FormInput methods={form} name="password" placeholder="Parol" />
-            <Button type="submit" loading={isFetching}>Yuklab olish</Button>
+            <FormInput methods={form} name="password" placeholder={t("auth.password")} />
+            <Button type="submit" loading={isFetching}>
+                {t("actions.download")}
+            </Button>
         </form>
     )
 }

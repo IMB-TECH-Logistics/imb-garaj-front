@@ -54,7 +54,7 @@ export const NaqdAmountField = ({
             name="amount"
             control={control}
             thousandSeparator=" "
-            placeholder="Ex: 1 500 000"
+            placeholder={t("trips.common.example_amount")}
             autoComplete="off"
         />
     )

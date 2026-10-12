@@ -1,5 +1,6 @@
 import { formatDate } from "@/lib/format-date"
 import { CalendarDays, Truck, User2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import {
     DimensionEmpty,
     DimensionListSkeleton,
@@ -20,12 +21,13 @@ export default function TripList({
     activeId,
     onSelect,
 }: Props) {
+    const { t } = useTranslation()
     if (loading && items.length === 0) return <DimensionListSkeleton />
     if (!loading && items.length === 0) {
         return (
             <DimensionEmpty
-                title="Hech qanday reys GPS yozmagan"
-                hint="Boshqa filtr yoki sana oralig'ini sinab ko'ring"
+                title={t("mon.trip_list.empty_title")}
+                hint={t("mon.trip_list.empty_hint")}
             />
         )
     }
@@ -39,7 +41,7 @@ export default function TripList({
                     active={trip.id === activeId}
                     secondsSince={trip.seconds_since}
                     onClick={() => onSelect?.(trip)}
-                    primary={`Reys #${trip.id}`}
+                    primary={t("mon.trip_n", { id: trip.id })}
                     secondary={
                         <>
                             {trip.driver_name && (

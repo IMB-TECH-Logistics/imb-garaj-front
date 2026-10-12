@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { CirclePlay, CirclePause, Trash, Mic, ArrowUpRight, Send } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
@@ -7,6 +8,7 @@ type Props = {
 }
 
 export default function VoiceRecorder({ handleSend }: Props) {
+const { t } = useTranslation()
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
@@ -279,7 +281,7 @@ export default function VoiceRecorder({ handleSend }: Props) {
                             </button>
                             <button
                                 type="button"
-                                aria-label={"Delete recorded audio"}
+                                aria-label={t("ui.voice_recorder.delete_audio")}
                                 className="text-rose-500"
                                 onClick={() => {
                                     const el = resultRef.current;

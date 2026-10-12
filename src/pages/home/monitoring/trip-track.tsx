@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "@tanstack/react-router"
 import { ArrowLeft } from "lucide-react"
 import RouteMap from "./route-map"
 import type { RoutePolyline } from "./types"
+import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 
 type TripDetail = {
@@ -88,7 +89,7 @@ export default function TripTrackPage() {
                         {trip.data?.end
                             ? ` → ${formatDate(trip.data.end)}`
                             : trip.data?.start
-                            ? " → davom etmoqda"
+                            ? ` → ${t("mon.trip_track.ongoing")}`
                             : ""}
                     </p>
                 </div>
@@ -119,7 +120,7 @@ export default function TripTrackPage() {
                                     {km}
                                 </span>
                                 <span className="text-sm text-muted-foreground">
-                                    km
+                                    {t("mon.units.km")}
                                 </span>
                             </div>
                         </CardContent>
@@ -159,6 +160,7 @@ export default function TripTrackPage() {
                                 value={formatDuration(
                                     polylineData?.first_at ?? null,
                                     polylineData?.last_at ?? null,
+                                    t,
                                 )}
                             />
                             {totalMileage != null && (
@@ -206,7 +208,7 @@ function formatStamp(raw: string | null | undefined): string {
     return format(d, "dd/MM HH:mm")
 }
 
-function formatDuration(from: string | null, to: string | null): string {
+function formatDuration(from: string | null, to: string | null, t: TFunction): string {
     if (!from || !to) return "—"
     const a = new Date(from).getTime()
     const b = new Date(to).getTime()
@@ -214,6 +216,6 @@ function formatDuration(from: string | null, to: string | null): string {
     const seconds = Math.max(0, Math.floor((b - a) / 1000))
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
-    if (h === 0) return `${m}m`
-    return `${h}s ${m}m`
+    if (h === 0) return t("mon.duration.m_short", { m })
+    return t("mon.duration.hm_short", { h, m })
 }

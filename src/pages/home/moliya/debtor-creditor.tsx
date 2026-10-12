@@ -3,6 +3,7 @@ import { useSearch } from "@tanstack/react-router"
 import { useGet } from "@/hooks/useGet"
 import { FINANCE_DEBTORS, FINANCE_CREDITORS } from "@/constants/api-endpoints"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 type Entry = { name: string; amount: number; days: number; note?: string }
 
@@ -47,24 +48,26 @@ function usePartners(url: string, fallback: Entry[]): Entry[] {
 const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
 
 function StatusDot({ days }: { days: number }) {
+    const { t } = useTranslation()
     return (
         <span
             className={cn(
                 "size-2 rounded-full shrink-0",
                 days > 30 ? "bg-red-500" : days > 14 ? "bg-amber-500" : "bg-emerald-500",
             )}
-            title={`${days} kun`}
+            title={t("fin.common.days_n", { count: days })}
         />
     )
 }
 
 function EntryList({ entries, variant }: { entries: Entry[]; variant: "income" | "expense" }) {
+    const { t } = useTranslation()
     const total = entries.reduce((s, e) => s + e.amount, 0)
     const isIncome = variant === "income"
     return (
         <div className="h-full flex flex-col">
             <div className="pl-4 pr-12 pt-3 pb-[17px] shrink-0 border-b flex flex-wrap items-center gap-x-3">
-                <h3 className="text-xs font-semibold">{isIncome ? "Bizga berishlari kerak" : "Biz berishimiz kerak"}</h3>
+                <h3 className="text-xs font-semibold">{isIncome ? t("fin.debtor.owed_to_us") : t("fin.debtor.we_owe")}</h3>
                 <span className={cn("text-xs font-semibold", isIncome ? "text-emerald-500" : "text-red-500")}>
                     {isIncome ? "+" : "−"}{fmt(total)}
                 </span>
@@ -85,7 +88,7 @@ function EntryList({ entries, variant }: { entries: Entry[]; variant: "income" |
                                 <span className={cn(
                                     "text-[10px] font-medium",
                                     e.days > 30 ? "text-red-500" : e.days > 14 ? "text-amber-500" : "text-muted-foreground",
-                                )}>{e.days} kun</span>
+                                )}>{t("fin.common.days_n", { count: e.days })}</span>
                             </div>
                         </div>
                     </div>

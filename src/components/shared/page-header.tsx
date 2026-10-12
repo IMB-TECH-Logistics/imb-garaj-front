@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ParamPagination from "../as-params/pagination";
 import { ReactNode } from "react";
 
@@ -14,9 +15,10 @@ export default function PageHeader({
     filterComponent,
     paginationProps,
 }: Props) {
+    const { t } = useTranslation()
     return (
         <div className="flex items-center gap-6 mb-3">
-            <p className="text-xl">Soni: {count}</p>
+            <p className="text-xl">{t("ui.list.count_value", { count })}</p>
             <div className="flex-1">{filterComponent}</div>
             <ParamPagination
                 disabled={isFetching}

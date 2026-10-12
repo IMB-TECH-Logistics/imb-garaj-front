@@ -2,10 +2,10 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-const METHOD_LABELS: Record<number, string> = {
-    1: "Naqd",
-    2: "Plastik",
-    3: "Kassa",
+const METHOD_KEYS: Record<number, string> = {
+    1: "settings.payment.method_cash",
+    2: "settings.payment.method_plastic",
+    3: "settings.payment.method_kassa",
 }
 
 export const useColumnsPaymentTable = () => {
@@ -25,7 +25,7 @@ export const useColumnsPaymentTable = () => {
                     const method = (row.original as any).method as number
                     return (
                         <span className="text-xs px-2 py-0.5 rounded-md bg-muted font-medium">
-                            {METHOD_LABELS[method] ?? "—"}
+                            {METHOD_KEYS[method] ? t(METHOD_KEYS[method]) : "—"}
                         </span>
                     )
                 },

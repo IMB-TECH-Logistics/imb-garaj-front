@@ -46,11 +46,14 @@ type Props = {
     onDrivers: () => void
 }
 
-const Amount = ({ value, className }: { value?: string | number; className?: string }) => (
-    <span className={cn("font-semibold tabular-nums text-right", className)}>
-        {formatMoney(Number(value ?? 0))} <span className="font-normal text-xs opacity-80">so'm</span>
-    </span>
-)
+const Amount = ({ value, className }: { value?: string | number; className?: string }) => {
+    const { t } = useTranslation()
+    return (
+        <span className={cn("font-semibold tabular-nums text-right", className)}>
+            {formatMoney(Number(value ?? 0))} <span className="font-normal text-xs opacity-80">{t("page.som")}</span>
+        </span>
+    )
+}
 
 const Row = ({
     label,

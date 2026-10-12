@@ -2,6 +2,7 @@ import { ParamCombobox } from "@/components/as-params/combobox"
 import { SETTINGS_SELECTABLE_VEHICLE_TYPE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useTranslation } from "react-i18next"
+import type { TFunction } from "i18next"
 
 
 
@@ -27,19 +28,19 @@ export const optionYears = (
     return years
 }
 
-export const months = [
-    { key: "01", name: "Yanvar" },
-    { key: "02", name: "Fevral" },
-    { key: "03", name: "Mart" },
-    { key: "04", name: "Aprel" },
-    { key: "05", name: "May" },
-    { key: "06", name: "Iyun" },
-    { key: "07", name: "Iyul" },
-    { key: "08", name: "Avgust" },
-    { key: "09", name: "Sentabr" },
-    { key: "10", name: "Oktabr" },
-    { key: "11", name: "Noyabr" },
-    { key: "12", name: "Dekabr" },
+export const getMonths = (t: TFunction) => [
+    { key: "01", name: t("fleet.months.m01") },
+    { key: "02", name: t("fleet.months.m02") },
+    { key: "03", name: t("fleet.months.m03") },
+    { key: "04", name: t("fleet.months.m04") },
+    { key: "05", name: t("fleet.months.m05") },
+    { key: "06", name: t("fleet.months.m06") },
+    { key: "07", name: t("fleet.months.m07") },
+    { key: "08", name: t("fleet.months.m08") },
+    { key: "09", name: t("fleet.months.m09") },
+    { key: "10", name: t("fleet.months.m10") },
+    { key: "11", name: t("fleet.months.m11") },
+    { key: "12", name: t("fleet.months.m12") },
 ]
 
 export const monthOnly = String(new Date().getMonth() + 1).padStart(2, "0")
@@ -47,6 +48,11 @@ export const yearOnly = new Date().getFullYear()
 
 export default function ReportsFilter() {
     const { t } = useTranslation()
+    const statusFilter = [
+        { key: 1, name: t("status.loaded") },
+        { key: 2, name: t("status.empty") },
+        { key: 3, name: t("status.repair") },
+    ]
 
     const { data: vehicleType } = useGet(SETTINGS_SELECTABLE_VEHICLE_TYPE, {
         params: {
@@ -159,12 +165,6 @@ export default function ReportsFilter() {
 //     { key: "street", name: "Garaj mexanigi tasdiqlandi" },
 // ]
 
-const statusFilter = [
-    { key: 1, name: "Yukli" },
-    { key: 2, name: "Yuksiz" },
-    { key: 3, name: "Ta'mirda" },
-
-]
 
 // const regions = [
 //     { id: 0, name: "Barchasi" },

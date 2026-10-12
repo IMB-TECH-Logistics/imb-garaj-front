@@ -93,7 +93,7 @@ export default function ExpenseEditForm() {
                         control={control}
                         label={t("form.amount")}
                         name="amount"
-                        placeholder="Ex: 123 000"
+                        placeholder={t("fleet.trips.amount_example")}
                         thousandSeparator=" "
                         decimalScale={2}
                     />

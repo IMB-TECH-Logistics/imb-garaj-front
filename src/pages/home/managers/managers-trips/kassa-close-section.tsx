@@ -18,6 +18,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ReactNode, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
+import i18n from "@/i18n/i18n"
 import PendingAdvances from "./pending-advances"
 
 type Expense = { id: number; amount: number; category: number | null; category_name: string | null; comment: string | null; date: string }
@@ -58,17 +60,17 @@ export type KassaCloseState = {
 const EDIT_MODAL = "kassa-close-expense-edit"
 const DELETE_MODAL = "kassa-close-expense-delete"
 const SALARY_MODAL = "kassa-close-salary-edit"
-const ORDER_STATUS: Record<number, string> = { [-1]: "Qoralama", 0: "Kutilmoqda", 1: "Boshlandi", 5: "Yuklanmoqda", 6: "Yo'lda", 7: "Tushirilmoqda", 2: "Tugallandi", 3: "Bekor qilindi", 4: "Arxivlangan" }
+const ORDER_STATUS: Record<number, string> = { [-1]: "status.draft", 0: "trips.status.pending", 1: "trips.status.started", 5: "trips.status.loading", 6: "trips.status.on_road", 7: "trips.status.unloading", 2: "trips.status.finished", 3: "trips.status.cancelled", 4: "trips.status.archived" }
 
 const COMPACT = "min-w-0"
 const money = (v: number) => (v < 0 ? "−" : "") + Math.abs(Math.round(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
 
 const errorText = (e: any) => {
     const d = e?.response?.data
-    if (!d) return "Xatolik yuz berdi"
+    if (!d) return i18n.t("trips.row.error")
     if (d.detail) return String(d.detail)
     const first = Object.values(d)[0]
-    return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : "Xatolik yuz berdi"
+    return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : i18n.t("trips.row.error")
 }
 
 const Row = ({ label, value, className }: { label: ReactNode; value: ReactNode; className?: string }) => (
@@ -85,6 +87,7 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
     onChange: (s: KassaCloseState) => void
     tech?: ReactNode
 }) {
+    const { t } = useTranslation()
     const previewUrl = `checkout/kassa-v2/trips/${tripId}/close-preview`
     const qc = useQueryClient()
     const { data: preview, isLoading } = useGet<Preview>(previewUrl, { enabled: !!tripId, options: { staleTime: 0, gcTime: 0 } })
@@ -126,11 +129,11 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
             order: o.id,
             route: route(o.loading_name, o.unloading_name),
             date: o.date ?? null,
-            status_label: o.status != null ? ORDER_STATUS[o.status] ?? null : null,
+            status_label: o.status != null && ORDER_STATUS[o.status] ? t(ORDER_STATUS[o.status]) : null,
             tariff: null,
             amount: null,
         }))
-    }, [preview, orders])
+    }, [preview, orders, t])
 
     useEffect(() => {
         const init: Record<number, number> = {}
@@ -166,36 +169,36 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
     }, [salaryModal.isOpen, salaryRow])
 
     const expenseCols = useMemo<ColumnDef<Expense>[]>(() => [
-        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="text-red-500 font-medium whitespace-nowrap">−{formatMoney(Number(row.original.amount))}</span> },
-        { header: "Turi", accessorKey: "category_name", cell: ({ row }) => row.original.category_name || "—" },
-        { header: "Sana", accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.date)}</span> },
-    ], [])
+        { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="text-red-500 font-medium whitespace-nowrap">−{formatMoney(Number(row.original.amount))}</span> },
+        { header: t("form.applies_to"), accessorKey: "category_name", cell: ({ row }) => row.original.category_name || "—" },
+        { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.date)}</span> },
+    ], [t])
     const advanceCols = useMemo<ColumnDef<FlowRow>[]>(() => [
-        { header: "Summa", accessorKey: "amount", meta: { className: "w-px whitespace-nowrap" }, cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
-        { header: "Nima uchun", id: "kind", meta: { className: "w-full" }, cell: ({ row }) => row.original.comment || "Avans" },
-        { header: "Sana", accessorKey: "created", meta: { className: "w-px whitespace-nowrap" }, cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
-    ], [])
+        { header: t("form.amount_total"), accessorKey: "amount", meta: { className: "w-px whitespace-nowrap" }, cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
+        { header: t("trips.kclose.what_for"), id: "kind", meta: { className: "w-full" }, cell: ({ row }) => row.original.comment || t("trips.kclose.advance") },
+        { header: t("form.date"), accessorKey: "created", meta: { className: "w-px whitespace-nowrap" }, cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
+    ], [t])
     const incomeCols = useMemo<ColumnDef<FlowRow>[]>(() => [
-        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
-        { header: "Reys", id: "route", cell: ({ row }) => route(row.original.loading_name, row.original.unloading_name) },
-        { header: "Sana", accessorKey: "created", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
-    ], [])
+        { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="text-green-600 font-medium whitespace-nowrap">+{formatMoney(Number(row.original.amount))}</span> },
+        { header: t("trips.kclose.trip"), id: "route", cell: ({ row }) => route(row.original.loading_name, row.original.unloading_name) },
+        { header: t("form.date"), accessorKey: "created", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.created)}</span> },
+    ], [t])
     const salaryCols = useMemo<ColumnDef<SalaryOrder>[]>(() => [
-        { header: "Oylik", id: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(salaries[row.original.order] ?? 0)}</span> },
-        { header: "Reys", accessorKey: "route" },
-        { header: "Holat", accessorKey: "status_label", cell: ({ row }) => row.original.status_label || "—" },
-        { header: "Tarif bo'yicha", accessorKey: "tariff", cell: ({ row }) => <span className="text-muted-foreground whitespace-nowrap">{row.original.tariff != null ? formatMoney(Number(row.original.tariff)) : "—"}</span> },
-        { header: "Sana", accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{row.original.date || "—"}</span> },
-    ], [salaries])
+        { header: t("trips.kclose.salary"), id: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(salaries[row.original.order] ?? 0)}</span> },
+        { header: t("trips.kclose.trip"), accessorKey: "route" },
+        { header: t("trips.kclose.state"), accessorKey: "status_label", cell: ({ row }) => row.original.status_label || "—" },
+        { header: t("trips.kclose.by_tariff"), accessorKey: "tariff", cell: ({ row }) => <span className="text-muted-foreground whitespace-nowrap">{row.original.tariff != null ? formatMoney(Number(row.original.tariff)) : "—"}</span> },
+        { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{row.original.date || "—"}</span> },
+    ], [salaries, t])
 
     const emptyLegCols = useMemo<ColumnDef<EmptyLegSalary["legs"][number]>[]>(() => [
-        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(Number(row.original.amount))}</span> },
-        { header: "Yo'nalish", accessorKey: "route" },
-        { header: "Km", accessorKey: "km", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.km != null ? `${formatMoney(Number(row.original.km))} km` : "—"}</span> },
-        { header: "Sana", accessorKey: "start", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.start ?? undefined)}</span> },
-    ], [])
+        { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(Number(row.original.amount))}</span> },
+        { header: t("form.direction"), accessorKey: "route" },
+        { header: t("trips.units.km_title"), accessorKey: "km", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.km != null ? `${formatMoney(Number(row.original.km))} ${t("trips.units.km")}` : "—"}</span> },
+        { header: t("form.date"), accessorKey: "start", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.start ?? undefined)}</span> },
+    ], [t])
 
-    if (isLoading || !preview) return <p className="text-sm text-muted-foreground">Kassa hisobi yuklanmoqda…</p>
+    if (isLoading || !preview) return <p className="text-sm text-muted-foreground">{t("trips.kclose.loading")}</p>
 
     const returns = net >= 0
     const catList = (() => {
@@ -221,14 +224,14 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                 <AccordionItem value="given" className="border-0">
                     <AccordionTrigger className={trigger}>
                         {line(
-                            <>Avans{pendingCount ? <Badge variant="orange" className="h-5 px-1.5">{pendingCount}</Badge> : null}</>,
+                            <>{t("trips.kclose.advance")}{pendingCount ? <Badge variant="orange" className="h-5 px-1.5">{pendingCount}</Badge> : null}</>,
                             `+${money(Number(preview.given))}`,
                         )}
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 space-y-2">
                         {pendingCount > 0 && (
                             <div className="rounded-md border border-orange-500/30 bg-orange-500/5 px-3 py-2 text-sm text-orange-600">
-                                {pendingCount} ta so'rov kassirda kutilmoqda: {money(pendingSum)} so'm. U hisobga kirmagan — haydovchiga hali berilmagan.
+                                {t("trips.kclose.pending_text", { count: pendingCount, sum: money(pendingSum) })}
                             </div>
                         )}
                         <div className="max-h-[38vh] overflow-y-auto">
@@ -238,7 +241,7 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="incomes" className="border-0">
-                    <AccordionTrigger className={trigger}>{line("Naqd reys puli", `+${money(Number(preview.earned))}`)}</AccordionTrigger>
+                    <AccordionTrigger className={trigger}>{line(t("trips.kclose.cash_trip_money"), `+${money(Number(preview.earned))}`)}</AccordionTrigger>
                     <AccordionContent className="pb-3">
                         <div className="max-h-[38vh] overflow-y-auto">
                             <DataTable columns={incomeCols} data={incomes} numeration viewAll className={COMPACT} />
@@ -246,7 +249,7 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="expenses" className="border-0">
-                    <AccordionTrigger className={trigger}>{line("Naqd xarajatlar", `−${money(Number(preview.spent))}`)}</AccordionTrigger>
+                    <AccordionTrigger className={trigger}>{line(t("trips.kclose.cash_expenses"), `−${money(Number(preview.spent))}`)}</AccordionTrigger>
                     <AccordionContent className="pb-3">
                         <div className="max-h-[38vh] overflow-y-auto">
                             <DataTable
@@ -261,9 +264,9 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                         </div>
                     </AccordionContent>
                 </AccordionItem>
-                <Row className="py-2.5 pr-6" label="Haydovchi qo'lida qolgan" value={<span className="text-blue-600 dark:text-blue-400">{money(due)}</span>} />
+                <Row className="py-2.5 pr-6" label={t("trips.kclose.driver_holds")} value={<span className="text-blue-600 dark:text-blue-400">{money(due)}</span>} />
                 <AccordionItem value="salaries" className="border-0">
-                    <AccordionTrigger className={trigger}>{line("Oylik", `−${money(salaryTotal)}`)}</AccordionTrigger>
+                    <AccordionTrigger className={trigger}>{line(t("trips.kclose.salary"), `−${money(salaryTotal)}`)}</AccordionTrigger>
                     <AccordionContent className="pb-3">
                         <div className="max-h-[38vh] overflow-y-auto">
                             <DataTable
@@ -281,7 +284,7 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                     <AccordionItem value="empty-legs" className="border-0">
                         <AccordionTrigger className={trigger}>
                             {line(
-                                <>{emptyLegs.label || "Bo'sh yurish"}<Badge variant="outline" className="h-5 px-1.5">{emptyLegs.count}</Badge></>,
+                                <>{emptyLegs.label || t("trips.managers.empty_run")}<Badge variant="outline" className="h-5 px-1.5">{emptyLegs.count}</Badge></>,
                                 `−${money(emptyLegAmount)}`,
                             )}
                         </AccordionTrigger>
@@ -294,37 +297,37 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                 )}
                 <Row
                     className={cn("font-semibold py-2.5 pr-6", returns ? "text-green-600" : "text-destructive")}
-                    label={returns ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"}
+                    label={returns ? t("trips.kclose.cashier_takes") : t("trips.kclose.cashier_gives")}
                     value={money(Math.abs(net))}
                 />
             </Accordion>
 
-            <Modal modalKey={EDIT_MODAL} title="Xarajatni tahrirlash" size="max-w-md">
+            <Modal modalKey={EDIT_MODAL} title={t("trips.kclose.edit_expense")} size="max-w-md">
                 <form
                     className="flex flex-col gap-3"
                     onSubmit={form.handleSubmit((v) => {
                         if (!selected) return
                         patch(`${MANAGERS_EXPENSES}/${selected.id}`, { amount: Number(v.amount), category: v.category ? Number(v.category) : null, comment: v.comment || null }, {
-                            onSuccess: () => { toast.success("Xarajat o'zgartirildi"); refresh(); edit.closeModal() },
+                            onSuccess: () => { toast.success(t("trips.kclose.expense_changed")); refresh(); edit.closeModal() },
                             onError: (e: unknown) => toast.error(errorText(e)),
                         })
                     })}
                 >
-                    <FormNumberInput required control={form.control} name="amount" label="Summa" thousandSeparator=" " allowNegative={false} registerOptions={{ validate: (v: unknown) => Number(v) > 0 || "Summa 0 dan katta bo'lsin" }} />
+                    <FormNumberInput required control={form.control} name="amount" label={t("form.amount_total")} thousandSeparator=" " allowNegative={false} registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }} />
                     <label className="flex flex-col gap-1.5 text-sm font-medium">
-                        Turi
+                        {t("form.applies_to")}
                         <select {...form.register("category")} className="h-10 rounded-md border bg-background px-3 text-sm font-normal">
                             {catList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                     </label>
-                    <FormTextarea label="Izoh" name="comment" methods={form} />
+                    <FormTextarea label={t("form.comment")} name="comment" methods={form} />
                     <div className="flex justify-end">
-                        <Button type="submit" className="min-w-32" loading={saving}>Saqlash</Button>
+                        <Button type="submit" className="min-w-32" loading={saving}>{t("actions.save")}</Button>
                     </div>
                 </form>
             </Modal>
 
-            <Modal modalKey={SALARY_MODAL} title="Reys oyligini o'zgartirish" size="max-w-md">
+            <Modal modalKey={SALARY_MODAL} title={t("trips.kclose.edit_salary")} size="max-w-md">
                 <form
                     className="flex flex-col gap-3"
                     onSubmit={salaryForm.handleSubmit((v) => {
@@ -334,11 +337,14 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                     })}
                 >
                     <p className="text-sm text-muted-foreground">
-                        {salaryRow?.route} · tarif bo'yicha: {salaryRow?.tariff != null ? `${money(Number(salaryRow.tariff))} so'm` : "belgilanmagan"}. Bonus yoki jarima bo'lsa summani o'zgartiring.
+                        {t("trips.kclose.salary_hint", {
+                            route: salaryRow?.route,
+                            tariff: salaryRow?.tariff != null ? `${money(Number(salaryRow.tariff))} ${t("trips.units.som")}` : t("trips.kclose.not_set"),
+                        })}
                     </p>
-                    <FormNumberInput control={salaryForm.control} name="amount" label="Oylik" thousandSeparator=" " allowNegative={false} />
+                    <FormNumberInput control={salaryForm.control} name="amount" label={t("trips.kclose.salary")} thousandSeparator=" " allowNegative={false} />
                     <div className="flex justify-end">
-                        <Button type="submit" className="min-w-32">Saqlash</Button>
+                        <Button type="submit" className="min-w-32">{t("actions.save")}</Button>
                     </div>
                 </form>
             </Modal>

@@ -129,7 +129,9 @@ export const useLogsCols = (onView: (log: LogItem) => void) => {
                             </a>
                             {location_accuracy != null && (
                                 <span className="text-xs text-muted-foreground">
-                                    ±{Math.round(location_accuracy)} m
+                                    {t("settings.logs.accuracy_m", {
+                                        value: Math.round(location_accuracy),
+                                    })}
                                 </span>
                             )}
                         </div>

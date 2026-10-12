@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 import { X } from "lucide-react";
 import { endOfMonth, format, startOfMonth } from "date-fns";
@@ -54,6 +55,7 @@ export default function ParamDateRange({
     ...props
 }: IProps) {
     const navigate = useNavigate();
+    const { t } = useTranslation()
     const search: any = useSearch({ from: "/_main" }) as Record<
         string,
         string | undefined
@@ -82,7 +84,7 @@ export default function ParamDateRange({
                 },
                 replace: true,
             });
-            toast.warning("Sana noto'g'ri formatda edi, standart oraliq qo'yildi", {
+            toast.warning(t("ui.date_picker.invalid_format"), {
                 id: "invalid-date-range",
             });
             return;
@@ -102,7 +104,7 @@ export default function ParamDateRange({
                 replace: true,
             });
             setTimeout(() =>
-                toast.warning("Sana oralig'i noto'g'ri edi, joriy oy qo'yildi", {
+                toast.warning(t("ui.date_picker.reversed_range"), {
                     id: "reversed-date-range",
                 }),
             );

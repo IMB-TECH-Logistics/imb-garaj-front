@@ -71,8 +71,10 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                 </div>
                 {totalCount > shownCount && (
                     <div className="px-3 pb-2 text-xs text-destructive">
-                        {totalCount} tadan {shownCount} tasi ko&apos;rsatilmoqda
-                        — qidiruvdan foydalaning.
+                        {t("settings.locations.districts_truncated", {
+                            total: totalCount,
+                            shown: shownCount,
+                        })}
                     </div>
                 )}
                 <div className="flex-1 overflow-y-auto no-scrollbar-0 no-scrollbar-x ">
@@ -96,7 +98,11 @@ const DistrictsTable = ({ country_id, region_id }: DistrictsTableProps) => {
                 />
                 <Modal
                     size="max-w-2xl"
-                    title={item?.id ? "Tumanni tahrirlash" : "Tuman qo'shish"}
+                    title={
+                        item?.id ?
+                            t("settings.locations.edit_district")
+                        :   t("settings.locations.add_district")
+                    }
                     modalKey={"create-districts"}
                 >
                     <AddDestrictsModal

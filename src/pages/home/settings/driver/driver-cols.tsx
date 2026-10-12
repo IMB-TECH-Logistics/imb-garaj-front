@@ -24,7 +24,7 @@ export const useColumnsDriverTable = () => {
                 enableSorting: false,
                 cell: ({ row }) => (
                     <div className="min-w-[180px] w-[220px] truncate">
-                        {formatPhoneNumber(row.original?.driver?.phone || "Mavjud emas")}
+                        {formatPhoneNumber(row.original?.driver?.phone || t("settings.common.not_available"))}
                     </div>
                 ),
             },

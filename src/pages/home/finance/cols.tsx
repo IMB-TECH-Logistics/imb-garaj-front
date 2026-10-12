@@ -30,9 +30,8 @@ const round3 = (v: string | number | null | undefined): number =>
 
 // Har bir mashinaning yagona `fuel` turi bor — o'lchov birligi doim shu qiymatdan
 // kelib chiqib aniqlanadi, hardcoded "litr" ishlatilmaydi.
-const UNIT_LABEL: Record<string, string> = { methane: "m³", diesel: "litr" }
-const unitFor = (fuel?: string | null) =>
-    UNIT_LABEL[(fuel ?? "").toLowerCase()] ?? "litr"
+const unitFor = (fuel: string | null | undefined, liter: string) =>
+    (fuel ?? "").toLowerCase() === "methane" ? "m³" : liter
 
 export const useCostCols = () => {
     const { t } = useTranslation()
@@ -67,7 +66,7 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: "Narxsiz reys",
+                header: t("fin.cols.unpriced_trips"),
                 accessorKey: "unpriced_count",
                 enableSorting: true,
                 cell: ({ row }) =>
@@ -92,13 +91,13 @@ export const useCostCols = () => {
                     return (
                         <span>
                             {formatMoney(round3(row.original.fuel_consume))}{" "}
-                            {unitFor(row.original.fuel)}
+                            {unitFor(row.original.fuel, t("fin.common.unit_liter"))}
                         </span>
                     )
                 },
             },
             {
-                header: "Sarfi / 100 km",
+                header: t("fin.cols.fuel_per_100km"),
                 accessorKey: "fuel_per_km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -107,7 +106,7 @@ export const useCostCols = () => {
                     return (
                         <span>
                             {Number((toNum(v) * 100).toFixed(1))}{" "}
-                            {unitFor(row.original.fuel)}
+                            {unitFor(row.original.fuel, t("fin.common.unit_liter"))}
                         </span>
                     )
                 },
@@ -122,7 +121,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Reys daromadi",
+                header: t("fin.cols.trip_income"),
                 accessorKey: "income",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -131,7 +130,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Reys foydasi",
+                header: t("fin.cols.trip_profit"),
                 id: "profit",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -140,7 +139,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Mashina xarajati",
+                header: t("fin.cols.vehicle_expense"),
                 accessorKey: "vehicle_expense",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -149,7 +148,7 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: "Sof foyda",
+                header: t("fin.cols.net_profit"),
                 id: "net",
                 enableSorting: true,
                 cell: ({ row }) => {

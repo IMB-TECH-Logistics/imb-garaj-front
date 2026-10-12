@@ -3,6 +3,7 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import i18n from "@/i18n/i18n"
 
 export type StationCashFlowRow = {
     id: number
@@ -26,7 +27,10 @@ export type StationCashFlowRow = {
 // `unit` — "liter" yoki "m3" (yoki null, kirim yozuvlarida yoki mashina/FuelLog
 // bo'lmagan chiqimlarda). Bu doim mashina/yozuvning `fuel`iga qarab aniqlanadi —
 // hardcoded "litr" ishlatilmaydi.
-const UNIT_LABEL: Record<string, string> = { liter: "litr", m3: "m³" }
+const UNIT_LABEL_KEYS: Record<string, string> = {
+    liter: "settings.petrol.unit_liter",
+    m3: "settings.petrol.unit_m3",
+}
 
 const formatDateTime = (s?: string | null) => {
     if (!s) return "—"
@@ -40,7 +44,12 @@ export const formatQuantity = (
     unit: string | null,
 ) => {
     if (v == null) return "—"
-    const label = unit ? (UNIT_LABEL[unit] ?? unit) : ""
+    const label =
+        unit ?
+            UNIT_LABEL_KEYS[unit] ?
+                i18n.t(UNIT_LABEL_KEYS[unit])
+            :   unit
+        :   ""
     const n = Math.round(Number(v) * 100) / 100
     const [int, dec] = Math.abs(n).toString().split(".")
     const formatted =
@@ -79,22 +88,22 @@ export const useStationCashFlowColumns = () => {
             },
             {
                 id: "type",
-                header: "Turi",
+                header: t("table.type"),
                 meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) =>
                     row.original.action === 1 ? (
                         <span className="inline-flex rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600">
-                            Oldindan to'lov
+                            {t("settings.petrol.prepayment")}
                         </span>
                     ) : (
                         <span className="inline-flex rounded-md bg-rose-500/10 px-2 py-0.5 text-xs font-medium text-rose-600">
-                            Xarajat
+                            {t("settings.petrol.expense")}
                         </span>
                     ),
             },
             {
                 accessorKey: "vehicle_plate",
-                header: "Mashina",
+                header: t("form.truck"),
                 meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => {
                     if (!row.original.vehicle_plate) return "—"
@@ -103,7 +112,7 @@ export const useStationCashFlowColumns = () => {
             },
             {
                 accessorKey: "driver_name",
-                header: "Haydovchi",
+                header: t("form.driver"),
                 meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => row.original.driver_name || "—",
             },
@@ -170,7 +179,7 @@ export const useStationCashFlowColumns = () => {
             },
             {
                 accessorKey: "running_balance",
-                header: "Balans",
+                header: t("settings.common.balance"),
                 meta: { className: "whitespace-nowrap px-4" },
                 cell: ({ row }) => {
                     const v = row.original.running_balance

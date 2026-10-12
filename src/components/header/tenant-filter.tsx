@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -29,6 +30,7 @@ type Tenant = {
 export function TenantFilter() {
     const allTenants = isAllTenantsMode()
     const queryClient = useQueryClient()
+    const { t } = useTranslation()
     const [selected, setSelected] = useState<string[]>(getTenantFilter)
     const { data: tenants } = useGet<Tenant[]>(AUTH_TENANTS, {
         enabled: allTenants,
@@ -54,8 +56,8 @@ export function TenantFilter() {
         )
 
     const names = (tenants ?? [])
-        .filter((t) => selected.includes(t.schema_name))
-        .map((t) => t.name)
+        .filter((tn) => selected.includes(tn.schema_name))
+        .map((tn) => tn.name)
 
     return (
         <DropdownMenu>
@@ -69,13 +71,13 @@ export function TenantFilter() {
                 >
                     <Filter size={16} />
                     <span className="truncate font-medium">
-                        {names.length ? names.join(", ") : "Hamma tenant"}
+                        {names.length ? names.join(", ") : t("ui.tenant.all_tenant")}
                     </span>
                     <ChevronDown size={14} className="opacity-60" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-60 max-h-[70vh] overflow-y-auto">
-                <DropdownMenuLabel>Tenant filtri</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("ui.tenant.filter_title")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {tenants?.map((tenant) => (
                     <DropdownMenuCheckboxItem
@@ -91,7 +93,7 @@ export function TenantFilter() {
                     <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => apply([])}>
-                            Filtrni tozalash
+                            {t("ui.tenant.clear_filter")}
                         </DropdownMenuItem>
                     </>
                 )}

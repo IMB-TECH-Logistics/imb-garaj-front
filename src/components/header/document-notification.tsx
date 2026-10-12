@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useDocumentAlerts } from "@/hooks/use-document-alerts"
@@ -6,16 +7,18 @@ import { formatDate } from "@/lib/format-date"
 import { useNavigate } from "@tanstack/react-router"
 import { ArrowRight, FileWarning } from "lucide-react"
 import { useState } from "react"
+import type { TFunction } from "i18next"
 
-const daysText = (days: number | null) => {
+const daysText = (days: number | null, t: TFunction) => {
     if (days === null) return ""
-    if (days < 0) return `${-days} kun oldin tugagan`
-    if (days === 0) return "Bugun tugaydi"
-    return `${days} kun qoldi`
+    if (days < 0) return t("ui.doc_notification.expired_ago", { days: -days })
+    if (days === 0) return t("ui.doc_notification.ends_today")
+    return t("ui.doc_notification.days_left", { days })
 }
 
 export function DocumentNotification() {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const { data, isLoading, canSee, count } = useDocumentAlerts()
 
@@ -41,7 +44,7 @@ export function DocumentNotification() {
                     variant="default"
                     size="icon"
                     className="relative size-9 shrink-0"
-                    title="Hujjatlar muddati"
+                    title={t("ui.doc_notification.title")}
                 >
                     <FileWarning size={18} className={count > 0 ? "text-red-500" : ""} />
                     {count > 0 && (
@@ -53,19 +56,19 @@ export function DocumentNotification() {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-0">
                 <div className="px-4 py-3 border-b border-border">
-                    <p className="text-sm font-semibold">Hujjatlar muddati</p>
+                    <p className="text-sm font-semibold">{t("ui.doc_notification.title")}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                        {data?.expired ?? 0} ta muddati o'tgan, {data?.expiring ?? 0} ta 5 kun ichida tugaydi
+                        {t("ui.notifications.expired_count", { expired: data?.expired ?? 0, expiring: data?.expiring ?? 0, days: 5 })}
                     </p>
                 </div>
                 <div className="divide-y divide-border max-h-72 overflow-y-auto">
                     {isLoading ?
                         <p className="text-sm text-muted-foreground text-center py-6">
-                            Yuklanmoqda...
+                            {t("messages.loading")}
                         </p>
                     : documents.length === 0 ?
                         <p className="text-sm text-muted-foreground text-center py-6">
-                            Muddati tugayotgan hujjat yo'q
+                            {t("ui.doc_notification.empty")}
                         </p>
                     :   documents.map((doc) => (
                             <button
@@ -84,7 +87,7 @@ export function DocumentNotification() {
                                     <p
                                         className={`text-xs mt-1 font-semibold ${doc.status === "expired" ? "text-red-600" : "text-amber-600"}`}
                                     >
-                                        {doc.expires_date && formatDate(doc.expires_date)} · {daysText(doc.days_left)}
+                                        {doc.expires_date && formatDate(doc.expires_date)} · {daysText(doc.days_left, t)}
                                     </p>
                                 </div>
                                 <ArrowRight size={14} className="mt-0.5 text-muted-foreground shrink-0" />
@@ -98,7 +101,7 @@ export function DocumentNotification() {
                         className="w-full border-t border-border px-4 py-2 text-xs font-medium text-primary hover:bg-muted/50"
                         onClick={() => goToDocuments()}
                     >
-                        Barchasini ko'rish
+                        {t("ui.notifications.view_all")}
                     </button>
                 )}
             </PopoverContent>

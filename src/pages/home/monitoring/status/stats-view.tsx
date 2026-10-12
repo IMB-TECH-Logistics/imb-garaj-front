@@ -143,7 +143,7 @@ export default function StatsView() {
                     return (
                         <span className="inline-flex items-center gap-1.5 text-xs font-semibold leading-tight" style={{ color: meta.color }}>
                             <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: meta.color }} />
-                            {t(`monitoring_stats.status_${o.status}`, { defaultValue: meta.label })}
+                            {t(`monitoring_stats.status_${o.status}`, { defaultValue: meta.labelKey ? t(meta.labelKey) : "—" })}
                         </span>
                     )
                 },
@@ -185,7 +185,7 @@ export default function StatsView() {
                 size: 80,
                 cell: ({ row }) =>
                     row.original.distance_km != null ? (
-                        <span className="whitespace-nowrap font-semibold tabular-nums">{row.original.distance_km.toFixed(1)} km</span>
+                        <span className="whitespace-nowrap font-semibold tabular-nums">{row.original.distance_km.toFixed(1)} {t("mon.units.km")}</span>
                     ) : (
                         none
                     ),

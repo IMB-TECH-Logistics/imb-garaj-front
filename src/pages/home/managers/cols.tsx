@@ -5,11 +5,11 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 const ACTIVITY_LABELS: Record<number, string> = {
-    1: "Reysda",
-    2: "Garajda",
-    3: "Ta'mirda",
-    4: "Bekor turish",
-    5: "Navbatda",
+    1: "trips.managers.on_trip",
+    2: "status.in_garage",
+    3: "status.repair",
+    4: "status.idle_stop",
+    5: "status.in_queue",
 }
 
 const ACTIVITY_COLORS: Record<number, string> = {
@@ -23,13 +23,13 @@ const ACTIVITY_COLORS: Record<number, string> = {
 const EMPTY_RUN_COLOR = "bg-slate-500/10 text-slate-600 border-transparent dark:text-slate-300"
 
 const REYS_STAGES: Record<number, { label: string; color: string }> = {
-    0: { label: "Reys kutilmoqda", color: "bg-gray-500/10 text-gray-500 border-transparent" },
-    1: { label: "Yuklashga ketmoqda", color: "bg-sky-500/10 text-sky-600 border-transparent" },
-    5: { label: "Yuklashda", color: "bg-amber-500/10 text-amber-600 border-transparent" },
-    6: { label: "Yo'lda", color: "bg-green-500/10 text-green-600 border-transparent" },
-    7: { label: "Yuk tushirishda", color: "bg-violet-500/10 text-violet-600 border-transparent" },
-    2: { label: "Bo'sh", color: "bg-gray-500/10 text-gray-500 border-transparent" },
-    3: { label: "Bo'sh", color: "bg-gray-500/10 text-gray-500 border-transparent" },
+    0: { label: "trips.managers.stage_waiting", color: "bg-gray-500/10 text-gray-500 border-transparent" },
+    1: { label: "trips.managers.stage_heading_to_load", color: "bg-sky-500/10 text-sky-600 border-transparent" },
+    5: { label: "trips.managers.stage_loading", color: "bg-amber-500/10 text-amber-600 border-transparent" },
+    6: { label: "trips.managers.stage_on_road", color: "bg-green-500/10 text-green-600 border-transparent" },
+    7: { label: "trips.managers.stage_unloading", color: "bg-violet-500/10 text-violet-600 border-transparent" },
+    2: { label: "trips.managers.stage_empty", color: "bg-gray-500/10 text-gray-500 border-transparent" },
+    3: { label: "trips.managers.stage_empty", color: "bg-gray-500/10 text-gray-500 border-transparent" },
 }
 
 const ACTIVE_ORDER_STATUSES = [1, 5, 6, 7]
@@ -75,20 +75,20 @@ export const useColumnsManagersVehicles = () => {
                                 variant="outline"
                                 className={`whitespace-nowrap ${emptyRun ? EMPTY_RUN_COLOR : stage?.color || ""}`}
                             >
-                                {emptyRun ? "Bo'sh yurish" : stage?.label || "-"}
+                                {emptyRun ? t("trips.managers.empty_run") : stage?.label ? t(stage.label) : "-"}
                             </Badge>
                         )
                     }
                     return (
                         <Badge variant="outline" className={`whitespace-nowrap ${ACTIVITY_COLORS[activity] || ""}`}>
-                            {ACTIVITY_LABELS[activity] || "-"}
+                            {ACTIVITY_LABELS[activity] ? t(ACTIVITY_LABELS[activity]) : "-"}
                         </Badge>
                     )
                 },
             },
             {
                 accessorKey: "loading_name",
-                header: "Yo'nalish/Joylashuv",
+                header: t("trips.managers.direction_location"),
                 enableSorting: false,
                 cell: ({ row }) => {
                     const { loading_name, unloading_name } = row.original

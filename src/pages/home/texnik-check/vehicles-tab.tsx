@@ -362,7 +362,7 @@ const VehiclesTab = () => {
             />
             <Modal
                 modalKey="add-expense"
-                title={currentExpense?.id ? "Xarajatni tahrirlash" : "Xarajat qo'shish"}
+                title={currentExpense?.id ? t("page.edit_expense_modal") : t("page.add_expense_modal")}
                 size="max-w-2xl"
             >
                 <AddExpenseModal vehicleId={addVehicle} />

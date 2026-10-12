@@ -77,7 +77,7 @@ const Locations = () => {
             </Card>
             <Modal
                 size="max-w-xl"
-                title="Davlat qo'shish"
+                title={t("settings.locations.add_country")}
                 modalKey="country-modal"
             >
                 <AddCountriesModal />

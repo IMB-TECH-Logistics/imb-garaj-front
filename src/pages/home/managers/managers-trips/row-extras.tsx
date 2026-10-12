@@ -13,6 +13,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { History } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation, Trans } from "react-i18next"
+import i18n from "@/i18n/i18n"
 import { toast } from "sonner"
 
 export const ADVANCE_ACTION = 2
@@ -36,10 +38,10 @@ type HistoryEntry = {
 
 const errorText = (e: any) => {
     const d = e?.response?.data
-    if (!d) return "Xatolik yuz berdi"
+    if (!d) return i18n.t("trips.row.error")
     if (d.detail) return String(d.detail)
     const first = Object.values(d)[0]
-    return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : "Xatolik yuz berdi"
+    return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : i18n.t("trips.row.error")
 }
 
 const useRefreshFinance = () => {
@@ -54,6 +56,7 @@ const useRefreshFinance = () => {
 }
 
 export function RowMarks({ row }: { row: RowExtras }) {
+    const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const pending = row.pending_change
     return (
@@ -61,7 +64,7 @@ export function RowMarks({ row }: { row: RowExtras }) {
             {!!row.history_count && (
                 <button
                     type="button"
-                    title="O'zgarishlar tarixi"
+                    title={t("trips.row.history")}
                     className="text-muted-foreground hover:text-primary"
                     onClick={(e) => {
                         e.stopPropagation()
@@ -74,10 +77,10 @@ export function RowMarks({ row }: { row: RowExtras }) {
             {pending && (
                 <Badge variant="orange" className="w-fit whitespace-nowrap">
                     {pending.type === "delete" ?
-                        "O'chirish kassirda kutilmoqda"
+                        t("trips.row.pending_delete")
                     : pending.type === "return" ?
-                        <>Qaytarish kutilmoqda:{" "}{formatMoney(Number(pending.amount ?? 0))}</>
-                    :   <>O'zgartirish kutilmoqda:{" "}{formatMoney(Number(pending.amount ?? 0))}</>}
+                        t("trips.row.pending_return", { amount: formatMoney(Number(pending.amount ?? 0)) })
+                    :   t("trips.row.pending_edit", { amount: formatMoney(Number(pending.amount ?? 0)) })}
                 </Badge>
             )}
             {open && <HistoryDialog id={row.id} onClose={() => setOpen(false)} />}
@@ -86,6 +89,7 @@ export function RowMarks({ row }: { row: RowExtras }) {
 }
 
 function HistoryDialog({ id, onClose }: { id: number; onClose: () => void }) {
+    const { t } = useTranslation()
     const modalKey = `cashflow-history-${id}`
     const { openModal, closeModal, isOpen } = useModal(modalKey)
     const { data, isLoading } = useGet<HistoryEntry[]>(`${MANAGERS_CASHFLOW}/${id}/history`, {
@@ -99,10 +103,10 @@ function HistoryDialog({ id, onClose }: { id: number; onClose: () => void }) {
         if (isOpen === false) onClose()
     }, [isOpen])
     return (
-        <Modal modalKey={modalKey} title="O'zgarishlar tarixi" size="max-w-lg">
+        <Modal modalKey={modalKey} title={t("trips.row.history")} size="max-w-lg">
             <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto">
-                {isLoading && <p className="text-sm text-muted-foreground">Yuklanmoqda…</p>}
-                {!isLoading && !data?.length && <p className="text-sm text-muted-foreground">Tarix topilmadi.</p>}
+                {isLoading && <p className="text-sm text-muted-foreground">{t("trips.row.loading")}</p>}
+                {!isLoading && !data?.length && <p className="text-sm text-muted-foreground">{t("trips.row.no_history")}</p>}
                 {data?.map((h) => (
                     <div key={h.id} className="rounded-lg border px-3 py-2">
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -130,6 +134,7 @@ export const ADVANCE_EDIT_MODAL = "advance-change-edit"
 export const ADVANCE_DELETE_MODAL = "advance-change-delete"
 
 export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
+    const { t } = useTranslation()
     const edit = useModal(ADVANCE_EDIT_MODAL)
     const del = useModal(ADVANCE_DELETE_MODAL)
     const refresh = useRefreshFinance()
@@ -146,14 +151,14 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
 
     return (
         <>
-            <Modal modalKey={ADVANCE_EDIT_MODAL} title="Avansni o'zgartirish" size="max-w-md">
+            <Modal modalKey={ADVANCE_EDIT_MODAL} title={t("trips.row.edit_advance")} size="max-w-md">
                 <form
                     className="flex flex-col gap-3"
                     onSubmit={form.handleSubmit((v) => {
                         if (!row) return
                         mutate(REQUESTS, { kind: "avans_tuzatish", cash_flow: row.id, amount: Number(v.amount), comment: v.comment || null }, {
                             onSuccess: () => {
-                                toast.success("O'zgartirish so'rovi kassirga yuborildi")
+                                toast.success(t("trips.row.edit_sent"))
                                 refresh()
                                 edit.closeModal()
                             },
@@ -162,33 +167,33 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                     })}
                 >
                     <p className="text-sm text-muted-foreground">
-                        Hozirgi summa: <b>{formatMoney(Number(row?.amount ?? 0))} so'm</b>. Avans kassadan berilgan, shuning uchun o'zgartirish kassir tasdiqlagandan keyin kuchga kiradi.
+                        <Trans i18nKey="trips.row.current_amount" values={{ amount: formatMoney(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
                     </p>
                     <FormNumberInput
                         required
                         control={form.control}
                         name="amount"
-                        label="Yangi summa"
+                        label={t("trips.row.new_amount")}
                         thousandSeparator=" "
                         allowNegative={false}
-                        registerOptions={{ validate: (v: unknown) => Number(v) > 0 || "Summa 0 dan katta bo'lsin" }}
+                        registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
                     />
-                    <FormTextarea required label="Sabab" name="comment" methods={form} />
+                    <FormTextarea required label={t("trips.row.reason")} name="comment" methods={form} />
                     <div className="flex justify-end">
-                        <Button type="submit" className="min-w-32" loading={isPending}>Kassirga yuborish</Button>
+                        <Button type="submit" className="min-w-32" loading={isPending}>{t("trips.row.send_to_cashier")}</Button>
                     </div>
                 </form>
             </Modal>
 
-            <Modal modalKey={ADVANCE_DELETE_MODAL} title="Avansni o'chirish" size="max-w-md">
+            <Modal modalKey={ADVANCE_DELETE_MODAL} title={t("trips.row.delete_advance")} size="max-w-md">
                 <form
                     className="flex flex-col gap-3"
                     onSubmit={delForm.handleSubmit((v) => {
                         if (!row) return
-                        if (!v.comment.trim()) return delForm.setError("comment", { message: "Sababni yozing" })
+                        if (!v.comment.trim()) return delForm.setError("comment", { message: t("trips.row.enter_reason") })
                         mutate(REQUESTS, { kind: "avans_bekor", cash_flow: row.id, comment: v.comment.trim() }, {
                             onSuccess: () => {
-                                toast.success("O'chirish so'rovi kassirga yuborildi")
+                                toast.success(t("trips.row.delete_sent"))
                                 refresh()
                                 del.closeModal()
                             },
@@ -197,11 +202,11 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                     })}
                 >
                     <p className="text-sm">
-                        <b>{formatMoney(Number(row?.amount ?? 0))} so'm</b> avans o'chiriladi. Kassir tasdiqlasa, pul kassaga qaytgan hisoblanadi va avans haydovchidan olib tashlanadi.
+                        <Trans i18nKey="trips.row.delete_text" values={{ amount: formatMoney(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
                     </p>
-                    <FormTextarea required label="Sabab" name="comment" methods={delForm} />
+                    <FormTextarea required label={t("trips.row.reason")} name="comment" methods={delForm} />
                     <div className="flex justify-end">
-                        <Button type="submit" variant="destructive" className="min-w-32" loading={isPending}>Kassirga yuborish</Button>
+                        <Button type="submit" variant="destructive" className="min-w-32" loading={isPending}>{t("trips.row.send_to_cashier")}</Button>
                     </div>
                 </form>
             </Modal>
@@ -212,6 +217,7 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
 export const SALARY_REQUEST_MODAL = "salary-request"
 
 export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driverId?: number }) {
+    const { t } = useTranslation()
     const modal = useModal(SALARY_REQUEST_MODAL)
     const refresh = useRefreshFinance()
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
@@ -220,13 +226,13 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
         if (modal.isOpen) form.reset({ amount: "", comment: "" })
     }, [modal.isOpen])
     return (
-        <Modal modalKey={SALARY_REQUEST_MODAL} title="Oylik so'rash" size="max-w-md">
+        <Modal modalKey={SALARY_REQUEST_MODAL} title={t("trips.row.request_salary")} size="max-w-md">
             <form
                 className="flex flex-col gap-3"
                 onSubmit={form.handleSubmit((v) => {
                     mutate(REQUESTS, { kind: "oylik", trip: tripId, driver: driverId, amount: Number(v.amount), comment: v.comment || null }, {
                         onSuccess: () => {
-                            toast.success("Oylik so'rovi kassirga yuborildi")
+                            toast.success(t("trips.row.salary_sent"))
                             refresh()
                             modal.closeModal()
                         },
@@ -238,14 +244,14 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
                     required
                     control={form.control}
                     name="amount"
-                    label="Summa"
+                    label={t("form.amount")}
                     thousandSeparator=" "
                     allowNegative={false}
-                    registerOptions={{ validate: (v: unknown) => Number(v) > 0 || "Summa 0 dan katta bo'lsin" }}
+                    registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
                 />
-                <FormTextarea label="Izoh" name="comment" methods={form} />
+                <FormTextarea label={t("form.comment")} name="comment" methods={form} />
                 <div className="flex justify-end">
-                    <Button type="submit" className="min-w-32" loading={isPending}>Kassirga yuborish</Button>
+                    <Button type="submit" className="min-w-32" loading={isPending}>{t("trips.row.send_to_cashier")}</Button>
                 </div>
             </form>
         </Modal>
@@ -258,6 +264,7 @@ export const ADVANCE_RETURN_MODAL = "advance-return"
 type ReturnRequest = { id: number; status: number; amount: string; comment: string | null; rejected_comment: string | null; created: string; target_cash_flow?: number | null }
 
 export function AdvanceReturns({ tripId, advanceId }: { tripId?: number; advanceId: number }) {
+    const { t } = useTranslation()
     const { data } = useGet<{ results: ReturnRequest[] }>(REQUESTS, {
         params: { trip: tripId, kind: "avans_qaytarish", status: "10,-10,20" },
         enabled: !!tripId,
@@ -267,14 +274,14 @@ export function AdvanceReturns({ tripId, advanceId }: { tripId?: number; advance
     return (
         <div className="flex flex-col gap-1.5 mb-3">
             {rows.map((r) => {
-                const label = r.status === 20 ? "Qaytarildi" : r.status === -10 ? "Rad etildi" : "Kassir tasdig'i kutilmoqda"
+                const label = r.status === 20 ? t("trips.row.returned") : r.status === -10 ? t("trips.row.rejected") : t("trips.row.awaiting_cashier")
                 const variant = r.status === 20 ? "default" : r.status === -10 ? "destructive" : "orange"
                 return (
                     <div key={r.id} className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm">
                         <span className="font-medium tabular-nums text-green-600">+ {formatMoney(Number(r.amount))}</span>
-                        <span>Qoldiq kassaga qaytarildi</span>
+                        <span>{t("trips.row.remainder_returned")}</span>
                         <Badge variant={variant as any} className="w-fit whitespace-nowrap">{label}</Badge>
-                        {r.status === -10 && r.rejected_comment && <span className="text-xs text-muted-foreground">Sabab: {r.rejected_comment}</span>}
+                        {r.status === -10 && r.rejected_comment && <span className="text-xs text-muted-foreground">{t("trips.row.reason_label", { reason: r.rejected_comment })}</span>}
                         <span className="ml-auto text-xs text-muted-foreground whitespace-nowrap">{formatDateTime(r.created)}</span>
                     </div>
                 )
@@ -284,6 +291,7 @@ export function AdvanceReturns({ tripId, advanceId }: { tripId?: number; advance
 }
 
 export function AdvanceReturnModal({ advanceId, left }: { advanceId: number | null; left: number }) {
+    const { t } = useTranslation()
     const modal = useModal(ADVANCE_RETURN_MODAL)
     const refresh = useRefreshFinance()
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
@@ -292,14 +300,14 @@ export function AdvanceReturnModal({ advanceId, left }: { advanceId: number | nu
         if (modal.isOpen) form.reset({ amount: left > 0 ? left : "", comment: "" })
     }, [modal.isOpen, left])
     return (
-        <Modal modalKey={ADVANCE_RETURN_MODAL} title="Avans qoldig'ini qaytarish" size="max-w-md">
+        <Modal modalKey={ADVANCE_RETURN_MODAL} title={t("trips.row.return_remainder_title")} size="max-w-md">
             <form
                 className="flex flex-col gap-3"
                 onSubmit={form.handleSubmit((v) => {
                     if (!advanceId) return
                     mutate(REQUESTS, { kind: "avans_qaytarish", cash_flow: advanceId, amount: Number(v.amount), comment: v.comment || null }, {
                         onSuccess: () => {
-                            toast.success("Qaytarish so'rovi kassirga yuborildi")
+                            toast.success(t("trips.row.return_sent"))
                             refresh()
                             modal.closeModal()
                         },
@@ -308,25 +316,25 @@ export function AdvanceReturnModal({ advanceId, left }: { advanceId: number | nu
                 })}
             >
                 <p className="text-sm text-muted-foreground">
-                    Avansdan qolgan: <b>{formatMoney(left)} so'm</b>. Haydovchi pulni kassirga topshiradi, kassir «Oldim» bosgach kassaga kirim bo'ladi.
+                    <Trans i18nKey="trips.row.left_from_advance" values={{ amount: formatMoney(left) }} components={{ b: <b /> }} />
                 </p>
                 <div className="flex justify-end -mb-2">
                     <Button type="button" size="sm" variant="secondary" disabled={left <= 0} onClick={() => form.setValue("amount", left, { shouldValidate: true })}>
-                        Qoldiqni qo'yish: {formatMoney(Math.max(left, 0))}
+                        {t("trips.row.set_remainder", { amount: formatMoney(Math.max(left, 0)) })}
                     </Button>
                 </div>
                 <FormNumberInput
                     required
                     control={form.control}
                     name="amount"
-                    label="Qaytariladigan summa"
+                    label={t("trips.row.return_amount")}
                     thousandSeparator=" "
                     allowNegative={false}
-                    registerOptions={{ validate: (v: unknown) => Number(v) > 0 || "Summa 0 dan katta bo'lsin" }}
+                    registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
                 />
-                <FormTextarea label="Izoh" name="comment" methods={form} />
+                <FormTextarea label={t("form.comment")} name="comment" methods={form} />
                 <div className="flex justify-end">
-                    <Button type="submit" className="min-w-32" loading={isPending}>Kassirga yuborish</Button>
+                    <Button type="submit" className="min-w-32" loading={isPending}>{t("trips.row.send_to_cashier")}</Button>
                 </div>
             </form>
         </Modal>

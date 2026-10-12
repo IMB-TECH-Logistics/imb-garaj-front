@@ -1,69 +1,55 @@
+import i18n from "@/i18n/i18n"
+
+const L = (key: string) => i18n.t(`core.trip_status.${key}`)
+
+const item = (key: string, value: number) => ({
+    get label() {
+        return L(key)
+    },
+    value,
+})
+
 export const statuss = [
-    {
-        label: "Start",
-        value: 50,
-    },
-    {
-        label: "Navbatda",
-        value: 60,
-    },
-    {
-        label: "Yuklanmoqda...",
-        value: 70,
-    },
-    {
-        label: "Yuklab chiqdi",
-        value: 80,
-    },
-    {
-        label: "Yuk tushirish joyida",
-        value: 90,
-    },
-    {
-        label: "Finish",
-        value: 100,
-    },
+    item("start", 50),
+    item("queue", 60),
+    item("loading", 70),
+    item("loaded", 80),
+    item("at_unloading", 90),
+    item("finish", 100),
 ]
 
 export const statussAll = [
     {
-        label: "Barchasi", 
+        get label() {
+            return i18n.t("status.all")
+        },
         value: 0,
     },
-    {
-        label: "Start",
-        value: 50,
-    },
-    {
-        label: "Navbatda",
-        value: 60,
-    },
-    {
-        label: "Yuklanmoqda...",
-        value: 70,
-    },
-    {
-        label: "Yuklab chiqdi",
-        value: 80,
-    },
-    {
-        label: "Yuk tushirish joyida",
-        value: 90,
-    },
-    {
-        label: "Finish",
-        value: 100,
-    },
+    ...statuss,
 ]
 
 export const statusLabel: { [key: number]: string } = {
-    0: "Barchasi",
-    50: "Start",
-    60: "Navbatda",
-    70: "Yuklanmoqda...",
-    80: "Yuklab chiqdi",
-    90: "Yuk tushirish joyida",
-    100: "Finish",
+    get 0() {
+        return i18n.t("status.all")
+    },
+    get 50() {
+        return L("start")
+    },
+    get 60() {
+        return L("queue")
+    },
+    get 70() {
+        return L("loading")
+    },
+    get 80() {
+        return L("loaded")
+    },
+    get 90() {
+        return L("at_unloading")
+    },
+    get 100() {
+        return L("finish")
+    },
 }
 
 interface UseStatusesProps {

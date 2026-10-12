@@ -70,7 +70,7 @@ const VstPayerReport = ({ switcher }: Props) => {
 
     const { mutate: submit, isPending: submitting } = usePost({
         onSuccess: () => {
-            toast.success(t("vst.report_submitted", "Hisobot topshirildi"))
+            toast.success(t("vst.report_submitted"))
             refresh()
         },
         meta: { skipGlobalError: true },
@@ -93,12 +93,12 @@ const VstPayerReport = ({ switcher }: Props) => {
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateTime(row.original.paid_at)}</span>,
             },
             {
-                header: t("vst.recipient", "Kimga"),
+                header: t("vst.recipient"),
                 accessorKey: "driver_name",
                 cell: ({ row }) => row.original.driver_name || row.original.category || "—",
             },
             {
-                header: t("vst.vehicle_short", "Mashina"),
+                header: t("vst.vehicle_short"),
                 accessorKey: "vehicle",
                 cell: ({ row }) => row.original.vehicle || "—",
             },
@@ -108,7 +108,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                 cell: ({ row }) => <span className="font-medium">{formatMoney(Number(row.original.amount))}</span>,
             },
             {
-                header: t("vst.creator", "So'ragan"),
+                header: t("vst.creator"),
                 accessorKey: "creator_name",
                 cell: ({ row }) => row.original.creator_name || "—",
             },
@@ -118,7 +118,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                 cell: ({ row }) => row.original.comment || "—",
             },
             {
-                header: t("vst.in_report", "Hisobotda"),
+                header: t("vst.in_report"),
                 accessorKey: "payer_report",
                 cell: ({ row }) => (row.original.payer_report ? `#${row.original.payer_report}` : "—"),
             },
@@ -144,7 +144,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                                     <ParamCombobox
                                         paramName="rp_payer"
                                         isSearch={false}
-                                        label={t("vst.payer", "To'lovchi")}
+                                        label={t("vst.payer")}
                                         options={payers ?? []}
                                         addButtonProps={{ className: "!bg-background dark:!bg-secondary min-w-36 justify-start" }}
                                     />
@@ -153,7 +153,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                                 {payerId && (
                                     <DownloadAsExcel
                                         url={`${KASSA_PAYER_REPORTS}/preview/excel`}
-                                        name={t("vst.report_tab", "To'lovchi hisoboti")}
+                                        name={t("vst.report_tab")}
                                         params={previewParams}
                                     />
                                 )}
@@ -171,23 +171,23 @@ const VstPayerReport = ({ switcher }: Props) => {
                                         }
                                     >
                                         <FileCheck2 size={16} />
-                                        {t("vst.submit_report", "Hisobot topshirish")}
+                                        {t("vst.submit_report")}
                                     </Button>
                                 )}
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div className="rounded-lg border bg-card p-3">
-                                <p className="text-sm text-muted-foreground">{t("vst.period_total", "Davrda berilgan")}</p>
+                                <p className="text-sm text-muted-foreground">{t("vst.period_total")}</p>
                                 <p className="text-xl font-semibold">
                                     {formatMoney(Number(preview?.total ?? 0))} {t("page.som")}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                    {preview?.count ?? 0} {t("vst.payments", "ta to'lov")} · {t("vst.not_reported", "hisobotga kirmagan")}: {unreported.length}
+                                    {preview?.count ?? 0} {t("vst.payments")} · {t("vst.not_reported")}: {unreported.length}
                                 </p>
                             </div>
                             <div className="rounded-lg border bg-card p-3 max-h-32 overflow-auto">
-                                <p className="text-sm text-muted-foreground mb-1">{t("vst.by_driver", "Haydovchilar bo'yicha")}</p>
+                                <p className="text-sm text-muted-foreground mb-1">{t("vst.by_driver")}</p>
                                 {(preview?.by_driver ?? []).map((r) => (
                                     <div key={r.name} className="flex justify-between text-sm">
                                         <span className="truncate">{r.name}</span>
@@ -196,7 +196,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                                 ))}
                             </div>
                             <div className="rounded-lg border bg-card p-3 max-h-32 overflow-auto">
-                                <p className="text-sm text-muted-foreground mb-1">{t("vst.by_category", "Xarajatlar bo'yicha")}</p>
+                                <p className="text-sm text-muted-foreground mb-1">{t("vst.by_category")}</p>
                                 {(preview?.by_category ?? []).map((r) => (
                                     <div key={r.name} className="flex justify-between text-sm">
                                         <span className="truncate">{r.name}</span>
@@ -207,7 +207,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                         </div>
                         {!!reports?.results?.length && (
                             <div className="rounded-lg border bg-card p-2">
-                                <p className="text-sm font-medium mb-1 px-1">{t("vst.reports", "Topshirilgan hisobotlar")}</p>
+                                <p className="text-sm font-medium mb-1 px-1">{t("vst.reports")}</p>
                                 <div className="max-h-40 overflow-auto divide-y">
                                     {reports.results.map((r) => (
                                         <div key={r.id} className="flex items-center justify-between gap-2 px-1 py-1.5 text-sm">
@@ -224,13 +224,13 @@ const VstPayerReport = ({ switcher }: Props) => {
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium">{formatMoney(Number(r.total))}</span>
                                                 <Badge variant={REPORT_STATUS_VARIANT[r.status] ?? "secondary"}>{r.status_display}</Badge>
-                                                <DownloadAsExcel url={`${KASSA_PAYER_REPORTS}/${r.id}/excel`} name={`hisobot_${r.id}`} />
+                                                <DownloadAsExcel url={`${KASSA_PAYER_REPORTS}/${r.id}/excel`} name={`${t("vst.report")}_${r.id}`} />
                                                 {hasApprove && r.status === 20 && r.payer !== profile?.id && (
                                                     <>
                                                         <Button
                                                             size="icon"
                                                             className="h-8 w-8"
-                                                            title={t("vst.approve", "Tasdiqlash")}
+                                                            title={t("vst.approve")}
                                                             onClick={() =>
                                                                 decide(`${KASSA_PAYER_REPORTS}/${r.id}/decision`, { status: 30 }, {
                                                                     onError: (e: unknown) => handleFormError(e),
@@ -243,7 +243,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                                                             size="icon"
                                                             variant="outline"
                                                             className="h-8 w-8 text-destructive"
-                                                            title={t("vst.reject", "Rad etish")}
+                                                            title={t("vst.reject")}
                                                             onClick={() => {
                                                                 setSelectedReport(r.id)
                                                                 openReject()
@@ -262,7 +262,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                     </div>
                 }
             />
-            <Modal modalKey="vst-report-reject" title={t("vst.reject_report", "Hisobotni rad etish")} size="max-w-md">
+            <Modal modalKey="vst-report-reject" title={t("vst.reject_report")} size="max-w-md">
                 <DecisionRejectModal
                     modalKey="vst-report-reject"
                     url={selectedReport ? `${KASSA_PAYER_REPORTS}/${selectedReport}/decision` : undefined}
@@ -270,7 +270,7 @@ const VstPayerReport = ({ switcher }: Props) => {
                     refetchKeys={[KASSA_PAYER_REPORTS, `${KASSA_PAYER_REPORTS}/preview`]}
                 />
             </Modal>
-            <Modal modalKey="vst-report-detail" title={`${t("vst.report", "Hisobot")} #${selectedReport ?? ""}`} size="max-w-3xl">
+            <Modal modalKey="vst-report-detail" title={`${t("vst.report")} #${selectedReport ?? ""}`} size="max-w-3xl">
                 <div className="flex flex-col gap-2 max-h-[70vh] overflow-auto">
                     <div className="flex justify-between text-sm">
                         <span>{detail?.payer_name} · {detail?.from_date} – {detail?.to_date}</span>

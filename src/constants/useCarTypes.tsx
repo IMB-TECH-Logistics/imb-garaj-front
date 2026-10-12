@@ -1,6 +1,8 @@
 import { useGet } from "@/hooks/useGet"
+import { useTranslation } from "react-i18next"
 
 export const useCarTypes = (props?: IuseCar) => {
+    const { t } = useTranslation()
     const { data: carTypeData = [] } = useGet<Car[]>("common/options/", {
         params:{type: "car_type"},
     })
@@ -19,7 +21,7 @@ export const useCarTypes = (props?: IuseCar) => {
                     value: item.option_name,
                     id: item.id,
                 })),
-                { label: "Boshqa", value: "other", id: 1000 },
+                { label: t("vst.other"), value: "other", id: 1000 },
             ]
         :   data.map((item) => ({
                 label: item.option_name,

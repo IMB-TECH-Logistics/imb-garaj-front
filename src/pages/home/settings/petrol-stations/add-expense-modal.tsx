@@ -53,8 +53,6 @@ type OrderOption = {
 
 // Har bir mashinaning yagona `fuel` turi bor — shu qiymatga qarab o'lchov birligi
 // aniqlanadi, hech qachon hardcoded "litr" ishlatilmaydi.
-const UNIT_LABEL: Record<string, string> = { methane: "m³", diesel: "litr" }
-
 
 type FormValues = {
     vehicle: number | ""
@@ -72,6 +70,10 @@ const LAST_KEY = (id: number) => `petrol-last-expense-${id}`
 
 const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const { t } = useTranslation()
+    const fuelUnit = (fuel?: string) =>
+        fuel === "methane" ?
+            t("settings.petrol.unit_m3")
+        :   t("settings.petrol.unit_liter")
     const queryClient = useQueryClient()
     const { closeModal } = useModal("petrol-expense")
     const { getData, setData } = useGlobalStore()
@@ -113,7 +115,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     const [editingId, setEditingId] = useState<number | null>(null)
     const vehicleOptions = (vehiclesData?.results ?? []).map((v) => ({
         id: v.id,
-        name: `${v.truck_number} (${UNIT_LABEL[v.fuel] ?? "litr"})`,
+        name: `${v.truck_number} (${fuelUnit(v.fuel)})`,
     }))
     const selectedVehicle = vehiclesData?.results?.find(
         (v) => v.id === vehicleId,
@@ -124,10 +126,9 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
     )
     // Methane is sold by the cubic metre and diesel by the litre; the label
     // follows whichever vehicle is actually selected.
-    const unitLabel =
-        UNIT_LABEL[
-            (isOther ? selectedOtherVehicle?.fuel : selectedVehicle?.fuel) ?? ""
-        ] ?? "litr"
+    const unitLabel = fuelUnit(
+        isOther ? selectedOtherVehicle?.fuel : selectedVehicle?.fuel,
+    )
 
     const { data: tripsData } = useGet<ListResponse<TripOption>>(
         MANAGERS_TRIPS,
@@ -136,9 +137,9 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
             enabled: !!vehicleId && !isOther,
         },
     )
-    const tripOptions = (tripsData?.results ?? []).map((t) => ({
-        id: t.id,
-        name: `${t.start ? formatDate(t.start) : "??"} — ${t.driver_name ?? "Haydovchi yo'q"}`,
+    const tripOptions = (tripsData?.results ?? []).map((trip) => ({
+        id: trip.id,
+        name: `${trip.start ? formatDate(trip.start) : "??"} — ${trip.driver_name ?? t("settings.petrol.no_driver")}`,
     }))
 
     const { data: ordersData } = useGet<ListResponse<OrderOption>>(
@@ -275,7 +276,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                 name="other_vehicle"
                                 options={(otherVehicles ?? []).map((v) => ({
                                     ...v,
-                                    label: `${v.number} (${UNIT_LABEL[v.fuel] ?? "litr"})`,
+                                    label: `${v.number} (${fuelUnit(v.fuel)})`,
                                 }))}
                                 valueKey="id"
                                 labelKey="label"
@@ -299,8 +300,8 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                         </span>
                                         <div className="flex gap-2">
                                             {[
-                                                { value: "methane", label: "Metan (m³)" },
-                                                { value: "diesel", label: "Dizel (litr)" },
+                                                { value: "methane", label: t("settings.petrol.fuel_methane") },
+                                                { value: "diesel", label: t("settings.petrol.fuel_diesel") },
                                             ].map((choice) => (
                                                 <button
                                                     key={choice.value}
@@ -326,7 +327,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                     </div>
                                     <Input
                                         fullWidth
-                                        placeholder="Izoh (ixtiyoriy)"
+                                        placeholder={t("form.optional_comment")}
                                         value={newComment}
                                         onChange={(event) =>
                                             setNewComment(event.target.value)
@@ -406,7 +407,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                         }}
                                         className="text-sm text-primary w-max hover:underline"
                                     >
-                                        + Yangi mashina qo'shish
+                                        {t("settings.petrol.add_new_vehicle")}
                                     </button>
                                     {!!selectedOtherVehicle && (
                                         <button
@@ -482,7 +483,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                         control={control}
                         label={`${t("form.quantity")} (${unitLabel})`}
                         name="quantity"
-                        placeholder="Ex: 120.5"
+                        placeholder={`${t("form.example")}: 120.5`}
                         thousandSeparator=" "
                         decimalScale={2}
                     />
@@ -494,7 +495,7 @@ const AddExpenseModal = ({ stationId }: { stationId: number }) => {
                                 control={control}
                                 label={t("form.amount")}
                                 name="amount"
-                                placeholder="Ex: 1 000 000"
+                                placeholder={`${t("form.example")}: 1 000 000`}
                                 thousandSeparator=" "
                                 decimalScale={2}
                             />

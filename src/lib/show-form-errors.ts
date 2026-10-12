@@ -76,7 +76,7 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
     }
 
     if (!hasValidFieldError) {
-      toast.error(msg || errorText(data) || "Xatolik yuz berdi")
+      toast.error(msg || errorText(data) || i18n.t("core.errors.generic"))
     }
   } else if (isClientError) {
     const arrayErrors = Object.entries(data).filter(([key]) => key !== "detail")
@@ -90,10 +90,10 @@ export function handleFormError(err: any, form?: UseFormReturn<any>) {
     } else if (msg) {
       toast.error(msg, { duration: 5000 })
     } else {
-      toast.error("Xatolik yuz berdi", { duration: 5000 })
+      toast.error(i18n.t("core.errors.generic"), { duration: 5000 })
     }
   } else {
-    toast.error("Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
+    toast.error(i18n.t("messages.error"))
   }
 }
 

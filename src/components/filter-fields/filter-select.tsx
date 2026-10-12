@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import {
     encodeSingle,
@@ -49,6 +50,7 @@ export default function FilterSelect({
     ...props
 }: IProps) {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     // @ts-expect-error sdf
     const filterVal = search[filterKey]
@@ -168,7 +170,7 @@ export default function FilterSelect({
                 classNames={{ ...defaultSelectClassNames, ...classNames }}
                 onChange={handleOnChange}
                 unstyled
-                noOptionsMessage={() => "Mavjud emas"}
+                noOptionsMessage={() => t("ui.common.no_options")}
                 hideSelectedOptions={false}
                 closeMenuOnSelect={!props.isMulti}
                 placeholder={label}
@@ -222,6 +224,7 @@ const DropdownIndicator = () => (
 const MenuList = (props: MenuListProps<Option>) => {
     const { children, getValue, options, setValue, isMulti } = props
     const val = getValue()
+    const { t } = useTranslation()
 
     return (
         <components.MenuList {...props}>
@@ -237,7 +240,7 @@ const MenuList = (props: MenuListProps<Option>) => {
                             }}
                             checked={val.length === options.length}
                         />{" "}
-                        Barchasini tanlash
+                        {t("ui.common.select_all")}
                     </p>
                     <Separator />
                 </>
@@ -253,9 +256,10 @@ const ValueContainer = ({
 }: ValueContainerProps<Option>) => {
     // eslint-disable-next-line prefer-const
     let [values, input] = children as ReactNode[]
+    const { t } = useTranslation()
 
     if (Array.isArray(values)) {
-        values = `${values.length} ta tanlandi`
+        values = t("ui.common.selected_count", { count: values.length })
     }
 
     return (

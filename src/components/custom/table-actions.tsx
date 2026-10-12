@@ -61,7 +61,7 @@ export default function TableActions({
                             className="!text-green-500"
                         >
                             <Eye width={16} className="mr-1.5" />
-                            {"Ko'rish"}
+                            {t("actions.view")}
                         </DropdownMenuItem>
                     )}
                     {onEdit && (
@@ -73,7 +73,7 @@ export default function TableActions({
                             className="!text-primary"
                         >
                             <Edit width={16} className="mr-1.5" />
-                            {"Tahrirlash"}
+                            {t("actions.edit")}
                         </DropdownMenuItem>
                     )}
                     {onDelete && (
@@ -85,7 +85,7 @@ export default function TableActions({
                             className="!text-red-500"
                         >
                             <Trash2 width={16} className="mr-1.5" />{" "}
-                            {"O'chirish"}
+                            {t("actions.delete")}
                         </DropdownMenuItem>
                     )}
                     {onUndo && (
@@ -96,7 +96,7 @@ export default function TableActions({
                             }}
                             className="!text-red-500"
                         >
-                            <Undo width={16} className="mr-1.5" /> {"Qaytarish"}
+                            <Undo width={16} className="mr-1.5" /> {t("ui.table_actions.revert")}
                         </DropdownMenuItem>
                     )}
                     {onRedo && (
@@ -108,7 +108,7 @@ export default function TableActions({
                             className="!text-muted-foreground"
                         >
                             <RotateCcw width={16} className="mr-1.5" />{" "}
-                            {"Hisoblash"}
+                            {t("ui.table_actions.recalculate")}
                         </DropdownMenuItem>
                     )}
                     {onFinished && (
@@ -119,7 +119,7 @@ export default function TableActions({
                             }}
                             className="!text-muted-foreground"
                         >
-                            <Check width={16} className="mr-1.5" /> {"Tugatmoq"}
+                            <Check width={16} className="mr-1.5" /> {t("actions.finish")}
                         </DropdownMenuItem>
                     )}
                 </DropdownMenuContent>

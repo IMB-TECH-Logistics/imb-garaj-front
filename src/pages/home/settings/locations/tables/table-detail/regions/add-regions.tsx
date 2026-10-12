@@ -143,7 +143,7 @@ const AddRegionsModal = ({ country_id }: AddRegionsModalProps) => {
                     <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted flex items-center">
                         {countries?.results?.find(
                             (c) => String(c.id) === String(country_id),
-                        )?.name || "Davlat"}
+                        )?.name || t("form.country")}
                     </div>
 
                     <input

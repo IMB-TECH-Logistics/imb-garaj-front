@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { Download } from "lucide-react"
 import {
@@ -25,6 +26,7 @@ export default function FormImagePicker<IForm extends FieldValues>({
     className,
     avatar,
 }: ImagePickerProps<IForm>) {
+    const { t } = useTranslation()
     const {
         field,
         fieldState: { error },
@@ -34,7 +36,7 @@ export default function FormImagePicker<IForm extends FieldValues>({
         rules: {
             required: {
                 value: required,
-                message: `${label}ni tanlang`,
+                message: t("ui.common.select_item", { label }),
             },
         },
     })
@@ -105,12 +107,12 @@ export default function FormImagePicker<IForm extends FieldValues>({
                                                         field.value,
                                                     )
                                             }
-                                            alt="Selected Image"
+                                            alt={t("ui.image.selected")}
                                             className="object-cover"
                                         />
                                     </SeeInView>
                                 )}
-                                <AvatarFallback>Img</AvatarFallback>
+                                <AvatarFallback>{t("ui.image.fallback")}</AvatarFallback>
                             </Avatar>
                         :   <>
                                 {field.value ?
@@ -140,7 +142,7 @@ export default function FormImagePicker<IForm extends FieldValues>({
                                                             field.value,
                                                         )
                                                 }
-                                                alt="Selected Image"
+                                                alt={t("ui.image.selected")}
                                                 className={`${className}` || ""}
                                             />
                                         </SeeInView>

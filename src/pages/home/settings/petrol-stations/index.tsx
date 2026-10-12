@@ -69,9 +69,9 @@ const PetrolStationsPage = () => {
     const [reportYear, setReportYear] = useState(new Date().getFullYear())
 
     const MONTHS = [
-        ["Yan", "Fev", "Mart", "Apr"],
-        ["May", "Iyun", "Iyul", "Avg"],
-        ["Sen", "Okt", "Noy", "Dek"],
+        [t("settings.common.month_short_1"), t("settings.common.month_short_2"), t("settings.common.month_short_3"), t("settings.common.month_short_4")],
+        [t("settings.common.month_short_5"), t("settings.common.month_short_6"), t("settings.common.month_short_7"), t("settings.common.month_short_8")],
+        [t("settings.common.month_short_9"), t("settings.common.month_short_10"), t("settings.common.month_short_11"), t("settings.common.month_short_12")],
     ]
 
     const handleMonthSelect = async (monthIdx: number) => {
@@ -142,21 +142,21 @@ const PetrolStationsPage = () => {
                 <StatCard
                     icon={<Fuel size={20} />}
                     tone="bg-amber-500/10 text-amber-600"
-                    label="Olingan yoqilg'i"
+                    label={t("settings.petrol.fuel_received")}
                     value={`${formatQuantity(Number(stats?.total_liters ?? 0), "liter")} · ${formatQuantity(Number(stats?.total_gas ?? 0), "m3")}`}
                     valueClass="text-amber-600"
                 />
                 <StatCard
                     icon={<DollarSign size={20} />}
                     tone="bg-amber-500/10 text-amber-600"
-                    label="Summa"
+                    label={t("form.amount_total")}
                     value={<>{formatMoney(Number(stats?.total_outcomes ?? 0))}</>}
                     valueClass="text-amber-600"
                 />
                 <StatCard
                     icon={<Wallet size={20} />}
                     tone="bg-primary/10 text-primary"
-                    label="Zapravka balansi"
+                    label={t("settings.petrol.station_balance")}
                     value={<>{formatMoney(Number(stats?.total_balance ?? 0))}</>}
                     valueClass={cn(
                         Number(stats?.total_balance ?? 0) < 0 && "text-rose-600",
@@ -185,7 +185,7 @@ const PetrolStationsPage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Zapravkalar"
+                        fileName={t("nav.petrol")}
                         url="excel"
                         storeKey={
                             hasControl ? SETTINGS_PETROL_STATIONS : undefined
@@ -253,7 +253,9 @@ const PetrolStationsPage = () => {
             />
             <Modal
                 title={
-                    item?.id ? "Zapravkani tahrirlash" : "Zapravka qo'shish"
+                    item?.id ?
+                        t("settings.petrol.edit_title")
+                    :   t("settings.petrol.add_title")
                 }
                 modalKey="create"
                 size="max-w-2xl"

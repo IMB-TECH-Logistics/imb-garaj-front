@@ -34,7 +34,11 @@ type LedgerResponse = {
     results: LedgerItem[]
 }
 
-const TYPE_LABEL = { kirim: "Kirim", chiqim: "Chiqim", avans: "Avans" } as const
+const TYPE_LABEL_KEY = {
+    kirim: "kassa.report_income",
+    chiqim: "form.expense",
+    avans: "form.advance",
+} as const
 
 const TYPE_BADGE = {
     kirim: "text-emerald-500 bg-emerald-500/10",
@@ -119,7 +123,7 @@ export default function TransactionLedger() {
         <div className="flex flex-col h-full overflow-hidden">
             <div className="pl-4 pr-12 pt-3 pb-2 shrink-0 flex items-center justify-between">
                 <h3 className="text-xs font-semibold">{t("page.transactions")}</h3>
-                <span className="text-[10px] text-muted-foreground">{data?.count ?? 0} ta</span>
+                <span className="text-[10px] text-muted-foreground">{t("fin.common.count_items", { count: data?.count ?? 0 })}</span>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0">
                 <table className="w-full text-xs">
@@ -162,9 +166,9 @@ export default function TransactionLedger() {
                                     )}
                                 >
                                     <option value="">{t("table.type")}</option>
-                                    <option value="kirim">Kirim</option>
+                                    <option value="kirim">{t("kassa.report_income")}</option>
                                     <option value="chiqim">{t("form.expense")}</option>
-                                    <option value="avans">Avans</option>
+                                    <option value="avans">{t("form.advance")}</option>
                                 </select>
                             </th>
                             <th className="text-right font-medium text-muted-foreground px-2 py-2">{t("form.amount_total")}</th>
@@ -187,7 +191,7 @@ export default function TransactionLedger() {
                                             TYPE_BADGE[tx.type],
                                         )}
                                     >
-                                        {TYPE_LABEL[tx.type]}
+                                        {t(TYPE_LABEL_KEY[tx.type])}
                                     </span>
                                 </td>
                                 <td

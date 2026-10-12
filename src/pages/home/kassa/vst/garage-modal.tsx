@@ -59,7 +59,7 @@ const VstGarageModal = ({ modalKey, kind }: Props) => {
                 control={control}
                 name="amount"
                 label={t("form.amount")}
-                placeholder="Ex: 1 000 000"
+                placeholder={`${t("form.example")}: 1 000 000`}
                 thousandSeparator=" "
                 decimalScale={2}
                 allowNegative={false}

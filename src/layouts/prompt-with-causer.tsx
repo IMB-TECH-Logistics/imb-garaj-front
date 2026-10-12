@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { useTranslation } from "react-i18next"
 
 interface PromptResult {
     text: string
@@ -27,6 +28,7 @@ export const PromptWithCauseContext = createContext<
 export const PromptWithCauseProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
+    const { t } = useTranslation()
     const [isOpen, setIsOpen] = useState(false)
     const [dialogTitle, setDialogTitle] = useState<string | undefined>("")
     const [inputValue, setInputValue] = useState("")
@@ -59,7 +61,7 @@ export const PromptWithCauseProvider: React.FC<{ children: ReactNode }> = ({
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{dialogTitle || "Sabab?"}</DialogTitle>
+                        <DialogTitle>{dialogTitle || t("core.dialogs.reason_title")}</DialogTitle>
                         <VisuallyHidden>
                             <DialogDescription>{dialogTitle}</DialogDescription>
                         </VisuallyHidden>
@@ -69,7 +71,7 @@ export const PromptWithCauseProvider: React.FC<{ children: ReactNode }> = ({
                         autoFocus
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyUp={(e) => e.key === "Enter" && handleConfirm()}
-                        placeholder={dialogTitle || "Sabab?"}
+                        placeholder={dialogTitle || t("core.dialogs.reason_title")}
                         fullWidth
                     />
                     <RadioGroup
@@ -81,11 +83,11 @@ export const PromptWithCauseProvider: React.FC<{ children: ReactNode }> = ({
                     >
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="company" id="company" />
-                            <Label htmlFor="company">Zavod sababli</Label>
+                            <Label htmlFor="company">{t("core.dialogs.cause_company")}</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="driver" id="driver" />
-                            <Label htmlFor="driver">Haydovchi sababli</Label>
+                            <Label htmlFor="driver">{t("core.dialogs.cause_driver")}</Label>
                         </div>
                     </RadioGroup>
                 </DialogContent>

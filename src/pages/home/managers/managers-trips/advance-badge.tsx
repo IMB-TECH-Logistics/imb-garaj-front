@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
+import { useTranslation } from "react-i18next"
 
 type Props = {
     pending?: number | string | null
@@ -8,23 +9,24 @@ type Props = {
 }
 
 export default function AdvanceBadge({ pending, rejected, compact }: Props) {
+    const { t } = useTranslation()
     if (pending)
         return (
             <Badge variant="orange" className="w-fit whitespace-nowrap">
                 {compact ?
-                    <>Avans kutilmoqda:{" "}{formatMoney(Number(pending))}</>
-                :   <>Avans so'rovi:{" "}{formatMoney(Number(pending))}{" "}so'm · kassir tasdig'i kutilmoqda</>}
+                    t("trips.advance.pending_compact", { amount: formatMoney(Number(pending)) })
+                :   t("trips.advance.pending_full", { amount: formatMoney(Number(pending)) })}
             </Badge>
         )
     if (rejected)
         return (
             <div className="flex flex-col items-start gap-0.5">
                 <Badge variant="destructive" className="w-fit whitespace-nowrap">
-                    Avans rad etildi:{" "}{formatMoney(Number(rejected.amount))}{" "}so'm
+                    {t("trips.advance.rejected", { amount: formatMoney(Number(rejected.amount)) })}
                 </Badge>
                 {!compact && (
                     <span className="text-xs text-muted-foreground">
-                        {rejected.reason ? `Sabab: ${rejected.reason}. ` : ""}Kassa → So'rovlar bo'limidan tuzatib qayta yuboring.
+                        {rejected.reason ? `${t("trips.advance.reason", { reason: rejected.reason })} ` : ""}{t("trips.advance.fix_hint")}
                     </span>
                 )}
             </div>

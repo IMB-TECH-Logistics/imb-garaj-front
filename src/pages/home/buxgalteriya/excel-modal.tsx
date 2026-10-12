@@ -22,6 +22,7 @@ const toStr = (v: unknown) =>
     v === undefined || v === null || v === "" ? "" : String(v)
 
 const BuxgalteriyaExcelModal = () => {
+    const { t } = useTranslation()
     const search: any = useSearch({ strict: false })
     const { isOpen, closeModal } = useModal(EXCEL_MODAL_KEY)
 
@@ -75,7 +76,7 @@ const BuxgalteriyaExcelModal = () => {
 
     const { trigger, isFetching } = useDownloadAsExcel({
         url: `${MANAGERS_RUNS}/excel`,
-        name: "Buxgalteriya",
+        name: t("fin.buxgalteriya.excel_file_name"),
         params,
     })
 
@@ -84,7 +85,6 @@ const BuxgalteriyaExcelModal = () => {
         closeModal()
     }
 
-    const { t } = useTranslation()
     return (
         <Modal
             modalKey={EXCEL_MODAL_KEY}
@@ -128,7 +128,7 @@ const BuxgalteriyaExcelModal = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                     <Combobox
-                        label="Mashina"
+                        label={t("vst.vehicle_short")}
                         options={vehicleList}
                         value={searchText}
                         setValue={(v: any) => setSearchText(toStr(v))}

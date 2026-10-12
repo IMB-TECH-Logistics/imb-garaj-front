@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button, ButtonProps } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -9,7 +10,7 @@ import convertDate from "@/lib/convertDate"
 import { cn } from "@/lib/utils"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { format } from "date-fns"
-import { uz } from "date-fns/locale"
+import { useDateLocale } from "../custom/use-date-locale"
 import { Calendar as CalendarIcon, X } from "lucide-react"
 import { useEffect } from "react"
 
@@ -25,7 +26,7 @@ type ParamDatePickerMultipleProps = {
 
 export function ParamDatePickerMultiple({
     paramName = "dates",
-    placeholder = "Kunlarni tanlang",
+    placeholder,
     fullWidth,
     disabled,
     defaultMonth,
@@ -33,6 +34,8 @@ export function ParamDatePickerMultiple({
     addButtonProps,
 }: ParamDatePickerMultipleProps) {
     const navigate = useNavigate()
+    const { t } = useTranslation()
+    const locale = useDateLocale()
     const search: any = useSearch({ from: "/_main" }) as Record<
         string,
         string | undefined
@@ -106,7 +109,7 @@ export function ParamDatePickerMultiple({
                                 .join(", ")}
                         </p>
                     :   <span className="truncate opacity-60">
-                            {placeholder}
+                            {placeholder ?? t("ui.date_picker.select_days")}
                         </span>
                     }
                     {parsedDates.length > 0 && !disabled && (
@@ -125,7 +128,7 @@ export function ParamDatePickerMultiple({
                     selected={parsedDates}
                     onSelect={(dates) => handleOnChange(dates)}
                     initialFocus
-                    locale={uz}
+                    locale={locale}
                 />
             </PopoverContent>
         </Popover>

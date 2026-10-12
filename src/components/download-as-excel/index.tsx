@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { Download } from "lucide-react"
 import type { ReactNode } from "react"
@@ -17,13 +18,14 @@ type Props = {
 const DownloadAsExcel = ({
     url,
     name,
-    children = "Yuklab olish",
+    children,
     icon = <Download width={16} />,
     variant = "secondary",
     className,
     fileType,
     params,
 }: Props) => {
+const { t } = useTranslation()
     const { trigger, isFetching } = useDownloadAsExcel({
         url,
         name,
@@ -38,7 +40,7 @@ const DownloadAsExcel = ({
             onClick={trigger}
             className={className}
         >
-            {children}
+            {children ?? t("actions.download")}
         </Button>
     )
 }

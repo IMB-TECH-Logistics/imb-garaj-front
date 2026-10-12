@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import Select from "@/components/ui/select"
 import { AUTH_TENANTS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -26,17 +27,18 @@ export function TenantSelect({
     onChange: (schema: string) => void
 }) {
     const { data: tenants } = useGet<Tenant[]>(AUTH_TENANTS)
+    const { t } = useTranslation()
 
     return (
         <div className="flex flex-col gap-1 pr-10">
             <span className="text-xs text-muted-foreground">
-                Tenant <span className="text-destructive">*</span>
+                {t("ui.tenant.tenant")} <span className="text-destructive">*</span>
             </span>
             <Select
                 value={value}
                 setValue={onChange}
-                options={(tenants ?? []).filter((t) => t.is_active)}
-                label="Tenantni tanlang"
+                options={(tenants ?? []).filter((tn) => tn.is_active)}
+                label={t("ui.tenant.select")}
                 labelKey="name"
                 valueKey="schema_name"
                 className="h-9"

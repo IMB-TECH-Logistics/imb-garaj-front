@@ -1,11 +1,13 @@
 import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
-import { EXPENSE_TYPE_OPTIONS, FLOW_TYPE_OPTIONS, FlowTypeEnum } from "./add-expenses"
+import { FlowTypeEnum, useExpenseTypeOptions, useFlowTypeOptions } from "./add-expenses"
 import { useTranslation } from "react-i18next"
 
 export const useColumnsExpensesTable = () => {
     const { t } = useTranslation()
+    const expenseTypeOptions = useExpenseTypeOptions()
+    const flowTypeOptions = useFlowTypeOptions()
     return useMemo<ColumnDef<VehicleRoleType>[]>(
         () => [
             {
@@ -20,13 +22,13 @@ export const useColumnsExpensesTable = () => {
                 cell: ({ row }) => {
                     const typeValue = row.original.type
 
-                    const typeOption = EXPENSE_TYPE_OPTIONS.find(
+                    const typeOption = expenseTypeOptions.find(
                         (option: { value: any }) => option.value === typeValue,
                     )
 
                     return (
                         <span>
-                            {typeOption ? typeOption.label : "Noma'lum"}
+                            {typeOption ? typeOption.label : t("settings.common.unknown")}
                         </span>
                     )
                 },
@@ -37,7 +39,7 @@ export const useColumnsExpensesTable = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const flow = row.original.flow_type
-                    const label = FLOW_TYPE_OPTIONS.find(
+                    const label = flowTypeOptions.find(
                         (option) => option.value === flow,
                     )?.label
                     if (!label) return "—"
@@ -56,6 +58,6 @@ export const useColumnsExpensesTable = () => {
                 },
             },
         ],
-        [t],
+        [t, expenseTypeOptions, flowTypeOptions],
     )
 }

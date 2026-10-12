@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button, ButtonProps } from "@/components/ui/button"
 import {
     Command,
@@ -58,6 +59,7 @@ export function ParamMultiCombobox<T extends Record<string, any>>({
     const [inputValue, setInputValue] = useState("")
 
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const search: any = useSearch({ from: "/_main" }) as Record<
         string,
         string | undefined
@@ -170,7 +172,7 @@ export function ParamMultiCombobox<T extends Record<string, any>>({
                 >
                     <span className="line-clamp-1 break-all whitespace-pre-line">
                         {currentValues.length > 2 ?
-                            `${currentValues.length} ${"ta tanlandi"}`
+                            t("ui.common.selected_count", { count: currentValues.length })
                         :   selectedLabels || label}
                     </span>
                     <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
@@ -204,7 +206,7 @@ export function ParamMultiCombobox<T extends Record<string, any>>({
                         </div>
                     )}
                     <CommandList>
-                        <CommandEmpty>{"Mavjud emas"}</CommandEmpty>
+                        <CommandEmpty>{t("ui.common.no_options")}</CommandEmpty>
                         <CommandGroup>
                             {sortedOptions?.map((d, i) => (
                                 <CommandItem

@@ -58,7 +58,7 @@ export default function ManagerReys() {
         name ||
         (id === "all" ? t("reys_bulk.all_label") : null) ||
         [trip?.vehicle_number, trip?.driver_name].filter(Boolean).join(" - ") ||
-        (tripError?.response?.status === 404 ? "Reys topilmadi" : "—")
+        (tripError?.response?.status === 404 ? t("trips.reys_page.not_found") : "—")
     const crumbVehicle = trip?.vehicle ?? getData("manager-trips-vehicle-id")
     const { data: vehiclesCount } = useGet<ListResponse<ManagerVehicles>>(MANAGERS_VEHICLES, { params: { page_size: 1 } })
     const { data: tripsCount } = useGet<ListResponse<ManagerTrips>>(MANAGERS_TRIPS, {
@@ -124,8 +124,8 @@ export default function ManagerReys() {
                 __leg: leg,
                 date: leg.start,
                 activity: 0,
-                activity_display: "Bo'sh yurish",
-                loading_name: leg.from_place || "Aylanma boshi",
+                activity_display: t("trips.managers.empty_run"),
+                loading_name: leg.from_place || t("trips.empty_leg.turnover_start"),
                 unloading_name: leg.to_place,
                 loading_time: leg.start,
                 completed_time: leg.end,
@@ -137,7 +137,7 @@ export default function ManagerReys() {
             if (legRow && desc) out.push(legRow)
         }
         return out
-    }, [data, legs, search])
+    }, [data, legs, search, t])
     const handleAdd = () => {
         clearKey(MANAGERS_ORDERS)
         openTripModal()
@@ -207,7 +207,7 @@ export default function ManagerReys() {
             <Modal
                 modalKey={MANAGERS_ORDERS}
                 title={
-                    currentSelected?.id ? "Reysni tahrirlash" : "Reys qo'shish"
+                    currentSelected?.id ? t("trips.reys_page.edit_trip") : t("trips.reys_page.add_trip")
                 }
             >
                 <AddTripOrders />
@@ -233,6 +233,7 @@ export default function ManagerReys() {
                             {previewImages.length > 1 && (
                                 <button
                                     type="button"
+                                    aria-label={t("trips.common.previous")}
                                     onClick={() =>
                                         setPreviewIndex(
                                             (previewIndex - 1 + previewImages.length) %
@@ -246,12 +247,13 @@ export default function ManagerReys() {
                             )}
                             <img
                                 src={previewImages[previewIndex].image.replace("http://", "https://")}
-                                alt="preview"
+                                alt={t("trips.common.preview")}
                                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
                             />
                             {previewImages.length > 1 && (
                                 <button
                                     type="button"
+                                    aria-label={t("trips.common.next")}
                                     onClick={() =>
                                         setPreviewIndex(
                                             (previewIndex + 1) % previewImages.length,

@@ -13,6 +13,8 @@ import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation, Trans } from "react-i18next"
+import i18n from "@/i18n/i18n"
 import { toast } from "sonner"
 
 const REQUESTS = "checkout/kassa-v2/requests"
@@ -32,13 +34,14 @@ type AdvanceRequest = {
 
 const errorText = (e: any) => {
     const d = e?.response?.data
-    if (!d) return "Xatolik yuz berdi"
+    if (!d) return i18n.t("trips.row.error")
     if (d.detail) return String(d.detail)
     const first = Object.values(d)[0]
-    return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : "Xatolik yuz berdi"
+    return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : i18n.t("trips.row.error")
 }
 
 export default function PendingAdvances({ tripId }: { tripId?: number }) {
+    const { t } = useTranslation()
     const { data: user } = useUser()
     const isV2 = user?.kassa_mode === "driver_cash" && user?.kassa_version === 2
     const canEdit = useHasAction("kassa_operator_control" as never)
@@ -90,14 +93,14 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                                 </span>
                                 <span className="text-sm">{r.kind_label}</span>
                                 <Badge variant={rejected ? "destructive" : "orange"} className="w-fit whitespace-nowrap">
-                                    {rejected ? "Rad etildi" : "Kassir tasdig'i kutilmoqda"}
+                                    {rejected ? t("trips.pending.rejected") : t("trips.pending.awaiting_cashier")}
                                 </Badge>
                             </div>
                             {canEdit && (
                                 rejected ?
                                     <div className="flex items-center gap-2">
                                         <Button size="sm" variant="outline" className="h-8" onClick={() => { setSelected(r); edit.openModal() }}>
-                                            Tuzatib qayta yuborish
+                                            {t("trips.pending.fix_resend")}
                                         </Button>
                                         <TableActions onDelete={() => { setSelected(r); cancel.openModal() }} />
                                     </div>
@@ -108,7 +111,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                             )}
                         </div>
                         {rejected && r.rejected_comment && (
-                            <p className="text-xs text-muted-foreground mt-1">Sabab: {r.rejected_comment}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t("trips.pending.reason_label", { reason: r.rejected_comment })}</p>
                         )}
                         {!rejected && r.comment && <p className="text-xs text-muted-foreground mt-1">{r.comment}</p>}
                     </div>
@@ -117,7 +120,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
 
             <Modal
                 modalKey="kv2-advance-edit"
-                title={selected?.status === REJECTED ? "So'rovni tuzatish" : "So'rovni tahrirlash"}
+                title={selected?.status === REJECTED ? t("trips.pending.fix_request") : t("trips.pending.edit_request")}
                 size="max-w-md"
             >
                 <form
@@ -126,7 +129,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                         if (!selected) return
                         mutate(`${REQUESTS}/${selected.id}/resend`, { amount: Number(v.amount), comment: v.comment || null }, {
                             onSuccess: () => {
-                                toast.success(selected.status === REJECTED ? "So'rov qayta yuborildi" : "So'rov o'zgartirildi")
+                                toast.success(selected.status === REJECTED ? t("trips.pending.resent") : t("trips.pending.changed"))
                                 refresh()
                                 edit.closeModal()
                             },
@@ -136,34 +139,38 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                 >
                     {selected?.status === REJECTED && selected.rejected_comment && (
                         <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm">
-                            <span className="font-medium">Rad etish sababi: </span>{selected.rejected_comment}
+                            <span className="font-medium">{t("trips.pending.reject_reason")} </span>{selected.rejected_comment}
                         </div>
                     )}
                     <FormNumberInput
                         required
                         control={form.control}
                         name="amount"
-                        label="Summa"
+                        label={t("form.amount")}
                         thousandSeparator=" "
                         allowNegative={false}
-                        registerOptions={{ validate: (v: unknown) => Number(v) > 0 || "Summa 0 dan katta bo'lsin" }}
+                        registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
                     />
-                    <FormTextarea label="Izoh" name="comment" methods={form} />
+                    <FormTextarea label={t("form.comment")} name="comment" methods={form} />
                     <div className="flex justify-end">
                         <Button type="submit" className="min-w-32" loading={isPending}>
-                            {selected?.status === REJECTED ? "Qayta yuborish" : "Saqlash"}
+                            {selected?.status === REJECTED ? t("trips.pending.resend") : t("actions.save")}
                         </Button>
                     </div>
                 </form>
             </Modal>
 
-            <Modal modalKey="kv2-advance-cancel" title="So'rovni bekor qilish" size="max-w-md">
+            <Modal modalKey="kv2-advance-cancel" title={t("trips.pending.cancel_request")} size="max-w-md">
                 <div className="flex flex-col gap-4">
                     <p className="text-sm">
-                        <b>{formatMoney(Number(selected?.amount ?? 0))} so'm</b> {selected?.kind_label.toLowerCase()} so'rovi bekor qilinadi. Kassirga bormaydi.
+                        <Trans
+                            i18nKey="trips.pending.cancel_text"
+                            values={{ amount: formatMoney(Number(selected?.amount ?? 0)), kind: selected?.kind_label.toLowerCase() }}
+                            components={{ b: <b /> }}
+                        />
                     </p>
                     <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={cancel.closeModal}>Yo'q</Button>
+                        <Button variant="outline" onClick={cancel.closeModal}>{t("actions.no")}</Button>
                         <Button
                             variant="destructive"
                             loading={isPending}
@@ -171,7 +178,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                                 selected &&
                                 mutate(`${REQUESTS}/${selected.id}/cancel`, {}, {
                                     onSuccess: () => {
-                                        toast.success("So'rov bekor qilindi")
+                                        toast.success(t("trips.pending.cancelled"))
                                         refresh()
                                         cancel.closeModal()
                                     },
@@ -179,7 +186,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                                 })
                             }
                         >
-                            Bekor qilish
+                            {t("actions.cancel")}
                         </Button>
                     </div>
                 </div>

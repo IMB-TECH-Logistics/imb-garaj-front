@@ -25,9 +25,9 @@ const AddPaymentTypeModal = () => {
     const { handleSubmit, reset, control } = form
 
     const methodOptions = [
-        { id: 1, name: "Naqd" },
-        { id: 2, name: "Plastik" },
-        { id: 3, name: "Kassa" },
+        { id: 1, name: t("settings.payment.method_cash") },
+        { id: 2, name: t("settings.payment.method_plastic") },
+        { id: 3, name: t("settings.payment.method_kassa") },
     ]
 
     const onSuccess = () => {

@@ -1,4 +1,5 @@
 import { startOfDay } from "date-fns"
+import type { TFunction } from "i18next"
 
 export const ORDER_STATUS = {
     PENDING: 0,
@@ -25,40 +26,40 @@ export const ACTIVE_STATUSES: number[] = [
 
 export const STATUS_META: Record<
     number,
-    { label: string; bar: string; dot: string; color: string }
+    { labelKey: string; bar: string; dot: string; color: string }
 > = {
     [ORDER_STATUS.PENDING]: {
-        label: "Kutilmoqda",
+        labelKey: "status.pending",
         bar: "bg-amber-400",
         dot: "bg-amber-400",
         color: "#fbbf24",
     },
     [ORDER_STATUS.STARTED]: {
-        label: "Boshlandi",
+        labelKey: "status.started",
         bar: "bg-sky-400",
         dot: "bg-sky-400",
         color: "#38bdf8",
     },
     [ORDER_STATUS.LOADING]: {
-        label: "Yuklanmoqda",
+        labelKey: "status.loading_status",
         bar: "bg-violet-400",
         dot: "bg-violet-400",
         color: "#a78bfa",
     },
     [ORDER_STATUS.IN_TRANSIT]: {
-        label: "Yo'lda",
+        labelKey: "status.transit",
         bar: "bg-emerald-500",
         dot: "bg-emerald-500",
         color: "#10b981",
     },
     [ORDER_STATUS.UNLOADING]: {
-        label: "Tushirilmoqda",
+        labelKey: "status.unloading_status",
         bar: "bg-orange-400",
         dot: "bg-orange-400",
         color: "#fb923c",
     },
     [IDLE]: {
-        label: "Bo'sh",
+        labelKey: "mon.status.idle",
         bar: "bg-muted-foreground/15",
         dot: "bg-muted-foreground/30",
         color: "#9ca3af",
@@ -140,6 +141,16 @@ export function splitByDay(segments: Segment[], day: Date): DaySegment[] {
         })
     }
     return out
+}
+
+export function formatDurationShort(mins: number, t: TFunction): string {
+    const total = Math.round(mins)
+    const h = Math.floor(total / 60)
+    const m = total % 60
+    if (h === 0) return t("mon.duration.m_short", { m })
+    return m
+        ? t("mon.duration.hm_short", { h, m })
+        : t("mon.duration.h_short", { h })
 }
 
 export function minsToHHMM(mins: number): string {

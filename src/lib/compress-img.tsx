@@ -1,5 +1,6 @@
 import imageCompression, { Options } from "browser-image-compression"
 import { toast } from "sonner"
+import i18n from "@/i18n/i18n"
 
 const COMPRESS_TIMEOUT_MS = 15000
 
@@ -46,9 +47,7 @@ export default async function compressImg(file: File, opts?: Options) {
             )
         } catch {
             if (file.size <= 10 * 1024 * 1024) return file
-            toast.error(
-                "Rasm hajmini kichraytirishda muammo yuzaga keldi. Qayta urinib ko'ring yoki kichkina hajmli rasm yuklang!",
-            )
+            toast.error(i18n.t("core.errors.image_compress"))
         }
     }
 }

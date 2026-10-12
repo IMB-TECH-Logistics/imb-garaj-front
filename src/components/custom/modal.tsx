@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
@@ -49,6 +50,7 @@ const Modal = ({
     titleInChildren = false,
 }: Props) => {
     const { isOpen, closeModal } = useModal(modalKey)
+    const { t } = useTranslation()
     const openerRef = useRef<HTMLElement | null>(null)
     const wasOpen = useRef(false)
     if (isOpen && !wasOpen.current && document.activeElement instanceof HTMLElement) {
@@ -87,7 +89,7 @@ const Modal = ({
                     )}
                     {!title && !titleInChildren && (
                         <VisuallyHidden>
-                            <DialogTitle>title</DialogTitle>
+                            <DialogTitle>{t("ui.modal.default_title")}</DialogTitle>
                         </VisuallyHidden>
                     )}
                     {description && (

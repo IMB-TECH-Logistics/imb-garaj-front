@@ -64,24 +64,6 @@ export const useActivityOptions = (): StatusOption[] => {
     ]
 }
 
-export const STATUS_OPTIONS: StatusOption[] = [
-    { id: "0", name: "Kutilmoqda" },
-    { id: "1", name: "Boshlandi" },
-    { id: "5", name: "Yuklanmoqda" },
-    { id: "6", name: "Yo'lda" },
-    { id: "7", name: "Tushirilmoqda" },
-    { id: "2", name: "Tugallandi" },
-    { id: "3", name: "Bekor qilindi" },
-]
-
-export const ACTIVITY_OPTIONS: StatusOption[] = [
-    { id: "1", name: "Reys" },
-    { id: "2", name: "Garajda" },
-    { id: "3", name: "Ta'mirda" },
-    { id: "4", name: "Bekor turish" },
-    { id: "5", name: "Navbatda" },
-]
-
 type Direction = {
     id: number
     owner: number
@@ -383,7 +365,7 @@ const AddTripOrders = () => {
     const finalize = (approved: boolean) => {
         toast.success(
             approved
-                ? "Reys tasdiqlandi"
+                ? t("reys_confirm.approved")
                 : currentTripOrder?.id
                   ? t("messages.success_edit")
                   : t("messages.success_add"),
@@ -411,7 +393,7 @@ const AddTripOrders = () => {
             {},
             {
                 onSuccess: () => finalize(true),
-                onError: () => toast.error("Tasdiqlashda xatolik"),
+                onError: () => toast.error(t("reys_confirm.error")),
             },
         )
     }
@@ -548,7 +530,7 @@ const AddTripOrders = () => {
                 className="flex flex-col gap-4 max-h-[72vh] overflow-y-auto pr-1 no-scrollbar-x"
             >
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Reys ma'lumotlari</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_reys.trip_info")}</h3>
                     <div className="grid grid-cols-1 gap-4">
                         <FormCombobox
                             required
@@ -670,8 +652,8 @@ const AddTripOrders = () => {
                                     <FormNumberInput
                                         control={control}
                                         name="salary_amount"
-                                        label="Bekor turish haqi"
-                                        placeholder="Ex: 150 000"
+                                        label={t("trips.create_reys.idle_fee")}
+                                        placeholder={t("trips.create_reys.example_idle_fee")}
                                         thousandSeparator=" "
                                         allowNegative={false}
                                     />
@@ -814,7 +796,7 @@ const AddTripOrders = () => {
                 )}
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Rasmlar</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_reys.images")}</h3>
                     <div className="grid grid-cols-1 gap-4">
                         {previewItems.length > 0 && (
                             <div className="flex flex-wrap gap-2">
@@ -826,7 +808,7 @@ const AddTripOrders = () => {
                                     >
                                         <img
                                             src={img.image}
-                                            alt={`rasm-${img.id}`}
+                                            alt={t("trips.create_reys.image_alt", { n: img.id })}
                                             className="w-full h-full object-cover"
                                         />
                                         <button
@@ -851,7 +833,7 @@ const AddTripOrders = () => {
                                     >
                                         <img
                                             src={URL.createObjectURL(file)}
-                                            alt={`rasm-${index}`}
+                                            alt={t("trips.create_reys.image_alt", { n: index })}
                                             className="w-full h-full object-cover"
                                         />
                                         <button
@@ -921,11 +903,11 @@ const AddTripOrders = () => {
                             disabled={isPending}
                             onClick={approveOnly}
                         >
-                            Tasdiqlash
+                            {t("actions.confirm")}
                         </Button>
                     )}
                     <Button type="submit" loading={isPending} disabled={isPending}>
-                        {isDraft ? t("actions.save") + " + Tasdiqlash" : t("actions.save")}
+                        {isDraft ? t("trips.create_reys.save_and_approve") : t("actions.save")}
                     </Button>
                 </div>
             </form>
@@ -940,6 +922,7 @@ const AddTripOrders = () => {
                             {previewItems.length > 1 && (
                                 <button
                                     type="button"
+                                    aria-label={t("trips.common.previous")}
                                     onClick={() =>
                                         setPreviewIndex(
                                             (previewIndex - 1 + previewItems.length) %
@@ -953,12 +936,13 @@ const AddTripOrders = () => {
                             )}
                             <img
                                 src={previewItems[previewIndex].url}
-                                alt="preview"
+                                alt={t("trips.common.preview")}
                                 className="w-full h-auto rounded-lg"
                             />
                             {previewItems.length > 1 && (
                                 <button
                                     type="button"
+                                    aria-label={t("trips.common.next")}
                                     onClick={() =>
                                         setPreviewIndex(
                                             (previewIndex + 1) % previewItems.length,

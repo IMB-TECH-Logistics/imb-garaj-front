@@ -80,7 +80,7 @@ const AddDocumentModal = () => {
 
     const docTypeOptions = DOC_TYPE_OPTIONS.filter((o) =>
         TAB_DOC_TYPES[tab].includes(o.value),
-    ).map((o) => ({ ...o, label: t(`documents_page.${o.value}`) }))
+    ).map((o) => ({ value: o.value, label: t(o.labelKey) }))
 
     const onSuccess = () => {
         toast.success(
@@ -169,7 +169,7 @@ const AddDocumentModal = () => {
             {!isPrefilled && (
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
                     <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                        Hujjat
+                        {t("settings.documents.section_document")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormCombobox
@@ -208,7 +208,7 @@ const AddDocumentModal = () => {
             )}
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
                 <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                    Ma'lumotlar
+                    {t("settings.documents.section_info")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormInput
@@ -238,7 +238,7 @@ const AddDocumentModal = () => {
             </section>
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
                 <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                    Rasmlar
+                    {t("documents_page.photos")}
                 </h3>
                 <div>
                     <div className="grid grid-cols-2 gap-3">

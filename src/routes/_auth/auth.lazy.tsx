@@ -36,6 +36,7 @@ const getRedirectPath = (value: string | null) =>
 
 const LANGS = [
     { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+    { code: "uz-Cyrl", label: "Ўзбек", flag: "🇺🇿" },
     { code: "ru", label: "Русский", flag: "🇷🇺" },
     { code: "en", label: "English", flag: "🇬🇧" },
     { code: "ja", label: "日本語", flag: "🇯🇵" },
@@ -47,7 +48,8 @@ function AuthComponent() {
     const redirectPath = getRedirectPath(query.get(REDIRECT_PARAM))
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
     const { t, i18n } = useTranslation()
-    const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
+    const lng = i18n.resolvedLanguage ?? i18n.language
+    const langCode = LANGS.some((l) => l.code === lng) ? lng : lng.split("-")[0]
     const current = LANGS.find((l) => l.code === langCode) ?? LANGS[0]
 
     const form = useForm<Form>({

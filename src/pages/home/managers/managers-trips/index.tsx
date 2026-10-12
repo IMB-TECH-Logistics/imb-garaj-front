@@ -43,7 +43,7 @@ export default function ManagersTrips() {
     const vehicleLabel =
         name ||
         vehicle?.truck_number ||
-        (vehicleError?.response?.status === 404 ? "Transport topilmadi" : "—")
+        (vehicleError?.response?.status === 404 ? t("trips.managers_trips.vehicle_not_found") : "—")
     const { driver_id } = useSearch({ strict: false }) as any
     const { from_date, to_date, moliya_trip_id } = search as any
     const moliyaOpen = !!moliya_trip_id
@@ -177,7 +177,7 @@ export default function ManagersTrips() {
 
             <Modal
                 modalKey={MANAGERS_TRIPS}
-                title={item?.id ? "Aylanmani tahrirlash" : "Aylanmani boshlash"}
+                title={item?.id ? t("trips.managers_trips.edit_turnover") : t("trips.managers_trips.start_turnover")}
             >
                 <CreateManagerTrips />
             </Modal>

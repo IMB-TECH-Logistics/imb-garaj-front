@@ -13,7 +13,8 @@ import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
-import { uz } from "date-fns/locale"
+import type { Locale } from "date-fns"
+import { useDateLocale } from "@/components/custom/use-date-locale"
 import { format } from "date-fns"
 import { Info } from "lucide-react"
 import { ReactNode, useMemo } from "react"
@@ -39,11 +40,12 @@ const SOURCE_LABEL_KEYS: Record<string, string> = {
     transfer: "kassa.source_transfer",
 }
 
-const monthName = (month: number) =>
-    format(new Date(2000, month - 1, 1), "LLLL", { locale: uz })
+const monthName = (month: number, locale: Locale) =>
+    format(new Date(2000, month - 1, 1), "LLLL", { locale })
 
 const useReportCols = () => {
     const { t } = useTranslation()
+    const dateLocale = useDateLocale()
     return useMemo<ColumnDef<ReportRow>[]>(
         () => [
             {
@@ -52,7 +54,7 @@ const useReportCols = () => {
                 cell: ({ row }) =>
                     row.original.isTotal ?
                         t("kassa.report_total")
-                    :   monthName(row.original.month),
+                    :   monthName(row.original.month, dateLocale),
             },
             {
                 header: t("kassa.report_start_balance"),
@@ -124,7 +126,7 @@ const useReportCols = () => {
                 },
             },
         ],
-        [t],
+        [t, dateLocale],
     )
 }
 

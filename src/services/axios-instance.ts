@@ -1,5 +1,6 @@
 import axios from "axios"
 import { toast } from "sonner"
+import i18n from "@/i18n/i18n"
 import { getGeoHeaders, startGeoTracking } from "@/lib/geo-location"
 
 declare module "axios" {
@@ -162,10 +163,9 @@ axiosInstance.interceptors.response.use(
         }
         if (status === 403) {
             console.warn("403:", error?.config?.method, error?.config?.url)
-            toast.error("Sizga ruxsat berilmagan", {
+            toast.error(i18n.t("page.forbidden_title"), {
                 id: "forbidden",
-                description:
-                    "Bu amal uchun rolingizda ruxsat yo\u2018q. Administratorga murojaat qiling.",
+                description: i18n.t("core.errors.forbidden_desc"),
             })
         }
         return Promise.reject(error)

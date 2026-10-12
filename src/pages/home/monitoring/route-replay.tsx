@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Pause, Play } from "lucide-react"
 import { type PointerEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import type { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
 import { ACTIVE_STATUSES, IDLE, STATUS_META } from "./status/data"
 
 export type ReplayPoint = { t: number; lat: number; lng: number; speed: number }
@@ -142,10 +144,12 @@ function runningStats(points: ReplayPoint[]) {
     return { max, moving, stops }
 }
 
-function durationLabel(ms: number) {
+function durationLabel(ms: number, t: TFunction) {
     const minutes = Math.round(ms / 60000)
     const hours = Math.floor(minutes / 60)
-    return hours ? `${hours} soat ${minutes % 60} daq` : `${minutes} daq`
+    return hours
+        ? t("monitoring_stats.hours_minutes", { h: hours, m: minutes % 60 })
+        : t("monitoring_stats.minutes", { m: minutes })
 }
 
 export function useRouteReplay(points: ReplayPoint[]) {
@@ -266,6 +270,7 @@ function buildSeries(points: ReplayPoint[], start: number, end: number) {
 }
 
 export function RouteReplayPanel({ replay }: { replay: RouteReplay }) {
+    const { t } = useTranslation()
     const { points, start, end, time, active, position } = replay
     const svgRef = useRef<SVGSVGElement>(null)
     const [hover, setHover] = useState<number | null>(null)
@@ -285,20 +290,20 @@ export function RouteReplayPanel({ replay }: { replay: RouteReplay }) {
     const progress = active ? toX(time) : null
 
     return (
-        <section className="flex flex-col gap-2 rounded-lg border p-3" aria-label="Tezlik grafigi">
+        <section className="flex flex-col gap-2 rounded-lg border p-3" aria-label={t("mon.replay.speed_chart")}>
             <div className="flex min-w-0 items-baseline justify-between gap-2">
-                <span className="shrink-0 whitespace-nowrap text-sm font-semibold">Tezlik grafigi</span>
+                <span className="shrink-0 whitespace-nowrap text-sm font-semibold">{t("mon.replay.speed_chart")}</span>
                 {position && (
                     <span className="min-w-0 truncate font-mono text-[11px] tabular-nums text-muted-foreground">
-                        {secondsFormat.format(position.t)} · {Math.round(position.speed)} km/h · {position.km.toFixed(1)} km
+                        {secondsFormat.format(position.t)} · {Math.round(position.speed)} {t("mon.units.kmh")} · {position.km.toFixed(1)} {t("mon.units.km")}
                     </span>
                 )}
             </div>
 
             <div className="relative">
                 <div className="mb-0.5 flex justify-between text-[10px] text-muted-foreground">
-                    <span>Tezlik, km/h</span>
-                    <span className="font-mono tabular-nums">max {series.top}</span>
+                    <span>{t("mon.replay.speed_unit")}</span>
+                    <span className="font-mono tabular-nums">{t("mon.replay.max_short")} {series.top}</span>
                 </div>
                 <svg
                     ref={svgRef}
@@ -356,7 +361,7 @@ export function RouteReplayPanel({ replay }: { replay: RouteReplay }) {
                         className="pointer-events-none absolute top-4 z-10 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-2 py-1 text-[11px] shadow-md"
                         style={{ left: `${Math.min(88, Math.max(12, toX(hovered.t)))}%` }}
                     >
-                        <span className="font-mono font-semibold tabular-nums text-foreground">{Math.round(hovered.speed)} km/h</span>
+                        <span className="font-mono font-semibold tabular-nums text-foreground">{Math.round(hovered.speed)} {t("mon.units.kmh")}</span>
                         <span className="ml-1.5 font-mono tabular-nums text-muted-foreground">{clockFormat.format(hovered.t)}</span>
                     </div>
                 )}
@@ -385,6 +390,7 @@ function ReplayStatuses({
     focusKey?: string | null
     onFocus?: (key: string | null) => void
 }) {
+    const { t: tr } = useTranslation()
     const { start, end, time, active } = replay
     const span = Math.max(1, end - start)
     const visible = statuses.filter((s) => s.end > start && s.start < end && STATUS_META[s.status])
@@ -477,7 +483,7 @@ function ReplayStatuses({
                     )}
                 >
                     <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: STATUS_META[IDLE].color }} />
-                    {STATUS_META[IDLE].label}
+                    {tr(STATUS_META[IDLE].labelKey)}
                     <span className="font-mono tabular-nums">{spentLabel(idle)}</span>
                 </button>
                 {ACTIVE_STATUSES.map((status) => {
@@ -505,7 +511,7 @@ function ReplayStatuses({
                             )}
                         >
                             <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: meta.color }} />
-                            {meta.label}
+                            {tr(meta.labelKey)}
                             <span className="font-mono tabular-nums">{spentLabel(spent(status))}</span>
                         </button>
                     )
@@ -556,6 +562,7 @@ export function ReplayMapControl({
     leading?: ReactNode
     className?: string
 }) {
+    const { t } = useTranslation()
     const { points, start, time, playing, active, position, totals } = replay
     if (points.length < 2) return null
     return (
@@ -572,7 +579,7 @@ export function ReplayMapControl({
                 variant={playing ? "secondary" : "default"}
                 className="h-8 w-8 shrink-0"
                 onClick={replay.toggle}
-                aria-label={playing ? "To'xtatib turish" : "Qayta ijro"}
+                aria-label={playing ? t("mon.replay.pause") : t("mon.replay.play")}
             >
                 {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
@@ -580,11 +587,11 @@ export function ReplayMapControl({
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm tabular-nums">
                     <span className="whitespace-pre font-mono font-semibold">{fullStamp(active ? time : start)}</span>
                     <span className="ml-auto flex flex-wrap items-baseline justify-end gap-x-3 gap-y-0.5 pr-2">
-                        {position && <ReplayStat label="Tezlik" value={`${Math.round(position.speed)} km/h`} />}
-                        <ReplayStat label="Masofa" value={`${totals.km.toFixed(1)} km`} />
-                        <ReplayStat label="Max tezlik" value={`${Math.round(totals.max)} km/h`} />
-                        <ReplayStat label="Harakatda" value={durationLabel(totals.moving)} />
-                        <ReplayStat label="To'xtashlar" value={durationLabel(totals.stopped)} />
+                        {position && <ReplayStat label={t("mon.replay.speed")} value={`${Math.round(position.speed)} ${t("mon.units.kmh")}`} />}
+                        <ReplayStat label={t("mon.replay.distance")} value={`${totals.km.toFixed(1)} ${t("mon.units.km")}`} />
+                        <ReplayStat label={t("mon.replay.max_speed")} value={`${Math.round(totals.max)} ${t("mon.units.kmh")}`} />
+                        <ReplayStat label={t("mon.replay.moving")} value={durationLabel(totals.moving, t)} />
+                        <ReplayStat label={t("mon.replay.stops")} value={durationLabel(totals.stopped, t)} />
                     </span>
                 </div>
             </div>

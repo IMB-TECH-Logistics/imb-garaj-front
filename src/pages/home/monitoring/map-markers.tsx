@@ -1,15 +1,17 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { Truck } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { MarkerCluster } from "./marker-clusters"
 import type { LiveMarker, MapPoi } from "./route-map"
 import { RUSSIA_FLAG_GRADIENT } from "./types"
 
 export function RussiaFlag({ className }: { className?: string }) {
+    const { t } = useTranslation()
     return (
         <span
-            aria-label="Rossiya"
-            title="Rossiya reysi"
+            aria-label={t("mon.markers.russia")}
+            title={t("mon.markers.russia_trip")}
             className={cn("inline-block h-3 w-[18px] shrink-0 rounded-[2px] ring-1 ring-slate-900/15", className)}
             style={{ background: RUSSIA_FLAG_GRADIENT }}
         />
@@ -211,11 +213,12 @@ function ClusterBubble({ cluster, onClick }: { cluster: MarkerCluster; onClick?:
     const count = cluster.members.length
     const size = count >= 50 ? 32 : count >= 10 ? 28 : 24
     const offline = cluster.members.every((m) => m.stale)
+    const { t } = useTranslation()
     return (
         <button
             type="button"
             onClick={onClick}
-            title={`${count} ta mashina`}
+            title={t("mon.markers.vehicles_count", { count })}
             className={cn(
                 "grid place-items-center rounded-full p-[3px] shadow-md shadow-slate-900/30 transition will-change-transform hover:scale-110",
                 offline && "opacity-70",
@@ -238,6 +241,7 @@ export function ClusterMarker({
     spread: boolean
     onZoom: () => void
 }) {
+    const { t } = useTranslation()
     if (spread) return <ClusterBubble cluster={cluster} onClick={onZoom} />
     return (
         <Popover>
@@ -248,7 +252,7 @@ export function ClusterMarker({
             </PopoverTrigger>
             <PopoverContent side="top" className="w-64 p-1">
                 <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    Bir joyda {cluster.members.length} ta mashina
+                    {t("mon.markers.vehicles_here", { count: cluster.members.length })}
                 </div>
                 <div className="max-h-72 overflow-y-auto">
                     {cluster.members.map((m) => (
@@ -321,10 +325,11 @@ const tooltipTime = new Intl.DateTimeFormat("en-GB", {
 })
 
 export function SpeedTooltip({ speed, time }: { speed: number; time?: number }) {
+    const { t } = useTranslation()
     return (
         <div className="pointer-events-none flex items-baseline gap-1.5 whitespace-nowrap rounded-md bg-slate-900/95 px-2 py-1 text-white shadow-lg">
             <span className="font-mono text-sm font-bold tabular-nums">{Math.round(speed)}</span>
-            <span className="text-[11px] text-slate-300">km/h</span>
+            <span className="text-[11px] text-slate-300">{t("mon.units.kmh")}</span>
             {time != null && (
                 <span className="font-mono text-[11px] tabular-nums text-slate-400">
                     {tooltipTime.format(time)}

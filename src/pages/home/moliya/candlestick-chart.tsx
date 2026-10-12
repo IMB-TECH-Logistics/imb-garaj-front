@@ -13,6 +13,7 @@ import {
 } from 'lightweight-charts';
 import { useSearch } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n/i18n';
 import { useGet } from '@/hooks/useGet';
 import { FINANCE_BALANCE } from '@/constants/api-endpoints';
 import './candlestick-chart.css';
@@ -212,14 +213,14 @@ function getTodayStr(): string {
 
 const formatSum = (v: number) => {
   const abs = Math.abs(v);
-  if (abs >= 1_000_000_000) return (v / 1_000_000_000).toFixed(2) + ' mlrd';
-  if (abs >= 1_000_000) return (v / 1_000_000).toFixed(1) + ' mln';
-  if (abs >= 1_000) return (v / 1_000).toFixed(0) + ' ming';
+  if (abs >= 1_000_000_000) return (v / 1_000_000_000).toFixed(2) + ' ' + i18n.t('fin.units.billion_short');
+  if (abs >= 1_000_000) return (v / 1_000_000).toFixed(1) + ' ' + i18n.t('fin.units.million_short');
+  if (abs >= 1_000) return (v / 1_000).toFixed(0) + ' ' + i18n.t('fin.units.thousand_short');
   return v.toFixed(0);
 };
 
 const formatSumFull = (v: number) =>
-  new Intl.NumberFormat('uz-UZ').format(Math.round(v)) + ' so\'m';
+  new Intl.NumberFormat('uz-UZ').format(Math.round(v)) + ' ' + i18n.t('page.som');
 
 
 function formatDateShort(dateStr: string): string {

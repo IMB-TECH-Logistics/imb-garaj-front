@@ -29,9 +29,10 @@ const fmt = (v: number) => {
     return String(v)
 }
 
-const fmtFull = (v: number) => new Intl.NumberFormat("uz-UZ").format(Math.round(v)) + " so'm"
+const fmtFull = (v: number, unit: string) => new Intl.NumberFormat("uz-UZ").format(Math.round(v)) + " " + unit
 
 function ForecastTooltip({ active, payload, label }: any) {
+    const { t } = useTranslation()
     if (!active || !payload?.length) return null
     return (
         <div className="bg-popover/95 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-xl text-xs space-y-1">
@@ -40,7 +41,7 @@ function ForecastTooltip({ active, payload, label }: any) {
                 <div key={entry.dataKey} className="flex items-center gap-2">
                     <span className="size-2 rounded-full shrink-0" style={{ background: entry.stroke || entry.color }} />
                     <span className="text-muted-foreground">{entry.name}:</span>
-                    <span className="font-medium text-foreground">{fmtFull(entry.value)}</span>
+                    <span className="font-medium text-foreground">{fmtFull(entry.value, t("page.som"))}</span>
                 </div>
             ))}
         </div>
@@ -72,12 +73,12 @@ export default function CashflowForecast() {
         <div className="bg-card border rounded-xl overflow-hidden h-full flex flex-col">
             <div className="pl-4 pr-12 pt-3 pb-2 shrink-0 flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm font-semibold">Cash Flow Prognoz</h3>
-                    <p className="text-[10px] text-muted-foreground">Kelgusi 6 oy</p>
+                    <h3 className="text-sm font-semibold">{t("fin.forecast.title")}</h3>
+                    <p className="text-[10px] text-muted-foreground">{t("fin.forecast.next_6_months")}</p>
                 </div>
                 {hasCashGap && (
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500">
-                        Cash gap xavfi
+                        {t("fin.forecast.cash_gap_risk")}
                     </span>
                 )}
             </div>
@@ -121,7 +122,7 @@ export default function CashflowForecast() {
                             stroke="#f59e0b"
                             strokeDasharray="4 4"
                             strokeWidth={1}
-                            label={{ value: "Min balans", position: "right", fontSize: 9, fill: "#f59e0b" }}
+                            label={{ value: t("fin.forecast.min_balance"), position: "right", fontSize: 9, fill: "#f59e0b" }}
                         />
                         <Area
                             type="monotone"

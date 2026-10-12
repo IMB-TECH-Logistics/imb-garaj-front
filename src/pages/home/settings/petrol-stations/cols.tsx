@@ -25,7 +25,7 @@ export const usePetrolStationColumns = () => {
             { accessorKey: "address", header: t("form.address"), enableSorting: true },
             {
                 id: "fuel",
-                header: "Olingan yoqilg'i",
+                header: t("settings.petrol.fuel_received"),
                 cell: ({ row }) => (
                     <span className="tabular-nums whitespace-nowrap text-amber-600">
                         {formatQuantity(Number(row.original.total_liters ?? 0), "liter")}
@@ -36,7 +36,7 @@ export const usePetrolStationColumns = () => {
             },
             {
                 accessorKey: "total_outcomes",
-                header: "Summa",
+                header: t("form.amount_total"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="tabular-nums text-amber-600">
@@ -46,7 +46,7 @@ export const usePetrolStationColumns = () => {
             },
             {
                 accessorKey: "balance",
-                header: "Zapravka balansi",
+                header: t("settings.petrol.station_balance"),
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span

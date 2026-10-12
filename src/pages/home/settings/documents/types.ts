@@ -60,15 +60,11 @@ export type DocumentAlerts = {
     results: DocumentAlert[]
 }
 
-export const DOC_TYPE_OPTIONS: { value: DocType; label: string }[] = [
-    { value: "truck_passport", label: "Texpasport (tyagach)" },
-    { value: "trailer_passport", label: "Texpasport (tirkama)" },
-    { value: "driver_license", label: "Haydovchilik guvohnomasi" },
+export const DOC_TYPE_OPTIONS: { value: DocType; labelKey: string }[] = [
+    { value: "truck_passport", labelKey: "documents_page.truck_passport" },
+    { value: "trailer_passport", labelKey: "documents_page.trailer_passport" },
+    { value: "driver_license", labelKey: "documents_page.driver_license" },
 ]
-
-export const DOC_TYPE_LABELS = Object.fromEntries(
-    DOC_TYPE_OPTIONS.map((o) => [o.value, o.label]),
-) as Record<DocType, string>
 
 export const TAB_DOC_TYPES: Record<DocTab, DocType[]> = {
     drivers: ["driver_license"],

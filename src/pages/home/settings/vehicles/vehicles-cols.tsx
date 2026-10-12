@@ -4,9 +4,9 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-const FUEL_LABELS: Record<string, string> = {
-    methane: "Metan",
-    diesel: "Dizel",
+const FUEL_KEYS: Record<string, string> = {
+    methane: "settings.vehicles.fuel_methane",
+    diesel: "settings.vehicles.fuel_diesel",
 }
 
 const STATUS_COLORS: Record<number, string> = {
@@ -72,7 +72,10 @@ export const useColumnsVehiclesTable = () => {
                 accessorKey: "fuel",
                 header: t("form.fuel_type"),
                 enableSorting: true,
-                cell: ({ row }) => FUEL_LABELS[row.original.fuel] || "-",
+                cell: ({ row }) =>
+                    FUEL_KEYS[row.original.fuel] ?
+                        t(FUEL_KEYS[row.original.fuel])
+                    :   "-",
             },
             {
                 accessorKey: "status",
@@ -98,12 +101,15 @@ export const useColumnsVehiclesTable = () => {
             },
             {
                 accessorKey: "consumption",
-                header: `${t("table.fuel_consumption_col")} (100km)`,
+                header: `${t("table.fuel_consumption_col")} (${t("settings.vehicles.per_100km")})`,
                 enableSorting: true,
                 cell: ({ row }) => {
                     const value = row.original.consumption
                     if (value === null || value === undefined) return "-"
-                    const unit = row.original.fuel === "diesel" ? "L" : "m³"
+                    const unit =
+                        row.original.fuel === "diesel" ?
+                            t("settings.vehicles.unit_l")
+                        :   t("settings.petrol.unit_m3")
                     return `${Number(value)} ${unit}`
                 },
             },

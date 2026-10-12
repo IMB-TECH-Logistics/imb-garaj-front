@@ -125,10 +125,10 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
 
     const errorText = (e: any) => {
         const d = e?.response?.data
-        if (!d) return "Xatolik yuz berdi"
+        if (!d) return t("trips.row.error")
         if (d.detail) return String(d.detail)
         const first = Object.values(d)[0]
-        return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : "Xatolik yuz berdi"
+        return Array.isArray(first) ? String(first[0]) : typeof first === "string" ? first : t("trips.row.error")
     }
 
     const unconfirmedCount = (e: any) => {
@@ -158,7 +158,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                     return k.startsWith(MANAGERS_TRIPS) || k.includes("cashflow") || k.startsWith("checkout/kassa-v2")
                 },
             })
-            toast.success(res?.status === "yopildi" ? "Aylanma yopildi" : "Aylanma yopildi, so'rov kassirga yuborildi")
+            toast.success(res?.status === "yopildi" ? t("trips.finish.closed") : t("trips.finish.closed_request_sent"))
             closeModal()
             reset()
         } catch (e) {
@@ -172,7 +172,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
     function onSubmit(values: ManagerTrips, force = false) {
         if (!canFinish) {
             toast.error(
-                `${unpaidOrders.length} ta reys uchun oylik berilmagan`,
+                t("trips.finish.unpaid_salary", { count: unpaidOrders.length }),
             )
             return
         }
@@ -228,13 +228,13 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                         registerOptions={{
                             min: {
                                 value: item?.start_mileage || 0,
-                                message: `Tugash probegi ${item?.start_mileage || 0} dan kam bo’lmasligi kerak`,
+                                message: t("trips.finish.min_end_mileage", { value: item?.start_mileage || 0 }),
                             },
                         }}
                     />
                     <FormNumberInput
                         name="end_fuel"
-                        label={`Qolgan yoqilg'i (${fuelUnit})`}
+                        label={t("trips.finish.remaining_fuel", { unit: fuelUnit })}
                         required
                         decimalScale={2}
                         allowNegative={false}
@@ -292,14 +292,11 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                         />
                         <div className="flex-1 text-sm">
                             <div className="font-medium">
-                                Oyliklar holati: {paidOrders}/{totalOrders}{" "}
-                                berilgan
+                                {t("trips.finish.salary_status", { paid: paidOrders, total: totalOrders })}
                             </div>
                             {!canFinish && (
                                 <div className="text-[12px] text-muted-foreground mt-0.5">
-                                    {unpaidOrders.length} ta reys uchun oylik
-                                    berilmagan. Aylanmani tugatishdan oldin
-                                    barchasini bering.
+                                    {t("trips.finish.unpaid_hint", { count: unpaidOrders.length })}
                                 </div>
                             )}
                         </div>
@@ -312,7 +309,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                             className="self-end"
                             onClick={goToSalaryPage}
                         >
-                            Oylik berish sahifasiga o’tish
+                            {t("trips.finish.go_to_salary")}
                         </Button>
                     )}
                 </div>
@@ -327,7 +324,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                 {unconfirmed ? (
                     <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 flex items-center justify-between gap-3 text-sm">
                         <span>
-                            Aylanmada {unconfirmed} ta tasdiqlanmagan reys bor. Yopilsa ular ochiq aylanmaga ko'chiriladi.
+                            {t("trips.finish.unconfirmed_warning", { count: unconfirmed })}
                         </span>
                         <Button
                             type="button"
@@ -335,14 +332,14 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                             loading={closing}
                             onClick={handleSubmit((v) => onSubmit(v, true))}
                         >
-                            Baribir yopish
+                            {t("trips.finish.close_anyway")}
                         </Button>
                     </div>
                 ) : null}
 
                 <div className="flex justify-end">
                     <Button loading={closing} disabled={!canFinish}>
-                        {isKassaV2 ? (kassa?.amount ? "Tugatish va so'rov yuborish" : "Tugatish") : t("actions.save")}
+                        {isKassaV2 ? (kassa?.amount ? t("trips.finish.finish_and_send") : t("actions.finish")) : t("actions.save")}
                     </Button>
                 </div>
             </form>

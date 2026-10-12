@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { X } from "lucide-react"
 import { Button, ButtonProps } from "../ui/button"
@@ -11,6 +12,7 @@ export default function FilterClearButton({
     ...props
 }: Props & ButtonProps) {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const params = useSearch({ strict: false })
 
     function handleClick() {
@@ -36,6 +38,7 @@ export default function FilterClearButton({
         <Button
             size="icon"
             variant="destructive"
+            aria-label={t("page.clear_filters")}
             {...props}
             onClick={handleClick}
         >

@@ -303,7 +303,7 @@ export default function MonitoringView() {
                 label: g.vehicle_number || g.tracker_name || g.imei,
                 sub:
                     g.speed != null
-                        ? `${Math.round(g.speed)} km/h`
+                        ? `${Math.round(g.speed)} ${t("mon.units.kmh")}`
                         : g.driver_name ?? undefined,
                 stale: g.status !== "online",
                 icon: "truck" as const,
@@ -313,7 +313,7 @@ export default function MonitoringView() {
                 selected: g.imei === trackerImei,
                 onClick: () => selectTracker(g.imei),
             }))
-    }, [cargoItems, historical, trackerImei, ordersByVehicle])
+    }, [cargoItems, historical, trackerImei, ordersByVehicle, t])
 
     const liveMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
@@ -340,7 +340,7 @@ export default function MonitoringView() {
                     id: o.id,
                     lat: o.lat as number,
                     lng: o.lng as number,
-                    label: `Order #${o.id}`,
+                    label: t("mon.order_n", { id: o.id }),
                     sub: o.driver_name ?? o.vehicle_number ?? undefined,
                     stale:
                         o.seconds_since == null || o.seconds_since > 5 * 60,
@@ -349,16 +349,16 @@ export default function MonitoringView() {
         }
         if (dimension === "trip") {
             return (trips.data ?? [])
-                .filter((t) => t.lat != null && t.lng != null)
-                .map((t) => ({
-                    id: t.id,
-                    lat: t.lat as number,
-                    lng: t.lng as number,
-                    label: `Reys #${t.id}`,
-                    sub: t.driver_name ?? t.vehicle_number ?? undefined,
+                .filter((trip) => trip.lat != null && trip.lng != null)
+                .map((trip) => ({
+                    id: trip.id,
+                    lat: trip.lat as number,
+                    lng: trip.lng as number,
+                    label: t("mon.trip_n", { id: trip.id }),
+                    sub: trip.driver_name ?? trip.vehicle_number ?? undefined,
                     stale:
-                        t.seconds_since == null || t.seconds_since > 5 * 60,
-                    onClick: () => selectTrip(t),
+                        trip.seconds_since == null || trip.seconds_since > 5 * 60,
+                    onClick: () => selectTrip(trip),
                 }))
         }
         return (vehicles.data ?? [])
@@ -379,6 +379,7 @@ export default function MonitoringView() {
         orders.data,
         trips.data,
         vehicles.data,
+        t,
     ])
 
     // Hozircha xaritada faqat gps-backend trekerlari ko'rsatiladi.
@@ -541,7 +542,7 @@ export default function MonitoringView() {
                 lat: at.lat,
                 lng: at.lng,
                 label: new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Tashkent", hour: "2-digit", minute: "2-digit" }).format(at.t),
-                sub: `${Math.round(at.speed)} km/h`,
+                sub: `${Math.round(at.speed)} ${t("mon.units.kmh")}`,
                 icon: "truck",
                 tone: "loaded",
                 course: at.course,
@@ -554,7 +555,7 @@ export default function MonitoringView() {
             return gpsMarkers.filter((m) => imeis.has(String(m.id)))
         }
         return gpsMarkers
-    }, [gpsMarkers, trackerImei, ribbonVehicleId, cargoItems, history.replay.position])
+    }, [gpsMarkers, trackerImei, ribbonVehicleId, cargoItems, history.replay.position, t])
 
     const selectedDriverName = selectedDriver
         ? [selectedDriver.vehicle_number, selectedDriver.driver_name]
@@ -716,8 +717,8 @@ export default function MonitoringView() {
                                     )}
                                     onClick={() => history.setShowStops(!history.showStops)}
                                     aria-pressed={history.showStops}
-                                    aria-label="To'xtashlarni ko'rsatish"
-                                    title="To'xtashlarni ko'rsatish"
+                                    aria-label={t("mon.show_stops")}
+                                    title={t("mon.show_stops")}
                                 >
                                     P
                                 </Button>
@@ -860,7 +861,7 @@ export default function MonitoringView() {
                                 <>
                                 {visibleItems.length < cargoItems.length && (
                                     <div className="mb-2 flex items-center justify-between gap-2 rounded-md bg-muted/60 px-3 py-1.5 text-xs text-muted-foreground">
-                                        <span>Xaritadagi hudud</span>
+                                        <span>{t("mon.map_area")}</span>
                                         <span className="font-mono font-semibold tabular-nums text-foreground">
                                             {visibleItems.length} / {cargoItems.length}
                                         </span>
@@ -980,11 +981,11 @@ function HistoricalSummary({
     return (
         <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
-                <Stat label={t("form.distance")} value={km} unit="km" />
+                <Stat label={t("form.distance")} value={km} unit={t("mon.units.km")} />
                 <Stat
                     label={t("table.duration")}
                     value={durMin != null ? String(durMin) : "—"}
-                    unit={durMin != null ? "min" : undefined}
+                    unit={durMin != null ? t("mon.units.min") : undefined}
                 />
             </div>
 
@@ -1060,7 +1061,7 @@ function StatStrip({ data }: { data: RoutePolyline }) {
                 <Pill label={t("page.trips")} value={`#${data.trip}`} />
             )}
             {data.order != null && (
-                <Pill label="Order" value={`#${data.order}`} />
+                <Pill label={t("mon.order")} value={`#${data.order}`} />
             )}
         </div>
     )

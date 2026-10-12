@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { ClipboardEvent } from "react"
 import { toast } from "sonner"
 import { Input } from "../ui/input"
@@ -44,6 +45,7 @@ const fetchImage = async (src: string) => {
 }
 
 export default function PasteInput({ onFile, disabled }: TProps) {
+const { t } = useTranslation()
     async function onPaste(e: ClipboardEvent<HTMLInputElement>) {
         e.preventDefault()
         if (disabled) return
@@ -63,12 +65,12 @@ export default function PasteInput({ onFile, disabled }: TProps) {
                     return
                 }
             } catch {
-                toast.error("Rasmni olib bo'lmadi, uni kompyuterga saqlab yuklang")
+                toast.error(t("ui.upload.paste_failed"))
                 return
             }
         }
 
-        toast.error("Faqat rasm yuklashingiz mumkin")
+        toast.error(t("ui.upload.image_only"))
     }
 
     return (

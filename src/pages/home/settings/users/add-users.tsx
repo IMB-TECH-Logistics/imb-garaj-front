@@ -130,11 +130,10 @@ const AddUserModal = () => {
                     <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
                         <div>
                             <p className="text-sm font-medium">
-                                Rol ruxsatlarini meros olsin
+                                {t("settings.users.inherit_role")}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                O‘chirilsa, xodimga faqat quyida belgilangan
-                                ruxsatlar amal qiladi.
+                                {t("settings.users.inherit_role_hint")}
                             </p>
                         </div>
                         <Switch

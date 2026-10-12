@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import {
     Controller,
     FieldValues,
@@ -18,6 +19,7 @@ export default function FormVideoPicker<IForm extends FieldValues>({
     required = false,
     className,
 }: VideoPickerProps<IForm>) {
+    const { t } = useTranslation();
     const {
         field,
         fieldState: { error },
@@ -27,7 +29,7 @@ export default function FormVideoPicker<IForm extends FieldValues>({
         rules: {
             required: {
                 value: required,
-                message: `${label}ni tanlang`,
+                message: t("ui.common.select_item", { label }),
             },
         },
     });
@@ -50,7 +52,7 @@ export default function FormVideoPicker<IForm extends FieldValues>({
                                 }
                                 className={`${className}` || ""}
                             >
-                                Your browser does not support the video tag.
+                                {t("ui.video.unsupported")}
                             </video>
                         ) : (
                             <Label

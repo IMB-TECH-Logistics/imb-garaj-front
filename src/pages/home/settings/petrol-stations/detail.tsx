@@ -56,10 +56,10 @@ type StationStats = {
 
 const CASH_FLOW_DELETE_KEY = "petrol-cash-flow-delete"
 
-const TABS: { key: string; label: string; action: number | null }[] = [
-    { key: "all", label: "Barchasi", action: null },
-    { key: "topups", label: "Kirim", action: 1 },
-    { key: "expenses", label: "Xarajat", action: -1 },
+const TABS: { key: string; labelKey: string; action: number | null }[] = [
+    { key: "all", labelKey: "status.all", action: null },
+    { key: "topups", labelKey: "settings.expenses.flow_income", action: 1 },
+    { key: "expenses", labelKey: "settings.petrol.expense", action: -1 },
 ]
 
 const PetrolStationDetail = () => {
@@ -145,7 +145,7 @@ const PetrolStationDetail = () => {
                     onClick={() => navigate({ to: "/petrol-stations" })}
                 >
                     <ArrowLeft size={18} />
-                    Zapravkalar ro'yxatiga qaytish
+                    {t("settings.petrol.back_to_list")}
                 </Button>
                 <h1 className="text-xl font-semibold">{t("page.petrol_not_found")}</h1>
                 <EmptyBox height="h-[50vh]" />
@@ -169,7 +169,7 @@ const PetrolStationDetail = () => {
                     </Button>
                     <div>
                         <h1 className="text-xl font-semibold leading-tight">
-                            {station?.name ?? "Zapravka"}
+                            {station?.name ?? t("settings.petrol.station")}
                         </h1>
                         {station?.address && (
                             <span className="text-sm text-muted-foreground inline-flex items-center gap-1.5 mt-0.5">
@@ -188,9 +188,9 @@ const PetrolStationDetail = () => {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            {TABS.map((t) => (
-                                <SelectItem key={t.key} value={t.key}>
-                                    {t.label}
+                            {TABS.map((tab) => (
+                                <SelectItem key={tab.key} value={tab.key}>
+                                    {t(tab.labelKey)}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -199,11 +199,11 @@ const PetrolStationDetail = () => {
                         <div className="flex items-center gap-2">
                             <Button onClick={openExpense} className="gap-1.5">
                                 <Plus size={16} />
-                                Xarajat
+                                {t("settings.petrol.expense")}
                             </Button>
                             <Button onClick={openTopUp} className="gap-1.5">
                                 <Plus size={16} />
-                                Oldindan to'lov
+                                {t("settings.petrol.prepayment")}
                             </Button>
                         </div>
                     )}
@@ -218,7 +218,7 @@ const PetrolStationDetail = () => {
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Olingan yoqilg'i
+                                {t("settings.petrol.fuel_received")}
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
                                 {formatQuantity(Number(stats?.total_liters ?? 0), "liter")}
@@ -235,7 +235,7 @@ const PetrolStationDetail = () => {
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Summa
+                                {t("form.amount_total")}
                             </div>
                             <div className="text-xl font-semibold tabular-nums truncate text-amber-600">
                                 {formatMoney(
@@ -252,7 +252,7 @@ const PetrolStationDetail = () => {
                         </div>
                         <div className="min-w-0">
                             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-                                Zapravka balansi
+                                {t("settings.petrol.station_balance")}
                             </div>
                             <div
                                 className={cn(
@@ -297,14 +297,14 @@ const PetrolStationDetail = () => {
             />
 
             <Modal
-                title="Oldindan to'lov"
+                title={t("settings.petrol.prepayment")}
                 modalKey="petrol-top-up"
                 size="max-w-md"
             >
                 <TopUpModal stationId={stationId} />
             </Modal>
             <Modal
-                title="Xarajat"
+                title={t("settings.petrol.expense")}
                 modalKey="petrol-expense"
                 size="max-w-md"
             >
@@ -313,8 +313,8 @@ const PetrolStationDetail = () => {
             <Modal
                 title={
                     editCashFlow.get()?.action === -1
-                        ? "Xarajatni tahrirlash"
-                        : "Oldindan to'lovni tahrirlash"
+                        ? t("settings.petrol.edit_expense")
+                        : t("settings.petrol.edit_prepayment")
                 }
                 modalKey="petrol-cash-flow-edit"
                 size="max-w-md"

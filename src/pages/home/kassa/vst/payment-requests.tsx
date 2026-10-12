@@ -63,7 +63,7 @@ const VstPaymentRequests = ({ switcher }: Props) => {
 
     const { mutate: pay, isPending: paying } = usePost({
         onSuccess: () => {
-            toast.success(t("vst.paid_ok", "To'lov tasdiqlandi"))
+            toast.success(t("vst.paid_ok"))
             refresh()
         },
         meta: { skipGlobalError: true },
@@ -78,10 +78,10 @@ const VstPaymentRequests = ({ switcher }: Props) => {
         row.status === 10 && (profile?.is_superuser || hasControl || row.creator === profile?.id)
 
     const statusLabel = useCallback((s: number) =>
-        s === 10 ? t("vst.st_pending", "Kutilmoqda")
-        : s === 20 ? t("vst.st_paid", "Berildi")
-        : s === -10 ? t("vst.st_rejected", "Rad etildi")
-        : t("vst.st_canceled", "Bekor qilindi"), [t])
+        s === 10 ? t("vst.st_pending")
+        : s === 20 ? t("vst.st_paid")
+        : s === -10 ? t("vst.st_rejected")
+        : t("vst.st_canceled"), [t])
 
     const columns = useMemo<ColumnDef<PaymentRequest>[]>(
         () => [
@@ -91,7 +91,7 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateTime(row.original.created)}</span>,
             },
             {
-                header: t("vst.recipient", "Kimga"),
+                header: t("vst.recipient"),
                 accessorKey: "driver_name",
                 cell: ({ row }) =>
                     row.original.recipient_type === 1 ?
@@ -107,13 +107,13 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                 cell: ({ row }) => <span className="font-medium">{formatMoney(Number(row.original.amount))}</span>,
             },
             {
-                header: t("vst.who_pays", "Kim to'laydi"),
+                header: t("vst.who_pays"),
                 accessorKey: "payer_name",
                 cell: ({ row }) =>
-                    row.original.payer_type === 2 ? row.original.payer_name : t("vst.payer_garage", "Garaj kassasi (Doniyor)"),
+                    row.original.payer_type === 2 ? row.original.payer_name : t("vst.payer_garage"),
             },
             {
-                header: t("vst.creator", "So'ragan"),
+                header: t("vst.creator"),
                 accessorKey: "creator_name",
                 cell: ({ row }) => row.original.creator_name || "—",
             },
@@ -166,7 +166,7 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                                 }
                             >
                                 <Check size={16} />
-                                {t("vst.gave", "Berdim")}
+                                {t("vst.gave")}
                             </Button>
                         )}
                         {canPay(row) && (
@@ -174,7 +174,7 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                                 size="icon"
                                 variant="outline"
                                 className="h-8 w-8 text-destructive"
-                                title={t("vst.reject", "Rad etish")}
+                                title={t("vst.reject")}
                                 onClick={() => {
                                     setSelected(row)
                                     openReject()
@@ -188,7 +188,7 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                                 size="icon"
                                 variant="outline"
                                 className="h-8 w-8"
-                                title={t("vst.cancel", "Bekor qilish")}
+                                title={t("vst.cancel")}
                                 onClick={() => {
                                     setSelected(row)
                                     openCancel()
@@ -217,17 +217,17 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                             <ParamCombobox
                                 paramName="pr_type"
                                 isSearch={false}
-                                label={t("vst.recipient", "Kimga")}
+                                label={t("vst.recipient")}
                                 options={[
-                                    { id: "1", name: t("vst.to_driver_short", "Haydovchi") },
-                                    { id: "2", name: t("vst.to_expense", "Garaj xarajati") },
+                                    { id: "1", name: t("vst.to_driver_short") },
+                                    { id: "2", name: t("vst.to_expense") },
                                 ]}
                                 addButtonProps={{ className: "!bg-background dark:!bg-secondary min-w-32 justify-start" }}
                             />
                             <ParamCombobox
                                 paramName="pr_payer"
                                 isSearch={false}
-                                label={t("vst.payer", "To'lovchi")}
+                                label={t("vst.payer")}
                                 options={payers ?? []}
                                 addButtonProps={{ className: "!bg-background dark:!bg-secondary min-w-32 justify-start" }}
                             />
@@ -236,10 +236,10 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                                 isSearch={false}
                                 label={t("table.status")}
                                 options={[
-                                    { id: "10", name: t("vst.st_pending", "Kutilmoqda") },
-                                    { id: "20", name: t("vst.st_paid", "Berildi") },
-                                    { id: "-10", name: t("vst.st_rejected", "Rad etildi") },
-                                    { id: "-20", name: t("vst.st_canceled", "Bekor qilindi") },
+                                    { id: "10", name: t("vst.st_pending") },
+                                    { id: "20", name: t("vst.st_paid") },
+                                    { id: "-10", name: t("vst.st_rejected") },
+                                    { id: "-20", name: t("vst.st_canceled") },
                                 ]}
                                 addButtonProps={{ className: "!bg-background dark:!bg-secondary min-w-32 justify-start" }}
                             />
@@ -248,7 +248,7 @@ const VstPaymentRequests = ({ switcher }: Props) => {
                     </div>
                 }
             />
-            <Modal modalKey="vst-request-reject" title={t("vst.reject_title", "So'rovni rad etish")} size="max-w-md">
+            <Modal modalKey="vst-request-reject" title={t("vst.reject_title")} size="max-w-md">
                 <DecisionRejectModal
                     modalKey="vst-request-reject"
                     url={selected ? `${KASSA_PAYMENT_REQUESTS}/${selected.id}/reject` : undefined}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import compressImg from "@/lib/compress-img"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
@@ -46,6 +47,7 @@ export default function FileUpload<TForm extends FieldValues>({
     hideClearable = false,
 }: TProps<TForm>) {
     const maxS = maxSize * 1024 * 1024
+    const { t } = useTranslation()
     const [isCompressing, setIsCompressing] = useState(false)
     const {
         field: { value, onChange, ...field },
@@ -61,7 +63,7 @@ export default function FileUpload<TForm extends FieldValues>({
                 let valid = true
 
                 if (required && (!val || (multiple && val.length === 0))) {
-                    err = "Ushbu maydon majburiy"
+                    err = t("ui.common.field_required")
                     valid = false
                 }
 
@@ -72,14 +74,14 @@ export default function FileUpload<TForm extends FieldValues>({
                         0,
                     )
                     if (val.length > maxLength) {
-                        err = `Maksimum ${maxLength} ta fayl yuklash mumkin`
+                        err = t("ui.upload.max_files", { count: maxLength })
                         valid = false
                     }
                     if (totalSize > maxS) {
                         err =
                             isCompressed ?
-                                `Kompressdan keyin rasmlar hajmi ${maxSize} MB dan oshib ketdi`
-                            :   `Rasmlar hajmi ${maxSize} MB dan oshib ketdi`
+                                t("ui.upload.images_size_compressed", { size: maxSize })
+                            :   t("ui.upload.images_size", { size: maxSize })
                         valid = false
                     }
                 }
@@ -87,8 +89,8 @@ export default function FileUpload<TForm extends FieldValues>({
                 if (!multiple && val && val.size > maxS) {
                     err =
                         isCompressed ?
-                            `Kompressdan keyin rasm hajmi ${maxSize} MB dan oshib ketdi`
-                        :   `Rasm hajmi ${maxSize} MB dan oshib ketdi`
+                            t("ui.upload.image_size_compressed", { size: maxSize })
+                        :   t("ui.upload.image_size", { size: maxSize })
                     valid = false
                 }
 
@@ -121,7 +123,7 @@ export default function FileUpload<TForm extends FieldValues>({
 
                 if (validFiles.length < imageFiles.length) {
                     toast.error(
-                        "Rasmni tayyorlab bo'lmadi. iPhone rasmi bo'lsa (HEIC), uni JPG yoki PNG formatda yuklang",
+                        t("ui.upload.prepare_failed"),
                     )
                 }
 
@@ -132,7 +134,7 @@ export default function FileUpload<TForm extends FieldValues>({
                     multiple ? [...resultFiles, ...fileArray] : resultFiles[0],
                 )
             } catch (error) {
-                toast.error("Rasmni compress qilishda xatolik yuz berdi.")
+                toast.error(t("ui.upload.compress_failed"))
             } finally {
                 setIsCompressing(false)
             }
@@ -241,7 +243,7 @@ export default function FileUpload<TForm extends FieldValues>({
                             onClick={() => onChange([])}
                             disabled={field.disabled}
                         >
-                            Tozalash
+                            {t("actions.reset")}
                         </Button>
                     </div>
                 )}

@@ -6,6 +6,7 @@ import enCommon from "./locales/en/common.json"
 import jaCommon from "./locales/ja/common.json"
 import ruCommon from "./locales/ru/common.json"
 import uzCommon from "./locales/uz/common.json"
+import uzCyrlCommon from "./locales/uz-Cyrl/common.json"
 
 const syncDocumentLang = (lng?: string) => {
     document.documentElement.lang = (lng || "uz").split("-")[0]
@@ -19,12 +20,13 @@ i18n
     .init({
         resources: {
             uz: { common: uzCommon },
+            "uz-Cyrl": { common: uzCyrlCommon },
             ru: { common: ruCommon },
             en: { common: enCommon },
             ja: { common: jaCommon },
         },
         defaultNS: "common",
-        fallbackLng: "uz",
+        fallbackLng: { ja: ["en"], "uz-Cyrl": ["uz"], default: ["uz"] },
         detection: {
             order: ["localStorage"],
             caches: ["localStorage"],

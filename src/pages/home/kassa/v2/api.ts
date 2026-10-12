@@ -5,6 +5,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useQueries, useQueryClient } from "@tanstack/react-query"
 import { useSearch } from "@tanstack/react-router"
+import i18n from "@/i18n/i18n"
 
 export const KV2 = "checkout/kassa-v2"
 export const KV2_OVERVIEW = `${KV2}/overview`
@@ -22,14 +23,14 @@ export type RequestKind = "avans" | "qoshimcha" | "qaytarish" | "berish" | "oyli
 export type ExpenseType = "texnik_korik" | "tamir" | "ombor"
 export type TripStatus = "avans_kutilmoqda" | "avans_rad_etildi" | "yolda" | "yopilmoqda" | "rad_etildi" | "yopildi"
 
-export const KIND_LABEL: Record<RequestKind, string> = {
-    avans: "Avans",
-    qoshimcha: "Qo'shimcha pul",
-    qaytarish: "Aylanma qoldig'i",
-    berish: "Aylanma farqi",
-    oylik: "Oylik",
-    garaj_xarajat: "Garaj xarajati",
-    avans_qaytarish: "Avans qoldig'i",
+export const KIND_LABEL_KEY: Record<RequestKind, string> = {
+    avans: "fin.kv2_kind.avans",
+    qoshimcha: "fin.kv2_kind.qoshimcha",
+    qaytarish: "fin.kv2_kind.qaytarish",
+    berish: "fin.kv2_kind.berish",
+    oylik: "fin.kv2_kind.oylik",
+    garaj_xarajat: "fin.kv2_kind.garaj_xarajat",
+    avans_qaytarish: "fin.kv2_kind.avans_qaytarish",
 }
 export const KIND_DIR: Record<RequestKind, Dir> = {
     avans: "out",
@@ -40,10 +41,10 @@ export const KIND_DIR: Record<RequestKind, Dir> = {
     garaj_xarajat: "out",
     avans_qaytarish: "in",
 }
-export const EXPENSE_TYPE_LABEL: Record<ExpenseType, string> = {
-    texnik_korik: "Texnik ko'rik",
-    tamir: "Ta'mirlash",
-    ombor: "Ombor / xo'jalik",
+export const EXPENSE_TYPE_LABEL_KEY: Record<ExpenseType, string> = {
+    texnik_korik: "fin.kv2_expense_type.texnik_korik",
+    tamir: "fin.kv2_expense_type.tamir",
+    ombor: "fin.kv2_expense_type.ombor",
 }
 export const WAREHOUSES = ["Asosiy ombor", "Ehtiyot qismlar ombori"]
 
@@ -260,11 +261,11 @@ export const useKassaDelete = (onDone?: () => void) => {
 
 export const errorText = (e: any): string => {
     const d = e?.response?.data
-    if (!d) return "Xatolik yuz berdi"
+    if (!d) return i18n.t("messages.error")
     if (typeof d === "string") return d.slice(0, 200)
     if (d.detail) return String(d.detail)
     const first = Object.values(d)[0]
     if (Array.isArray(first)) return String(first[0])
     if (typeof first === "string") return first
-    return "Xatolik yuz berdi"
+    return i18n.t("messages.error")
 }

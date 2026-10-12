@@ -27,15 +27,19 @@ const useActionOptions = () => {
     ]
 }
 
-const DEVICE_OPTIONS = [
-    { value: "Desktop", label: "Desktop" },
-    { value: "Mobile", label: "Mobile" },
-    { value: "Tablet", label: "Tablet" },
-]
+const useDeviceOptions = () => {
+    const { t } = useTranslation()
+    return [
+        { value: "Desktop", label: t("settings.logs.device_desktop") },
+        { value: "Mobile", label: t("settings.logs.device_mobile") },
+        { value: "Tablet", label: t("settings.logs.device_tablet") },
+    ]
+}
 
 export default function LogsPage() {
     const { t } = useTranslation()
     const ACTION_OPTIONS = useActionOptions()
+    const DEVICE_OPTIONS = useDeviceOptions()
     const search = useSearch({ strict: false }) as Record<string, unknown>
 
     const { data: logs, isLoading } = useGet<ListResponse<LogItem>>(LOGS_LIST, {

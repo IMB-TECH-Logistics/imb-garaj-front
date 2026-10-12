@@ -67,12 +67,13 @@ const withCurrent = (
     options: SelectItem[] | undefined,
     id: number | null | undefined,
     name?: string,
+    deletedLabel?: string,
 ): SelectItem[] => {
     const list = options ?? []
     if (id == null || list.some((o) => String(o.id) === String(id))) {
         return list
     }
-    return [{ id, name: name ? `${name} (o‘chirilgan)` : `#${id}` }, ...list]
+    return [{ id, name: name ? `${name} (${deletedLabel})` : `#${id}` }, ...list]
 }
 
 const AddRouteConfigModal = () => {
@@ -115,12 +116,14 @@ const AddRouteConfigModal = () => {
         params: { model_name: "payment-type" },
     })
     const { data: distributorsData } = useGet<DistributorOption[]>(COMMON_DIRECTIONS_DISTRIBUTORS)
+    const deletedLabel = t("settings.common.deleted_lower")
     const distributorOptions = withCurrent(
         distributorsData?.map((d) => ({ id: d.id, name: distributorLabel(d.name, d.code, d.district_name) })),
         current?.distributor_id,
         current?.distributor_name
             ? distributorLabel(current.distributor_name, current.distributor_code, current.distributor_district)
             : undefined,
+        deletedLabel,
     )
 
     const onSuccess = (
@@ -172,14 +175,14 @@ const AddRouteConfigModal = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yuklash joyi</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.loading_location")}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
                         required
                         label={t("form.loading_address")}
                         name="load"
                         control={control}
-                        options={withCurrent(regionsData, current?.load, current?.load_name)}
+                        options={withCurrent(regionsData, current?.load, current?.load_name, deletedLabel)}
                         valueKey="id"
                         labelKey="name"
                         placeholder={t("form.region")}
@@ -195,14 +198,14 @@ const AddRouteConfigModal = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tushirish joyi</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.unloading_location")}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
                         required
                         label={t("form.unloading_address")}
                         name="unload"
                         control={control}
-                        options={withCurrent(regionsData, current?.unload, current?.unload_name)}
+                        options={withCurrent(regionsData, current?.unload, current?.unload_name, deletedLabel)}
                         valueKey="id"
                         labelKey="name"
                         placeholder={t("form.region")}
@@ -218,14 +221,14 @@ const AddRouteConfigModal = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Yuk va mijoz</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.route_configs.section_cargo_client")}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
                         required
                         label={t("form.cargo_owner")}
                         name="owner"
                         control={control}
-                        options={withCurrent(clientData, current?.owner, current?.owner_name)}
+                        options={withCurrent(clientData, current?.owner, current?.owner_name, deletedLabel)}
                         labelKey="name"
                         valueKey="id"
                         placeholder={t("form.cargo_owner")}
@@ -236,7 +239,7 @@ const AddRouteConfigModal = () => {
                         label={t("form.cargo_type")}
                         name="cargo_type"
                         control={control}
-                        options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name)}
+                        options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name, deletedLabel)}
                         valueKey="id"
                         labelKey="name"
                         placeholder={t("form.cargo_type")}
@@ -257,7 +260,7 @@ const AddRouteConfigModal = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Narx va to'lov</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.route_configs.section_price_payment")}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
                         required

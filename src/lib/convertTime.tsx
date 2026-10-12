@@ -1,3 +1,5 @@
+import i18n from "@/i18n/i18n"
+
 export default function convertTime(givenDateString: string) {
     if (givenDateString) {
         const givenDate: Date = new Date(givenDateString)
@@ -9,7 +11,10 @@ export default function convertTime(givenDateString: string) {
             (difference % (1000 * 60 * 60)) / (1000 * 60),
         )
 
-        return `${hoursDifference} soat ${minutesDifference} minut`
+        return i18n.t("core.time.hours_minutes", {
+            hours: hoursDifference,
+            minutes: minutesDifference,
+        })
     } else {
         return ""
     }

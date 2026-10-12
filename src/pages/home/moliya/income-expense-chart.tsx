@@ -23,18 +23,20 @@ type IncomeExpensePoint = {
     foyda: string | number
 }
 
-const formatCompact = (v: number) => {
+type CompactUnits = { bn: string; mn: string; k: string }
+
+const formatCompact = (v: number, u: CompactUnits) => {
     const abs = Math.abs(v)
-    if (abs >= 1_000_000_000) return (v / 1_000_000_000).toFixed(1) + " mlrd"
-    if (abs >= 1_000_000) return (v / 1_000_000).toFixed(1) + " mln"
-    if (abs >= 1_000) return (v / 1_000).toFixed(0) + " ming"
+    if (abs >= 1_000_000_000) return (v / 1_000_000_000).toFixed(1) + " " + u.bn
+    if (abs >= 1_000_000) return (v / 1_000_000).toFixed(1) + " " + u.mn
+    if (abs >= 1_000) return (v / 1_000).toFixed(0) + " " + u.k
     return v.toFixed(0)
 }
 
-const formatFull = (v: number) =>
-    new Intl.NumberFormat("uz-UZ").format(Math.round(v)) + " so'm"
+const formatFull = (v: number, unit: string) =>
+    new Intl.NumberFormat("uz-UZ").format(Math.round(v)) + " " + unit
 
-const MONTHS_UZ = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"]
+const MONTH_KEYS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"] as const
 
 function isMonthRange(from?: string, to?: string) {
     if (!from || !to) return false
@@ -43,6 +45,7 @@ function isMonthRange(from?: string, to?: string) {
 }
 
 function CustomTooltip({ active, payload, label }: any) {
+    const { t } = useTranslation()
     if (!active || !payload?.length) return null
     return (
         <div className="bg-popover/95 backdrop-blur-sm border rounded-lg px-3 py-2 shadow-xl text-xs space-y-1">
@@ -51,7 +54,7 @@ function CustomTooltip({ active, payload, label }: any) {
                 <div key={entry.dataKey} className="flex items-center gap-2">
                     <span className="size-2 rounded-full shrink-0" style={{ background: entry.color || entry.stroke }} />
                     <span className="text-muted-foreground">{entry.name}:</span>
-                    <span className="font-medium text-foreground">{formatFull(entry.value)}</span>
+                    <span className="font-medium text-foreground">{formatFull(entry.value, t("page.som"))}</span>
                 </div>
             ))}
         </div>
@@ -64,6 +67,13 @@ export default function IncomeExpenseChart() {
     const { getData } = useGlobalStore()
     const paletteIdx = getData<number>(PALETTE_STORE_KEY) ?? 0
     const p = PALETTES[paletteIdx] ?? PALETTES[0]
+    const units: CompactUnits = {
+        bn: t("fin.units.billion_short"),
+        mn: t("fin.units.million_short"),
+        k: t("fin.units.thousand_short"),
+    }
+    const formatCompactT = (v: number) => formatCompact(v, units)
+    const monthName = (i: number) => t(`fin.months_short.${MONTH_KEYS[i]}`)
 
     const isDaily = isMonthRange(search?.from_date, search?.to_date)
     const selectedMonth = isDaily ? new Date(search.from_date).getMonth() : null
@@ -79,7 +89,7 @@ export default function IncomeExpenseChart() {
             const d = new Date(r.date)
             const name = isDaily
                 ? String(d.getDate())
-                : `${MONTHS_UZ[d.getMonth()]}'${String(d.getFullYear()).slice(2)}`
+                : `${monthName(d.getMonth())}'${String(d.getFullYear()).slice(2)}`
             return {
                 name,
                 tushum: Number(r.tushum),
@@ -87,7 +97,7 @@ export default function IncomeExpenseChart() {
                 foyda: Number(r.foyda),
             }
         })
-    }, [raw, isDaily])
+    }, [raw, isDaily, t])
 
     const totals = useMemo(() => ({
         income: chartData.reduce((s, i) => s + i.tushum, 0),
@@ -106,9 +116,9 @@ export default function IncomeExpenseChart() {
             {/* Title + Legend */}
             <div className="flex items-center justify-between shrink-0 pr-10">
                 <span className="text-xs font-semibold">
-                    {t("form.income")} va {t("form.expense")}
+                    {t("fin.income_expense.title", { income: t("form.income"), expense: t("form.expense") })}
                     <span className="text-muted-foreground font-normal ml-1.5">
-                        {isDaily ? `${MONTHS_UZ[selectedMonth!]} ${selectedYear} — kunlik` : "oylik"}
+                        {isDaily ? t("fin.income_expense.daily", { month: monthName(selectedMonth!), year: selectedYear }) : t("fin.income_expense.monthly")}
                     </span>
                 </span>
             </div>
@@ -116,17 +126,17 @@ export default function IncomeExpenseChart() {
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.income }} />
                     <span className="text-muted-foreground">{t("form.income")}:</span>
-                    <span className="font-semibold transition-colors" style={{ color: p.income }}>{formatCompact(totals.income)}</span>
+                    <span className="font-semibold transition-colors" style={{ color: p.income }}>{formatCompactT(totals.income)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.expense }} />
                     <span className="text-muted-foreground">{t("form.expense")}:</span>
-                    <span className="font-semibold transition-colors" style={{ color: p.expense }}>{formatCompact(totals.expense)}</span>
+                    <span className="font-semibold transition-colors" style={{ color: p.expense }}>{formatCompactT(totals.expense)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <span className="size-2.5 rounded-full transition-colors" style={{ background: p.profit }} />
                     <span className="text-muted-foreground">{t("table.profit")}:</span>
-                    <span className="font-semibold transition-colors" style={{ color: p.profit }}>{formatCompact(totals.profit)}</span>
+                    <span className="font-semibold transition-colors" style={{ color: p.profit }}>{formatCompactT(totals.profit)}</span>
                 </div>
             </div>
 
@@ -155,7 +165,7 @@ export default function IncomeExpenseChart() {
                             tickLine={false}
                             axisLine={false}
                             fontSize={9}
-                            tickFormatter={formatCompact}
+                            tickFormatter={formatCompactT}
                             tick={{ fill: "hsl(var(--muted-foreground))" }}
                             width={55}
                             domain={[0, yMax]}
@@ -166,7 +176,7 @@ export default function IncomeExpenseChart() {
                             tickLine={false}
                             axisLine={false}
                             fontSize={9}
-                            tickFormatter={formatCompact}
+                            tickFormatter={formatCompactT}
                             tick={{ fill: "hsl(var(--muted-foreground))" }}
                             width={55}
                             domain={[0, yMax]}

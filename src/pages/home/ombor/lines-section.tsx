@@ -300,7 +300,10 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                 id={receiptToDelete?.receipt_id}
                 name={
                     receiptToDelete ?
-                        `Kirim №${receiptToDelete.receipt_id} (${receiptToDelete.date}) — kirimning barcha qatorlari o'chiriladi. `
+                        t("fleet.ombor.receipt_delete_name", {
+                            id: receiptToDelete.receipt_id,
+                            date: receiptToDelete.date,
+                        })
                     :   ""
                 }
                 disableRefetch

@@ -204,9 +204,9 @@ function PetrolStationField({ control }: { control: any }) {
         () =>
             (data?.results ?? []).map((p) => ({
                 id: p.id,
-                name: `${p.name} (Balans: ${formatBalance(Number(p.balance ?? 0))} so'm)`,
+                name: t("trips.kirim.station_balance", { name: p.name, balance: formatBalance(Number(p.balance ?? 0)) }),
             })),
-        [data],
+        [data, t],
     )
     return (
         <FormCombobox
@@ -439,9 +439,9 @@ function AddFinanceForm({
                     <FormNumberInput
                         required
                         control={control}
-                        label={`${t("form.quantity")} (litr)`}
+                        label={t("trips.kirim.quantity_liters")}
                         name="quantity"
-                        placeholder="Ex: 120.5"
+                        placeholder={t("trips.common.example_value", { value: "120.5" })}
                         decimalScale={2}
                         allowNegative={false}
                     />
@@ -454,7 +454,7 @@ function AddFinanceForm({
                         control={control}
                         label={t("form.amount")}
                         name="amount"
-                        placeholder="Ex: 123 000"
+                        placeholder={t("trips.common.example_value", { value: "123 000" })}
                         thousandSeparator=" "
                         decimalScale={2}
                         registerOptions={{
@@ -466,7 +466,7 @@ function AddFinanceForm({
                         {isSalaryExpense && (
                 <div className="rounded-md border bg-muted/40 p-3 flex flex-col gap-2">
                     <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                        Oylik (yo'nalish bo'yicha tariff)
+                        {t("trips.kirim.salary_by_route")}
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <FormCombobox
@@ -490,11 +490,11 @@ function AddFinanceForm({
                     </div>
                     {salaryLookup?.results?.[0]?.current_amount?.amount ? (
                         <div className="text-[11px] text-emerald-600">
-                            Sozlangan tariff: {formatMoney(salaryLookup.results[0].current_amount.amount)}
+                            {t("trips.kirim.configured_tariff", { amount: formatMoney(salaryLookup.results[0].current_amount.amount) })}
                         </div>
                     ) : fromRegion && toRegion ? (
                         <div className="text-[11px] text-amber-600">
-                            Bu yo'nalish uchun tariff sozlanmagan
+                            {t("trips.kirim.no_tariff")}
                         </div>
                     ) : null}
                     <label className="flex items-center gap-2 text-sm pt-1 cursor-pointer select-none">
@@ -506,12 +506,12 @@ function AddFinanceForm({
                                 setValue("deduct_from_balance", e.target.checked as any)
                             }
                         />
-                        Haydovchi balansidan ayrilsinmi?
+                        {t("trips.kirim.deduct_from_balance")}
                     </label>
                     <div className="text-[11px] text-muted-foreground">
                         {deductFromBalance
-                            ? "Naqd to'lov turi tanlanadi — haydovchi balansidan chiqim qilinadi."
-                            : "Kassadan to'g'ridan-to'g'ri to'lov turi tanlanadi — driver balansiga ta'sir qilmaydi."}
+                            ? t("trips.kirim.deduct_yes_hint")
+                            : t("trips.kirim.deduct_no_hint")}
                     </div>
                 </div>
             )}
@@ -519,7 +519,7 @@ function AddFinanceForm({
                 <FormCombobox
                     required={orderRequired}
                     control={control}
-                    label={orderRequired ? "Buyurtma" : "Buyurtma (ixtiyoriy)"}
+                    label={orderRequired ? t("trips.kirim.order") : t("trips.kirim.order_optional")}
                     name="order"
                     options={orderOptions}
                     valueKey="id"
@@ -881,7 +881,7 @@ function AvansForm({ tripId }: { tripId?: number }) {
             onSuccess: (res: any) => {
                 // Haydovchi-kassa rejimida server pul bermaydi — kassirga so'rov (PaymentRequest, 202) yaratadi
                 const isRequest = res != null && typeof res === "object" && "recipient_type" in res
-                toast.success(isRequest ? "Avans so'rovi kassirga yuborildi" : t("toast.advance_given"))
+                toast.success(isRequest ? t("trips.kirim.advance_request_sent") : t("toast.advance_given"))
                 queryClient.invalidateQueries({
                     predicate: (q) => {
                         const k = String(q.queryKey[0])
@@ -903,13 +903,13 @@ function AvansForm({ tripId }: { tripId?: number }) {
                         control={control}
                         label={t("form.amount")}
                         name="amount"
-                        placeholder="Ex: 5 000 000"
+                        placeholder={t("trips.common.example_value", { value: "5 000 000" })}
                         thousandSeparator=" "
                         decimalScale={2}
                         registerOptions={{
                             // backend v1 (ExpenseCashFlowSerializer) matni; v2 so'rov yo'li 0 ni jim tashlab 202 qaytaradi
                             validate: (v) =>
-                                Number(String(v ?? "").replace(/\s/g, "")) > 0 ? isWithinMoneyLimit(v) || t("validation.max_amount") : "Summa 0 dan katta bo'lishi kerak.",
+                                Number(String(v ?? "").replace(/\s/g, "")) > 0 ? isWithinMoneyLimit(v) || t("validation.max_amount") : t("kassa.amount_gt_zero"),
                         }}
                     />
                 </div>
@@ -1048,6 +1048,7 @@ function SummaryCard({
 // ──── Add from T hisob ────
 
 function AddFromTAccount({ type, tripId, presetCategoryCode, defaultPaymentMethod, advanceId }: { type: "tushum" | "xarajat"; tripId?: number; presetCategoryCode?: string; defaultPaymentMethod?: number; advanceId?: number }) {
+    const { t } = useTranslation()
     const action: 1 | -1 = type === "xarajat" ? -1 : 1
     const { data: categoriesData } = useGet<ListResponse<Category>>(
         MANAGERS_EXPENSE_CATEGORIES,
@@ -1072,9 +1073,9 @@ function AddFromTAccount({ type, tripId, presetCategoryCode, defaultPaymentMetho
         <div className="flex flex-col gap-3">
             {!(presetCategoryCode && cat?.code === presetCategoryCode) && (
             <div className="flex flex-col gap-1.5 text-sm font-medium">
-                {type === "xarajat" ? "Xarajat turi" : "Tushum turi"}
+                {type === "xarajat" ? t("form.expense_type") : t("trips.kirim.income_type")}
                 <Combobox
-                    label={type === "xarajat" ? "Xarajat turi" : "Tushum turi"}
+                    label={type === "xarajat" ? t("form.expense_type") : t("trips.kirim.income_type")}
                     options={categories}
                     value={catId}
                     setValue={(v: any) => v != null && v !== "" && setCatId(Number(v))}
@@ -1147,20 +1148,20 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                 return_status: r.status,
                 action: 1,
                 amount: Number(r.amount),
-                category_name: "Qoldiq kassaga qaytarildi",
+                category_name: t("trips.row.remainder_returned"),
                 comment: r.comment,
-                payment_type_name: "Naqd",
+                payment_type_name: t("trips.kirim.cash"),
                 created: r.created,
             }) as unknown as FinanceRow)
     const returnRowAction = (row: FinanceRow, kind: "edit" | "delete") => {
-        if (row.return_status === 20) return toast.info("Kassir qabul qilgan. Bekor qilish faqat kassir storno qilishi orqali")
-        if (kind === "edit") return toast.info("Bekor qilib, qaytadan yuboring")
+        if (row.return_status === 20) return toast.info(t("trips.kirim.cashier_accepted_info"))
+        if (kind === "edit") return toast.info(t("trips.kirim.cancel_and_resend"))
         postReturnAction(`checkout/kassa-v2/requests/${row.return_id}/cancel`, {}, {
             onSuccess: () => {
-                toast.success("Qaytarish so'rovi bekor qilindi")
+                toast.success(t("trips.kirim.return_cancelled"))
                 refetchReturns()
             },
-            onError: () => toast.error("Bekor qilib bo'lmadi"),
+            onError: () => toast.error(t("trips.kirim.cancel_failed")),
         })
     }
     const startEdit = (row: FinanceRow) => {
@@ -1251,7 +1252,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
     const mixedCols = useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             {
-                header: "Summa",
+                header: t("form.amount_total"),
                 accessorKey: "amount",
                 cell: ({ row }) => {
                     const out = row.original.action === -1
@@ -1263,39 +1264,39 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                 },
             },
             {
-                header: "Nima uchun",
+                header: t("trips.kclose.what_for"),
                 accessorKey: "category_name",
-                cell: ({ row }) => row.original.category_name || (row.original.action === ADVANCE_ACTION ? (row.original.comment?.toLowerCase().includes("qo'shimcha") ? "Qo'shimcha pul" : "Avans") : "—"),
+                cell: ({ row }) => row.original.category_name || (row.original.action === ADVANCE_ACTION ? (row.original.comment?.toLowerCase().includes("qo'shimcha") ? t("trips.kirim.extra_money") : t("trips.kclose.advance")) : "—"),
             },
             {
-                header: "Reys",
+                header: t("trips.kclose.trip"),
                 id: "route",
                 cell: ({ row }) => row.original.order ? `${row.original.loading_name ?? ""} → ${row.original.unloading_name ?? ""}` : "—",
             },
-            { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
-            { header: "To'lov turi", accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || "—" },
+            { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
+            { header: t("form.payment_type"), accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || "—" },
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "created",
                 cell: ({ row }) => (
                     <div className="flex items-center gap-2 whitespace-nowrap">
                         {formatDateTime(row.original.created)}
                         {row.original.return_id ?
                             <Badge variant={(row.original.return_status === 20 ? "default" : row.original.return_status === -10 ? "destructive" : "orange") as any} className="w-fit whitespace-nowrap">
-                                {row.original.return_status === 20 ? "Qaytarildi" : row.original.return_status === -10 ? "Rad etildi" : "Kassir tasdig'i kutilmoqda"}
+                                {row.original.return_status === 20 ? t("trips.row.returned") : row.original.return_status === -10 ? t("trips.row.rejected") : t("trips.row.awaiting_cashier")}
                             </Badge>
                         :   <RowMarks row={row.original} />}
                     </div>
                 ),
             },
         ],
-        [],
+        [t],
     )
     const expenseCols = useExpenseCols({ withCategory: true })
 
     const moliyaTrip = useGlobalStore.getState().getData(`${MANAGERS_TRIPS}-moliya`) as any
     const fuelKind = String(moliyaTrip?.fuel_type ?? moliyaTrip?.vehicle_fuel ?? "").toLowerCase()
-    const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : "litr"
+    const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : t("trips.units.liter")
     const stat = mode === "aylanma" ? tripStat : driverStat
     const incomeUzs = Number(stat?.income_uzs ?? 0)
     const expenseUzs = Number(stat?.expense_uzs ?? 0)
@@ -1312,23 +1313,23 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                     <div className={cn("flex items-stretch gap-3 overflow-x-auto no-scrollbar", hideToggle && "flex-1")}>
                         {hideToggle ?
                             <>
-                                <SummaryCard label="Avans" amountUzs={avansSum} variant="advance" active={filter === "avans"} onClick={() => setFilter("avans")} />
-                                <SummaryCard label="Naqd reys puli" amountUzs={incomeUzs - avansSum} variant="income" active={filter === "tushum"} onClick={() => setFilter("tushum")} />
-                                <SummaryCard label="Naqd xarajat" amountUzs={cashExpenseSum} variant="expense" active={filter === "xarajat"} onClick={() => setFilter("xarajat")} />
-                                <SummaryCard label="Oylik" amountUzs={salarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />
-                                {profit != null && <SummaryCard label="Qoldiq" amountUzs={profit} variant={profit < 0 ? "expense" : "balance"} />}
+                                <SummaryCard label={t("trips.kclose.advance")} amountUzs={avansSum} variant="advance" active={filter === "avans"} onClick={() => setFilter("avans")} />
+                                <SummaryCard label={t("trips.kclose.cash_trip_money")} amountUzs={incomeUzs - avansSum} variant="income" active={filter === "tushum"} onClick={() => setFilter("tushum")} />
+                                <SummaryCard label={t("trips.kirim.cash_expense")} amountUzs={cashExpenseSum} variant="expense" active={filter === "xarajat"} onClick={() => setFilter("xarajat")} />
+                                <SummaryCard label={t("trips.kclose.salary")} amountUzs={salarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />
+                                {profit != null && <SummaryCard label={t("form.balance")} amountUzs={profit} variant={profit < 0 ? "expense" : "balance"} />}
                             </>
                         :   <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} variant="income" />}
                         {hideToggle ? null
                         :   <SummaryCard label={t("page.all_expense")} amountUzs={expenseUzs} variant="expense" />}
                         {hideToggle && <div className="ml-auto" />}
                         {hideToggle ?
-                            <SummaryCard label="Zapravka (pul o'tkazma)" amountUzs={transferFuelSum} variant="expense" active={filter === "zapravka"} onClick={() => setFilter("zapravka")} />
+                            <SummaryCard label={t("trips.kirim.fuel_transfer")} amountUzs={transferFuelSum} variant="expense" active={filter === "zapravka"} onClick={() => setFilter("zapravka")} />
                         :   <SummaryCard label={mode === "haydovchi" ? t("form.balance") : t("table.profit")} amountUzs={balanceUzs} variant="balance" />}
                         {mode === "haydovchi" && driverStat && (
                             <>
                                 <SummaryCard
-                                    label="Bakdagi yoqilg'i"
+                                    label={t("trips.kirim.fuel_in_tank")}
                                     amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)}
                                     variant="balance"
                                     hideAmount
@@ -1344,7 +1345,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                             className="gap-1.5 shrink-0"
                         >
                             <Plus size={16} />
-                            {isKassaV2 ? "Avans berish" : t("actions.give_advance")}
+                            {t("actions.give_advance")}
                         </Button>
                     )}
                 </div>
@@ -1361,11 +1362,11 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                     const leftOf = (a: FinanceRow) =>
                         a.advance_left != null ? Number(a.advance_left) : Number(a.amount) - spentOf(a) - returnedOf(a)
                     const advanceCols: ColumnDef<FinanceRow>[] = [
-                        { header: "Summa", accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap text-red-500">− {formatAmount(row.original)}</span> },
-                        { header: "Nima uchun", id: "kind", cell: ({ row }) => (row.original.comment?.toLowerCase().includes("qo'shimcha") ? "Qo'shimcha pul" : "Avans") },
-                        { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
+                        { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap text-red-500">− {formatAmount(row.original)}</span> },
+                        { header: t("trips.kclose.what_for"), id: "kind", cell: ({ row }) => (row.original.comment?.toLowerCase().includes("qo'shimcha") ? t("trips.kirim.extra_money") : t("trips.kclose.advance")) },
+                        { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
                         {
-                            header: "Sana",
+                            header: t("form.date"),
                             accessorKey: "created",
                             cell: ({ row }) => (
                                 <div className="flex items-center gap-2 whitespace-nowrap">
@@ -1401,11 +1402,11 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                         <>
                                         <div className="flex flex-wrap mb-3 items-center gap-3">
                                             <Badge className="gap-1.5 cursor-pointer text-sm" onClick={() => setSelectedAdvance(null)}>
-                                                {sel.comment?.toLowerCase().includes("qo'shimcha") ? "Qo'shimcha pul" : "Avans"} · {formatDateTime(sel.created)} ✕
+                                                {sel.comment?.toLowerCase().includes("qo'shimcha") ? t("trips.kirim.extra_money") : t("trips.kclose.advance")} · {formatDateTime(sel.created)} ✕
                                             </Badge>
                                             <div className="ml-auto flex items-center gap-2">
                                                 <Button size="sm" variant="outline" className="gap-1" onClick={() => openReturn()}>
-                                                    Qoldiqni qaytarish
+                                                    {t("trips.kirim.return_remainder")}
                                                 </Button>
                                             </div>
                                         </div>
@@ -1428,10 +1429,10 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                 head={
                                     <>
                                         <div className="flex mb-3 items-center gap-3">
-                                            <h1 className="text-lg font-semibold">Avanslar</h1>
+                                            <h1 className="text-lg font-semibold">{t("trips.kirim.advances")}</h1>
                                             <Badge className="text-sm">{advances.length}</Badge>
                                             <div className="ml-auto">
-                                                <Button size="sm" className="gap-1" onClick={() => openAvansModal()}><Plus size={16} />Avans berish</Button>
+                                                <Button size="sm" className="gap-1" onClick={() => openAvansModal()}><Plus size={16} />{t("actions.give_advance")}</Button>
                                             </div>
                                         </div>
                                         <PendingAdvances tripId={tripId} />
@@ -1446,15 +1447,15 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                     : filter === "zapravka" ? allExpenses.filter(isTransferFuel)
                     : filter === "xarajat" ? byDate(allExpenses.filter(isCashExpense))
                     : allExpenses.filter((r) => r.category_code === "salary")
-                const title = { tushum: "Naqd reys puli", avans: "Avans va undan qilingan naqd xarajatlar", xarajat: "Naqd xarajat", zapravka: "Zapravka (pul o'tkazma)", oylik: "Oylik" }[filter]
+                const title = { tushum: t("trips.kclose.cash_trip_money"), avans: t("trips.kirim.advance_and_expenses"), xarajat: t("trips.kirim.cash_expense"), zapravka: t("trips.kirim.fuel_transfer"), oylik: t("trips.kclose.salary") }[filter]
                 const actions =
                     filter === "tushum" ?
-                        <Button size="sm" className="gap-1" onClick={() => startAdd("tushum")}><Plus size={16} />Tushum qo'shish</Button>
+                        <Button size="sm" className="gap-1" onClick={() => startAdd("tushum")}><Plus size={16} />{t("page.add_income")}</Button>
                     : filter === "zapravka" ?
-                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />Yoqilg'i quyish</Button>
+                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
                     : filter === "xarajat" ?
-                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />Chiqim qo'shish</Button>
-                    :   <Button size="sm" className="gap-1" onClick={() => openSalaryRequest()}><Plus size={16} />Oylik so'rash</Button>
+                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />{t("page.add_expense")}</Button>
+                    :   <Button size="sm" className="gap-1" onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.request_salary")}</Button>
                 return (
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <DataTable
@@ -1508,7 +1509,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                     <Badge className="text-sm">{incomeRows.length}</Badge>
                                     <Button size="sm" className="ml-auto gap-1" onClick={() => startAdd("tushum")}>
                                         <Plus size={16} />
-                                        Tushum qo'shish
+                                        {t("page.add_income")}
                                     </Button>
                                 </div>
                                 {isDriver && <PendingAdvances tripId={tripId} />}
@@ -1530,7 +1531,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                 <Badge className="text-sm">{expenseRows.length}</Badge>
                                 <Button size="sm" className="ml-auto gap-1" onClick={() => startAdd("xarajat")}>
                                     <Plus size={16} />
-                                    Chiqim qo'shish
+                                    {t("page.add_expense")}
                                 </Button>
                             </div>
                         }
@@ -1540,13 +1541,13 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
             )}
 
             <AdvanceChangeModals row={advRow} />
-            <Modal modalKey="t-hisob-add" title={addType === "xarajat" ? (addPreset.category === "fuel" ? "Yoqilg'i quyish" : "Chiqim qo'shish") : "Tushum qo'shish"} size="max-w-md">
+            <Modal modalKey="t-hisob-add" title={addType === "xarajat" ? (addPreset.category === "fuel" ? t("trips.kirim.fuel_up") : t("page.add_expense")) : t("page.add_income")} size="max-w-md">
                 <AddFromTAccount type={addType} tripId={tripId} presetCategoryCode={addPreset.category} defaultPaymentMethod={addPreset.method} advanceId={addPreset.advance} />
             </Modal>
             <SalaryRequestModal tripId={tripId} driverId={moliyaTrip?.driver} />
             <Modal
                 modalKey="t-hisob-edit"
-                title={editRow?.action === -1 ? "Xarajatni tahrirlash" : "Kirimni tahrirlash"}
+                title={editRow?.action === -1 ? t("trips.kclose.edit_expense") : t("trips.kirim.edit_income")}
                 size="max-w-md"
             >
                 {editRow && (
@@ -1563,7 +1564,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                     />
                 )}
             </Modal>
-            <Modal modalKey="avans-berish" title={isKassaV2 ? "Avans berish (kassirga so'rov)" : t("actions.give_advance")} size="max-w-md">
+            <Modal modalKey="avans-berish" title={isKassaV2 ? t("trips.kirim.give_advance_request") : t("actions.give_advance")} size="max-w-md">
                 <AvansForm tripId={tripId} />
             </Modal>
             <DeleteModal
@@ -1657,7 +1658,7 @@ export default function KirimXarajatContent() {
                     },
                     {
                         value: "t_hisob",
-                        label: "T hisob",
+                        label: t("trips.kirim.t_account"),
                         content: <TAccountTab mode={tAccountMode} onToggle={setTAccountMode} tripId={tripId} />,
                     },
                 ]}

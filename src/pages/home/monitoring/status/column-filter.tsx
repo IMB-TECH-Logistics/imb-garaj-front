@@ -116,7 +116,7 @@ export function ColumnFilter<T>({
                                     onClick={() => column.toggleSorting(false)}
                                 >
                                     <ArrowDownAZ className="h-3.5 w-3.5" />
-                                    A–Z
+                                    {t("mon.sort.az")}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -125,7 +125,7 @@ export function ColumnFilter<T>({
                                     onClick={() => column.toggleSorting(true)}
                                 >
                                     <ArrowUpAZ className="h-3.5 w-3.5" />
-                                    Z–A
+                                    {t("mon.sort.za")}
                                 </Button>
                             </>
                         )}

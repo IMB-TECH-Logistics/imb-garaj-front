@@ -165,9 +165,9 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                             allowNegative={false}
                             registerOptions={{
                                 validate: (v) =>
-                                    Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                                    Number(v) > 0 || t("fleet.texnik.err_amount_positive"),
                             }}
-                            placeholder="Ex: 1 000 000"
+                            placeholder={t("fleet.texnik.amount_example")}
                         />
                     }
 
@@ -199,7 +199,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                     name="comment"
                     label={t("form.comment")}
                     methods={form}
-                    placeholder="Qo'shimcha izoh..."
+                    placeholder={t("fleet.texnik.comment_placeholder")}
                     rows={3}
                 />
             </section>

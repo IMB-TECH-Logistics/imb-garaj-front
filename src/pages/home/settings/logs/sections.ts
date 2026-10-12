@@ -1,122 +1,8 @@
-const SECTION_LABELS: Record<string, string> = {
-    user: "Foydalanuvchi",
-    users: "Foydalanuvchilar",
-    role: "Rol",
-    roles: "Rollar",
-    profile: "Profil",
-    auth: "Avtorizatsiya",
+import i18n from "@/i18n/i18n"
 
-    driver: "Haydovchi",
-    drivers: "Haydovchilar",
-    driverprofile: "Haydovchi profili",
-    driver_profile: "Haydovchi profili",
-    driversalary: "Oylik tarif",
-    driver_salary: "Oylik tarif",
-    driver_salaries: "Oylik tariflar",
-
-    vehicle: "Avtomobil",
-    vehicles: "Avtomobillar",
-    vehicletype: "Mashina turi",
-    vehicle_type: "Mashina turi",
-    vehicle_types: "Mashina turlari",
-    truck: "Avtomobil",
-    trailer: "Tirkama",
-
-    vehiclecashflow: "Avtomobil kassasi",
-    vehicle_cash_flow: "Avtomobil kassasi",
-    cashflow: "Kassa",
-    cash_flow: "Kassa",
-    kassa: "Kassa",
-
-    technicalinspection: "Texnik ko'rik",
-    technical_inspection: "Texnik ko'rik",
-    technic_check: "Texnik ko'rik",
-    "technic-check": "Texnik ko'rik",
-    texnik_check: "Texnik ko'rik",
-
-    trip: "Reys",
-    trips: "Reyslar",
-    reys: "Reys",
-    reyslar: "Reyslar",
-    run: "Reys",
-    runs: "Reyslar",
-    monitoring: "Monitoring",
-
-    order: "Buyurtma",
-    orders: "Buyurtmalar",
-
-    transaction: "Tranzaksiya",
-    transactions: "Tranzaksiyalar",
-    tranzaksiya: "Tranzaksiya",
-    tranzaksiyalar: "Tranzaksiyalar",
-    checkout: "To'lov",
-    checkoutrequest: "Kassa so'rovi",
-    paymentrequest: "Pul so'rovi",
-
-    cargotype: "Yuk turi",
-    cargo_type: "Yuk turi",
-    cargo_types: "Yuk turlari",
-    paymenttype: "To'lov turi",
-    payment_type: "To'lov turi",
-    payment_types: "To'lov turlari",
-    expensetype: "Kirim-chiqim turi",
-    expense_type: "Kirim-chiqim turi",
-    expense_types: "Kirim-chiqim turlari",
-    expensecategory: "Kirim-chiqim turi",
-    expense_category: "Kirim-chiqim turi",
-    expense_categories: "Kirim-chiqim turlari",
-
-    client: "Mijoz",
-    clients: "Mijozlar",
-    customer: "Mijoz",
-    customers: "Mijozlar",
-
-    route: "Yo'nalish",
-    routes: "Yo'nalishlar",
-    direction: "Yo'nalish",
-    directions: "Yo'nalishlar",
-    directionprice: "Yo'nalish narxi",
-    location: "Manzil",
-    locations: "Manzillar",
-    place: "Manzil",
-    places: "Manzillar",
-    country: "Davlat",
-    countries: "Davlatlar",
-    region: "Viloyat",
-    regions: "Viloyatlar",
-    district: "Tuman",
-    districts: "Tumanlar",
-
-    petrolstation: "Zapravka",
-    petrol_station: "Zapravka",
-    petrol_stations: "Zapravkalar",
-
-    warehouse: "Ombor",
-    ombor: "Ombor",
-    warehouseproduct: "Ombor mahsuloti",
-    warehousewithdrawal: "Ombordan chiqarish",
-    vehicledocument: "Hujjat",
-
-    // Backend LogSectionService: bo'limi yozilmagan yozuvlar tabi (?section=__null__)
-    __null__: "Boshqa",
-
-    accounting: "Buxgalteriya",
-    buxgalteriya: "Buxgalteriya",
-    finance: "Moliya",
-    moliya: "Moliya",
-
-    manager: "Meneger",
-    managers: "Meneger",
-    investor: "Investor",
-    trucks: "Avtomobillar",
-
-    dashboard: "Boshqaruv paneli",
-    settings: "Sozlamalar",
-    sozlamalar: "Sozlamalar",
-    logs: "Faoliyat jurnali",
-    log: "Faoliyat jurnali",
-    mobile: "Mobil ilova",
-    selectable: "Yordamchi ma'lumotlar",
+const lookupSection = (key: string): string | undefined => {
+    const path = `settings.logs.sections.${key}`
+    return i18n.exists(path) ? i18n.t(path) : undefined
 }
 
 const UZBEK_CHARS_RE = /[ʼ'`]|[a-z]/
@@ -158,10 +44,10 @@ export const getSectionLabel = (section: string | null | undefined): string => {
 
     const key = raw.toLowerCase().replace(/\s+/g, "_")
     const found =
-        SECTION_LABELS[key] ??
-        SECTION_LABELS[key.replace(/_/g, "")] ??
-        SECTION_LABELS[key.replace(/_/g, "-")] ??
-        SECTION_LABELS[key.replace(/-/g, "_")]
+        lookupSection(key) ??
+        lookupSection(key.replace(/_/g, "")) ??
+        lookupSection(key.replace(/_/g, "-")) ??
+        lookupSection(key.replace(/-/g, "_"))
     if (found) return found
 
     if (UZBEK_CHARS_RE.test(raw) && isLikelyUzbek(raw)) return raw

@@ -5,18 +5,19 @@ import {
     DimensionListSkeleton,
     DimensionRow,
 } from "./dimension-row"
+import { useTranslation } from "react-i18next"
 import type { OrderTracking } from "./types"
 
-const STATUS_LABEL: Record<number, string> = {
-    [-1]: "Draft",
-    0: "Pending",
-    1: "Started",
-    5: "Loading",
-    6: "In Transit",
-    7: "Unloading",
-    2: "Completed",
-    3: "Canceled",
-    4: "Archived",
+const STATUS_LABEL_KEY: Record<number, string> = {
+    [-1]: "status.draft",
+    0: "status.pending",
+    1: "status.started",
+    5: "status.loading_status",
+    6: "status.transit",
+    7: "status.unloading_status",
+    2: "status.completed",
+    3: "status.cancelled",
+    4: "status.archived",
 }
 
 const ACTIVE_STATUSES = new Set([1, 5, 6, 7])
@@ -34,12 +35,13 @@ export default function OrderList({
     activeId,
     onSelect,
 }: Props) {
+    const { t } = useTranslation()
     if (loading && items.length === 0) return <DimensionListSkeleton />
     if (!loading && items.length === 0) {
         return (
             <DimensionEmpty
-                title="GPS izi bor order topilmadi"
-                hint="Filtrlardan birini o'zgartiring"
+                title={t("mon.order_list.empty_title")}
+                hint={t("mon.order_list.empty_hint")}
             />
         )
     }
@@ -53,7 +55,7 @@ export default function OrderList({
                     active={order.id === activeId}
                     secondsSince={order.seconds_since}
                     onClick={() => onSelect?.(order)}
-                    primary={`Order #${order.id}`}
+                    primary={t("mon.order_n", { id: order.id })}
                     badge={
                         <span className="flex items-center gap-1">
                             <Badge
@@ -64,14 +66,16 @@ export default function OrderList({
                                 }
                                 className="h-5 px-1.5 text-[10px] font-medium"
                             >
-                                {STATUS_LABEL[order.status] ?? "—"}
+                                {STATUS_LABEL_KEY[order.status] ?
+                                    t(STATUS_LABEL_KEY[order.status])
+                                :   "—"}
                             </Badge>
                             {order.is_integration && (
                                 <Badge
                                     variant="orange"
                                     className="h-5 px-1.5 text-[10px] font-medium"
                                 >
-                                    Integratsiya
+                                    {t("mon.integration")}
                                 </Badge>
                             )}
                         </span>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { DEFAULT_PAGE_SIZE } from "@/constants/default"
 import { cn } from "@/lib/utils"
 import { useNavigate, useSearch } from "@tanstack/react-router"
@@ -22,6 +23,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
     PageSize = DEFAULT_PAGE_SIZE,
 }) => {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const search: any = useSearch({ from: "/_main" }) as Record<
         string,
         string | undefined
@@ -99,7 +101,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
                             icon={<ChevronLeft width={20} />}
                             onClick={handlePrevious}
                             size="icon"
-                            aria-label="Previous Page"
+                            aria-label={t("ui.pagination.previous")}
                             className="w-7 h-7 mt-1 sm:m-0 sm:w-10 sm:h-10"
                         />
                     </PaginationItem>
@@ -141,7 +143,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
                             icon={<ChevronRight width={20} />}
                             onClick={handleNext}
                             size="icon"
-                            aria-label="Next Page"
+                            aria-label={t("ui.pagination.next")}
                             className="w-7 h-7 mt-1 sm:m-0 sm:w-10 sm:h-10"
                         />
                     </PaginationItem>
@@ -152,7 +154,7 @@ const ParamPagination: React.FC<PaginationProps> = ({
                     disabled={disabled}
                     className="w-20 h-8 sm:h-10 bg-primary/10 text-primary hover:bg-primary/15"
                     label=""
-                    ariaLabel="Page size"
+                    ariaLabel={t("ui.pagination.page_size")}
                     options={page_sizes?.map((size) => ({
                         label: `${size}`,
                         value: `${size}`,

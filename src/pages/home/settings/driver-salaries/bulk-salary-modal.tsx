@@ -37,7 +37,7 @@ const BulkSalaryModal = ({ selected, onApplied }: Props) => {
             }
             walk(error?.response?.data)
             const unique = [...new Set(leaves)]
-            toast.error(unique.length ? unique.join(" · ") : t("messages.error", "Xatolik yuz berdi"), { duration: 5000 })
+            toast.error(unique.length ? unique.join(" · ") : t("messages.error"), { duration: 5000 })
         },
     })
     const submitting = useRef(false)

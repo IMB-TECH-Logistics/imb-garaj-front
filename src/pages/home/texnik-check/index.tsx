@@ -135,7 +135,7 @@ const Inspections = () => {
                             <div className="flex items-center gap-2 shrink-0">
                                 <Switch id="ti-alert-switch" checked={onlyAlerts} onCheckedChange={toggleAlerts} />
                                 <Label htmlFor="ti-alert-switch" className="cursor-pointer text-sm">
-                                    Amal muddati tugayotganlar
+                                    {t("fleet.texnik.alert_switch")}
                                     {alertCount > 0 && ` (${alertCount})`}
                                 </Label>
                             </div>
@@ -166,7 +166,7 @@ const Inspections = () => {
 
             <Modal
                 modalKey="add-expense"
-                title={current?.id ? "Xarajatni tahrirlash" : "Xarajat qo'shish"}
+                title={current?.id ? t("page.edit_expense_modal") : t("page.add_expense_modal")}
                 size="max-w-2xl"
             >
                 <AddExpenseModal />

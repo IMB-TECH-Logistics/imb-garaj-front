@@ -170,7 +170,7 @@ const cols = (t: TFunction) => {
                 accessorKey: "owner",
                 cell: () => (
                     <span className="whitespace-nowrap">
-                        {"Hozircha reys yo'q..."}
+                        {t("fleet.tabs.no_trips_yet")}
                     </span>
                 ),
             },
@@ -205,7 +205,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 accessorKey: "date",
                 cell: () => (
-                    <span className="whitespace-nowrap">{"6 soat"}</span>
+                    <span className="whitespace-nowrap">{`6 ${t("fleet.units.hour")}`}</span>
                 ),
             },
 
@@ -214,7 +214,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 accessorKey: "date",
                 cell: () => (
-                    <span className="whitespace-nowrap">{"600 km"}</span>
+                    <span className="whitespace-nowrap">{`600 ${t("fleet.units.km")}`}</span>
                 ),
             },
 
@@ -282,7 +282,7 @@ const cols = (t: TFunction) => {
                 header: t("form.payment_type"),
                 enableSorting: true,
                 accessorKey: "payment_type",
-                cell: ({ row }) => <Badge>Naqt</Badge>,
+                cell: ({ row }) => <Badge>{t("status.cash")}</Badge>,
             },
         ],
         [t],

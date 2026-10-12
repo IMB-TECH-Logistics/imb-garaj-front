@@ -50,12 +50,13 @@ type DeviceForm = {
 }
 
 export function LinkDeviceModal() {
+    const { t } = useTranslation()
     const hasControl = useHasAction("monitoring_control")
     if (!hasControl) return null
     return (
         <Modal
             modalKey={LINK_MODAL}
-            title="Mashinaga GPS qurilma biriktirish"
+            title={t("mon.link.title")}
             size="max-w-xl"
         >
             <LinkDeviceForm />
@@ -64,6 +65,7 @@ export function LinkDeviceModal() {
 }
 
 export function LinkGpsIconButton({ vehicle }: { vehicle: { id: number; truck_number: string } }) {
+    const { t } = useTranslation()
     const { openModal } = useModal(LINK_MODAL)
     const { setData } = useGlobalStore()
     const hasControl = useHasAction("monitoring_control")
@@ -74,8 +76,8 @@ export function LinkGpsIconButton({ vehicle }: { vehicle: { id: number; truck_nu
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-            aria-label="GPS biriktirish"
-            title="GPS biriktirish"
+            aria-label={t("mon.link.attach_gps")}
+            title={t("mon.link.attach_gps")}
             onClick={() => {
                 setData<LinkPreset>(LINK_MODAL, { id: vehicle.id, truck_number: vehicle.truck_number })
                 openModal()
@@ -105,11 +107,11 @@ export function LinkDeviceButton({ compact = false }: { compact?: boolean }) {
                 className={compact ? "h-7 shrink-0 gap-1.5 px-2 text-xs" : "h-9 shrink-0 gap-2"}
             >
                 <Link2 className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-                GPS biriktirish
+                {t("mon.link.attach_gps")}
             </Button>
             <Modal
                 modalKey={LINK_MODAL}
-                title="Mashinaga GPS qurilma biriktirish"
+                title={t("mon.link.title")}
                 size="max-w-xl"
             >
                 <LinkDeviceForm />
@@ -142,11 +144,11 @@ function LinkDeviceForm() {
 
     useEffect(() => {
         if (devices.isError) {
-            toast.error("GPS xizmati vaqtincha ishlamayapti", {
+            toast.error(t("mon.link.gps_unavailable"), {
                 id: "gps-devices-error",
             })
         }
-    }, [devices.isError])
+    }, [devices.isError, t])
 
     const vehicleOptions = useMemo(
         () =>
@@ -231,13 +233,13 @@ function LinkDeviceForm() {
                     onAdd={openAddDevice}
                     emptyText={
                         devices.isError
-                            ? "Qurilmalarni yuklab bo'lmadi"
+                            ? t("mon.link.devices_load_failed")
                             : undefined
                     }
                 />
                 {devices.isError && (
                     <p className="text-xs text-destructive">
-                        GPS xizmati vaqtincha ishlamayapti
+                        {t("mon.link.gps_unavailable")}
                     </p>
                 )}
                 <Button type="submit" className="w-full" disabled={isPending}>
@@ -246,7 +248,7 @@ function LinkDeviceForm() {
             </form>
             <Modal
                 modalKey={ADD_DEVICE_MODAL}
-                title="Yangi GPS qurilma"
+                title={t("mon.link.new_device")}
                 size="max-w-md"
             >
                 <AddDeviceForm onCreated={onDeviceCreated} />
@@ -293,13 +295,13 @@ function AddDeviceForm({
                 methods={form}
                 name="imei"
                 label="IMEI"
-                placeholder="15 raqamli IMEI (qurilma yorlig‘ida)"
+                placeholder={t("mon.link.imei_placeholder")}
             />
             <FormInput
                 methods={form}
                 name="name"
                 label={t("form.name")}
-                placeholder="Masalan, Isuzu 01 A 123 BC"
+                placeholder={t("mon.link.name_placeholder")}
             />
             <Button type="submit" className="w-full" disabled={isPending}>
                 {t("actions.save")}

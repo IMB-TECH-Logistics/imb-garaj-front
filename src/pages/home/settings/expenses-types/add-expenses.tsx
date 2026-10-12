@@ -17,24 +17,32 @@ export enum ExpenseTypeEnum {
     TRIP = 3,
 }
 
-export const EXPENSE_TYPE_OPTIONS = [
-    { label: "Yuk mashinasi uchun", value: ExpenseTypeEnum.TRUCK },
-    { label: "Buyurtma uchun", value: ExpenseTypeEnum.ORDER },
-    { label: "Reys uchun", value: ExpenseTypeEnum.TRIP },
-]
+export const useExpenseTypeOptions = () => {
+    const { t } = useTranslation()
+    return [
+        { label: t("settings.expenses.for_truck"), value: ExpenseTypeEnum.TRUCK },
+        { label: t("settings.expenses.for_order"), value: ExpenseTypeEnum.ORDER },
+        { label: t("settings.expenses.for_trip"), value: ExpenseTypeEnum.TRIP },
+    ]
+}
 
 export enum FlowTypeEnum {
     EXPENSE = -1,
     INCOME = 1,
 }
 
-export const FLOW_TYPE_OPTIONS = [
-    { label: "Chiqim", value: FlowTypeEnum.EXPENSE },
-    { label: "Kirim", value: FlowTypeEnum.INCOME },
-]
+export const useFlowTypeOptions = () => {
+    const { t } = useTranslation()
+    return [
+        { label: t("form.expense"), value: FlowTypeEnum.EXPENSE },
+        { label: t("settings.expenses.flow_income"), value: FlowTypeEnum.INCOME },
+    ]
+}
 
 const AddExpensesModal = () => {
     const { t } = useTranslation()
+    const expenseTypeOptions = useExpenseTypeOptions()
+    const flowTypeOptions = useFlowTypeOptions()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -98,7 +106,7 @@ const AddExpensesModal = () => {
                     required
                     name="type"
                     label={t("form.applies_to")}
-                    options={EXPENSE_TYPE_OPTIONS}
+                    options={expenseTypeOptions}
                     control={form.control}
                     labelKey="label"
                     valueKey="value"
@@ -108,7 +116,7 @@ const AddExpensesModal = () => {
                     required
                     name="flow_type"
                     label={t("form.direction")}
-                    options={FLOW_TYPE_OPTIONS}
+                    options={flowTypeOptions}
                     control={form.control}
                     labelKey="label"
                     valueKey="value"

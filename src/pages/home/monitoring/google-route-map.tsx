@@ -21,11 +21,11 @@ const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 const CONTAINER_STYLE = { width: "100%", height: "100%" }
 type MapMode = "roadmap" | "dark" | "hybrid" | "terrain"
 
-const MAP_MODES: { value: MapMode; label: string }[] = [
-    { value: "roadmap", label: "Xarita" },
-    { value: "dark", label: "Qora" },
-    { value: "hybrid", label: "Sputnik" },
-    { value: "terrain", label: "Relyef" },
+const MAP_MODES: { value: MapMode; labelKey: string }[] = [
+    { value: "roadmap", labelKey: "mon.map_mode.roadmap" },
+    { value: "dark", labelKey: "mon.map_mode.dark" },
+    { value: "hybrid", labelKey: "mon.map_mode.hybrid" },
+    { value: "terrain", labelKey: "mon.map_mode.terrain" },
 ]
 
 const MAP_MODE_KEY = "monitoring-map-mode"
@@ -274,14 +274,14 @@ export default function GoogleRouteMap({
                                     : "text-muted-foreground hover:bg-accent hover:text-foreground",
                             )}
                         >
-                            {m.label}
+                            {t(m.labelKey)}
                         </button>
                     ))}
                 </div>
             )}
             {loadError && (
                 <div className="grid h-full place-items-center text-sm text-muted-foreground">
-                    Google xaritani yuklab bo'lmadi
+                    {t("mon.map_load_failed")}
                 </div>
             )}
             {isLoaded && (

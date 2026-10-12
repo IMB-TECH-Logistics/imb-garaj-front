@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { ReactNode, useMemo } from "react"
 import {
@@ -42,6 +43,7 @@ export default function FormRadioGroup<IForm extends FieldValues>({
     returnValue = "id",
     itemClassName,
 }: IProps<IForm>) {
+    const { t } = useTranslation()
     const {
         field,
         fieldState: { error },
@@ -51,7 +53,7 @@ export default function FormRadioGroup<IForm extends FieldValues>({
         rules: {
             required: {
                 value: required,
-                message: `${label}ni tanlang`,
+                message: t("ui.common.select_item", { label }),
             },
         },
     })

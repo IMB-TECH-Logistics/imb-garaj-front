@@ -25,9 +25,9 @@ export default function Managers() {
     const { data: tripsTotal } = useGet<ListResponse<ManagerTrips>>(MANAGERS_TRIPS, { params: { page_size: 1 } })
     const { data: ordersTotal } = useGet<ListResponse<ManagerOrders>>(MANAGERS_ORDERS, { params: { page_size: 1 } })
     const totals: [string, number | undefined][] = [
-        ["Transportlar", data?.count],
-        ["Aylanmalar", tripsTotal?.count],
-        ["Reyslar", ordersTotal?.count],
+        [t("trips.managers.transports"), data?.count],
+        [t("page.turnovers"), tripsTotal?.count],
+        [t("page.trips"), ordersTotal?.count],
     ]
     const navigate = useNavigate()
 

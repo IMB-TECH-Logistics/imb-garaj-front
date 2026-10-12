@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label"
 import { USERS_PERMISSIONS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useFormContext, useWatch } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 type Action = {
     name: string
@@ -21,6 +22,7 @@ export default function PermissionField({
     /** Roldan meros qolgan kodlar: belgilangan va o‘zgartirib bo‘lmaydigan. */
     inherited?: string[]
 }) {
+    const { t } = useTranslation()
     const form = useFormContext()
     const inheritedSet = new Set(inherited)
     const { data: modules = [], isLoading } = useGet<Module[]>(USERS_PERMISSIONS)
@@ -93,7 +95,7 @@ export default function PermissionField({
     if (isLoading) {
         return (
             <div className="md:col-span-2 py-6 text-center text-sm text-muted-foreground">
-                Ruxsatlar ro'yxati yuklanmoqda...
+                {t("settings.users.permissions_loading")}
             </div>
         )
     }

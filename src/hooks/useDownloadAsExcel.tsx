@@ -2,6 +2,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { AxiosError } from "axios"
 import { useState } from "react"
 import { toast } from "sonner"
+import i18n from "@/i18n/i18n"
 import { useModal } from "./useModal"
 import axiosInstance from "@/services/axios-instance"
 import { useTenantRequest, withReadTenant } from "@/lib/tenant-scope"
@@ -77,7 +78,7 @@ export const useDownloadAsExcel = ({
                 closeModal()
             }
         } catch (error) {
-            toast.error("Parol xato")
+            toast.error(i18n.t("core.errors.wrong_password"))
         } finally {
             setIsFetching(false)
         }

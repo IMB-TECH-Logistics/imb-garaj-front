@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import EmptyIcon from "./empty-icon"
 
@@ -8,6 +9,7 @@ export default function EmptyBox({
     data?: any[]
     height?: string
 }) {
+    const { t } = useTranslation()
     if (data?.length) {
         return null
     }
@@ -19,7 +21,7 @@ export default function EmptyBox({
             )}
         >
             <EmptyIcon size={60} className="text-foreground/60" />
-            <p className="text-foreground/60">Ma'lumot topilmadi</p>
+            <p className="text-foreground/60">{t("page.not_found")}</p>
         </div>
     )
 }

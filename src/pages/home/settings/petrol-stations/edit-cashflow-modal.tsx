@@ -90,7 +90,7 @@ const EditCashFlowModal = () => {
                         control={control}
                         label={t("form.amount")}
                         name="amount"
-                        placeholder="Ex: 1 000 000"
+                        placeholder={`${t("form.example")}: 1 000 000`}
                         thousandSeparator=" "
                         decimalScale={2}
                     />
@@ -101,9 +101,9 @@ const EditCashFlowModal = () => {
             {current?.liters != null && (
                 <FormNumberInput
                     control={control}
-                    label={`Miqdor (${current.unit === "m3" ? "m³" : "litr"})`}
+                    label={`${t("form.quantity")} (${current.unit === "m3" ? t("settings.petrol.unit_m3") : t("settings.petrol.unit_liter")})`}
                     name="quantity"
-                    placeholder="Ex: 50"
+                    placeholder={`${t("form.example")}: 50`}
                     thousandSeparator=" "
                     decimalScale={2}
                 />

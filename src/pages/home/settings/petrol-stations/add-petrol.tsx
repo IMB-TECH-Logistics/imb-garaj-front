@@ -97,7 +97,7 @@ const AddPetrolStationModal = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Asosiy</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.petrol.section_main")}</h3>
                 <div className="grid grid-cols-1 gap-4">
                     <FormInput required name="name" label={t("form.name")} methods={form} />
 
@@ -110,11 +110,11 @@ const AddPetrolStationModal = () => {
                             <div className="flex items-start gap-3 rounded-md border bg-background p-3">
                                 <Switch id="has-contract" checked={!!field.value} onCheckedChange={field.onChange} />
                                 <Label htmlFor="has-contract" className="flex flex-col gap-1 cursor-pointer">
-                                    <span className="text-sm font-medium">Zapravka bilan shartnoma bor</span>
+                                    <span className="text-sm font-medium">{t("settings.petrol.has_contract")}</span>
                                     <span className="text-xs font-normal text-muted-foreground">
                                         {field.value ?
-                                            "Yoqilg'i pul o'tkazish orqali to'lanadi — kassaga va haydovchi balansiga tegmaydi."
-                                        :   "Yoqilg'i naqd pul bilan to'lanadi — haydovchi balansidan chiqim bo'ladi."}
+                                            t("settings.petrol.contract_hint_yes")
+                                        :   t("settings.petrol.contract_hint_no")}
                                     </span>
                                 </Label>
                             </div>
@@ -124,13 +124,12 @@ const AddPetrolStationModal = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Joylashuv</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.place")}</h3>
                 <div className="grid grid-cols-1 gap-4">
                     <LocationPicker value={pickerValue} onChange={handlePick} />
 
                     <p className="text-xs text-muted-foreground -mt-2">
-                        Xaritadan zapravka joyini tanlang — manzil avtomatik
-                        to'ldiriladi.
+                        {t("settings.petrol.map_hint")}
                     </p>
                 </div>
             </section>

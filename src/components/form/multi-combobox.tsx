@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Controller, Control, FieldValues, Path } from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
@@ -51,6 +52,7 @@ export function FormMultiCombobox<
 
 
 
+    const { t } = useTranslation()
     return (
         <div>
             {label && (
@@ -66,7 +68,7 @@ export function FormMultiCombobox<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
+                    required ? { required: label ? t("ui.common.select_item", { label }) : t("ui.common.select_value") } : {}
                 }
                 render={({ field }) => (
                     <div className="pt-0.5">
@@ -74,7 +76,7 @@ export function FormMultiCombobox<
                             options={options}
                             values={field.value}
                             setValues={field.onChange}
-                            label={placeholder || label || "Tanlang"}
+                            label={placeholder || label || t("ui.common.select")}
                             isError={!!error}
                             onAdd={onAdd}
                             valueKey={valueKey}

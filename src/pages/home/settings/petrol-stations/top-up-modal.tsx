@@ -61,13 +61,13 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
                         control={control}
                         label={t("form.amount")}
                         name="amount"
-                        placeholder="Ex: 1 000 000"
+                        placeholder={`${t("form.example")}: 1 000 000`}
                         thousandSeparator=" "
                         decimalScale={2}
                         allowNegative={false}
                         registerOptions={{
                             validate: (v) =>
-                                Number(v) > 0 || "Summa 0 dan katta bo'lishi kerak",
+                                Number(v) > 0 || t("settings.petrol.amount_gt_zero"),
                         }}
                     />
                 </div>

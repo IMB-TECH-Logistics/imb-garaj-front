@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Badge } from "@/components/ui/badge"
 import { formatMoney } from "@/lib/format-money"
 import { Link, useLocation } from "@tanstack/react-router"
@@ -14,7 +15,7 @@ import { useItems } from "@/hooks/usePaths"
 import { useGlobalStore } from "@/store/global-store"
 
 type BreadcrumbEntry = {
-    label: string
+    labelKey: string
     path?: string
     /** Key to resolve dynamic path from global store */
     storeKey?: string
@@ -28,38 +29,39 @@ const nestedBreadcrumbs: { prefix: string; trail: BreadcrumbEntry[] }[] = [
     {
         prefix: "/manager-trips/manager-reys",
         trail: [
-            { label: "Transportlar", path: "/managers" },
+            { labelKey: "nav.vehicles", path: "/managers" },
             {
-                label: "Aylanmalar",
+                labelKey: "page.turnovers",
                 storeKey: "manager-trips-vehicle-id",
                 buildPath: (vehicleId) =>
                     vehicleId ? `/manager-trips/${vehicleId}` : undefined,
             },
-            { label: "Reyslar" },
+            { labelKey: "nav.flights" },
         ],
     },
     {
         prefix: "/manager-trips",
         trail: [
-            { label: "Transportlar", path: "/managers" },
-            { label: "Aylanmalar" },
+            { labelKey: "nav.vehicles", path: "/managers" },
+            { labelKey: "page.turnovers" },
         ],
     },
     {
         prefix: "/truck-detail",
-        trail: [{ label: "Investor", path: "/truck" }],
+        trail: [{ labelKey: "nav.investor", path: "/truck" }],
     },
     {
         prefix: "/orders",
         trail: [
-            { label: "Investor", path: "/truck" },
-            { label: "Buyurtmalar" },
+            { labelKey: "nav.investor", path: "/truck" },
+            { labelKey: "ui.breadcrumbs.orders" },
         ],
     },
 ]
 
 export function useBreadcrumbs() {
     const { pathname } = useLocation()
+    const { t } = useTranslation()
     const items = useItems()
     const dataMap = useGlobalStore((state) => state.dataMap)
 
@@ -71,12 +73,13 @@ export function useBreadcrumbs() {
                 pathname.startsWith(config.prefix + "/")
             ) {
                 return config.trail.map((entry) => {
+                    const label = t(entry.labelKey)
                     if (entry.buildPath && entry.storeKey) {
                         const storedValue = dataMap[entry.storeKey]
                         const resolved = entry.buildPath(storedValue)
-                        return { ...entry, path: resolved }
+                        return { ...entry, label, path: resolved }
                     }
-                    return entry
+                    return { ...entry, label }
                 })
             }
         }
@@ -104,7 +107,7 @@ export function useBreadcrumbs() {
         }
 
         return []
-    }, [pathname, items, dataMap])
+    }, [pathname, items, dataMap, t])
 }
 
 /**

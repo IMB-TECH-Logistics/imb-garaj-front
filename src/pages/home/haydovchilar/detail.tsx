@@ -155,7 +155,7 @@ const useAylanmaCols = () => {
                 },
             },
             {
-                header: "Olib kelgan summa (naqd)",
+                header: t("fleet.drivers.revenue_cash"),
                 accessorKey: "income_uzs",
                 cell: ({ row }) => (
                     <span className="tabular-nums text-green-600">
@@ -164,7 +164,7 @@ const useAylanmaCols = () => {
                 ),
             },
             {
-                header: "Oylik maoshi",
+                header: t("fleet.drivers.salary_due"),
                 accessorKey: "driver_earnings",
                 cell: ({ row }) => {
                     const v = num(row.original.driver_earnings)
@@ -178,19 +178,19 @@ const useAylanmaCols = () => {
                 },
             },
             {
-                header: "Oylik holati",
+                header: t("fleet.drivers.salary_status"),
                 id: "salary_status",
                 cell: ({ row }) => {
                     const total = num(row.original.driver_earnings)
                     const unpaid = num(row.original.salary_unpaid_uzs)
                     if (total <= 0) return <span className="text-muted-foreground">—</span>
                     if (unpaid <= 0)
-                        return <Badge className="border-transparent bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10">Berildi</Badge>
+                        return <Badge className="border-transparent bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10">{t("status.given")}</Badge>
                     if (unpaid >= total)
-                        return <Badge className="border-transparent bg-rose-500/10 text-rose-600 hover:bg-rose-500/10">Berilmadi</Badge>
+                        return <Badge className="border-transparent bg-rose-500/10 text-rose-600 hover:bg-rose-500/10">{t("status.not_given")}</Badge>
                     return (
                         <Badge className="border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 whitespace-nowrap">
-                            Qisman · {formatMoney(unpaid)} qoldi
+                            {t("fleet.drivers.salary_partial", { amount: formatMoney(unpaid) })}
                         </Badge>
                     )
                 },
@@ -338,25 +338,25 @@ export default function HaydovchiDetail() {
                         </CardContent>
                     </Card>
                     <StatCard
-                        label="Olib kelgan summa (naqd)"
+                        label={t("fleet.drivers.revenue_cash")}
                         value={formatMoneyText(num(overview.revenue_uzs))}
                         accent="text-green-600"
                     />
                     <StatCard
-                        label="Yoqilg'i (l/100km)"
+                        label={t("fleet.drivers.fuel_l_100km")}
                         value={num(overview.fuel_per_100km) > 0 ? num(overview.fuel_per_100km).toFixed(1) : "—"}
                     />
                     <StatCard
-                        label="Yoqilg'i (m³/100km)"
+                        label={t("fleet.drivers.fuel_gas_100km")}
                         value={num(overview.fuel_gas_per_100km) > 0 ? num(overview.fuel_gas_per_100km).toFixed(1) : "—"}
                     />
                     <StatCard
-                        label="Qo'lidagi pul"
+                        label={t("fleet.drivers.cash_in_hand")}
                         value={formatMoneyText(balance)}
                         accent={balanceColor}
                     />
                     <StatCard
-                        label="Oylik maoshi"
+                        label={t("fleet.drivers.salary_due")}
                         value={formatMoneyText(num(overview.salary_due_uzs))}
                         accent={num(overview.salary_due_uzs) > 0 ? "text-amber-600" : num(overview.salary_due_uzs) < 0 ? "text-red-500" : undefined}
                     />

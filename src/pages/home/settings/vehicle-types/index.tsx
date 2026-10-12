@@ -59,7 +59,7 @@ const VehicleTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Mashina turlari"
+                        fileName={t("nav.truck_types")}
                         url="excel"
                         storeKey={hasControl ? SETTINGS_VEHICLE_TYPE : undefined}
                         searchKey="vehicle_search"
@@ -71,7 +71,9 @@ const VehicleTypePage = () => {
             <DeleteModal path={SETTINGS_VEHICLE_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
-                    item?.id ? "Avtomobil turini tahrirlash" : "Avtomobil turi qo'shish"
+                    item?.id ?
+                        t("settings.vehicle_types.edit_title")
+                    :   t("settings.vehicle_types.add_title")
                 }
                 modalKey="create"
             >

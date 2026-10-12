@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import Loading from "@/layouts/loading"
 import { ReactNode } from "react"
 import EmptyIcon from "../custom/empty-icon"
@@ -27,8 +28,9 @@ export default function GridList<T extends object>({
 }
 
 function EmptyBox() {
+    const { t } = useTranslation()
     return <div className="w-full flex items-center flex-col py-20 gap-2">
         <EmptyIcon size={60} className="text-foreground/60" />
-        <p className="text-foreground/60">Ma'lumot topilmadi</p>
+        <p className="text-foreground/60">{t("page.not_found")}</p>
     </div>
 }

@@ -12,7 +12,7 @@ interface TruckRoute {
   lng: number
   distance: number
   income: number
-  status: "Yo‘lda" | "Tushirishda" | "Yetib bordi"
+  status: "on_road" | "unloading" | "arrived"
   speed: number
 }
 
@@ -24,6 +24,12 @@ declare global {
 
 const TruckRoutesMap: React.FC = () => {
   const { t } = useTranslation()
+  const statusLabel = (status: TruckRoute["status"]) =>
+    status === "on_road"
+      ? t("status.on_road")
+      : status === "unloading"
+      ? t("status.unloading")
+      : t("fleet.map.arrived")
   const [routes, setRoutes] = useState<TruckRoute[]>([
     {
       id: "1",
@@ -35,7 +41,7 @@ const TruckRoutesMap: React.FC = () => {
       lng: 69.2401,
       distance: 320,
       income: 4000000,
-      status: "Yo‘lda",
+      status: "on_road",
       speed: 60,
     },
     {
@@ -48,7 +54,7 @@ const TruckRoutesMap: React.FC = () => {
       lng: 65.3792,
       distance: 120,
       income: 2500000,
-      status: "Yetib bordi",
+      status: "arrived",
       speed: 0,
     },
     {
@@ -61,7 +67,7 @@ const TruckRoutesMap: React.FC = () => {
       lng: 71.7843,
       distance: 320,
       income: 4500000,
-      status: "Yo‘lda",
+      status: "on_road",
       speed: 55,
     },
     {
@@ -74,7 +80,7 @@ const TruckRoutesMap: React.FC = () => {
       lng: 59.6108,
       distance: 280,
       income: 5000000,
-      status: "Tushirishda",
+      status: "unloading",
       speed: 30,
     },
   ])
@@ -127,9 +133,9 @@ const TruckRoutesMap: React.FC = () => {
       const isSelected = selectedRoute === route.id
 
       const color =
-        route.status === "Yo‘lda"
+        route.status === "on_road"
           ? "#4CAF50"
-          : route.status === "Tushirishda"
+          : route.status === "unloading"
           ? "#FFD700"
           : "#2196F3"
 
@@ -163,9 +169,9 @@ const TruckRoutesMap: React.FC = () => {
 
         marker.bindPopup(
           `<b>${route.from} → ${route.to}</b><br>
-          Haydovchi: ${route.driver}<br>
-          Holati: ${route.status}<br>
-          Tezlik: ${route.speed} km/h`
+          ${t("form.driver")}: ${route.driver}<br>
+          ${t("table.status")}: ${statusLabel(route.status)}<br>
+          ${t("fleet.map.speed")}: ${route.speed} ${t("fleet.units.km_per_hour")}`
         )
 
         marker.on("click", () => setSelectedRoute(route.id))
@@ -202,7 +208,7 @@ const TruckRoutesMap: React.FC = () => {
         {!mapReady && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-800 text-white">
             <div className="text-center">
-              <p className="text-xl mb-2">Xarita yuklanmoqda...</p>
+              <p className="text-xl mb-2">{t("fleet.map.loading_map")}</p>
               <p className="text-sm">{t("messages.loading")}</p>
             </div>
           </div>
@@ -217,7 +223,7 @@ const TruckRoutesMap: React.FC = () => {
         </div>
 
         <h2 className="text-lg font-semibold text-green-400 mb-4">
-          Faol reyslar
+          {t("fleet.map.active_trips")}
         </h2>
 
         <div className="space-y-3">
@@ -238,12 +244,12 @@ const TruckRoutesMap: React.FC = () => {
                 </span>
               </div>
               <div className="ml-6 text-sm opacity-90">
-                <div>👤 Haydovchi: {route.driver}</div>
-                <div>🚚 Egasi: {route.owner}</div>
-                <div>⚡ Tezlik: {route.speed.toFixed(0)} km/h</div>
-                <div>💰 Tushum: {route.income.toLocaleString()} so‘m</div>
-                <div>📏 Masofa: {route.distance} km</div>
-                <div>📦 Holat: {route.status}</div>
+                <div>👤 {t("form.driver")}: {route.driver}</div>
+                <div>🚚 {t("form.owner")}: {route.owner}</div>
+                <div>⚡ {t("fleet.map.speed")}: {route.speed.toFixed(0)} {t("fleet.units.km_per_hour")}</div>
+                <div>💰 {t("form.income")}: {route.income.toLocaleString()} {t("page.som")}</div>
+                <div>📏 {t("form.distance")}: {route.distance} {t("fleet.units.km")}</div>
+                <div>📦 {t("table.status")}: {statusLabel(route.status)}</div>
               </div>
             </div>
           ))}

@@ -2,6 +2,7 @@ import { TENANT_STORAGE_KEY } from "@/services/axios-instance"
 import type { AxiosRequestConfig } from "axios"
 import { createContext, useContext } from "react"
 import { toast } from "sonner"
+import i18n from "@/i18n/i18n"
 import { create } from "zustand"
 
 export const ALL_TENANTS = "*"
@@ -80,7 +81,7 @@ export const withWriteTenant = (
     if (!isAllTenantsMode() || isTenantAgnostic(url)) return config
     const tenant = resolveWriteTenant(scope)
     if (!tenant) {
-        toast.error("Avval tenantni tanlang")
+        toast.error(i18n.t("core.errors.select_tenant_first"))
         throw new Error("Tenant is not selected")
     }
     return withReadTenant(tenant, config)

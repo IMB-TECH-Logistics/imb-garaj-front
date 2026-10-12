@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { Check, ChevronDown } from "lucide-react"
 import {
@@ -50,6 +51,7 @@ export default function SelectField<IForm extends FieldValues>({
     ...props
 }: IProps<IForm> & Props) {
     const opts = options || []
+    const { t } = useTranslation()
     const { control } = methods
     const {
         field: { onChange, value, disabled, ...field },
@@ -61,10 +63,10 @@ export default function SelectField<IForm extends FieldValues>({
             validate: (val) => {
                 if (!required) return true
                 if (props.isMulti)
-                    return val?.length > 0 || "Ushbu maydon majburiy"
+                    return val?.length > 0 || t("ui.common.field_required")
                 return (
                     (val !== undefined && val !== null) ||
-                    "Ushbu maydon majburiy"
+                    t("ui.common.field_required")
                 )
             },
         },
@@ -128,14 +130,14 @@ export default function SelectField<IForm extends FieldValues>({
                 classNames={{ ...defaultSelectClassNames, ...classNames,  }}
                 unstyled
                 noOptionsMessage={() => (
-                    <p className="text-sm py-1">Mavjud emas</p>
+                    <p className="text-sm py-1">{t("ui.common.no_options")}</p>
                 )}
                 hideSelectedOptions={false}
                 closeMenuOnSelect={!props.isMulti}
                 placeholder={
                     props.isMulti ?
-                        "Bir yoki bir nechtasini tanlang"
-                    :   "Tanlang"
+                        t("ui.common.select_one_or_more")
+                    :   t("ui.common.select")
                 }
                 value={props.isMulti ? multiCurrentVal : currentVal}
                 onChange={handleOnchange}
@@ -196,6 +198,7 @@ const DropdownIndicator = () => (
 const MenuList = (props: MenuListProps) => {
     const { children, getValue, options, setValue, isMulti } = props
     const val = getValue()
+    const { t } = useTranslation()
     return (
         <components.MenuList {...props}>
             {isMulti && (
@@ -210,7 +213,7 @@ const MenuList = (props: MenuListProps) => {
                             }}
                             checked={val.length === options.length}
                         />{" "}
-                        Barchasini tanlash
+                        {t("ui.common.select_all")}
                     </p>
                     <Separator />
                 </>
@@ -226,9 +229,10 @@ const ValueContainer = ({
 }: ValueContainerProps<unknown>) => {
     // eslint-disable-next-line prefer-const
     let [values, input] = children as any
+    const { t } = useTranslation()
 
     if (Array.isArray(values)) {
-        values = `${values.length} ta tanlandi`
+        values = t("ui.common.selected_count", { count: values.length })
     }
 
     return (

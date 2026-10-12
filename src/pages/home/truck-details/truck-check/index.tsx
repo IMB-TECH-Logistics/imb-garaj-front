@@ -55,7 +55,7 @@ const TruckCheck = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Rollar"
+                        fileName={t("nav.tech_check")}
                         url="excel"
                         storeKey={TECHNICAL_INSPECT}
                         searchKey="roles_search"

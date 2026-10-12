@@ -1,6 +1,7 @@
 import { Check, Copy } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import i18n from "@/i18n/i18n"
 
 export const CopyButton = (text: string | number) => {
     const [copied, setCopied] = useState(false)
@@ -11,7 +12,7 @@ export const CopyButton = (text: string | number) => {
             onClick={(v) => {
                 v.preventDefault()
                 navigator.clipboard.writeText(text?.toString())
-                toast.success(text + " Nusxaga olindi")
+                toast.success(i18n.t("core.copy.copied", { text }))
                 setCopied(true)
                 setTimeout(() => {
                     setCopied(false)

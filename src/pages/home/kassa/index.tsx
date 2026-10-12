@@ -163,7 +163,7 @@ const useTransactionCols = () => {
                                 variant="outline"
                                 className="bg-amber-500/10 text-amber-600 border-transparent"
                             >
-                                Tasdiqlanmagan
+                                {t("fin.kassa.unconfirmed")}
                             </Badge>
                         )}
                     </div>
@@ -602,7 +602,7 @@ const Kassa = () => {
                                 />
                                 <DownloadAsExcel
                                     url={`${TRANSACTIONS}/excel`}
-                                    name="Kassa"
+                                    name={t("fin.kassa.excel_name")}
                                     params={filterParams}
                                 />
                             </div>

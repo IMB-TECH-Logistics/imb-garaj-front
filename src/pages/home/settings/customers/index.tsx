@@ -59,7 +59,7 @@ const Customers = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="Mijozlar"
+                        fileName={t("nav.customers")}
                         url="excel"
                         storeKey={hasControl ? SETTINGS_CUSTOMERS : undefined}
                         pageKey="page"
@@ -75,7 +75,11 @@ const Customers = () => {
             />
             <Modal
                 size="max-w-2xl"
-                title={item?.id ? "Mijozni tahrirlash" : "Mijoz qo'shish"}
+                title={
+                    item?.id ?
+                        t("settings.customers.edit_title")
+                    :   t("settings.customers.add_title")
+                }
                 modalKey={"create"}
             >
                 <AddCustomersModal />

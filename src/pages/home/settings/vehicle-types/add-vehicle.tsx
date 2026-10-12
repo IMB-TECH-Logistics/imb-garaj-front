@@ -11,14 +11,13 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 
-const vehicleTypeOptions = [
-    { value: "model", label: "Avtomobil rusumi" },
-    { value: "truck", label: "Avtomobil turi" },
-    { value: "trailer", label: "Tirkama turi" },
-]
-
 const AddVehicleModal = () => {
     const { t } = useTranslation()
+    const vehicleTypeOptions = [
+        { value: "model", label: t("settings.vehicle_types.type_model") },
+        { value: "truck", label: t("form.vehicle_type") },
+        { value: "trailer", label: t("form.trailer_type") },
+    ]
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()

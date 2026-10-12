@@ -97,9 +97,9 @@ function ViewPage() {
             <ParamTabs
                 paramName="truck_tab"
                 options={[
-                    { value: "trips", label: "Aylanmalar", content: <VehicleTrips /> },
-                    { value: "expenses", label: "Mashina xarajatlari", content: <VehicleExpenses vehicleId={id} /> },
-                    { value: "monthly", label: "Oylar bo'yicha", content: <MonthlyReport vehicleId={id} /> },
+                    { value: "trips", label: t("page.turnovers"), content: <VehicleTrips /> },
+                    { value: "expenses", label: t("fleet.truck_details.tab_vehicle_expenses"), content: <VehicleExpenses vehicleId={id} /> },
+                    { value: "monthly", label: t("fleet.truck_details.tab_monthly"), content: <MonthlyReport vehicleId={id} /> },
                 ]}
             />
         </div>

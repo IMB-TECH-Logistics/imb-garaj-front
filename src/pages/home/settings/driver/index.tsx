@@ -128,7 +128,9 @@ const Drivers = () => {
             <Modal
                 size="max-w-2xl"
                 title={
-                    item?.id ? "Haydovchini tahrirlash" : "Haydovchi qo'shish"
+                    item?.id ?
+                        t("form.edit_driver")
+                    :   t("form.add_driver")
                 }
                 modalKey="create"
             >

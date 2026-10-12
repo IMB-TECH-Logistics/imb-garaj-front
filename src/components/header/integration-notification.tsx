@@ -67,12 +67,12 @@ export function IntegrationNotification() {
             {},
             {
                 onSuccess: () => {
-                    toast.success("Reys tasdiqlandi")
+                    toast.success(t("ui.integration.approved_toast"))
                     queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS] })
                     queryClient.invalidateQueries({ queryKey: [MANAGERS_ORDERS_INTEGRATION_COUNT] })
                 },
                 onError: () => {
-                    toast.error("Tasdiqlashda xatolik")
+                    toast.error(t("ui.integration.approve_error"))
                 },
                 onSettled: () => {
                     setApprovingId(null)
@@ -83,7 +83,7 @@ export function IntegrationNotification() {
 
     if (isError || ordersError) {
         return (
-            <Button variant="default" size="icon" className="relative size-9 shrink-0" aria-label="Integratsiya reyslari" disabled>
+            <Button variant="default" size="icon" className="relative size-9 shrink-0" aria-label={t("ui.integration.title")} disabled>
                 <Bell size={18} />
                 <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 leading-none">
                     !
@@ -95,7 +95,7 @@ export function IntegrationNotification() {
     return (
         <Popover open={open} onOpenChange={handleOpenChange}>
             <PopoverTrigger asChild>
-                <Button variant="default" size="icon" className="relative size-9 shrink-0" aria-label="Integratsiya reyslari">
+                <Button variant="default" size="icon" className="relative size-9 shrink-0" aria-label={t("ui.integration.title")}>
                     <Bell size={18} />
                     {total > 0 && (
                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 leading-none">
@@ -106,16 +106,16 @@ export function IntegrationNotification() {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-0">
                 <div className="px-4 py-3 border-b border-border">
-                    <p className="text-sm font-semibold">Integratsiya reyslari</p>
+                    <p className="text-sm font-semibold">{t("ui.integration.title")}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                        {count} ta tasdiqlanmagan reys
+                        {t("ui.integration.unconfirmed_count", { count })}
                     </p>
                 </div>
                 <div className="divide-y divide-border max-h-64 overflow-y-auto">
                     {isLoading ? (
-                        <p className="text-sm text-muted-foreground text-center py-6">Yuklanmoqda...</p>
+                        <p className="text-sm text-muted-foreground text-center py-6">{t("messages.loading")}</p>
                     ) : orders.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-6">Reys yo'q</p>
+                        <p className="text-sm text-muted-foreground text-center py-6">{t("ui.integration.no_trips")}</p>
                     ) : orders.map((order) => {
                         const isApproving = approvingId === order.id
                         const isDraft = order.trip_confirmed === false
@@ -142,11 +142,11 @@ export function IntegrationNotification() {
                                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                                             {isDraft ? (
                                                 <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-orange-300 text-orange-600">
-                                                    Tasdiqlanmagan
+                                                    {t("ui.integration.unconfirmed")}
                                                 </Badge>
                                             ) : (
                                                 <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-green-300 text-green-600">
-                                                    Tasdiqlangan
+                                                    {t("ui.integration.confirmed")}
                                                 </Badge>
                                             )}
                                             {order.truck_number && (
@@ -181,11 +181,11 @@ export function IntegrationNotification() {
                                             if (!isApproving) handleApprove(order.id)
                                         }}
                                     >
-                                        Tasdiqlash
+                                        {t("actions.confirm")}
                                     </Button>
                                     )
                                 ) : (
-                                    <span className="mt-3 p-1 text-green-500 shrink-0" title="Tasdiqlangan">
+                                    <span className="mt-3 p-1 text-green-500 shrink-0" title={t("ui.integration.confirmed")}>
                                         <Check size={15} />
                                     </span>
                                 )}

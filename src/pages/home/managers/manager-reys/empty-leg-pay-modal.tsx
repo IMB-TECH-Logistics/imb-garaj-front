@@ -84,31 +84,33 @@ export default function EmptyLegPayModal({ leg }: { leg: EmptyLeg | null }) {
         <Modal size="max-w-md" modalKey={EMPTY_LEG_PAY_MODAL_KEY} titleInChildren>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
                 <DialogHeader>
-                    <DialogTitle className="font-normal">Bo'sh yurish to'lovi</DialogTitle>
+                    <DialogTitle className="font-normal">{t("trips.reys_cols.empty_run_pay")}</DialogTitle>
                     <DialogDescription>
-                        {leg?.from_place || "Aylanma boshi"} → {leg?.to_place || "—"}
+                        {leg?.from_place || t("trips.empty_leg.turnover_start")} → {leg?.to_place || "—"}
                     </DialogDescription>
                 </DialogHeader>
                 <FormNumberInput
                     control={form.control}
                     name="payment_amount"
-                    label="To'lov summasi"
+                    label={t("trips.empty_leg.payment_amount")}
                     thousandSeparator=" "
                     allowNegative={false}
                     decimalScale={2}
                 />
-                <FormTextarea methods={form} name="payment_comment" label="Izoh" />
+                <FormTextarea methods={form} name="payment_comment" label={t("form.comment")} />
                 <div>
                     <FormNumberInput
                         control={form.control}
                         name="distance_km_manual"
-                        label="Km (tuzatish)"
+                        label={t("trips.empty_leg.km_correction")}
                         thousandSeparator=" "
                         allowNegative={false}
                         decimalScale={1}
                     />
                     <p className="mt-1 text-xs text-muted-foreground">
-                        GPS bo'yicha: {leg?.distance_km != null ? `${Number(leg.distance_km).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} km` : "—"}
+                        {t("trips.empty_leg.gps_distance", {
+                            value: leg?.distance_km != null ? `${Number(leg.distance_km).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} ${t("trips.units.km")}` : "—",
+                        })}
                     </p>
                 </div>
                 <DialogFooter className="gap-2">

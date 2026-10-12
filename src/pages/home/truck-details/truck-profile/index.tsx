@@ -1,4 +1,5 @@
 import { formatMoney } from "@/lib/format-money"
+import { useTranslation } from "react-i18next"
 import {
     CalendarDays,
     DollarSign,
@@ -17,6 +18,7 @@ type Props = {
 
 
 function TruckProfile({ data }: Props) {
+    const { t } = useTranslation()
     return (
         <div
             className="bg-background border border-divider relative rounded-lg p-4 
@@ -26,7 +28,7 @@ function TruckProfile({ data }: Props) {
                 {/* Truck rasmi */}
                 <div className="border border-divider h-[200px] sm:h-full sm:w-[260px] rounded-lg overflow-hidden">
                     <img
-                        alt="Truck"
+                        alt={t("form.truck")}
                         className="w-full h-full object-cover object-center"
                         src={
                             typeof data?.image === "string" ?
@@ -45,48 +47,48 @@ function TruckProfile({ data }: Props) {
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <Truck size={18} />
-                        <span className="font-medium">{"Tirkama"}:</span>
+                        <span className="font-medium">{t("fleet.profile.trailer")}:</span>
                         <span>{data?.trailer_number || "40 3994 BA"}</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <User size={18} />
-                        <span className="font-medium">{"Haydovchi"}:</span>
-                        <span>{data?.driver_name || "Haydovchi 1"}</span>
+                        <span className="font-medium">{t("form.driver")}:</span>
+                        <span>{data?.driver_name || `${t("form.driver")} 1`}</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <Phone size={18} />
-                        <span className="font-medium">{"Telefon 1"}:</span>
+                        <span className="font-medium">{t("fleet.profile.phone_1")}:</span>
                         <span>+998 88 102 30 42</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <Phone size={18} />
-                        <span className="font-medium">{"Telefon 2"}:</span>
+                        <span className="font-medium">{t("fleet.profile.phone_2")}:</span>
                         <span>+998 88 102 30 42</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <CalendarDays size={18} />
                         <span className="font-medium">
-                            {"Mashina  narxi "}:
+                            {t("fleet.profile.vehicle_price")}:
                         </span>
-                        <span>{"200 000 000 so'm"}</span>
+                        <span>{`200 000 000 ${t("page.som")}`}</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <CalendarDays size={18} />
                         <span className="font-medium">
-                            {"Yillik amortizatsiya"}:
+                            {t("fleet.profile.yearly_depreciation")}:
                         </span>
-                        <span>{"20 000 000 so'm"}</span>
+                        <span>{`20 000 000 ${t("page.som")}`}</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                         <CalendarDays size={18} />
                         <span className="font-medium">
-                            {"Ro‘yxatdan o‘tgan sana"}:
+                            {t("form.registration_date")}:
                         </span>
                         <span>{data?.register_date || "2025-01-01"}</span>
                     </div>
@@ -97,32 +99,32 @@ function TruckProfile({ data }: Props) {
             <div className="flex flex-col gap-2 mt-10">
                 <div className="flex items-center gap-2 flex-wrap">
                     <Fuel size={18} />
-                    <span className="font-medium">{"Yoqilg'i turlari"}:</span>
+                    <span className="font-medium">{t("fleet.profile.fuel_types")}:</span>
                     {/* Qaysi mashina yo'qilgi turi shunga oid chiqishi kerak */}
-                    <span>{data?.fuel_consumption || "Benzin / Metan / Dizel / Elektr "}</span>
+                    <span>{data?.fuel_consumption || t("fleet.profile.sample_fuel_types")}</span>
 
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
                     <Fuel size={18} />
-                    <span className="font-medium">{"Yoqilg‘i sarfi"}:</span>
-                    <span>{data?.fuel_consumption || "100 km / 28 litr"}</span>
+                    <span className="font-medium">{t("fleet.profile.fuel_consumption")}:</span>
+                    <span>{data?.fuel_consumption || `100 ${t("fleet.units.km")} / 28 ${t("fleet.units.litr")}`}</span>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
                     <Wrench size={18} />
-                    <span className="font-medium">{"Texnik holat"}:</span>
+                    <span className="font-medium">{t("fleet.profile.tech_condition")}:</span>
                     <span>{data?.technical_status || "90%"}</span>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
                     <Gauge size={18} />
-                    <span className="font-medium">{"Probeg"}:</span>
-                    <span>{data?.distance || "25 000 km / + 12 000 km"}</span>
+                    <span className="font-medium">{t("fleet.profile.mileage")}:</span>
+                    <span>{data?.distance || `25 000 ${t("fleet.units.km")} / + 12 000 ${t("fleet.units.km")}`}</span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                     <CalendarDays size={18} />
-                    <span className="font-medium">{"Ishlab chiqarilgan yili"}:</span>
+                    <span className="font-medium">{t("fleet.profile.production_year")}:</span>
                     <span>{data?.distance || "2024 "}</span>
                 </div>
             </div>
@@ -132,26 +134,26 @@ function TruckProfile({ data }: Props) {
                 <div className="flex items-center gap-3 w-full border-b pb-2 dark:border-b-zinc-700">
                     <Fuel size={18} className="mr-2" />
                     <span className="min-w-24 font-medium text-xl">
-                        {"Yoqilq'i sarfi"}:
+                        {t("fleet.profile.fuel_consumption")}:
                     </span>
                     <span className="font-medium text-xl">
-                        {formatMoney(10000)} litr
+                        {formatMoney(10000)} {t("fleet.units.litr")}
                     </span>
                 </div>
                 <div className="flex items-center gap-3 w-full border-b pb-2 dark:border-b-zinc-700">
                     <Gauge size={18} className="mr-2" />
                     <span className="min-w-24 font-medium text-xl">
-                        {"Masofa"}:
+                        {t("form.distance")}:
                     </span>
                     <span className="font-medium text-xl">
-                        {data?.distance || "250 000 km"}
+                        {data?.distance || `250 000 ${t("fleet.units.km")}`}
                     </span>
                 </div>
 
                 <div className="flex items-center gap-3 w-full border-b pb-2 dark:border-b-zinc-700">
                     <DollarSign size={18} className="mr-2" />
                     <span className="min-w-24 font-medium text-xl">
-                        {"Tushum"}:
+                        {t("form.income")}:
                     </span>
                     <span className="font-medium text-blue-500 text-xl">
                         {formatMoney(120000000)}
@@ -161,7 +163,7 @@ function TruckProfile({ data }: Props) {
                 <div className="flex items-center w-full gap-3 border-b pb-2 dark:border-b-zinc-700">
                     <FileText size={18} className="mr-2" />
                     <span className="min-w-24 font-medium text-xl">
-                        {"Xarajat"}:
+                        {t("fleet.profile.expense")}:
                     </span>
                     <span className="text-destructive font-medium text-xl">
                         -{formatMoney(80000000)}
@@ -171,7 +173,7 @@ function TruckProfile({ data }: Props) {
                 <div className="flex items-center w-full gap-3 border-b pb-2 dark:border-b-zinc-700">
                     <FileText size={18} className="mr-2" />
                     <span className="min-w-24 font-medium text-xl">
-                        {"Foyda"}:
+                        {t("table.profit")}:
                     </span>
                     <span className="text-green-500 font-medium text-xl">
                         +{formatMoney(80000000)}

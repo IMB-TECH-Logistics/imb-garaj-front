@@ -2,11 +2,11 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-const vehicleTypeOptions = [
-    { value: "model", label: "Avtomobil rusumi" },
-    { value: "truck", label: "Avtomobil turi" },
-    { value: "trailer", label: "Tirkama turi" },
-]
+const VEHICLE_TYPE_KEYS: Record<string, string> = {
+    model: "settings.vehicle_types.type_model",
+    truck: "form.vehicle_type",
+    trailer: "form.trailer_type",
+}
 export const useColumnsVehicleTable = () => {
     const { t } = useTranslation()
     return useMemo<ColumnDef<VehicleRoleType>[]>(
@@ -23,11 +23,9 @@ export const useColumnsVehicleTable = () => {
                 cell: ({ row }) => {
                     const typeValue = row.getValue("type")
 
-                    const vehicleType = vehicleTypeOptions.find(
-                        (option) => option.value === typeValue,
-                    )
+                    const labelKey = VEHICLE_TYPE_KEYS[String(typeValue)]
 
-                    return vehicleType ? vehicleType.label : typeValue
+                    return labelKey ? t(labelKey) : typeValue
                 },
             },
         ],

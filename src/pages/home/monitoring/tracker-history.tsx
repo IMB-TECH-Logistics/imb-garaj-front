@@ -10,6 +10,7 @@ import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
 import { type ReactNode, useEffect, useMemo, useRef, useState, useCallback } from "react"
+import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import { type ReplayStatus, useRouteReplay } from "./route-replay"
@@ -22,8 +23,6 @@ const GAP_MS = 15 * 60 * 1000
 const STOP_MIN_MS = 5 * 60 * 1000
 const STOP_MERGE_M = 100
 const DAY_COLORS = ["#5eb3f6", "#a78bfa", "#f472b6", "#fbbf24", "#34d399", "#fb7185", "#22d3ee"]
-const MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"]
-const WEEKDAYS = ["yakshanba", "dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba"]
 
 type Point = { t: number; lat: number; lng: number; speed: number; day: string }
 type Stop = { from: number; to: number; lat: number; lng: number }
@@ -49,29 +48,35 @@ const keyToDate = (key: string) => {
     return new Date(y, m - 1, d)
 }
 
-function dayParts(key: string) {
+function dayParts(key: string, t: TFunction) {
     const d = new Date(`${key}T00:00:00Z`)
-    return { name: `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`, weekday: WEEKDAYS[d.getUTCDay()] }
+    return { name: `${d.getUTCDate()} ${t(`mon.months.${d.getUTCMonth()}`)}` }
 }
 
-function spanLabel(ms: number) {
+function spanLabel(ms: number, t: TFunction) {
     const minutes = Math.round(ms / 60000)
     const days = Math.floor(minutes / 1440)
     const hours = Math.floor((minutes % 1440) / 60)
-    if (days) return `${days}d ${hours}h`
-    return hours ? `${hours}h ${minutes % 60}m` : `${minutes % 60}m`
+    if (days) return t("mon.duration.dh_short", { d: days, h: hours })
+    return hours
+        ? t("mon.duration.hm_short", { h: hours, m: minutes % 60 })
+        : t("mon.duration.m_short", { m: minutes % 60 })
 }
 
-function shortDuration(ms: number) {
+function shortDuration(ms: number, t: TFunction) {
     const minutes = Math.round(ms / 60000)
     const hours = Math.floor(minutes / 60)
-    return hours ? `${hours}h ${minutes % 60}m` : `${minutes}m`
+    return hours
+        ? t("mon.duration.hm_short", { h: hours, m: minutes % 60 })
+        : t("mon.duration.m_short", { m: minutes })
 }
 
-function duration(ms: number) {
+function duration(ms: number, t: TFunction) {
     const minutes = Math.round(ms / 60000)
     const hours = Math.floor(minutes / 60)
-    return hours ? `${hours} soat ${minutes % 60} daq` : `${minutes} daq`
+    return hours
+        ? t("monitoring_stats.hours_minutes", { h: hours, m: minutes % 60 })
+        : t("monitoring_stats.minutes", { m: minutes })
 }
 
 function metres(a: Point, b: Point) {
@@ -141,10 +146,10 @@ function summarize(points: Point[]) {
 
 export type ColorBy = "day" | "trip" | "status" | "speed"
 
-export const COLOR_BY_OPTIONS: { value: ColorBy; label: string }[] = [
-    { value: "day", label: "Kun" },
-    { value: "trip", label: "Reys" },
-    { value: "speed", label: "Tezlik" },
+export const COLOR_BY_OPTIONS: { value: ColorBy; labelKey: string }[] = [
+    { value: "day", labelKey: "mon.color_by.day" },
+    { value: "trip", labelKey: "mon.color_by.trip" },
+    { value: "speed", labelKey: "mon.color_by.speed" },
 ]
 
 const TRIP_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399", "#fb7185", "#22d3ee", "#c084fc"]
@@ -189,6 +194,7 @@ function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
 export type Focus = { kind: "day" | "trip" | "status"; key: string }
 
 export function useTrackerHistory(imei: string | null) {
+    const { t: tr } = useTranslation()
     const days = useGet<GpsDay[]>(MONITORING_GPS_HISTORY_DAYS, {
         params: { imei },
         enabled: !!imei,
@@ -410,11 +416,11 @@ export function useTrackerHistory(imei: string | null) {
               lng: g.lng,
               kind: "stop" as const,
               dimmed: g.focused.length === 0,
-              label: shortDuration(g.total),
+              label: shortDuration(g.total, tr),
               highlight: longest.has(g),
               onClick: () => replay.seek((g.focused[0] ?? g.stops[0]).from),
               title: g.stops
-                  .map((x) => `${dayParts(dayKey(x.from)).name} ${clock(x.from)}–${clock(x.to)}, ${duration(x.to - x.from)}`)
+                  .map((x) => `${dayParts(dayKey(x.from), tr).name} ${clock(x.from)}–${clock(x.to)}, ${duration(x.to - x.from, tr)}`)
                   .join("\n"),
           }))
         : []
@@ -464,6 +470,7 @@ type PanelProps = {
 }
 
 export function ColorBySelect({ history, part }: { history: TrackerHistory; part: "header" | "legend" }) {
+    const { t } = useTranslation()
     if (part === "header") {
         return (
             <div className="text-sm">
@@ -471,8 +478,8 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                     <Select
                         value={history.colorBy}
                         setValue={(value) => history.setColorBy(value as ColorBy)}
-                        options={COLOR_BY_OPTIONS}
-                        label="Chiziq rangi"
+                        options={COLOR_BY_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
+                        label={t("mon.history.line_color")}
                         className="h-10 text-xs"
                     />
                 </div>
@@ -484,13 +491,13 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
             {history.colorBy === "trip" && (
                 <div className="flex flex-col gap-1.5">
                     {history.tripStats.length === 0 && (
-                        <span className="text-xs text-muted-foreground">Tanlangan oraliqda reys yo'q.</span>
+                        <span className="text-xs text-muted-foreground">{t("mon.history.no_trips")}</span>
                     )}
                     {[...history.tripStats.map((trip) => ({
                         key: trip.key,
                         color: trip.color,
                         index: String(trip.index + 1) as string | null,
-                        from: trip.from ?? "Reys",
+                        from: trip.from ?? t("mon.trip"),
                         to: trip.to ?? "",
                         km: trip.km,
                         ms: trip.end - trip.start,
@@ -498,7 +505,7 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                         key: "idle",
                         color: STATUS_META[IDLE].color,
                         index: String(history.tripStats.length + 1) as string | null,
-                        from: "Reysdan tashqari",
+                        from: t("mon.history.outside_trip"),
                         to: "",
                         km: history.idleKm,
                         ms: history.idleMs,
@@ -521,10 +528,10 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                                     <span className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: row.color }} />
                                 </span>
                                 <span />
-                                <span className="truncate font-mono text-xs tabular-nums text-muted-foreground">{row.km.toFixed(1)} km</span>
+                                <span className="truncate font-mono text-xs tabular-nums text-muted-foreground">{row.km.toFixed(1)} {t("mon.units.km")}</span>
                                 <span className="text-center text-muted-foreground/30">|</span>
                                 <span className="flex items-center justify-end gap-2 font-mono text-xs tabular-nums text-muted-foreground">
-                                    {spanLabel(row.ms)}
+                                    {spanLabel(row.ms, t)}
                                 </span>
                             </button>
                         )
@@ -537,7 +544,7 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                     <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
                         <span>0–{SPEED_STOPS[0][0]}</span>
                         <span>{SPEED_STOPS[1][0]}</span>
-                        <span>{SPEED_STOPS[2][0]}+ km/h</span>
+                        <span>{SPEED_STOPS[2][0]}+ {t("mon.units.kmh")}</span>
                     </div>
                 </div>
             )}
@@ -562,15 +569,15 @@ export function TrackerHeader({ tracker, onBack }: { tracker: GpsLiveVehicle; on
                         variant="outline"
                         className={cn("ml-auto shrink-0", online ? "border-emerald-500/40 text-emerald-500" : "text-muted-foreground")}
                     >
-                        {online ? "Onlayn" : "Oflayn"}
+                        {online ? t("status.online") : t("status.offline")}
                     </Badge>
                 </div>
                 {tracker.driver_name && (
                     <p className="truncate text-sm font-medium text-muted-foreground">{tracker.driver_name}</p>
                 )}
                 <p className="truncate text-xs font-normal text-muted-foreground">
-                    {tracker.last_update ? `Oxirgi signal ${clock(Date.parse(tracker.last_update))}` : ""}
-                    {tracker.speed != null ? `, ${Math.round(tracker.speed)} km/h` : ""}
+                    {tracker.last_update ? t("mon.history.last_signal", { time: clock(Date.parse(tracker.last_update)) }) : ""}
+                    {tracker.speed != null ? `, ${Math.round(tracker.speed)} ${t("mon.units.kmh")}` : ""}
                 </p>
             </div>
         </div>
@@ -578,6 +585,7 @@ export function TrackerHeader({ tracker, onBack }: { tracker: GpsLiveVehicle; on
 }
 
 export function TrackerHistoryPanel({ history, children }: PanelProps) {
+    const { t } = useTranslation()
     const { days, range, summary } = history
     const today = dayKey(Date.now())
     const rangeDays = range ? days.filter((d) => d.date >= range.from && d.date <= range.to) : []
@@ -606,12 +614,12 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
 
             <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
                 <ColorBySelect history={history} part="legend" />
-                {history.daysLoading && <p className="text-xs text-muted-foreground">Yuklanmoqda…</p>}
+                {history.daysLoading && <p className="text-xs text-muted-foreground">{t("mon.history.loading")}</p>}
                 {!history.daysLoading && days.length === 0 && (
-                    <p className="text-xs text-muted-foreground">Bu qurilma hali joylashuv yubormagan.</p>
+                    <p className="text-xs text-muted-foreground">{t("mon.history.no_location")}</p>
                 )}
                 {!history.daysLoading && days.length > 0 && rangeDays.length === 0 && (
-                    <p className="text-xs text-muted-foreground">Tanlangan oraliqda harakat yo'q.</p>
+                    <p className="text-xs text-muted-foreground">{t("mon.history.no_movement")}</p>
                 )}
                 {history.colorBy === "day" && rangeDays.map((d) => {
                     return (
@@ -627,7 +635,7 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
                         >
                             <span className="whitespace-nowrap text-sm font-medium">{d.date.split("-").reverse().join(".")}</span>
                             <span className="inline-flex items-center gap-3 font-mono text-sm font-semibold tabular-nums">
-                                {d.distance_km.toFixed(1)} km
+                                {d.distance_km.toFixed(1)} {t("mon.units.km")}
                                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: history.colors[d.date] }} />
                             </span>
                         </button>

@@ -124,6 +124,7 @@ export function NoGpsFilterButton({
     count: number
     onToggle: () => void
 }) {
+    const { t } = useTranslation()
     return (
         <button
             type="button"
@@ -138,7 +139,7 @@ export function NoGpsFilterButton({
             )}
         >
             <span aria-hidden className="h-2 w-2 rounded-full border border-dashed border-current" />
-            <span>GPS yo'q</span>
+            <span>{t("mon.gps_list.no_gps")}</span>
             <span
                 className={cn(
                     "rounded px-1.5 font-mono text-xs font-semibold tabular-nums",
@@ -223,12 +224,13 @@ type Props = {
 export type UnlinkedVehicle = { id: number; truck_number: string; driver_name: string | null }
 
 export function UnlinkedVehicles({ items }: { items: UnlinkedVehicle[] }) {
+    const { t } = useTranslation()
     if (items.length === 0) return null
     return (
         <div className="mt-3 flex flex-col gap-1.5">
             <LinkDeviceModal />
             <div className="flex items-center gap-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                GPS yo'q
+                {t("mon.gps_list.no_gps")}
                 <span className="rounded bg-muted px-1.5 font-mono text-[11px] tabular-nums">{items.length}</span>
             </div>
             <ul className="flex flex-col gap-1">
@@ -245,7 +247,7 @@ export function UnlinkedVehicles({ items }: { items: UnlinkedVehicle[] }) {
                             )}
                         </span>
                         <span className="flex shrink-0 items-center gap-1 text-[11px] font-medium text-muted-foreground">
-                            GPS yo'q
+                            {t("mon.gps_list.no_gps")}
                             <LinkGpsIconButton vehicle={v} />
                         </span>
                     </li>
@@ -293,16 +295,16 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
     if (unavailable && items.length === 0) {
         return (
             <DimensionEmpty
-                title="GPS xizmati vaqtincha ishlamayapti"
-                hint="Ma'lumotlar xizmat tiklanganda avtomatik yangilanadi"
+                title={t("mon.link.gps_unavailable")}
+                hint={t("mon.gps_list.unavailable_hint")}
             />
         )
     }
     if (!loading && items.length === 0) {
         return (
             <DimensionEmpty
-                title="GPS qurilma yo'q"
-                hint="Qurilmani «GPS biriktirish» orqali qo'shing"
+                title={t("mon.gps_list.empty_title")}
+                hint={t("mon.gps_list.empty_hint")}
             />
         )
     }
@@ -311,7 +313,7 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
         <>
         {unavailable && (
             <p className="mb-2 rounded-md border border-orange-500/40 bg-orange-500/10 px-3 py-2 text-xs text-orange-600 dark:text-orange-400">
-                GPS xizmati vaqtincha ishlamayapti — oxirgi ma'lum joylashuvlar ko'rsatilmoqda
+                {t("mon.gps_list.unavailable_banner")}
             </p>
         )}
         <TooltipProvider delayDuration={150}>
@@ -347,17 +349,17 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                                     {order ? (
                                         <>
                                             <span className="font-medium text-foreground">
-                                                {order.from && order.to ? `${order.from} → ${order.to}` : "Yo'nalish noma'lum"}
+                                                {order.from && order.to ? `${order.from} → ${order.to}` : t("monitoring_stats.unknown_route")}
                                             </span>
                                         </>
                                     ) : (
-                                        "Buyurtma yo'q"
+                                        t("mon.gps_list.no_order")
                                     )}
                                 </span>
                                 {meta && (
                                     <span className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold" style={{ color: meta.color }}>
                                         <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: meta.color }} />
-                                        {meta.label}
+                                        {meta.labelKey ? t(meta.labelKey) : "—"}
                                     </span>
                                 )}
                             </span>

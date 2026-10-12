@@ -7,16 +7,13 @@ import { useSearch } from "@tanstack/react-router"
 import { endOfMonth, format, startOfMonth } from "date-fns"
 import { ArrowLeft } from "lucide-react"
 import RouteMap from "../route-map"
-import { type ApiStatusRoute, STATUS_META, type VehicleRow } from "./data"
+import {
+    type ApiStatusRoute,
+    formatDurationShort,
+    STATUS_META,
+    type VehicleRow,
+} from "./data"
 import { useTranslation } from "react-i18next"
-
-function fmtDur(mins: number): string {
-    const total = Math.round(mins)
-    const h = Math.floor(total / 60)
-    const m = total % 60
-    if (h === 0) return `${m}m`
-    return m ? `${h}s ${m}m` : `${h}s`
-}
 
 export default function RouteView({
     vehicle,
@@ -72,7 +69,7 @@ export default function RouteView({
                                     meta.dot,
                                 )}
                             />
-                            {meta.label}
+                            {t(meta.labelKey)}
                         </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -105,7 +102,7 @@ export default function RouteView({
                                     {km}
                                 </span>
                                 <span className="text-sm text-muted-foreground">
-                                    km
+                                    {t("mon.units.km")}
                                 </span>
                             </div>
                         </CardContent>
@@ -118,7 +115,7 @@ export default function RouteView({
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-2 pt-0">
-                            <Row label={t("table.status")} value={meta.label} />
+                            <Row label={t("table.status")} value={t(meta.labelKey)} />
                             <Row
                                 label={t("form.driver")}
                                 value={vehicle.driver_name}
@@ -127,7 +124,7 @@ export default function RouteView({
                             <Row label={t("form.vehicle")} value={vehicle.type} />
                             <Row
                                 label={t("table.duration")}
-                                value={fmtDur(durationMin)}
+                                value={formatDurationShort(durationMin, t)}
                             />
                             <Row
                                 label={t("table.points")}

@@ -231,7 +231,7 @@ const AddVehicleDocumentsModal = () => {
             className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1"
         >
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Avtomobil</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.vehicle")}</h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {isFixed ?
                         <div className="space-y-1.5">
@@ -268,7 +268,7 @@ const AddVehicleDocumentsModal = () => {
             </section>
 
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tirkama</h3>
+                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.vehicles.section_trailer")}</h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {isFixed ?
                         <div className="space-y-1.5">

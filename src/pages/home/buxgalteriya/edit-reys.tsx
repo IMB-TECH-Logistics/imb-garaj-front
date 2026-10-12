@@ -56,30 +56,31 @@ type ReysFormValues = {
     out_of_contract: boolean
 }
 
-const ORDER_STATUS_OPTIONS: { id: string; name: string }[] = [
-    { id: "-1", name: "Qoralama" },
-    { id: "0", name: "Kutilmoqda" },
-    { id: "1", name: "Boshlandi" },
-    { id: "5", name: "Yuklanmoqda" },
-    { id: "6", name: "Yo'lda" },
-    { id: "7", name: "Tushirilmoqda" },
-    { id: "2", name: "Tugallandi" },
-    { id: "3", name: "Bekor qilindi" },
+const ORDER_STATUS_OPTIONS: { id: string; labelKey: string }[] = [
+    { id: "-1", labelKey: "status.draft" },
+    { id: "0", labelKey: "status.pending" },
+    { id: "1", labelKey: "status.started" },
+    { id: "5", labelKey: "status.loading_status" },
+    { id: "6", labelKey: "status.on_road" },
+    { id: "7", labelKey: "status.unloading_status" },
+    { id: "2", labelKey: "fin.edit_reys.status_finished" },
+    { id: "3", labelKey: "status.cancelled" },
 ]
 
-const ORDER_TYPE_OPTIONS: Option[] = [
-    { id: 1, name: "Yukli" },
-    { id: 2, name: "Yuksiz" },
+const ORDER_TYPE_OPTIONS: { id: number; labelKey: string }[] = [
+    { id: 1, labelKey: "status.loaded" },
+    { id: 2, labelKey: "status.empty" },
 ]
 
 
 const withCurrent = (
     options: { id: number; name: string }[],
-    id?: number | null,
-    name?: string | null,
+    id: number | null | undefined,
+    name: string | null | undefined,
+    deletedLabel: string,
 ) =>
     id && !options.some((option) => option.id === id) ?
-        [...options, { id, name: `${name ?? id} (o'chirilgan)` }]
+        [...options, { id, name: `${name ?? id} (${deletedLabel})` }]
     :   options
 
 const EditReysModal = () => {
@@ -88,6 +89,14 @@ const EditReysModal = () => {
     const { closeModal } = useModal("edit-reys")
     const { getData, clearKey } = useGlobalStore()
     const current = getData<ReysOrder>(MANAGERS_RUNS)
+    const statusOptions = useMemo(
+        () => ORDER_STATUS_OPTIONS.map((o) => ({ id: o.id, name: t(o.labelKey) })),
+        [t],
+    )
+    const typeOptions = useMemo(
+        () => ORDER_TYPE_OPTIONS.map((o) => ({ id: o.id, name: t(o.labelKey) })),
+        [t],
+    )
 
     const form = useForm<ReysFormValues>({
         defaultValues: {
@@ -154,13 +163,13 @@ const EditReysModal = () => {
     )
 
     const loadsData = useMemo(
-        () => withCurrent(regionsData ?? [], current?.loading, current?.loading_name),
-        [regionsData, current?.loading, current?.loading_name],
+        () => withCurrent(regionsData ?? [], current?.loading, current?.loading_name, t("fin.edit_reys.deleted_suffix")),
+        [regionsData, current?.loading, current?.loading_name, t],
     )
 
     const unloadsData = useMemo(
-        () => withCurrent(regionsData ?? [], current?.unloading, current?.unloading_name),
-        [regionsData, current?.unloading, current?.unloading_name],
+        () => withCurrent(regionsData ?? [], current?.unloading, current?.unloading_name, t("fin.edit_reys.deleted_suffix")),
+        [regionsData, current?.unloading, current?.unloading_name, t],
     )
 
     const cargoTypesData = useMemo(
@@ -169,8 +178,9 @@ const EditReysModal = () => {
                 cargoTypesReference ?? [],
                 current?.cargo_type,
                 current?.cargo_type_name,
+                t("fin.edit_reys.deleted_suffix"),
             ),
-        [cargoTypesReference, current?.cargo_type, current?.cargo_type_name],
+        [cargoTypesReference, current?.cargo_type, current?.cargo_type_name, t],
     )
 
     const vehicleOptions = useMemo(
@@ -307,7 +317,7 @@ const EditReysModal = () => {
                         name="type"
                         control={control}
                         addButtonProps={{ disabled: isLogisticsOrder }}
-                        options={ORDER_TYPE_OPTIONS}
+                        options={typeOptions}
                         valueKey="id"
                         labelKey="name"
                         placeholder={t("form.trip_type")}
@@ -330,7 +340,7 @@ const EditReysModal = () => {
                         name="status"
                         control={control}
                         addButtonProps={{ disabled: isLogisticsOrder }}
-                        options={ORDER_STATUS_OPTIONS}
+                        options={statusOptions}
                         valueKey="id"
                         labelKey="name"
                         placeholder={t("table.status")}

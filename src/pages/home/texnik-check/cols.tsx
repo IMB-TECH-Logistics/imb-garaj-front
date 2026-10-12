@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import i18n from "@/i18n/i18n"
 import type { ExpenseItem } from "./types"
 
 export type VehicleExpenseRow = {
@@ -35,9 +36,9 @@ const STATUS_CLASSES: Record<string, string> = {
 
 export const lifespanHint = (days: number | null | undefined) => {
     if (days === null || days === undefined) return ""
-    if (days < 0) return `${-days} kun oldin tugagan`
-    if (days === 0) return "Bugun tugaydi"
-    return `${days} kun qoldi`
+    if (days < 0) return i18n.t("fleet.texnik.expired_ago", { days: -days })
+    if (days === 0) return i18n.t("fleet.texnik.expires_today")
+    return i18n.t("documents_page.days_left", { days })
 }
 
 export const useExpenseCols = () => {

@@ -95,8 +95,8 @@ const CargoPage = () => {
                     <TableHeader
                         fileName={
                             showDeleted ?
-                                "O'chirilgan yuk turlari"
-                            :   "Yuk turi"
+                                t("settings.cargo_types.deleted_title")
+                            :   t("nav.cargo_types")
                         }
                         url="excel"
                         storeKey={
@@ -138,7 +138,9 @@ const CargoPage = () => {
 
             <Modal
                 title={
-                    item?.id ? "Yuk turini tahrirlash" : "Yuk turi qo'shish"
+                    item?.id ?
+                        t("settings.cargo_types.edit_title")
+                    :   t("settings.cargo_types.add_title")
                 }
                 modalKey="create"
             >

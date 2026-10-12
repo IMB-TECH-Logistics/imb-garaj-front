@@ -129,8 +129,8 @@ const AddTripOrders = () => {
                 name="type"
                 control={control}
                 options={[
-                    { id: 1, name: "Yukli" },
-                    { id: 2, name: "Yuksiz" },
+                    { id: 1, name: t("status.loaded") },
+                    { id: 2, name: t("status.empty") },
                 ]}
                 valueKey="id"
                 labelKey="name"
@@ -192,7 +192,7 @@ const AddTripOrders = () => {
                             className="grid grid-cols-2 gap-4 border rounded-lg p-4 relative"
                         >
                             <span className="col-span-2 font-medium text-sm text-muted-foreground">
-                                To'lov #{index + 1}
+                                {t("trips.orders.payment_n", { n: index + 1 })}
                             </span>
 
 
@@ -205,7 +205,7 @@ const AddTripOrders = () => {
                                 options={paymentType || undefined}
                                 valueKey="id"
                                 labelKey="name"
-                                placeholder="To'lov turini tanlang"
+                                placeholder={t("trips.orders.select_payment_type")}
                             />
                             <div className="flex gap-3 col-span-2">
                                 <div className="flex-1 min-w-0">

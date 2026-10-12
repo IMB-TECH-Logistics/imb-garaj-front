@@ -8,7 +8,7 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { X } from "lucide-react"
-import { ACTIVITY_OPTIONS } from "./create-reys"
+import { useActivityOptions } from "./create-reys"
 import { useTranslation } from "react-i18next"
 
 type Option = { id: number | string; name: string }
@@ -35,7 +35,7 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
     const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
-
+    const activityOptions = useActivityOptions()
 
     const { data: cargoTypes } = useGet<Option[]>(SETTINGS_SELECTABLE_CARGO_TYPE, {
         params: { model_name: "cargo-type" },
@@ -68,7 +68,7 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
             <ParamCombobox
                 paramName="activity"
                 label={t("table.activity")}
-                options={ACTIVITY_OPTIONS}
+                options={activityOptions}
                 valueKey="id"
                 labelKey="name"
                 isSearch={false}

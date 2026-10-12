@@ -90,7 +90,7 @@ const useCols = () => {
                 ),
             },
             {
-                header: "Yoqilg’i (l/100km)",
+                header: t("fleet.drivers.fuel_l_100km"),
                 accessorKey: "fuel_per_100km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -115,7 +115,7 @@ const useCols = () => {
                 },
             },
             {
-                header: "Yoqilg’i (m³/100km)",
+                header: t("fleet.drivers.fuel_gas_100km"),
                 accessorKey: "fuel_gas_per_100km",
                 enableSorting: true,
                 cell: ({ row }) => {
@@ -132,7 +132,7 @@ const useCols = () => {
                 },
             },
             {
-                header: "Olib kelgan summa (naqd)",
+                header: t("fleet.drivers.revenue_cash"),
                 accessorKey: "revenue_uzs",
                 enableSorting: true,
                 cell: ({ row }) => (
@@ -142,7 +142,7 @@ const useCols = () => {
                 ),
             },
             {
-                header: "Oylik maoshi",
+                header: t("fleet.drivers.salary_due"),
                 accessorKey: "salary_due_uzs",
                 enableSorting: true,
                 cell: ({ row }) => {

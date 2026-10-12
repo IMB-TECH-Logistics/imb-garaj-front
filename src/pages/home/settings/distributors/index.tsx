@@ -2,10 +2,12 @@ import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_DISTRIBUTORS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useSearch } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import { useColumnsDistributorsTable } from "./distributors-cols"
 
 const Distributors = () => {
+    const { t } = useTranslation()
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<DistributorType>>(
         SETTINGS_DISTRIBUTORS,
@@ -32,7 +34,7 @@ const Distributors = () => {
             }}
             head={
                 <TableHeader
-                    fileName="Distributorlar"
+                    fileName={t("nav.distributors")}
                     url="excel"
                     pageKey="page"
                     searchKey="distributor_search"

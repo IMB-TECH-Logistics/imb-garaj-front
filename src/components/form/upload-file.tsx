@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import compressImg from "@/lib/compress-img"
 import { cn } from "@/lib/utils"
 import { Upload, X } from "lucide-react"
@@ -56,6 +57,7 @@ export default function UploadFile<TForm extends FieldValues>({
     isOnlyImages = true,
 }: TProps<TForm>) {
     const maxS = maxSize * 1024 * 1024
+    const { t } = useTranslation()
     const [isCompressing, setIsCompressing] = useState(false)
     const [err, setErr] = useState("")
 
@@ -91,7 +93,7 @@ export default function UploadFile<TForm extends FieldValues>({
                 // Check if the field is required
                 if (required) {
                     if (multiple && (!val || val.length === 0)) {
-                        err = "Fayl yuklash majburiy"
+                        err = t("ui.upload.file_required")
                         valid = false
                     }
 
@@ -99,7 +101,7 @@ export default function UploadFile<TForm extends FieldValues>({
                         !multiple &&
                         (!val || val === null || val === undefined)
                     ) {
-                        err = "Fayl yuklash majburiy"
+                        err = t("ui.upload.file_required")
                         valid = false
                     }
                 }
@@ -113,15 +115,15 @@ export default function UploadFile<TForm extends FieldValues>({
                     )
 
                     if (val.length > maxLength) {
-                        err = `Maksimum ${maxLength} ta fayl yuklash mumkin`
+                        err = t("ui.upload.max_files", { count: maxLength })
                         valid = false
                     }
 
                     if (totalSize > maxS) {
                         err =
                             isCompressed ?
-                                `Kompressdan keyin rasmlar hajmi ${maxSize} MB dan oshib ketdi`
-                            :   `Rasmlar hajmi ${maxSize} MB dan oshib ketdi`
+                                t("ui.upload.images_size_compressed", { size: maxSize })
+                            :   t("ui.upload.images_size", { size: maxSize })
                         valid = false
                     }
                 }
@@ -131,8 +133,8 @@ export default function UploadFile<TForm extends FieldValues>({
                     if (val.size > maxS) {
                         err =
                             isCompressed ?
-                                `Kompressdan keyin rasm hajmi ${maxSize} MB dan oshib ketdi`
-                            :   `Rasm hajmi ${maxSize} MB dan oshib ketdi`
+                                t("ui.upload.image_size_compressed", { size: maxSize })
+                            :   t("ui.upload.image_size", { size: maxSize })
                         valid = false
                     }
                 }
@@ -179,7 +181,7 @@ export default function UploadFile<TForm extends FieldValues>({
                 if (fileObject.type.startsWith("image/")) {
                     handleOnChange([fileObject])
                 } else {
-                    setErr("Faqat rasm yuklashingiz mumkin")
+                    setErr(t("ui.upload.image_only"))
                 }
             } else {
                 handleOnChange([fileObject])
@@ -247,8 +249,7 @@ export default function UploadFile<TForm extends FieldValues>({
                             <input {...getInputProps()} />
                             <p className="px-4 flex flex-wrap items-center justify-center text-center gap-2 text-xs">
                                 <Upload className="text-primary" />
-                                Drag 'n' drop some files here, or click to
-                                select files
+                                {t("ui.upload.dropzone")}
                             </p>
                             {/* <article className="text-xs">
                                 <p>
@@ -442,7 +443,7 @@ export default function UploadFile<TForm extends FieldValues>({
                                     replace(filesData.map((f) => f.id))
                                 }}
                             >
-                                Tozalash
+                                {t("actions.reset")}
                             </Button>
                         </div>
                     )}

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { Control, Controller, FieldValues, Path } from "react-hook-form"
@@ -32,6 +33,7 @@ export function FormDateTimePicker<TForm extends FieldValues>({
 }: thisProps<TForm>) {
     const error = getNestedValue(control._formState.errors, name)
 
+    const { t } = useTranslation()
     return (
         <div className="flex flex-col justify-between">
             {label && (
@@ -48,7 +50,7 @@ export function FormDateTimePicker<TForm extends FieldValues>({
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: label ? `${label}ni tanlang` : "Sana va vaqtni tanlang" } : {}
+                    required ? { required: label ? t("ui.common.select_item", { label }) : t("ui.common.select_datetime") } : {}
                 }
                 render={({ field }) => {
                     const value =
@@ -94,7 +96,7 @@ export function FormDateTimePicker<TForm extends FieldValues>({
                                         format(value, "dd/MM/yyyy HH:mm")
                                     :   <span className="text-muted-foreground">
                                             {placeholder ||
-                                                "Sana va vaqt tanlang"}
+                                                t("ui.common.select_datetime_placeholder")}
                                         </span>
                                     }
                                 </Button>

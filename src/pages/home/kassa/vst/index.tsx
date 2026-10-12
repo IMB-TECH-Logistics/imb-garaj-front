@@ -31,14 +31,17 @@ type LedgerRow = {
     balance: string | null
 }
 
-const Line = ({ label, value, strong, sub, accent }: { label: ReactNode; value: number; strong?: boolean; sub?: boolean; accent?: boolean }) => (
-    <div className={cn("flex items-center justify-between gap-2", sub ? "pl-3 text-sm text-muted-foreground" : "", accent ? "text-primary" : "")}>
-        <span className={cn(strong && "font-semibold text-foreground", sub && "text-xs")}>{label}</span>
-        <span className={cn("tabular-nums", strong ? "font-semibold" : "", sub ? "text-xs" : "")}>
-            {formatMoney(value)} so'm
-        </span>
-    </div>
-)
+const Line = ({ label, value, strong, sub, accent }: { label: ReactNode; value: number; strong?: boolean; sub?: boolean; accent?: boolean }) => {
+    const { t } = useTranslation()
+    return (
+        <div className={cn("flex items-center justify-between gap-2", sub ? "pl-3 text-sm text-muted-foreground" : "", accent ? "text-primary" : "")}>
+            <span className={cn(strong && "font-semibold text-foreground", sub && "text-xs")}>{label}</span>
+            <span className={cn("tabular-nums", strong ? "font-semibold" : "", sub ? "text-xs" : "")}>
+                {formatMoney(value)} {t("page.som")}
+            </span>
+        </div>
+    )
+}
 
 const Box = ({ children, className }: { children: ReactNode; className?: string }) => (
     <div className={cn("rounded-lg border bg-card p-3 flex flex-col gap-1.5", className)}>{children}</div>
@@ -80,12 +83,12 @@ const VstKassa = () => {
         >
             <TabsList>
                 <TabsTrigger value="requests">
-                    {t("vst.requests_tab", "Pul so'rovlari")}
+                    {t("vst.requests_tab")}
                     {!!overview?.pending_requests.count && (
                         <Badge variant="orange" className="ml-1.5 h-5 px-1.5">{overview.pending_requests.count}</Badge>
                     )}
                 </TabsTrigger>
-                <TabsTrigger value="report">{t("vst.report_tab", "To'lovchi hisoboti")}</TabsTrigger>
+                <TabsTrigger value="report">{t("vst.report_tab")}</TabsTrigger>
             </TabsList>
         </Tabs>
     )
@@ -102,52 +105,52 @@ const VstKassa = () => {
                         <ParamDateRange from="from_date" to="to_date" addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
 
                         <Box>
-                            <Line strong label={t("vst.total", "Kassa (jami)")} value={n(overview?.total)} />
-                            <Line sub label={t("vst.garage", "Garaj kassasi (Doniyor)")} value={n(overview?.garage.balance)} />
-                            <Line sub label={t("vst.drivers", "Haydovchilarda")} value={n(overview?.drivers.total)} />
+                            <Line strong label={t("vst.total")} value={n(overview?.total)} />
+                            <Line sub label={t("vst.garage")} value={n(overview?.garage.balance)} />
+                            <Line sub label={t("vst.drivers")} value={n(overview?.drivers.total)} />
                             {overview && n(overview.drivers.total) !== n(overview.drivers.computed_total) && (
                                 <span className="text-xs text-destructive">
-                                    {t("vst.drivers_mismatch", "Haydovchilar balansi formula bilan mos emas")}: {formatMoney(n(overview.drivers.computed_total))}
+                                    {t("vst.drivers_mismatch")}: {formatMoney(n(overview.drivers.computed_total))}
                                 </span>
                             )}
                         </Box>
 
                         <Box>
-                            <Line strong label={t("vst.start_balance", "Davr boshidagi balans")} value={n(summary?.start_balance)} />
+                            <Line strong label={t("vst.start_balance")} value={n(summary?.start_balance)} />
                         </Box>
                         <Box>
-                            <Line strong accent label={t("vst.income", "Kirim")} value={n(summary?.income.total)} />
-                            <Line sub label={t("vst.advance_from_payer", "To'lovchi bergan avans")} value={n(inc.advance_from_payer)} />
-                            <Line sub label={t("vst.driver_income", "Haydovchi kirimlari (reys)")} value={n(inc.driver_cash_income)} />
-                            <Line sub label={t("vst.garage_income", "Garaj kirimi")} value={n(inc.garage_income)} />
-                            {!!n(inc.advance_other) && <Line sub label={t("vst.advance_other", "Boshqa avans")} value={n(inc.advance_other)} />}
-                            {!!n(inc.other_income) && <Line sub label={t("vst.other", "Boshqa")} value={n(inc.other_income)} />}
+                            <Line strong accent label={t("vst.income")} value={n(summary?.income.total)} />
+                            <Line sub label={t("vst.advance_from_payer")} value={n(inc.advance_from_payer)} />
+                            <Line sub label={t("vst.driver_income")} value={n(inc.driver_cash_income)} />
+                            <Line sub label={t("vst.garage_income")} value={n(inc.garage_income)} />
+                            {!!n(inc.advance_other) && <Line sub label={t("vst.advance_other")} value={n(inc.advance_other)} />}
+                            {!!n(inc.other_income) && <Line sub label={t("vst.other")} value={n(inc.other_income)} />}
                         </Box>
                         <Box>
-                            <Line strong label={t("vst.outcome", "Chiqim")} value={n(summary?.outcome.total)} />
-                            <Line sub label={t("vst.driver_expense", "Haydovchi xarajatlari")} value={n(out.driver_cash_expense)} />
-                            <Line sub label={t("vst.garage_expense", "Garaj xarajatlari")} value={n(out.garage_expense)} />
-                            {!!n(out.other_expense) && <Line sub label={t("vst.other", "Boshqa")} value={n(out.other_expense)} />}
+                            <Line strong label={t("vst.outcome")} value={n(summary?.outcome.total)} />
+                            <Line sub label={t("vst.driver_expense")} value={n(out.driver_cash_expense)} />
+                            <Line sub label={t("vst.garage_expense")} value={n(out.garage_expense)} />
+                            {!!n(out.other_expense) && <Line sub label={t("vst.other")} value={n(out.other_expense)} />}
                         </Box>
                         <Box>
-                            <Line strong label={t("vst.residue", "Qoldiq")} value={n(summary?.end_balance)} />
-                            <Line sub label={t("vst.garage", "Garaj kassasi (Doniyor)")} value={n(summary?.residue.garage)} />
-                            <Line sub label={t("vst.drivers", "Haydovchilarda")} value={n(summary?.residue.drivers)} />
+                            <Line strong label={t("vst.residue")} value={n(summary?.end_balance)} />
+                            <Line sub label={t("vst.garage")} value={n(summary?.residue.garage)} />
+                            <Line sub label={t("vst.drivers")} value={n(summary?.residue.drivers)} />
                         </Box>
                         {!!summary?.payer_paid?.length && (
                             <Box>
                                 {summary.payer_paid.map((p) => (
                                     <div key={p.user_id} className="flex flex-col gap-1">
-                                        <Line strong label={`${p.name} ${t("vst.gave_period", "bergan")}`} value={n(p.total)} />
-                                        <Line sub label={t("vst.to_driver_short", "Haydovchilarga")} value={n(p.to_drivers)} />
-                                        <Line sub label={t("vst.expenses", "Xarajatlarga")} value={n(p.expenses)} />
+                                        <Line strong label={`${p.name} ${t("vst.gave_period")}`} value={n(p.total)} />
+                                        <Line sub label={t("vst.to_driver_short")} value={n(p.to_drivers)} />
+                                        <Line sub label={t("vst.expenses")} value={n(p.expenses)} />
                                     </div>
                                 ))}
                             </Box>
                         )}
                         {summary?.started_at && (
                             <p className="text-xs text-muted-foreground">
-                                {t("vst.started_at", "Kassa hisobi boshlangan")}: {formatDateTime(summary.started_at)}
+                                {t("vst.started_at")}: {formatDateTime(summary.started_at)}
                             </p>
                         )}
 
@@ -155,26 +158,26 @@ const VstKassa = () => {
                             {canRequest && (
                                 <Button className="flex-1 min-w-[45%]" onClick={openRequest}>
                                     <Send size={16} />
-                                    {t("vst.new_request", "Pul so'rovi")}
+                                    {t("vst.new_request")}
                                 </Button>
                             )}
                             {canGarage && (
                                 <Button variant="outline" className="flex-1 min-w-[45%]" onClick={openIncome}>
                                     <ArrowDownCircle size={16} />
-                                    {t("vst.garage_income", "Garaj kirimi")}
+                                    {t("vst.garage_income")}
                                 </Button>
                             )}
                             {canGarage && (
                                 <Button variant="outline" className="flex-1 min-w-[45%]" onClick={openExpense}>
                                     <ArrowUpCircle size={16} />
-                                    {t("vst.garage_expense", "Garaj xarajatlari")}
+                                    {t("vst.garage_expense")}
                                 </Button>
                             )}
                         </div>
 
                         <div className="border-t pt-3 flex flex-col min-h-0">
                             <p className="text-sm font-medium text-muted-foreground mb-2">
-                                {t("vst.drivers", "Haydovchilarda")} · {drivers.length}
+                                {t("vst.drivers")} · {drivers.length}
                             </p>
                             <div className="space-y-1">
                                 {drivers.map((d, i) => (
@@ -203,7 +206,7 @@ const VstKassa = () => {
                     <CardContent className="p-4 flex flex-col gap-2">
                         <p className="font-semibold">{profile?.first_name} {profile?.last_name}</p>
                         <p className="text-sm text-muted-foreground">
-                            {t("vst.payer_hint", "Sizga tayinlangan so'rovlar o'ngda. Pulni berganingizdan keyin «Berdim» tugmasini bosing.")}
+                            {t("vst.payer_hint")}
                         </p>
                     </CardContent>
                 </Card>
@@ -215,27 +218,27 @@ const VstKassa = () => {
                 :   <VstPaymentRequests switcher={switcher} />}
             </div>
 
-            <Modal modalKey={VST_REQUEST_MODAL} title={t("vst.new_request", "Pul so'rovi")}>
+            <Modal modalKey={VST_REQUEST_MODAL} title={t("vst.new_request")}>
                 <VstRequestModal />
             </Modal>
-            <Modal modalKey="vst-garage-income" title={t("vst.garage_income", "Garaj kirimi")} size="max-w-md">
+            <Modal modalKey="vst-garage-income" title={t("vst.garage_income")} size="max-w-md">
                 <VstGarageModal modalKey="vst-garage-income" kind="income" />
             </Modal>
-            <Modal modalKey="vst-garage-expense" title={t("vst.garage_expense", "Garaj xarajatlari")} size="max-w-md">
+            <Modal modalKey="vst-garage-expense" title={t("vst.garage_expense")} size="max-w-md">
                 <VstGarageModal modalKey="vst-garage-expense" kind="expense" />
             </Modal>
             <Modal modalKey="vst-driver-ledger" title={ledgerDriver?.name ?? ""} size="max-w-2xl">
                 <div className="flex flex-col gap-2 max-h-[70vh] overflow-auto">
                     <div className="flex justify-between text-sm font-semibold">
-                        <span>{t("vst.in_hand", "Qo'lidagi pul")}</span>
-                        <span>{formatMoney(n(ledger?.balance))} so'm</span>
+                        <span>{t("vst.in_hand")}</span>
+                        <span>{formatMoney(n(ledger?.balance))} {t("page.som")}</span>
                     </div>
                     <div className="divide-y text-sm">
                         {(ledger?.rows ?? []).map((r, i) => (
                             <div key={`${r.id}-${i}`} className="grid grid-cols-[120px_1fr_110px_110px] gap-2 py-1">
                                 <span className="text-muted-foreground">{formatDateTime(r.date)}</span>
                                 <span className="truncate">
-                                    {r.action === 2 ? t("vst.advance", "Avans") : r.action === "settlement" ? t("vst.settlement", "Aylanma yopildi") : r.category || "—"}
+                                    {r.action === 2 ? t("vst.advance") : r.action === "settlement" ? t("vst.settlement") : r.category || "—"}
                                     {r.comment ? ` — ${r.comment}` : ""}
                                 </span>
                                 <span className={cn("text-right", n(r.amount) < 0 ? "text-destructive" : "text-green-600")}>

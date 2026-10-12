@@ -19,6 +19,7 @@ import {
     type ApiStatusSegment,
     IDLE,
     type Segment,
+    formatDurationShort,
     splitByDay,
     STATUS_META,
     type VehicleRow,
@@ -26,7 +27,6 @@ import {
 
 const MAJOR_HOURS = new Set([0, 3, 6, 9, 12, 15, 18, 21, 24])
 const ALL_HOURS = Array.from({ length: 25 }, (_, i) => i)
-const UZ_WEEKDAYS = ["Yak", "Du", "Se", "Chor", "Pay", "Ju", "Sha"]
 
 export default function VehicleTimeline({
     vehicle,
@@ -183,6 +183,7 @@ function DayRow({
     onSelect: (status: number) => void
     segments: ReturnType<typeof splitByDay>
 }) {
+    const { t } = useTranslation()
     return (
         <div
             className={cn(
@@ -195,7 +196,7 @@ function DayRow({
                     {format(day, "dd/MM")}
                 </span>{" "}
                 <span className="text-muted-foreground">
-                    {UZ_WEEKDAYS[day.getDay()]}
+                    {t(`mon.weekdays_short.${day.getDay()}`)}
                 </span>
             </div>
             <div className="relative h-6 flex-1 overflow-hidden rounded bg-muted-foreground/10">
@@ -219,7 +220,7 @@ function DayRow({
                             key={i}
                             type="button"
                             onClick={() => onSelect(s.status)}
-                            title={`${meta.label}: ${format(s.start, "dd/MM HH:mm")} → ${format(s.end, "dd/MM HH:mm")}`}
+                            title={`${t(meta.labelKey)}: ${format(s.start, "dd/MM HH:mm")} → ${format(s.end, "dd/MM HH:mm")}`}
                             className={cn(
                                 "absolute inset-y-0 cursor-pointer transition-opacity hover:brightness-110",
                                 meta.bar,
@@ -239,14 +240,6 @@ function DayRow({
     )
 }
 
-function fmtDur(mins: number): string {
-    const total = Math.round(mins)
-    const h = Math.floor(total / 60)
-    const m = total % 60
-    if (h === 0) return `${m}m`
-    return m ? `${h}s ${m}m` : `${h}s`
-}
-
 function Summary({
     totals,
     active,
@@ -256,6 +249,7 @@ function Summary({
     active: number | null
     onToggle: (k: number) => void
 }) {
+    const { t } = useTranslation()
     const keys = [...ACTIVE_STATUSES, IDLE]
     return (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -281,11 +275,11 @@ function Summary({
                                     )}
                                 />
                                 <span className="truncate text-xs text-muted-foreground">
-                                    {meta.label}
+                                    {t(meta.labelKey)}
                                 </span>
                             </div>
                             <span className="text-lg font-semibold tabular-nums">
-                                {fmtDur(totals[k] ?? 0)}
+                                {formatDurationShort(totals[k] ?? 0, t)}
                             </span>
                         </CardContent>
                     </Card>

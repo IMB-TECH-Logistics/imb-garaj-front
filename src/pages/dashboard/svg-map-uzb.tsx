@@ -1,13 +1,15 @@
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 export default function SvgMapUzb() {
+    const { t } = useTranslation()
     return (
         <div className="relative flex justify-center items-center h-full">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 793 517"
                 className="block w-[80%]"
-                aria-label="Map of Uzbekistan"
+                aria-label={t("core.map.uzbekistan_aria")}
             >
                 {svgMapData.map((l) => {
                     return (
@@ -34,7 +36,7 @@ export default function SvgMapUzb() {
                         className="text-xs pointer-events-none stroke-foreground fill-foreground"
                         textAnchor="middle"
                     >
-                        {l.name}
+                        {t(`core.regions.r${l.id}`)}
                     </text>
                 ))}
                 <path

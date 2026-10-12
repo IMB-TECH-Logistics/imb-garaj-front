@@ -93,7 +93,7 @@ const AddCashflow = () => {
     if (!childId) {
         return (
             <div className="text-sm text-muted-foreground">
-                Xarajatlar mavjud emas
+                {t("page.no_expenses")}
             </div>
         )
     }

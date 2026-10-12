@@ -1,39 +1,28 @@
 import { clsx, type ClassValue } from "clsx"
 import { format } from "date-fns"
 import { twMerge } from "tailwind-merge"
+import i18n from "@/i18n/i18n"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
 export function formatDateLabel(dateStr: string): string {
-    const months = [
-        "yanvar",
-        "fevral",
-        "mart",
-        "aprel",
-        "may",
-        "iyun",
-        "iyul",
-        "avgust",
-        "sentabr",
-        "oktabr",
-        "noyabr",
-        "dekabr",
-    ]
-
     const [_, month, day] = dateStr.split("-") // "2025-09-22"
-    return `${parseInt(day)}-${months[parseInt(month) - 1]}`
+    return i18n.t("core.time.day_month", {
+        day: parseInt(day),
+        month: i18n.t(`core.months.m${parseInt(month)}`),
+    })
 }
 
-export const educationLevels = [
-    { label: "O'rta ta'lim", key: 1 },
-    { label: "O'rta maxsus ta'lim", key: 2 },
-    { label: "Kasb-hunar ta'limi", key: 3 },
-    { label: "Tugallanmagan oliy ta'lim", key: 4 },
-    { label: "Oliy ta'lim", key: 5 },
-    { label: "Magistratura", key: 6 },
-]
+const educationLevel = (n: number) => ({
+    get label() {
+        return i18n.t(`core.education.e${n}`)
+    },
+    key: n,
+})
+
+export const educationLevels = [1, 2, 3, 4, 5, 6].map(educationLevel)
 
 export function getTimeDifference(time1: string, time2: string): string {
     const [h1, m1, s1] = time1.split(":").map(Number)
@@ -112,9 +101,9 @@ export function formatDateChat(dateString: string): string {
     yesterday.setDate(yesterday.getDate() - 1)
 
     if (date.toDateString() === today.toDateString()) {
-        return "Bugun"
+        return i18n.t("core.time.today")
     } else if (date.toDateString() === yesterday.toDateString()) {
-        return "Kecha"
+        return i18n.t("core.time.yesterday")
     } else {
         return format(String(date), "dd/MM/yyyy")
     }

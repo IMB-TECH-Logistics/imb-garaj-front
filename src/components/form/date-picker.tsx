@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { DatePicker } from "@/components/ui/datepicker"
 import { cn } from "@/lib/utils"
 import { Control, Controller, FieldValues, Path } from "react-hook-form"
@@ -22,6 +23,7 @@ export function FormDatePicker<TForm extends FieldValues>({
     addButtonProps,
 }: thisProps<TForm>) {
     const error = getNestedValue(control._formState.errors, name)
+    const { t } = useTranslation()
     return (
         <fieldset className="flex flex-col w-full">
             {label && (
@@ -37,7 +39,7 @@ export function FormDatePicker<TForm extends FieldValues>({
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: "Sanani tanlang" } : {}
+                    required ? { required: t("ui.common.select_date") } : {}
                 }
                 render={({ field, fieldState }) => (
                     <>

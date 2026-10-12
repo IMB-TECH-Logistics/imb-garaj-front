@@ -120,10 +120,10 @@ const VstRequestModal = () => {
                 required
                 control={control}
                 name="recipient_type"
-                label={t("vst.recipient", "Kimga")}
+                label={t("vst.recipient")}
                 options={[
-                    { id: "1", name: t("vst.to_driver", "Haydovchiga (avans)") },
-                    { id: "2", name: t("vst.to_expense", "Garaj xarajati") },
+                    { id: "1", name: t("vst.to_driver") },
+                    { id: "2", name: t("vst.to_expense") },
                 ]}
                 valueKey="id"
                 labelKey="name"
@@ -133,7 +133,7 @@ const VstRequestModal = () => {
                     required
                     control={control}
                     name="driver"
-                    label={t("vst.driver", "Haydovchi (ochiq aylanmasi bor)")}
+                    label={t("vst.driver")}
                     options={driverOptions}
                     valueKey="id"
                     labelKey="name"
@@ -143,7 +143,7 @@ const VstRequestModal = () => {
                         required
                         control={control}
                         name="category"
-                        label={t("vst.category", "Xarajat turi")}
+                        label={t("vst.category")}
                         options={categories}
                         valueKey="id"
                         labelKey="name"
@@ -151,7 +151,7 @@ const VstRequestModal = () => {
                     <FormCombobox
                         control={control}
                         name="vehicle"
-                        label={t("vst.vehicle", "Mashina (ixtiyoriy)")}
+                        label={t("vst.vehicle")}
                         options={vehicles}
                         valueKey="id"
                         labelKey="name"
@@ -163,7 +163,7 @@ const VstRequestModal = () => {
                 control={control}
                 name="amount"
                 label={t("form.amount")}
-                placeholder="Ex: 1 000 000"
+                placeholder={`${t("form.example")}: 1 000 000`}
                 thousandSeparator=" "
                 decimalScale={2}
                 allowNegative={false}
@@ -178,10 +178,10 @@ const VstRequestModal = () => {
                 required
                 control={control}
                 name="payer_type"
-                label={t("vst.who_pays", "Kim to'laydi")}
+                label={t("vst.who_pays")}
                 options={[
-                    { id: "2", name: t("vst.payer_user", "To'lovchi (Abdulloh)") },
-                    { id: "1", name: t("vst.payer_garage", "Garaj kassasi (Doniyor)") },
+                    { id: "2", name: t("vst.payer_user") },
+                    { id: "1", name: t("vst.payer_garage") },
                 ]}
                 valueKey="id"
                 labelKey="name"
@@ -191,7 +191,7 @@ const VstRequestModal = () => {
                     required
                     control={control}
                     name="payer"
-                    label={t("vst.payer", "To'lovchi")}
+                    label={t("vst.payer")}
                     options={payers}
                     valueKey="id"
                     labelKey="name"

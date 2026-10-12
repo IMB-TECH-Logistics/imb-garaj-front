@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -11,7 +12,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { DateRange, SelectRangeEventHandler } from "react-day-picker";
-import { uz } from "date-fns/locale";
+import { useDateLocale } from "../custom/use-date-locale";
 
 export function DatePickerWithRange({
     className,
@@ -29,6 +30,8 @@ export function DatePickerWithRange({
      addButtonProps?: ButtonProps
      dateFormat?: string
 }) {
+    const { t } = useTranslation()
+    const locale = useDateLocale()
     return (
         <div className={cn("grid gap-2 w-full", className)}>
             <Popover>
@@ -54,7 +57,7 @@ export function DatePickerWithRange({
                                 format(date.from, dateFormat)
                             )
                         ) : (
-                            <span>Kunlarni tanlang</span>
+                            <span>{t("ui.date_picker.select_days")}</span>
                         )}
                     </Button>
                 </PopoverTrigger>
@@ -66,7 +69,7 @@ export function DatePickerWithRange({
                         selected={date}
                         onSelect={setDate}
                         numberOfMonths={2}
-                        locale={uz}
+                        locale={locale}
                     />
                 </PopoverContent>
             </Popover>

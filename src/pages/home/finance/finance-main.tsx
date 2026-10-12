@@ -110,11 +110,11 @@ const FinanceStatisticMain = () => {
     const investors = useInvestors()
 
     const cards = [
-        { title: "Reys daromadi", value: totals.totalIncome, icon: ArrowUpCircle, tone: "green", signed: true },
-        { title: "Reys xarajati", value: totals.totalExpense, icon: ArrowDownCircle, tone: "yellow", expense: true },
-        { title: "Reys foydasi", value: totals.totalProfit, icon: totals.totalProfit >= 0 ? TrendingUp : TrendingDown, tone: totals.totalProfit >= 0 ? "green" : "red", signed: true },
-        { title: "Mashina xarajati", value: totals.totalVehicleExpense, icon: Wrench, tone: "yellow", expense: true },
-        { title: "Sof foyda", value: totals.totalNet, icon: totals.totalNet >= 0 ? TrendingUp : TrendingDown, tone: totals.totalNet >= 0 ? "green" : "red", signed: true },
+        { title: t("fin.cols.trip_income"), value: totals.totalIncome, icon: ArrowUpCircle, tone: "green", signed: true },
+        { title: t("fin.finance_main.trip_expense"), value: totals.totalExpense, icon: ArrowDownCircle, tone: "yellow", expense: true },
+        { title: t("fin.cols.trip_profit"), value: totals.totalProfit, icon: totals.totalProfit >= 0 ? TrendingUp : TrendingDown, tone: totals.totalProfit >= 0 ? "green" : "red", signed: true },
+        { title: t("fin.cols.vehicle_expense"), value: totals.totalVehicleExpense, icon: Wrench, tone: "yellow", expense: true },
+        { title: t("fin.cols.net_profit"), value: totals.totalNet, icon: totals.totalNet >= 0 ? TrendingUp : TrendingDown, tone: totals.totalNet >= 0 ? "green" : "red", signed: true },
     ] as const
 
     const toneClass: Record<string, { card: string; icon: string }> = {
@@ -132,7 +132,7 @@ const FinanceStatisticMain = () => {
                     <ParamCombobox
                         paramName="owner"
                         options={investors}
-                        label="Investor"
+                        label={t("fin.finance_main.investor")}
                         labelKey="name"
                         valueKey="id"
                         addButtonProps={{
@@ -163,7 +163,7 @@ const FinanceStatisticMain = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="text-xl font-bold tabular-nums">
-                                {isError ? "—" : <>{"signed" in c && c.signed && c.value > 0 ? "+" : ""}{"expense" in c && c.expense && c.value > 0 ? "−" : ""}{formatMoney(c.value)} so'm</>}
+                                {isError ? "—" : <>{"signed" in c && c.signed && c.value > 0 ? "+" : ""}{"expense" in c && c.expense && c.value > 0 ? "−" : ""}{formatMoney(c.value)} {t("page.som")}</>}
                             </div>
                         </CardContent>
                     </Card>
@@ -175,7 +175,7 @@ const FinanceStatisticMain = () => {
                 options={[
                     {
                         value: "vehicles",
-                        label: "Mashinalar",
+                        label: t("fin.finance_main.tab_vehicles"),
                         content: (
                             <DataTable
                                 columns={columns}
@@ -187,8 +187,8 @@ const FinanceStatisticMain = () => {
                             />
                         ),
                     },
-                    { value: "monthly", label: "Oylar bo'yicha", content: <MonthlyReport /> },
-                    { value: "expenses", label: "Mashina xarajatlari", content: <VehicleExpenses /> },
+                    { value: "monthly", label: t("fin.finance_main.tab_monthly"), content: <MonthlyReport /> },
+                    { value: "expenses", label: t("fin.finance_main.tab_vehicle_expenses"), content: <VehicleExpenses /> },
                 ]}
             />
 

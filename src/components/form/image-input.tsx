@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils";
 import { ImagePlus } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -20,6 +21,7 @@ export default function ImageInput<T extends FieldValues>({
   wrapperClassName,
   areaClassName,
 }: ImageInputProps<T>) {
+  const { t } = useTranslation();
   const {
     register,
     setValue,
@@ -63,7 +65,7 @@ export default function ImageInput<T extends FieldValues>({
         accept="image/*"
         {...register(name, {
           required: required
-            ? { value: true, message: `${label ?? ""}ni kiritish majburiy` }
+            ? { value: true, message: label ? t("ui.common.enter_required", { label }) : t("ui.common.field_required") }
             : false,
           onChange: handleChange,
         })}
@@ -84,7 +86,7 @@ export default function ImageInput<T extends FieldValues>({
           preview ??
           "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
         }
-        alt="preview"
+        alt={t("ui.image.preview")}
         className={cn("object-cover rounded w-32 h-32", areaClassName)}
       />
       {errors[name]?.message && (

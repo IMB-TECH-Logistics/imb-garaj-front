@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button, ButtonProps } from "@/components/ui/button"
 import {
     Command,
@@ -59,6 +60,7 @@ export function ParamCombobox<T extends Record<string, any>>({
 }: ParamComboboxProps<T>) {
     const [inputValue, setInputValue] = useState("")
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const search: any = useSearch({ from: "/_main" }) as Record<
         string,
         string | undefined
@@ -197,7 +199,7 @@ export function ParamCombobox<T extends Record<string, any>>({
                         )}
                     </div>
                     <CommandList>
-                        <CommandEmpty>{"Mavjud emas"}</CommandEmpty>
+                        <CommandEmpty>{t("ui.common.no_options")}</CommandEmpty>
                         <CommandGroup>
                             {sortedOptions.map((d, i) => {
                                 const optionValue = d[valueKey]

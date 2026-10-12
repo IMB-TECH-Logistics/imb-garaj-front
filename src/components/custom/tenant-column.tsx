@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Badge } from "@/components/ui/badge"
 import { isAllTenantsMode } from "@/lib/tenant-scope"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -7,6 +8,7 @@ export const useTenantColumns = <TData,>(
     columns: ColumnDef<TData>[],
     data: TData[] | undefined,
 ) => {
+    const { t } = useTranslation()
     const hasTenant =
         isAllTenantsMode() &&
         !!data?.some((row) => !!(row as { tenant_schema?: string })?.tenant_schema)
@@ -17,7 +19,7 @@ export const useTenantColumns = <TData,>(
                 [
                     {
                         id: "__tenant",
-                        header: "Tenant",
+                        header: t("ui.tenant.tenant"),
                         enableSorting: false,
                         cell: ({ row }) => (
                             <Badge
@@ -32,6 +34,6 @@ export const useTenantColumns = <TData,>(
                     ...columns,
                 ]
             :   columns,
-        [columns, hasTenant],
+        [columns, hasTenant, t],
     )
 }

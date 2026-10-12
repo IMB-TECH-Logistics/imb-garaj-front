@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { DEFAULT_PAGE_SIZE } from "@/constants/default"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -21,6 +22,7 @@ const LimitOffsetPagination: React.FC<
     previous = null,
 }) => {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const search: any = useSearch({ from: "/_main" }) as Record<
         string,
         string | undefined
@@ -62,7 +64,7 @@ const LimitOffsetPagination: React.FC<
                 variant="ghost"
                 onClick={handlePrevious}
                 size="icon"
-                aria-label="Previous Page"
+                aria-label={t("ui.pagination.previous")}
                 className="w-7 h-7 mt-1 sm:m-0 sm:w-10 sm:h-10"
             />
             <Button
@@ -71,7 +73,7 @@ const LimitOffsetPagination: React.FC<
                 variant="ghost"
                 onClick={handleNext}
                 size="icon"
-                aria-label="Next Page"
+                aria-label={t("ui.pagination.next")}
                 className="w-7 h-7 mt-1 sm:m-0 sm:w-10 sm:h-10"
             />
             {changePageSize && (
@@ -79,7 +81,7 @@ const LimitOffsetPagination: React.FC<
                     disabled={disabled}
                     className="w-20 h-8 sm:h-10"
                     label=""
-                    ariaLabel="Page size"
+                    ariaLabel={t("ui.pagination.page_size")}
                     options={page_sizes?.map((size) => ({
                         label: `${size}`,
                         value: `${size}`,

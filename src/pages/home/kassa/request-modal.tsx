@@ -102,7 +102,7 @@ const CheckoutRequestModal = ({ modalKey }: Props) => {
                 control={control}
                 label={t("form.amount")}
                 name="amount"
-                placeholder="Ex: 1 000 000"
+                placeholder={`${t("form.example")}: 1 000 000`}
                 thousandSeparator=" "
                 decimalScale={2}
                 allowNegative={false}

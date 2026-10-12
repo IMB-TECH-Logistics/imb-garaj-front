@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Controller, Control, FieldValues, Path, useFormState } from "react-hook-form"
 import FieldLabel from "./form-label"
 import FieldError from "./form-error"
@@ -26,6 +27,7 @@ export function FormSelect<
 }: thisProps<TForm, T>) {
     const { errors } = useFormState({ control, name })
     const error = getNestedValue(errors, name)
+    const { t } = useTranslation()
     return (
         <div className="w-full">
             {label && (
@@ -41,13 +43,13 @@ export function FormSelect<
                 name={name}
                 control={control}
                 rules={
-                    required ? { required: label ? `${label}ni tanlang` : "Bu maydonni tanlang" } : {}
+                    required ? { required: label ? t("ui.common.select_item", { label }) : t("ui.common.select_value") } : {}
                 }
                 render={({ field }) => (
                     <div className={label ? "pt-[2px]" : ""}>
                         <Select
                             options={options}
-                            label={label || "Tanlang"}
+                            label={label || t("ui.common.select")}
                             placeholder={placeholder}
                             id={name}
                             ariaLabel={label || placeholder}

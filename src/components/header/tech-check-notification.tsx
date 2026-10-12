@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useTechCheckAlerts } from "@/hooks/use-tech-check-alerts"
@@ -9,6 +10,7 @@ import { useState } from "react"
 
 export function TechCheckNotification() {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const { data, isLoading, canSee, count } = useTechCheckAlerts()
 
@@ -33,7 +35,7 @@ export function TechCheckNotification() {
                     variant="default"
                     size="icon"
                     className="relative size-9 shrink-0"
-                    title="Texnik ko'rik muddati"
+                    title={t("ui.tech_notification.title")}
                 >
                     <Wrench size={18} className={count > 0 ? "text-red-500" : ""} />
                     {count > 0 && (
@@ -45,9 +47,9 @@ export function TechCheckNotification() {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-0">
                 <div className="px-4 py-3 border-b border-border">
-                    <p className="text-sm font-semibold">Texnik ko'rik muddati</p>
+                    <p className="text-sm font-semibold">{t("ui.tech_notification.title")}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                        {data?.expired ?? 0} ta muddati o'tgan, {data?.expiring ?? 0} ta 7 kun ichida tugaydi
+                        {t("ui.notifications.expired_count", { expired: data?.expired ?? 0, expiring: data?.expiring ?? 0, days: 7 })}
                     </p>
                 </div>
                 {!!(data?.items_expired || data?.items_expiring) && (
@@ -66,11 +68,11 @@ export function TechCheckNotification() {
                         }}
                     >
                         <div className="min-w-0">
-                            <p className="text-sm font-medium">O'rnatilgan mahsulotlar</p>
+                            <p className="text-sm font-medium">{t("ui.tech_notification.installed_items")}</p>
                             <p className="text-xs mt-1 font-semibold text-red-600">
-                                {data?.items_expired ?? 0} ta eskirgan
+                                {t("ui.tech_notification.items_expired", { count: data?.items_expired ?? 0 })}
                                 <span className="text-amber-600">
-                                    {" "}· {data?.items_expiring ?? 0} ta yaqinlashmoqda
+                                    {" "}· {t("ui.tech_notification.items_expiring", { count: data?.items_expiring ?? 0 })}
                                 </span>
                             </p>
                         </div>
@@ -80,11 +82,11 @@ export function TechCheckNotification() {
                 <div className="divide-y divide-border max-h-72 overflow-y-auto">
                     {isLoading ?
                         <p className="text-sm text-muted-foreground text-center py-6">
-                            Yuklanmoqda...
+                            {t("messages.loading")}
                         </p>
                     : inspections.length === 0 ?
                         <p className="text-sm text-muted-foreground text-center py-6">
-                            Muddati tugayotgan texnik ko'rik yo'q
+                            {t("ui.tech_notification.empty")}
                         </p>
                     :   inspections.map((ti) => (
                             <button
@@ -114,7 +116,7 @@ export function TechCheckNotification() {
                         className="w-full border-t border-border px-4 py-2 text-xs font-medium text-primary hover:bg-muted/50"
                         onClick={() => goToTechCheck()}
                     >
-                        Barchasini ko'rish
+                        {t("ui.notifications.view_all")}
                     </button>
                 )}
             </PopoverContent>

@@ -1,3 +1,4 @@
+import i18n from "@/i18n/i18n"
 import { useEffect, useRef, useState } from "react";
 import {
     UseQueryOptions,
@@ -69,7 +70,7 @@ export function useInfiniteSocket<T = unknown>(
             };
 
             ws.onerror = () => {
-                setWsError("WebSocket error occurred");
+                setWsError(i18n.t("core.errors.ws_error"));
             };
 
             ws.onclose = () => {
@@ -85,7 +86,7 @@ export function useInfiniteSocket<T = unknown>(
                     }, reconnectDelay);
                 } else {
                     setWsError(
-                        "WebSocket connection failed after multiple retries"
+                        i18n.t("core.errors.ws_failed")
                     );
                 }
             };
@@ -159,7 +160,7 @@ export function useInfiniteSocket<T = unknown>(
         if (isConnected && wsRef.current) {
             wsRef.current.send(JSON.stringify(message));
         } else {
-            setWsError("Cannot send message. WebSocket is not connected.");
+            setWsError(i18n.t("core.errors.ws_not_connected"));
         }
     };
 

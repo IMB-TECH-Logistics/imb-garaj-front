@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -29,6 +30,7 @@ type Tenant = {
 
 export function TenantSwitcher() {
     const { data: user } = useUser()
+    const { t } = useTranslation()
     const isGlobalAdmin = !!user?.is_global_admin
     const { data: tenants, isLoading } = useGet<Tenant[]>(AUTH_TENANTS, {
         enabled: isGlobalAdmin,
@@ -51,14 +53,14 @@ export function TenantSwitcher() {
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="h-9 gap-2 shrink-0 max-w-56">
                     <Building2 size={16} />
-                    <span className="hidden sm:inline text-xs text-muted-foreground">Tenantlar:</span>
-                    <span className="truncate font-medium">{allTenants ? "Barcha tenantlar" : (user?.tenant?.name ?? "—")}</span>
+                    <span className="hidden sm:inline text-xs text-muted-foreground">{t("ui.tenant.tenants_colon")}</span>
+                    <span className="truncate font-medium">{allTenants ? t("ui.tenant.all_tenants") : (user?.tenant?.name ?? "—")}</span>
                     <ChevronDown size={14} className="opacity-60" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-72 max-h-[70vh] overflow-y-auto">
                 <DropdownMenuLabel className="flex items-center justify-between">
-                    <span>Tenantlar</span>
+                    <span>{t("ui.tenant.tenants")}</span>
                     <span className="text-xs font-normal text-muted-foreground">{tenants?.length ?? 0}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -73,10 +75,10 @@ export function TenantSwitcher() {
                         size={14}
                         className={cn("shrink-0", !allTenants && "invisible")}
                     />
-                    <span className="truncate font-medium">Barcha tenantlar</span>
+                    <span className="truncate font-medium">{t("ui.tenant.all_tenants")}</span>
                 </DropdownMenuItem>
                 {isLoading && (
-                    <div className="px-2 py-3 text-sm text-muted-foreground">Yuklanmoqda...</div>
+                    <div className="px-2 py-3 text-sm text-muted-foreground">{t("messages.loading")}</div>
                 )}
                 {tenants?.map((tenant) => {
                     const selected = tenant.schema_name === current
@@ -95,7 +97,7 @@ export function TenantSwitcher() {
                             </div>
                             {!tenant.is_active && (
                                 <span className="text-[10px] rounded px-1.5 py-0.5 bg-destructive/15 text-destructive">
-                                    Nofaol
+                                    {t("ui.tenant.inactive")}
                                 </span>
                             )}
                         </DropdownMenuItem>

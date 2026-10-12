@@ -5,12 +5,13 @@ import {
     DimensionListSkeleton,
     DimensionRow,
 } from "./dimension-row"
+import { useTranslation } from "react-i18next"
 import type { VehicleTracking } from "./types"
 
-const STATUS_LABEL: Record<number, string> = {
-    1: "Band",
-    2: "Bo'sh",
-    3: "Ta'mirda",
+const STATUS_LABEL_KEY: Record<number, string> = {
+    1: "mon.vehicle_status.busy",
+    2: "mon.vehicle_status.free",
+    3: "status.repair",
 }
 
 type Props = {
@@ -26,12 +27,13 @@ export default function VehicleList({
     activeId,
     onSelect,
 }: Props) {
+    const { t } = useTranslation()
     if (loading && items.length === 0) return <DimensionListSkeleton />
     if (!loading && items.length === 0) {
         return (
             <DimensionEmpty
-                title="GPS izi bor moshina yo'q"
-                hint="Reys boshlanganidan keyin paydo bo'ladi"
+                title={t("mon.vehicle_list.empty_title")}
+                hint={t("mon.vehicle_list.empty_hint")}
             />
         )
     }
@@ -56,7 +58,9 @@ export default function VehicleList({
                                 }
                                 className="h-5 px-1.5 text-[10px] font-medium"
                             >
-                                {STATUS_LABEL[vehicle.status] ?? "—"}
+                                {STATUS_LABEL_KEY[vehicle.status] ?
+                                    t(STATUS_LABEL_KEY[vehicle.status])
+                                :   "—"}
                             </Badge>
                         )
                     }
@@ -73,7 +77,7 @@ export default function VehicleList({
                             {vehicle.trip != null && (
                                 <span className="inline-flex items-center gap-1 font-mono">
                                     <RouteIcon className="h-3 w-3" />
-                                    R-{vehicle.trip}
+                                    {t("mon.trip_short", { id: vehicle.trip })}
                                 </span>
                             )}
                         </>

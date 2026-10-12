@@ -20,13 +20,13 @@ export const useColumnsRolesTable = () => {
                     if (!count) {
                         return (
                             <span className="text-muted-foreground">
-                                Ruxsat berilmagan
+                                {t("settings.roles.no_permissions")}
                             </span>
                         )
                     }
                     return (
                         <span className="tabular-nums font-medium">
-                            {count} ta
+                            {t("settings.roles.actions_count", { n: count })}
                         </span>
                     )
                 },

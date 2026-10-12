@@ -16,25 +16,15 @@ type TruckStats = {
     payment_type: "Naqt" | "Plastik" | "Perechislenie"
 }
 
-const options = [
-    {
-        value: "Zapchast",
-        label: "Zapchast",
-    },
-    {
-        value: "Moy almashtirish",
-        label: "Moy almashtirish",
-    },
-    { value: "Balon almashtirish", label: "Balon almashtirish" },
-    {
-        value: "Ta'mirlash (usluga)",
-        label: "Ta'mirlash (usluga)",
-    },
-    { value: "Boshqa xarajatlar", label: "Boshqa xarajatlar" },
-]
-
 export const TruckTabsTwo = () => {
     const { t } = useTranslation()
+    const options = [
+        { value: "Zapchast", label: t("fleet.tabs.cat_spare") },
+        { value: "Moy almashtirish", label: t("fleet.tabs.cat_oil") },
+        { value: "Balon almashtirish", label: t("fleet.tabs.cat_tire") },
+        { value: "Ta'mirlash (usluga)", label: t("fleet.tabs.cat_repair") },
+        { value: "Boshqa xarajatlar", label: t("fleet.tabs.cat_other") },
+    ]
     const data: TruckStats[] = [
         {
             zapchast: 450_000,
@@ -104,7 +94,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.zapchast)} so’m
+                        {formatMoney(row.original.zapchast)} {t("page.som")}
                     </span>
                 ),
             },
@@ -114,7 +104,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.oil_change)} so’m
+                        {formatMoney(row.original.oil_change)} {t("page.som")}
                     </span>
                 ),
             },
@@ -124,7 +114,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.tire_change)} so’m
+                        {formatMoney(row.original.tire_change)} {t("page.som")}
                     </span>
                 ),
             },
@@ -134,7 +124,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.repair_cost)} so’m
+                        {formatMoney(row.original.repair_cost)} {t("page.som")}
                     </span>
                 ),
             },
@@ -144,7 +134,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -155,7 +145,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -165,7 +155,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -185,7 +175,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -195,7 +185,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -205,7 +195,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -215,7 +205,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },
@@ -226,7 +216,7 @@ const cols = (t: TFunction) => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.other_expenses)} so’m
+                        {formatMoney(row.original.other_expenses)} {t("page.som")}
                     </span>
                 ),
             },

@@ -201,7 +201,9 @@ const RouteConfigsPage = () => {
             />
             <Modal
                 title={
-                    item?.id ? "Yo'nalishni tahrirlash" : "Yo'nalish qo'shish"
+                    item?.id ?
+                        t("settings.route_configs.edit_title")
+                    :   t("settings.route_configs.add_title")
                 }
                 modalKey="create"
                 size="max-w-2xl"

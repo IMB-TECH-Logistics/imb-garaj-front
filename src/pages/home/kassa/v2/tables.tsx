@@ -17,6 +17,7 @@ import { format } from "date-fns"
 import { ReactNode, useEffect, useMemo, useState } from "react"
 import { DateRange } from "react-day-picker"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 import {
     errorText,
     fmtDate,
@@ -48,27 +49,33 @@ const Money = ({ v, dir }: { v: number | string; dir?: "in" | "out" }) => {
     return <span className={cn("font-semibold tabular-nums whitespace-nowrap", pos ? "text-green-600" : "text-destructive")}>{sign}{formatMoney(Math.abs(x))}</span>
 }
 
-const Party = ({ name, trip }: { name: string | null; trip: number | null }) => (
-    <div className="flex flex-col">
-        <span className="whitespace-nowrap">{name || "—"}</span>
-        {trip && <span className="text-xs text-muted-foreground">Aylanma #{trip}</span>}
-    </div>
-)
+const Party = ({ name, trip }: { name: string | null; trip: number | null }) => {
+    const { t } = useTranslation()
+    return (
+        <div className="flex flex-col">
+            <span className="whitespace-nowrap">{name || "—"}</span>
+            {trip && <span className="text-xs text-muted-foreground">{t("fin.kv2.turnover_n", { id: trip })}</span>}
+        </div>
+    )
+}
 
 const Note = ({ v }: { v: string | null | undefined }) => <span className="text-muted-foreground line-clamp-2 max-w-48">{v || "—"}</span>
 
-export const CloseLines = ({ c }: { c: CloseBreakdown }) => (
-    <div className="flex flex-col text-xs tabular-nums whitespace-nowrap">
-        {n(c.earned) !== 0 && <span>Reys puli (naqd): <span className="text-green-600">+{money(c.earned)}</span></span>}
-        {n(c.avans_left) !== 0 && (
-            <span>
-                {n(c.avans_left) > 0 ? "Avansdan qoldi" : "Avansdan ortiq sarfladi"}:{" "}
-                <span className={n(c.avans_left) > 0 ? "text-green-600" : "text-destructive"}>{n(c.avans_left) > 0 ? "+" : "−"}{money(Math.abs(n(c.avans_left)))}</span>
-            </span>
-        )}
-        {n(c.salary) !== 0 && <span>Oylik: <span className="text-destructive">−{money(c.salary)}</span></span>}
-    </div>
-)
+export const CloseLines = ({ c }: { c: CloseBreakdown }) => {
+    const { t } = useTranslation()
+    return (
+        <div className="flex flex-col text-xs tabular-nums whitespace-nowrap">
+            {n(c.earned) !== 0 && <span>{t("fin.kv2.trip_cash_paren")}: <span className="text-green-600">+{money(c.earned)}</span></span>}
+            {n(c.avans_left) !== 0 && (
+                <span>
+                    {n(c.avans_left) > 0 ? t("fin.kv2.advance_left") : t("fin.kv2.advance_overspent")}:{" "}
+                    <span className={n(c.avans_left) > 0 ? "text-green-600" : "text-destructive"}>{n(c.avans_left) > 0 ? "+" : "−"}{money(Math.abs(n(c.avans_left)))}</span>
+                </span>
+            )}
+            {n(c.salary) !== 0 && <span>{t("table.monthly_salary")}: <span className="text-destructive">−{money(c.salary)}</span></span>}
+        </div>
+    )
+}
 
 const DateCell = ({ v }: { v: string | null }) => <span className="whitespace-nowrap text-muted-foreground">{fmtDate(v)}</span>
 
@@ -96,6 +103,7 @@ const Filter = ({ value, onChange, options }: { value: string; onChange: (v: str
 const EXCEL_MODAL = "kassa-v2-excel"
 
 const ExcelModal = () => {
+    const { t } = useTranslation()
     const period = usePeriod()
     const { isOpen, closeModal } = useModal(EXCEL_MODAL)
     const [range, setRange] = useState<DateRange | undefined>()
@@ -110,14 +118,14 @@ const ExcelModal = () => {
         from_date: range?.from ? format(range.from, "yyyy-MM-dd") : undefined,
         to_date: range?.to ? format(range.to, "yyyy-MM-dd") : range?.from ? format(range.from, "yyyy-MM-dd") : undefined,
     }
-    const excel = useDownloadAsExcel({ url: KV2_EXCEL, name: `kassa_${params.from_date ?? "boshidan"}_${params.to_date ?? "bugungacha"}`, params })
+    const excel = useDownloadAsExcel({ url: KV2_EXCEL, name: `kassa_${params.from_date ?? t("fin.kv2.file_from_start")}_${params.to_date ?? t("fin.kv2.file_until_today")}`, params })
     return (
-        <Modal modalKey={EXCEL_MODAL} title="Excel yuklash" size="max-w-md">
+        <Modal modalKey={EXCEL_MODAL} title={`Excel ${t("actions.download")}`} size="max-w-md">
             <div className="flex flex-col gap-3">
                 <DatePickerWithRange date={range} setDate={setRange} />
                 <Button loading={excel.isFetching} onClick={async () => { await excel.trigger(); closeModal() }}>
                     <Download size={16} />
-                    Yuklab olish
+                    {t("actions.download")}
                 </Button>
             </div>
         </Modal>
@@ -153,13 +161,13 @@ const requestRow = (r: KassaRequest): KassaRow => ({
     req: r,
 })
 
-const KIND_FILTERS: [string, string][] = [
-    ["all", "Barcha turlar"],
-    ["kirim", "Kassaga kirim"],
-    ["yopish", "Aylanmani yopish"],
-    ["avans", "Avans"],
-    ["garaj", "Garaj xarajati"],
-    ["bekor", "Bekor qilingan"],
+const kindFilters = (t: (key: string) => string): [string, string][] => [
+    ["all", t("fin.kv2.kind_filter_all")],
+    ["kirim", t("fin.kv2.cash_in")],
+    ["yopish", t("fin.kv2.close_turnover")],
+    ["avans", t("form.advance")],
+    ["garaj", t("vst.to_expense")],
+    ["bekor", t("kassa.status_rollback")],
 ]
 
 const requestKindFilter = (r: KassaRequest) => {
@@ -168,7 +176,7 @@ const requestKindFilter = (r: KassaRequest) => {
     return "avans"
 }
 
-const mergeCloses = (list: KassaRow[]): KassaRow[] => {
+const mergeCloses = (list: KassaRow[], closeLabel: string): KassaRow[] => {
     const seen = new Set<number>()
     const out: KassaRow[] = []
     for (const r of list) {
@@ -179,13 +187,13 @@ const mergeCloses = (list: KassaRow[]): KassaRow[] => {
         if (seen.has(r.close.id)) continue
         seen.add(r.close.id)
         const net = n(r.close.net)
-        out.push({ ...r, amount: String(Math.abs(net)), dir: net >= 0 ? "in" : "out", kind_label: "Aylanmani yopish", expense_type: null })
+        out.push({ ...r, amount: String(Math.abs(net)), dir: net >= 0 ? "in" : "out", kind_label: closeLabel, expense_type: null })
     }
     return out
 }
 
 const dm = (d: string | null) => (d ? `${d.slice(8, 10)}.${d.slice(5, 7)}` : "…")
-const tripPeriod = (a: string | null, b: string | null) => `${dm(a)} – ${b ? dm(b) : "davom etmoqda"}`
+const tripPeriod = (a: string | null, b: string | null, ongoing: string) => `${dm(a)} – ${b ? dm(b) : ongoing}`
 
 const DETAIL_MODAL = "kassa-v2-close-detail"
 
@@ -197,6 +205,7 @@ const DetailRow = ({ label, children, className }: { label: ReactNode; children:
 )
 
 const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (r: KassaRequest) => void }) => {
+    const { t } = useTranslation()
     const c = row?.close
     const req = row?.req
     const q = req && req.status === STATUS.PENDING ? req : undefined
@@ -205,17 +214,17 @@ const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (
     const { mutate: post, isPending } = useKassaPost(closeModal)
     const out = !!q && KIND_DIR[q.kind] === "out"
     return (
-        <Modal modalKey={DETAIL_MODAL} title={row?.trip ? `Aylanma #${row.trip} yopilishi` : "Aylanma yopilishi"} size="max-w-md">
+        <Modal modalKey={DETAIL_MODAL} title={row?.trip ? t("fin.kv2.close_detail_title", { id: row.trip }) : t("fin.kv2.close_detail_title_plain")} size="max-w-md">
             {c && row && (
                 <div className="flex flex-col gap-3">
                     <p className="text-sm text-muted-foreground">{row.party || "—"}</p>
                     <div className="rounded-lg border px-3 divide-y">
-                        <DetailRow label="Aylanma davri"><span className="tabular-nums whitespace-nowrap">{tripPeriod(c.trip_start, c.trip_end)}</span></DetailRow>
-                        <DetailRow label="Berilgan avans"><Part v={c.given} sign="−" /></DetailRow>
-                        <DetailRow label="Avans qoldig'i"><Part v={c.avans_left} sign="+" /></DetailRow>
-                        <DetailRow label="Naqd reys puli"><Part v={c.earned} sign="+" /></DetailRow>
-                        <DetailRow label="Oylik"><Part v={c.salary} sign="−" /></DetailRow>
-                        <DetailRow label={row.dir === "in" ? "Kassa haydovchidan oladi" : "Kassa haydovchiga beradi"} className="font-semibold">
+                        <DetailRow label={t("fin.kv2.turnover_period")}><span className="tabular-nums whitespace-nowrap">{tripPeriod(c.trip_start, c.trip_end, t("fin.kv2.ongoing"))}</span></DetailRow>
+                        <DetailRow label={t("fin.kv2.given_advance")}><Part v={c.given} sign="−" /></DetailRow>
+                        <DetailRow label={t("fin.kv2_kind.avans_qaytarish")}><Part v={c.avans_left} sign="+" /></DetailRow>
+                        <DetailRow label={t("fin.kv2.trip_cash")}><Part v={c.earned} sign="+" /></DetailRow>
+                        <DetailRow label={t("table.monthly_salary")}><Part v={c.salary} sign="−" /></DetailRow>
+                        <DetailRow label={row.dir === "in" ? t("fin.kv2.takes_cap") : t("fin.kv2.gives_cap")} className="font-semibold">
                             <Money v={row.amount} dir={row.dir} />
                         </DetailRow>
                     </div>
@@ -229,30 +238,30 @@ const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (
                                     onClick={() => { closeModal(); onReject(q) }}
                                 >
                                     <X size={16} />
-                                    Rad etish
+                                    {t("kassa.reject")}
                                 </Button>
                                 <Button
                                     className="min-w-32 gap-1"
                                     loading={isPending}
                                     onClick={() => post(`${KV2_REQUESTS}/${q.id}/pay`, {}, {
-                                        onSuccess: () => toast.success(out ? "Kassadan chiqim qilindi, aylanma yopildi" : "Kassaga kirim qilindi, aylanma yopildi"),
+                                        onSuccess: () => toast.success(out ? t("fin.kv2.toast_close_paid_out") : t("fin.kv2.toast_close_paid_in")),
                                         onError: (e: unknown) => toast.error(errorText(e)),
                                     })}
                                 >
                                     <Check size={16} />
-                                    {out ? "Berdim" : "Oldim"}
+                                    {out ? t("vst.gave") : t("fin.kv2.received")}
                                 </Button>
                             </div>
                         </div>
                     )}
-                    {q && !cashier && <Badge variant="orange" className="w-fit self-end">Kassir tasdig'i kutilmoqda</Badge>}
+                    {q && !cashier && <Badge variant="orange" className="w-fit self-end">{t("fin.kv2.awaiting_cashier")}</Badge>}
                     {req && req.status === STATUS.PAID && (
                         <span className="text-xs text-muted-foreground text-right">
-                            Tasdiqlangan{req.paid_by_name ? ` · ${req.paid_by_name}` : ""}{req.paid_at ? ` · ${fmtDate(req.paid_at)}` : ""}
+                            {t("kassa.status_approved")}{req.paid_by_name ? ` · ${req.paid_by_name}` : ""}{req.paid_at ? ` · ${fmtDate(req.paid_at)}` : ""}
                         </span>
                     )}
                     {req && req.status === STATUS.REJECTED && (
-                        <span className="text-xs text-destructive text-right">Rad etildi{req.rejected_comment ? `: ${req.rejected_comment}` : ""}</span>
+                        <span className="text-xs text-destructive text-right">{t("vst.st_rejected")}{req.rejected_comment ? `: ${req.rejected_comment}` : ""}</span>
                     )}
                 </div>
             )}
@@ -280,6 +289,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     onPay: (r: KassaRequest) => void
     onEditRequest: (r: KassaRequest) => void
 }) => {
+    const { t } = useTranslation()
     const { cashier, operator } = useKassaRoles()
     const period = usePeriod()
     const [dir, setDir] = useState("all")
@@ -299,9 +309,9 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
             .filter((r) => dir === "all" || r.dir === dir)
         const list = [...pend, ...(data?.results ?? [])]
         if (group) return list.map((r) => ({ ...r, close: null }))
-        const merged = mergeCloses(list)
+        const merged = mergeCloses(list, t("fin.kv2.close_turnover"))
         return dir === "all" ? merged : merged.filter((r) => r.dir === dir)
-    }, [data, reqs, dir, kindF, group])
+    }, [data, reqs, dir, kindF, group, t])
     const excelModal = useModal(EXCEL_MODAL)
     const detailModal = useModal(DETAIL_MODAL)
     const [detail, setDetail] = useState<KassaRow | null>(null)
@@ -313,24 +323,24 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const columns = useMemo<ColumnDef<KassaRow>[]>(
         () => [
             {
-                header: "Sana",
+                header: t("form.date"),
                 accessorKey: "created",
                 cell: ({ row }) => (
                     <div className="flex flex-col">
                         <DateCell v={row.original.created} />
-                        {row.original.edited_at && <span className="text-xs text-muted-foreground">o'zgartirilgan</span>}
+                        {row.original.edited_at && <span className="text-xs text-muted-foreground">{t("fin.kv2.edited")}</span>}
                     </div>
                 ),
             },
-            { header: "Foydalanuvchi", accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
-            { header: "Kimdan / kimga", accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
+            { header: t("table.user_col"), accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
+            { header: t("fin.kv2.col_who"), accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
             {
-                header: "Nima uchun",
+                header: t("fin.kv2.col_why"),
                 accessorKey: "kind_label",
                 cell: ({ row }) => row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
             },
             {
-                header: "Umumiy summa",
+                header: t("fin.kv2.col_total"),
                 accessorKey: "amount",
                 cell: ({ row }) => {
                     const r = row.original
@@ -339,7 +349,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                             <Money v={r.amount} dir={r.dir} />
                             {r.close && (
                                 <span className="text-xs text-muted-foreground whitespace-nowrap underline decoration-dotted underline-offset-2">
-                                    {r.dir === "in" ? "kassa haydovchidan oladi" : "kassa haydovchiga beradi"}
+                                    {r.dir === "in" ? t("fin.kv2.takes") : t("fin.kv2.gives")}
                                 </span>
                             )}
                         </>
@@ -348,7 +358,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     return (
                         <button
                             type="button"
-                            title="Batafsil"
+                            title={t("page.details")}
                             onClick={(e) => { e.stopPropagation(); openDetail(r) }}
                             className={cn("flex flex-col items-start text-left rounded-md -mx-1.5 px-1.5 py-0.5 hover:bg-muted/80 cursor-pointer", r.reversed && "line-through opacity-60")}
                         >
@@ -358,7 +368,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 },
             },
         ],
-        [],
+        [t],
     )
     return (
         <DataTable
@@ -376,10 +386,10 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
-                                <Badge variant="destructive" className="w-fit whitespace-nowrap">Rad etilgan</Badge>
-                                <Button size="sm" variant="outline" className="h-8 gap-1" disabled={isPending} onClick={() => act(`${KV2_REQUESTS}/${q.id}/unreject`, "Rad etish bekor qilindi, so'rov yana kutilmoqda")}>
+                                <Badge variant="destructive" className="w-fit whitespace-nowrap">{t("kassa.status_rejected")}</Badge>
+                                <Button size="sm" variant="outline" className="h-8 gap-1" disabled={isPending} onClick={() => act(`${KV2_REQUESTS}/${q.id}/unreject`, t("fin.kv2.unreject_done"))}>
                                     <RotateCcw size={14} />
-                                    Qaytarish
+                                    {t("fin.kv2.return_btn")}
                                 </Button>
                             </div>
                             {q.rejected_comment && <span className="text-xs text-muted-foreground max-w-56 text-right">{q.rejected_comment}</span>}
@@ -394,11 +404,11 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                                 <div className="flex items-center gap-1">
                                     <Button size="sm" className="h-8 gap-1" disabled={isPending} onClick={() => (q.close ? openDetail(row) : onPay(q))}>
                                         <Check size={16} />
-                                        {out ? "Berdim" : "Oldim"}
+                                        {out ? t("vst.gave") : t("fin.kv2.received")}
                                     </Button>
                                     <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={() => onReject(q)}>
                                         <X size={16} />
-                                        Rad etish
+                                        {t("kassa.reject")}
                                     </Button>
                                 </div>
                             </div>
@@ -406,7 +416,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     }
                     return (
                         <div className="flex items-center gap-2 justify-end">
-                            <Badge variant="orange" className="w-fit whitespace-nowrap">Kutilmoqda</Badge>
+                            <Badge variant="orange" className="w-fit whitespace-nowrap">{t("status.pending")}</Badge>
                         </div>
                     )
                 }
@@ -414,7 +424,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 if (r.reversed)
                     return (
                         <div className="flex flex-col items-end gap-0.5">
-                            <Badge variant="secondary" className="w-fit whitespace-nowrap">Bekor qilingan</Badge>
+                            <Badge variant="secondary" className="w-fit whitespace-nowrap">{t("kassa.status_rollback")}</Badge>
                             <span className="text-xs text-muted-foreground max-w-48 text-right">{r.reversed.reason}</span>
                         </div>
                     )
@@ -430,10 +440,10 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                             {groupLabel}
                             <X size={12} />
                         </Badge>
-                    )}{!!pendingCount && <Badge variant="orange">{pendingCount} ta so'rov kutilmoqda</Badge>}</>}
+                    )}{!!pendingCount && <Badge variant="orange">{t("fin.kv2.pending_n", { count: pendingCount })}</Badge>}</>}
                     right={<>
-                        <Filter value={kindF} onChange={setKindF} options={KIND_FILTERS} />
-                        <Filter value={dir} onChange={setDir} options={[["all", "Kirim va chiqim"], ["in", "Faqat kirim"], ["out", "Faqat chiqim"]]} />
+                        <Filter value={kindF} onChange={setKindF} options={kindFilters(t)} />
+                        <Filter value={dir} onChange={setDir} options={[["all", t("fin.kv2.filter_in_out")], ["in", t("fin.kv2.filter_only_in")], ["out", t("fin.kv2.filter_only_out")]]} />
                         <Button onClick={() => excelModal.openModal()}>
                             <Download size={16} />
                             Excel
@@ -449,10 +459,10 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
 }
 
 const REQ_STATUS: Record<number, [string, "orange" | "default" | "destructive" | "secondary"]> = {
-    [STATUS.PENDING]: ["Kutilmoqda", "orange"],
-    [STATUS.PAID]: ["Tasdiqlandi", "default"],
-    [STATUS.REJECTED]: ["Rad etildi", "destructive"],
-    [STATUS.CANCELED]: ["Bekor qilindi", "secondary"],
+    [STATUS.PENDING]: ["status.pending", "orange"],
+    [STATUS.PAID]: ["fin.kv2.st_approved", "default"],
+    [STATUS.REJECTED]: ["vst.st_rejected", "destructive"],
+    [STATUS.CANCELED]: ["vst.st_canceled", "secondary"],
 }
 
 const requestWho = (r: KassaRequest) => {
@@ -468,6 +478,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
     onEdit: (r: KassaRequest) => void
     actions?: ReactNode
 }) => {
+    const { t } = useTranslation()
     const { cashier, operator } = useKassaRoles()
     const [status, setStatus] = useState("all")
     const params = { ...usePaging(), status: status === "all" ? undefined : status }
@@ -484,31 +495,31 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
 
     const columns = useMemo<ColumnDef<KassaRequest>[]>(
         () => [
-            { header: "Summa", accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir={KIND_DIR[row.original.kind]} /> },
+            { header: t("form.amount"), accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir={KIND_DIR[row.original.kind]} /> },
             {
-                header: "Nima uchun",
+                header: t("fin.kv2.col_why"),
                 accessorKey: "kind_label",
-                cell: ({ row }) => row.original.close ? "Aylanmani yopish" : row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
+                cell: ({ row }) => row.original.close ? t("fin.kv2.close_turnover") : row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
             },
-            { header: "Kimga / nimaga", id: "who", cell: ({ row }) => <Party name={requestWho(row.original)} trip={row.original.trip} /> },
+            { header: t("fin.kv2.col_to_what"), id: "who", cell: ({ row }) => <Party name={requestWho(row.original)} trip={row.original.trip} /> },
             {
-                header: "Izoh",
+                header: t("form.comment"),
                 accessorKey: "comment",
                 cell: ({ row }) => row.original.close ? <CloseLines c={row.original.close} /> : (
                     <div className="flex flex-col">
                         <Note v={row.original.comment} />
                         {row.original.expected_amount != null && n(row.original.expected_amount) !== n(row.original.amount) && (
                             <span className="text-xs text-orange-500 whitespace-nowrap">
-                                Hisob bo'yicha: {money(row.original.expected_amount)} · farq haydovchi balansida
+                                {t("fin.kv2.expected_note", { amount: money(row.original.expected_amount) })}
                             </span>
                         )}
                     </div>
                 ),
             },
-            { header: "So'ragan", accessorKey: "creator_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.creator_name || "—"}</span> },
-            { header: "Sana", accessorKey: "created", cell: ({ row }) => <DateCell v={row.original.created} /> },
+            { header: t("vst.creator"), accessorKey: "creator_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.creator_name || "—"}</span> },
+            { header: t("form.date"), accessorKey: "created", cell: ({ row }) => <DateCell v={row.original.created} /> },
         ],
-        [],
+        [t],
     )
 
     return (
@@ -528,13 +539,13 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                             <div className="flex items-center gap-1">
                                 <Button size="sm" className="h-8 gap-1" disabled={isPending} onClick={() => onPay(r)}>
                                     <Check size={16} />
-                                    {out ? "Berdim" : "Oldim"}
+                                    {out ? t("vst.gave") : t("fin.kv2.received")}
                                 </Button>
                                 <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={() => onReject(r)}>
                                     <X size={16} />
-                                    Rad etish
+                                    {t("kassa.reject")}
                                 </Button>
-                                {operator && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />}
+                                {operator && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />}
                             </div>
                         </div>
                     )
@@ -542,14 +553,14 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                 if (r.status === STATUS.PENDING && operator)
                     return (
                         <div className="flex items-center gap-2 justify-end">
-                            <Badge variant="orange" className="w-fit whitespace-nowrap">Kutilmoqda</Badge>
-                            <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />
+                            <Badge variant="orange" className="w-fit whitespace-nowrap">{t("status.pending")}</Badge>
+                            <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />
                         </div>
                     )
-                const [label, variant] = REQ_STATUS[r.status] ?? ["—", "secondary"]
+                const [label, variant] = REQ_STATUS[r.status] ?? ["", "secondary"]
                 return (
                     <div className="flex flex-col items-end gap-1">
-                        <Badge variant={variant} className="w-fit whitespace-nowrap">{label}</Badge>
+                        <Badge variant={variant} className="w-fit whitespace-nowrap">{label ? t(label) : "—"}</Badge>
                         {r.paid_at && r.status !== STATUS.PENDING && <span className="text-xs text-muted-foreground whitespace-nowrap">{fmtDate(r.paid_at)}</span>}
                         {r.status === STATUS.REJECTED && r.rejected_comment && <span className="text-xs text-muted-foreground max-w-56 text-right">{r.rejected_comment}</span>}
                         {r.status === STATUS.REJECTED && operator && (
@@ -559,12 +570,12 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                                     variant="outline"
                                     className="h-8 gap-1"
                                     disabled={isPending}
-                                    onClick={() => (r.close ? act(`${KV2_REQUESTS}/${r.id}/resend`, "So'rov qayta yuborildi") : onEdit(r))}
+                                    onClick={() => (r.close ? act(`${KV2_REQUESTS}/${r.id}/resend`, t("fin.kv2.request_resent")) : onEdit(r))}
                                 >
                                     <Pencil size={14} />
-                                    {r.close ? "Qayta hisoblab yuborish" : "Tuzatib qayta yuborish"}
+                                    {r.close ? t("fin.kv2.recalc_resend") : t("fin.kv2.fix_resend")}
                                 </Button>
-                                <TableActions onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, "So'rov bekor qilindi")} />
+                                <TableActions onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />
                             </div>
                         )}
                     </div>
@@ -577,7 +588,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                         <Filter
                             value={status}
                             onChange={setStatus}
-                            options={[["all", "Barcha holatlar"], [String(STATUS.PENDING), "Kutilmoqda"], [String(STATUS.PAID), "Tasdiqlandi"], [String(STATUS.REJECTED), "Rad etildi"], [String(STATUS.CANCELED), "Bekor qilindi"]]}
+                            options={[["all", t("fin.kv2.all_statuses")], [String(STATUS.PENDING), t("status.pending")], [String(STATUS.PAID), t("fin.kv2.st_approved")], [String(STATUS.REJECTED), t("vst.st_rejected")], [String(STATUS.CANCELED), t("vst.st_canceled")]]}
                         />
                         {actions}
                     </>}
@@ -588,12 +599,12 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
 }
 
 const TRIP_STATUS: Record<TripStatus, [string, "orange" | "default" | "secondary" | "destructive"]> = {
-    avans_kutilmoqda: ["Avans kutilmoqda", "orange"],
-    avans_rad_etildi: ["Avans rad etildi", "destructive"],
-    yolda: ["Yo'lda", "default"],
-    yopilmoqda: ["Yopish kutilmoqda", "orange"],
-    rad_etildi: ["Yopish rad etildi", "destructive"],
-    yopildi: ["Yopildi", "secondary"],
+    avans_kutilmoqda: ["fin.kv2.trip_st_advance_pending", "orange"],
+    avans_rad_etildi: ["fin.kv2.trip_st_advance_rejected", "destructive"],
+    yolda: ["status.on_road", "default"],
+    yopilmoqda: ["fin.kv2.trip_st_closing_pending", "orange"],
+    rad_etildi: ["fin.kv2.trip_st_closing_rejected", "destructive"],
+    yopildi: ["fin.kv2.trip_st_closed", "secondary"],
 }
 
 // Tor ekranda (<1024px) 270px li amallar ustuni yopishqoq bo'lsa ma'lumot ustunlarini butunlay yopadi (U6-01).
@@ -617,6 +628,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     onReverse: (r: KassaTx) => void
     actions?: ReactNode
 }) => {
+    const { t } = useTranslation()
     const { cashier } = useKassaRoles()
     const wideTable = useMinWidth(1024)
     const period = usePeriod()
@@ -624,31 +636,31 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     const { mutate: postReq, isPending: posting } = useKassaPost()
     const unreject = (q: KassaRequest) =>
         postReq(`${KV2_REQUESTS}/${q.id}/unreject`, {}, {
-            onSuccess: () => toast.success("Rad etish bekor qilindi, so'rov yana kutilmoqda"),
+            onSuccess: () => toast.success(t("fin.kv2.unreject_done")),
             onError: (e: unknown) => toast.error(errorText(e)),
         })
     const undoBtn = (q: KassaRequest) => (
         <Button size="sm" variant="outline" className="h-8 gap-1" disabled={posting} onClick={() => unreject(q)}>
             <RotateCcw size={14} />
-            Rad etishni qaytarish
+            {t("fin.kv2.undo_reject")}
         </Button>
     )
     const detailModal = useModal(DETAIL_MODAL)
     const [detail, setDetail] = useState<KassaRow | null>(null)
-    const openDetail = (t: KassaTrip) => {
-        if (!t.close_request) return
-        setDetail(requestRow(t.close_request))
+    const openDetail = (tr: KassaTrip) => {
+        if (!tr.close_request) return
+        setDetail(requestRow(tr.close_request))
         detailModal.openModal()
     }
     const columns = useMemo<ColumnDef<KassaTrip>[]>(
         () => [
             {
-                header: "Aylanma davri",
+                header: t("fin.kv2.turnover_period"),
                 id: "period",
-                cell: ({ row }) => <span className="whitespace-nowrap tabular-nums">{tripPeriod(row.original.start, row.original.end)}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap tabular-nums">{tripPeriod(row.original.start, row.original.end, t("fin.kv2.ongoing"))}</span>,
             },
             {
-                header: "Mashina / haydovchi",
+                header: t("fin.kv2.col_vehicle_driver"),
                 accessorKey: "plate",
                 cell: ({ row }) => (
                     <div className="flex flex-col">
@@ -658,16 +670,16 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                 ),
             },
             {
-                header: "Berilgan avans",
+                header: t("fin.kv2.given_advance"),
                 id: "given",
                 cell: ({ row }) => {
-                    const t = row.original
+                    const tr = row.original
                     return (
                         <div className="flex flex-col">
-                            <Part v={t.given} sign="−" />
-                            {t.avans_request && (
-                                <span className={cn("text-xs whitespace-nowrap", t.avans_request.status === STATUS.REJECTED ? "text-destructive" : "text-orange-500")}>
-                                    {t.avans_request.status === STATUS.REJECTED ? "rad etilgan" : "so'ralgan"}: {money(t.avans_request.amount)}
+                            <Part v={tr.given} sign="−" />
+                            {tr.avans_request && (
+                                <span className={cn("text-xs whitespace-nowrap", tr.avans_request.status === STATUS.REJECTED ? "text-destructive" : "text-orange-500")}>
+                                    {tr.avans_request.status === STATUS.REJECTED ? t("fin.kv2.advance_rejected_lbl") : t("fin.kv2.advance_requested_lbl")}: {money(tr.avans_request.amount)}
                                 </span>
                             )}
                         </div>
@@ -675,26 +687,26 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                 },
             },
             {
-                header: "Holat",
+                header: t("table.status"),
                 id: "status",
                 cell: ({ row }) => {
-                    const t = row.original
-                    const [label, variant] = TRIP_STATUS[t.status]
+                    const tr = row.original
+                    const [label, variant] = TRIP_STATUS[tr.status]
                     return (
                         <div className="flex flex-col gap-0.5">
-                            <Badge variant={variant} className="w-fit whitespace-nowrap">{label}</Badge>
-                            {t.status === "rad_etildi" && t.close_request?.rejected_comment && (
-                                <span className="text-xs text-muted-foreground max-w-48">{t.close_request.rejected_comment}</span>
+                            <Badge variant={variant} className="w-fit whitespace-nowrap">{t(label)}</Badge>
+                            {tr.status === "rad_etildi" && tr.close_request?.rejected_comment && (
+                                <span className="text-xs text-muted-foreground max-w-48">{tr.close_request.rejected_comment}</span>
                             )}
-                            {t.status === "avans_rad_etildi" && t.avans_request?.rejected_comment && (
-                                <span className="text-xs text-muted-foreground max-w-48">{t.avans_request.rejected_comment}</span>
+                            {tr.status === "avans_rad_etildi" && tr.avans_request?.rejected_comment && (
+                                <span className="text-xs text-muted-foreground max-w-48">{tr.avans_request.rejected_comment}</span>
                             )}
                         </div>
                     )
                 },
             },
             {
-                header: "Umumiy summa",
+                header: t("fin.kv2.col_total"),
                 id: "net",
                 cell: ({ row }) => {
                     const q = row.original.close_request
@@ -704,14 +716,14 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                         <div className="flex flex-col">
                             <Money v={r.amount} dir={r.dir} />
                             <span className="text-xs text-muted-foreground whitespace-nowrap underline decoration-dotted underline-offset-2">
-                                {r.dir === "in" ? "kassa haydovchidan oladi" : "kassa haydovchiga beradi"}
+                                {r.dir === "in" ? t("fin.kv2.takes") : t("fin.kv2.gives")}
                             </span>
                         </div>
                     )
                 },
             },
         ],
-        [],
+        [t],
     )
     return (
         <DataTable
@@ -719,45 +731,45 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
             loading={isLoading}
             columns={columns}
             data={data}
-            onRowClick={(t: KassaTrip) => openDetail(t)}
+            onRowClick={(tr: KassaTrip) => openDetail(tr)}
             stickyActions={wideTable}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
-            rowAction={(t: KassaTrip) => {
-                const av = t.avans_request
+            rowAction={(tr: KassaTrip) => {
+                const av = tr.avans_request
                 if (av && av.status === STATUS.REJECTED) return av.can_unreject ? undoBtn(av) : null
-                if (t.status === "rad_etildi" && t.close_request?.can_unreject) return undoBtn(t.close_request)
+                if (tr.status === "rad_etildi" && tr.close_request?.can_unreject) return undoBtn(tr.close_request)
                 if (av && cashier) {
                     return (
                         <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
                                 <Button size="sm" className="h-8 gap-1" onClick={() => onPay(av)}>
                                     <Check size={16} />
-                                    Avans berdim
+                                    {t("fin.kv2.give_advance_btn")}
                                 </Button>
                                 <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={() => onReject(av)}>
                                     <X size={16} />
-                                    Rad etish
+                                    {t("kassa.reject")}
                                 </Button>
                             </div>
                         </div>
                     )
                 }
-                if (t.status === "yopildi") {
-                    const q = t.close_request
+                if (tr.status === "yopildi") {
+                    const q = tr.close_request
                     return q?.reverse_tx ? <TableActions onUndo={() => onReverse({ ...requestRow(q), id: q.reverse_tx as number })} /> : null
                 }
-                const ready = t.status === "yopilmoqda"
+                const ready = tr.status === "yopilmoqda"
                 return (
                     <Button
                         size="sm"
                         variant={ready ? "default" : "outline"}
                         className="h-8"
                         disabled={!ready || !cashier}
-                        title={ready ? "Hisobni ko'rish va tasdiqlash" : t.status === "rad_etildi" ? "Operator tuzatib qayta yuborishi kerak" : "Menejer aylanmani hali yakunlamagan"}
-                        onClick={() => openDetail(t)}
+                        title={ready ? t("fin.kv2.title_view_confirm") : tr.status === "rad_etildi" ? t("fin.kv2.title_operator_fix") : t("fin.kv2.title_manager_unfinished")}
+                        onClick={() => openDetail(tr)}
                     >
-                        Yopish
+                        {t("fin.kv2.close_btn")}
                     </Button>
                 )
             }}
@@ -775,20 +787,21 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
 }
 
 export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number }) => {
+    const { t } = useTranslation()
     const { data, isLoading } = useGet<{ balance: number; rows: LedgerRow[] }>(`${KV2_DRIVERS}/${driver}/ledger`)
     const columns = useMemo<ColumnDef<LedgerRow>[]>(
         () => [
             {
-                header: "Summa",
+                header: t("form.amount"),
                 accessorKey: "amount",
                 cell: ({ row }) => <span className={cn(row.original.reversed && "line-through opacity-60")}><Money v={row.original.amount} /></span>,
             },
-            { header: "Nima uchun", accessorKey: "reason" },
-            { header: "Aylanma", accessorKey: "trip", cell: ({ row }) => (row.original.trip ? `#${row.original.trip}` : "Balansga") },
-            { header: "Izoh", accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
-            { header: "Sana", accessorKey: "date", cell: ({ row }) => <DateCell v={row.original.date} /> },
+            { header: t("fin.kv2.col_why"), accessorKey: "reason" },
+            { header: t("fin.kv2.col_turnover"), accessorKey: "trip", cell: ({ row }) => (row.original.trip ? `#${row.original.trip}` : t("fin.kv2.to_balance")) },
+            { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
+            { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={row.original.date} /> },
         ],
-        [],
+        [t],
     )
     return (
         <DataTable

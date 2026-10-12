@@ -19,11 +19,6 @@ const MIN_VEHICLE_YEAR = 1950
 
 const LEGACY_PHOTO_KEY = /^(truck|license|trailer)_(front|back)$/
 
-const FUEL_OPTIONS = [
-    { value: "methane", label: "Metan" },
-    { value: "diesel", label: "Dizel" },
-]
-
 const STATUS_OPTIONS = [
     { value: 1, label: "status.loaded" },
     { value: 2, label: "status.empty" },
@@ -32,6 +27,10 @@ const STATUS_OPTIONS = [
 
 const AddVehicleSettingsModal = () => {
     const { t } = useTranslation()
+    const FUEL_OPTIONS = [
+        { value: "methane", label: t("settings.vehicles.fuel_methane") },
+        { value: "diesel", label: t("settings.vehicles.fuel_diesel") },
+    ]
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
@@ -65,7 +64,9 @@ const AddVehicleSettingsModal = () => {
     const { handleSubmit, reset, control, watch } = form
     const fuel = watch("fuel")
     const consumptionLabel =
-        fuel === "diesel" ? "Sarfi (litr/100km)" : "Sarfi (m³/100km)"
+        fuel === "diesel" ?
+            t("settings.vehicles.consumption_diesel")
+        :   t("settings.vehicles.consumption_methane")
 
     const onSuccess = () => {
         toast.success(
@@ -112,7 +113,7 @@ const AddVehicleSettingsModal = () => {
                 className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Avtomobil</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.vehicle")}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormInput
                         required
@@ -155,7 +156,10 @@ const AddVehicleSettingsModal = () => {
                                 const maxYear = new Date().getFullYear() + 1
                                 const year = Number(v)
                                 return (year >= MIN_VEHICLE_YEAR && year <= maxYear) ||
-                                    `Ishlab chiqarilgan yil ${MIN_VEHICLE_YEAR} va ${maxYear} orasida bo'lishi kerak.`
+                                    t("settings.vehicles.year_range", {
+                                        min: MIN_VEHICLE_YEAR,
+                                        max: maxYear,
+                                    })
                             },
                         }}
                     />
@@ -180,7 +184,7 @@ const AddVehicleSettingsModal = () => {
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Tirkama</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.vehicles.section_trailer")}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormInput
                         name="trailer_number"
@@ -200,7 +204,7 @@ const AddVehicleSettingsModal = () => {
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Haydovchi va holat</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.vehicles.section_driver_status")}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
                         name="driver"
@@ -223,7 +227,7 @@ const AddVehicleSettingsModal = () => {
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">Egasi va hujjatlar</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.vehicles.section_owner_docs")}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormCombobox
                         name="owner"
@@ -245,7 +249,7 @@ const AddVehicleSettingsModal = () => {
                             validate: (v: string) => {
                                 if (!v) return true
                                 if (!/^\d+$/.test(v)) return t("validation.numbers_only")
-                                if (v.length !== 9 && v.length !== 14) return "9 (STIR) yoki 14 (JSHSHIR) xonali bo'lishi kerak"
+                                if (v.length !== 9 && v.length !== 14) return t("settings.vehicles.stir_len")
                                 return true
                             },
                         }}

@@ -5,15 +5,15 @@ import type { Dimension } from "./types"
 
 type Tab = {
     value: Dimension
-    label: string
+    labelKey: string
     icon: typeof User2
 }
 
 const TABS: Tab[] = [
-    { value: "driver", label: "Haydovchilar", icon: User2 },
-    { value: "order", label: "Orderlar", icon: Package },
-    { value: "trip", label: "Reyslar", icon: RouteIcon },
-    { value: "vehicle", label: "Moshinalar", icon: Truck },
+    { value: "driver", labelKey: "mon.tabs.drivers", icon: User2 },
+    { value: "order", labelKey: "mon.tabs.orders", icon: Package },
+    { value: "trip", labelKey: "mon.tabs.trips", icon: RouteIcon },
+    { value: "vehicle", labelKey: "mon.tabs.vehicles", icon: Truck },
 ]
 
 type Props = {
@@ -48,7 +48,7 @@ export default function DimensionTabs({ value, onChange, counts }: Props) {
                         )}
                     >
                         <Icon className="h-3.5 w-3.5" />
-                        <span>{tab.label}</span>
+                        <span>{t(tab.labelKey)}</span>
                         {count != null && (
                             <span
                                 className={cn(

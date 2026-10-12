@@ -138,8 +138,8 @@ const AddTransport = () => {
                 name="fuel"
                 control={form.control}
                 options={[
-                    { label: "Dizel", value: "diesel" },
-                    { label: "Metan", value: "methane" },
+                    { label: t("fin.fuel.diesel"), value: "diesel" },
+                    { label: t("fin.fuel.methane"), value: "methane" },
                 ]}
                 valueKey="value"
                 labelKey="label"

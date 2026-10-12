@@ -9,13 +9,16 @@ import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { endOfMonth, startOfMonth } from "date-fns"
+import { useTranslation } from "react-i18next"
 import { ArrowDownCircle, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
 import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRIPS, n, Paged, STATUS, useAllPeriodTx, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
 import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
-const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => (
+const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
+    const { t } = useTranslation()
+    return (
     <div
         onClick={onClick}
         role={onClick ? "button" : undefined}
@@ -29,10 +32,11 @@ const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: Rea
     >
         <span className={cn(strong ? "font-semibold text-foreground" : "", sub ? "text-xs" : "text-sm")}>{label}</span>
         <span className={cn("tabular-nums whitespace-nowrap", strong ? "font-semibold" : "", sub ? "text-xs" : "text-sm", tone === "green" && "text-green-600", tone === "red" && "text-destructive")}>
-            {formatMoney(n(value))} so'm
+            {formatMoney(n(value))} {t("page.som")}
         </span>
     </div>
-)
+    )
+}
 
 const Box = ({ children, className }: { children: ReactNode; className?: string }) => (
     <div className={cn("rounded-lg border p-3 flex flex-col gap-1.5", className)}>{children}</div>
@@ -40,9 +44,10 @@ const Box = ({ children, className }: { children: ReactNode; className?: string 
 
 type View = "kassa" | "requests" | "trips" | "driver"
 
-const TABS: [View, string][] = [["trips", "Aylanmalar"], ["kassa", "Transaksiyalar"]]
+const TABS: [View, string][] = [["trips", "fin.kv2.tab_trips"], ["kassa", "fin.kv2.tab_transactions"]]
 
 const KassaV2 = () => {
+    const { t } = useTranslation()
     const { cashier, operator } = useKassaRoles()
     const period = usePeriod()
     const { from_date } = period
@@ -61,14 +66,14 @@ const KassaV2 = () => {
     const sm = ov?.summary
     const [view, setView] = useState<View>("trips")
     const [group, setGroup] = useState<string | null>(null)
-    const pick = (g: string, label: string) => () => {
+    const pick = (g: string, labelKey: string) => () => {
         setDriver(null)
         setView("kassa")
         setGroup(group === g ? null : g)
-        setGroupLabel(label)
+        setGroupLabel(labelKey)
     }
     const [groupLabel, setGroupLabel] = useState("")
-    const lineProps = (g: string, label: string) => ({ onClick: pick(g, label), active: view === "kassa" && group === g })
+    const lineProps = (g: string, labelKey: string) => ({ onClick: pick(g, labelKey), active: view === "kassa" && group === g })
     const [driver, setDriver] = useState<number | null>(null)
     const [editing, setEditing] = useState<KassaRequest | null>(null)
     const [rejecting, setRejecting] = useState<KassaRequest | null>(null)
@@ -88,8 +93,8 @@ const KassaV2 = () => {
     const switcher = (
         <Tabs value={view === "trips" ? "trips" : "kassa"} onValueChange={(v) => { setDriver(null); setGroup(null); setView(v as View) }}>
             <TabsList>
-                {TABS.map(([v, label]) => (
-                    <TabsTrigger key={v} value={v}>{label}{counts[v] != null ? ` (${counts[v]})` : ""}</TabsTrigger>
+                {TABS.map(([v, labelKey]) => (
+                    <TabsTrigger key={v} value={v}>{t(labelKey)}{counts[v] != null ? ` (${counts[v]})` : ""}</TabsTrigger>
                 ))}
             </TabsList>
         </Tabs>
@@ -104,36 +109,36 @@ const KassaV2 = () => {
                     <ParamDateRange className="w-full" from="from_date" to="to_date" defaultValue={{ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }} addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
 
                     <Box className="bg-primary/5 border-primary/30">
-                        <Line strong label={from_date ? "Davr oxirida qoldiq" : "Kassa qoldig'i"} value={sm?.closing ?? ov?.balance} tone={n(sm?.closing ?? ov?.balance) < 0 ? "red" : undefined} />
-                        {from_date && <Line sub label="Davr boshida" value={sm?.opening} />}
+                        <Line strong label={from_date ? t("fin.kv2.closing_balance") : t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} tone={n(sm?.closing ?? ov?.balance) < 0 ? "red" : undefined} />
+                        {from_date && <Line sub label={t("fin.kv2.opening_balance")} value={sm?.opening} />}
                     </Box>
                     <Box className="bg-green-600/5 border-green-600/30">
-                        <Line strong tone="green" label="Kirim" value={sm?.income.total} />
-                        <Line sub label="Tashqi manbadan" value={sm?.income.external} {...lineProps("in_external", "Tashqi manbadan")} />
-                        <Line sub label="Naqd reys puli" value={sm?.income.trip_cash} />
-                        {!!n(sm?.income.reversals) && <Line sub label="Bekor qilingan chiqimlar" value={sm?.income.reversals} {...lineProps("in_reversals", "Bekor qilingan chiqimlar")} />}
+                        <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
+                        <Line sub label={t("fin.kv2.from_external")} value={sm?.income.external} {...lineProps("in_external", "fin.kv2.from_external")} />
+                        <Line sub label={t("fin.kv2.trip_cash")} value={sm?.income.trip_cash} />
+                        {!!n(sm?.income.reversals) && <Line sub label={t("fin.kv2.reversed_expenses")} value={sm?.income.reversals} {...lineProps("in_reversals", "fin.kv2.reversed_expenses")} />}
                     </Box>
                     <Box className="bg-red-600/5 border-red-600/30">
-                        <Line strong tone="red" label="Xarajat" value={-n(sm?.expense.total)} />
-                        <Line sub label="Naqd xarajat (haydovchilar)" value={-n(sm?.expense.cash)} />
-                        <Line sub label="Oylik" value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "Oylik")} />
-                        <Line sub label="Garaj xarajatlari (naqd)" value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "Garaj xarajatlari (naqd)")} />
-                        {!!n(sm?.expense.reversals) && <Line sub label="Bekor qilingan kirimlar" value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "Bekor qilingan kirimlar")} />}
+                        <Line strong tone="red" label={t("fin.kv2.expense")} value={-n(sm?.expense.total)} />
+                        <Line sub label={t("fin.kv2.cash_expense_drivers")} value={-n(sm?.expense.cash)} />
+                        <Line sub label={t("table.monthly_salary")} value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "table.monthly_salary")} />
+                        <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
+                        {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                     </Box>
                     <Box className="bg-amber-500/5 border-amber-500/30">
-                        <Line strong label="Haydovchilar qo'liga" value={-n(sm?.drivers.net)} />
-                        <Line sub label="Avans berildi" value={sm?.drivers.given} {...lineProps("drv_given", "Avans berildi")} />
-                        <Line sub label="Yo'lda olingan naqd reys puli" value={sm?.drivers.trip_cash} />
-                        <Line sub label="Naqd xarajatga ishlatildi" value={-n(sm?.drivers.cash)} />
-                        <Line sub label="Kassaga qaytardi" value={-n(sm?.drivers.returned)} {...lineProps("drv_returned", "Kassaga qaytardi")} />
+                        <Line strong label={t("fin.kv2.drivers_hand")} value={-n(sm?.drivers.net)} />
+                        <Line sub label={t("fin.kv2.advance_given")} value={sm?.drivers.given} {...lineProps("drv_given", "fin.kv2.advance_given")} />
+                        <Line sub label={t("fin.kv2.trip_cash_on_road")} value={sm?.drivers.trip_cash} />
+                        <Line sub label={t("fin.kv2.spent_on_cash_expense")} value={-n(sm?.drivers.cash)} />
+                        <Line sub label={t("fin.kv2.returned_to_cash")} value={-n(sm?.drivers.returned)} {...lineProps("drv_returned", "fin.kv2.returned_to_cash")} />
                     </Box>
                     <p className="text-[11px] text-muted-foreground px-1">
-                        {from_date ? "Boshida + " : ""}Kirim − Xarajat − Haydovchilar qo'liga = Qoldiq
+                        {from_date ? t("fin.kv2.formula_with_opening") : t("fin.kv2.formula")}
                     </p>
 
                     <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-2 pb-2 border-b border-muted-foreground/20">
-                            <p className="text-sm font-medium text-muted-foreground">Haydovchilar qo'lida · {drivers.length}</p>
+                            <p className="text-sm font-medium text-muted-foreground">{t("fin.kv2.drivers_holding", { count: drivers.length })}</p>
                             <span className="text-sm font-semibold tabular-nums">{formatMoney(n(ov?.drivers_total))}</span>
                         </div>
                         <div className="space-y-0.5">
@@ -154,7 +159,7 @@ const KassaV2 = () => {
                                     <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", n(d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.balance))}</span>
                                 </div>
                             ))}
-                            {!drivers.length && <p className="text-xs text-muted-foreground">Yangi kassada hali aylanma yo'q.</p>}
+                            {!drivers.length && <p className="text-xs text-muted-foreground">{t("fin.kv2.no_trips_yet")}</p>}
                         </div>
                     </div>
                 </CardContent>
@@ -174,7 +179,7 @@ const KassaV2 = () => {
                                     </Badge>
                                 </div>
                                 <span className="text-sm">
-                                    Balansi: <b className="tabular-nums">{formatMoney(n(selected.balance))} so'm</b>
+                                    {t("fin.kv2.balance_label")} <b className="tabular-nums">{formatMoney(n(selected.balance))} {t("page.som")}</b>
                                 </span>
                             </div>
                         }
@@ -196,7 +201,7 @@ const KassaV2 = () => {
                 :   <KassaTable
                         switcher={switcher}
                         group={group}
-                        groupLabel={groupLabel}
+                        groupLabel={groupLabel ? t(groupLabel) : ""}
                         onClearGroup={() => setGroup(null)}
                         onEdit={(r) => { setIncomeRow(r); income.openModal() }}
                         onDelete={(r) => { setIncomeRow(r); delIncome.openModal() }}
@@ -208,7 +213,7 @@ const KassaV2 = () => {
                             {cashier && <>
                             <Button onClick={() => { setIncomeRow(null); income.openModal() }}>
                                 <ArrowDownCircle size={16} />
-                                Kassaga kirim
+                                {t("fin.kv2.cash_in")}
                             </Button>
                             </>}
                         </>}
@@ -216,13 +221,13 @@ const KassaV2 = () => {
                 }
             </div>
 
-            <Modal modalKey={M.income} title={incomeRow ? "Kirimni tahrirlash" : "Kassaga kirim"} size="max-w-md"><IncomeModal editing={incomeRow} /></Modal>
-            <Modal modalKey={M.deleteIncome} title="Kirimni o'chirish" size="max-w-md"><DeleteIncomeModal row={incomeRow} /></Modal>
-            <Modal modalKey={M.request} title={!editing ? "Pul so'rovi" : editing.status === 10 ? "So'rovni tahrirlash" : "So'rovni tuzatish"} size="max-w-md"><RequestModal editing={editing} /></Modal>
-            <Modal modalKey={M.reject} title="So'rovni rad etish" size="max-w-md"><RejectModal request={rejecting} /></Modal>
-            <Modal modalKey={M.pay} title={paying && KIND_DIR[paying.kind] === "out" ? "Pul berish" : "Pul olish"} size="max-w-md"><PayModal request={paying} /></Modal>
-            <Modal modalKey={M.close} title={closing ? `Aylanma #${closing.id} ni yopish` : ""} size="max-w-xl"><CloseTripModal trip={closing} /></Modal>
-            <Modal modalKey={M.reverse} title="Amalni bekor qilish" size="max-w-md"><ReverseModal row={reverseRow} /></Modal>
+            <Modal modalKey={M.income} title={incomeRow ? t("fin.kv2.edit_income") : t("fin.kv2.cash_in")} size="max-w-md"><IncomeModal editing={incomeRow} /></Modal>
+            <Modal modalKey={M.deleteIncome} title={t("fin.kv2.delete_income")} size="max-w-md"><DeleteIncomeModal row={incomeRow} /></Modal>
+            <Modal modalKey={M.request} title={!editing ? t("vst.new_request") : editing.status === 10 ? t("fin.kv2.edit_request") : t("fin.kv2.fix_request")} size="max-w-md"><RequestModal editing={editing} /></Modal>
+            <Modal modalKey={M.reject} title={t("kassa.reject_title")} size="max-w-md"><RejectModal request={rejecting} /></Modal>
+            <Modal modalKey={M.pay} title={paying && KIND_DIR[paying.kind] === "out" ? t("fin.kv2.give_money") : t("fin.kv2.receive_money")} size="max-w-md"><PayModal request={paying} /></Modal>
+            <Modal modalKey={M.close} title={closing ? t("fin.kv2.close_trip_title", { id: closing.id }) : ""} size="max-w-xl"><CloseTripModal trip={closing} /></Modal>
+            <Modal modalKey={M.reverse} title={t("fin.kv2.reverse_action")} size="max-w-md"><ReverseModal row={reverseRow} /></Modal>
         </div>
     )
 }

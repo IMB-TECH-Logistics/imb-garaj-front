@@ -217,7 +217,7 @@ function StatCard({ label, value, icon, color, hint, failed }: { label: string; 
             </div>
             <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="text-sm font-semibold truncate">{failed ? "—" : `${fmt(value)} so'm`}</p>
+                <p className="text-sm font-semibold truncate">{failed ? "—" : `${fmt(value)} ${t("page.som")}`}</p>
                 {failed ? (
                     <p className="text-[10px] text-destructive truncate">{t("messages.not_loaded")}</p>
                 ) : (
@@ -272,7 +272,7 @@ export default function MoliyaPage() {
             {/* Stats row */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <StatCard
-                    label={search?.to_date ? `${t("form.balance")} (davr oxiriga)` : t("form.balance")}
+                    label={search?.to_date ? t("fin.moliya.balance_period_end", { balance: t("form.balance") }) : t("form.balance")}
                     value={Number(summary?.balance ?? 0)}
                     icon={<WalletIcon />}
                     color="blue"
@@ -288,7 +288,7 @@ export default function MoliyaPage() {
                 <StatCard
                     label={t("form.expense")}
                     value={Number(summary?.expense_total ?? 0)}
-                    hint={`Avans: ${fmt(Number(summary?.advance_total ?? 0))} so'm (xarajatga kirmaydi)`}
+                    hint={t("fin.moliya.advance_hint", { amount: `${fmt(Number(summary?.advance_total ?? 0))} ${t("page.som")}` })}
                     icon={<ArrowDownIcon />}
                     color="red"
                     failed={summaryFailed}

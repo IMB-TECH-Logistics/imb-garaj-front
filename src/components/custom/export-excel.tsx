@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { HR_COMPANIES_LIST, HR_DEPARTMENTS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -32,7 +33,7 @@ const ExportAsExcel = ({
     inputDate,
     inputInterval,
     params = {},
-    label = "Yuklab olish",
+    label,
     inputCompany = false,
 }: {
     url: string
@@ -44,6 +45,7 @@ const ExportAsExcel = ({
     inputCompany?: boolean
 }) => {
     const { openModal, closeModal, isOpen } = useModal("select-interval" + url)
+    const { t } = useTranslation()
     const [loading, setLoading] = useState<boolean>(false)
 
     const { data: companies } = useGet<Properties[]>(HR_COMPANIES_LIST, {
@@ -114,7 +116,7 @@ const ExportAsExcel = ({
                 data: blobData,
                 name: name,
             })
-        } else toast.error("Yuklab olishda xatolik")
+        } else toast.error(t("ui.export_excel.error"))
         methods.reset()
         closeModal()
         setLoading(false)
@@ -129,15 +131,15 @@ const ExportAsExcel = ({
                     loading={isFetching}
                     onClick={trigger}
                 >
-                    <span className="hidden sm:block">{label}</span>
+                    <span className="hidden sm:block">{label ?? t("actions.download")}</span>
                 </Button>
             }
 
             <Modal
                 title={
                     inputInterval ?
-                        "Oraliq sanani tanlang"
-                    :   "Hisobot sanasini tanlang"
+                        t("ui.export_excel.select_interval")
+                    :   t("ui.export_excel.select_report_date")
                 }
                 modalKey={"select-interval" + url}
                 className=" overflow-visible"
@@ -146,7 +148,7 @@ const ExportAsExcel = ({
                     {inputCompany ?
                         <div className="grid grid-cols-2 gap-2 py-2">
                             <FormMultiCombobox
-                                label={"Ofislar"}
+                                label={t("ui.export_excel.offices")}
                                 control={methods.control}
                                 options={companies}
                                 valueKey="id"
@@ -158,8 +160,8 @@ const ExportAsExcel = ({
                                 skeletonCount={2}
                             />
                             <FormMultiCombobox
-                                label={"Bo'limlar"}
-                                placeholder={"Barchasi"}
+                                label={t("ui.export_excel.departments")}
+                                placeholder={t("ui.export_excel.all")}
                                 control={methods.control}
                                 options={doptions}
                                 valueKey="id"
@@ -177,25 +179,25 @@ const ExportAsExcel = ({
                             <FormDatePicker
                                 control={methods.control}
                                 name="start"
-                                label={"Boshlanish"}
+                                label={t("ui.export_excel.start")}
                                 required
                             />
                             <FormDatePicker
                                 control={methods.control}
                                 name="end"
-                                label={"Tugash"}
+                                label={t("ui.export_excel.end")}
                                 required
                             />
                         </div>
                     :   <FormDatePicker
                             control={methods.control}
                             name="date"
-                            label={"Sana"}
+                            label={t("ui.export_excel.date")}
                             required
                         />
                     }
 
-                    <FormAction submitName={"Yuklab olish"} loading={loading} />
+                    <FormAction submitName={t("actions.download")} loading={loading} />
                 </form>
             </Modal>
         </div>

@@ -46,7 +46,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (data.is_summary) return <span className="font-bold text-white">Jami</span>
+                    if (data.is_summary) return <span className="font-bold text-white">{t("page.total")}</span>
                     if (data.is_residual) return <span className="text-muted-foreground">—</span>
                     return <span className="font-medium text-muted-foreground">{data.date}</span>
                 },
@@ -85,7 +85,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                         return <Badge variant="secondary">{t("table.status_empty")}</Badge>
                     }
                     if (data.type === 1 && !data.cargo_type_name) {
-                        return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">Yukli</Badge>
+                        return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">{t("status.loaded")}</Badge>
                     }
                     return <span>{data.cargo_type_name || "—"}</span>
                 },
@@ -109,7 +109,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 cell: ({ row }) => {
                     const data = row.original;
                     if (!data.is_summary) return <span className="text-muted-foreground">—</span>;
-                    return <span className="font-bold text-white">{round2(data.total_mileage)} km</span>
+                    return <span className="font-bold text-white">{round2(data.total_mileage)} {t("fleet.units.km")}</span>
                 },
             },
             {

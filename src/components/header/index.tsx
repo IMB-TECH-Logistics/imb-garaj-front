@@ -28,6 +28,7 @@ import { useTranslation } from "react-i18next"
 
 const LANGS = [
     { code: "uz", label: "O'zbek", flag: "🇺🇿" },
+    { code: "uz-Cyrl", label: "Ўзбек", flag: "🇺🇿" },
     { code: "ru", label: "Русский", flag: "🇷🇺" },
     { code: "en", label: "English", flag: "🇬🇧" },
     { code: "ja", label: "日本語", flag: "🇯🇵" },
@@ -35,7 +36,8 @@ const LANGS = [
 
 function LangButton() {
     const { i18n } = useTranslation()
-    const langCode = (i18n.resolvedLanguage ?? i18n.language).split("-")[0]
+    const lng = i18n.resolvedLanguage ?? i18n.language
+    const langCode = LANGS.some((l) => l.code === lng) ? lng : lng.split("-")[0]
     const current = LANGS.find((l) => l.code === langCode) ?? LANGS[0]
 
     return (
@@ -66,23 +68,24 @@ function LangButton() {
 // intentionally excluded — they keep their own in-page search. Matched by pathname
 // (exact or a "/"-segment prefix, first match wins); each `searchKey` mirrors the
 // URL param the corresponding page already reads.
-const HEADER_SEARCH: { prefix: string; searchKey: string; placeholder: string }[] = [
-    { prefix: "/buxgalteriya", searchKey: "search", placeholder: "Avtomobil raqami..." },
-    { prefix: "/haydovchilar", searchKey: "driver_search", placeholder: "Haydovchi..." },
-    { prefix: "/managers", searchKey: "search", placeholder: "Avtomobil raqami..." },
-    { prefix: "/manager-trips/manager-reys", searchKey: "search", placeholder: "Joy, yuk turi, yuk beruvchi yoki ID..." },
-    { prefix: "/kassa", searchKey: "tx_search", placeholder: "Izoh / ma'sul..." },
-    { prefix: "/texnik-check", searchKey: "vehicle_search", placeholder: "Avtomobil raqami..." },
-    { prefix: "/technic-check", searchKey: "vehicle_search", placeholder: "Avtomobil raqami..." },
-    { prefix: "/petrol-stations", searchKey: "petrol_search", placeholder: "Qidirish..." },
-    { prefix: "/truck", searchKey: "search", placeholder: "Avtomobil raqami..." },
-    { prefix: "/ombor", searchKey: "search", placeholder: "Mahsulot nomi..." },
-    { prefix: "/monitoring", searchKey: "q", placeholder: "Mashina yoki haydovchi..." },
-    { prefix: "/flights", searchKey: "search", placeholder: "Mashina, mijoz yoki joy..." },
+const HEADER_SEARCH: { prefix: string; searchKey: string; placeholderKey: string }[] = [
+    { prefix: "/buxgalteriya", searchKey: "search", placeholderKey: "ui.header_search.vehicle_number" },
+    { prefix: "/haydovchilar", searchKey: "driver_search", placeholderKey: "ui.header_search.driver" },
+    { prefix: "/managers", searchKey: "search", placeholderKey: "ui.header_search.vehicle_number" },
+    { prefix: "/manager-trips/manager-reys", searchKey: "search", placeholderKey: "ui.header_search.trip" },
+    { prefix: "/kassa", searchKey: "tx_search", placeholderKey: "ui.header_search.comment_responsible" },
+    { prefix: "/texnik-check", searchKey: "vehicle_search", placeholderKey: "ui.header_search.vehicle_number" },
+    { prefix: "/technic-check", searchKey: "vehicle_search", placeholderKey: "ui.header_search.vehicle_number" },
+    { prefix: "/petrol-stations", searchKey: "petrol_search", placeholderKey: "ui.header_search.search" },
+    { prefix: "/truck", searchKey: "search", placeholderKey: "ui.header_search.vehicle_number" },
+    { prefix: "/ombor", searchKey: "search", placeholderKey: "ui.header_search.product" },
+    { prefix: "/monitoring", searchKey: "q", placeholderKey: "ui.header_search.vehicle_or_driver" },
+    { prefix: "/flights", searchKey: "search", placeholderKey: "ui.header_search.vehicle_client_place" },
 ]
 
 const Header = () => {
     const { open } = useSidebar()
+    const { t } = useTranslation()
     const { pathname } = useLocation()
     const navigate = useNavigate()
     const { childPaths } = usePaths()
@@ -166,7 +169,7 @@ const Header = () => {
                     <ParamInput
                         key={searchConfig.prefix}
                         searchKey={searchConfig.searchKey}
-                        placeholder={searchConfig.placeholder}
+                        placeholder={t(searchConfig.placeholderKey)}
                         wrapperClassName="!h-9 !w-36 sm:!w-56 shrink-0"
                         className="!h-9 !bg-muted/40 text-sm"
                     />

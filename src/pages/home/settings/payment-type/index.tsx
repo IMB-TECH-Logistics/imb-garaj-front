@@ -59,7 +59,7 @@ const PaymenTypePage = () => {
                 }}
                 head={
                     <TableHeader
-                        fileName="To'lov turlari"
+                        fileName={t("nav.payment_types")}
                         url="excel"
                         storeKey={hasControl ? SETTINTS_PAYMENT_TYPE : undefined}
                         pageKey="page"
@@ -71,7 +71,9 @@ const PaymenTypePage = () => {
             <DeleteModal path={SETTINTS_PAYMENT_TYPE} id={item?.id} name={item?.name ? `«${item?.name}» ` : ""} />
             <Modal
                 title={
-                    item?.id ? "To'lov turini tahrirlash" : "To'lov turi qo'shish"
+                    item?.id ?
+                        t("settings.payment.edit_title")
+                    :   t("settings.payment.add_title")
                 }
                 modalKey="create"
             >
