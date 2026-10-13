@@ -351,12 +351,6 @@ export const useColumnsManagersOrders = (opts?: {
                 },
             },
             {
-                accessorKey: "canceled_time",
-                header: t("status.cancelled"),
-                size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatMoment(row.original.canceled_time)}</span>,
-            },
-            {
                 id: "images",
                 header: t("table.image_col"),
                 size: 60,
