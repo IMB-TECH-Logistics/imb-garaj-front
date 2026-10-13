@@ -234,8 +234,8 @@ export const useColumnsManagersOrders = (opts?: {
                 header: t("form.distance"),
                 size: 90,
                 cell: ({ row }) => {
-                    const leg = (row.original as any).__leg as EmptyLeg | undefined
-                    if (!leg) {
+                    const legs = legsOf(row.original)
+                    if (!legs.length) {
                         const km = row.original.distance_km
                         return km != null ? (
                             <span className="whitespace-nowrap tabular-nums">{formatMoney(km)} {t("trips.units.km")}</span>
@@ -243,12 +243,14 @@ export const useColumnsManagersOrders = (opts?: {
                             <span className="text-muted-foreground">—</span>
                         )
                     }
-                    const km = leg.km ?? leg.distance_km
-                    const manual = leg.distance_km_manual != null
+                    const known = legs.map((l) => l.km ?? l.distance_km).filter((v): v is number => v != null)
+                    const km = known.length ? known.reduce((sum, v) => sum + Number(v), 0) : null
+                    const manual = legs.some((l) => l.distance_km_manual != null)
+                    const gps = legs.map((l) => (l.distance_km != null ? formatMoney(l.distance_km) : "—")).join(" + ")
                     return (
                         <span
                             className="whitespace-nowrap tabular-nums"
-                            title={manual ? `GPS: ${leg.distance_km != null ? formatMoney(leg.distance_km) : "—"} ${t("trips.units.km")}` : undefined}
+                            title={manual ? `GPS: ${gps} ${t("trips.units.km")}` : undefined}
                         >
                             {km != null ? <>{formatMoney(km)} {t("trips.units.km")}{manual ? " *" : ""}</> : "—"}
                         </span>
@@ -260,30 +262,43 @@ export const useColumnsManagersOrders = (opts?: {
                 header: t("trips.reys_cols.empty_run_pay"),
                 size: 150,
                 cell: ({ row }) => {
-                    const leg = (row.original as any).__leg as EmptyLeg | undefined
-                    if (!leg) return <span className="text-muted-foreground">—</span>
-                    const amount = leg.payment_amount != null ? Number(leg.payment_amount) : null
+                    const legs = legsOf(row.original)
+                    if (!legs.length) return <span className="text-muted-foreground">—</span>
                     return (
-                        <div className="flex items-center gap-2 not-italic">
-                            {amount != null && (
-                                <span className="whitespace-nowrap font-medium text-green-600 tabular-nums">
-                                    {formatMoney(amount)}
-                                </span>
-                            )}
-                            {opts?.onLegPay && leg.id != null && (
-                                <button
-                                    type="button"
-                                    disabled={leg.locked}
-                                    title={leg.locked ? t("trips.reys_cols.trip_locked") : t("trips.reys_cols.empty_run_pay")}
-                                    className="text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-40"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        opts.onLegPay?.(leg)
-                                    }}
-                                >
-                                    <Banknote size={16} />
-                                </button>
-                            )}
+                        <div className="flex flex-col gap-1 not-italic">
+                            {legs.map((leg) => {
+                                const amount = leg.payment_amount != null ? Number(leg.payment_amount) : null
+                                const route = `${leg.from_place || t("trips.empty_leg.turnover_start")} → ${leg.to_place || "—"}`
+                                return (
+                                    <div key={leg.id ?? leg.before_order} className="flex items-center gap-2">
+                                        {amount != null && (
+                                            <span className="whitespace-nowrap font-medium text-green-600 tabular-nums">
+                                                {formatMoney(amount)}
+                                            </span>
+                                        )}
+                                        {opts?.onLegPay && leg.id != null && (
+                                            <button
+                                                type="button"
+                                                disabled={leg.locked}
+                                                title={
+                                                    leg.locked
+                                                        ? t("trips.reys_cols.trip_locked")
+                                                        : legs.length > 1
+                                                          ? `${t("trips.reys_cols.empty_run_pay")}: ${route}`
+                                                          : t("trips.reys_cols.empty_run_pay")
+                                                }
+                                                className="text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-40"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    opts.onLegPay?.(leg)
+                                                }}
+                                            >
+                                                <Banknote size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )
+                            })}
                         </div>
                     )
                 },
@@ -367,6 +382,11 @@ export const useColumnsManagersOrders = (opts?: {
         },
         [opts?.onImageClick, opts?.onLegPay, t, paymentTypesData],
     )
+}
+
+const legsOf = (r: ManagerOrders): EmptyLeg[] => {
+    const row = r as any
+    return row.__legs ?? (row.__leg ? [row.__leg] : [])
 }
 
 const startOf = (r: ManagerOrders) => (r as any).__start ?? r.loading_time ?? r.pending_time

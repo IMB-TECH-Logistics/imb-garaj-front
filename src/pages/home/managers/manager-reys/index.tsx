@@ -114,13 +114,19 @@ export default function ManagerReys() {
         const list = data?.results ?? []
         if (!legs?.length) return list
         const byOrder = new Map(legs.map((l) => [l.before_order, l]))
+        const isEmptyRun = (r: ManagerOrders) => r.activity === 1 && r.type === 2
+        const emptyRunIds = new Set(list.filter(isEmptyRun).map((r) => r.id))
+        const byAfter = new Map(
+            legs.filter((l) => l.after_order != null && emptyRunIds.has(l.after_order)).map((l) => [l.after_order, l]),
+        )
         const ordering = String((search as any).ordering ?? "")
         const desc = !ordering || ordering.startsWith("-")
         const out: ManagerOrders[] = []
         for (const r of list) {
             const leg = byOrder.get(r.id)
-            const merged = !!leg && r.activity === 1 && r.type === 2
-            const legRow = leg && !merged && ({
+            const emptyRun = isEmptyRun(r)
+            const mergedIntoPrev = !!leg && leg.after_order != null && byAfter.get(leg.after_order) === leg
+            const legRow = leg && !emptyRun && !mergedIntoPrev && ({
                 id: -leg.before_order,
                 __leg: leg,
                 date: leg.start,
@@ -146,21 +152,24 @@ export default function ManagerReys() {
                 incomes: [],
                 images: [],
             } as unknown as ManagerOrders)
+            const before = emptyRun ? leg : undefined
+            const after = emptyRun ? byAfter.get(r.id) : undefined
+            const row = before || after
+                ? ({
+                      ...r,
+                      __legs: [before, after].filter(Boolean),
+                      __merged: true,
+                      __start: before?.start,
+                      loading_name: before?.from_place || r.loading_name,
+                      unloading_name: after?.to_place || r.unloading_name,
+                      completed_time: after?.end ?? r.completed_time,
+                  } as unknown as ManagerOrders)
+                : r
             if (!desc) {
                 if (idleRow) out.push(idleRow)
                 if (legRow) out.push(legRow)
             }
-            out.push(
-                merged
-                    ? ({
-                          ...r,
-                          __leg: leg,
-                          __merged: true,
-                          __start: leg.start,
-                          loading_name: leg.from_place || r.loading_name,
-                      } as unknown as ManagerOrders)
-                    : r,
-            )
+            out.push(row)
             if (desc) {
                 if (legRow) out.push(legRow)
                 if (idleRow) out.push(idleRow)
