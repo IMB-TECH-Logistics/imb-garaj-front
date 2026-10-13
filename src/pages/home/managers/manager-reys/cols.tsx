@@ -27,6 +27,17 @@ const ACTIVITY_COLORS: Record<number, string> = {
     5: "bg-yellow-500/10 text-yellow-600 border-transparent",
 }
 
+const STATUS_COLORS: Record<number, string> = {
+    0: "bg-slate-500/10 text-slate-600 border-transparent dark:text-slate-300",
+    1: "bg-sky-500/10 text-sky-600 border-transparent",
+    5: "bg-amber-500/10 text-amber-600 border-transparent",
+    6: "bg-blue-500/10 text-blue-600 border-transparent",
+    7: "bg-violet-500/10 text-violet-600 border-transparent",
+    2: "bg-green-500/10 text-green-600 border-transparent",
+    3: "bg-red-500/10 text-red-600 border-transparent",
+    4: "bg-zinc-500/10 text-zinc-500 border-transparent",
+}
+
 const EMPTY_RUN_COLOR = "bg-slate-500/10 text-slate-600 border-transparent dark:text-slate-300"
 
 const isGarajOrTamirActivity = (activity?: number) =>
@@ -120,6 +131,11 @@ export const useColumnsManagersOrders = (opts?: {
                             </Badge>
                         )
                     }
+                    const statusBadge = STATUS_TRIP[status] ? (
+                        <Badge variant="outline" className={`whitespace-nowrap ${STATUS_COLORS[status] ?? ""}`}>
+                            {t(STATUS_TRIP[status])}
+                        </Badge>
+                    ) : "-"
                     const canceledAt = row.original?.logistics_canceled_at
                     const logisticsBadge = canceledAt ? (
                         <Badge
@@ -133,12 +149,12 @@ export const useColumnsManagersOrders = (opts?: {
                     if (logisticsBadge) {
                         return (
                             <div className="flex flex-wrap items-center gap-1">
-                                <span>{STATUS_TRIP[status] ? t(STATUS_TRIP[status]) : "-"}</span>
+                                {statusBadge}
                                 {logisticsBadge}
                             </div>
                         )
                     }
-                    return <div>{STATUS_TRIP[status] ? t(STATUS_TRIP[status]) : "-"}</div>
+                    return statusBadge
                 },
             },
             {
