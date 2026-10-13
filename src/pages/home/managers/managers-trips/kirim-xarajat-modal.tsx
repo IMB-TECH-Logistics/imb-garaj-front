@@ -275,6 +275,7 @@ function AddFinanceForm({
             from_region: (editItem as any)?.from_region ?? "",
             to_region: (editItem as any)?.to_region ?? "",
             deduct_from_balance: true,
+            date: "",
         },
     })
     const { handleSubmit, control, reset, watch, setValue } = form
@@ -369,6 +370,7 @@ function AddFinanceForm({
                 from_region: (editItem as any).from_region ?? "",
                 to_region: (editItem as any).to_region ?? "",
                 deduct_from_balance: true,
+                date: "",
             })
         } else {
             reset({
@@ -382,6 +384,7 @@ function AddFinanceForm({
                 from_region: "",
                 to_region: "",
                 deduct_from_balance: true,
+                date: "",
             })
         }
     }, [editItem?.id, reset])
@@ -416,6 +419,7 @@ function AddFinanceForm({
         if (showOrderSelect && data.order) fd.append("order", String(data.order))
         if (data.receipt instanceof File) fd.append("receipt", data.receipt)
         if (advanceId && action === -1) fd.append("advance", String(advanceId))
+        if (!isEdit && data.date) fd.append("date", data.date)
 
         if (isEdit) {
             patchMutate(`${MANAGERS_EXPENSES}/${editItem.id}`, fd as any, {
@@ -535,6 +539,15 @@ function AddFinanceForm({
                     options={paymentTypes?.results ?? []}
                     valueKey="id"
                     labelKey="name"
+                />
+            )}
+            {!isEdit && (
+                <FormDatePicker
+                    label={t("form.date")}
+                    control={control}
+                    name="date"
+                    placeholder={t("trips.kirim.date_today")}
+                    calendarProps={{ disabled: { after: new Date() } }}
                 />
             )}
             <FormTextarea required label={t("form.comment")} methods={form} name="comment" />

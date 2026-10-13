@@ -2485,6 +2485,7 @@
             "not_set": "не задан"
         },
         "kirim": {
+            "date_today": "Сегодня",
             "station_balance": "{{name}} (Баланс: {{balance}} сум)",
             "quantity_liters": "Количество (л)",
             "salary_by_route": "Зарплата (тариф по направлению)",

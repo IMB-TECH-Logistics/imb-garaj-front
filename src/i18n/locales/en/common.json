@@ -2479,6 +2479,7 @@
             "not_set": "not set"
         },
         "kirim": {
+            "date_today": "Today",
             "station_balance": "{{name}} (Balance: {{balance}} UZS)",
             "quantity_liters": "Quantity (liters)",
             "salary_by_route": "Salary (tariff by route)",

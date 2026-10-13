@@ -2476,6 +2476,7 @@
             "not_set": "белгиланмаган"
         },
         "kirim": {
+            "date_today": "Бугун",
             "station_balance": "{{name}} (Баланс: {{balance}} сўм)",
             "quantity_liters": "Миқдори (литр)",
             "salary_by_route": "Ойлик (йўналиш бўйича тарифф)",

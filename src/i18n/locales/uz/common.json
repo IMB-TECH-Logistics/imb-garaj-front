@@ -2476,6 +2476,7 @@
             "not_set": "belgilanmagan"
         },
         "kirim": {
+            "date_today": "Bugun",
             "station_balance": "{{name}} (Balans: {{balance}} so'm)",
             "quantity_liters": "Miqdori (litr)",
             "salary_by_route": "Oylik (yo'nalish bo'yicha tariff)",
