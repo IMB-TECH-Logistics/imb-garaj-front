@@ -1067,5 +1067,34 @@
             "same_point": "積込地と荷下ろし地が同じ",
             "fuel_km_from_gps": "燃料の距離をGPSから算出"
         }
+    },
+    "settings": {
+        "route_configs": {
+            "import": {
+                "button": "Excelインポート",
+                "title": "Excelでルートを更新",
+                "download_template": "テンプレートをダウンロード",
+                "check": "確認",
+                "apply": "確定して保存",
+                "created": "新規",
+                "updated": "価格更新",
+                "unchanged": "変更なし",
+                "error": "エラー",
+                "orders_preview": "再計算される運行: {{count}}",
+                "orders_done": "再計算された運行: {{count}}",
+                "applied": "保存しました: 新規 {{created}}、価格更新 {{updated}}、運行再計算 {{orders}}",
+                "read_error": "ファイルをアップロードできませんでした",
+                "line": "行",
+                "status": "状態",
+                "direction": "ルート",
+                "old_price": "旧価格",
+                "new_price": "新価格",
+                "valid_from": "適用開始日",
+                "orders": "運行",
+                "drop_hint": "Excelファイルをここにドロップ、またはクリックして選択",
+                "only_xlsx": ".xlsxのみ — ダウンロードしたテンプレート",
+                "replace_file": "クリックして別のファイルを選択"
+            }
+        }
     }
 }

@@ -2268,7 +2268,32 @@
             "section_cargo_client": "Юк ва мижоз",
             "section_price_payment": "Нарх ва тўлов",
             "edit_title": "Йўналишни таҳрирлаш",
-            "add_title": "Йўналиш қўшиш"
+            "add_title": "Йўналиш қўшиш",
+            "import": {
+                "button": "Excel импорт",
+                "title": "Йўналишларни Excel орқали янгилаш",
+                "download_template": "Шаблонни юклаб олиш",
+                "check": "Текшириш",
+                "apply": "Тасдиқлаш ва сақлаш",
+                "created": "Янги",
+                "updated": "Нарх янгиланади",
+                "unchanged": "Ўзгаришсиз",
+                "error": "Хато",
+                "orders_preview": "Қайта ҳисобланадиган рейслар: {{count}}",
+                "orders_done": "Қайта ҳисобланган рейслар: {{count}}",
+                "applied": "Сақланди: {{created}} та янги, {{updated}} та нарх янгиланди, {{orders}} та рейс қайта ҳисобланди",
+                "read_error": "Файлни юклаб бўлмади",
+                "line": "Қатор",
+                "status": "Ҳолат",
+                "direction": "Йўналиш",
+                "old_price": "Эски нарх",
+                "new_price": "Янги нарх",
+                "valid_from": "Қайси санадан амал қилади",
+                "orders": "Рейслар",
+                "drop_hint": "Excel файлни шу ерга ташланг ёки танлаш учун босинг",
+                "only_xlsx": "Фақат .xlsx — юклаб олинган шаблон",
+                "replace_file": "бошқа файл танлаш учун босинг"
+            }
         }
     },
     "trips": {

@@ -2268,7 +2268,32 @@
             "section_cargo_client": "Yuk va mijoz",
             "section_price_payment": "Narx va to'lov",
             "edit_title": "Yo'nalishni tahrirlash",
-            "add_title": "Yo'nalish qo'shish"
+            "add_title": "Yo'nalish qo'shish",
+            "import": {
+                "button": "Excel import",
+                "title": "Yo'nalishlarni Excel orqali yangilash",
+                "download_template": "Shablonni yuklab olish",
+                "check": "Tekshirish",
+                "apply": "Tasdiqlash va saqlash",
+                "created": "Yangi",
+                "updated": "Narx yangilanadi",
+                "unchanged": "O'zgarishsiz",
+                "error": "Xato",
+                "orders_preview": "Qayta hisoblanadigan reyslar: {{count}}",
+                "orders_done": "Qayta hisoblangan reyslar: {{count}}",
+                "applied": "Saqlandi: {{created}} ta yangi, {{updated}} ta narx yangilandi, {{orders}} ta reys qayta hisoblandi",
+                "read_error": "Faylni yuklab bo'lmadi",
+                "line": "Qator",
+                "status": "Holat",
+                "direction": "Yo'nalish",
+                "old_price": "Eski narx",
+                "new_price": "Yangi narx",
+                "valid_from": "Qaysi sanadan amal qiladi",
+                "orders": "Reyslar",
+                "drop_hint": "Excel faylni shu yerga tashlang yoki tanlash uchun bosing",
+                "only_xlsx": "Faqat .xlsx — yuklab olingan shablon",
+                "replace_file": "boshqa fayl tanlash uchun bosing"
+            }
         }
     },
     "trips": {

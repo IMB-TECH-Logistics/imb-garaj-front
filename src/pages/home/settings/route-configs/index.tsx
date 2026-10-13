@@ -16,6 +16,7 @@ import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddRouteConfigModal from "./add-route"
+import { ImportDirectionsButton } from "./import-directions"
 import { type DirectionPrice, type DirectionRow, useDirectionColumns } from "./cols"
 
 const DEFAULT_ORDERING = "-price_amount"
@@ -154,7 +155,7 @@ const RouteConfigsPage = () => {
                 data={enriched}
                 onDelete={hasControl ? handleDelete : undefined}
                 onEdit={hasControl ? handleEdit : undefined}
-                rowColor={(row: DirectionRow) => (row.no_price ? "bg-destructive/10 hover:bg-destructive/15" : "")}
+                rowColor={(row: DirectionRow) => (row.no_price ? "!bg-destructive/10 hover:!bg-destructive/15 [&>td]:before:!bg-destructive/10 hover:[&>td]:before:!bg-destructive/15" : "")}
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -171,6 +172,16 @@ const RouteConfigsPage = () => {
                         searchKey="route_configs_search"
                         pageKey="page"
                         count={data?.count}
+                        extraBeforeAdd={
+                            hasControl ?
+                                <ImportDirectionsButton
+                                    templateParams={{
+                                        search: search.route_configs_search,
+                                        no_price: onlyNoPrice ? true : undefined,
+                                    }}
+                                />
+                            :   undefined
+                        }
                         extraLeft={
                             <div className="flex items-center gap-2">
                                 <Switch

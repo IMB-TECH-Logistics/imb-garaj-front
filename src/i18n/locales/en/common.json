@@ -2271,7 +2271,32 @@
             "section_cargo_client": "Cargo and client",
             "section_price_payment": "Price and payment",
             "edit_title": "Edit direction",
-            "add_title": "Add direction"
+            "add_title": "Add direction",
+            "import": {
+                "button": "Excel import",
+                "title": "Update directions via Excel",
+                "download_template": "Download template",
+                "check": "Check",
+                "apply": "Confirm and save",
+                "created": "New",
+                "updated": "Price updates",
+                "unchanged": "Unchanged",
+                "error": "Error",
+                "orders_preview": "Trips to recalculate: {{count}}",
+                "orders_done": "Trips recalculated: {{count}}",
+                "applied": "Saved: {{created}} new, {{updated}} prices updated, {{orders}} trips recalculated",
+                "read_error": "Could not upload the file",
+                "line": "Row",
+                "status": "Status",
+                "direction": "Direction",
+                "old_price": "Old price",
+                "new_price": "New price",
+                "valid_from": "Effective from",
+                "orders": "Trips",
+                "drop_hint": "Drop the Excel file here or click to choose",
+                "only_xlsx": "Only .xlsx — the downloaded template",
+                "replace_file": "click to choose another file"
+            }
         }
     },
     "trips": {

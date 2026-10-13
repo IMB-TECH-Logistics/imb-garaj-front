@@ -193,6 +193,7 @@ const AddRouteConfigModal = () => {
                         label={t("form.load_place")}
                         placeholder={t("form.load_place")}
                         methods={form}
+                        maxLength={255}
                     />
                 </div>
             </section>
@@ -216,6 +217,7 @@ const AddRouteConfigModal = () => {
                         label={t("form.unload_place")}
                         placeholder={t("form.unload_place")}
                         methods={form}
+                        maxLength={255}
                     />
                 </div>
             </section>
