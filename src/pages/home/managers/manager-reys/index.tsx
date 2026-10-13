@@ -119,7 +119,8 @@ export default function ManagerReys() {
         const out: ManagerOrders[] = []
         for (const r of list) {
             const leg = byOrder.get(r.id)
-            const legRow = leg && ({
+            const merged = !!leg && r.activity === 1 && r.type === 2
+            const legRow = leg && !merged && ({
                 id: -leg.before_order,
                 __leg: leg,
                 date: leg.start,
@@ -149,7 +150,17 @@ export default function ManagerReys() {
                 if (idleRow) out.push(idleRow)
                 if (legRow) out.push(legRow)
             }
-            out.push(r)
+            out.push(
+                merged
+                    ? ({
+                          ...r,
+                          __leg: leg,
+                          __merged: true,
+                          __start: leg.start,
+                          loading_name: leg.from_place || r.loading_name,
+                      } as unknown as ManagerOrders)
+                    : r,
+            )
             if (desc) {
                 if (legRow) out.push(legRow)
                 if (idleRow) out.push(idleRow)
@@ -166,8 +177,8 @@ export default function ManagerReys() {
             <DataTable
                 columns={cols}
                 data={rows}
-                isRowLocked={(r: ManagerOrders) => !!((r as any).__leg || (r as any).__idle)}
-                rowColor={(r: ManagerOrders) => ((r as any).__leg || (r as any).__idle ? "text-muted-foreground italic" : "")}
+                isRowLocked={(r: ManagerOrders) => isVirtualRow(r)}
+                rowColor={(r: ManagerOrders) => (isVirtualRow(r) ? "text-muted-foreground italic" : "")}
                 manualSorting
                 stickyActions
                 paginationProps={{
@@ -292,4 +303,9 @@ export default function ManagerReys() {
             </Dialog>
         </>
     )
+}
+
+const isVirtualRow = (r: ManagerOrders) => {
+    const row = r as any
+    return !!row.__idle || (!!row.__leg && !row.__merged)
 }

@@ -48,6 +48,7 @@ type ManagerOrdersPayments = {
 }
 
 type ManagerOrders = {
+    distance_km?: number | null
     id: number
     trip?: number
     loading: number

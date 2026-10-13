@@ -211,7 +211,7 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "pending_time",
                 header: t("table.start_time"),
                 size: 150,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatMoment(row.original.loading_time ?? row.original.pending_time)}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatMoment(startOf(row.original))}</span>,
             },
             {
                 accessorKey: "completed_time",
@@ -225,7 +225,7 @@ export const useColumnsManagersOrders = (opts?: {
                 size: 130,
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatDuration(row.original.loading_time ?? row.original.pending_time, row.original.completed_time)}
+                        {formatDuration(startOf(row.original), row.original.completed_time)}
                     </span>
                 ),
             },
@@ -235,7 +235,14 @@ export const useColumnsManagersOrders = (opts?: {
                 size: 90,
                 cell: ({ row }) => {
                     const leg = (row.original as any).__leg as EmptyLeg | undefined
-                    if (!leg) return <span className="text-muted-foreground">—</span>
+                    if (!leg) {
+                        const km = row.original.distance_km
+                        return km != null ? (
+                            <span className="whitespace-nowrap tabular-nums">{formatMoney(km)} {t("trips.units.km")}</span>
+                        ) : (
+                            <span className="text-muted-foreground">—</span>
+                        )
+                    }
                     const km = leg.km ?? leg.distance_km
                     const manual = leg.distance_km_manual != null
                     return (
@@ -361,6 +368,8 @@ export const useColumnsManagersOrders = (opts?: {
         [opts?.onImageClick, opts?.onLegPay, t, paymentTypesData],
     )
 }
+
+const startOf = (r: ManagerOrders) => (r as any).__start ?? r.loading_time ?? r.pending_time
 
 const formatDuration = (start?: string, end?: string) => {
     if (!start || !end) return "-"
