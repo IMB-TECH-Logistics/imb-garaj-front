@@ -127,6 +127,7 @@ export default function ManagerReys() {
                 activity_display: t("trips.managers.empty_run"),
                 loading_name: leg.from_place || t("trips.empty_leg.turnover_start"),
                 unloading_name: leg.to_place,
+                cargo_type_name: t("trips.managers.no_cargo"),
                 loading_time: leg.start,
                 completed_time: leg.end,
                 incomes: [],

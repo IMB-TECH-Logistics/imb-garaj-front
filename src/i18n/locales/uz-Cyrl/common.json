@@ -2306,6 +2306,7 @@
             "stage_unloading": "Юк туширишда",
             "stage_empty": "Бўш",
             "empty_run": "Бўш юриш",
+            "no_cargo": "Юксиз",
             "direction_location": "Йўналиш/Жойлашув"
         },
         "status": {

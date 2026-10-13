@@ -2315,6 +2315,7 @@
             "stage_unloading": "На разгрузке",
             "stage_empty": "Порожний",
             "empty_run": "Порожний пробег",
+            "no_cargo": "Без груза",
             "direction_location": "Направление/Местоположение"
         },
         "status": {

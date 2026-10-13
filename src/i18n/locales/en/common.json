@@ -2309,6 +2309,7 @@
             "stage_unloading": "Unloading",
             "stage_empty": "Empty",
             "empty_run": "Empty run",
+            "no_cargo": "No cargo",
             "direction_location": "Direction/Location"
         },
         "status": {

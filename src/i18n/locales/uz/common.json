@@ -2306,6 +2306,7 @@
             "stage_unloading": "Yuk tushirishda",
             "stage_empty": "Bo'sh",
             "empty_run": "Bo'sh yurish",
+            "no_cargo": "Yuksiz",
             "direction_location": "Yo'nalish/Joylashuv"
         },
         "status": {
