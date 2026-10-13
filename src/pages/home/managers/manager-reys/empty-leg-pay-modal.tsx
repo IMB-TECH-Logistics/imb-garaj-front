@@ -21,6 +21,7 @@ export type EmptyLeg = {
     first: boolean
     from_place: string | null
     to_place: string | null
+    idle_start: string | null
     start: string
     end: string
     minutes: number

@@ -132,9 +132,27 @@ export default function ManagerReys() {
                 incomes: [],
                 images: [],
             } as unknown as ManagerOrders)
-            if (legRow && !desc) out.push(legRow)
+            const idleRow = leg?.idle_start && ({
+                id: -leg.before_order - 1_000_000_000,
+                __idle: true,
+                date: leg.idle_start,
+                activity: 4,
+                activity_display: t("status.idle_stop"),
+                loading_name: leg.from_place,
+                loading_time: leg.idle_start,
+                completed_time: leg.start,
+                incomes: [],
+                images: [],
+            } as unknown as ManagerOrders)
+            if (!desc) {
+                if (idleRow) out.push(idleRow)
+                if (legRow) out.push(legRow)
+            }
             out.push(r)
-            if (legRow && desc) out.push(legRow)
+            if (desc) {
+                if (legRow) out.push(legRow)
+                if (idleRow) out.push(idleRow)
+            }
         }
         return out
     }, [data, legs, search, t])
@@ -147,8 +165,8 @@ export default function ManagerReys() {
             <DataTable
                 columns={cols}
                 data={rows}
-                isRowLocked={(r: ManagerOrders) => !!(r as any).__leg}
-                rowColor={(r: ManagerOrders) => ((r as any).__leg ? "text-muted-foreground italic" : "")}
+                isRowLocked={(r: ManagerOrders) => !!((r as any).__leg || (r as any).__idle)}
+                rowColor={(r: ManagerOrders) => ((r as any).__leg || (r as any).__idle ? "text-muted-foreground italic" : "")}
                 manualSorting
                 stickyActions
                 paginationProps={{
