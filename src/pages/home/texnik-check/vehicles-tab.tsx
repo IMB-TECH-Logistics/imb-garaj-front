@@ -1,4 +1,4 @@
-import ParamTabs from "@/components/as-params/tabs"
+import { ParamCombobox } from "@/components/as-params/combobox"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
@@ -330,14 +330,19 @@ const VehiclesTab = () => {
                 data={data ?? []}
                 onRowClick={(row) => setOpenId(row.id)}
                 head={
-                    <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
-                        <ParamTabs
+                    <div className="mb-3 flex items-center justify-end gap-3 flex-wrap">
+                        <ParamCombobox
                             paramName="ti_status"
+                            isSearch={false}
+                            label={t("texnik.vehicles.all")}
                             options={[
-                                { value: "all", label: t("texnik.vehicles.all") },
-                                { value: "expired", label: t("texnik.vehicles.expired") },
-                                { value: "soon", label: t("texnik.vehicles.soon") },
+                                { id: "all", name: t("texnik.vehicles.all") },
+                                { id: "expired", name: t("texnik.vehicles.expired") },
+                                { id: "soon", name: t("texnik.vehicles.soon") },
                             ]}
+                            addButtonProps={{
+                                className: "!bg-background dark:!bg-secondary min-w-44 justify-start",
+                            }}
                         />
                         {canControl && (
                             <Button onClick={() => addExpense()}>

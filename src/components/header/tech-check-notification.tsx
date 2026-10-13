@@ -23,8 +23,8 @@ export function TechCheckNotification() {
         navigate({
             to: "/technic-check",
             search: (truckNumber ?
-                { ti_alert: "1", vehicle_search: truckNumber }
-            :   { ti_alert: "1" }) as any,
+                { vehicle_search: truckNumber }
+            :   { ti_status: data?.expired ? "expired" : "soon" }) as any,
         })
     }
 
@@ -61,7 +61,6 @@ export function TechCheckNotification() {
                             navigate({
                                 to: "/technic-check",
                                 search: {
-                                    ti_tab: "vehicles",
                                     ti_status: data?.items_expired ? "expired" : "soon",
                                 } as any,
                             })
