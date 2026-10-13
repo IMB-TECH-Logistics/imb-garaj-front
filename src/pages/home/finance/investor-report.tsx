@@ -312,9 +312,6 @@ export const MonthlyReport = ({ vehicleId }: { vehicleId?: string | number }) =>
 
     return (
         <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">
-                {t("fin.inv.monthly_note")}
-            </p>
             <DataTable
                 columns={columns}
                 data={rows}

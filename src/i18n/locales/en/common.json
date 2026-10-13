@@ -1463,8 +1463,7 @@
         "inv": {
             "source_kassa": "Cash desk",
             "expenses_count": "Number of expenses",
-            "net_result": "Net result",
-            "monthly_note": "The income and expenses of a turnover are recorded in the month in which it was closed. Vehicle expenses are recorded by their own date."
+            "net_result": "Net result"
         }
     },
     "fleet": {

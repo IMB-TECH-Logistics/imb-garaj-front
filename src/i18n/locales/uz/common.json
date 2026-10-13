@@ -1460,8 +1460,7 @@
         "inv": {
             "source_kassa": "Kassa",
             "expenses_count": "Xarajatlar soni",
-            "net_result": "Sof natija",
-            "monthly_note": "Aylanma qaysi oyda yopilgan bo'lsa, daromadi va xarajati o'sha oyga yoziladi. Mashina xarajati o'z sanasi bo'yicha."
+            "net_result": "Sof natija"
         }
     },
     "fleet": {
