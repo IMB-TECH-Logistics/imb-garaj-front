@@ -2642,5 +2642,17 @@
         "voice_recorder": {
             "delete_audio": "Delete recorded audio"
         }
+    },
+    "coordinates": {
+        "title": "Coordinates",
+        "label": "Coordinates (latitude, longitude)",
+        "radius": "Radius (m)",
+        "hint": "Click the point in Google Maps and copy the numbers, e.g. 41.311081, 69.240562. Latitude first (41.x), then longitude (69.x). Radius — the truck counts as arrived once inside it.",
+        "invalid": "Enter coordinates as «41.311081, 69.240562»",
+        "missing": "Not set",
+        "open_map": "Open in Google Maps",
+        "remove": "Remove coordinates",
+        "edit_title": "Distributor coordinates",
+        "only_missing": "Without coordinates"
     }
 }

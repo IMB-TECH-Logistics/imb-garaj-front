@@ -2639,5 +2639,17 @@
         "voice_recorder": {
             "delete_audio": "Yozilgan ovozni o'chirish"
         }
+    },
+    "coordinates": {
+        "title": "Koordinata",
+        "label": "Koordinata (kenglik, uzunlik)",
+        "radius": "Radius (m)",
+        "hint": "Google Maps'da nuqtani bosib, chiqqan raqamlarni nusxalang, masalan: 41.311081, 69.240562. Avval kenglik (41.x), keyin uzunlik (69.x). Radius — mashina shu masofa ichiga kirsa, nuqtaga yetib keldi hisoblanadi.",
+        "invalid": "Koordinatani «41.311081, 69.240562» ko'rinishida kiriting",
+        "missing": "Kiritilmagan",
+        "open_map": "Google Maps'da ochish",
+        "remove": "Koordinatani o'chirish",
+        "edit_title": "Distributor koordinatasi",
+        "only_missing": "Koordinatasiz"
     }
 }

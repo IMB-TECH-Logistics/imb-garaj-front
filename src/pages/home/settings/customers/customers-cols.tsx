@@ -1,3 +1,4 @@
+import CoordinatesCell from "@/components/custom/coordinates-cell"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -23,6 +24,14 @@ export const useColumnsCustomersTable = () => {
                     <div className="min-w-[180px] w-[220px] truncate">
                         {row.original.name || "-"}
                     </div>
+                ),
+            },
+            {
+                id: "coordinates",
+                header: t("coordinates.title"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <CoordinatesCell lat={row.original.lat} lng={row.original.lng} radius={row.original.radius_m} />
                 ),
             },
         ],

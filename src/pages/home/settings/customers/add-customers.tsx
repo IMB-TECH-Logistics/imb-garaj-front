@@ -11,6 +11,10 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import axiosInstance from "@/services/axios-instance"
+import CoordinatesFields from "@/components/custom/coordinates-fields"
+import { formatCoordinates, parseCoordinates } from "@/lib/coordinates"
+
+type CustomerForm = CustomersType & { coordinates: string; radius_m: number | string }
 
 const normalizeName = (value?: string) =>
     (value ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase()
@@ -23,10 +27,12 @@ const AddCustomerModal = () => {
     const confirm = useConfirm()
 
     const currentForwarder = getData<CustomersType>(SETTINGS_CUSTOMERS)
-    const form = useForm<CustomersType>({
+    const form = useForm<CustomerForm>({
         defaultValues: {
             name: currentForwarder?.name ?? "",
             code: currentForwarder?.code ?? "",
+            coordinates: formatCoordinates(currentForwarder?.lat, currentForwarder?.lng),
+            radius_m: currentForwarder?.radius_m ?? 1000,
         },
     })
 
@@ -53,7 +59,7 @@ const AddCustomerModal = () => {
 
     const isPending = isPendingCreate || isPendingUpdate
 
-    const onSubmit = async (values: CustomersType) => {
+    const onSubmit = async (values: CustomerForm) => {
         const isValid = await form.trigger()
 
         if (!isValid) {
@@ -61,7 +67,19 @@ const AddCustomerModal = () => {
             return
         }
 
-        const payload = { name: values.name, code: values.code }
+        const text = (values.coordinates ?? "").trim()
+        const point = parseCoordinates(text)
+        if (text && !point) {
+            toast.error(t("coordinates.invalid"))
+            return
+        }
+        const payload = {
+            name: values.name,
+            code: values.code,
+            lat: point?.lat ?? null,
+            lng: point?.lng ?? null,
+            radius_m: Number(values.radius_m) || 1000,
+        }
 
         const name = normalizeName(values.name)
         if (name && name !== normalizeName(currentForwarder?.name)) {
@@ -113,6 +131,8 @@ const AddCustomerModal = () => {
                         methods={form}
                         placeholder={t("settings.customers.code_placeholder")}
                     />
+
+                    <CoordinatesFields methods={form} />
 
                     <div className="flex items-center justify-end gap-2 md:col-span-2">
                         <Button

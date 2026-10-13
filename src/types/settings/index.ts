@@ -195,6 +195,9 @@ type CustomersType = {
     name: string
     phone_number: string
     code: string
+    lat?: number | null
+    lng?: number | null
+    radius_m?: number | null
     created?: string
     updated?: string
     is_deleted?: false
@@ -280,4 +283,7 @@ type DistributorType = {
     district_name: string
     region_id: number
     region_name: string
+    lat?: number | null
+    lng?: number | null
+    radius_m?: number | null
 }

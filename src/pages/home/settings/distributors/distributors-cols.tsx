@@ -1,3 +1,4 @@
+import CoordinatesCell from "@/components/custom/coordinates-cell"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -25,6 +26,14 @@ export const useColumnsDistributorsTable = () => {
                 header: t("form.code"),
                 enableSorting: false,
                 cell: ({ row }) => row.original.code || "-",
+            },
+            {
+                id: "coordinates",
+                header: t("coordinates.title"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <CoordinatesCell lat={row.original.lat} lng={row.original.lng} radius={row.original.radius_m} />
+                ),
             },
         ],
         [t],
