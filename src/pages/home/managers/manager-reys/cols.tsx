@@ -11,6 +11,7 @@ import { STATUS_TRIP } from "../managers-trips/cols"
 import { hasPriceDiff } from "./price-diff"
 import { PaymentType } from "./payment-fields"
 import type { EmptyLeg } from "./empty-leg-pay-modal"
+import type { ExtraPayTarget } from "./extra-pay-modal"
 import { useGet } from "@/hooks/useGet"
 import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 
@@ -46,6 +47,7 @@ const isGarajOrTamirActivity = (activity?: number) =>
 export const useColumnsManagersOrders = (opts?: {
     onImageClick?: (images: { id: number; image: string }[]) => void
     onLegPay?: (leg: EmptyLeg) => void
+    onExtraPay?: (target: ExtraPayTarget) => void
 }) => {
     const { t } = useTranslation()
     const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
@@ -259,46 +261,91 @@ export const useColumnsManagersOrders = (opts?: {
             },
             {
                 id: "empty_leg_pay",
-                header: t("trips.reys_cols.empty_run_pay"),
+                header: t("trips.reys_cols.extra_pay"),
                 size: 150,
                 cell: ({ row }) => {
+                    const r = row.original as any
+                    const payButton = (title: string, disabled: boolean, onClick: () => void) => (
+                        <button
+                            type="button"
+                            disabled={disabled}
+                            title={disabled ? t("trips.reys_cols.trip_locked") : title}
+                            className="text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-40"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onClick()
+                            }}
+                        >
+                            <Banknote size={16} />
+                        </button>
+                    )
+                    const amountOf = (value: unknown) =>
+                        value != null && Number(value) > 0 ? (
+                            <span className="whitespace-nowrap font-medium text-green-600 tabular-nums">
+                                {formatMoney(Number(value))}
+                            </span>
+                        ) : null
+
+                    if (r.__idle) {
+                        const leg = r.__idleLeg as EmptyLeg | undefined
+                        if (!leg) return <span className="text-muted-foreground">—</span>
+                        return (
+                            <div className="flex items-center gap-2" title={leg.idle_payment_comment ?? undefined}>
+                                {amountOf(leg.idle_payment_amount)}
+                                {opts?.onExtraPay && leg.id != null &&
+                                    payButton(t("trips.reys_cols.idle_pay"), !!leg.locked || !!leg.salary_paid_at, () =>
+                                        opts.onExtraPay?.({
+                                            kind: "idle",
+                                            id: leg.id as number,
+                                            title: t("trips.reys_cols.idle_pay"),
+                                            route: leg.from_place || "—",
+                                            amount: leg.idle_payment_amount,
+                                            comment: leg.idle_payment_comment,
+                                        }),
+                                    )}
+                            </div>
+                        )
+                    }
+
                     const legs = legsOf(row.original)
-                    if (!legs.length) return <span className="text-muted-foreground">—</span>
+                    const isOrder = !r.__leg && (r.activity === 1 || r.activity === 4)
+                    if (!legs.length && !isOrder) return <span className="text-muted-foreground">—</span>
                     return (
                         <div className="flex flex-col gap-1 not-italic">
                             {legs.map((leg) => {
-                                const amount = leg.payment_amount != null ? Number(leg.payment_amount) : null
                                 const route = `${leg.from_place || t("trips.empty_leg.turnover_start")} → ${leg.to_place || "—"}`
                                 return (
                                     <div key={leg.id ?? leg.before_order} className="flex items-center gap-2">
-                                        {amount != null && (
-                                            <span className="whitespace-nowrap font-medium text-green-600 tabular-nums">
-                                                {formatMoney(amount)}
-                                            </span>
-                                        )}
-                                        {opts?.onLegPay && leg.id != null && (
-                                            <button
-                                                type="button"
-                                                disabled={leg.locked}
-                                                title={
-                                                    leg.locked
-                                                        ? t("trips.reys_cols.trip_locked")
-                                                        : legs.length > 1
-                                                          ? `${t("trips.reys_cols.empty_run_pay")}: ${route}`
-                                                          : t("trips.reys_cols.empty_run_pay")
-                                                }
-                                                className="text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-40"
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    opts.onLegPay?.(leg)
-                                                }}
-                                            >
-                                                <Banknote size={16} />
-                                            </button>
-                                        )}
+                                        {amountOf(leg.payment_amount)}
+                                        {opts?.onLegPay && leg.id != null &&
+                                            payButton(
+                                                legs.length > 1
+                                                    ? `${t("trips.reys_cols.empty_run_pay")}: ${route}`
+                                                    : t("trips.reys_cols.empty_run_pay"),
+                                                !!leg.locked || !!leg.salary_paid_at,
+                                                () => opts.onLegPay?.(leg),
+                                            )}
                                     </div>
                                 )
                             })}
+                            {isOrder && (
+                                <div className="flex items-center gap-2" title={r.extra_pay_comment ?? undefined}>
+                                    {amountOf(r.extra_pay_amount)}
+                                    {opts?.onExtraPay &&
+                                        payButton(t("trips.reys_cols.extra_pay_title"), !!r.extra_pay_paid_at, () =>
+                                            opts.onExtraPay?.({
+                                                kind: "order",
+                                                id: r.id,
+                                                title: t("trips.reys_cols.extra_pay_title"),
+                                                route: r.activity === 4
+                                                    ? `${r.loading_name ?? "—"} — ${t("status.idle_stop")}`
+                                                    : `${r.loading_name ?? "—"} → ${r.unloading_name ?? "—"}`,
+                                                amount: r.extra_pay_amount,
+                                                comment: r.extra_pay_comment,
+                                            }),
+                                        )}
+                                </div>
+                            )}
                         </div>
                     )
                 },
@@ -374,7 +421,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             ]
         },
-        [opts?.onImageClick, opts?.onLegPay, t, paymentTypesData],
+        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, t, paymentTypesData],
     )
 }
 

@@ -1234,12 +1234,26 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
     const isCashExpense = (r: FinanceRow) =>
         r.category_code !== "salary" && !(r.category_code === "fuel" && /o.?tkaz/i.test(r.payment_type_name ?? ""))
     const cashExpenseSum = sumOf(allExpenses.filter(isCashExpense))
-    const { data: closePreview } = useGet<{ due: number; salary_orders?: { amount: number | null; tariff: number | null }[] }>(
+    const { data: closePreview } = useGet<{
+        due: number
+        salary_orders?: { amount: number | null; tariff: number | null }[]
+        empty_leg_salary?: { amount: number; legs: { id: number; route: string; start: string | null; amount: number }[] } | null
+        extra_pay_salary?: { amount: number; orders: { order: number; route: string; date: string | null; comment: string | null; amount: number }[] } | null
+    }>(
         `checkout/kassa-v2/trips/${tripId}/close-preview`,
         { enabled: !!tripId && !!hideToggle, options: { retry: false } },
     )
+    const extraSalarySum = closePreview ?
+        Number(closePreview.empty_leg_salary?.amount ?? 0) + Number(closePreview.extra_pay_salary?.amount ?? 0)
+    :   0
+    const extraSalaryRows = closePreview ?
+        [
+            ...(closePreview.extra_pay_salary?.orders ?? []).map((r) => ({ key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount) })),
+            ...(closePreview.empty_leg_salary?.legs ?? []).map((r) => ({ key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount) })),
+        ]
+    :   []
     const profit = closePreview ?
-        Number(closePreview.due) -
+        Number(closePreview.due) - extraSalarySum -
             (closePreview.salary_orders ?
                 closePreview.salary_orders.reduce((a, r) => a + Number(r.amount ?? r.tariff ?? 0), 0)
             :   salarySum)
@@ -1316,7 +1330,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                 <SummaryCard label={t("trips.kclose.advance")} amountUzs={avansSum} variant="advance" active={filter === "avans"} onClick={() => setFilter("avans")} />
                                 <SummaryCard label={t("trips.kclose.cash_trip_money")} amountUzs={incomeUzs - avansSum} variant="income" active={filter === "tushum"} onClick={() => setFilter("tushum")} />
                                 <SummaryCard label={t("trips.kirim.cash_expense")} amountUzs={cashExpenseSum} variant="expense" active={filter === "xarajat"} onClick={() => setFilter("xarajat")} />
-                                <SummaryCard label={t("trips.kclose.salary")} amountUzs={salarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />
+                                <SummaryCard label={t("trips.kclose.salary")} amountUzs={salarySum + extraSalarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />
                                 {profit != null && <SummaryCard label={t("form.balance")} amountUzs={profit} variant={profit < 0 ? "expense" : "balance"} />}
                             </>
                         :   <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} variant="income" />}
@@ -1483,6 +1497,24 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                 </>
                             }
                         />
+                        {filter === "oylik" && extraSalaryRows.length > 0 && (
+                            <div className="mt-4">
+                                <div className="mb-2 flex items-center gap-3">
+                                    <h2 className="text-base font-semibold">{t("trips.reys_cols.extra_pay_list")}</h2>
+                                    <Badge className="text-sm">{extraSalaryRows.length}</Badge>
+                                </div>
+                                <div className="flex flex-col divide-y rounded-md border">
+                                    {extraSalaryRows.map((r) => (
+                                        <div key={r.key} className="flex items-center gap-3 px-3 py-2 text-sm">
+                                            <span className="whitespace-nowrap font-medium text-red-500 tabular-nums">−{formatMoney(r.amount)}</span>
+                                            <span className="flex-1">{r.route}</span>
+                                            {r.comment && <span className="text-muted-foreground">{r.comment}</span>}
+                                            <span className="whitespace-nowrap text-muted-foreground">{r.date ? String(r.date).slice(0, 10) : "—"}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )
             })() : (

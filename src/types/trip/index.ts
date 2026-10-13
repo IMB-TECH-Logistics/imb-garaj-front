@@ -112,6 +112,9 @@ type TripOrdersRow = {
     price_diff?: string | number
     price_diff_by_client?: boolean
     salary_amount?: number | string | null
+    extra_pay_amount?: number | string | null
+    extra_pay_comment?: string | null
+    extra_pay_paid_at?: string | null
 }
 
 type CashflowRow = {

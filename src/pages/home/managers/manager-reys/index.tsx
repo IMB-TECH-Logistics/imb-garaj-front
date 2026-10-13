@@ -28,6 +28,7 @@ import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
 import EmptyLegPayModal, { EMPTY_LEG_PAY_MODAL_KEY, type EmptyLeg } from "./empty-leg-pay-modal"
+import ExtraPayModal, { EXTRA_PAY_MODAL_KEY, type ExtraPayTarget } from "./extra-pay-modal"
 
 export default function ManagerReys() {
     const { t } = useTranslation()
@@ -86,12 +87,20 @@ export default function ManagerReys() {
 
     const [payLeg, setPayLeg] = useState<EmptyLeg | null>(null)
     const { openModal: openPayModal } = useModal(EMPTY_LEG_PAY_MODAL_KEY)
+    const [extraPay, setExtraPay] = useState<ExtraPayTarget | null>(null)
+    const { openModal: openExtraPayModal } = useModal(EXTRA_PAY_MODAL_KEY)
 
     const cols = useColumnsManagersOrders({
         onLegPay: hasControl
             ? (leg) => {
                   setPayLeg(leg)
                   openPayModal()
+              }
+            : undefined,
+        onExtraPay: hasControl
+            ? (target) => {
+                  setExtraPay(target)
+                  openExtraPayModal()
               }
             : undefined,
         onImageClick: (images) => {
@@ -143,6 +152,7 @@ export default function ManagerReys() {
             const idleRow = leg?.idle_start && ({
                 id: -leg.before_order - 1_000_000_000,
                 __idle: true,
+                __idleLeg: leg,
                 date: leg.idle_start,
                 activity: 4,
                 activity_display: t("status.idle_stop"),
@@ -255,6 +265,7 @@ export default function ManagerReys() {
             <ApproveTripModal order={approveOrder} />
 
             <EmptyLegPayModal leg={payLeg} />
+            <ExtraPayModal target={extraPay} />
 
             <DeleteModal
                 path={MANAGERS_ORDERS}

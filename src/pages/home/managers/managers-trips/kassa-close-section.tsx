@@ -33,6 +33,13 @@ type EmptyLegSalary = {
     legs: { id: number; route: string; start: string | null; end: string | null; km: number | null; amount: number }[]
 }
 
+type ExtraPaySalary = {
+    label: string
+    count: number
+    amount: number
+    orders: { order: number; route: string; date: string | null; comment: string | null; amount: number }[]
+}
+
 type Preview = {
     given: number
     earned: number
@@ -42,6 +49,7 @@ type Preview = {
     expenses: Expense[]
     salary_orders?: SalaryOrder[]
     empty_leg_salary?: EmptyLegSalary | null
+    extra_pay_salary?: ExtraPaySalary | null
 }
 
 type FlowRow = { id: number; action: number; amount: number; comment: string | null; created: string; loading_name: string | null; unloading_name: string | null; payment_type_name: string | null; category_code?: string | null }
@@ -143,19 +151,21 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
 
     const emptyLegs = preview?.empty_leg_salary
     const emptyLegAmount = Number(emptyLegs?.amount ?? 0)
+    const extraPay = preview?.extra_pay_salary
+    const extraPayAmount = Number(extraPay?.amount ?? 0)
     const salaryTotal = Object.values(salaries).reduce((a, v) => a + (Number(v) || 0), 0)
     const due = preview ? Number(preview.due) : 0
-    const net = due - salaryTotal - emptyLegAmount
+    const net = due - salaryTotal - emptyLegAmount - extraPayAmount
 
     useEffect(() => {
         onChange({
             ready: !!preview,
             amount: net,
-            salary: salaryTotal + emptyLegAmount,
+            salary: salaryTotal + emptyLegAmount + extraPayAmount,
             salaries: Object.entries(salaries).map(([order, value]) => ({ order: Number(order), amount: Number(value) || 0 })),
             expenses: [],
         })
-    }, [preview, net, salaryTotal, emptyLegAmount, salaries])
+    }, [preview, net, salaryTotal, emptyLegAmount, extraPayAmount, salaries])
 
     const { mutate: patch, isPending: saving } = usePatch({ meta: { skipGlobalError: true } })
     const form = useForm<{ amount: number | ""; category: string; comment: string }>({ defaultValues: { amount: "", category: "", comment: "" } })
@@ -197,6 +207,13 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
         { header: t("trips.units.km_title"), accessorKey: "km", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.km != null ? `${formatMoney(Number(row.original.km))} ${t("trips.units.km")}` : "—"}</span> },
         { header: t("form.date"), accessorKey: "start", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{formatDateTime(row.original.start ?? undefined)}</span> },
     ], [t])
+
+    const extraPayCols: ColumnDef<ExtraPaySalary["orders"][number]>[] = [
+        { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(Number(row.original.amount))}</span> },
+        { header: t("trips.kclose.trip"), accessorKey: "route" },
+        { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => row.original.comment || "—" },
+        { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{row.original.date || "—"}</span> },
+    ]
 
     if (isLoading || !preview) return <p className="text-sm text-muted-foreground">{t("trips.kclose.loading")}</p>
 
@@ -291,6 +308,21 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
                         <AccordionContent className="pb-3">
                             <div className="max-h-[38vh] overflow-y-auto">
                                 <DataTable className={COMPACT} columns={emptyLegCols} data={emptyLegs.legs} numeration viewAll />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                )}
+                {extraPay && extraPayAmount > 0 && (
+                    <AccordionItem value="extra-pay" className="border-0">
+                        <AccordionTrigger className={trigger}>
+                            {line(
+                                <>{t("trips.reys_cols.extra_pay_list")}<Badge variant="outline" className="h-5 px-1.5">{extraPay.count}</Badge></>,
+                                `−${money(extraPayAmount)}`,
+                            )}
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-3">
+                            <div className="max-h-[38vh] overflow-y-auto">
+                                <DataTable className={COMPACT} columns={extraPayCols} data={extraPay.orders} numeration viewAll />
                             </div>
                         </AccordionContent>
                     </AccordionItem>

@@ -33,6 +33,9 @@ export type EmptyLeg = {
     payment_comment?: string | null
     payment_by_name?: string | null
     payment_at?: string | null
+    idle_payment_amount?: number | string | null
+    idle_payment_comment?: string | null
+    salary_paid_at?: string | null
     locked?: boolean
 }
 
