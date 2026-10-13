@@ -903,7 +903,13 @@
             "detail_title": "Детали расхода",
             "items_title": "Товары, взятые со склада",
             "days_left": "Осталось {{count}} дн.",
-            "expired_badge": "Просрочено"
+            "expired_badge": "Просрочено",
+            "services_block": "Услуги мастера",
+            "add_service": "Добавить услугу",
+            "service_comment": "Что сделано",
+            "service_placeholder": "Например: замена шины",
+            "services_total": "Итого услуги",
+            "no_services": "Услуги не добавлены"
         },
         "low_stock": {
             "title": "Склад: заканчивающиеся товары",

@@ -894,7 +894,13 @@
             "detail_title": "Харажат тафсилоти",
             "items_title": "Омбордан олинган маҳсулотлар",
             "days_left": "{{count}} кун қолди",
-            "expired_badge": "Муддати ўтган"
+            "expired_badge": "Муддати ўтган",
+            "services_block": "Уста хизматлари",
+            "add_service": "Хизмат қўшиш",
+            "service_comment": "Нима қилинди",
+            "service_placeholder": "Масалан: шина алмаштириш",
+            "services_total": "Хизматлар жами",
+            "no_services": "Хизмат киритилмаган"
         },
         "low_stock": {
             "title": "Омбор: кам қолган маҳсулотлар",

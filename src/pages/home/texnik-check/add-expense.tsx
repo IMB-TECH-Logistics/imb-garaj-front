@@ -27,6 +27,7 @@ import {
 } from "./types"
 import { useLineCheck } from "./use-line-check"
 import WarehouseLines from "./warehouse-lines"
+import ServiceLines from "./service-lines"
 
 type SelectItem = { id: number | string; name: string }
 
@@ -56,12 +57,17 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                 quantity: String(Number(item.quantity)),
                 odometer: item.odometer ? String(item.odometer) : "",
             })),
+            services: (current?.services ?? []).map((s) => ({
+                comment: s.comment,
+                amount: String(Number(s.amount)),
+            })),
         },
     })
 
     const { handleSubmit, control, reset, setValue, getValues } = form
     const category = useWatch({ control, name: "category" })
     const items = useWatch({ control, name: "items" })
+    const services = useWatch({ control, name: "services" }) ?? []
     const dateValue = useWatch({ control, name: "date" })
     const minLifespan = dateValue ? startOfDay(new Date(dateValue)) : undefined
 
@@ -86,7 +92,9 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
         (category === current?.category ? current?.category_code : null)
     const isWarehouse = categoryCode === TECH_INSPECTION_CODE
     const check = useLineCheck(items, current, isWarehouse)
-    const error = isWarehouse ? check.error : ""
+    const servicesOnly = !items?.length && services.length > 0
+    const error = isWarehouse && !servicesOnly ? check.error : ""
+    const warehouseInvalid = servicesOnly ? false : check.invalid
 
     const onSuccess = () => {
         toast.success(current?.id ? t("messages.success_edit") : t("messages.success_add"))
@@ -125,6 +133,10 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                             { odometer: Number(item.odometer) }
                         :   {}),
                     })),
+                    services: (values.services ?? []).map((s) => ({
+                        comment: s.comment.trim(),
+                        amount: s.amount,
+                    })),
                 }
             :   { ...base, amount: values.amount }
 
@@ -153,7 +165,10 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                     />
 
                     {isWarehouse ?
-                        <WarehouseLines form={form} current={current} check={check} />
+                        <>
+                            <WarehouseLines form={form} current={current} check={check} />
+                            <ServiceLines form={form} />
+                        </>
                     :   <FormNumberInput
                             required
                             name="amount"
@@ -211,7 +226,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                 <Button
                     type="submit"
                     loading={isPending}
-                    disabled={isWarehouse ? check.invalid : !!error}
+                    disabled={isWarehouse ? warehouseInvalid : !!error}
                     className="min-w-36"
                 >
                     {t("actions.save")}

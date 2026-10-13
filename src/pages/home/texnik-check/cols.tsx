@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import i18n from "@/i18n/i18n"
-import type { ExpenseItem } from "./types"
+import type { ExpenseItem, InspectionServiceRow } from "./types"
 
 export type VehicleExpenseRow = {
     id: number
@@ -22,6 +22,7 @@ export type VehicleExpenseRow = {
     amount: string | number | null
     warehouse_total: string | null
     items: ExpenseItem[]
+    services?: InspectionServiceRow[]
     executor: number | null
     executor_name: string | null
     created: string
@@ -67,7 +68,7 @@ export const useExpenseCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const v =
-                        Number(row.original.amount ?? row.original.warehouse_total ?? 0) || 0
+                        (Number(row.original.amount) || 0) + (Number(row.original.warehouse_total) || 0)
                     return <span className="font-medium text-red-600">{formatMoney(v)}</span>
                 },
             },

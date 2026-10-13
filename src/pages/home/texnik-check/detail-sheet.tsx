@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table"
 import { formatMoney } from "@/lib/format-money"
 import { differenceInCalendarDays, parseISO } from "date-fns"
-import { Boxes, FileText, PackageMinus, SquarePen } from "lucide-react"
+import { Wrench, Boxes, FileText, PackageMinus, SquarePen } from "lucide-react"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { fmtDate, toNumber } from "../ombor/utils"
@@ -69,6 +69,7 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
     const { t } = useTranslation()
     const isWarehouse = row?.category_code === TECH_INSPECTION_CODE
     const items = row?.items ?? []
+    const services = row?.services ?? []
 
     return (
         <Sheet open={!!row} onOpenChange={(open) => !open && onClose()}>
@@ -191,6 +192,43 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                         ))}
                                     </TableBody>
                                 </Table>
+                                {!!services.length && (
+                                    <>
+                                        <h3 className="font-medium mt-5 mb-2 flex items-center gap-2">
+                                            <Wrench size={16} className="text-primary" />
+                                            {t("wh.tech.services_block")}
+                                            <Badge>{services.length}</Badge>
+                                        </h3>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-10">№</TableHead>
+                                                    <TableHead>{t("wh.tech.service_comment")}</TableHead>
+                                                    <TableHead className="text-right">{t("form.amount")}</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {services.map((s, index) => (
+                                                    <TableRow key={s.id}>
+                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell>{s.comment}</TableCell>
+                                                        <TableCell className="text-right tabular-nums whitespace-nowrap">
+                                                            {formatMoney(Number(s.amount))}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                        <div className="rounded-lg bg-muted/60 p-3 mt-3">
+                                            <div className="text-xs text-muted-foreground">
+                                                {t("wh.tech.services_total")}
+                                            </div>
+                                            <div className="text-base font-semibold tabular-nums text-red-600">
+                                                {formatMoney(Number(row.amount ?? 0))} {t("page.som")}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </>
                         :   <div className="rounded-lg bg-muted/60 p-3 mt-5">
                                 <div className="text-xs text-muted-foreground">

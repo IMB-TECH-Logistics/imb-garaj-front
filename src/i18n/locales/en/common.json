@@ -897,7 +897,13 @@
             "detail_title": "Expense details",
             "items_title": "Products taken from the warehouse",
             "days_left": "{{count}} days left",
-            "expired_badge": "Expired"
+            "expired_badge": "Expired",
+            "services_block": "Mechanic services",
+            "add_service": "Add service",
+            "service_comment": "Work done",
+            "service_placeholder": "E.g. tyre replacement",
+            "services_total": "Services total",
+            "no_services": "No services added"
         },
         "low_stock": {
             "title": "Warehouse: low stock products",

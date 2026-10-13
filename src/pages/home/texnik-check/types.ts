@@ -42,6 +42,17 @@ export type LineValues = {
     odometer?: string
 }
 
+export type ServiceValues = {
+    comment: string
+    amount: string
+}
+
+export type InspectionServiceRow = {
+    id: number
+    comment: string
+    amount: string
+}
+
 export type ExpenseForm = {
     vehicle: number | null
     category: number | null
@@ -50,4 +61,5 @@ export type ExpenseForm = {
     lifespan: string
     comment: string
     items: LineValues[]
+    services: ServiceValues[]
 }

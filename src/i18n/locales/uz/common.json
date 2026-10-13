@@ -894,7 +894,13 @@
             "detail_title": "Xarajat tafsiloti",
             "items_title": "Ombordan olingan mahsulotlar",
             "days_left": "{{count}} kun qoldi",
-            "expired_badge": "Muddati o'tgan"
+            "expired_badge": "Muddati o'tgan",
+            "services_block": "Usta xizmatlari",
+            "add_service": "Xizmat qo'shish",
+            "service_comment": "Nima qilindi",
+            "service_placeholder": "Masalan: shina almashtirish",
+            "services_total": "Xizmatlar jami",
+            "no_services": "Xizmat kiritilmagan"
         },
         "low_stock": {
             "title": "Ombor: kam qolgan mahsulotlar",
