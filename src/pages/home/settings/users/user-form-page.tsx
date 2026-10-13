@@ -122,6 +122,7 @@ const UserFormPage = () => {
                             <FormInput
                                 required
                                 name="first_name"
+                                maxLength={50}
                                 label={t("form.first_name")}
                                 methods={form}
                                 placeholder={`${t("form.example")}: Ali`}
@@ -130,6 +131,7 @@ const UserFormPage = () => {
                             <FormInput
                                 required
                                 name="last_name"
+                                maxLength={50}
                                 label={t("form.last_name")}
                                 methods={form}
                                 placeholder={`${t("form.example")}: Aliyev`}
