@@ -114,7 +114,7 @@ const KassaV2 = () => {
             </TabsList>
         </Tabs>
     )
-    const drivers = [...(ov?.drivers ?? [])].sort((a, b) => n(b.balance) - n(a.balance))
+    const drivers = [...(ov?.drivers ?? [])].sort((a, b) => n(b.held ?? b.balance) - n(a.held ?? a.balance))
     const selected = drivers.find((d) => d.id === driver)
 
     return (
@@ -166,16 +166,33 @@ const KassaV2 = () => {
                                     key={d.id}
                                     onClick={() => { setDriver(d.id); setView("driver") }}
                                     className={cn(
-                                        "flex items-center justify-between py-1.5 -mx-2 px-2 rounded-md cursor-pointer hover:bg-muted/80",
+                                        "py-1.5 -mx-2 px-2 rounded-md cursor-pointer hover:bg-muted/80",
                                         driver === d.id && view === "driver" && "bg-primary/10",
                                     )}
                                 >
-                                    <span className="text-sm flex items-center gap-2 min-w-0 flex-1">
-                                        <span className="text-xs text-muted-foreground w-4 text-right shrink-0">{i + 1}</span>
-                                        <span className="truncate" title={d.name}>{d.name}</span>
-                                        {d.plate && <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{d.plate}</span>}
-                                    </span>
-                                    <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", n(d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.balance))}</span>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm flex items-center gap-2 min-w-0 flex-1">
+                                            <span className="text-xs text-muted-foreground w-4 text-right shrink-0">{i + 1}</span>
+                                            <span className="truncate" title={d.name}>{d.name}</span>
+                                            {d.plate && <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{d.plate}</span>}
+                                        </span>
+                                        <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", n(d.held ?? d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.held ?? d.balance))}</span>
+                                    </div>
+                                    {!!n(d.unconfirmed_total) && (
+                                        <div className="pl-6 mt-0.5 space-y-0.5 text-xs text-muted-foreground">
+                                            <div
+                                                className="flex justify-between gap-3"
+                                                title={t("fin.kv2.unconfirmed_expense_hint", { expense: formatMoney(n(d.unconfirmed_expense)), salary: formatMoney(n(d.unconfirmed_salary)) })}
+                                            >
+                                                <span>{t("fin.kv2.unconfirmed_expense")}</span>
+                                                <span className="tabular-nums text-destructive">−{formatMoney(n(d.unconfirmed_total))}</span>
+                                            </div>
+                                            <div className="flex justify-between gap-3">
+                                                <span>{t("fin.kv2.unconfirmed_left")}</span>
+                                                <span className={cn("tabular-nums font-medium text-foreground", n(d.unconfirmed_left) < 0 && "text-destructive")}>{formatMoney(n(d.unconfirmed_left))}</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                             {!drivers.length && <p className="text-xs text-muted-foreground">{t("fin.kv2.no_trips_yet")}</p>}

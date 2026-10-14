@@ -64,7 +64,17 @@ export type Overview = {
     started_at: string | null
     income: { total: number; external: number; trips: number; drivers: number; reversals: number }
     outcome: { total: number; avans: number; farq: number; oylik: number; garaj: number; reversals: number }
-    drivers: { id: number; name: string; plate: string | null; balance: number }[]
+    drivers: {
+        id: number
+        name: string
+        plate: string | null
+        balance: number
+        held?: number
+        unconfirmed_expense?: number
+        unconfirmed_salary?: number
+        unconfirmed_total?: number
+        unconfirmed_left?: number
+    }[]
     drivers_total: number
     pending_requests: number
 }
