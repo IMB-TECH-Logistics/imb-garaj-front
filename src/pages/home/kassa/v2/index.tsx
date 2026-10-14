@@ -10,7 +10,7 @@ import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { endOfMonth, startOfMonth } from "date-fns"
 import { useTranslation } from "react-i18next"
-import { ArrowDownCircle, X } from "lucide-react"
+import { ArrowDownCircle, ArrowUpCircle, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
 import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRIPS, n, Paged, STATUS, useAllPeriodTx, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
@@ -95,6 +95,7 @@ const KassaV2 = () => {
     const [paying, setPaying] = useState<KassaRequest | null>(null)
     const [closing, setClosing] = useState<KassaTrip | null>(null)
     const [incomeRow, setIncomeRow] = useState<KassaTx | null>(null)
+    const [incomeOut, setIncomeOut] = useState(false)
     const [reverseRow, setReverseRow] = useState<KassaTx | null>(null)
 
     const income = useModal(M.income)
@@ -135,7 +136,7 @@ const KassaV2 = () => {
                         {!!n(sm?.income.reversals) && <Line sub label={t("fin.kv2.reversed_expenses")} value={sm?.income.reversals} {...lineProps("in_reversals", "fin.kv2.reversed_expenses")} />}
                     </Box>
                     <Box className="bg-red-600/5 border-red-600/30">
-                        <Line strong tone="red" label={t("fin.kv2.expense")} value={-n(sm?.expense.total)} />
+                        <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />
                         {expenseLines.map((l) => (
                             <Line
                                 key={l.key}
@@ -146,8 +147,12 @@ const KassaV2 = () => {
                             />
                         ))}
                         <Line sub label={t("table.monthly_salary")} value={-(n(sm?.expense.oylik) + n(sm?.expense.salary_cash))} {...expProps({ key: "salary", kind: "salary", label: t("table.monthly_salary"), amount: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)) })} />
-                        <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
+                    </Box>
+                    <Box className="bg-orange-500/5 border-orange-500/30">
+                        <Line strong tone="red" label={t("fin.kv2.other_expenses")} value={-n(sm?.other_expense?.total ?? sm?.expense.garaj)} />
+                        <Line sub label={t("fin.kv2.cash_out")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.cash_out")} />
+                        <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                     </Box>
                     <Box className="bg-primary/5 border-primary/30">
                         <Line strong label={t("fin.kv2.closing_balance")} value={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total)} tone={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total) < 0 ? "red" : undefined} />
@@ -257,17 +262,21 @@ const KassaV2 = () => {
                         group={group}
                         groupLabel={groupLabel ? t(groupLabel) : ""}
                         onClearGroup={() => setGroup(null)}
-                        onEdit={(r) => { setIncomeRow(r); income.openModal() }}
-                        onDelete={(r) => { setIncomeRow(r); delIncome.openModal() }}
+                        onEdit={(r) => { setIncomeRow(r); setIncomeOut(r.kind === "chiqim"); income.openModal() }}
+                        onDelete={(r) => { setIncomeRow(r); setIncomeOut(r.kind === "chiqim"); delIncome.openModal() }}
                         onReverse={(r) => { setReverseRow(r); reverseM.openModal() }}
                         onReject={(r) => { setRejecting(r); reject.openModal() }}
                         onPay={(r) => { setPaying(r); pay.openModal() }}
                         onEditRequest={(r) => { setEditing(r); request.openModal() }}
                         actions={<>
                             {cashier && <>
-                            <Button onClick={() => { setIncomeRow(null); income.openModal() }}>
+                            <Button onClick={() => { setIncomeRow(null); setIncomeOut(false); income.openModal() }}>
                                 <ArrowDownCircle size={16} />
                                 {t("fin.kv2.cash_in")}
+                            </Button>
+                            <Button variant="outline" onClick={() => { setIncomeRow(null); setIncomeOut(true); income.openModal() }}>
+                                <ArrowUpCircle size={16} />
+                                {t("fin.kv2.cash_out")}
                             </Button>
                             </>}
                         </>}
@@ -275,7 +284,7 @@ const KassaV2 = () => {
                 }
             </div>
 
-            <Modal modalKey={M.income} title={incomeRow ? t("fin.kv2.edit_income") : t("fin.kv2.cash_in")} size="max-w-md"><IncomeModal editing={incomeRow} /></Modal>
+            <Modal modalKey={M.income} title={incomeRow ? t(incomeOut ? "fin.kv2.edit_expense" : "fin.kv2.edit_income") : t(incomeOut ? "fin.kv2.cash_out" : "fin.kv2.cash_in")} size="max-w-md"><IncomeModal editing={incomeRow} out={incomeOut} /></Modal>
             <Modal modalKey={M.deleteIncome} title={t("fin.kv2.delete_income")} size="max-w-md"><DeleteIncomeModal row={incomeRow} /></Modal>
             <Modal modalKey={M.request} title={!editing ? t("vst.new_request") : editing.status === 10 ? t("fin.kv2.edit_request") : t("fin.kv2.fix_request")} size="max-w-md"><RequestModal editing={editing} /></Modal>
             <Modal modalKey={M.reject} title={t("kassa.reject_title")} size="max-w-md"><RejectModal request={rejecting} /></Modal>

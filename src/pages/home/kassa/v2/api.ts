@@ -13,6 +13,7 @@ export const KV2_DRIVER_EXPENSES = `${KV2}/driver-expenses`
 export const KV2_TRANSACTIONS = `${KV2}/transactions`
 export const KV2_EXCEL = `${KV2}/transactions/excel`
 export const KV2_INCOME = `${KV2}/income`
+export const KV2_EXPENSE = `${KV2}/expense`
 export const KV2_REQUESTS = `${KV2}/requests`
 export const KV2_TRIPS = `${KV2}/trips`
 export const KV2_DRIVERS = `${KV2}/drivers`
@@ -57,6 +58,7 @@ export type Overview = {
         closing: number
         income: { total: number; external: number; trip_cash: number; reversals: number }
         expense: { total: number; cash: number; fuel?: number; other?: number; salary_cash?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
+        other_expense?: { total: number; garaj: number; chiqim: number }
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
     balance: number

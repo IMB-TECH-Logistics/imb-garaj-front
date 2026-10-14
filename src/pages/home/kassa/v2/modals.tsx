@@ -1,5 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
+import { FormInput } from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
@@ -25,6 +26,7 @@ import {
     KV2,
     KV2_CATEGORIES,
     KV2_INCOME,
+    KV2_EXPENSE,
     KV2_REQUESTS,
     KV2_TRIPS,
     money,
@@ -71,7 +73,7 @@ const toLocalInput = (iso: string) => {
 
 const onErr = (e: unknown) => toast.error(errorText(e))
 
-export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
+export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null; out?: boolean }) => {
     const { t } = useTranslation()
     const amountRules = useAmountRules()
     const { closeModal, isOpen } = useModal(M.income)
@@ -96,16 +98,20 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
                 const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString() }
-                if (editing) patch.mutate(`${KV2_INCOME}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
-                else post.mutate(KV2_INCOME, body, { onSuccess: () => toast.success(t("fin.kv2.cash_in_done")), onError: onErr })
+                const url = out ? KV2_EXPENSE : KV2_INCOME
+                const done = out ? t("fin.kv2.cash_out_done") : t("fin.kv2.cash_in_done")
+                if (editing) patch.mutate(`${url}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
+                else post.mutate(url, body, { onSuccess: () => toast.success(done), onError: onErr })
             })}
         >
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
-            <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />
+            {out ?
+                <FormInput required methods={form} name="source" label={t("fin.kv2.spent_on")} placeholder={t("fin.kv2.spent_on_placeholder")} />
+            :   <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
-            <Save label={editing ? t("actions.save") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
+            <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
         </form>
     )
 }

@@ -166,6 +166,7 @@ const requestRow = (r: KassaRequest): KassaRow => ({
 const kindFilters = (t: (key: string) => string): [string, string][] => [
     ["all", t("fin.kv2.kind_filter_all")],
     ["kirim", t("fin.kv2.cash_in")],
+    ["chiqim", t("fin.kv2.cash_out")],
     ["yopish", t("fin.kv2.close_turnover")],
     ["avans", t("form.advance")],
     ["garaj", t("vst.to_expense")],
