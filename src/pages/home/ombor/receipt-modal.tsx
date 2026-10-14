@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { WAREHOUSE_RECEIPTS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
+import { useGet } from "@/hooks/useGet"
+import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
@@ -28,8 +30,11 @@ import {
 } from "./utils"
 
 export const RECEIPT_MODAL_KEY = "wh-receipt"
+export const RECEIPT_EDIT_MODAL_KEY = "wh-receipt-edit"
 
 type LineValues = {
+    lot?: number
+    used?: boolean
     product: number | ""
     quantity: string
     unit_price: string
@@ -40,6 +45,23 @@ type FormValues = {
     date: string
     comment: string
     lines: LineValues[]
+}
+
+type ReceiptLot = {
+    id: number
+    product: number
+    unit_price: string
+    qty_in: string
+    qty_left: string
+    factory_number: string | null
+    is_used: boolean
+}
+
+type ReceiptDetail = {
+    id: number
+    date: string
+    comment: string | null
+    lots: ReceiptLot[]
 }
 
 const emptyLine = (): LineValues => ({
@@ -81,7 +103,9 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
         }
     }, [product?.id])
 
-    const remove = (
+    const used = !!line?.used
+    const fixedQty = !!line?.lot && !!line?.factory_numbers?.length
+    const remove = used ? null : (
         <Button
             type="button"
             variant="ghost"
@@ -137,6 +161,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     options={products}
                     valueKey="id"
                     labelKey="name"
+                    addButtonProps={used ? { disabled: true } : undefined}
                 />
                 <FormNumberInput
                     required
@@ -145,6 +170,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     control={control}
                     allowNegative={false}
                     decimalScale={serialized ? 0 : 2}
+                    disabled={fixedQty}
                 />
                 <FormNumberInput
                     required
@@ -153,10 +179,17 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     control={control}
                     allowNegative={false}
                     decimalScale={2}
+                    disabled={used}
                 />
             </div>
 
-            {serialized && count > 0 && (
+            {used && (
+                <div className="text-xs text-muted-foreground">
+                    {t("wh.receipt.used_line_hint")}
+                </div>
+            )}
+
+            {serialized && count > 0 && !line.lot && (
                 <div className="rounded-md bg-muted/60 p-2.5">
                     <div className="text-xs font-medium text-muted-foreground mb-2">
                         {t("wh.receipt.factory_numbers")}
@@ -178,10 +211,21 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
     )
 }
 
-const ReceiptForm = () => {
+const lotToLine = (lot: ReceiptLot): LineValues => ({
+    lot: lot.id,
+    used: lot.is_used,
+    product: lot.product,
+    quantity: String(toNumber(lot.qty_in)),
+    unit_price: String(toNumber(lot.unit_price)),
+    factory_numbers: lot.factory_number ? [lot.factory_number] : [],
+})
+
+const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
-    const { closeModal } = useModal(RECEIPT_MODAL_KEY)
+    const { closeModal } = useModal(
+        receiptId ? RECEIPT_EDIT_MODAL_KEY : RECEIPT_MODAL_KEY,
+    )
     const { data: catalog } = useCatalog()
     const products = useMemo(() => catalog?.results ?? [], [catalog])
     const [serverError, setServerError] = useState("")
@@ -191,6 +235,19 @@ const ReceiptForm = () => {
     })
     const { control, handleSubmit } = form
     const { fields, append, remove } = useFieldArray({ control, name: "lines" })
+
+    const { data: detail } = useGet<ReceiptDetail>(
+        `${WAREHOUSE_RECEIPTS}/${receiptId}`,
+        { enabled: !!receiptId },
+    )
+    useEffect(() => {
+        if (!detail) return
+        form.reset({
+            date: detail.date,
+            comment: detail.comment ?? "",
+            lines: detail.lots.map(lotToLine),
+        })
+    }, [detail])
 
     const lines = useWatch({ control, name: "lines" })
 
@@ -211,7 +268,7 @@ const ReceiptForm = () => {
             return t("wh.receipt.err_quantity")
         }
         const numbers = lines.flatMap((l) =>
-            serializedOf(l.product) ? cleanNumbers(l) : [],
+            serializedOf(l.product) && !l.lot ? cleanNumbers(l) : [],
         )
         if (numbers.some((n) => !n)) return t("wh.receipt.err_factory_empty")
         if (new Set(numbers).size !== numbers.length) {
@@ -223,7 +280,7 @@ const ReceiptForm = () => {
         return ""
     })()
 
-    const { mutate, isPending } = usePost({
+    const onSaved = {
         onSuccess: () => {
             toast.success(t("wh.receipt.saved"))
             closeModal()
@@ -232,29 +289,35 @@ const ReceiptForm = () => {
                     String(query.queryKey[0]).startsWith("warehouse/"),
             })
         },
-        onError: (error) => {
+        onError: (error: any) => {
             const messages = collectErrors(error?.response?.data)
             setServerError(messages.join(" · ") || t("messages.error"))
         },
-    })
+    }
+    const { mutate, isPending } = usePost(onSaved)
+    const patch = usePatch(onSaved)
 
     const onSubmit = (values: FormValues) => {
         setServerError("")
-        mutate(WAREHOUSE_RECEIPTS, {
+        const payload = {
             date: values.date,
-            comment: values.comment.trim() || undefined,
+            comment: values.comment.trim() || (receiptId ? null : undefined),
             lines: values.lines.map((line) => ({
+                ...(line.lot && { lot: line.lot }),
                 product: Number(line.product),
                 quantity:
                     serializedOf(line.product) ?
                         serialCount(line.quantity)
                     :   line.quantity,
                 unit_price: line.unit_price,
-                ...(serializedOf(line.product) && {
-                    factory_numbers: cleanNumbers(line),
-                }),
+                ...(serializedOf(line.product) &&
+                    !line.lot && {
+                        factory_numbers: cleanNumbers(line),
+                    }),
             })),
-        })
+        }
+        if (receiptId) patch.mutate(`${WAREHOUSE_RECEIPTS}/${receiptId}`, payload)
+        else mutate(WAREHOUSE_RECEIPTS, payload)
     }
 
     const error = validationError || serverError
@@ -336,8 +399,8 @@ const ReceiptForm = () => {
                 <Button
                     type="submit"
                     className="min-w-36"
-                    disabled={!!validationError}
-                    loading={isPending}
+                    disabled={!!validationError || (!!receiptId && !detail)}
+                    loading={isPending || patch.isPending}
                 >
                     {t("actions.save")}
                 </Button>
@@ -346,8 +409,19 @@ const ReceiptForm = () => {
     )
 }
 
-const ReceiptModal = () => {
+const ReceiptModal = ({ receiptId }: { receiptId?: number }) => {
     const { t } = useTranslation()
+    if (receiptId !== undefined) {
+        return (
+            <Modal
+                modalKey={RECEIPT_EDIT_MODAL_KEY}
+                title={t("wh.receipt.edit_title", { id: receiptId })}
+                size="max-w-2xl"
+            >
+                {receiptId > 0 && <ReceiptForm key={receiptId} receiptId={receiptId} />}
+            </Modal>
+        )
+    }
     return (
         <Modal
             modalKey={RECEIPT_MODAL_KEY}

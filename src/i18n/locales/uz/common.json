@@ -862,6 +862,8 @@
             "scan_qr": "QR skanerlash",
             "scan_title": "QR skanerlash · Omborga kirim",
             "no_lines": "Mahsulot qo'shilmagan",
+            "edit_title": "Kirim #{{id}} ni tahrirlash",
+            "used_line_hint": "Bu qatordan mahsulot olingan: mahsulot va narx o'zgarmaydi, miqdor olinganidan kam bo'lmaydi",
             "no_product": "Mahsulot tanlanmagan",
             "gtin_unknown": "GTIN katalogda yo'q",
             "from_qr": "QR'dan o'qildi",

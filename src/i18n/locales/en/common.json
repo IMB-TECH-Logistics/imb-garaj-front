@@ -865,6 +865,8 @@
             "scan_qr": "Scan QR",
             "scan_title": "QR scan · Warehouse receipt",
             "no_lines": "No products added",
+            "edit_title": "Edit receipt #{{id}}",
+            "used_line_hint": "Items from this line were issued: product and price are locked, quantity cannot go below the issued amount",
             "no_product": "No product selected",
             "gtin_unknown": "GTIN not in catalog",
             "from_qr": "Read from QR",

@@ -45,7 +45,7 @@ const Stock = () => {
         WAREHOUSE_PRODUCTS,
         {
             params: {
-                in_stock: 1,
+                received: 1,
                 search: searchValue || undefined,
                 page: search.page,
                 page_size: search.page_size,
@@ -81,7 +81,7 @@ const Stock = () => {
                                 url={`${WAREHOUSE_PRODUCTS}/excel`}
                                 name={t("nav.warehouse")}
                                 params={{
-                                    in_stock: 1,
+                                    received: 1,
                                     search: searchValue || undefined,
                                 }}
                             >

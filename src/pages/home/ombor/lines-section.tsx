@@ -20,6 +20,7 @@ import { Package, X } from "lucide-react"
 import { forwardRef, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useReceiptCols, useWithdrawalCols } from "./cols"
+import ReceiptModal, { RECEIPT_EDIT_MODAL_KEY } from "./receipt-modal"
 import type {
     OmborSearchParams,
     WhProduct,
@@ -177,6 +178,8 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
     const [receiptToDelete, setReceiptToDelete] = useState<WhReceiptLine | null>(
         null,
     )
+    const { openModal: openReceiptEdit } = useModal(RECEIPT_EDIT_MODAL_KEY)
+    const [receiptToEdit, setReceiptToEdit] = useState(0)
     const withdrawalCols = useWithdrawalCols({
         hideProduct: !!product,
         showTenant: isOwner,
@@ -274,6 +277,14 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                     className="min-w-[900px]"
                     paginationProps={pagination(receipts)}
                     head={head}
+                    onEdit={
+                        canDeleteReceipt ?
+                            (row) => {
+                                setReceiptToEdit(row.original.receipt_id)
+                                openReceiptEdit()
+                            }
+                        :   undefined
+                    }
                     onDelete={
                         canDeleteReceipt ?
                             (row) => {
@@ -294,6 +305,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                     head={head}
                 />
             }
+            {canDeleteReceipt && <ReceiptModal receiptId={receiptToEdit} />}
             <DeleteModal
                 modalKey="receipt-delete"
                 path={WAREHOUSE_RECEIPTS}
