@@ -94,7 +94,6 @@ const FinanceStatisticMain = () => {
         const totalIncome = data.reduce((sum, item) => sum + toNum(item.income), 0)
         const totalExpense = data.reduce((sum, item) => sum + toNum(item.expense), 0)
         const totalVehicleExpense = data.reduce((sum, item) => sum + toNum(item.vehicle_expense), 0)
-        const unpriced = data.reduce((sum, item) => sum + toNum(item.unpriced_count), 0)
         const totalProfit = totalIncome - totalExpense
         return {
             totalIncome: round3(totalIncome),
@@ -102,7 +101,6 @@ const FinanceStatisticMain = () => {
             totalProfit: round3(totalProfit),
             totalVehicleExpense: round3(totalVehicleExpense),
             totalNet: round3(totalProfit - totalVehicleExpense),
-            unpriced,
         }
     }, [statisticsData])
 
