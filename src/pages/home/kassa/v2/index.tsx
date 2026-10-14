@@ -115,9 +115,7 @@ const KassaV2 = () => {
             </TabsList>
         </Tabs>
     )
-    const leftOf = (d: { balance: number; unconfirmed_left?: number }) => n(d.unconfirmed_left ?? d.balance)
-    const drivers = [...(ov?.drivers ?? [])].sort((a, b) => leftOf(b) - leftOf(a))
-    const driversLeft = drivers.reduce((sum, d) => sum + leftOf(d), 0)
+    const drivers = [...(ov?.drivers ?? [])].sort((a, b) => n(b.balance) - n(a.balance))
     const selected = drivers.find((d) => d.id === driver)
 
     return (
@@ -165,7 +163,7 @@ const KassaV2 = () => {
                     <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-2 pb-2 border-b border-muted-foreground/20">
                             <p className="text-sm font-medium text-muted-foreground">{t("fin.kv2.drivers_holding", { count: drivers.length })}</p>
-                            <span className={cn("text-sm font-semibold tabular-nums", driversLeft < 0 && "text-destructive")}>{formatMoney(driversLeft)}</span>
+                            <span className="text-sm font-semibold tabular-nums">{formatMoney(n(ov?.drivers_total))}</span>
                         </div>
                         <div className="space-y-0.5">
                             {drivers.map((d, i) => (
@@ -183,14 +181,18 @@ const KassaV2 = () => {
                                             <span className="truncate" title={d.name}>{d.name}</span>
                                             {d.plate && <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{d.plate}</span>}
                                         </span>
-                                        <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", leftOf(d) < 0 && "text-destructive")}>{formatMoney(leftOf(d))}</span>
+                                        <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", n(d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.balance))}</span>
                                     </div>
-                                    {!!n(d.unconfirmed_total) && (
-                                        <div
-                                            className="pl-6 mt-0.5 text-xs text-muted-foreground tabular-nums"
-                                            title={t("fin.kv2.unconfirmed_expense_hint", { expense: formatMoney(n(d.unconfirmed_expense)), salary: formatMoney(n(d.unconfirmed_salary)) })}
-                                        >
-                                            {t("fin.kv2.given_short")} {formatMoney(n(d.held))} · {t("fin.kv2.expense_short")} <span className="text-destructive">−{formatMoney(n(d.unconfirmed_total))}</span>
+                                    {!!n(d.unconfirmed_salary) && (
+                                        <div className="pl-6 mt-0.5 space-y-0.5 text-xs text-muted-foreground">
+                                            <div className="flex justify-between gap-3">
+                                                <span>{t("fin.kv2.unconfirmed_expense")}</span>
+                                                <span className="tabular-nums text-destructive">−{formatMoney(n(d.unconfirmed_salary))}</span>
+                                            </div>
+                                            <div className="flex justify-between gap-3">
+                                                <span>{t("fin.kv2.unconfirmed_left")}</span>
+                                                <span className={cn("tabular-nums font-medium text-foreground", n(d.unconfirmed_left) < 0 && "text-destructive")}>{formatMoney(n(d.unconfirmed_left))}</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
