@@ -12,7 +12,7 @@ import { endOfMonth, startOfMonth } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { ArrowDownCircle, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
-import { ExpenseByCategory, KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRIPS, n, Paged, STATUS, useAllPeriodTx, useKassaRoles, useOverview, usePeriod } from "./api"
+import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRIPS, n, Paged, STATUS, useAllPeriodTx, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
 import { DriverExpensesTable, KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
@@ -74,7 +74,7 @@ const KassaV2 = () => {
     }
     const [groupLabel, setGroupLabel] = useState("")
     const lineProps = (g: string, labelKey: string) => ({ onClick: pick(g, labelKey), active: view === "kassa" && group === g })
-    type Exp = { key: string; kind: "category" | "trip_cash"; category?: number | null; label: string; amount: number }
+    type Exp = { key: string; kind: "fuel" | "other" | "trip_cash"; label: string; amount: number }
     const [exp, setExp] = useState<Exp | null>(null)
     const expProps = (e: Exp) => ({
         onClick: () => {
@@ -85,18 +85,10 @@ const KassaV2 = () => {
         },
         active: view === "expenses" && exp?.key === e.key,
     })
-    const expenseLines = useMemo(() => {
-        const list = sm?.expense.by_category ?? []
-        const isOther = (c: ExpenseByCategory) => (c.name ?? "").trim().toLowerCase() === "boshqa xarajat"
-        const fuel = list.find((c) => c.code === "fuel")
-        const other = list.find(isOther)
-        const rest = list.filter((c) => c !== fuel && c !== other && n(c.amount)).sort((a, b) => n(b.amount) - n(a.amount))
-        return [
-            { key: "fuel", category: fuel?.id ?? null, label: t("fin.kv2.expense_fuel"), amount: n(fuel?.amount), missing: !fuel },
-            { key: "other", category: other?.id ?? null, label: t("fin.kv2.expense_other"), amount: n(other?.amount), missing: !other },
-            ...rest.map((c) => ({ key: `c${c.id}`, category: c.id, label: c.name || "—", amount: n(c.amount), missing: false })),
-        ]
-    }, [sm, t])
+    const expenseLines = [
+        { key: "fuel", kind: "fuel" as const, label: t("fin.kv2.expense_fuel"), amount: n(sm?.expense.fuel) },
+        { key: "other", kind: "other" as const, label: t("fin.kv2.expense_other"), amount: n(sm?.expense.other) },
+    ]
     const [driver, setDriver] = useState<number | null>(null)
     const [editing, setEditing] = useState<KassaRequest | null>(null)
     const [rejecting, setRejecting] = useState<KassaRequest | null>(null)
@@ -150,7 +142,7 @@ const KassaV2 = () => {
                                 sub
                                 label={l.label}
                                 value={-l.amount}
-                                {...(l.missing ? {} : expProps({ key: l.key, kind: "category", category: l.category, label: l.label, amount: -l.amount }))}
+                                {...expProps({ key: l.key, kind: l.kind, label: l.label, amount: -l.amount })}
                             />
                         ))}
                         <Line sub label={t("table.monthly_salary")} value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "table.monthly_salary")} />
@@ -215,7 +207,6 @@ const KassaV2 = () => {
                 : view === "expenses" && exp ?
                     <DriverExpensesTable
                         kind={exp.kind}
-                        category={exp.category}
                         head={
                             <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
                                 <div className="flex items-center gap-2 flex-wrap">

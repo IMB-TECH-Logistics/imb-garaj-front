@@ -837,10 +837,10 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
     )
 }
 
-export const DriverExpensesTable = ({ head, kind, category }: { head: ReactNode; kind: "category" | "trip_cash"; category?: number | null }) => {
+export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fuel" | "other" | "trip_cash" }) => {
     const { t } = useTranslation()
     const period = usePeriod()
-    const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind, category: category ?? undefined } })
+    const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind } })
     const columns = useMemo<ColumnDef<DriverExpense>[]>(
         () => [
             { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={(kind === "trip_cash" && row.original.order_date) || row.original.date} /> },
