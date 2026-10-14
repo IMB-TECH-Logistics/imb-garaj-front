@@ -5,6 +5,7 @@
         "flights": "Reyslar",
         "kassa": "Kassa",
         "tech_check": "Texnik ko'rik",
+        "vehicle_expenses": "Mashina xarajatlari",
         "petrol": "Zapravkalar",
         "accounting": "Buxgalteriya",
         "investor": "Investor",
@@ -1234,6 +1235,11 @@
         }
     },
     "fin": {
+        "vehicle_expenses": {
+            "total": "Jami",
+            "add": "Mashina xarajati qo'shish",
+            "kassa_hint": "Kassadan naqd chiqim bo'lib yoziladi va kassada «Garaj xarajatlari (naqd)» qatoriga tushadi."
+        },
         "finance_card": {
             "vs_last_month": "o'tgan oyga nisbatan"
         },

@@ -5,6 +5,7 @@
         "flights": "Trips",
         "kassa": "Cash",
         "tech_check": "Inspection",
+        "vehicle_expenses": "Vehicle expenses",
         "petrol": "Fuel Stations",
         "accounting": "Accounting",
         "investor": "Investor",
@@ -1237,6 +1238,11 @@
         }
     },
     "fin": {
+        "vehicle_expenses": {
+            "total": "Total",
+            "add": "Add vehicle expense",
+            "kassa_hint": "Recorded as a cash expense from the kassa, shown under garage expenses (cash)."
+        },
         "finance_card": {
             "vs_last_month": "compared to last month"
         },

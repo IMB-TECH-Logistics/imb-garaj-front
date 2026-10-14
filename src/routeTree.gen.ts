@@ -102,6 +102,9 @@ const MainSettingsCustomersIndexLazyImport = createFileRoute(
 const MainSettingsCargoTypesIndexLazyImport = createFileRoute(
   '/_main/_settings/cargo-types/',
 )()
+const MainManagersVehicleExpensesIndexLazyImport = createFileRoute(
+  '/_main/_managers/vehicle-expenses/',
+)()
 const MainManagersTransportsIndexLazyImport = createFileRoute(
   '/_main/_managers/transports/',
 )()
@@ -391,6 +394,16 @@ const MainSettingsCargoTypesIndexLazyRoute =
     getParentRoute: () => MainRoute,
   } as any).lazy(() =>
     import('./routes/_main/_settings/cargo-types/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const MainManagersVehicleExpensesIndexLazyRoute =
+  MainManagersVehicleExpensesIndexLazyImport.update({
+    path: '/vehicle-expenses/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/_managers/vehicle-expenses/index.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -694,6 +707,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainManagersTransportsIndexLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/_managers/vehicle-expenses/': {
+      id: '/_main/_managers/vehicle-expenses/'
+      path: '/vehicle-expenses'
+      fullPath: '/vehicle-expenses'
+      preLoaderRoute: typeof MainManagersVehicleExpensesIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/_settings/cargo-types/': {
       id: '/_main/_settings/cargo-types/'
       path: '/cargo-types'
@@ -926,6 +946,7 @@ interface MainRouteChildren {
   MainManagersPetrolStationsIndexLazyRoute: typeof MainManagersPetrolStationsIndexLazyRoute
   MainManagersTechnicCheckIndexLazyRoute: typeof MainManagersTechnicCheckIndexLazyRoute
   MainManagersTransportsIndexLazyRoute: typeof MainManagersTransportsIndexLazyRoute
+  MainManagersVehicleExpensesIndexLazyRoute: typeof MainManagersVehicleExpensesIndexLazyRoute
   MainSettingsCargoTypesIndexLazyRoute: typeof MainSettingsCargoTypesIndexLazyRoute
   MainSettingsCustomersIndexLazyRoute: typeof MainSettingsCustomersIndexLazyRoute
   MainSettingsDistributorsIndexLazyRoute: typeof MainSettingsDistributorsIndexLazyRoute
@@ -977,6 +998,8 @@ const MainRouteChildren: MainRouteChildren = {
   MainManagersTechnicCheckIndexLazyRoute:
     MainManagersTechnicCheckIndexLazyRoute,
   MainManagersTransportsIndexLazyRoute: MainManagersTransportsIndexLazyRoute,
+  MainManagersVehicleExpensesIndexLazyRoute:
+    MainManagersVehicleExpensesIndexLazyRoute,
   MainSettingsCargoTypesIndexLazyRoute: MainSettingsCargoTypesIndexLazyRoute,
   MainSettingsCustomersIndexLazyRoute: MainSettingsCustomersIndexLazyRoute,
   MainSettingsDistributorsIndexLazyRoute:
@@ -1040,6 +1063,7 @@ export interface FileRoutesByFullPath {
   '/petrol-stations': typeof MainManagersPetrolStationsIndexLazyRoute
   '/technic-check': typeof MainManagersTechnicCheckIndexLazyRoute
   '/transports': typeof MainManagersTransportsIndexLazyRoute
+  '/vehicle-expenses': typeof MainManagersVehicleExpensesIndexLazyRoute
   '/cargo-types': typeof MainSettingsCargoTypesIndexLazyRoute
   '/customers': typeof MainSettingsCustomersIndexLazyRoute
   '/distributors': typeof MainSettingsDistributorsIndexLazyRoute
@@ -1092,6 +1116,7 @@ export interface FileRoutesByTo {
   '/petrol-stations': typeof MainManagersPetrolStationsIndexLazyRoute
   '/technic-check': typeof MainManagersTechnicCheckIndexLazyRoute
   '/transports': typeof MainManagersTransportsIndexLazyRoute
+  '/vehicle-expenses': typeof MainManagersVehicleExpensesIndexLazyRoute
   '/cargo-types': typeof MainSettingsCargoTypesIndexLazyRoute
   '/customers': typeof MainSettingsCustomersIndexLazyRoute
   '/distributors': typeof MainSettingsDistributorsIndexLazyRoute
@@ -1147,6 +1172,7 @@ export interface FileRoutesById {
   '/_main/_managers/petrol-stations/': typeof MainManagersPetrolStationsIndexLazyRoute
   '/_main/_managers/technic-check/': typeof MainManagersTechnicCheckIndexLazyRoute
   '/_main/_managers/transports/': typeof MainManagersTransportsIndexLazyRoute
+  '/_main/_managers/vehicle-expenses/': typeof MainManagersVehicleExpensesIndexLazyRoute
   '/_main/_settings/cargo-types/': typeof MainSettingsCargoTypesIndexLazyRoute
   '/_main/_settings/customers/': typeof MainSettingsCustomersIndexLazyRoute
   '/_main/_settings/distributors/': typeof MainSettingsDistributorsIndexLazyRoute
@@ -1202,6 +1228,7 @@ export interface FileRouteTypes {
     | '/petrol-stations'
     | '/technic-check'
     | '/transports'
+    | '/vehicle-expenses'
     | '/cargo-types'
     | '/customers'
     | '/distributors'
@@ -1253,6 +1280,7 @@ export interface FileRouteTypes {
     | '/petrol-stations'
     | '/technic-check'
     | '/transports'
+    | '/vehicle-expenses'
     | '/cargo-types'
     | '/customers'
     | '/distributors'
@@ -1306,6 +1334,7 @@ export interface FileRouteTypes {
     | '/_main/_managers/petrol-stations/'
     | '/_main/_managers/technic-check/'
     | '/_main/_managers/transports/'
+    | '/_main/_managers/vehicle-expenses/'
     | '/_main/_settings/cargo-types/'
     | '/_main/_settings/customers/'
     | '/_main/_settings/distributors/'
@@ -1391,6 +1420,7 @@ export const routeTree = rootRoute
         "/_main/_managers/petrol-stations/",
         "/_main/_managers/technic-check/",
         "/_main/_managers/transports/",
+        "/_main/_managers/vehicle-expenses/",
         "/_main/_settings/cargo-types/",
         "/_main/_settings/customers/",
         "/_main/_settings/distributors/",
@@ -1512,6 +1542,10 @@ export const routeTree = rootRoute
     },
     "/_main/_managers/transports/": {
       "filePath": "_main/_managers/transports/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/_managers/vehicle-expenses/": {
+      "filePath": "_main/_managers/vehicle-expenses/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/_settings/cargo-types/": {
