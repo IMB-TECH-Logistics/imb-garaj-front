@@ -340,7 +340,10 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
             {
                 header: t("fin.kv2.col_why"),
                 accessorKey: "kind_label",
-                cell: ({ row }) => row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
+                cell: ({ row }) =>
+                    row.original.kind === "chiqim" && row.original.comment ?
+                        row.original.comment
+                    :   row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
             },
             {
                 header: t("fin.kv2.col_total"),
