@@ -150,7 +150,9 @@ const KassaV2 = () => {
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                     </Box>
                     <Box className="bg-primary/5 border-primary/30">
-                        <Line strong label={from_date ? t("fin.kv2.closing_balance") : t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} tone={n(sm?.closing ?? ov?.balance) < 0 ? "red" : undefined} />
+                        <Line strong label={t("fin.kv2.closing_balance")} value={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total)} tone={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total) < 0 ? "red" : undefined} />
+                        <Line sub label={t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} />
+                        <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={ov?.drivers_total} />
                     </Box>
 
                     <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
