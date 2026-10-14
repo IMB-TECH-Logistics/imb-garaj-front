@@ -84,6 +84,14 @@ const UserFormPage = () => {
     // POST /users/ va PATCH /users/<pk>/ — settings_users_control (ro'yxatdagi hasControl bilan bir xil)
     if (!hasControl) return <Forbidden to="/users" />
 
+    if (id && !userData && !userError) {
+        return (
+            <div className="py-20 text-center text-sm text-muted-foreground">
+                {t("settings.users.permissions_loading")}
+            </div>
+        )
+    }
+
     if (id && (userError as any)?.response?.status === 404) {
         return (
             <div className="flex flex-col items-center justify-center gap-4 py-20 text-muted-foreground">
