@@ -112,6 +112,16 @@ export const useColumnsManagersTrips = (opts?: {
                 },
             },
             {
+                id: "distance",
+                header: t("table.distance_km"),
+                cell: ({ row }) => {
+                    const start = Number(row.original.start_mileage ?? 0)
+                    const end = Number(row.original.end_mileage ?? 0)
+                    if (!row.original.end_mileage || end <= start) return <div>-</div>
+                    return <div className="font-medium">{formatMoney(end - start)}</div>
+                },
+            },
+            {
                 accessorKey: "start_fuel",
                 header: t("table.start_fuel"),
                 enableSorting: true,
@@ -126,6 +136,14 @@ export const useColumnsManagersTrips = (opts?: {
                 cell: ({ row }) => (
                     <div>{formatMoney((row.original as any).end_fuel)}</div>
                 ),
+            },
+            {
+                accessorKey: "used_fuel",
+                header: t("table.used_fuel"),
+                cell: ({ row }) =>
+                    row.original.end ?
+                        <div className="font-medium">{formatMoney((row.original as any).used_fuel ?? 0)}</div>
+                    :   <div>-</div>,
             },
             {
                 id: "fuel_per_100km",

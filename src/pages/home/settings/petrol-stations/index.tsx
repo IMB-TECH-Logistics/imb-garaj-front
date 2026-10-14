@@ -1,5 +1,8 @@
+import ParamDateRange from "@/components/as-params/date-picker-range"
+import ParamTabs from "@/components/as-params/tabs"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
+import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
@@ -19,8 +22,9 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddPetrolStationModal from "./add-petrol"
+import VehicleFuelTable, { VEHICLE_FUEL } from "./vehicle-fuel"
 import { formatQuantity } from "./cashflow-cols"
-import { type PetrolStationRow, usePetrolStationColumns } from "./cols"
+import { type FuelType, type PetrolStationRow, usePetrolStationColumns } from "./cols"
 
 type PetrolStats = {
     total_balance: number
@@ -62,6 +66,8 @@ const PetrolStationsPage = () => {
     const hasControl = useHasAction("settings_petrol_stations_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
+    const tab = search.fuel === "diesel" || search.fuel === "vehicles" ? search.fuel : "methane"
+    const fuel: FuelType = tab === "diesel" ? "diesel" : "methane"
     const { getData, setData } = useGlobalStore()
     const item = getData<PetrolStationRow>(SETTINGS_PETROL_STATIONS)
     const [isDownloading, setIsDownloading] = useState(false)
@@ -115,16 +121,45 @@ const PetrolStationsPage = () => {
                 page: search.page,
                 page_size: search.page_size,
                 ordering: search.ordering,
+                fuel_type: fuel,
+                from_date: search.from_date,
+                to_date: search.to_date,
             },
         },
     )
 
     const { data: stats } = useGet<PetrolStats>(
         `${SETTINGS_PETROL_STATIONS}/stats`,
-        { params: { search: search.petrol_search } },
+        {
+            params: {
+                search: search.petrol_search,
+                fuel_type: fuel,
+                from_date: search.from_date,
+                to_date: search.to_date,
+            },
+        },
     )
 
-    const columns = usePetrolStationColumns()
+    const countParams = { search: search.petrol_search, page_size: 1 }
+    const { data: methaneCount } = useGet<ListResponse<PetrolStationRow>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { ...countParams, fuel_type: "methane" } },
+    )
+    const { data: dieselCount } = useGet<ListResponse<PetrolStationRow>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { ...countParams, fuel_type: "diesel" } },
+    )
+    const { data: vehicleFuelCount } = useGet<ListResponse<unknown>>(VEHICLE_FUEL, {
+        params: { page_size: 1, from_date: search.from_date, to_date: search.to_date },
+    })
+    const tabLabel = (label: string, count?: number) => (
+        <span className="flex items-center gap-2">
+            {label}
+            {count !== undefined && <Badge className="text-xs">{formatMoney(count)}</Badge>}
+        </span>
+    )
+
+    const columns = usePetrolStationColumns(fuel)
 
     const handleEdit = (row: { original: PetrolStationRow }) => {
         setData(SETTINGS_PETROL_STATIONS, row.original)
@@ -138,12 +173,39 @@ const PetrolStationsPage = () => {
 
     return (
         <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+            <ParamTabs
+                paramName="fuel"
+                right={<ParamDateRange from="from_date" to="to_date" />}
+                options={[
+                    {
+                        value: "methane",
+                        label: tabLabel(t("settings.petrol.tab_methane"), methaneCount?.count),
+                    },
+                    {
+                        value: "diesel",
+                        label: tabLabel(t("settings.petrol.tab_diesel"), dieselCount?.count),
+                    },
+                    {
+                        value: "vehicles",
+                        label: tabLabel(t("settings.petrol.tab_vehicles"), vehicleFuelCount?.count),
+                    },
+                ]}
+            />
+            {tab === "vehicles" ?
+                <div className="mt-4">
+                    <VehicleFuelTable />
+                </div>
+            :   <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 my-4">
                 <StatCard
                     icon={<Fuel size={20} />}
                     tone="bg-amber-500/10 text-amber-600"
                     label={t("settings.petrol.fuel_received")}
-                    value={`${formatQuantity(Number(stats?.total_liters ?? 0), "liter")} · ${formatQuantity(Number(stats?.total_gas ?? 0), "m3")}`}
+                    value={
+                        fuel === "diesel" ?
+                            formatQuantity(Number(stats?.total_liters ?? 0), "liter")
+                        :   formatQuantity(Number(stats?.total_gas ?? 0), "m3")
+                    }
                     valueClass="text-amber-600"
                 />
                 <StatCard
@@ -186,6 +248,7 @@ const PetrolStationsPage = () => {
                 head={
                     <TableHeader
                         fileName={t("nav.petrol")}
+
                         url="excel"
                         storeKey={
                             hasControl ? SETTINGS_PETROL_STATIONS : undefined
@@ -243,6 +306,8 @@ const PetrolStationsPage = () => {
                     />
                 }
             />
+            </>
+            }
             <DeleteModal
                 path={SETTINGS_PETROL_STATIONS}
                 id={item?.id}
@@ -260,7 +325,7 @@ const PetrolStationsPage = () => {
                 modalKey="create"
                 size="max-w-2xl"
             >
-                <AddPetrolStationModal />
+                <AddPetrolStationModal defaultFuel={fuel} />
             </Modal>
         </>
     )

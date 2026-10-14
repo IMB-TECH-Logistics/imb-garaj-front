@@ -4,6 +4,8 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { formatQuantity } from "./cashflow-cols"
 
+export type FuelType = "methane" | "diesel"
+
 export type PetrolStationRow = {
     id: number
     name: string
@@ -12,12 +14,13 @@ export type PetrolStationRow = {
     longitude: number | null
     balance: string | number | null
     has_contract?: boolean
+    fuel_type?: FuelType
     total_outcomes?: string | number | null
     total_liters?: string | number | null
     total_gas?: string | number | null
 }
 
-export const usePetrolStationColumns = () => {
+export const usePetrolStationColumns = (fuel: FuelType) => {
     const { t } = useTranslation()
     return useMemo<ColumnDef<PetrolStationRow>[]>(
         () => [
@@ -28,9 +31,9 @@ export const usePetrolStationColumns = () => {
                 header: t("settings.petrol.fuel_received"),
                 cell: ({ row }) => (
                     <span className="tabular-nums whitespace-nowrap text-amber-600">
-                        {formatQuantity(Number(row.original.total_liters ?? 0), "liter")}
-                        {" · "}
-                        {formatQuantity(Number(row.original.total_gas ?? 0), "m3")}
+                        {fuel === "diesel" ?
+                            formatQuantity(Number(row.original.total_liters ?? 0), "liter")
+                        :   formatQuantity(Number(row.original.total_gas ?? 0), "m3")}
                     </span>
                 ),
             },
@@ -61,7 +64,7 @@ export const usePetrolStationColumns = () => {
                 ),
             },
         ],
-        [t],
+        [t, fuel],
     )
 
 }

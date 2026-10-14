@@ -43,7 +43,6 @@ const AddVehicleSettingsModal = () => {
         vehicleTypes?.results ?? []
     const truckModels = allTypes.filter((vt) => vt.type === "model")
     const truckTypes = allTypes.filter((vt) => vt.type === "truck")
-    const trailerTypes = allTypes.filter((vt) => vt.type === "trailer")
     const { data: drivers } = useGet(SETTINGS_DRIVERS, {
         params: { page_size: 10000 },
     })
@@ -179,26 +178,6 @@ const AddVehicleSettingsModal = () => {
                         control={control}
                         decimalScale={1}
                         allowNegative={false}
-                    />
-                    </div>
-                </section>
-
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.vehicles.section_trailer")}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput
-                        name="trailer_number"
-                        label={t("form.trailer_number")}
-                        methods={form}
-                    />
-
-                    <FormCombobox
-                        name="trailer_type"
-                        label={t("form.trailer_type")}
-                        options={trailerTypes}
-                        control={control}
-                        labelKey="name"
-                        valueKey="id"
                     />
                     </div>
                 </section>

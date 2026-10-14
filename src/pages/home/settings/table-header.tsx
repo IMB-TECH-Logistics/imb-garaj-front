@@ -16,6 +16,7 @@ interface TableHeaderProps {
     pageKey: string
     onAdd?: () => void
     count?: number
+    title?: ReactNode
     extraTitle?: ReactNode
     extraLeft?: ReactNode
     extraRight?: ReactNode
@@ -29,6 +30,7 @@ const TableHeader = ({
     pageKey,
     onAdd,
     count,
+    title,
     extraTitle,
     extraLeft,
     extraRight,
@@ -56,17 +58,21 @@ const TableHeader = ({
         lastCount.current = count
     }
 
-    const showTitle = lastCount.current !== undefined
+    const showTitle = !!title || lastCount.current !== undefined
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
             {showTitle && (
                 <div className="flex items-center gap-2">
-                    <h1 className="text-xl font-semibold">{fileName}</h1>
+                    {title ?? (
+                        <>
+                            <h1 className="text-xl font-semibold">{fileName}</h1>
 
-                    <Badge className="text-sm">
-                        {formatMoney(lastCount.current)}
-                    </Badge>
+                            <Badge className="text-sm">
+                                {formatMoney(lastCount.current)}
+                            </Badge>
+                        </>
+                    )}
 
                     {extraTitle}
                 </div>

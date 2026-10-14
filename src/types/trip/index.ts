@@ -84,6 +84,8 @@ type TripOrdersRow = {
     loading: number
     unloading: number
     trip: number
+    driver?: number | null
+    trailer_number?: string | null
     cargo_type: string | number
     direction: number | null
     date: string | number

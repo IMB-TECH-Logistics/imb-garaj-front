@@ -533,7 +533,8 @@
         "salary_monthly_uzs": "Beriladigan oylik (UZS)",
         "field_col": "Maydon",
         "old_value": "Eski qiymat",
-        "new_value": "Yangi qiymat"
+        "new_value": "Yangi qiymat",
+        "used_fuel": "Umumiy sarflangan"
     },
     "auth": {
         "welcome": "Xush kelibsiz!",
@@ -2250,7 +2251,13 @@
             "contract_hint_no": "Yoqilg'i naqd pul bilan to'lanadi — haydovchi balansidan chiqim bo'ladi.",
             "map_hint": "Xaritadan zapravka joyini tanlang — manzil avtomatik to'ldiriladi.",
             "no_driver": "Haydovchi yo'q",
-            "add_new_vehicle": "+ Yangi mashina qo'shish"
+            "add_new_vehicle": "+ Yangi mashina qo'shish",
+            "tab_methane": "Metan",
+            "tab_diesel": "Solyarka",
+            "tab_vehicles": "Mashinalar",
+            "fills": "Necha marta",
+            "last_fill": "Oxirgi quyish",
+            "all_fills": "Barcha quyishlar"
         },
         "driver": {
             "phone_12_digits": "Telefon raqam 12 ta raqamdan iborat bo'lishi kerak",
@@ -2271,7 +2278,13 @@
             "section_owner_docs": "Egasi va hujjatlar",
             "stir_len": "9 (STIR) yoki 14 (JSHSHIR) xonali bo'lishi kerak",
             "unit_l": "L",
-            "per_100km": "100km"
+            "per_100km": "100km",
+            "tab_trucks": "Avtomobillar",
+            "tab_trailers": "Tirkamalar",
+            "add_trailer": "Tirkama qo'shish",
+            "edit_trailer": "Tirkamani tahrirlash",
+            "remove_trailer_question": "Tirkamani olib tashlamoqchimisiz?",
+            "remove_trailer_hint": "Avtomobil ({{truck}}) o'chirilmaydi, faqat tirkama ma'lumotlari tozalanadi."
         },
         "documents": {
             "section_document": "Hujjat",
@@ -2512,7 +2525,8 @@
             "fuel_up": "Yoqilg'i quyish",
             "edit_income": "Kirimni tahrirlash",
             "give_advance_request": "Avans berish (kassirga so'rov)",
-            "t_account": "T hisob"
+            "t_account": "T hisob",
+            "receipt": "Chek"
         },
         "orders": {
             "expenses": "Xarajatlar",

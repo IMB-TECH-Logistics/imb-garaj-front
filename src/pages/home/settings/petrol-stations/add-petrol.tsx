@@ -10,7 +10,7 @@ import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { type PetrolStationRow } from "./cols"
+import { type FuelType, type PetrolStationRow } from "./cols"
 import LocationPicker, { type LatLng } from "./location-picker"
 import { useTranslation } from "react-i18next"
 
@@ -20,9 +20,10 @@ type FormValues = {
     latitude: number | null
     longitude: number | null
     has_contract: boolean
+    fuel_type: FuelType
 }
 
-const AddPetrolStationModal = () => {
+const AddPetrolStationModal = ({ defaultFuel = "methane" }: { defaultFuel?: FuelType }) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
@@ -36,6 +37,7 @@ const AddPetrolStationModal = () => {
             latitude: current?.latitude ?? null,
             longitude: current?.longitude ?? null,
             has_contract: current?.has_contract ?? false,
+            fuel_type: current?.fuel_type ?? defaultFuel,
         },
     })
     const { handleSubmit, reset, watch, setValue } = form
@@ -83,6 +85,7 @@ const AddPetrolStationModal = () => {
             name: values.name,
             address: values.address,
             has_contract: values.has_contract,
+            fuel_type: values.fuel_type,
             latitude: values.latitude,
             longitude: values.longitude,
         }

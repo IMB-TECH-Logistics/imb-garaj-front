@@ -26,6 +26,7 @@ import { Route as MainManagersManagerTripsIdImport } from './routes/_main/_manag
 import { Route as MainTripTripParentIdIndexImport } from './routes/_main/_trip/trip/$parentId/index'
 import { Route as MainHaydovchilarIdAylanmaTripIdImport } from './routes/_main/haydovchilar/$id.aylanma.$tripId'
 import { Route as MainTripTripParentIdChildIdImport } from './routes/_main/_trip/trip/$parentId/$childId'
+import { Route as MainManagersPetrolStationsVehiclePlateImport } from './routes/_main/_managers/petrol-stations/vehicle/$plate'
 import { Route as MainManagersManagerTripsManagerReysIdImport } from './routes/_main/_managers/manager-trips/manager-reys/$id'
 
 // Create Virtual Routes
@@ -502,6 +503,12 @@ const MainTripTripParentIdChildIdRoute =
     getParentRoute: () => MainRoute,
   } as any)
 
+const MainManagersPetrolStationsVehiclePlateRoute =
+  MainManagersPetrolStationsVehiclePlateImport.update({
+    path: '/petrol-stations/vehicle/$plate',
+    getParentRoute: () => MainRoute,
+  } as any)
+
 const MainManagersManagerTripsManagerReysIdRoute =
   MainManagersManagerTripsManagerReysIdImport.update({
     path: '/manager-trips/manager-reys/$id',
@@ -827,6 +834,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainManagersManagerTripsManagerReysIdImport
       parentRoute: typeof MainImport
     }
+    '/_main/_managers/petrol-stations/vehicle/$plate': {
+      id: '/_main/_managers/petrol-stations/vehicle/$plate'
+      path: '/petrol-stations/vehicle/$plate'
+      fullPath: '/petrol-stations/vehicle/$plate'
+      preLoaderRoute: typeof MainManagersPetrolStationsVehiclePlateImport
+      parentRoute: typeof MainImport
+    }
     '/_main/_trip/trip/$parentId/$childId': {
       id: '/_main/_trip/trip/$parentId/$childId'
       path: '/trip/$parentId/$childId'
@@ -932,6 +946,7 @@ interface MainRouteChildren {
   MainTripTripIndexLazyRoute: typeof MainTripTripIndexLazyRoute
   MainTrucksTruckIndexLazyRoute: typeof MainTrucksTruckIndexLazyRoute
   MainManagersManagerTripsManagerReysIdRoute: typeof MainManagersManagerTripsManagerReysIdRoute
+  MainManagersPetrolStationsVehiclePlateRoute: typeof MainManagersPetrolStationsVehiclePlateRoute
   MainTripTripParentIdChildIdRoute: typeof MainTripTripParentIdChildIdRoute
   MainSettingsUsersIdEditLazyRoute: typeof MainSettingsUsersIdEditLazyRoute
   MainTripTripParentIdIndexRoute: typeof MainTripTripParentIdIndexRoute
@@ -990,6 +1005,8 @@ const MainRouteChildren: MainRouteChildren = {
   MainTrucksTruckIndexLazyRoute: MainTrucksTruckIndexLazyRoute,
   MainManagersManagerTripsManagerReysIdRoute:
     MainManagersManagerTripsManagerReysIdRoute,
+  MainManagersPetrolStationsVehiclePlateRoute:
+    MainManagersPetrolStationsVehiclePlateRoute,
   MainTripTripParentIdChildIdRoute: MainTripTripParentIdChildIdRoute,
   MainSettingsUsersIdEditLazyRoute: MainSettingsUsersIdEditLazyRoute,
   MainTripTripParentIdIndexRoute: MainTripTripParentIdIndexRoute,
@@ -1043,6 +1060,7 @@ export interface FileRoutesByFullPath {
   '/trip': typeof MainTripTripIndexLazyRoute
   '/truck': typeof MainTrucksTruckIndexLazyRoute
   '/manager-trips/manager-reys/$id': typeof MainManagersManagerTripsManagerReysIdRoute
+  '/petrol-stations/vehicle/$plate': typeof MainManagersPetrolStationsVehiclePlateRoute
   '/trip/$parentId/$childId': typeof MainTripTripParentIdChildIdRoute
   '/haydovchilar/$id/aylanma/$tripId': typeof MainHaydovchilarIdAylanmaTripIdRoute
   '/users/$id/edit': typeof MainSettingsUsersIdEditLazyRoute
@@ -1094,6 +1112,7 @@ export interface FileRoutesByTo {
   '/trip': typeof MainTripTripIndexLazyRoute
   '/truck': typeof MainTrucksTruckIndexLazyRoute
   '/manager-trips/manager-reys/$id': typeof MainManagersManagerTripsManagerReysIdRoute
+  '/petrol-stations/vehicle/$plate': typeof MainManagersPetrolStationsVehiclePlateRoute
   '/trip/$parentId/$childId': typeof MainTripTripParentIdChildIdRoute
   '/haydovchilar/$id/aylanma/$tripId': typeof MainHaydovchilarIdAylanmaTripIdRoute
   '/users/$id/edit': typeof MainSettingsUsersIdEditLazyRoute
@@ -1148,6 +1167,7 @@ export interface FileRoutesById {
   '/_main/_trip/trip/': typeof MainTripTripIndexLazyRoute
   '/_main/_trucks/truck/': typeof MainTrucksTruckIndexLazyRoute
   '/_main/_managers/manager-trips/manager-reys/$id': typeof MainManagersManagerTripsManagerReysIdRoute
+  '/_main/_managers/petrol-stations/vehicle/$plate': typeof MainManagersPetrolStationsVehiclePlateRoute
   '/_main/_trip/trip/$parentId/$childId': typeof MainTripTripParentIdChildIdRoute
   '/_main/haydovchilar/$id/aylanma/$tripId': typeof MainHaydovchilarIdAylanmaTripIdRoute
   '/_main/_settings/users/$id/edit': typeof MainSettingsUsersIdEditLazyRoute
@@ -1202,6 +1222,7 @@ export interface FileRouteTypes {
     | '/trip'
     | '/truck'
     | '/manager-trips/manager-reys/$id'
+    | '/petrol-stations/vehicle/$plate'
     | '/trip/$parentId/$childId'
     | '/haydovchilar/$id/aylanma/$tripId'
     | '/users/$id/edit'
@@ -1252,6 +1273,7 @@ export interface FileRouteTypes {
     | '/trip'
     | '/truck'
     | '/manager-trips/manager-reys/$id'
+    | '/petrol-stations/vehicle/$plate'
     | '/trip/$parentId/$childId'
     | '/haydovchilar/$id/aylanma/$tripId'
     | '/users/$id/edit'
@@ -1304,6 +1326,7 @@ export interface FileRouteTypes {
     | '/_main/_trip/trip/'
     | '/_main/_trucks/truck/'
     | '/_main/_managers/manager-trips/manager-reys/$id'
+    | '/_main/_managers/petrol-stations/vehicle/$plate'
     | '/_main/_trip/trip/$parentId/$childId'
     | '/_main/haydovchilar/$id/aylanma/$tripId'
     | '/_main/_settings/users/$id/edit'
@@ -1388,6 +1411,7 @@ export const routeTree = rootRoute
         "/_main/_trip/trip/",
         "/_main/_trucks/truck/",
         "/_main/_managers/manager-trips/manager-reys/$id",
+        "/_main/_managers/petrol-stations/vehicle/$plate",
         "/_main/_trip/trip/$parentId/$childId",
         "/_main/_settings/users/$id/edit",
         "/_main/_trip/trip/$parentId/",
@@ -1568,6 +1592,10 @@ export const routeTree = rootRoute
     },
     "/_main/_managers/manager-trips/manager-reys/$id": {
       "filePath": "_main/_managers/manager-trips/manager-reys/$id.tsx",
+      "parent": "/_main"
+    },
+    "/_main/_managers/petrol-stations/vehicle/$plate": {
+      "filePath": "_main/_managers/petrol-stations/vehicle/$plate.tsx",
       "parent": "/_main"
     },
     "/_main/_trip/trip/$parentId/$childId": {

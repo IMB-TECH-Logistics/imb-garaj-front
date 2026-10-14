@@ -8,7 +8,7 @@ import { formatMoney } from "@/lib/format-money"
 import { formatDate, formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { Plus, Truck, User } from "lucide-react"
+import { ImageIcon, Plus, Truck, User } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { FormCombobox } from "@/components/form/combobox"
@@ -210,7 +210,6 @@ function PetrolStationField({ control }: { control: any }) {
     )
     return (
         <FormCombobox
-            required
             control={control}
             label={t("nav.petrol")}
             name="petrol_station"
@@ -616,6 +615,28 @@ const useIncomeCols = (opts?: { withCategory?: boolean }) => {
     )
 }
 
+const NO_RECEIPT_ROW =
+    "!bg-destructive/10 hover:!bg-destructive/15 [&>td]:before:!bg-destructive/10 hover:[&>td]:before:!bg-destructive/15"
+
+const noReceiptRow = (row: FinanceRow) => (row.action === -1 && !row.receipt ? NO_RECEIPT_ROW : "")
+
+const ReceiptCell = ({ row }: { row: FinanceRow }) => {
+    const { t } = useTranslation()
+    if (!row.receipt) return <span className="text-muted-foreground">—</span>
+    return (
+        <a
+            href={row.receipt}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center text-primary hover:opacity-80"
+            title={t("trips.kirim.receipt")}
+        >
+            <ImageIcon size={18} />
+        </a>
+    )
+}
+
 const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => {
     const { t } = useTranslation()
     return useMemo<ColumnDef<FinanceRow>[]>(
@@ -647,6 +668,11 @@ const useExpenseCols = (opts?: { isFuel?: boolean; withCategory?: boolean }) => 
                 },
             }] : []),
             { header: t("form.payment_type"), accessorKey: "payment_type_name", enableSorting: true },
+            {
+                header: t("trips.kirim.receipt"),
+                id: "receipt",
+                cell: ({ row }) => <ReceiptCell row={row.original} />,
+            },
             {
                 header: t("table.created_at"),
                 accessorKey: "created",
@@ -837,6 +863,7 @@ function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?:
                 <DataTable
                     columns={columns}
                     data={rows}
+                    rowColor={noReceiptRow}
                     numeration
                     viewAll
                     onDelete={({ original }) => handleDelete(original)}
@@ -1303,6 +1330,11 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
             { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
             { header: t("form.payment_type"), accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || "—" },
             {
+                header: t("trips.kirim.receipt"),
+                id: "receipt",
+                cell: ({ row }) => <ReceiptCell row={row.original} />,
+            },
+            {
                 header: t("form.date"),
                 accessorKey: "created",
                 cell: ({ row }) => (
@@ -1421,6 +1453,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                 <DataTable
                                     columns={mixedCols}
                                     data={linked}
+                                    rowColor={noReceiptRow}
                                     numeration
                                     viewAll
                                     onEdit={({ original }) => startEdit(original)}
@@ -1488,6 +1521,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                         <DataTable
                             columns={mixedCols}
                             data={rows}
+                            rowColor={noReceiptRow}
                             numeration
                             viewAll
                             onEdit={({ original }) => startEdit(original)}
@@ -1566,6 +1600,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                     <DataTable
                         columns={expenseCols}
                         data={expenseRows}
+                        rowColor={noReceiptRow}
                         numeration
                         viewAll
                         onDelete={({ original }) => handleDeleteExpense(original)}

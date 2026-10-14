@@ -533,7 +533,8 @@
         "revenue": "Revenue generated",
         "rating": "Rating",
         "image_col": "Image",
-        "cargo_id": "Cargo ID"
+        "cargo_id": "Cargo ID",
+        "used_fuel": "Total fuel used"
     },
     "auth": {
         "welcome": "Welcome!",
@@ -2253,7 +2254,13 @@
             "contract_hint_no": "Fuel is paid in cash — deducted from the driver balance.",
             "map_hint": "Pick the station location on the map — the address is filled in automatically.",
             "no_driver": "No driver",
-            "add_new_vehicle": "+ Add new vehicle"
+            "add_new_vehicle": "+ Add new vehicle",
+            "tab_methane": "Methane",
+            "tab_diesel": "Diesel",
+            "tab_vehicles": "Vehicles",
+            "fills": "Fills",
+            "last_fill": "Last fill",
+            "all_fills": "All fills"
         },
         "driver": {
             "phone_12_digits": "Phone number must be 12 digits",
@@ -2274,7 +2281,13 @@
             "section_owner_docs": "Owner and documents",
             "stir_len": "Must be 9 (TIN) or 14 (PINFL) digits",
             "unit_l": "L",
-            "per_100km": "100 km"
+            "per_100km": "100 km",
+            "tab_trucks": "Vehicles",
+            "tab_trailers": "Trailers",
+            "add_trailer": "Add trailer",
+            "edit_trailer": "Edit trailer",
+            "remove_trailer_question": "Remove the trailer?",
+            "remove_trailer_hint": "The vehicle ({{truck}}) is kept; only the trailer data is cleared."
         },
         "documents": {
             "section_document": "Document",
@@ -2515,7 +2528,8 @@
             "fuel_up": "Add fuel",
             "edit_income": "Edit income",
             "give_advance_request": "Give advance (request to the cashier)",
-            "t_account": "T-account"
+            "t_account": "T-account",
+            "receipt": "Receipt"
         },
         "orders": {
             "expenses": "Expenses",

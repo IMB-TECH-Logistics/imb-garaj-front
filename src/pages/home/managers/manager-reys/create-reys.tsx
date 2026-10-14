@@ -10,6 +10,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     COMMON_DIRECTIONS,
     MANAGERS_ORDERS,
+    MANAGERS_TRIPS,
+    MANAGERS_VEHICLES,
+    SETTINGS_DRIVERS,
     MANAGERS_ORDERS_INTEGRATION_COUNT,
     SETTINGS_CARGO_TYPE,
     SETTINGS_SELECTABLE_CLIENT,
@@ -141,6 +144,8 @@ const AddTripOrders = () => {
             client: currentTripOrder?.client ?? null,
             direction: currentTripOrder?.direction ?? null,
             salary_amount: currentTripOrder?.salary_amount ?? 150000,
+            driver: currentTripOrder?.driver ?? null,
+            trailer_number: currentTripOrder?.trailer_number ?? null,
             images: [] as File[],
         },
     })
@@ -195,6 +200,44 @@ const AddTripOrders = () => {
         SETTINGS_CARGO_TYPE,
         { params: { page_size: 1000 } },
     )
+
+    const { data: tripData } = useGet<{ driver: number | null; vehicle: number | null }>(
+        `${MANAGERS_TRIPS}/${id}`,
+        { enabled: !!id && id !== "all" },
+    )
+    const { data: driversData } = useGet<ListResponse<{ id: number; first_name: string; last_name?: string }>>(
+        SETTINGS_DRIVERS,
+        { params: { page_size: 10000 } },
+    )
+    const driverOptions = useMemo(
+        () =>
+            (driversData?.results ?? []).map((d) => ({
+                id: d.id,
+                name: `${d.first_name} ${d.last_name || ""}`.trim(),
+            })),
+        [driversData],
+    )
+    const { data: managerVehicles } = useGet<ListResponse<{ id: number; trailer_number: string | null }>>(
+        MANAGERS_VEHICLES,
+        { params: { page_size: 10000 } },
+    )
+    const trailerOptions = useMemo(() => {
+        const seen = new Set<string>()
+        return (managerVehicles?.results ?? [])
+            .map((v) => v.trailer_number)
+            .filter((n): n is string => !!n && !seen.has(n) && !!seen.add(n))
+            .sort()
+            .map((n) => ({ id: n, name: n }))
+    }, [managerVehicles])
+
+    useEffect(() => {
+        if (currentTripOrder?.id || !tripData) return
+        if (!form.getValues("driver") && tripData.driver) setValue("driver", tripData.driver)
+        if (!form.getValues("trailer_number") && tripData.vehicle) {
+            const trailer = managerVehicles?.results?.find((v) => v.id === tripData.vehicle)?.trailer_number
+            if (trailer) setValue("trailer_number", trailer)
+        }
+    }, [tripData, managerVehicles, currentTripOrder?.id])
 
     const isNaqd = !!watch("is_naqd")
     const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
@@ -418,6 +461,8 @@ const AddTripOrders = () => {
         formData.append("date", data.date)
         formData.append("trip", String(id))
         formData.append("activity", String(activity))
+        formData.append("driver", data.driver ? String(data.driver) : "")
+        formData.append("trailer_number", data.trailer_number ?? "")
 
         if (isReysSel) {
             const incomes = isNaqdSel
@@ -692,6 +737,31 @@ const AddTripOrders = () => {
                                     placeholder={t("form.select_date")}
                                     className="w-full"
                                     disabled={logisticsLocked("date")}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <div className="flex-1">
+                                <FormCombobox
+                                    label={t("form.driver")}
+                                    name="driver"
+                                    control={control}
+                                    options={driverOptions}
+                                    valueKey="id"
+                                    labelKey="name"
+                                    placeholder={t("form.driver")}
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <FormCombobox
+                                    label={t("form.trailer_number")}
+                                    name="trailer_number"
+                                    control={control}
+                                    options={trailerOptions}
+                                    valueKey="id"
+                                    labelKey="name"
+                                    placeholder={t("form.trailer_number")}
                                 />
                             </div>
                         </div>

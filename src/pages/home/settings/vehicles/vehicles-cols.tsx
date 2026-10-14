@@ -15,26 +15,34 @@ const STATUS_COLORS: Record<number, string> = {
     3: "bg-orange-500/10 text-orange-600 border-transparent",
 }
 
+const DriverCell = ({ name }: { name: string | null }) => (
+    <span className="block truncate whitespace-nowrap" title={name || undefined}>
+        {name || "-"}
+    </span>
+)
+
+const StatusCell = ({ status }: { status: number }) => {
+    const { t } = useTranslation()
+    const labels: Record<number, string> = {
+        1: t("table.status_loaded"),
+        2: t("table.status_empty"),
+        3: t("table.status_repair"),
+    }
+    return (
+        <Badge variant="outline" className={STATUS_COLORS[status] || ""}>
+            {labels[status] || "-"}
+        </Badge>
+    )
+}
+
 export const useColumnsVehiclesTable = () => {
     const { t } = useTranslation()
     return useMemo<ColumnDef<VehicleDetailType>[]>(
-        () => {
-            const statusLabels: Record<number, string> = {
-                1: t("table.status_loaded"),
-                2: t("table.status_empty"),
-                3: t("table.status_repair"),
-            }
-            return [
+        () => [
             {
                 accessorKey: "truck_number",
                 header: t("form.vehicle_number"),
                 enableSorting: true,
-            },
-            {
-                accessorKey: "trailer_number",
-                header: t("form.trailer_number"),
-                enableSorting: true,
-                cell: ({ row }) => row.original.trailer_number || "-",
             },
             {
                 accessorKey: "truck_model_name",
@@ -49,24 +57,11 @@ export const useColumnsVehiclesTable = () => {
                 cell: ({ row }) => row.original.truck_type_name || "-",
             },
             {
-                accessorKey: "trailer_type_name",
-                header: t("form.trailer_type"),
-                enableSorting: true,
-                cell: ({ row }) => row.original.trailer_type_name || "-",
-            },
-            {
                 accessorKey: "driver_name",
                 header: t("form.driver"),
                 enableSorting: true,
                 size: 200,
-                cell: ({ row }) => (
-                    <span
-                        className="block truncate whitespace-nowrap"
-                        title={row.original.driver_name || undefined}
-                    >
-                        {row.original.driver_name || "-"}
-                    </span>
-                ),
+                cell: ({ row }) => <DriverCell name={row.original.driver_name} />,
             },
             {
                 accessorKey: "fuel",
@@ -81,17 +76,7 @@ export const useColumnsVehiclesTable = () => {
                 accessorKey: "status",
                 header: t("table.status"),
                 enableSorting: true,
-                cell: ({ row }) => {
-                    const status = row.original.status
-                    return (
-                        <Badge
-                            variant="outline"
-                            className={STATUS_COLORS[status] || ""}
-                        >
-                            {statusLabels[status] || "-"}
-                        </Badge>
-                    )
-                },
+                cell: ({ row }) => <StatusCell status={row.original.status} />,
             },
             {
                 accessorKey: "year",
@@ -127,8 +112,54 @@ export const useColumnsVehiclesTable = () => {
                         formatDate(row.original.registered_date)
                     :   "-",
             },
-            ]
-        },
+        ],
+        [t],
+    )
+}
+
+export const useColumnsTrailersTable = () => {
+    const { t } = useTranslation()
+    return useMemo<ColumnDef<VehicleDetailType>[]>(
+        () => [
+            {
+                accessorKey: "trailer_number",
+                header: t("form.trailer_number"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "trailer_type_name",
+                header: t("form.trailer_type"),
+                enableSorting: true,
+                cell: ({ row }) => row.original.trailer_type_name || "-",
+            },
+            {
+                accessorKey: "driver_name",
+                header: t("form.driver"),
+                enableSorting: true,
+                size: 200,
+                cell: ({ row }) => <DriverCell name={row.original.driver_name} />,
+            },
+            {
+                accessorKey: "status",
+                header: t("table.status"),
+                enableSorting: true,
+                cell: ({ row }) => <StatusCell status={row.original.status} />,
+            },
+            {
+                accessorKey: "owner_name",
+                header: t("form.owner"),
+                enableSorting: true,
+            },
+            {
+                accessorKey: "registered_date",
+                header: t("form.registration_date"),
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.registered_date ?
+                        formatDate(row.original.registered_date)
+                    :   "-",
+            },
+        ],
         [t],
     )
 }

@@ -502,7 +502,8 @@
         "salary_monthly_uzs": "支給月給 (UZS)",
         "field_col": "フィールド",
         "old_value": "旧値",
-        "new_value": "新値"
+        "new_value": "新値",
+        "used_fuel": "総消費量"
     },
     "auth": {
         "welcome": "ようこそ！",
@@ -1095,6 +1096,22 @@
                 "only_xlsx": ".xlsxのみ — ダウンロードしたテンプレート",
                 "replace_file": "クリックして別のファイルを選択"
             }
+        },
+        "vehicles": {
+            "tab_trucks": "車両",
+            "tab_trailers": "トレーラー",
+            "add_trailer": "トレーラーを追加",
+            "edit_trailer": "トレーラーを編集",
+            "remove_trailer_question": "トレーラーを外しますか？",
+            "remove_trailer_hint": "車両 ({{truck}}) は削除されず、トレーラー情報のみ消去されます。"
+        },
+        "petrol": {
+            "tab_methane": "メタン",
+            "tab_diesel": "ディーゼル",
+            "tab_vehicles": "車両",
+            "fills": "給油回数",
+            "last_fill": "最終給油",
+            "all_fills": "全給油履歴"
         }
     },
     "coordinates": {
@@ -1108,5 +1125,10 @@
         "remove": "座標を削除",
         "edit_title": "ディストリビューターの座標",
         "only_missing": "座標なし"
+    },
+    "trips": {
+        "kirim": {
+            "receipt": "領収書"
+        }
     }
 }
