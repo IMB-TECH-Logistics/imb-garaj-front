@@ -65,6 +65,13 @@ const DaysBadge = ({ expiresAt }: { expiresAt: string | null }) => {
     )
 }
 
+const PAY_VARIANT: Record<number, "default" | "secondary" | "destructive" | "orange"> = {
+    10: "orange",
+    20: "default",
+    [-10]: "destructive",
+    [-20]: "secondary",
+}
+
 const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
     const { t } = useTranslation()
     const isWarehouse = row?.category_code === TECH_INSPECTION_CODE
@@ -198,6 +205,14 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                             <Wrench size={16} className="text-primary" />
                                             {t("wh.tech.services_block")}
                                             <Badge>{services.length}</Badge>
+                                            {row.payment_status != null && (
+                                                <Badge
+                                                    variant={PAY_VARIANT[row.payment_status] ?? "secondary"}
+                                                    className="ml-auto"
+                                                >
+                                                    {t(`wh.tech.pay_status.${row.payment_status}`)}
+                                                </Badge>
+                                            )}
                                         </h3>
                                         <Table>
                                             <TableHeader>
@@ -224,7 +239,7 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                                                 {t("wh.tech.services_total")}
                                             </div>
                                             <div className="text-base font-semibold tabular-nums text-red-600">
-                                                {formatMoney(Number(row.amount ?? 0))} {t("page.som")}
+                                                {formatMoney(Number(row.services_total ?? row.amount ?? 0))} {t("page.som")}
                                             </div>
                                         </div>
                                     </>

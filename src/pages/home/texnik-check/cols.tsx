@@ -23,6 +23,8 @@ export type VehicleExpenseRow = {
     warehouse_total: string | null
     items: ExpenseItem[]
     services?: InspectionServiceRow[]
+    services_total?: string | null
+    payment_status?: number | null
     executor: number | null
     executor_name: string | null
     created: string
@@ -68,7 +70,7 @@ export const useExpenseCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const v =
-                        (Number(row.original.amount) || 0) + (Number(row.original.warehouse_total) || 0)
+                        (Number(row.original.services_total ?? row.original.amount) || 0) + (Number(row.original.warehouse_total) || 0)
                     return <span className="font-medium text-red-600">{formatMoney(v)}</span>
                 },
             },

@@ -135,7 +135,7 @@ const VehicleExpenses = ({
                         <TableCell className="whitespace-nowrap">{fmtDate(r.date)}</TableCell>
                         <TableCell>{r.category_name || "—"}</TableCell>
                         <TableCell className="text-right whitespace-nowrap font-medium text-red-600">
-                            {formatMoney((Number(r.amount) || 0) + (Number(r.warehouse_total) || 0))}
+                            {formatMoney((Number(r.services_total ?? r.amount) || 0) + (Number(r.warehouse_total) || 0))}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                             {r.lifespan ? fmtDate(r.lifespan) : "—"}

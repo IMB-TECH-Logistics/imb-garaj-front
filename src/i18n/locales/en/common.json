@@ -903,7 +903,13 @@
             "service_comment": "Work done",
             "service_placeholder": "E.g. tyre replacement",
             "services_total": "Services total",
-            "no_services": "No services added"
+            "no_services": "No services added",
+            "pay_status": {
+                "10": "Pending in cash desk",
+                "20": "Paid from cash desk",
+                "-10": "Rejected by cash desk",
+                "-20": "Canceled"
+            }
         },
         "low_stock": {
             "title": "Warehouse: low stock products",

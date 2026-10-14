@@ -900,7 +900,13 @@
             "service_comment": "Nima qilindi",
             "service_placeholder": "Masalan: shina almashtirish",
             "services_total": "Xizmatlar jami",
-            "no_services": "Xizmat kiritilmagan"
+            "no_services": "Xizmat kiritilmagan",
+            "pay_status": {
+                "10": "Kassada kutilmoqda",
+                "20": "Kassadan to'landi",
+                "-10": "Kassa rad etdi",
+                "-20": "Bekor qilindi"
+            }
         },
         "low_stock": {
             "title": "Ombor: kam qolgan mahsulotlar",
