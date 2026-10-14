@@ -152,9 +152,6 @@ const KassaV2 = () => {
                     <Box className="bg-primary/5 border-primary/30">
                         <Line strong label={from_date ? t("fin.kv2.closing_balance") : t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} tone={n(sm?.closing ?? ov?.balance) < 0 ? "red" : undefined} />
                     </Box>
-                    <p className="text-[11px] text-muted-foreground px-1">
-                        {from_date ? t("fin.kv2.formula_with_opening") : t("fin.kv2.formula")}
-                    </p>
 
                     <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">
                         <div className="flex items-center justify-between mb-2 pb-2 border-b border-muted-foreground/20">
