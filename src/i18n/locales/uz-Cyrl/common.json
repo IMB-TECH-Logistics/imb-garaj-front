@@ -1402,6 +1402,8 @@
             "col_total": "Умумий сумма",
             "settled_salary": "ҳисоб-китоб 0 · ойлик {{amount}}",
             "settled_zero": "ҳисоб-китоб 0",
+            "carried_next": "кейинги айланмага ўтказилди",
+            "settled_salary_only": "ойлик {{amount}}",
             "edited": "ўзгартирилган",
             "unreject_done": "Рад этиш бекор қилинди, сўров яна кутилмоқда",
             "return_btn": "Қайтариш",

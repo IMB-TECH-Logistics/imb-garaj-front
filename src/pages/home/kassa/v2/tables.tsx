@@ -712,11 +712,19 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                     const q = row.original.close_request
                     const salary = n(row.original.salary_paid)
                     if (!q && row.original.status === "yopildi") {
+                        const carried = n(row.original.carried)
                         return (
                             <div className="flex flex-col">
-                                <span className="font-semibold tabular-nums whitespace-nowrap">{formatMoney(Math.abs(n(row.original.close_amount)))}</span>
+                                {carried ?
+                                    <Money v={Math.abs(carried)} dir={carried > 0 ? "in" : "out"} />
+                                :   <span className="font-semibold tabular-nums whitespace-nowrap">{formatMoney(Math.abs(n(row.original.close_amount)))}</span>}
+                                {!!carried && (
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                        {carried > 0 ? t("fin.kv2.takes") : t("fin.kv2.gives")} · {t("fin.kv2.carried_next")}
+                                    </span>
+                                )}
                                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                    {salary ? t("fin.kv2.settled_salary", { amount: money(salary) }) : t("fin.kv2.settled_zero")}
+                                    {salary ? t("fin.kv2.settled_salary_only", { amount: money(salary) }) : carried ? "" : t("fin.kv2.settled_zero")}
                                 </span>
                             </div>
                         )

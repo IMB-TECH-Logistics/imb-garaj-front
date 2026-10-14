@@ -1405,6 +1405,8 @@
             "col_total": "Total amount",
             "settled_salary": "settled 0 · salary {{amount}}",
             "settled_zero": "settled 0",
+            "carried_next": "carried to the next turnover",
+            "settled_salary_only": "salary {{amount}}",
             "edited": "edited",
             "unreject_done": "Rejection undone, the request is pending again",
             "return_btn": "Return",

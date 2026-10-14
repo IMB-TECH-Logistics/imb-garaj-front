@@ -1411,6 +1411,8 @@
             "col_total": "Общая сумма",
             "settled_salary": "расчёт 0 · зарплата {{amount}}",
             "settled_zero": "расчёт 0",
+            "carried_next": "перенесено в следующий оборот",
+            "settled_salary_only": "зарплата {{amount}}",
             "edited": "изменено",
             "unreject_done": "Отклонение отменено, запрос снова в ожидании",
             "return_btn": "Вернуть",

@@ -1402,6 +1402,8 @@
             "col_total": "Umumiy summa",
             "settled_salary": "hisob-kitob 0 · oylik {{amount}}",
             "settled_zero": "hisob-kitob 0",
+            "carried_next": "keyingi aylanmaga o'tkazildi",
+            "settled_salary_only": "oylik {{amount}}",
             "edited": "o'zgartirilgan",
             "unreject_done": "Rad etish bekor qilindi, so'rov yana kutilmoqda",
             "return_btn": "Qaytarish",
