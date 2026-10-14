@@ -465,17 +465,19 @@ function AddFinanceForm({
                         }}
                     />
                 </div>
+                {!(withStation && !isEdit) && (
+                    <div className="flex-1 min-w-0">
+                        <FormCombobox
+                            control={control}
+                            label={t("form.payment_type")}
+                            name="payment_type"
+                            options={paymentTypes?.results ?? []}
+                            valueKey="id"
+                            labelKey="name"
+                        />
+                    </div>
+                )}
             </div>
-            {!(withStation && !isEdit) && (
-                <FormCombobox
-                    control={control}
-                    label={t("form.payment_type")}
-                    name="payment_type"
-                    options={paymentTypes?.results ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                />
-            )}
                         {isSalaryExpense && (
                 <div className="rounded-md border bg-muted/40 p-3 flex flex-col gap-2">
                     <div className="text-xs uppercase tracking-wider text-muted-foreground">
