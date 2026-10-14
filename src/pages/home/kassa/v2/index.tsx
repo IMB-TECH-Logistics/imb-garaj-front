@@ -125,13 +125,6 @@ const KassaV2 = () => {
                         <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                     </Box>
-                    <Box className="bg-amber-500/5 border-amber-500/30">
-                        <Line strong label={t("fin.kv2.drivers_hand")} value={-n(sm?.drivers.net)} />
-                        <Line sub label={t("fin.kv2.advance_given")} value={sm?.drivers.given} {...lineProps("drv_given", "fin.kv2.advance_given")} />
-                        <Line sub label={t("fin.kv2.trip_cash_on_road")} value={sm?.drivers.trip_cash} />
-                        <Line sub label={t("fin.kv2.spent_on_cash_expense")} value={-n(sm?.drivers.cash)} />
-                        <Line sub label={t("fin.kv2.returned_to_cash")} value={-n(sm?.drivers.returned)} {...lineProps("drv_returned", "fin.kv2.returned_to_cash")} />
-                    </Box>
                     <p className="text-[11px] text-muted-foreground px-1">
                         {from_date ? t("fin.kv2.formula_with_opening") : t("fin.kv2.formula")}
                     </p>
