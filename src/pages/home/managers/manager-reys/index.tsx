@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next"
 import { useColumnsManagersOrders } from "./cols"
 import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
 import AddTripOrders from "./create-reys"
-import ReysFilters, { REYS_FILTER_KEYS } from "./reys-filters"
+import ReysFilters, { REYS_FILTER_KEYS, REYS_KIND_PARAMS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
 import EmptyLegPayModal, { EMPTY_LEG_PAY_MODAL_KEY, type EmptyLeg } from "./empty-leg-pay-modal"
 import ExtraPayModal, { EXTRA_PAY_MODAL_KEY, type ExtraPayTarget } from "./extra-pay-modal"
@@ -67,6 +67,7 @@ export default function ManagerReys() {
         enabled: !!crumbVehicle,
     })
     const currentSelected = getData(MANAGERS_ORDERS)
+    const kind = (search as any).kind as string | undefined
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
         params: {
             trip: tripId,
@@ -74,8 +75,9 @@ export default function ManagerReys() {
             page: search.page,
             ordering: (search as any).ordering,
             ...Object.fromEntries(
-                REYS_FILTER_KEYS.map((key) => [key, (search as any)[key]]),
+                REYS_FILTER_KEYS.filter((key) => key !== "kind").map((key) => [key, (search as any)[key]]),
             ),
+            ...(kind ? REYS_KIND_PARAMS[kind] : {}),
         },
     })
     const hasControl = useHasAction("manager_vehicles_control")
@@ -122,6 +124,33 @@ export default function ManagerReys() {
     const rows = useMemo(() => {
         const list = data?.results ?? []
         if (!legs?.length) return list
+        const legRowOf = (leg: EmptyLeg) => ({
+            id: -leg.before_order,
+            __leg: leg,
+            date: leg.start,
+            activity: 0,
+            activity_display: t("trips.managers.empty_run"),
+            loading_name: leg.from_place || t("trips.empty_leg.turnover_start"),
+            unloading_name: leg.to_place,
+            cargo_type_name: t("trips.managers.no_cargo"),
+            loading_time: leg.start,
+            completed_time: leg.end,
+            incomes: [],
+            images: [],
+        } as unknown as ManagerOrders)
+        const idleRowOf = (leg: EmptyLeg) => ({
+            id: -leg.before_order - 1_000_000_000,
+            __idle: true,
+            __idleLeg: leg,
+            date: leg.idle_start,
+            activity: 4,
+            activity_display: t("status.idle_stop"),
+            loading_name: leg.from_place,
+            loading_time: leg.idle_start,
+            completed_time: leg.start,
+            incomes: [],
+            images: [],
+        } as unknown as ManagerOrders)
         const byOrder = new Map(legs.map((l) => [l.before_order, l]))
         const isEmptyRun = (r: ManagerOrders) => r.activity === 1 && r.type === 2
         const emptyRunIds = new Set(list.filter(isEmptyRun).map((r) => r.id))
@@ -130,51 +159,45 @@ export default function ManagerReys() {
         )
         const ordering = String((search as any).ordering ?? "")
         const desc = !ordering || ordering.startsWith("-")
+        const merge = (r: ManagerOrders) => {
+            if (!isEmptyRun(r)) return r
+            const before = byOrder.get(r.id)
+            const after = byAfter.get(r.id)
+            if (!before && !after) return r
+            return {
+                ...r,
+                __legs: [before, after].filter(Boolean),
+                __merged: true,
+                __start: before?.start,
+                loading_name: before?.from_place || r.loading_name,
+                unloading_name: after?.to_place || r.unloading_name,
+                completed_time: after?.end ?? r.completed_time,
+            } as unknown as ManagerOrders
+        }
+        if (kind) {
+            const extra =
+                kind === "empty"
+                    ? legs
+                          .filter((l) => !emptyRunIds.has(l.before_order) && !(l.after_order != null && emptyRunIds.has(l.after_order)))
+                          .map(legRowOf)
+                    : kind === "idle"
+                      ? legs.filter((l) => l.idle_start).map(idleRowOf)
+                      : []
+            if (kind !== "empty" && kind !== "idle") return list
+            const startAt = (r: ManagerOrders) => {
+                const row = r as any
+                return new Date(row.__start ?? r.loading_time ?? r.pending_time ?? r.date ?? 0).getTime()
+            }
+            return [...list.map(merge), ...extra].sort((a, b) => (desc ? startAt(b) - startAt(a) : startAt(a) - startAt(b)))
+        }
         const out: ManagerOrders[] = []
         for (const r of list) {
             const leg = byOrder.get(r.id)
             const emptyRun = isEmptyRun(r)
             const mergedIntoPrev = !!leg && leg.after_order != null && byAfter.get(leg.after_order) === leg
-            const legRow = leg && !emptyRun && !mergedIntoPrev && ({
-                id: -leg.before_order,
-                __leg: leg,
-                date: leg.start,
-                activity: 0,
-                activity_display: t("trips.managers.empty_run"),
-                loading_name: leg.from_place || t("trips.empty_leg.turnover_start"),
-                unloading_name: leg.to_place,
-                cargo_type_name: t("trips.managers.no_cargo"),
-                loading_time: leg.start,
-                completed_time: leg.end,
-                incomes: [],
-                images: [],
-            } as unknown as ManagerOrders)
-            const idleRow = leg?.idle_start && ({
-                id: -leg.before_order - 1_000_000_000,
-                __idle: true,
-                __idleLeg: leg,
-                date: leg.idle_start,
-                activity: 4,
-                activity_display: t("status.idle_stop"),
-                loading_name: leg.from_place,
-                loading_time: leg.idle_start,
-                completed_time: leg.start,
-                incomes: [],
-                images: [],
-            } as unknown as ManagerOrders)
-            const before = emptyRun ? leg : undefined
-            const after = emptyRun ? byAfter.get(r.id) : undefined
-            const row = before || after
-                ? ({
-                      ...r,
-                      __legs: [before, after].filter(Boolean),
-                      __merged: true,
-                      __start: before?.start,
-                      loading_name: before?.from_place || r.loading_name,
-                      unloading_name: after?.to_place || r.unloading_name,
-                      completed_time: after?.end ?? r.completed_time,
-                  } as unknown as ManagerOrders)
-                : r
+            const legRow = leg && !emptyRun && !mergedIntoPrev && legRowOf(leg)
+            const idleRow = leg?.idle_start && idleRowOf(leg)
+            const row = merge(r)
             if (!desc) {
                 if (idleRow) out.push(idleRow)
                 if (legRow) out.push(legRow)
@@ -186,7 +209,7 @@ export default function ManagerReys() {
             }
         }
         return out
-    }, [data, legs, search, t])
+    }, [data, legs, search, kind, t])
     const handleAdd = () => {
         clearKey(MANAGERS_ORDERS)
         openTripModal()

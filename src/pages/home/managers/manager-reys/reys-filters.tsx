@@ -8,13 +8,22 @@ import {
 import { useGet } from "@/hooks/useGet"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { X } from "lucide-react"
-import { useActivityOptions } from "./create-reys"
 import { useTranslation } from "react-i18next"
 
 type Option = { id: number | string; name: string }
 
+export const REYS_KIND_PARAMS: Record<string, { activity: number; type?: number }> = {
+    reys: { activity: 1, type: 1 },
+    empty: { activity: 1, type: 2 },
+    idle: { activity: 4 },
+    garage: { activity: 2 },
+    repair: { activity: 3 },
+    queue: { activity: 5 },
+}
+
 export const REYS_FILTER_KEYS = [
     "search",
+    "kind",
     "loading",
     "unloading",
     "cargo_type",
@@ -35,7 +44,14 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
     const { t } = useTranslation()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
-    const activityOptions = useActivityOptions()
+    const kindOptions: Option[] = [
+        { id: "reys", name: t("mon.trip") },
+        { id: "empty", name: t("trips.managers.empty_run") },
+        { id: "idle", name: t("status.idle_stop") },
+        { id: "garage", name: t("status.in_garage") },
+        { id: "repair", name: t("status.repair") },
+        { id: "queue", name: t("status.in_queue") },
+    ]
 
     const { data: cargoTypes } = useGet<Option[]>(SETTINGS_SELECTABLE_CARGO_TYPE, {
         params: { model_name: "cargo-type" },
@@ -60,15 +76,14 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
     return (
         <div className="flex flex-wrap items-center justify-end gap-2">
             {hasActiveFilters && (
-                <Button onClick={clearAllFilters} className="flex items-center gap-2">
+                <Button onClick={clearAllFilters} size="icon" title={t("page.clear_filters")}>
                     <X size={16} />
-                    {t("page.clear_filters")}
                 </Button>
             )}
             <ParamCombobox
-                paramName="activity"
-                label={t("table.activity")}
-                options={activityOptions}
+                paramName="kind"
+                label={t("form.trip_type")}
+                options={kindOptions}
                 valueKey="id"
                 labelKey="name"
                 isSearch={false}
@@ -88,7 +103,8 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
                 options={clients ?? []}
                 valueKey="id"
                 labelKey="name"
-                addButtonProps={filterButtonProps}
+                className="w-80"
+                addButtonProps={{ className: `${filterButtonProps.className} min-w-48` }}
             />
             <ParamDateRange
                 from="from_date"
