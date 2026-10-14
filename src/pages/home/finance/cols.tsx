@@ -62,6 +62,17 @@ export const useCostCols = () => {
                 cell: ({ row }) => <span>{row.original.order_count_busy}</span>,
             },
             {
+                header: t("fin.cols.unpriced_trips"),
+                accessorKey: "unpriced_count",
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.unpriced_count ?
+                        <span className="text-xs font-medium py-0.5 px-2 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                            {row.original.unpriced_count}
+                        </span>
+                    :   <span className="text-muted-foreground">—</span>,
+            },
+            {
                 header: t("table.mileage_km"),
                 accessorKey: "total_mileage",
                 enableSorting: true,
