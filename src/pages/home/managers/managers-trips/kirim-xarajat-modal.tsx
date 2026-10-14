@@ -1098,11 +1098,7 @@ function AddFromTAccount({ type, tripId, presetCategoryCode, defaultPaymentMetho
             options: { queryKey: [MANAGERS_EXPENSE_CATEGORIES, "t-hisob-add", action, tripId] },
         },
     )
-    const categories = (categoriesData?.results ?? []).filter((c) =>
-        action === -1
-            ? c.code === "fuel" || (!!presetCategoryCode && c.code === presetCategoryCode) || c.name?.trim().toLowerCase() === "boshqa xarajat"
-            : c.code !== "salary",
-    )
+    const categories = (categoriesData?.results ?? []).filter((c) => c.code !== "salary")
     const [catId, setCatId] = useState<number | null>(null)
     useEffect(() => {
         if (categories.length && !categories.some((c) => c.id === catId)) {
