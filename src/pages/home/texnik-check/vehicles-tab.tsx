@@ -174,7 +174,7 @@ const VehicleItemsSheet = ({
                         )}
                     </SheetTitle>
                 </SheetHeader>
-                <div className="mt-4 flex items-center justify-between gap-2">
+                <div className="mt-4 mb-3 flex items-center justify-between gap-2">
                     <h3 className="text-sm font-semibold">{t("texnik.tab_expenses")}</h3>
                     {row && onAddExpense && (
                         <Button size="sm" onClick={() => onAddExpense(row.id)}>
