@@ -1396,6 +1396,8 @@
             "col_who": "From / to",
             "col_why": "Purpose",
             "col_total": "Total amount",
+            "settled_salary": "settled 0 · salary {{amount}}",
+            "settled_zero": "settled 0",
             "edited": "edited",
             "unreject_done": "Rejection undone, the request is pending again",
             "return_btn": "Return",

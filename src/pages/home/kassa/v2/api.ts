@@ -129,6 +129,8 @@ export type KassaTrip = {
     given: number
     avans_request: KassaRequest | null
     close_request: KassaRequest | null
+    close_amount?: number | string | null
+    salary_paid?: number | string
 }
 
 export type CloseBreakdown = {

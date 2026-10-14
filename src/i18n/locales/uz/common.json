@@ -1393,6 +1393,8 @@
             "col_who": "Kimdan / kimga",
             "col_why": "Nima uchun",
             "col_total": "Umumiy summa",
+            "settled_salary": "hisob-kitob 0 · oylik {{amount}}",
+            "settled_zero": "hisob-kitob 0",
             "edited": "o'zgartirilgan",
             "unreject_done": "Rad etish bekor qilindi, so'rov yana kutilmoqda",
             "return_btn": "Qaytarish",

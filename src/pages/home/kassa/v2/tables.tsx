@@ -710,6 +710,17 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                 id: "net",
                 cell: ({ row }) => {
                     const q = row.original.close_request
+                    const salary = n(row.original.salary_paid)
+                    if (!q && row.original.status === "yopildi") {
+                        return (
+                            <div className="flex flex-col">
+                                <span className="font-semibold tabular-nums whitespace-nowrap">{formatMoney(Math.abs(n(row.original.close_amount)))}</span>
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                    {salary ? t("fin.kv2.settled_salary", { amount: money(salary) }) : t("fin.kv2.settled_zero")}
+                                </span>
+                            </div>
+                        )
+                    }
                     if (!q) return <span className="text-muted-foreground">—</span>
                     const r = requestRow(q)
                     return (
