@@ -25,7 +25,9 @@ import {
     KassaTrip,
     KassaTx,
     KIND_DIR,
+    DriverExpense,
     KV2_DRIVERS,
+    KV2_DRIVER_EXPENSES,
     CloseBreakdown,
     KV2_EXCEL,
     KV2_REQUESTS,
@@ -828,6 +830,33 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
             loading={isLoading}
             columns={columns}
             data={data?.rows}
+            wrapperClassName="md:h-full flex flex-col"
+            tableWrapperClassName="flex-1 min-h-0 overflow-auto"
+            head={head}
+        />
+    )
+}
+
+export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fuel" | "other" }) => {
+    const { t } = useTranslation()
+    const period = usePeriod()
+    const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind } })
+    const columns = useMemo<ColumnDef<DriverExpense>[]>(
+        () => [
+            { header: t("form.amount"), accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir="out" /> },
+            { header: t("form.expense_type"), accessorKey: "category", cell: ({ row }) => row.original.category || "—" },
+            { header: t("fin.kv2.col_who"), accessorKey: "driver", cell: ({ row }) => <Party name={[row.original.driver, row.original.plate].filter(Boolean).join(" · ") || null} trip={row.original.trip} /> },
+            { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
+            { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={row.original.date} /> },
+        ],
+        [t],
+    )
+    return (
+        <DataTable
+            numeration
+            loading={isLoading}
+            columns={columns}
+            data={data}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
             head={head}

@@ -14,7 +14,7 @@ import { ArrowDownCircle, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
 import { KassaRequest, KassaTrip, KassaTx, KIND_DIR, KV2_REQUESTS, KV2_TRIPS, n, Paged, STATUS, useAllPeriodTx, useKassaRoles, useOverview, usePeriod } from "./api"
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
-import { KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
+import { DriverExpensesTable, KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 
 const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
     const { t } = useTranslation()
@@ -42,7 +42,7 @@ const Box = ({ children, className }: { children: ReactNode; className?: string 
     <div className={cn("rounded-lg border p-3 flex flex-col gap-1.5", className)}>{children}</div>
 )
 
-type View = "kassa" | "requests" | "trips" | "driver"
+type View = "kassa" | "requests" | "trips" | "driver" | "expenses"
 
 const TABS: [View, string][] = [["trips", "fin.kv2.tab_trips"], ["kassa", "fin.kv2.tab_transactions"]]
 
@@ -74,6 +74,16 @@ const KassaV2 = () => {
     }
     const [groupLabel, setGroupLabel] = useState("")
     const lineProps = (g: string, labelKey: string) => ({ onClick: pick(g, labelKey), active: view === "kassa" && group === g })
+    const [expKind, setExpKind] = useState<"fuel" | "other">("fuel")
+    const expProps = (k: "fuel" | "other") => ({
+        onClick: () => {
+            setDriver(null)
+            if (view === "expenses" && expKind === k) return setView("kassa")
+            setExpKind(k)
+            setView("expenses")
+        },
+        active: view === "expenses" && expKind === k,
+    })
     const [driver, setDriver] = useState<number | null>(null)
     const [editing, setEditing] = useState<KassaRequest | null>(null)
     const [rejecting, setRejecting] = useState<KassaRequest | null>(null)
@@ -120,8 +130,8 @@ const KassaV2 = () => {
                     </Box>
                     <Box className="bg-red-600/5 border-red-600/30">
                         <Line strong tone="red" label={t("fin.kv2.expense")} value={-n(sm?.expense.total)} />
-                        <Line sub label={t("fin.kv2.expense_fuel")} value={-n(sm?.expense.fuel)} />
-                        <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.expense.other)} />
+                        <Line sub label={t("fin.kv2.expense_fuel")} value={-n(sm?.expense.fuel)} {...expProps("fuel")} />
+                        <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.expense.other)} {...expProps("other")} />
                         <Line sub label={t("table.monthly_salary")} value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "table.monthly_salary")} />
                         <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
@@ -174,6 +184,24 @@ const KassaV2 = () => {
                                 </div>
                                 <span className="text-sm">
                                     {t("fin.kv2.balance_label")} <b className="tabular-nums">{formatMoney(n(selected.balance))} {t("page.som")}</b>
+                                </span>
+                            </div>
+                        }
+                    />
+                : view === "expenses" ?
+                    <DriverExpensesTable
+                        kind={expKind}
+                        head={
+                            <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    {switcher}
+                                    <Badge className="gap-1.5 cursor-pointer" onClick={() => setView("kassa")}>
+                                        {t(expKind === "fuel" ? "fin.kv2.expense_fuel" : "fin.kv2.expense_other")}
+                                        <X size={12} />
+                                    </Badge>
+                                </div>
+                                <span className="text-sm">
+                                    <b className="tabular-nums">{formatMoney(n(expKind === "fuel" ? sm?.expense.fuel : sm?.expense.other))} {t("page.som")}</b>
                                 </span>
                             </div>
                         }

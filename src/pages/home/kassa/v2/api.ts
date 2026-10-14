@@ -9,6 +9,7 @@ import i18n from "@/i18n/i18n"
 
 export const KV2 = "checkout/kassa-v2"
 export const KV2_OVERVIEW = `${KV2}/overview`
+export const KV2_DRIVER_EXPENSES = `${KV2}/driver-expenses`
 export const KV2_TRANSACTIONS = `${KV2}/transactions`
 export const KV2_EXCEL = `${KV2}/transactions/excel`
 export const KV2_INCOME = `${KV2}/income`
@@ -227,6 +228,8 @@ export const useAllPeriodTx = (period: { from_date?: string; to_date?: string })
     if (!first || !rest) return undefined
     return [...first.results, ...rest]
 }
+
+export type DriverExpense = { id: number; date: string; amount: number | string; category: string | null; driver: string | null; plate: string | null; trip: number | null; comment: string | null }
 
 export const useOverview = () => useGet<Overview>(KV2_OVERVIEW, { params: usePeriod() })
 
