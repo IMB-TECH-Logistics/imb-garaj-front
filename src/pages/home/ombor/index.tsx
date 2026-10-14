@@ -11,7 +11,10 @@ import { Plus } from "lucide-react"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useProductCols } from "./cols"
+import DebtsSection from "./debts-section"
 import LinesSection from "./lines-section"
+import OtherStockSection from "./other-stock-section"
+import TransfersSection from "./transfers-section"
 import ReceiptModal, { RECEIPT_MODAL_KEY } from "./receipt-modal"
 import type { OmborSearchParams, WhProduct } from "./types"
 import { useOmborSearch } from "./use-ombor-search"
@@ -125,7 +128,15 @@ const Ombor = () => {
 
     return (
         <div className="flex flex-col w-full gap-3">
-            {section === "moves" ? <Moves /> : <Stock />}
+            {section === "moves" ?
+                <Moves />
+            : section === "others" ?
+                <OtherStockSection />
+            : section === "transfers" ?
+                <TransfersSection />
+            : section === "debts" ?
+                <DebtsSection />
+            :   <Stock />}
         </div>
     )
 }

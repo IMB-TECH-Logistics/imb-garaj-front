@@ -144,6 +144,11 @@ export const WAREHOUSE_WITHDRAWAL_FILTERS = "warehouse/withdrawals/filters"
 export const WAREHOUSE_SCAN = "warehouse/scan"
 export const WAREHOUSE_LOW_STOCK = "warehouse/low-stock"
 export const WAREHOUSE_ITEMS = "warehouse/items"
+export const WAREHOUSE_OTHER_STOCK = "warehouse/other-stock"
+export const WAREHOUSE_TRANSFERS = "warehouse/transfers"
+export const WAREHOUSE_DEBTS = "warehouse/debts"
+export const WAREHOUSE_DEBT_PAYMENTS = "warehouse/debts/payments"
+export const WAREHOUSE_MY_DEBT = "warehouse/my-debt"
 
 /** ===== CHECKOUT extras ===== */
 export const CHECKOUT_TOP_UP = "checkout/top-up"
