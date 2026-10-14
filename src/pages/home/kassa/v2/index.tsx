@@ -116,7 +116,6 @@ const KassaV2 = () => {
     )
     const drivers = [...(ov?.drivers ?? [])].sort((a, b) => n(b.balance) - n(a.balance))
     const selected = drivers.find((d) => d.id === driver)
-    const openingDrivers = n(ov?.drivers_total) - n(sm?.drivers.net)
 
     return (
         <div className="grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-3 xl:h-full min-h-0">
@@ -126,9 +125,7 @@ const KassaV2 = () => {
 
                     {from_date && (
                         <Box className="bg-muted/40 border-muted-foreground/30">
-                            <Line strong label={t("fin.kv2.opening_balance")} value={n(sm?.opening) + openingDrivers} tone={n(sm?.opening) + openingDrivers < 0 ? "red" : undefined} />
-                            <Line sub label={t("fin.kv2.cash_balance")} value={sm?.opening} />
-                            <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={openingDrivers} />
+                            <Line strong label={t("fin.kv2.opening_balance")} value={sm?.opening} tone={n(sm?.opening) < 0 ? "red" : undefined} />
                         </Box>
                     )}
                     <Box className="bg-green-600/5 border-green-600/30">
