@@ -101,6 +101,7 @@ export type KassaTx = {
     close?: (CloseBreakdown & { id: number; request: number }) | null
     can_reverse?: boolean
     can_edit?: boolean
+    vehicles?: { id: number; plate: string | null }[]
 }
 
 export type KassaRequest = {
