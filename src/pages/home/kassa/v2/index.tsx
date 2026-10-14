@@ -118,6 +118,11 @@ const KassaV2 = () => {
                 <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
                     <ParamDateRange className="w-full" from="from_date" to="to_date" defaultValue={{ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }} addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
 
+                    {from_date && (
+                        <Box className="bg-muted/40 border-muted-foreground/30">
+                            <Line strong label={t("fin.kv2.opening_balance")} value={sm?.opening} tone={n(sm?.opening) < 0 ? "red" : undefined} />
+                        </Box>
+                    )}
                     <Box className="bg-green-600/5 border-green-600/30">
                         <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
                         <Line sub label={t("fin.kv2.from_external")} value={sm?.income.external} {...lineProps("in_external", "fin.kv2.from_external")} />
@@ -132,11 +137,6 @@ const KassaV2 = () => {
                         <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                     </Box>
-                    {from_date && (
-                        <Box className="bg-muted/40 border-muted-foreground/30">
-                            <Line strong label={t("fin.kv2.opening_balance")} value={sm?.opening} tone={n(sm?.opening) < 0 ? "red" : undefined} />
-                        </Box>
-                    )}
                     <Box className="bg-primary/5 border-primary/30">
                         <Line strong label={from_date ? t("fin.kv2.closing_balance") : t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} tone={n(sm?.closing ?? ov?.balance) < 0 ? "red" : undefined} />
                     </Box>
