@@ -123,6 +123,7 @@ export const useColumnsManagersOrders = (opts?: {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
+                    if (row.original?.activity === 4) return "-"
                     if (status === -1) {
                         return (
                             <Badge
@@ -207,7 +208,14 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "cargo_type_name",
                 header: t("trips.reys_cols.product_type"),
                 enableSorting: true,
-                cell: ({ row }) => <span className="whitespace-nowrap">{row.original.cargo_type_name || "—"}</span>,
+                cell: ({ row }) => {
+                    const isEmptyRun = !!(row.original as any).__leg || row.original.type === 2
+                    return (
+                        <span className="whitespace-nowrap">
+                            {isEmptyRun ? t("trips.managers.no_cargo") : row.original.cargo_type_name || "—"}
+                        </span>
+                    )
+                },
             },
             {
                 accessorKey: "pending_time",
@@ -313,6 +321,7 @@ export const useColumnsManagersOrders = (opts?: {
                     return (
                         <div className="flex flex-col gap-1 not-italic">
                             {legs.map((leg) => {
+                                if (r.__merged && isOrder && !(Number(leg.payment_amount) > 0)) return null
                                 const route = `${leg.from_place || t("trips.empty_leg.turnover_start")} → ${leg.to_place || "—"}`
                                 return (
                                     <div key={leg.id ?? leg.before_order} className="flex items-center gap-2">
