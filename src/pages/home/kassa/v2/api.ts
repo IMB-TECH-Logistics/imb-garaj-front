@@ -76,6 +76,7 @@ export type KassaTx = {
     kind_label: string
     expense_type: string | null
     party: string | null
+    source?: string | null
     driver: number | null
     trip: number | null
     comment: string | null

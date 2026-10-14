@@ -1332,6 +1332,8 @@
             "no_trips_yet": "В новой кассе пока нет оборотов.",
             "balance_label": "Баланс:",
             "cash_in": "Приход в кассу",
+            "received_from": "От кого получено",
+            "received_from_placeholder": "Например: Бунёд Олимов",
             "edit_income": "Редактирование прихода",
             "delete_income": "Удаление прихода",
             "edit_request": "Редактирование запроса",

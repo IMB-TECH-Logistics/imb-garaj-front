@@ -1,6 +1,7 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
 import { FormNumberInput } from "@/components/form/number-input"
+import FormInput from "@/components/form/input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import { useGet } from "@/hooks/useGet"
@@ -74,27 +75,28 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
     const { t } = useTranslation()
     const amountRules = useAmountRules()
     const { closeModal, isOpen } = useModal(M.income)
-    type F = { amount: number | ""; comment: string; date: string }
-    const form = useForm<F>({ defaultValues: { amount: "", comment: "", date: toLocalInput(new Date().toISOString()) } })
+    type F = { amount: number | ""; source: string; comment: string; date: string }
+    const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()) } })
     const post = useKassaPost(closeModal)
     const patch = useKassaPatch(closeModal)
     useEffect(() => {
         if (!isOpen) return
         form.reset(editing
-            ? { amount: n(editing.amount), comment: editing.comment ?? "", date: toLocalInput(editing.created) }
-            : { amount: "", comment: "", date: toLocalInput(new Date().toISOString()) })
+            ? { amount: n(editing.amount), source: editing.source ?? "", comment: editing.comment ?? "", date: toLocalInput(editing.created) }
+            : { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()) })
     }, [isOpen, editing])
     return (
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const body = { amount: Number(v.amount), comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString() }
+                const body = { amount: Number(v.amount), source: v.source.trim() || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString() }
                 if (editing) patch.mutate(`${KV2_INCOME}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
                 else post.mutate(KV2_INCOME, body, { onSuccess: () => toast.success(t("fin.kv2.cash_in_done")), onError: onErr })
             })}
         >
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
+            <FormInput methods={form} name="source" label={t("fin.kv2.received_from")} placeholder={t("fin.kv2.received_from_placeholder")} maxLength={255} />
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
             <Save label={editing ? t("actions.save") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
