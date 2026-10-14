@@ -297,7 +297,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const period = usePeriod()
     const [dir, setDir] = useState("all")
     const [kindF, setKindF] = useState("all")
-    const params = { ...period, ...usePaging(), dir: dir === "all" ? undefined : dir, kind: kindF === "all" ? undefined : kindF, group: group || undefined }
+    const params = { ...period, ...usePaging(), dir: group || dir === "all" ? undefined : dir, kind: group || kindF === "all" ? undefined : kindF, group: group || undefined }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
     const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
     const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)), [reqData])
@@ -445,8 +445,10 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                         </Badge>
                     )}{!!pendingCount && <Badge variant="orange">{t("fin.kv2.pending_n", { count: pendingCount })}</Badge>}</>}
                     right={<>
-                        <Filter value={kindF} onChange={setKindF} options={kindFilters(t)} />
-                        <Filter value={dir} onChange={setDir} options={[["all", t("fin.kv2.filter_in_out")], ["in", t("fin.kv2.filter_only_in")], ["out", t("fin.kv2.filter_only_out")]]} />
+                        {!group && <>
+                            <Filter value={kindF} onChange={setKindF} options={kindFilters(t)} />
+                            <Filter value={dir} onChange={setDir} options={[["all", t("fin.kv2.filter_in_out")], ["in", t("fin.kv2.filter_only_in")], ["out", t("fin.kv2.filter_only_out")]]} />
+                        </>}
                         <Button onClick={() => excelModal.openModal()}>
                             <Download size={16} />
                             Excel

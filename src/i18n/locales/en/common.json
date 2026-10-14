@@ -1333,6 +1333,8 @@
             "formula": "Income − Expense − Into drivers' hands = Balance",
             "formula_with_opening": "Opening + Income − Expense − Into drivers' hands = Balance",
             "drivers_holding": "Held by drivers · {{count}}",
+            "given_short": "given",
+            "expense_short": "expenses",
             "trip_expenses": "Trip expenses",
             "other_expenses": "Other expenses",
             "cash_out": "Cash out",

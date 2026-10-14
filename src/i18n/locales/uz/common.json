@@ -1330,6 +1330,8 @@
             "formula": "Kirim − Xarajat − Haydovchilar qo'liga = Qoldiq",
             "formula_with_opening": "Boshida + Kirim − Xarajat − Haydovchilar qo'liga = Qoldiq",
             "drivers_holding": "Haydovchilar qo'lida · {{count}}",
+            "given_short": "berilgan",
+            "expense_short": "xarajat",
             "trip_expenses": "Reys xarajatlari",
             "other_expenses": "Boshqa xarajat",
             "cash_out": "Kassadan chiqim",
