@@ -274,7 +274,7 @@ const KassaV2 = () => {
                                 <ArrowDownCircle size={16} />
                                 {t("fin.kv2.cash_in")}
                             </Button>
-                            <Button variant="outline" onClick={() => { setIncomeRow(null); setIncomeOut(true); income.openModal() }}>
+                            <Button onClick={() => { setIncomeRow(null); setIncomeOut(true); income.openModal() }}>
                                 <ArrowUpCircle size={16} />
                                 {t("fin.kv2.cash_out")}
                             </Button>

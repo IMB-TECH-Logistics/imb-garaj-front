@@ -1,6 +1,5 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
-import { FormInput } from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
@@ -106,9 +105,7 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
         >
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
-            {out ?
-                <FormInput required methods={form} name="source" label={t("fin.kv2.spent_on")} placeholder={t("fin.kv2.spent_on_placeholder")} />
-            :   <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
+            {!out && <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
             <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
