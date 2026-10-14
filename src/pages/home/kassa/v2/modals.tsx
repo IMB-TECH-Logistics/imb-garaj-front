@@ -79,7 +79,7 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
     const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()) } })
     const post = useKassaPost(closeModal)
     const patch = useKassaPatch(closeModal)
-    const { data: users } = useGet<{ id: number; first_name?: string; last_name?: string; username?: string }[]>(SETTINGS_SELECTABLE_USERS, { enabled: isOpen })
+    const { data: users } = useGet<{ id: number; first_name?: string; last_name?: string; username?: string }[]>(SETTINGS_SELECTABLE_USERS, { params: { staff: 1 }, enabled: isOpen })
     const userOptions = useMemo(() => {
         const names = (users ?? []).map((u) => [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || "").filter(Boolean)
         const current = editing?.source
