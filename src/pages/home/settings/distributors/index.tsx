@@ -18,7 +18,7 @@ const Distributors = () => {
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, any>
     const onlyMissing = search.distributor_missing === "true" || search.distributor_missing === true
-    const canControl = useHasAction("settings_customers_control")
+    const canControl = useHasAction("settings_distributors_control")
     const { setData } = useGlobalStore()
     const { openModal } = useModal(DISTRIBUTOR_LOCATION_KEY)
     const { data, isLoading } = useGet<ListResponse<DistributorType>>(

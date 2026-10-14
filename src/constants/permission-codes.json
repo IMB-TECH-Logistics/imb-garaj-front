@@ -35,6 +35,8 @@
   "settings_customers_view",
   "settings_directions_control",
   "settings_directions_view",
+  "settings_distributors_control",
+  "settings_distributors_view",
   "settings_driver_salaries_control",
   "settings_driver_salaries_view",
   "settings_drivers_control",

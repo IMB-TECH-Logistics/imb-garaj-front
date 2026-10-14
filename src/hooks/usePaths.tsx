@@ -397,7 +397,7 @@ export const useItems = () => {
                     {
                         label: t("nav.distributors"),
                         path: "/distributors",
-                        allowKey: "settings_customers_view",
+                        allowKey: "settings_distributors_view",
                     },
                     {
                         label: t("nav.truck_types"),
