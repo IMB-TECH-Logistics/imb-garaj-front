@@ -74,7 +74,7 @@ const KassaV2 = () => {
     }
     const [groupLabel, setGroupLabel] = useState("")
     const lineProps = (g: string, labelKey: string) => ({ onClick: pick(g, labelKey), active: view === "kassa" && group === g })
-    type Exp = { key: string; kind: "fuel" | "other" | "trip_cash"; label: string; amount: number }
+    type Exp = { key: string; kind: "fuel" | "other" | "trip_cash" | "salary"; label: string; amount: number }
     const [exp, setExp] = useState<Exp | null>(null)
     const expProps = (e: Exp) => ({
         onClick: () => {
@@ -145,7 +145,7 @@ const KassaV2 = () => {
                                 {...expProps({ key: l.key, kind: l.kind, label: l.label, amount: -l.amount })}
                             />
                         ))}
-                        <Line sub label={t("table.monthly_salary")} value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "table.monthly_salary")} />
+                        <Line sub label={t("table.monthly_salary")} value={-(n(sm?.expense.oylik) + n(sm?.expense.salary_cash))} {...expProps({ key: "salary", kind: "salary", label: t("table.monthly_salary"), amount: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)) })} />
                         <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                     </Box>

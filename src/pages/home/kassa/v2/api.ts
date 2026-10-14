@@ -56,7 +56,7 @@ export type Overview = {
         opening: number | null
         closing: number
         income: { total: number; external: number; trip_cash: number; reversals: number }
-        expense: { total: number; cash: number; fuel?: number; other?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
+        expense: { total: number; cash: number; fuel?: number; other?: number; salary_cash?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
     balance: number
@@ -231,7 +231,7 @@ export const useAllPeriodTx = (period: { from_date?: string; to_date?: string })
 
 export type ExpenseByCategory = { id: number | null; name: string | null; code: string | null; amount: number | string }
 
-export type DriverExpense = { id: number; date: string; amount: number | string; category: string | null; driver: string | null; plate: string | null; trip: number | null; comment: string | null; loading?: string | null; unloading?: string | null; order_date?: string | null }
+export type DriverExpense = { id: number | string; date: string; amount: number | string; category: string | null; driver: string | null; plate: string | null; trip: number | null; comment: string | null; loading?: string | null; unloading?: string | null; order_date?: string | null }
 
 export const useOverview = () => useGet<Overview>(KV2_OVERVIEW, { params: usePeriod() })
 

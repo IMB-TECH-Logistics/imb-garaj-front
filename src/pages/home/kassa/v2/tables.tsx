@@ -837,7 +837,7 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
     )
 }
 
-export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fuel" | "other" | "trip_cash" }) => {
+export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fuel" | "other" | "trip_cash" | "salary" }) => {
     const { t } = useTranslation()
     const period = usePeriod()
     const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind } })
