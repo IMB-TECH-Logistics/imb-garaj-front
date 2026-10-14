@@ -120,7 +120,8 @@ const KassaV2 = () => {
                     </Box>
                     <Box className="bg-red-600/5 border-red-600/30">
                         <Line strong tone="red" label={t("fin.kv2.expense")} value={-n(sm?.expense.total)} />
-                        <Line sub label={t("fin.kv2.cash_expense_drivers")} value={-n(sm?.expense.cash)} />
+                        <Line sub label={t("fin.kv2.expense_fuel")} value={-n(sm?.expense.fuel)} />
+                        <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.expense.other)} />
                         <Line sub label={t("table.monthly_salary")} value={-n(sm?.expense.oylik)} {...lineProps("out_oylik", "table.monthly_salary")} />
                         <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                         {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}

@@ -1310,6 +1310,8 @@
             "reversed_expenses": "Bekor qilingan chiqimlar",
             "expense": "Xarajat",
             "cash_expense_drivers": "Naqd xarajat (haydovchilar)",
+            "expense_fuel": "Yoqilg'i",
+            "expense_other": "Boshqa xarajat",
             "garage_cash_expense": "Garaj xarajatlari (naqd)",
             "reversed_incomes": "Bekor qilingan kirimlar",
             "drivers_hand": "Haydovchilar qo'liga",

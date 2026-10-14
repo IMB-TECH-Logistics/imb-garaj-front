@@ -55,7 +55,7 @@ export type Overview = {
         opening: number | null
         closing: number
         income: { total: number; external: number; trip_cash: number; reversals: number }
-        expense: { total: number; cash: number; oylik: number; garaj: number; reversals: number }
+        expense: { total: number; cash: number; fuel?: number; other?: number; oylik: number; garaj: number; reversals: number }
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
     balance: number

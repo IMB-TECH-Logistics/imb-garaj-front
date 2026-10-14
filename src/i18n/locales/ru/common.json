@@ -1319,6 +1319,8 @@
             "reversed_expenses": "Отменённые расходы",
             "expense": "Расход",
             "cash_expense_drivers": "Наличные расходы (водители)",
+            "expense_fuel": "Топливо",
+            "expense_other": "Прочие расходы",
             "garage_cash_expense": "Расходы гаража (наличные)",
             "reversed_incomes": "Отменённые приходы",
             "drivers_hand": "На руки водителям",

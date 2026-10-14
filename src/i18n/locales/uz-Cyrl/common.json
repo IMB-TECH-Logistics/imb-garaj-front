@@ -1310,6 +1310,8 @@
             "reversed_expenses": "Бекор қилинган чиқимлар",
             "expense": "Харажат",
             "cash_expense_drivers": "Нақд харажат (ҳайдовчилар)",
+            "expense_fuel": "Ёқилғи",
+            "expense_other": "Бошқа харажат",
             "garage_cash_expense": "Гараж харажатлари (нақд)",
             "reversed_incomes": "Бекор қилинган киримлар",
             "drivers_hand": "Ҳайдовчилар қўлига",
