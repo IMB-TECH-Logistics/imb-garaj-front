@@ -282,7 +282,7 @@ export const MonthlyReport = ({ vehicleId }: { vehicleId?: string | number }) =>
                     :   <span className="text-muted-foreground">—</span>,
             },
             {
-                header: t("table.income"),
+                header: t("fin.cols.trip_income"),
                 accessorKey: "income",
                 cell: ({ row }) => <Money value={row.original.income} tone="income" />,
             },
