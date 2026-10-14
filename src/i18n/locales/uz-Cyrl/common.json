@@ -1312,6 +1312,8 @@
             "cash_expense_drivers": "Нақд харажат (ҳайдовчилар)",
             "expense_fuel": "Ёқилғи",
             "expense_other": "Бошқа харажат",
+            "col_from": "Қаердан",
+            "col_to": "Қаерга",
             "garage_cash_expense": "Гараж харажатлари (нақд)",
             "reversed_incomes": "Бекор қилинган киримлар",
             "drivers_hand": "Ҳайдовчилар қўлига",

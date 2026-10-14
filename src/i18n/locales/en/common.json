@@ -1315,6 +1315,8 @@
             "cash_expense_drivers": "Cash expenses (drivers)",
             "expense_fuel": "Fuel",
             "expense_other": "Other expenses",
+            "col_from": "From",
+            "col_to": "To",
             "garage_cash_expense": "Garage expenses (cash)",
             "reversed_incomes": "Cancelled incomes",
             "drivers_hand": "Into drivers' hands",

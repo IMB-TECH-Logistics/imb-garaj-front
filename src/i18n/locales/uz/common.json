@@ -1312,6 +1312,8 @@
             "cash_expense_drivers": "Naqd xarajat (haydovchilar)",
             "expense_fuel": "Yoqilg'i",
             "expense_other": "Boshqa xarajat",
+            "col_from": "Qayerdan",
+            "col_to": "Qayerga",
             "garage_cash_expense": "Garaj xarajatlari (naqd)",
             "reversed_incomes": "Bekor qilingan kirimlar",
             "drivers_hand": "Haydovchilar qo'liga",

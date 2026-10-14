@@ -837,19 +837,24 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
     )
 }
 
-export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fuel" | "other" }) => {
+export const DriverExpensesTable = ({ head, kind, category }: { head: ReactNode; kind: "category" | "trip_cash"; category?: number | null }) => {
     const { t } = useTranslation()
     const period = usePeriod()
-    const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind } })
+    const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind, category: category ?? undefined } })
     const columns = useMemo<ColumnDef<DriverExpense>[]>(
         () => [
-            { header: t("form.amount"), accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir="out" /> },
-            { header: t("form.expense_type"), accessorKey: "category", cell: ({ row }) => row.original.category || "—" },
+            { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={(kind === "trip_cash" && row.original.order_date) || row.original.date} /> },
+            ...(kind === "trip_cash"
+                ? [
+                      { header: t("fin.kv2.col_from"), accessorKey: "loading", cell: ({ row }) => row.original.loading || "—" },
+                      { header: t("fin.kv2.col_to"), accessorKey: "unloading", cell: ({ row }) => row.original.unloading || "—" },
+                  ] as ColumnDef<DriverExpense>[]
+                : [{ header: t("form.expense_type"), accessorKey: "category", cell: ({ row }) => row.original.category || "—" }] as ColumnDef<DriverExpense>[]),
+            { header: t("form.amount"), accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir={kind === "trip_cash" ? "in" : "out"} /> },
             { header: t("fin.kv2.col_who"), accessorKey: "driver", cell: ({ row }) => <Party name={[row.original.driver, row.original.plate].filter(Boolean).join(" · ") || null} trip={row.original.trip} /> },
             { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
-            { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={row.original.date} /> },
         ],
-        [t],
+        [t, kind],
     )
     return (
         <DataTable
