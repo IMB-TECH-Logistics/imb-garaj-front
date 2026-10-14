@@ -38,6 +38,14 @@ export const useCostCols = () => {
     return useMemo<ColumnDef<OwnerStatistic>[]>(
         () => [
             {
+                header: t("table.truck_plate"),
+                accessorKey: "truck_number",
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <span>{row.original.truck_number || "—"}</span>
+                ),
+            },
+            {
                 header: t("table.trip_type_name"),
                 accessorKey: "truck_type_name",
                 enableSorting: true,
@@ -48,22 +56,10 @@ export const useCostCols = () => {
                 ),
             },
             {
-                header: t("table.truck_plate"),
-                accessorKey: "truck_number",
+                header: t("route_norms.cols.trips"),
+                accessorKey: "order_count_busy",
                 enableSorting: true,
-                cell: ({ row }) => (
-                    <span>{row.original.truck_number || "—"}</span>
-                ),
-            },
-            {
-                header: t("table.trips_ratio"),
-                accessorKey: "order_count_empty",
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <span className="text-sm border py-1 px-2 rounded bg-muted">
-                        {row.original.order_count_empty} / {row.original.order_count_busy}
-                    </span>
-                ),
+                cell: ({ row }) => <span>{row.original.order_count_busy}</span>,
             },
             {
                 header: t("table.mileage_km"),
@@ -101,21 +97,21 @@ export const useCostCols = () => {
                 },
             },
             {
-                header: t("form.expense"),
-                accessorKey: "expense",
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const v = round3(row.original.expense)
-                    return <span className="text-red-600 font-medium">{v ? formatMoney(v) : "—"}</span>
-                },
-            },
-            {
                 header: t("fin.cols.trip_income"),
                 accessorKey: "income",
                 enableSorting: true,
                 cell: ({ row }) => {
                     const v = round3(toNum(row.original.income))
                     return <span className="text-green-600 font-medium">{v ? formatMoney(v) : "—"}</span>
+                },
+            },
+            {
+                header: t("fin.finance_main.trip_expense"),
+                accessorKey: "expense",
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const v = round3(row.original.expense)
+                    return <span className="text-red-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
             {
