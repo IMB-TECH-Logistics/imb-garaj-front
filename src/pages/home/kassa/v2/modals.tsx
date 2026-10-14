@@ -1,13 +1,13 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
 import { FormNumberInput } from "@/components/form/number-input"
-import FormInput from "@/components/form/input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
+import { SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -79,6 +79,12 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
     const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()) } })
     const post = useKassaPost(closeModal)
     const patch = useKassaPatch(closeModal)
+    const { data: users } = useGet<{ id: number; first_name?: string; last_name?: string; username?: string }[]>(SETTINGS_SELECTABLE_USERS, { enabled: isOpen })
+    const userOptions = useMemo(() => {
+        const names = (users ?? []).map((u) => [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || "").filter(Boolean)
+        const current = editing?.source
+        return [...new Set(current ? [current, ...names] : names)].map((name) => ({ id: name, name }))
+    }, [users, editing])
     useEffect(() => {
         if (!isOpen) return
         form.reset(editing
@@ -89,14 +95,14 @@ export const IncomeModal = ({ editing }: { editing: KassaTx | null }) => {
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const body = { amount: Number(v.amount), source: v.source.trim() || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString() }
+                const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString() }
                 if (editing) patch.mutate(`${KV2_INCOME}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
                 else post.mutate(KV2_INCOME, body, { onSuccess: () => toast.success(t("fin.kv2.cash_in_done")), onError: onErr })
             })}
         >
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
-            <FormInput methods={form} name="source" label={t("fin.kv2.received_from")} placeholder={t("fin.kv2.received_from_placeholder")} maxLength={255} />
+            <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
             <Save label={editing ? t("actions.save") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
