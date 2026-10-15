@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import { type ReplayStatus, useRouteReplay } from "./route-replay"
 import { ACTIVE_STATUSES, IDLE, STATUS_META } from "./status/data"
+import { findGaps, gapKey, useGapRoutes } from "./gap-routes"
 import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
 
 const TZ = "Asia/Tashkent"
@@ -302,6 +303,24 @@ export function useTrackerHistory(imei: string | null) {
         return Math.max(0, to - from - inTrips)
     }, [trips, points])
 
+    const gaps = useMemo(() => findGaps(points, GAP_MS), [points])
+    const roads = useGapRoutes(gaps)
+    const drawPoints = useMemo<Point[]>(() => {
+        if (gaps.length === 0) return points
+        const byEnd = new Map(gaps.map((g) => [g.to.t, g]))
+        const out: Point[] = []
+        for (const p of points) {
+            const gap = byEnd.get(p.t)
+            const road = (gap && roads?.get(gapKey(gap))) || []
+            road.forEach(([lng, lat], i) => {
+                const t = gap!.from.t + ((p.t - gap!.from.t) * (i + 1)) / (road.length + 1)
+                out.push({ t, lat, lng, speed: 0, day: dayKey(t) })
+            })
+            out.push(p)
+        }
+        return out
+    }, [points, gaps, roads])
+
     const segments = useMemo<ColoredSegment[]>(() => {
         const idleColor = STATUS_META[IDLE].color
         const covering = <T extends { start: number; end: number }>(list: T[], t: number) =>
@@ -352,8 +371,8 @@ export function useTrackerHistory(imei: string | null) {
             }
             current = []
         }
-        points.forEach((p, i) => {
-            const previous = points[i - 1]
+        drawPoints.forEach((p, i) => {
+            const previous = drawPoints[i - 1]
             const key = `${bySpeed ? "speed" : keyOf(p)}|${inFocus(p.t) ? 1 : 0}`
             if (previous && key !== currentKey && current.length > 0) {
                 const last = current[current.length - 1]
@@ -365,7 +384,7 @@ export function useTrackerHistory(imei: string | null) {
         })
         flush()
         return out
-    }, [points, bySpeed, colors, colorBy, statusSegments, trips, inFocus])
+    }, [drawPoints, bySpeed, colors, colorBy, statusSegments, trips, inFocus])
 
     const bboxKey = `${imei}|${range?.from}|${range?.to}|${focus?.kind}:${focus?.key}`
     const framed = useRef<{ key: string; bbox: [number, number, number, number] } | null>(null)
