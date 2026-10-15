@@ -223,6 +223,7 @@ export default function ManagerReys() {
                 rowColor={(r: ManagerOrders) => (isVirtualRow(r) ? "text-muted-foreground italic" : "")}
                 manualSorting
                 stickyActions
+                numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
