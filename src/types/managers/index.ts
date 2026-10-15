@@ -68,6 +68,7 @@ type ManagerOrders = {
     payment_amount_uzs: string
     pending_time: string
     started_time: string
+    ordered_at?: string | null
     loading_time: string
     in_transit_time: string
     unloading_time: string

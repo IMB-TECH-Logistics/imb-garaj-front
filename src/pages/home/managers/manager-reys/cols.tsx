@@ -68,7 +68,7 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "date",
                 header: t("table.created_at"),
                 enableSorting: true,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDay(row.original.loading_time ?? row.original.date)}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDay(row.original.ordered_at ?? row.original.loading_time ?? row.original.date)}</span>,
             },
             {
                 accessorKey: "activity_display",
