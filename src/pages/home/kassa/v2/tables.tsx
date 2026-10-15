@@ -29,6 +29,7 @@ import {
     KV2_DRIVERS,
     KV2_DRIVER_EXPENSES,
     CloseBreakdown,
+    ClosePreview,
     KV2_EXCEL,
     KV2_REQUESTS,
     KV2_TRANSACTIONS,
@@ -207,6 +208,68 @@ const DetailRow = ({ label, children, className }: { label: ReactNode; children:
     </div>
 )
 
+type ExpenseLine = { id: number; amount: number | string; category_name: string | null; station?: string | null; payment_type?: string | null; route?: string | null; comment: string | null; date: string }
+
+const ExpenseGroup = ({ title, note, rows }: { title: string; note?: string; rows: ExpenseLine[] }) => {
+    const { t } = useTranslation()
+    const total = rows.reduce((a, e) => a + Math.abs(n(e.amount)), 0)
+    return (
+        <div>
+            <div className="flex items-baseline justify-between gap-2 px-3 py-2 bg-muted/50">
+                <span className="text-sm font-medium">{title}{note && <span className="ml-1 text-xs font-normal text-muted-foreground">· {note}</span>}</span>
+                <span className="text-sm font-medium tabular-nums whitespace-nowrap">{rows.length ? money(total) : "—"}</span>
+            </div>
+            {!rows.length && <p className="px-3 py-2 text-xs text-muted-foreground">{t("fin.kv2.no_expenses")}</p>}
+            {rows.map((e) => (
+                <div key={e.id} className="flex items-start justify-between gap-3 px-3 py-1.5 border-t text-sm">
+                    <div className="flex flex-col min-w-0">
+                        <span>{[e.category_name, e.station].filter(Boolean).join(" · ") || "—"}</span>
+                        <span className="text-xs text-muted-foreground">{[fmtDate(e.date), e.payment_type, e.route, e.comment].filter(Boolean).join(" · ")}</span>
+                    </div>
+                    <span className="tabular-nums whitespace-nowrap">{money(Math.abs(n(e.amount)))}</span>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+const TripExpenses = ({ trip, modalKey = DETAIL_MODAL }: { trip: number; modalKey?: string }) => {
+    const { t } = useTranslation()
+    const { isOpen } = useModal(modalKey)
+    const { data, isLoading } = useGet<ClosePreview>(`${KV2_TRIPS}/${trip}/close-preview`, { enabled: isOpen, options: { staleTime: 0 } })
+    if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t("messages.loading")}</p>
+    const other = data.other_expenses ?? []
+    const total = n(data.spent) + n(data.other_spent)
+    return (
+        <div className="rounded-lg border overflow-hidden">
+            <ExpenseGroup title={t("fin.kv2.expenses_cash")} rows={data.expenses} />
+            <ExpenseGroup title={t("fin.kv2.other_expenses")} note={t("fin.kv2.other_expenses_note")} rows={other} />
+            <div className="flex items-center justify-between gap-3 px-3 py-2 border-t font-semibold text-sm">
+                <span>{t("fin.kv2.total_expenses")}</span>
+                <span className="tabular-nums whitespace-nowrap">{money(total)} {t("page.som")}</span>
+            </div>
+        </div>
+    )
+}
+
+const TRIP_EXP_MODAL = "kassa-v2-trip-expenses"
+
+const TripExpensesModal = ({ trip }: { trip: KassaTrip | null }) => {
+    const { t } = useTranslation()
+    return (
+        <Modal modalKey={TRIP_EXP_MODAL} title={trip ? t("fin.kv2.trip_expenses_title", { id: trip.id }) : ""} size="max-w-md">
+            {trip && (
+                <div className="flex flex-col gap-3">
+                    <p className="text-sm text-muted-foreground">
+                        {[trip.driver_name, trip.plate, tripPeriod(trip.start, trip.end, t("fin.kv2.ongoing"))].filter(Boolean).join(" · ")}
+                    </p>
+                    <TripExpenses trip={trip.id} modalKey={TRIP_EXP_MODAL} />
+                </div>
+            )}
+        </Modal>
+    )
+}
+
 const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (r: KassaRequest) => void }) => {
     const { t } = useTranslation()
     const c = row?.close
@@ -231,6 +294,7 @@ const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onReject: (
                             <Money v={row.amount} dir={row.dir} />
                         </DetailRow>
                     </div>
+                    {row.trip && <TripExpenses trip={row.trip} />}
                     {q && cashier && (
                         <div className="flex flex-col gap-1.5">
                             <div className="flex justify-end gap-2">
@@ -655,8 +719,14 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     )
     const detailModal = useModal(DETAIL_MODAL)
     const [detail, setDetail] = useState<KassaRow | null>(null)
+    const expModal = useModal(TRIP_EXP_MODAL)
+    const [expTrip, setExpTrip] = useState<KassaTrip | null>(null)
     const openDetail = (tr: KassaTrip) => {
-        if (!tr.close_request) return
+        if (!tr.close_request) {
+            setExpTrip(tr)
+            expModal.openModal()
+            return
+        }
         setDetail(requestRow(tr.close_request))
         detailModal.openModal()
     }
@@ -805,6 +875,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                     left={switcher}
                     right={<>
                         <CloseDetailModal row={detail} onReject={onReject} />
+                        <TripExpensesModal trip={expTrip} />
                         {actions}
                     </>}
                 />

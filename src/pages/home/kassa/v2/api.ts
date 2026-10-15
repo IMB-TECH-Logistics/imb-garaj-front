@@ -170,6 +170,8 @@ export type ClosePreview = {
     due: number
     salary_default: number
     expenses: { id: number; amount: number; category: number | null; category_name: string | null; comment: string | null; date: string }[]
+    other_expenses: { id: number; amount: number; category_name: string | null; payment_type: string | null; station: string | null; route: string | null; comment: string | null; date: string }[]
+    other_spent: number
 }
 
 export type LedgerRow = {
