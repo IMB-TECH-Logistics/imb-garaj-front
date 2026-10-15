@@ -355,9 +355,7 @@ export function useTrackerHistory(imei: string | null) {
         points.forEach((p, i) => {
             const previous = points[i - 1]
             const key = `${bySpeed ? "speed" : keyOf(p)}|${inFocus(p.t) ? 1 : 0}`
-            if (previous && (p.t - previous.t > GAP_MS || (colorBy === "day" && p.day !== previous.day))) {
-                flush()
-            } else if (previous && key !== currentKey && current.length > 0) {
+            if (previous && key !== currentKey && current.length > 0) {
                 const last = current[current.length - 1]
                 flush()
                 current.push(last)
