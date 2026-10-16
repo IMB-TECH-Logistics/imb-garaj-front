@@ -155,7 +155,7 @@ export const COLOR_BY_OPTIONS: { value: ColorBy; labelKey: string }[] = [
 
 const TRIP_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399", "#fb7185", "#22d3ee", "#c084fc"]
 
-type TripSpan = { key: string; start: number; end: number; color: string; index: number; from?: string | null; to?: string | null }
+type TripSpan = { key: string; start: number; end: number; color: string; index: number; from?: string | null; to?: string | null; routeKm?: number | null }
 
 const STAGE_ORDER: Record<number, number> = { 0: 0, 1: 1, 5: 2, 6: 3, 7: 4 }
 
@@ -175,6 +175,7 @@ function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
                     (STAGE_ORDER[seg.status] ?? 0) >= (STAGE_ORDER[previous.status] ?? 0)))
         if (continues) {
             last.end = Math.max(last.end, seg.end)
+            last.routeKm = last.routeKm ?? seg.routeKm ?? null
         } else {
             const index = trips.length
             trips.push({
@@ -185,6 +186,7 @@ function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
                 index,
                 from: seg.from ?? null,
                 to: seg.to ?? null,
+                routeKm: seg.routeKm ?? null,
             })
         }
         previous = seg
@@ -287,7 +289,7 @@ export function useTrackerHistory(imei: string | null) {
         () =>
             trips.map((trip) => ({
                 ...trip,
-                km: summarize(points.filter((p) => p.t >= trip.start && p.t < trip.end)).distance / 1000,
+                km: trip.routeKm ?? summarize(points.filter((p) => p.t >= trip.start && p.t < trip.end)).distance / 1000,
             })),
         [trips, points],
     )

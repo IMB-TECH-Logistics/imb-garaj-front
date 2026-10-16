@@ -14,6 +14,7 @@ export type ReplayStatus = {
     order?: number | null
     from?: string | null
     to?: string | null
+    routeKm?: number | null
 }
 
 const RATE = 900

@@ -487,6 +487,7 @@ export default function MonitoringView() {
                 order: (s as { order_id?: number | null }).order_id ?? null,
                 from: (s as { from_place?: string | null }).from_place ?? null,
                 to: (s as { to_place?: string | null }).to_place ?? null,
+                routeKm: (s as { route_km?: number | null }).route_km ?? null,
             })),
         [replaySegments],
     )
