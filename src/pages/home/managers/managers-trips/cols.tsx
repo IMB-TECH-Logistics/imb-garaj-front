@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useModal } from "@/hooks/useModal"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -126,7 +126,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: t("table.start_fuel"),
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{formatMoney((row.original as any).start_fuel)}</div>
+                    <div>{formatNumber((row.original as any).start_fuel)}</div>
                 ),
             },
             {
@@ -134,7 +134,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: t("table.end_fuel"),
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div>{formatMoney((row.original as any).end_fuel)}</div>
+                    <div>{formatNumber((row.original as any).end_fuel)}</div>
                 ),
             },
             {
@@ -142,7 +142,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: t("table.used_fuel"),
                 cell: ({ row }) =>
                     row.original.end ?
-                        <div className="font-medium">{formatMoney((row.original as any).used_fuel ?? 0)}</div>
+                        <div className="font-medium">{formatNumber((row.original as any).used_fuel ?? 0)}</div>
                     :   <div>-</div>,
             },
             {

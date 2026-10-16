@@ -4,7 +4,7 @@ import { DataTable } from "@/components/ui/datatable"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import ParamTabs from "@/components/as-params/tabs"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { formatDate, formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
@@ -1394,7 +1394,7 @@ function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" |
                                     amountUzs={Number(driverStat.return_fuel_amount_uzs ?? 0)}
                                     variant="balance"
                                     hideAmount
-                                    sub={Number(driverStat.return_fuel ?? 0) > 0 ? <>{formatMoney(Number(driverStat.return_fuel))} {fuelUnit}</> : undefined}
+                                    sub={Number(driverStat.return_fuel ?? 0) > 0 ? <>{formatNumber(Number(driverStat.return_fuel))} {fuelUnit}</> : undefined}
                                 />
                             </>
                         )}

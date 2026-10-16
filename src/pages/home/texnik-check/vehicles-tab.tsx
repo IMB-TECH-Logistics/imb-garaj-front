@@ -25,7 +25,7 @@ import {
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
@@ -215,7 +215,7 @@ const VehicleItemsSheet = ({
                                         )}
                                     </TableCell>
                                     <TableCell className="whitespace-nowrap">
-                                        {formatMoney(toNumber(item.quantity))} {item.unit_name}
+                                        {formatNumber(toNumber(item.quantity))} {item.unit_name}
                                     </TableCell>
                                     <TableCell className="whitespace-nowrap">
                                         {fmtDate(item.installed_at)}

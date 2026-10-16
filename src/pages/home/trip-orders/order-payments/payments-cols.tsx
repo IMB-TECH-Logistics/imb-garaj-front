@@ -23,7 +23,7 @@ export const useColumnsOrderPayment = () => {
 
                     return (
                         <span className="">
-                            {num.toLocaleString("uz-UZ").replace(/,/g, " ")}
+                            {Math.round(num).toLocaleString("uz-UZ").replace(/,/g, " ")}
                         </span>
                     )
                 },

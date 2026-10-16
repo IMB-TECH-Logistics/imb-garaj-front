@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -96,7 +96,7 @@ export const useReceiptCols = (hideProduct: boolean) => {
                 header: t("form.quantity"),
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.quantity)}{" "}
+                        {formatNumber(row.original.quantity)}{" "}
                         {row.original.unit_name}
                     </span>
                 ),
@@ -199,7 +199,7 @@ export const useWithdrawalCols = (opts: {
                 header: t("form.quantity"),
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.quantity)}{" "}
+                        {formatNumber(row.original.quantity)}{" "}
                         {row.original.unit_name}
                     </span>
                 ),

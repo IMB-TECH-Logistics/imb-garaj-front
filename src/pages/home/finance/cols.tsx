@@ -1,4 +1,4 @@
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -86,7 +86,7 @@ export const useCostCols = () => {
                     if (row.original.fuel_consume === null) return <span>—</span>
                     return (
                         <span>
-                            {formatMoney(round3(row.original.fuel_consume))}{" "}
+                            {formatNumber(round3(row.original.fuel_consume))}{" "}
                             {unitFor(row.original.fuel, t("fin.common.unit_liter"))}
                         </span>
                     )

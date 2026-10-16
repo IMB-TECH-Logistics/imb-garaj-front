@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
 import { CopyButton } from "@/lib/copy-button"
-import { formatMoney } from "@/lib/format-money"
+import { formatNumber } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -128,7 +128,7 @@ export const TruckTabsFour = () => {
                 </p>
                 <p>
                     <strong>{t("fleet.tabs.idle_fuel")}:</strong>{" "}
-                    {formatMoney(totalIdleFuel)} {t("fleet.units.litr")}
+                    {formatNumber(totalIdleFuel)} {t("fleet.units.litr")}
                 </p>
             </div>
         </div>

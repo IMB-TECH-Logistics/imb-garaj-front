@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { WAREHOUSE_ITEMS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import {
     ArrowDownToLine,
@@ -122,7 +122,7 @@ const Timeline = ({ events }: { events: WhItemEvent[] }) => {
                                 <div className="text-sm mt-1">
                                     {t("wh.items.km_driven")}:{" "}
                                     <span className="font-medium">
-                                        {formatMoney(event.km_driven)}{" "}
+                                        {formatNumber(event.km_driven)}{" "}
                                         {t("wh.items.km")}
                                     </span>
                                     {event.km_source && (
@@ -232,7 +232,7 @@ const ItemDetailSheet = ({ itemId, onClose }: Props) => {
                                 {fmtDate(item.installed_at)}
                             </Block>
                             <Block label={t("wh.items.km_total")}>
-                                {formatMoney(item.km_total ?? 0)} {t("wh.items.km")}
+                                {formatNumber(item.km_total ?? 0)} {t("wh.items.km")}
                             </Block>
                             <Block label={t("wh.items.installed_odometer")}>
                                 {item.installed_odometer !== null ?

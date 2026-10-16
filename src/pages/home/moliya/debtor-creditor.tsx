@@ -45,7 +45,7 @@ function usePartners(url: string, fallback: Entry[]): Entry[] {
     }, [data, fallback])
 }
 
-const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
+const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(Math.round(v))
 
 function StatusDot({ days }: { days: number }) {
     const { t } = useTranslation()

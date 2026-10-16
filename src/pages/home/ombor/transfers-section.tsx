@@ -8,7 +8,7 @@ import { WAREHOUSE_TRANSFERS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
@@ -84,7 +84,7 @@ const TransferDetail = ({ id }: { id: number }) => {
                         </div>
                         <div className="text-sm text-right tabular-nums">
                             <div>
-                                {formatMoney(line.quantity)} {line.unit_name} ×{" "}
+                                {formatNumber(line.quantity)} {line.unit_name} ×{" "}
                                 {formatMoney(line.unit_price)}
                             </div>
                             <div className="font-medium">

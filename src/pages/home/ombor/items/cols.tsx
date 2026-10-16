@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -105,7 +105,7 @@ export const useItemCols = () => {
                 header: t("wh.items.km_total"),
                 cell: ({ row }) => (
                     <span className="whitespace-nowrap">
-                        {formatMoney(row.original.km_total ?? 0)} {t("wh.items.km")}
+                        {formatNumber(row.original.km_total ?? 0)} {t("wh.items.km")}
                     </span>
                 ),
             },

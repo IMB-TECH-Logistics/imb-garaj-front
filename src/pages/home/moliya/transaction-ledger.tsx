@@ -52,7 +52,7 @@ const TYPE_TEXT = {
     avans: "text-amber-500",
 } as const
 
-const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(v)
+const fmt = (v: number) => new Intl.NumberFormat("uz-UZ").format(Math.round(v))
 
 const formatDate = (iso: string) => {
     const d = new Date(iso)

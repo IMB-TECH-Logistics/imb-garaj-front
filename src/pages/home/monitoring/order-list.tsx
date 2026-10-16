@@ -110,7 +110,7 @@ export default function OrderList({
                                 <span className="inline-flex items-center gap-1 text-orange-600 font-medium">
                                     <Coins className="h-3 w-3 shrink-0" />
                                     <span>
-                                        {Number(order.amount).toLocaleString()}
+                                        {Math.round(Number(order.amount)).toLocaleString()}
                                     </span>
                                 </span>
                             )}

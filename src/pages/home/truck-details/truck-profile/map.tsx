@@ -247,7 +247,7 @@ const TruckRoutesMap: React.FC = () => {
                 <div>👤 {t("form.driver")}: {route.driver}</div>
                 <div>🚚 {t("form.owner")}: {route.owner}</div>
                 <div>⚡ {t("fleet.map.speed")}: {route.speed.toFixed(0)} {t("fleet.units.km_per_hour")}</div>
-                <div>💰 {t("form.income")}: {route.income.toLocaleString()} {t("page.som")}</div>
+                <div>💰 {t("form.income")}: {Math.round(route.income).toLocaleString()} {t("page.som")}</div>
                 <div>📏 {t("form.distance")}: {route.distance} {t("fleet.units.km")}</div>
                 <div>📦 {t("table.status")}: {statusLabel(route.status)}</div>
               </div>

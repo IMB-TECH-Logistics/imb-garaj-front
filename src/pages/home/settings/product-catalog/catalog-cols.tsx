@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { formatMoney } from "@/lib/format-money"
+import { formatNumber } from "@/lib/format-money"
 import type { WhProduct } from "@/pages/home/ombor/types"
 import { LifeText } from "@/pages/home/ombor/life-text"
 import { ColumnDef } from "@tanstack/react-table"
@@ -29,7 +29,7 @@ export const useColumnsCatalogTable = () => {
                     row.original.min_quantity === null ?
                         <span className="text-muted-foreground">—</span>
                     :   <span className="tabular-nums whitespace-nowrap">
-                            {formatMoney(row.original.min_quantity)}{" "}
+                            {formatNumber(row.original.min_quantity)}{" "}
                             {row.original.unit_name}
                         </span>,
             },

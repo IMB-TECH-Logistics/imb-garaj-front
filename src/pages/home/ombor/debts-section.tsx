@@ -17,7 +17,7 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatNumber } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
@@ -467,7 +467,7 @@ const MinePart = () => {
                 cell: ({ row }) =>
                     row.original.quantity ?
                         <span className="whitespace-nowrap">
-                            {formatMoney(row.original.quantity)}
+                            {formatNumber(row.original.quantity)}
                         </span>
                     :   <span>—</span>,
             },
