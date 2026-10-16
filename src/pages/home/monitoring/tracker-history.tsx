@@ -162,35 +162,45 @@ const STAGE_ORDER: Record<number, number> = { 0: 0, 1: 1, 5: 2, 6: 3, 7: 4 }
 function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
     const sorted = [...statuses].sort((a, b) => a.start - b.start)
     const trips: TripSpan[] = []
+    const byOrder = new Map<number, TripSpan>()
     let previous: ReplayStatus | null = null
     for (const seg of sorted) {
+        const own = seg.order != null ? byOrder.get(seg.order) : undefined
         const last = trips[trips.length - 1]
-        const sameOrder = seg.order != null && previous?.order != null && seg.order === previous.order
         const continues =
+            !own &&
+            seg.order == null &&
             last &&
             previous &&
-            (sameOrder ||
-                (seg.order == null &&
-                    seg.start - previous.end <= 60 * 1000 &&
-                    (STAGE_ORDER[seg.status] ?? 0) >= (STAGE_ORDER[previous.status] ?? 0)))
-        if (continues) {
-            last.end = Math.max(last.end, seg.end)
-            last.routeKm = last.routeKm ?? seg.routeKm ?? null
+            previous.order == null &&
+            seg.start - previous.end <= 60 * 1000 &&
+            (STAGE_ORDER[seg.status] ?? 0) >= (STAGE_ORDER[previous.status] ?? 0)
+        const target = own ?? (continues ? last : undefined)
+        if (target) {
+            target.start = Math.min(target.start, seg.start)
+            target.end = Math.max(target.end, seg.end)
+            target.routeKm = target.routeKm ?? seg.routeKm ?? null
         } else {
-            const index = trips.length
-            trips.push({
-                key: seg.order != null ? `o${seg.order}` : `r${index}`,
+            const span: TripSpan = {
+                key: seg.order != null ? `o${seg.order}` : `r${trips.length}`,
                 start: seg.start,
                 end: seg.end,
-                color: TRIP_COLORS[index % TRIP_COLORS.length],
-                index,
+                color: "",
+                index: 0,
                 from: seg.from ?? null,
                 to: seg.to ?? null,
                 routeKm: seg.routeKm ?? null,
-            })
+            }
+            trips.push(span)
+            if (seg.order != null) byOrder.set(seg.order, span)
         }
         previous = seg
     }
+    trips.sort((a, b) => a.start - b.start)
+    trips.forEach((trip, index) => {
+        trip.index = index
+        trip.color = TRIP_COLORS[index % TRIP_COLORS.length]
+    })
     return trips
 }
 
@@ -269,6 +279,10 @@ export function useTrackerHistory(imei: string | null) {
             if (focus.kind === "day") return dayKey(t) === focus.key
             if (focus.kind === "trip") {
                 const trip = trips.find((x) => t >= x.start && t < x.end)
+                if (focus.key.startsWith("gap:")) {
+                    const [, from, to] = focus.key.split(":").map(Number)
+                    return !trip && t >= from && t <= to
+                }
                 return focus.key === "idle" ? !trip : trip?.key === focus.key
             }
             const seg = statusSegments.find((x) => t >= x.start && t < x.end && STATUS_META[x.status])
@@ -293,6 +307,31 @@ export function useTrackerHistory(imei: string | null) {
             })),
         [trips, points],
     )
+    const idleGaps = useMemo(() => {
+        if (points.length < 2) return []
+        const bounds = [...trips].sort((a, b) => a.start - b.start)
+        const edges: [number, number][] = []
+        let cursor = points[0].t
+        for (const trip of bounds) {
+            if (trip.start > cursor) edges.push([cursor, trip.start])
+            cursor = Math.max(cursor, trip.end)
+        }
+        const end = points[points.length - 1].t
+        if (end > cursor) edges.push([cursor, end])
+        return edges
+            .map(([from, to]) => {
+                const inside = points.filter((p) => p.t >= from && p.t <= to && !trips.some((x) => p.t >= x.start && p.t < x.end))
+                return {
+                    key: `gap:${from}:${to}`,
+                    start: from,
+                    end: to,
+                    km: summarize(inside).distance / 1000,
+                    ms: to - from,
+                    points: inside.length,
+                }
+            })
+            .filter((g) => g.points > 1 && g.ms >= 60 * 1000)
+    }, [trips, points])
     const idleKm = useMemo(
         () => summarize(points.filter((p) => !trips.some((x) => p.t >= x.start && p.t < x.end))).distance / 1000,
         [trips, points],
@@ -465,6 +504,7 @@ export function useTrackerHistory(imei: string | null) {
         focusDay,
         inFocus,
         tripStats,
+        idleGaps,
         idleKm,
         idleMs,
         setStatusSegments,
@@ -514,21 +554,23 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                     )}
                     {[...history.tripStats.map((trip) => ({
                         key: trip.key,
+                        start: trip.start,
                         color: trip.color,
                         index: String(trip.index + 1) as string | null,
                         from: trip.from ?? t("mon.trip"),
                         to: trip.to ?? "",
                         km: trip.km,
                         ms: trip.end - trip.start,
-                    })), {
-                        key: "idle",
+                    })), ...history.idleGaps.map((gap) => ({
+                        key: gap.key,
+                        start: gap.start,
                         color: STATUS_META[IDLE].color,
-                        index: String(history.tripStats.length + 1) as string | null,
+                        index: null as string | null,
                         from: t("mon.history.outside_trip"),
                         to: "",
-                        km: history.idleKm,
-                        ms: history.idleMs,
-                    }].map((row) => {
+                        km: gap.km,
+                        ms: gap.ms,
+                    }))].sort((a, b) => a.start - b.start).map((row) => {
                         const selected = history.focus?.kind === "trip" && history.focus.key === row.key
                         return (
                             <button
@@ -541,7 +583,7 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                                     history.focus && !selected && "opacity-60",
                                 )}
                             >
-                                <span className="text-sm font-semibold text-muted-foreground">{row.index}.</span>
+                                <span className="text-sm font-semibold text-muted-foreground">{row.index ? `${row.index}.` : "–"}</span>
                                 <span className="col-span-3 flex min-w-0 items-center gap-2 text-sm font-medium">
                                     <span className="min-w-0 truncate">{row.to ? `${row.from} – ${row.to}` : row.from}</span>
                                     <span className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: row.color }} />
