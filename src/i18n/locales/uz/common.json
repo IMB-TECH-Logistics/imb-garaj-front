@@ -1310,6 +1310,7 @@
         "cols": {
             "unpriced_trips": "Narxsiz reys",
             "fuel_per_100km": "Sarfi / 100 km",
+            "fuel_estimated": "Taxminiy: aylanma hali ochiq, bakdagi qoldiq ayirilmagan",
             "trip_income": "Reys daromadi",
             "trip_profit": "Reys foydasi",
             "vehicle_expense": "Mashina xarajati",

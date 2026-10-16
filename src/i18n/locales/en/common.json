@@ -1313,6 +1313,7 @@
         "cols": {
             "unpriced_trips": "Unpriced trip",
             "fuel_per_100km": "Consumption / 100 km",
+            "fuel_estimated": "Estimate: the trip is still open, the fuel left in the tank is not subtracted yet",
             "trip_income": "Trip income",
             "trip_profit": "Trip profit",
             "vehicle_expense": "Vehicle expense",
