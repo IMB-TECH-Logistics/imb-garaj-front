@@ -556,7 +556,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
         () => [
             { header: t("form.amount"), accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir={KIND_DIR[row.original.kind]} /> },
             {
-                header: t("fin.kv2.col_why"),
+                header: t("fin.kv2.col_kind"),
                 accessorKey: "kind_label",
                 cell: ({ row }) => row.original.close ? t("fin.kv2.close_turnover") : row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
             },
