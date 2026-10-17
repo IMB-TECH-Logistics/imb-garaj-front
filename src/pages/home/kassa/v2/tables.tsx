@@ -692,6 +692,10 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     const wideTable = useMinWidth(1024)
     const period = usePeriod()
     const { data, isLoading } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
+    const trips = useMemo(
+        () => (data ?? []).slice().sort((a, b) => (a.status === "yopildi" ? 1 : 0) - (b.status === "yopildi" ? 1 : 0)),
+        [data],
+    )
     const { mutate: postReq, isPending: posting } = useKassaPost()
     const unreject = (q: KassaRequest) =>
         postReq(`${KV2_REQUESTS}/${q.id}/unreject`, {}, {
@@ -814,7 +818,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
             numeration
             loading={isLoading}
             columns={columns}
-            data={data}
+            data={trips}
             onRowClick={(tr: KassaTrip) => openDetail(tr)}
             stickyActions={wideTable}
             wrapperClassName="md:h-full flex flex-col"
