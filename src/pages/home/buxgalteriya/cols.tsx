@@ -59,7 +59,7 @@ export const useAccountingCols = () => {
             {
                 header: t("form.company_name"),
                 accessorKey: "client_name",
-                size: 140,
+                size: 280,
                 enableSorting: true,
             },
             {

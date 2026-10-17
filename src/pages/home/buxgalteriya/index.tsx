@@ -108,7 +108,10 @@ const BuxgalteriyaPage = () => {
                                 paramName="client"
                                 options={clientOptions}
                                 label={t("form.company_name")}
-                                addButtonProps={comboStyle}
+                                className="w-96"
+                                addButtonProps={{
+                                    className: "!bg-background dark:!bg-secondary min-w-72 justify-start",
+                                }}
                             />
                             <ParamCombobox
                                 paramName="loading"
