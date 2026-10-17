@@ -1478,6 +1478,7 @@
             "awaiting_cashier": "Awaiting cashier confirmation",
             "st_approved": "Approved",
             "col_who": "From / to",
+            "col_kind": "Type",
             "col_why": "Comment",
             "col_total": "Total amount",
             "settled_salary": "settled 0 · salary {{amount}}",

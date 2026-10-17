@@ -1484,6 +1484,7 @@
             "awaiting_cashier": "Ожидается подтверждение кассира",
             "st_approved": "Подтверждено",
             "col_who": "От кого / кому",
+            "col_kind": "Тип",
             "col_why": "Комментарий",
             "col_total": "Общая сумма",
             "settled_salary": "расчёт 0 · зарплата {{amount}}",

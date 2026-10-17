@@ -885,7 +885,7 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
                 accessorKey: "amount",
                 cell: ({ row }) => <span className={cn(row.original.reversed && "line-through opacity-60")}><Money v={row.original.amount} /></span>,
             },
-            { header: t("fin.kv2.col_why"), accessorKey: "reason" },
+            { header: t("fin.kv2.col_kind"), accessorKey: "reason" },
             { header: t("fin.kv2.col_turnover"), accessorKey: "trip", cell: ({ row }) => (row.original.trip ? `#${row.original.trip}` : t("fin.kv2.to_balance")) },
             { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
             { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={row.original.date} /> },

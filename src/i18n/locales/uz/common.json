@@ -1475,6 +1475,7 @@
             "awaiting_cashier": "Kassir tasdig'i kutilmoqda",
             "st_approved": "Tasdiqlandi",
             "col_who": "Kimdan / kimga",
+            "col_kind": "Turi",
             "col_why": "Izoh",
             "col_total": "Umumiy summa",
             "settled_salary": "hisob-kitob 0 · oylik {{amount}}",
