@@ -2310,6 +2310,8 @@
         },
         "petrol": {
             "fuel_received": "Olingan yoqilg'i",
+            "cash_default": "Tanlanmasa — Naqd zapravka",
+            "cash_no_delete": "Naqd zapravkani o'chirib bo'lmaydi",
             "station_balance": "Zapravka balansi",
             "station": "Zapravka",
             "edit_title": "Zapravkani tahrirlash",

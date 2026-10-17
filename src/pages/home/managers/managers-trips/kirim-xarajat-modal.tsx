@@ -188,6 +188,7 @@ type PetrolStationOption = {
     name: string
     address: string
     balance: string | number | null
+    is_cash?: boolean
 }
 
 function PetrolStationField({ control }: { control: any }) {
@@ -202,7 +203,10 @@ function PetrolStationField({ control }: { control: any }) {
             .replace(/\B(?=(\d{3})+(?!\d))/g, " ")
     const options = useMemo(
         () =>
-            (data?.results ?? []).map((p) => ({
+            (data?.results ?? [])
+                .slice()
+                .sort((a, b) => Number(!!b.is_cash) - Number(!!a.is_cash))
+                .map((p) => ({
                 id: p.id,
                 name: t("trips.kirim.station_balance", { name: p.name, balance: formatBalance(Number(p.balance ?? 0)) }),
             })),
@@ -216,7 +220,7 @@ function PetrolStationField({ control }: { control: any }) {
             options={options}
             valueKey="id"
             labelKey="name"
-            placeholder={t("nav.petrol")}
+            placeholder={t("settings.petrol.cash_default")}
         />
     )
 }

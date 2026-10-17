@@ -2313,6 +2313,8 @@
         },
         "petrol": {
             "fuel_received": "Fuel received",
+            "cash_default": "If not selected — Cash station",
+            "cash_no_delete": "Cash station cannot be deleted",
             "station_balance": "Station balance",
             "station": "Fuel station",
             "edit_title": "Edit fuel station",

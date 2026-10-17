@@ -167,6 +167,10 @@ const PetrolStationsPage = () => {
     }
 
     const handleDelete = (row: { original: PetrolStationRow }) => {
+        if (row.original.is_cash) {
+            toast.warning(t("settings.petrol.cash_no_delete"))
+            return
+        }
         setData(SETTINGS_PETROL_STATIONS, row.original)
         openDeleteModal()
     }
