@@ -172,14 +172,6 @@ export const useColumnsManagersTrips = (opts?: {
                 },
             },
             {
-                accessorKey: "income_uzs",
-                header: `${t("form.income")} (uzs)`,
-                enableSorting: true,
-                cell: ({ row }) => (
-                    <div>{formatMoney(row.original.income_uzs)}</div>
-                ),
-            },
-            {
                 accessorKey: "cash_flow_sum",
                 header: t("form.expense"),
                 enableSorting: true,

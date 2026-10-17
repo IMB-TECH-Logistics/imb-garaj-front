@@ -378,35 +378,6 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
             },
             {
-                accessorKey: "payment_amount_uzs",
-                header: `${t("form.income")} (UZS)`,
-                enableSorting: true,
-                cell: ({ row }) => {
-                    const moneyUzs = row.original?.payment_amount_uzs
-                    const diff = Number(row.original?.price_diff ?? 0)
-                    const diffBadge =
-                        hasPriceDiff(row.original) && diff !== 0 ? (
-                            <Badge
-                                variant="outline"
-                                title={t("form.price_diff")}
-                                className={
-                                    diff < 0
-                                        ? "bg-red-500/10 text-red-600 border-transparent"
-                                        : "bg-green-500/10 text-green-600 border-transparent"
-                                }
-                            >
-                                {t("form.price_diff")}: {formatMoney(diff)}
-                            </Badge>
-                        ) : null
-
-                    if (moneyUzs) {
-                        return <div className="flex items-center gap-1">{formatMoney(moneyUzs)} UZS {diffBadge}</div>
-                    }
-
-                    return diffBadge ?? "-"
-                },
-            },
-            {
                 id: "images",
                 header: t("table.image_col"),
                 size: 60,
