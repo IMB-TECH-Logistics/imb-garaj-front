@@ -211,24 +211,11 @@ const DetailRow = ({ label, children, className }: { label: ReactNode; children:
 type ExpenseLine = { id: number; amount: number | string; category_name: string | null; station?: string | null; payment_type?: string | null; route?: string | null; comment: string | null; date: string }
 
 const ExpenseGroup = ({ title, note, rows }: { title: string; note?: string; rows: ExpenseLine[] }) => {
-    const { t } = useTranslation()
     const total = rows.reduce((a, e) => a + Math.abs(n(e.amount)), 0)
     return (
-        <div>
-            <div className="flex items-baseline justify-between gap-2 px-3 py-2 bg-muted/50">
-                <span className="text-sm font-medium">{title}{note && <span className="ml-1 text-xs font-normal text-muted-foreground">· {note}</span>}</span>
-                <span className="text-sm font-medium tabular-nums whitespace-nowrap">{rows.length ? money(total) : "—"}</span>
-            </div>
-            {!rows.length && <p className="px-3 py-2 text-xs text-muted-foreground">{t("fin.kv2.no_expenses")}</p>}
-            {rows.map((e) => (
-                <div key={e.id} className="flex items-start justify-between gap-3 px-3 py-1.5 border-t text-sm">
-                    <div className="flex flex-col min-w-0">
-                        <span>{[e.category_name, e.station].filter(Boolean).join(" · ") || "—"}</span>
-                        <span className="text-xs text-muted-foreground">{[fmtDate(e.date), e.payment_type, e.route, e.comment].filter(Boolean).join(" · ")}</span>
-                    </div>
-                    <span className="tabular-nums whitespace-nowrap">{money(Math.abs(n(e.amount)))}</span>
-                </div>
-            ))}
+        <div className="flex items-baseline justify-between gap-2 px-3 py-2 border-b bg-muted/50">
+            <span className="text-sm font-medium">{title}{note && <span className="ml-1 text-xs font-normal text-muted-foreground">· {note}</span>}</span>
+            <span className="text-sm font-medium tabular-nums whitespace-nowrap">{rows.length ? money(total) : "—"}</span>
         </div>
     )
 }
@@ -244,7 +231,7 @@ const TripExpenses = ({ trip, modalKey = DETAIL_MODAL }: { trip: number; modalKe
         <div className="rounded-lg border overflow-hidden">
             <ExpenseGroup title={t("fin.kv2.expenses_cash")} rows={data.expenses} />
             <ExpenseGroup title={t("fin.kv2.other_expenses")} note={t("fin.kv2.other_expenses_note")} rows={other} />
-            <div className="flex items-center justify-between gap-3 px-3 py-2 border-t font-semibold text-sm">
+            <div className="flex items-center justify-between gap-3 px-3 py-2 font-semibold text-sm">
                 <span>{t("fin.kv2.total_expenses")}</span>
                 <span className="tabular-nums whitespace-nowrap">{money(total)} {t("page.som")}</span>
             </div>
