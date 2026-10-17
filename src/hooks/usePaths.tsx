@@ -288,11 +288,6 @@ export const useItems = () => {
                         allowKey: "manager_tech_check_view",
                     },
                     {
-                        label: t("nav.vehicle_expenses"),
-                        path: "/vehicle-expenses",
-                        allowKey: "manager_cashflow_view",
-                    },
-                    {
                         label: t("nav.petrol"),
                         path: "/petrol-stations",
                         allowKey: "settings_petrol_stations_view",
