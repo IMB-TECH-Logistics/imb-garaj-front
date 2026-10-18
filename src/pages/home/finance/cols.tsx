@@ -14,6 +14,7 @@ export interface OwnerStatistic {
     fuel: string
     fuel_consume: number | null
     fuel_per_km: number
+    fuel_estimated?: boolean
     income: string | number | null
     expense: string | number | null
     vehicle_expense: string | number | null
@@ -84,8 +85,10 @@ export const useCostCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     if (row.original.fuel_consume === null) return <span>—</span>
+                    const estimated = row.original.fuel_estimated
                     return (
-                        <span>
+                        <span title={estimated ? t("fin.cols.fuel_estimated") : undefined}>
+                            {estimated ? "≈ " : ""}
                             {formatNumber(round3(row.original.fuel_consume))}{" "}
                             {unitFor(row.original.fuel, t("fin.common.unit_liter"))}
                         </span>
@@ -99,8 +102,10 @@ export const useCostCols = () => {
                 cell: ({ row }) => {
                     const v = row.original.fuel_per_km
                     if (v == null) return <span>—</span>
+                    const estimated = row.original.fuel_estimated
                     return (
-                        <span>
+                        <span title={estimated ? t("fin.cols.fuel_estimated") : undefined}>
+                            {estimated ? "≈ " : ""}
                             {Number((toNum(v) * 100).toFixed(1))}{" "}
                             {unitFor(row.original.fuel, t("fin.common.unit_liter"))}
                         </span>
