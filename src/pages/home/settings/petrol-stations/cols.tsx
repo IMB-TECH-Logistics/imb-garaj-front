@@ -32,7 +32,7 @@ export const usePetrolStationColumns = (fuel: FuelType) => {
                 header: t("settings.petrol.fuel_received"),
                 cell: ({ row }) => (
                     <span className="tabular-nums whitespace-nowrap text-amber-600">
-                        {fuel === "diesel" ?
+                        {(row.original.fuel_type ?? fuel) === "diesel" ?
                             formatQuantity(Number(row.original.total_liters ?? 0), "liter")
                         :   formatQuantity(Number(row.original.total_gas ?? 0), "m3")}
                     </span>

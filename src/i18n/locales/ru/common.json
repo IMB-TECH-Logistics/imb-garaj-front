@@ -2346,6 +2346,7 @@
             "add_new_vehicle": "+ Добавить новую машину",
             "tab_methane": "Метан",
             "tab_diesel": "Солярка",
+            "tab_cash": "Наличные",
             "tab_vehicles": "Машины",
             "fills": "Кол-во заправок",
             "last_fill": "Последняя заправка",
