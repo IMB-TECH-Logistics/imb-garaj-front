@@ -66,7 +66,11 @@ const PetrolStationsPage = () => {
     const hasControl = useHasAction("settings_petrol_stations_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
-    const tab = search.fuel === "diesel" || search.fuel === "vehicles" ? search.fuel : "methane"
+    const tab =
+        search.fuel === "diesel" || search.fuel === "vehicles" || search.fuel === "cash" ?
+            search.fuel
+        :   "methane"
+    const isCash = tab === "cash"
     const fuel: FuelType = tab === "diesel" ? "diesel" : "methane"
     const { getData, setData } = useGlobalStore()
     const item = getData<PetrolStationRow>(SETTINGS_PETROL_STATIONS)
@@ -121,7 +125,8 @@ const PetrolStationsPage = () => {
                 page: search.page,
                 page_size: search.page_size,
                 ordering: search.ordering,
-                fuel_type: fuel,
+                fuel_type: isCash ? undefined : fuel,
+                is_cash: isCash,
                 from_date: search.from_date,
                 to_date: search.to_date,
             },
@@ -133,7 +138,8 @@ const PetrolStationsPage = () => {
         {
             params: {
                 search: search.petrol_search,
-                fuel_type: fuel,
+                fuel_type: isCash ? undefined : fuel,
+                is_cash: isCash,
                 from_date: search.from_date,
                 to_date: search.to_date,
             },
@@ -143,11 +149,15 @@ const PetrolStationsPage = () => {
     const countParams = { search: search.petrol_search, page_size: 1 }
     const { data: methaneCount } = useGet<ListResponse<PetrolStationRow>>(
         SETTINGS_PETROL_STATIONS,
-        { params: { ...countParams, fuel_type: "methane" } },
+        { params: { ...countParams, fuel_type: "methane", is_cash: false } },
     )
     const { data: dieselCount } = useGet<ListResponse<PetrolStationRow>>(
         SETTINGS_PETROL_STATIONS,
-        { params: { ...countParams, fuel_type: "diesel" } },
+        { params: { ...countParams, fuel_type: "diesel", is_cash: false } },
+    )
+    const { data: cashCount } = useGet<ListResponse<PetrolStationRow>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { ...countParams, is_cash: true } },
     )
     const { data: vehicleFuelCount } = useGet<ListResponse<unknown>>(VEHICLE_FUEL, {
         params: { page_size: 1, from_date: search.from_date, to_date: search.to_date },
@@ -190,6 +200,10 @@ const PetrolStationsPage = () => {
                         label: tabLabel(t("settings.petrol.tab_diesel"), dieselCount?.count),
                     },
                     {
+                        value: "cash",
+                        label: tabLabel(t("settings.petrol.tab_cash"), cashCount?.count),
+                    },
+                    {
                         value: "vehicles",
                         label: tabLabel(t("settings.petrol.tab_vehicles"), vehicleFuelCount?.count),
                     },
@@ -206,7 +220,9 @@ const PetrolStationsPage = () => {
                     tone="bg-amber-500/10 text-amber-600"
                     label={t("settings.petrol.fuel_received")}
                     value={
-                        fuel === "diesel" ?
+                        isCash ?
+                            `${formatQuantity(Number(stats?.total_gas ?? 0), "m3")} · ${formatQuantity(Number(stats?.total_liters ?? 0), "liter")}`
+                        : fuel === "diesel" ?
                             formatQuantity(Number(stats?.total_liters ?? 0), "liter")
                         :   formatQuantity(Number(stats?.total_gas ?? 0), "m3")
                     }
@@ -235,8 +251,8 @@ const PetrolStationsPage = () => {
                 manualSorting
                 columns={columns}
                 data={data?.results}
-                onDelete={hasControl ? handleDelete : undefined}
-                onEdit={hasControl ? handleEdit : undefined}
+                onDelete={hasControl && !isCash ? handleDelete : undefined}
+                onEdit={hasControl && !isCash ? handleEdit : undefined}
                 onRowClick={(row) =>
                     navigate({
                         to: "/petrol-stations/$id",
@@ -255,7 +271,7 @@ const PetrolStationsPage = () => {
 
                         url="excel"
                         storeKey={
-                            hasControl ? SETTINGS_PETROL_STATIONS : undefined
+                            hasControl && !isCash ? SETTINGS_PETROL_STATIONS : undefined
                         }
                         pageKey="page"
                         count={data?.count}
