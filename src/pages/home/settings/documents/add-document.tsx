@@ -1,6 +1,3 @@
-import { FormCombobox } from "@/components/form/combobox"
-import { FormDatePicker } from "@/components/form/date-picker"
-import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
 import {
     VEHICLE_DOCUMENT_ALERTS,
@@ -23,7 +20,12 @@ import { Trash2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import VehicleImagePicker from "../vehicles/vehicle-image-picker"
+import {
+    DocumentInfoSection,
+    DocumentPhotosSection,
+    DocumentTargetSection,
+    type FormValues,
+} from "./document-form-sections"
 import {
     ALERT_DAYS,
     DOC_TYPE_OPTIONS,
@@ -32,13 +34,6 @@ import {
     TAB_DOC_TYPES,
     VehicleDocumentType,
 } from "./types"
-
-type FormValues = Partial<
-    Omit<VehicleDocumentType, "photo_front" | "photo_back">
-> & {
-    photo_front?: File | string | null
-    photo_back?: File | string | null
-}
 
 const PHOTO_FIELDS = ["photo_front", "photo_back"] as const
 
@@ -167,98 +162,16 @@ const AddDocumentModal = () => {
             className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1"
         >
             {!isPrefilled && (
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                        {t("settings.documents.section_document")}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormCombobox
-                            required
-                            name="doc_type"
-                            label={t("documents_page.doc_type")}
-                            options={docTypeOptions}
-                            control={control}
-                            labelKey="label"
-                            valueKey="value"
-                        />
-                        {isDriverDoc ?
-                            <FormCombobox
-                                key="driver"
-                                required
-                                name="driver"
-                                label={t("documents_page.driver")}
-                                options={drivers?.results ?? []}
-                                control={control}
-                                labelKey="full_name"
-                                valueKey="id"
-                            />
-                        :   <FormCombobox
-                                key="vehicle"
-                                required
-                                name="vehicle"
-                                label={t("documents_page.vehicle")}
-                                options={vehicles?.results ?? []}
-                                control={control}
-                                labelKey="truck_number"
-                                valueKey="id"
-                            />
-                        }
-                    </div>
-                </section>
+                <DocumentTargetSection
+                    control={control}
+                    docTypeOptions={docTypeOptions}
+                    isDriverDoc={isDriverDoc}
+                    drivers={drivers}
+                    vehicles={vehicles}
+                />
             )}
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                    {t("settings.documents.section_info")}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput
-                        name="number"
-                        wrapperClassName="md:col-span-2"
-                        label={t("documents_page.number")}
-                        methods={form}
-                    />
-                    <FormDatePicker
-                        name="issued_date"
-                        label={t("documents_page.issued_date")}
-                        control={control}
-                        fullWidth
-                    />
-                    <div>
-                        <FormDatePicker
-                            name="expires_date"
-                            label={t("documents_page.expires_date")}
-                            control={control}
-                            fullWidth
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {t("documents_page.expires_hint")}
-                        </p>
-                    </div>
-                </div>
-            </section>
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-                    {t("documents_page.photos")}
-                </h3>
-                <div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <VehicleImagePicker
-                            name="photo_front"
-                            label={t("documents_page.photo_front")}
-                            methods={form}
-                            clearable
-                            maxSizeMB={MAX_PHOTO_MB}
-                        />
-                        <VehicleImagePicker
-                            name="photo_back"
-                            label={t("documents_page.photo_back")}
-                            methods={form}
-                            clearable
-                            maxSizeMB={MAX_PHOTO_MB}
-                        />
-                    </div>
-                </div>
-            </section>
+            <DocumentInfoSection form={form} control={control} />
+            <DocumentPhotosSection form={form} />
             {!!current?.id &&
                 current.days_left !== null &&
                 current.days_left !== undefined &&

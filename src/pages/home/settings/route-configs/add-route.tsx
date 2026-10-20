@@ -1,16 +1,5 @@
-import { FormCombobox } from "@/components/form/combobox"
-import { FormDatePicker } from "@/components/form/date-picker"
-import { FormInput } from "@/components/form/input"
-import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
-import {
-    COMMON_DIRECTIONS,
-    COMMON_DIRECTIONS_DISTRIBUTORS,
-    SETTINGS_SELECTABLE_CARGO_TYPE,
-    SETTINGS_SELECTABLE_CLIENT,
-    SETTINGS_SELECTABLE_PAYMENT_TYPE,
-} from "@/constants/api-endpoints"
-import { useGet } from "@/hooks/useGet"
+import { COMMON_DIRECTIONS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
@@ -20,62 +9,9 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "./cols"
-
-type DirectionPrice = {
-    id: number
-    price: string | number
-    valid_from: string
-}
-
-type Direction = {
-    id?: number
-    owner: number | null
-    load: number | null
-    unload: number | null
-    load_place?: string | null
-    unload_place?: string | null
-    cargo_type: number | null
-    payment_type: number | null
-    distributor_id: number | null
-    distributor_name?: string | null
-    distributor_code?: string | null
-    distributor_district?: string | null
-    price: string | null
-    currency?: number
-    valid_from: string | null
-    current_price?: DirectionPrice | null
-    prices?: DirectionPrice[]
-    owner_name?: string
-    load_name?: string
-    unload_name?: string
-    cargo_type_name?: string
-}
-
-type SelectItem = { id: number | string; name: string }
-
-type DistributorOption = {
-    id: number
-    name: string
-    code: string | null
-    district_name: string | null
-}
-
-const distributorLabel = (name?: string | null, code?: string | null, district?: string | null) =>
-    [name, code ? `(${code})` : null, district ? `— ${district}` : null].filter(Boolean).join(" ")
-
-const withCurrent = (
-    options: SelectItem[] | undefined,
-    id: number | null | undefined,
-    name?: string,
-    deletedLabel?: string,
-): SelectItem[] => {
-    const list = options ?? []
-    if (id == null || list.some((o) => String(o.id) === String(id))) {
-        return list
-    }
-    return [{ id, name: name ? `${name} (${deletedLabel})` : `#${id}` }, ...list]
-}
-
+import { CargoClientSection, LoadSection, PriceSection, UnloadSection } from "./route-form-sections"
+import { Direction } from "./route-form-utils"
+import { useRouteOptions } from "./use-route-options"
 const AddRouteConfigModal = () => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
@@ -103,28 +39,7 @@ const AddRouteConfigModal = () => {
 
     const { handleSubmit, control, reset } = form
 
-    const { data: clientData } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CLIENT, {
-        params: { model_name: "client" },
-    })
-    const { data: regionsData } = useGet<SelectItem[]>("selectable/region", {
-        params: { model_name: "region" },
-    })
-    const { data: cargoType } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_CARGO_TYPE, {
-        params: { model_name: "cargo-type" },
-    })
-    const { data: paymentType } = useGet<SelectItem[]>(SETTINGS_SELECTABLE_PAYMENT_TYPE, {
-        params: { model_name: "payment-type" },
-    })
-    const { data: distributorsData } = useGet<DistributorOption[]>(COMMON_DIRECTIONS_DISTRIBUTORS)
-    const deletedLabel = t("settings.common.deleted_lower")
-    const distributorOptions = withCurrent(
-        distributorsData?.map((d) => ({ id: d.id, name: distributorLabel(d.name, d.code, d.district_name) })),
-        current?.distributor_id,
-        current?.distributor_name
-            ? distributorLabel(current.distributor_name, current.distributor_code, current.distributor_district)
-            : undefined,
-        deletedLabel,
-    )
+    const { clientData, regionsData, cargoType, paymentType, deletedLabel, distributorOptions } = useRouteOptions(current, t)
 
     const onSuccess = (
         saved?: Direction,
@@ -174,137 +89,20 @@ const AddRouteConfigModal = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.loading_location")}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormCombobox
-                        required
-                        label={t("form.loading_address")}
-                        name="load"
-                        control={control}
-                        options={withCurrent(regionsData, current?.load, current?.load_name, deletedLabel)}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("form.region")}
-                    />
+            <LoadSection form={form} control={control} current={current} regionsData={regionsData} deletedLabel={deletedLabel} />
 
-                    <FormInput
-                        name="load_place"
-                        label={t("form.load_place")}
-                        placeholder={t("form.load_place")}
-                        methods={form}
-                        maxLength={255}
-                    />
-                </div>
-            </section>
+            <UnloadSection form={form} control={control} current={current} regionsData={regionsData} deletedLabel={deletedLabel} />
 
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.unloading_location")}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormCombobox
-                        required
-                        label={t("form.unloading_address")}
-                        name="unload"
-                        control={control}
-                        options={withCurrent(regionsData, current?.unload, current?.unload_name, deletedLabel)}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("form.region")}
-                    />
+            <CargoClientSection
+                control={control}
+                current={current}
+                clientData={clientData}
+                cargoType={cargoType}
+                distributorOptions={distributorOptions}
+                deletedLabel={deletedLabel}
+            />
 
-                    <FormInput
-                        name="unload_place"
-                        label={t("form.unload_place")}
-                        placeholder={t("form.unload_place")}
-                        methods={form}
-                        maxLength={255}
-                    />
-                </div>
-            </section>
-
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.route_configs.section_cargo_client")}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormCombobox
-                        required
-                        label={t("form.cargo_owner")}
-                        name="owner"
-                        control={control}
-                        options={withCurrent(clientData, current?.owner, current?.owner_name, deletedLabel)}
-                        labelKey="name"
-                        valueKey="id"
-                        placeholder={t("form.cargo_owner")}
-                    />
-
-                    <FormCombobox
-                        required
-                        label={t("form.cargo_type")}
-                        name="cargo_type"
-                        control={control}
-                        options={withCurrent(cargoType, current?.cargo_type, current?.cargo_type_name, deletedLabel)}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("form.cargo_type")}
-                    />
-
-                    {distributorOptions.length > 0 && (
-                        <FormCombobox
-                            label={t("form.distributor")}
-                            name="distributor_id"
-                            control={control}
-                            options={distributorOptions}
-                            valueKey="id"
-                            labelKey="name"
-                            placeholder={t("form.distributor")}
-                        />
-                    )}
-                </div>
-            </section>
-
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.route_configs.section_price_payment")}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormCombobox
-                        required
-                        label={t("form.payment_type")}
-                        name="payment_type"
-                        control={control}
-                        options={paymentType}
-                        valueKey="id"
-                        labelKey="name"
-                        placeholder={t("form.payment_type")}
-                    />
-
-                    <div className="flex gap-3 md:col-span-2">
-                        <div className="flex-1 min-w-0">
-                            <FormNumberInput
-                                required
-                                allowNegative={false}
-                                decimalScale={2}
-                                thousandSeparator=" "
-                                name="price"
-                                label={t("form.amount")}
-                                placeholder="12 206 000"
-                                control={control}
-                                registerOptions={{
-                                    validate: (v) => Number(v) > 0 || t("kassa.amount_gt_zero"),
-                                }}
-                            />
-                        </div>
-                    </div>
-
-
-                    <FormDatePicker
-                        fullWidth
-                        required
-                        label={t("page.valid_from")}
-                        control={control}
-                        name="valid_from"
-                        placeholder={t("form.select_date")}
-                        className="w-full"
-                    />
-                </div>
-            </section>
+            <PriceSection control={control} paymentType={paymentType} />
 
             <div className="md:col-span-2 flex items-center justify-end mt-3">
                 <Button className="min-w-36" type="submit" loading={isPending}>

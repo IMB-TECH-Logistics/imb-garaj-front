@@ -1,4 +1,3 @@
-import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,64 +20,10 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import VehicleImagePicker from "../vehicles/vehicle-image-picker"
 import { MAX_PHOTO_MB, VehicleDocumentsRow } from "./types"
-
-type Photo = File | string | null
-
-type FormValues = {
-    vehicle?: number
-    truck_passport_number: string
-    truck_passport_issued_date: string | null
-    truck_passport_expires_date: string | null
-    trailer_passport_number: string
-    trailer_passport_issued_date: string | null
-    trailer_passport_expires_date: string | null
-    photo_front: Photo
-    photo_back: Photo
-    truck_passport_photo_front: Photo
-    truck_passport_photo_back: Photo
-    trailer_passport_photo_front: Photo
-    trailer_passport_photo_back: Photo
-}
-
-type PhotoField =
-    | "photo_front"
-    | "photo_back"
-    | "truck_passport_photo_front"
-    | "truck_passport_photo_back"
-    | "trailer_passport_photo_front"
-    | "trailer_passport_photo_back"
-
-const TRUCK_FIELDS: PhotoField[] = [
-    "truck_passport_photo_front",
-    "truck_passport_photo_back",
-]
-const TRAILER_FIELDS: PhotoField[] = [
-    "trailer_passport_photo_front",
-    "trailer_passport_photo_back",
-]
-
+import { TrailerSection, TruckSection } from "./vehicle-documents-sections"
+import { FormValues, getDefaults, PhotoField, TRAILER_FIELDS, TRUCK_FIELDS } from "./vehicle-documents-form"
 const toApiDate = (value?: string | Date | null) =>
     value ? format(new Date(value), "yyyy-MM-dd") : ""
-
-const getDefaults = (row?: VehicleDocumentsRow): FormValues => {
-    const truck = row?.documents.truck_passport
-    const trailer = row?.documents.trailer_passport
-    return {
-        vehicle: row?.id,
-        truck_passport_number: truck?.number ?? "",
-        truck_passport_issued_date: truck?.issued_date ?? null,
-        truck_passport_expires_date: truck?.expires_date ?? null,
-        trailer_passport_number: trailer?.number ?? "",
-        trailer_passport_issued_date: trailer?.issued_date ?? null,
-        trailer_passport_expires_date: trailer?.expires_date ?? null,
-        photo_front: null,
-        photo_back: null,
-        truck_passport_photo_front: truck?.photo_front ?? null,
-        truck_passport_photo_back: truck?.photo_back ?? null,
-        trailer_passport_photo_front: trailer?.photo_front ?? null,
-        trailer_passport_photo_back: trailer?.photo_back ?? null,
-    }
-}
 
 const AddVehicleDocumentsModal = () => {
     const { t } = useTranslation()
@@ -230,85 +175,24 @@ const AddVehicleDocumentsModal = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1"
         >
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("form.vehicle")}</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {isFixed ?
-                        <div className="space-y-1.5">
-                            <p className="text-sm font-medium">
-                                {t("documents_page.truck_number")}
-                            </p>
-                            <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm">
-                                {row?.truck_number}
-                            </div>
-                        </div>
-                    :   <FormCombobox
-                            required
-                            name="vehicle"
-                            label={t("documents_page.truck_number")}
-                            options={vehicles?.results ?? []}
-                            control={control}
-                            labelKey="truck_number"
-                            valueKey="id"
-                        />
-                    }
-                    {expiresField(
-                        "truck_passport",
-                        t("documents_page.truck_expires"),
-                    )}
-                    {picker(
-                        "truck_passport_photo_front",
-                        t("documents_page.photo_truck_front"),
-                    )}
-                    {picker(
-                        "truck_passport_photo_back",
-                        t("documents_page.photo_truck_back"),
-                    )}
-                </div>
-            </section>
-
-            <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.vehicles.section_trailer")}</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {isFixed ?
-                        <div className="space-y-1.5">
-                            <p className="text-sm font-medium">
-                                {t("documents_page.trailer_number")}
-                            </p>
-                            <div className="flex h-10 items-center rounded-md border bg-muted/40 px-3 text-sm">
-                                {row?.trailer_number || "-"}
-                            </div>
-                        </div>
-                    :   <div className="space-y-1">
-                            <FormCombobox
-                                name="vehicle"
-                                label={t("documents_page.trailer_number")}
-                                options={trailerOptions}
-                                control={control}
-                                labelKey="trailer_number"
-                                valueKey="id"
-                            />
-                            {!!vehicleId && !hasTrailer && (
-                                <p className="text-xs text-muted-foreground">
-                                    {t("documents_page.no_trailer_hint")}
-                                </p>
-                            )}
-                        </div>
-                    }
-                    {expiresField(
-                        "trailer_passport",
-                        t("documents_page.trailer_expires"),
-                    )}
-                    {picker(
-                        "trailer_passport_photo_front",
-                        t("documents_page.photo_trailer_front"),
-                    )}
-                    {picker(
-                        "trailer_passport_photo_back",
-                        t("documents_page.photo_trailer_back"),
-                    )}
-                </div>
-            </section>
+            <TruckSection
+                isFixed={isFixed}
+                row={row}
+                vehicles={vehicles}
+                control={control}
+                expiresField={expiresField}
+                picker={picker}
+            />
+            <TrailerSection
+                isFixed={isFixed}
+                row={row}
+                trailerOptions={trailerOptions}
+                control={control}
+                vehicleId={vehicleId}
+                hasTrailer={hasTrailer}
+                expiresField={expiresField}
+                picker={picker}
+            />
 
             <div className="flex justify-end md:col-span-2">
                 <Button
