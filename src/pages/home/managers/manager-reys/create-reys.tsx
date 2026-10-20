@@ -1,103 +1,26 @@
 import { FormCombobox } from "@/components/form/combobox"
-import { FormDatePicker } from "@/components/form/date-picker"
-import PasteInput from "@/components/form/paste-input"
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-} from "@/components/ui/dialog"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-    COMMON_DIRECTIONS,
-    MANAGERS_ORDERS,
-    MANAGERS_TRIPS,
-    MANAGERS_VEHICLES,
-    SETTINGS_DRIVERS,
-    MANAGERS_ORDERS_INTEGRATION_COUNT,
-    SETTINGS_CARGO_TYPE,
-    SETTINGS_SELECTABLE_CLIENT,
-    SETTINTS_PAYMENT_TYPE,
-} from "@/constants/api-endpoints"
-import {
-    isNaqdPaymentTypeName,
-    PaymentType,
-} from "./payment-fields"
-import { useGet } from "@/hooks/useGet"
+import { MANAGERS_ORDERS, MANAGERS_ORDERS_INTEGRATION_COUNT } from "@/constants/api-endpoints"
+import { isNaqdPaymentTypeName } from "./payment-fields"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
-import { ChevronLeft, ChevronRight, ImageIcon, Trash2, X } from "lucide-react"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { useController, useFieldArray, useForm } from "react-hook-form"
+import { useEffect, useMemo, useRef } from "react"
+import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { FormNumberInput } from "@/components/form/number-input"
 import PriceDiff from "./price-diff"
 import { useTranslation } from "react-i18next"
-import { isWithinMoneyLimit } from "@/lib/money-limit"
 import { todayIso } from "@/lib/today-iso"
+import { distinctOptions, useStatusOptions, useActivityOptions } from "./create-reys-options"
+import { ReysIncomesSection } from "./reys-incomes-section"
+import { ReysImagesSection } from "./reys-images-section"
+import { ReysImagePreviewDialog } from "./reys-image-preview-dialog"
+import { ReysCityFields, ReysCommonFields, ReysRouteFields } from "./create-reys-fields"
+import { useReysImages, useReysLookups } from "./use-create-reys"
 
-type Option = { id: number; name: string }
-
-type StatusOption = { id: string; name: string }
-
-export const useStatusOptions = (): StatusOption[] => {
-    const { t } = useTranslation()
-    return [
-        { id: "0", name: t("status.pending") },
-        { id: "1", name: t("status.started") },
-        { id: "5", name: t("status.loading_status") },
-        { id: "6", name: t("status.on_road") },
-        { id: "7", name: t("status.unloading_status") },
-        { id: "2", name: t("status.done") },
-        { id: "3", name: t("status.cancelled") },
-    ]
-}
-
-export const useActivityOptions = (): StatusOption[] => {
-    const { t } = useTranslation()
-    return [
-        { id: "1", name: t("nav.flights") },
-        { id: "2", name: t("status.in_garage") },
-        { id: "3", name: t("status.repair") },
-        { id: "4", name: t("status.idle_stop") },
-        { id: "5", name: t("status.in_queue") },
-    ]
-}
-
-type Direction = {
-    id: number
-    owner: number
-    owner_name: string
-    load: number
-    load_name: string
-    unload: number
-    unload_name: string
-    cargo_type: number
-    cargo_type_name: string
-    payment_type: number
-    amount: string | null
-    load_place_display?: string | null
-    unload_place_display?: string | null
-    no_price?: boolean
-}
-
-const distinctOptions = (
-    rows: Direction[],
-    picker: (d: Direction) => { id: number; name: string },
-): Option[] => {
-    const seen = new Set<number>()
-    const out: Option[] = []
-    for (const row of rows) {
-        const { id, name } = picker(row)
-        if (seen.has(id)) continue
-        seen.add(id)
-        out.push({ id, name })
-    }
-    return out.sort((a, b) => a.name.localeCompare(b.name))
-}
 
 const AddTripOrders = () => {
     const { t } = useTranslation()
@@ -152,10 +75,6 @@ const AddTripOrders = () => {
 
     const directionPrefilledRef = useRef(false)
 
-    const [existingImages, setExistingImages] = useState<
-        { id: number; image: string }[]
-    >(currentTripOrder?.images ?? [])
-    const [removedImageIds, setRemovedImageIds] = useState<number[]>([])
 
     const { handleSubmit, control, reset, watch, setValue } = form
     const {
@@ -181,54 +100,7 @@ const AddTripOrders = () => {
     const prevLoadingRef = useRef(loadingValue)
     const prevUnloadingRef = useRef(unloadingValue)
 
-    const { data: directionsResponse } = useGet<ListResponse<Direction>>(
-        COMMON_DIRECTIONS,
-        { params: { page_size: 10000 } },
-    )
-
-    const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
-        SETTINTS_PAYMENT_TYPE,
-        { params: { page_size: 1000000 } },
-    )
-
-    const { data: clientsData } = useGet<{ id: number; name: string }[]>(
-        SETTINGS_SELECTABLE_CLIENT,
-        { params: { model_name: "client" } },
-    )
-
-    const { data: cargoTypesResponse } = useGet<ListResponse<{ id: number; name: string }>>(
-        SETTINGS_CARGO_TYPE,
-        { params: { page_size: 1000 } },
-    )
-
-    const { data: tripData } = useGet<{ driver: number | null; vehicle: number | null }>(
-        `${MANAGERS_TRIPS}/${id}`,
-        { enabled: !!id && id !== "all" },
-    )
-    const { data: driversData } = useGet<ListResponse<{ id: number; first_name: string; last_name?: string }>>(
-        SETTINGS_DRIVERS,
-        { params: { page_size: 10000 } },
-    )
-    const driverOptions = useMemo(
-        () =>
-            (driversData?.results ?? []).map((d) => ({
-                id: d.id,
-                name: `${d.first_name} ${d.last_name || ""}`.trim(),
-            })),
-        [driversData],
-    )
-    const { data: managerVehicles } = useGet<ListResponse<{ id: number; trailer_number: string | null }>>(
-        MANAGERS_VEHICLES,
-        { params: { page_size: 10000 } },
-    )
-    const trailerOptions = useMemo(() => {
-        const seen = new Set<string>()
-        return (managerVehicles?.results ?? [])
-            .map((v) => v.trailer_number)
-            .filter((n): n is string => !!n && !seen.has(n) && !!seen.add(n))
-            .sort()
-            .map((n) => ({ id: n, name: n }))
-    }, [managerVehicles])
+    const { directionsResponse, paymentTypesData, clientsData, cargoTypesResponse, tripData, managerVehicles, driverOptions, trailerOptions } = useReysLookups(id)
 
     useEffect(() => {
         if (currentTripOrder?.id || !tripData) return
@@ -535,38 +407,7 @@ const AddTripOrders = () => {
         }
     }
 
-    const [previewIndex, setPreviewIndex] = useState<number | null>(null)
-    const { field: imagesField } = useController({ name: "images", control })
-    const rasmInputRef = useRef<HTMLInputElement>(null)
-    const images: File[] = imagesField.value ?? []
-
-    const addImages = (files: FileList | File[]) => {
-        const newFiles = Array.from(files)
-        imagesField.onChange([...images, ...newFiles])
-    }
-
-    const removeNewImage = (index: number) => {
-        imagesField.onChange(images.filter((_, i) => i !== index))
-    }
-
-    const removeExistingImage = (imgId: number) => {
-        setExistingImages((prev) => prev.filter((img) => img.id !== imgId))
-        setRemovedImageIds((prev) => [...prev, imgId])
-    }
-
-    const previewItems = useMemo(
-        () => [
-            ...existingImages.map((img) => ({
-                key: `e-${img.id}`,
-                url: img.image,
-            })),
-            ...images.map((file, idx) => ({
-                key: `n-${idx}`,
-                url: URL.createObjectURL(file),
-            })),
-        ],
-        [existingImages, images],
-    )
+    const { existingImages, removedImageIds, previewIndex, setPreviewIndex, rasmInputRef, images, addImages, removeNewImage, removeExistingImage, previewItems } = useReysImages(control, currentTripOrder)
 
     return (
         <>
@@ -597,174 +438,34 @@ const AddTripOrders = () => {
                         )}
 
                         {isReysActivity && (
-                            <>
-                                {/* To'lov turi tabs */}
-                                <Tabs
-                                    value={isNaqd ? "naqd" : "perech"}
-                                    onValueChange={(v) => setValue("is_naqd", v === "naqd")}
-                                >
-                                    <TabsList className="grid w-full grid-cols-2">
-                                        <TabsTrigger value="perech">{t("form.contract")}</TabsTrigger>
-                                        <TabsTrigger value="naqd">{t("status.cash")}</TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
-
-                                {!isNaqd && (
-                                    <FormCombobox
-                                        required
-                                        hideError={false}
-                                        label={t("form.cargo_owner")}
-                                        name="client"
-                                        control={control}
-                                        options={clientsData ?? []}
-                                        valueKey="id"
-                                        labelKey="name"
-                                        placeholder={t("form.cargo_owner")}
-                                        addButtonProps={{
-                                            disabled: logisticsLocked("client"),
-                                        }}
-                                    />
-                                )}
-
-                                <div className="rounded-lg border bg-card/50 p-4">
-                                    <div className="flex gap-3">
-                                        <div className="relative shrink-0 w-3">
-                                            <div className="absolute left-1/2 -translate-x-1/2 top-[18px] w-3 h-3 rounded-full bg-primary" />
-                                            <div
-                                                className="absolute left-1/2 -translate-x-1/2 w-px"
-                                                style={{
-                                                    top: 30,
-                                                    bottom: 18,
-                                                    backgroundImage:
-                                                        "repeating-linear-gradient(to bottom, hsl(var(--primary)/0.4) 0px, hsl(var(--primary)/0.4) 5px, transparent 5px, transparent 10px)",
-                                                }}
-                                            />
-                                            <div className="absolute left-1/2 -translate-x-1/2 bottom-[18px] w-3 h-3 rounded-full border-2 border-primary bg-background" />
-                                        </div>
-
-                                        <div className="flex flex-col gap-4 flex-1">
-                                            <FormCombobox
-                                                required
-                                                hideError={false}
-                                                name="loading"
-                                                control={control}
-                                                options={loadsData}
-                                                valueKey="id"
-                                                labelKey="name"
-                                                placeholder={t("form.loading_location")}
-                                                addButtonProps={{
-                                                    disabled:
-                                                        logisticsLocked("loading") ||
-                                                        (!isNaqd && !watch("client")),
-                                                }}
-                                            />
-                                            <FormCombobox
-                                                required
-                                                hideError={false}
-                                                name="unloading"
-                                                control={control}
-                                                options={unloadsData}
-                                                valueKey="id"
-                                                labelKey="name"
-                                                placeholder={t("form.unloading_location")}
-                                                addButtonProps={{
-                                                    disabled:
-                                                        logisticsLocked("unloading") ||
-                                                        !loadingValue,
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </>
+                            <ReysRouteFields
+                                control={control}
+                                isNaqd={isNaqd}
+                                setValue={setValue}
+                                watch={watch}
+                                clientsData={clientsData ?? []}
+                                loadsData={loadsData}
+                                unloadsData={unloadsData}
+                                logisticsLocked={logisticsLocked}
+                                loadingValue={loadingValue}
+                            />
                         )}
 
                         {isCityOnlyActivity && (
-                            <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormCombobox
-                                    required
-                                    hideError={false}
-                                    label={t("form.loading_location")}
-                                    name="loading"
-                                    control={control}
-                                    options={loadsData}
-                                    valueKey="id"
-                                    labelKey="name"
-                                    placeholder={t("form.loading_location")}
-                                />
-                                {activityValue === "4" && (
-                                    <FormNumberInput
-                                        control={control}
-                                        name="salary_amount"
-                                        label={t("trips.create_reys.idle_fee")}
-                                        placeholder={t("trips.create_reys.example_idle_fee")}
-                                        thousandSeparator=" "
-                                        allowNegative={false}
-                                    />
-                                )}
-                            </div>
+                            <ReysCityFields control={control} loadsData={loadsData} activityValue={activityValue} />
                         )}
 
-                        <div className="flex gap-3">
-                            {isReysActivity && (
-                                <div className="flex-1">
-                                    <FormCombobox
-                                        label={t("form.cargo_type")}
-                                        name="cargo_type"
-                                        control={control}
-                                        options={cargoTypesData}
-                                        valueKey="id"
-                                        labelKey="name"
-                                        placeholder={t("status.empty")}
-                                        addButtonProps={{
-                                            disabled:
-                                                logisticsLocked("cargo_type") ||
-                                                !loadingValue ||
-                                                !unloadingValue,
-                                        }}
-                                    />
-                                </div>
-                            )}
-                            <div className="flex-1">
-                                <FormDatePicker
-                                    fullWidth
-                                    required
-                                    hideError={false}
-                                    label={t("form.date")}
-                                    control={control}
-                                    name="date"
-                                    placeholder={t("form.select_date")}
-                                    className="w-full"
-                                    disabled={logisticsLocked("date")}
-                                />
-                            </div>
-                        </div>
+                        <ReysCommonFields
+                            control={control}
+                            isReysActivity={isReysActivity}
+                            cargoTypesData={cargoTypesData}
+                            driverOptions={driverOptions}
+                            trailerOptions={trailerOptions}
+                            logisticsLocked={logisticsLocked}
+                            loadingValue={loadingValue}
+                            unloadingValue={unloadingValue}
+                        />
 
-                        <div className="flex gap-3">
-                            <div className="flex-1">
-                                <FormCombobox
-                                    label={t("form.driver")}
-                                    name="driver"
-                                    control={control}
-                                    options={driverOptions}
-                                    valueKey="id"
-                                    labelKey="name"
-                                    placeholder={t("form.driver")}
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <FormCombobox
-                                    label={t("form.trailer_number")}
-                                    name="trailer_number"
-                                    control={control}
-                                    options={trailerOptions}
-                                    valueKey="id"
-                                    labelKey="name"
-                                    placeholder={t("form.trailer_number")}
-                                />
-                            </div>
-                        </div>
 
                         {isReysActivity && !isNaqd && directionOptions.length > 0 && (
                             <FormCombobox
@@ -798,171 +499,27 @@ const AddTripOrders = () => {
                 </section>
 
                 {isReysActivity && isNaqd && (
-                    <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                        <div className="space-y-3">
-                        {incomeFields.map((field, index) => (
-                            <div
-                                key={field.id}
-                                className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end"
-                            >
-                                <FormCombobox
-                                    required
-                                    hideError={false}
-                                    control={control}
-                                    name={`incomes.${index}.payment_type`}
-                                    label={index === 0 ? t("form.payment_type") : ""}
-                                    options={allPaymentTypes.filter(
-                                        (pt) => !selectedPaymentTypeIds.has(pt.id) || pt.id === incomes[index]?.payment_type,
-                                    )}
-                                    valueKey="id"
-                                    labelKey="name"
-                                    placeholder={t("form.select_type")}
-                                />
-
-                                <FormNumberInput
-                                    required
-                                    control={control}
-                                    name={`incomes.${index}.amount`}
-                                    placeholder={t("form.amount")}
-                                    label={index === 0 ? t("form.amount") : undefined}
-                                    registerOptions={{
-                                        validate: (v) =>
-                                            Number(v) > 0
-                                                ? isWithinMoneyLimit(v) || t("validation.max_amount")
-                                                : t("kassa.amount_gt_zero"),
-                                    }}
-                                />
-
-                                {incomeFields.length > 1 && (
-                                    <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="icon"
-                                        className="h-10 w-10 shrink-0"
-                                        aria-label={t("actions.delete")}
-                                        onClick={() => removeIncome(index)}
-                                    >
-                                        <Trash2 size={16} />
-                                    </Button>
-                                )}
-                            </div>
-                        ))}
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={selectedPaymentTypeIds.size >= allPaymentTypes.length}
-                            onClick={() =>
-                                appendIncome({
-                                    payment_type: null,
-                                    amount: "",
-                                })
-                            }
-                        >
-                            + {t("actions.add")}
-                        </Button>
-                        </div>
-                    </section>
+                    <ReysIncomesSection
+                        control={control}
+                        incomeFields={incomeFields}
+                        allPaymentTypes={allPaymentTypes}
+                        selectedPaymentTypeIds={selectedPaymentTypeIds}
+                        incomes={incomes}
+                        removeIncome={removeIncome}
+                        appendIncome={appendIncome}
+                    />
                 )}
 
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_reys.images")}</h3>
-                    <div className="grid grid-cols-1 gap-4">
-                        {previewItems.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {existingImages.map((img, index) => (
-                                    <div
-                                        key={`e-${img.id}`}
-                                        className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
-                                        onClick={() => setPreviewIndex(index)}
-                                    >
-                                        <img
-                                            src={img.image}
-                                            alt={t("trips.create_reys.image_alt", { n: img.id })}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                removeExistingImage(img.id)
-                                            }}
-                                            className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    </div>
-                                ))}
-                                {images.map((file, index) => (
-                                    <div
-                                        key={`n-${index}`}
-                                        className="relative w-20 h-20 rounded-lg overflow-hidden border cursor-pointer"
-                                        onClick={() =>
-                                            setPreviewIndex(existingImages.length + index)
-                                        }
-                                    >
-                                        <img
-                                            src={URL.createObjectURL(file)}
-                                            alt={t("trips.create_reys.image_alt", { n: index })}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                removeNewImage(index)
-                                            }}
-                                            className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Rasm yuklash */}
-
-                        <PasteInput onFile={(file) => addImages([file])} />
-
-                        <div
-                            className="border-2 border-dashed rounded-xl overflow-hidden cursor-pointer transition-colors hover:border-primary/60 group"
-                            style={{ minHeight: 100 }}
-                            onClick={() => rasmInputRef.current?.click()}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => {
-                                e.preventDefault()
-                                if (e.dataTransfer.files?.length) {
-                                    addImages(e.dataTransfer.files)
-                                }
-                            }}
-                        >
-                            <div className="flex flex-col items-center justify-center gap-2 py-7 text-muted-foreground group-hover:text-primary transition-colors">
-                                <ImageIcon size={28} strokeWidth={1.5} />
-                                <span className="text-sm font-medium">
-                                    {t("form.upload_image")}
-                                </span>
-                                <span className="text-xs">
-                                    {t("form.upload_image_hint")}
-                                </span>
-                            </div>
-                        </div>
-
-                        <input
-                            ref={rasmInputRef}
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            hidden
-                            onChange={(e) => {
-                                if (e.target.files?.length) {
-                                    addImages(e.target.files)
-                                    e.target.value = ""
-                                }
-                            }}
-                        />
-                    </div>
-                </section>
+                <ReysImagesSection
+                    previewItems={previewItems}
+                    existingImages={existingImages}
+                    images={images}
+                    setPreviewIndex={setPreviewIndex}
+                    removeExistingImage={removeExistingImage}
+                    removeNewImage={removeNewImage}
+                    addImages={addImages}
+                    rasmInputRef={rasmInputRef}
+                />
 
                 <div className="flex justify-end gap-2 pt-1">
                     {isDraft && (
@@ -982,53 +539,10 @@ const AddTripOrders = () => {
                 </div>
             </form>
 
-            <Dialog
-                open={previewIndex !== null}
-                onOpenChange={() => setPreviewIndex(null)}
-            >
-                <DialogContent className="max-w-2xl p-2">
-                    {previewIndex !== null && previewItems[previewIndex] && (
-                        <div className="relative flex items-center justify-center">
-                            {previewItems.length > 1 && (
-                                <button
-                                    type="button"
-                                    aria-label={t("trips.common.previous")}
-                                    onClick={() =>
-                                        setPreviewIndex(
-                                            (previewIndex - 1 + previewItems.length) %
-                                            previewItems.length,
-                                        )
-                                    }
-                                    className="absolute left-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
-                                >
-                                    <ChevronLeft size={20} />
-                                </button>
-                            )}
-                            <img
-                                src={previewItems[previewIndex].url}
-                                alt={t("trips.common.preview")}
-                                className="w-full h-auto rounded-lg"
-                            />
-                            {previewItems.length > 1 && (
-                                <button
-                                    type="button"
-                                    aria-label={t("trips.common.next")}
-                                    onClick={() =>
-                                        setPreviewIndex(
-                                            (previewIndex + 1) % previewItems.length,
-                                        )
-                                    }
-                                    className="absolute right-2 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-accent transition-colors"
-                                >
-                                    <ChevronRight size={20} />
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
+            <ReysImagePreviewDialog previewIndex={previewIndex} setPreviewIndex={setPreviewIndex} previewItems={previewItems} />
         </>
     )
 }
 
 export default AddTripOrders
+
