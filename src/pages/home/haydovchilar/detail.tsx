@@ -190,7 +190,7 @@ const useAylanmaCols = () => {
                         return <Badge className="border-transparent bg-rose-500/10 text-rose-600 hover:bg-rose-500/10">{t("status.not_given")}</Badge>
                     return (
                         <Badge className="border-transparent bg-amber-500/10 text-amber-600 hover:bg-amber-500/10 whitespace-nowrap">
-                            {t("fleet.drivers.salary_partial", { amount: formatMoney(unpaid) })}
+                            {t("fleet.drivers.salary_partial", { amount: formatMoneyText(unpaid) })}
                         </Badge>
                     )
                 },

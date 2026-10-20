@@ -1,16 +1,20 @@
 import { ClassNameValue } from "tailwind-merge"
 
-export function formatMoney(
-    amount?: number | string,
-    className?: ClassNameValue,
-    suffix?: boolean,
-) {
+export function formatMoneyText(amount?: number | string) {
     const numeric = Number(amount)
     const rounded = Number.isFinite(numeric) ? Math.round(numeric) : 0
     const integerPart = Math.abs(rounded).toString()
     const newIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
     const sign = rounded < 0 ? "-" : ""
-    const text = sign + newIntegerPart
+    return sign + newIntegerPart
+}
+
+export function formatMoney(
+    amount?: number | string,
+    className?: ClassNameValue,
+    suffix?: boolean,
+) {
+    const text = formatMoneyText(amount)
     return (
         <span className={`${className} text-nowrap`}>
             {text} {suffix ? " so'm" : ""}

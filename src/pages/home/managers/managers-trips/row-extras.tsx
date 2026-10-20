@@ -8,7 +8,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
 import { formatDateTime } from "@/lib/format-date"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatMoneyText } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { History } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -79,8 +79,8 @@ export function RowMarks({ row }: { row: RowExtras }) {
                     {pending.type === "delete" ?
                         t("trips.row.pending_delete")
                     : pending.type === "return" ?
-                        t("trips.row.pending_return", { amount: formatMoney(Number(pending.amount ?? 0)) })
-                    :   t("trips.row.pending_edit", { amount: formatMoney(Number(pending.amount ?? 0)) })}
+                        t("trips.row.pending_return", { amount: formatMoneyText(Number(pending.amount ?? 0)) })
+                    :   t("trips.row.pending_edit", { amount: formatMoneyText(Number(pending.amount ?? 0)) })}
                 </Badge>
             )}
             {open && <HistoryDialog id={row.id} onClose={() => setOpen(false)} />}
@@ -167,7 +167,7 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                     })}
                 >
                     <p className="text-sm text-muted-foreground">
-                        <Trans i18nKey="trips.row.current_amount" values={{ amount: formatMoney(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
+                        <Trans i18nKey="trips.row.current_amount" values={{ amount: formatMoneyText(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
                     </p>
                     <FormNumberInput
                         required
@@ -202,7 +202,7 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                     })}
                 >
                     <p className="text-sm">
-                        <Trans i18nKey="trips.row.delete_text" values={{ amount: formatMoney(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
+                        <Trans i18nKey="trips.row.delete_text" values={{ amount: formatMoneyText(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
                     </p>
                     <FormTextarea required label={t("trips.row.reason")} name="comment" methods={delForm} />
                     <div className="flex justify-end">
@@ -316,11 +316,11 @@ export function AdvanceReturnModal({ advanceId, left }: { advanceId: number | nu
                 })}
             >
                 <p className="text-sm text-muted-foreground">
-                    <Trans i18nKey="trips.row.left_from_advance" values={{ amount: formatMoney(left) }} components={{ b: <b /> }} />
+                    <Trans i18nKey="trips.row.left_from_advance" values={{ amount: formatMoneyText(left) }} components={{ b: <b /> }} />
                 </p>
                 <div className="flex justify-end -mb-2">
                     <Button type="button" size="sm" variant="secondary" disabled={left <= 0} onClick={() => form.setValue("amount", left, { shouldValidate: true })}>
-                        {t("trips.row.set_remainder", { amount: formatMoney(Math.max(left, 0)) })}
+                        {t("trips.row.set_remainder", { amount: formatMoneyText(Math.max(left, 0)) })}
                     </Button>
                 </div>
                 <FormNumberInput

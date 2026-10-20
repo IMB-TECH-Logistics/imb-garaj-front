@@ -9,7 +9,7 @@ import { useHasAction, useUser } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatMoneyText } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -165,7 +165,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                     <p className="text-sm">
                         <Trans
                             i18nKey="trips.pending.cancel_text"
-                            values={{ amount: formatMoney(Number(selected?.amount ?? 0)), kind: selected?.kind_label.toLowerCase() }}
+                            values={{ amount: formatMoneyText(Number(selected?.amount ?? 0)), kind: selected?.kind_label.toLowerCase() }}
                             components={{ b: <b /> }}
                         />
                     </p>

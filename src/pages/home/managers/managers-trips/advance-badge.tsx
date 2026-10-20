@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoneyText } from "@/lib/format-money"
 import { useTranslation } from "react-i18next"
 
 type Props = {
@@ -14,15 +14,15 @@ export default function AdvanceBadge({ pending, rejected, compact }: Props) {
         return (
             <Badge variant="orange" className="w-fit whitespace-nowrap">
                 {compact ?
-                    t("trips.advance.pending_compact", { amount: formatMoney(Number(pending)) })
-                :   t("trips.advance.pending_full", { amount: formatMoney(Number(pending)) })}
+                    t("trips.advance.pending_compact", { amount: formatMoneyText(Number(pending)) })
+                :   t("trips.advance.pending_full", { amount: formatMoneyText(Number(pending)) })}
             </Badge>
         )
     if (rejected)
         return (
             <div className="flex flex-col items-start gap-0.5">
                 <Badge variant="destructive" className="w-fit whitespace-nowrap">
-                    {t("trips.advance.rejected", { amount: formatMoney(Number(rejected.amount)) })}
+                    {t("trips.advance.rejected", { amount: formatMoneyText(Number(rejected.amount)) })}
                 </Badge>
                 {!compact && (
                     <span className="text-xs text-muted-foreground">

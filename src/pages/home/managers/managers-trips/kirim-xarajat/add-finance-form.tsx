@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoneyText } from "@/lib/format-money"
 import { formatDate } from "@/lib/format-date"
 import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -306,7 +306,7 @@ export function AddFinanceForm({
                     </div>
                     {salaryLookup?.results?.[0]?.current_amount?.amount ? (
                         <div className="text-[11px] text-emerald-600">
-                            {t("trips.kirim.configured_tariff", { amount: formatMoney(salaryLookup.results[0].current_amount.amount) })}
+                            {t("trips.kirim.configured_tariff", { amount: formatMoneyText(salaryLookup.results[0].current_amount.amount) })}
                         </div>
                     ) : fromRegion && toRegion ? (
                         <div className="text-[11px] text-amber-600">

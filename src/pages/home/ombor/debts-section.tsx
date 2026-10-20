@@ -17,7 +17,7 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
-import { formatMoney, formatNumber } from "@/lib/format-money"
+import { formatMoney, formatNumber, formatMoneyText } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
@@ -388,7 +388,7 @@ const OwedPart = () => {
                         payment ?
                             t("wh.debt.payment_delete_name", {
                                 date: fmtDate(payment.date),
-                                amount: formatMoney(payment.amount),
+                                amount: formatMoneyText(payment.amount),
                             })
                         :   ""
                     }
