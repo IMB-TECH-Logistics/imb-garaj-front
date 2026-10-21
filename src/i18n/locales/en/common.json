@@ -2566,6 +2566,11 @@
             "close_anyway": "Close anyway",
             "finish_and_send": "Finish and send request"
         },
+        "move": {
+            "action": "Move to another trip",
+            "confirm": "Move",
+            "done": "Moved: #{{src}} → #{{target}}"
+        },
         "kclose": {
             "close_date": "Closing date",
             "close_date_today": "Today",

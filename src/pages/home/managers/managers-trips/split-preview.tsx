@@ -3,6 +3,7 @@ import { money } from "@/pages/home/kassa/v2/api"
 import { addDays, format, parseISO } from "date-fns"
 import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
+import MoveItemButton, { MoveKind } from "./move-item-button"
 
 type Part = {
     start: string | null
@@ -25,13 +26,16 @@ export const splitErrorText = (e: any): string | null => {
     return Array.isArray(v) ? String(v[0]) : v ? String(v) : null
 }
 
-const PartView = ({ title, part }: { title: string; part: Part }) => {
+const PartView = ({ title, part, tripId }: { title: string; part: Part; tripId?: number }) => {
     const { t } = useTranslation()
     const empty = !part.orders.length && !part.expenses.length && !part.advances.length && !part.requests.length
-    const item = (key: string, left: string, right: string) => (
+    const item = (key: string, left: string, right: string, kind: MoveKind, id: number) => (
         <div key={key} className="flex items-center justify-between gap-2 text-xs">
             <span className="truncate text-muted-foreground">{left}</span>
-            <span className="tabular-nums whitespace-nowrap">{right}</span>
+            <span className="flex items-center gap-2 tabular-nums whitespace-nowrap">
+                {right}
+                <MoveItemButton tripId={tripId} kind={kind} id={id} />
+            </span>
         </div>
     )
     const group = (label: string, rows: ReactNode[], total?: number | string) =>
@@ -48,10 +52,10 @@ const PartView = ({ title, part }: { title: string; part: Part }) => {
         <div className="rounded-lg border bg-muted/20 p-3 space-y-2 min-w-0">
             <div className="text-sm font-semibold">{title}</div>
             {empty && <p className="text-xs text-muted-foreground">{t("trips.kclose.split_empty")}</p>}
-            {group(t("trips.kclose.trip"), part.orders.map((o) => item(`o${o.id}`, `${fmt(o.date)} ${o.route ?? ""}`.trim(), money(o.salary))), part.totals.salary)}
-            {group(t("trips.kclose.cash_expenses"), part.expenses.map((e) => item(`e${e.id}`, `${fmt(e.date)} ${e.category ?? ""}`.trim(), money(e.amount))), part.totals.expenses)}
-            {group(t("trips.kclose.advance"), part.advances.map((a) => item(`a${a.id}`, `${fmt(a.date)} ${a.comment ?? ""}`.trim(), money(a.amount))), part.totals.advances)}
-            {group(t("trips.kclose.split_requests"), part.requests.map((r) => item(`r${r.id}`, r.kind, money(r.amount))))}
+            {group(t("trips.kclose.trip"), part.orders.map((o) => item(`o${o.id}`, `${fmt(o.date)} ${o.route ?? ""}`.trim(), money(o.salary), "order", o.id)), part.totals.salary)}
+            {group(t("trips.kclose.cash_expenses"), part.expenses.map((e) => item(`e${e.id}`, `${fmt(e.date)} ${e.category ?? ""}`.trim(), money(e.amount), "cashflow", e.id)), part.totals.expenses)}
+            {group(t("trips.kclose.advance"), part.advances.map((a) => item(`a${a.id}`, `${fmt(a.date)} ${a.comment ?? ""}`.trim(), money(a.amount), "cashflow", a.id)), part.totals.advances)}
+            {group(t("trips.kclose.split_requests"), part.requests.map((r) => item(`r${r.id}`, r.kind, money(r.amount), "request", r.id)))}
         </div>
     )
 }
@@ -69,8 +73,8 @@ export default function SplitPreview({ tripId, date }: { tripId?: number; date: 
     const next = format(addDays(parseISO(date), 1), "dd/MM/yyyy")
     return (
         <div className="grid gap-3 sm:grid-cols-2">
-            <PartView title={t("trips.kclose.split_keep", { from: fmt(data.keep.start), to: fmt(date) })} part={data.keep} />
-            <PartView title={t("trips.kclose.split_move", { from: next })} part={data.move} />
+            <PartView title={t("trips.kclose.split_keep", { from: fmt(data.keep.start), to: fmt(date) })} part={data.keep} tripId={tripId} />
+            <PartView title={t("trips.kclose.split_move", { from: next })} part={data.move} tripId={tripId} />
         </div>
     )
 }

@@ -2563,6 +2563,11 @@
             "close_anyway": "Baribir yopish",
             "finish_and_send": "Tugatish va so'rov yuborish"
         },
+        "move": {
+            "action": "Boshqa aylanmaga o'tkazish",
+            "confirm": "O'tkazish",
+            "done": "Ko'chirildi: #{{src}} → #{{target}}"
+        },
         "kclose": {
             "close_date": "Yopilish sanasi",
             "close_date_today": "Bugun",

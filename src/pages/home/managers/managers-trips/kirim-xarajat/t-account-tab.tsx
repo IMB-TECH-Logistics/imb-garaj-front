@@ -16,6 +16,7 @@ import { usePost } from "@/hooks/usePost"
 import { useGlobalStore } from "@/store/global-store"
 import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import PendingAdvances from "../pending-advances"
+import MoveItemButton from "../move-item-button"
 import { ADVANCE_ACTION, ADVANCE_DELETE_MODAL, ADVANCE_EDIT_MODAL, ADVANCE_RETURN_MODAL, AdvanceChangeModals, AdvanceReturnModal, RowMarks, SALARY_REQUEST_MODAL, SalaryRequestModal } from "../row-extras"
 import { useUser } from "@/constants/useUser"
 import { useTranslation } from "react-i18next"
@@ -227,11 +228,12 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                 {row.original.return_status === 20 ? t("trips.row.returned") : row.original.return_status === -10 ? t("trips.row.rejected") : t("trips.row.awaiting_cashier")}
                             </Badge>
                         :   <RowMarks row={row.original} />}
+                        {isKassaV2 && !row.original.return_id && <MoveItemButton tripId={tripId} kind="cashflow" id={row.original.id} locked={!closePreview} />}
                     </div>
                 ),
             },
         ],
-        [t],
+        [t, isKassaV2, tripId, closePreview],
     )
     const expenseCols = useExpenseCols({ withCategory: true })
 

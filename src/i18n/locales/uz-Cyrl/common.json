@@ -2563,6 +2563,11 @@
             "close_anyway": "Барибир ёпиш",
             "finish_and_send": "Тугатиш ва сўров юбориш"
         },
+        "move": {
+            "action": "Бошқа айланмага ўтказиш",
+            "confirm": "Ўтказиш",
+            "done": "Кўчирилди: #{{src}} → #{{target}}"
+        },
         "kclose": {
             "close_date": "Ёпилиш санаси",
             "close_date_today": "Бугун",
