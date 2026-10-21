@@ -304,7 +304,7 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                 {carryIn !== 0 && (
                     <Row
                         className="py-2.5 pr-6"
-                        label={t("trips.kclose.carry_in")}
+                        label={carryIn > 0 ? t("trips.kclose.carry_in_avans") : t("trips.kclose.carry_in_owed")}
                         value={<span className={carryIn > 0 ? "text-green-600" : "text-destructive"}>{carryIn > 0 ? "+" : "−"}{money(Math.abs(carryIn))}</span>}
                     />
                 )}
