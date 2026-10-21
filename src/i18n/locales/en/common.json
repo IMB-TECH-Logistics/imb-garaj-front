@@ -2553,6 +2553,7 @@
         "finish": {
             "closed": "Turnover closed",
             "closed_request_sent": "Turnover closed, request sent to the cashier",
+            "closed_new_trip": "Trip #{{id}} closed, new trip #{{new}} opened",
             "unpaid_salary": "Salary has not been paid for {{count}} trip(s)",
             "min_end_mileage": "End mileage must not be less than {{value}}",
             "remaining_fuel": "Remaining fuel ({{unit}})",
@@ -2564,6 +2565,13 @@
             "finish_and_send": "Finish and send request"
         },
         "kclose": {
+            "close_date": "Closing date",
+            "close_date_today": "Today",
+            "close_date_hint": "If a past date is chosen, the trip is closed on that date and later records move to a new trip",
+            "split_keep": "Stays in this trip ({{from}} – {{to}})",
+            "split_move": "Moves to the new trip ({{from}} –)",
+            "split_empty": "Nothing here",
+            "split_requests": "Pending requests",
             "what_for": "Purpose",
             "advance": "Advance",
             "trip": "Trip",

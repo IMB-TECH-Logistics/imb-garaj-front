@@ -46,6 +46,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         if (isKassaV2) onTabChange?.("kassa")
     }, [isKassaV2])
     const [closing, setClosing] = useState(false)
+    const [closeDate, setCloseDate] = useState("")
     const [unconfirmed, setUnconfirmed] = useState<number | null>(null)
     const [tabState, setTabState] = useState<"info" | "kassa">("info")
     const tab = tabProp ?? tabState
@@ -151,6 +152,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
             const res: any = await postCloseAsync(`checkout/kassa-v2/trips/${tripId}/close`, {
                 salaries: kassa.salaries,
                 expenses: kassa.expenses,
+                ...(closeDate ? { date: closeDate } : {}),
             })
             queryClient.invalidateQueries({
                 predicate: (q) => {
@@ -158,7 +160,8 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
                     return k.startsWith(MANAGERS_TRIPS) || k.includes("cashflow") || k.startsWith("checkout/kassa-v2")
                 },
             })
-            toast.success(res?.status === "yopildi" ? t("trips.finish.closed") : t("trips.finish.closed_request_sent"))
+            if (res?.new_trip) toast.success(t("trips.finish.closed_new_trip", { id: tripId, new: res.new_trip }))
+            else toast.success(res?.status === "yopildi" ? t("trips.finish.closed") : t("trips.finish.closed_request_sent"))
             closeModal()
             reset()
         } catch (e) {
@@ -178,7 +181,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         }
         const formData = new FormData()
         formData.append("end_mileage", String(values.end_mileage))
-        formData.append("end", values.end)
+        formData.append("end", closeDate || values.end)
         formData.append("end_fuel", String(values.end_fuel))
         if (values.end_mileage_image instanceof File) {
             formData.append("end_mileage_image", values.end_mileage_image)
@@ -316,7 +319,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
             )}
             <form onSubmit={handleSubmit((v) => onSubmit(v))} className="space-y-3">
                 {isKassaV2 ? (
-                    <KassaCloseSection tripId={item?.id} onChange={setKassa} tech={techFields} />
+                    <KassaCloseSection tripId={item?.id} onChange={setKassa} tech={techFields} closeDate={closeDate} onCloseDateChange={setCloseDate} />
                 ) : (
                     <div className="space-y-3">{techFields}</div>
                 )}

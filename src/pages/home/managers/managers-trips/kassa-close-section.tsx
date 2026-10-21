@@ -21,6 +21,8 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import i18n from "@/i18n/i18n"
 import PendingAdvances from "./pending-advances"
+import CloseDateField from "./close-date-field"
+import SplitPreview from "./split-preview"
 
 type Expense = { id: number; amount: number; category: number | null; category_name: string | null; comment: string | null; date: string }
 
@@ -90,15 +92,17 @@ const Row = ({ label, value, className }: { label: ReactNode; value: ReactNode; 
 
 const route = (a?: string | null, b?: string | null) => [a, b].filter(Boolean).join(" → ") || "—"
 
-export default function KassaCloseSection({ tripId, onChange, tech }: {
+export default function KassaCloseSection({ tripId, onChange, tech, closeDate, onCloseDateChange }: {
     tripId?: number
     onChange: (s: KassaCloseState) => void
     tech?: ReactNode
+    closeDate?: string
+    onCloseDateChange?: (d: string) => void
 }) {
     const { t } = useTranslation()
     const previewUrl = `checkout/kassa-v2/trips/${tripId}/close-preview`
     const qc = useQueryClient()
-    const { data: preview, isLoading } = useGet<Preview>(previewUrl, { enabled: !!tripId, options: { staleTime: 0, gcTime: 0 } })
+    const { data: preview, isLoading } = useGet<Preview>(previewUrl, { params: { date: closeDate }, enabled: !!tripId, options: { staleTime: 0, gcTime: 0, retry: closeDate ? false : 3 } })
     const { data: categories } = useGet<{ id: number; name: string }[]>("checkout/kassa-v2/expense-categories")
     const { data: flows } = useGet<{ results: FlowRow[] }>(MANAGERS_CASHFLOW, {
         params: { trip: tripId, action: "1,2", driver: true, page_size: 100000 },
@@ -126,8 +130,14 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
             },
         })
 
-    const advances = useMemo(() => (flows?.results ?? []).filter((f) => f.action === 2), [flows])
-    const incomes = useMemo(() => (flows?.results ?? []).filter((f) => f.action === 1), [flows])
+    const keptFlows = useMemo(() => {
+        const all = flows?.results ?? []
+        if (!closeDate) return all
+        const limit = new Date(`${closeDate}T23:59:59+05:00`).getTime()
+        return all.filter((f) => new Date(f.created).getTime() <= limit)
+    }, [flows, closeDate])
+    const advances = useMemo(() => keptFlows.filter((f) => f.action === 2), [keptFlows])
+    const incomes = useMemo(() => keptFlows.filter((f) => f.action === 1), [keptFlows])
     const pendingCount = pendingReqs?.results?.length ?? 0
     const pendingSum = (pendingReqs?.results ?? []).reduce((a, r) => a + Number(r.amount), 0)
 
@@ -235,6 +245,8 @@ export default function KassaCloseSection({ tripId, onChange, tech }: {
 
     return (
         <div className="flex flex-col gap-3">
+            {onCloseDateChange && tripId && <CloseDateField value={closeDate} onChange={onCloseDateChange} />}
+            {closeDate && <SplitPreview tripId={tripId} date={closeDate} />}
             {tech && <section className="rounded-lg border bg-muted/20 p-4 space-y-3">{tech}</section>}
 
             <Accordion type="single" collapsible className="rounded-lg border bg-muted/20 px-4 py-1 divide-y">

@@ -2550,6 +2550,7 @@
         "finish": {
             "closed": "Aylanma yopildi",
             "closed_request_sent": "Aylanma yopildi, so'rov kassirga yuborildi",
+            "closed_new_trip": "Aylanma #{{id}} yopildi, yangi aylanma #{{new}} ochildi",
             "unpaid_salary": "{{count}} ta reys uchun oylik berilmagan",
             "min_end_mileage": "Tugash probegi {{value}} dan kam bo'lmasligi kerak",
             "remaining_fuel": "Qolgan yoqilg'i ({{unit}})",
@@ -2561,6 +2562,13 @@
             "finish_and_send": "Tugatish va so'rov yuborish"
         },
         "kclose": {
+            "close_date": "Yopilish sanasi",
+            "close_date_today": "Bugun",
+            "close_date_hint": "O'tgan sana tanlansa, aylanma shu sanada yopiladi, undan keyingi ishlar yangi aylanmaga o'tadi",
+            "split_keep": "Shu aylanmada qoladi ({{from}} – {{to}})",
+            "split_move": "Yangi aylanmaga o'tadi ({{from}} –)",
+            "split_empty": "Hech narsa yo'q",
+            "split_requests": "Kutilayotgan so'rovlar",
             "what_for": "Nima uchun",
             "advance": "Avans",
             "trip": "Reys",
