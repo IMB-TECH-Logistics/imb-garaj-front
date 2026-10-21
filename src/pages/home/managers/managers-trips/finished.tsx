@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import {
     DRIVERS_OVERVIEW,
     MANAGERS_TRIPS,
-    SETTINGS_DRIVERS,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
@@ -70,11 +69,6 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
     const today = startOfDay(new Date())
     const tripStart = item?.start ? startOfDay(new Date(item.start)) : today
     const minEndDate = tripStart > today ? tripStart : today
-
-    const { data: drivers } = useGet(SETTINGS_DRIVERS, {
-        params: { page_size: 10000 },
-    })
-    void drivers
 
     const driverId = item?.driver
     const tripId = item?.id
