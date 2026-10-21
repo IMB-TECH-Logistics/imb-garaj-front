@@ -1433,6 +1433,8 @@
             "close_turnover_n": "Aylanma #{{id}} yopish",
             "pay_close_out": "Kassa haydovchiga {{amount}} beradi. Shundan keyin aylanma yopiladi.",
             "pay_close_in": "Kassa haydovchidan {{amount}} oladi. Shundan keyin aylanma yopiladi.",
+            "pay_date": "To'lov sanasi",
+            "pay_date_hint": "Bo'sh qolsa bugungi sana; o'tgan sana tanlansa to'lov shu sanada yoziladi",
             "pay_out_text": "Kassadan chiqim qilinadi.",
             "pay_in_text": "Kassaga kirim qilinadi.",
             "received": "Oldim",

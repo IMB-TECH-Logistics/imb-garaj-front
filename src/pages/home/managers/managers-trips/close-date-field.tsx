@@ -5,12 +5,12 @@ import { format, parseISO } from "date-fns"
 import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-export default function CloseDateField({ value, onChange }: { value?: string; onChange: (d: string) => void }) {
+export default function CloseDateField({ value, onChange, label, hint, placeholder }: { value?: string; onChange: (d: string) => void; label?: string; hint?: string; placeholder?: string }) {
     const { t } = useTranslation()
     const today = parseISO(todayIso())
     return (
         <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">{t("trips.kclose.close_date")}</span>
+            <span className="text-sm font-medium">{label ?? t("trips.kclose.close_date")}</span>
             <div className="flex items-center gap-2">
                 <DatePicker
                     fullWidth
@@ -19,7 +19,7 @@ export default function CloseDateField({ value, onChange }: { value?: string; on
                         const v = d ? format(d, "yyyy-MM-dd") : ""
                         onChange(v === todayIso() ? "" : v)
                     }}
-                    placeholder={t("trips.kclose.close_date_today")}
+                    placeholder={placeholder ?? t("trips.kclose.close_date_today")}
                     calendarProps={{ disabled: { after: today } }}
                 />
                 {value && (
@@ -28,7 +28,7 @@ export default function CloseDateField({ value, onChange }: { value?: string; on
                     </Button>
                 )}
             </div>
-            <span className="text-xs text-muted-foreground">{t("trips.kclose.close_date_hint")}</span>
+            <span className="text-xs text-muted-foreground">{hint ?? t("trips.kclose.close_date_hint")}</span>
         </div>
     )
 }

@@ -1436,6 +1436,8 @@
             "close_turnover_n": "Closing turnover #{{id}}",
             "pay_close_out": "The cash desk gives the driver {{amount}}. The turnover is closed afterwards.",
             "pay_close_in": "The cash desk receives {{amount}} from the driver. The turnover is closed afterwards.",
+            "pay_date": "Payment date",
+            "pay_date_hint": "Empty means today; a past date backdates the payment",
             "pay_out_text": "An expense will be recorded from the cash desk.",
             "pay_in_text": "An income will be recorded in the cash desk.",
             "received": "Received",

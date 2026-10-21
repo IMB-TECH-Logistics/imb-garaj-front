@@ -128,6 +128,7 @@ export type KassaRequest = {
     paid_at: string | null
     created: string
     close?: CloseBreakdown | null
+    trip_end?: string | null
     reverse_tx?: number | null
     can_unreject?: boolean
 }

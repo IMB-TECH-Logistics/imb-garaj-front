@@ -10,6 +10,11 @@ import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { ReactNode, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
+import { keepPreviousData } from "@tanstack/react-query"
+import { todayIso } from "@/lib/today-iso"
+import PayDateField from "@/pages/home/managers/managers-trips/pay-date-field"
+import CloseDateField from "@/pages/home/managers/managers-trips/close-date-field"
+import SplitPreview from "@/pages/home/managers/managers-trips/split-preview"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import {
@@ -149,6 +154,11 @@ export const PayModal = ({ request }: { request: KassaRequest | null }) => {
     const { t } = useTranslation()
     const { closeModal } = useModal(M.pay)
     const post = useKassaPost(closeModal)
+    const [payDate, setPayDate] = useState("")
+    useEffect(() => {
+        const end = request?.trip_end?.slice(0, 10)
+        setPayDate(end && end < todayIso() ? end : "")
+    }, [request])
     if (!request) return null
     const out = KIND_DIR[request.kind] === "out"
     return (
@@ -166,12 +176,13 @@ export const PayModal = ({ request }: { request: KassaRequest | null }) => {
                     ? out ? t("fin.kv2.pay_close_out", { amount: `${money(request.amount)} ${t("page.som")}` }) : t("fin.kv2.pay_close_in", { amount: `${money(request.amount)} ${t("page.som")}` })
                     : out ? t("fin.kv2.pay_out_text") : t("fin.kv2.pay_in_text")}
             </p>
+            <PayDateField value={payDate} onChange={setPayDate} />
             <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={closeModal}>{t("actions.cancel")}</Button>
                 <Button
                     className="min-w-32"
                     loading={post.isPending}
-                    onClick={() => post.mutate(`${KV2_REQUESTS}/${request.id}/pay`, {}, { onSuccess: () => toast.success(out ? t("fin.kv2.paid_out_done") : t("fin.kv2.cash_in_done")), onError: onErr })}
+                    onClick={() => post.mutate(`${KV2_REQUESTS}/${request.id}/pay`, payDate ? { date: payDate } : {}, { onSuccess: () => toast.success(out ? t("fin.kv2.paid_out_done") : t("fin.kv2.cash_in_done")), onError: onErr })}
                 >
                     {out ? t("vst.gave") : t("fin.kv2.received")}
                 </Button>
@@ -220,9 +231,12 @@ export const CloseTripModal = ({ trip }: { trip: KassaTrip | null }) => {
     const { t } = useTranslation()
     const { closeModal, isOpen } = useModal(M.close)
     const post = useKassaPost(closeModal)
+    const [closeDate, setCloseDate] = useState("")
+    useEffect(() => { if (!isOpen) setCloseDate("") }, [isOpen])
     const { data: preview } = useGet<ClosePreview>(`${KV2_TRIPS}/${trip?.id}/close-preview`, {
+        params: { date: closeDate },
         enabled: isOpen && !!trip,
-        options: { staleTime: 0, gcTime: 0 },
+        options: { staleTime: 0, gcTime: 0, placeholderData: keepPreviousData },
     })
     const { data: categories } = useGet<{ id: number; name: string }[]>(KV2_CATEGORIES, { enabled: isOpen })
     const [expenses, setExpenses] = useState<ExpenseEdit[]>([])
@@ -254,13 +268,16 @@ export const CloseTripModal = ({ trip }: { trip: KassaTrip | null }) => {
                 e.preventDefault()
                 post.mutate(`${KV2_TRIPS}/${trip.id}/close`, {
                     expenses: expenses.map((x) => ({ id: x.id, amount: x.amount, category: x.category, comment: x.comment })),
+                    ...(closeDate ? { date: closeDate } : {}),
                 }, {
-                    onSuccess: (res: any) => toast.success(res?.status === "yopildi" ? t("fin.kv2.close_toast_direct") : t("fin.kv2.close_toast_sent")),
+                    onSuccess: (res: any) => res?.new_trip ? toast.success(t("trips.finish.closed_new_trip", { id: trip.id, new: res.new_trip })) : toast.success(res?.status === "yopildi" ? t("fin.kv2.close_toast_direct") : t("fin.kv2.close_toast_sent")),
                     onError: onErr,
                 })
             }}
         >
             <p className="text-sm text-muted-foreground">{trip.driver_name} · {trip.plate ?? "—"}</p>
+            <CloseDateField value={closeDate} onChange={setCloseDate} />
+            {closeDate && <SplitPreview tripId={trip.id} date={closeDate} />}
 
             <div className="rounded-lg border">
                 <div className="px-3 py-2 text-sm font-medium border-b">{t("fin.kv2.expenses_check")}</div>
