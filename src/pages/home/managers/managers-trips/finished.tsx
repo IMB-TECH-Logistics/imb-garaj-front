@@ -213,8 +213,8 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
     const techFields = (
         <>
 
-                <div className={cn("grid gap-3 items-start", IS_READY ? "grid-cols-2" : "grid-cols-3")}>
-                    {!IS_READY && (
+                <div className={cn("grid gap-3 items-start", IS_READY || closeDate ? "grid-cols-2" : "grid-cols-3")}>
+                    {!IS_READY && !closeDate && (
                         <FormDatePicker
                             control={control}
                             required
