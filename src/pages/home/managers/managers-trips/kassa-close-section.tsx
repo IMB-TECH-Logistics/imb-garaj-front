@@ -170,7 +170,7 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
     const net = due - salaryTotal - emptyLegAmount - extraPayAmount
     const [settle, setSettle] = useState<number | "">("")
     useEffect(() => { setSettle(Math.abs(Math.round(net))) }, [net])
-    const settleNow = Math.min(Number(settle) || 0, Math.abs(Math.round(net)))
+    const settleNow = net > 0 ? Math.min(Number(settle) || 0, Math.round(net)) : Math.abs(Math.round(net))
     const carryOut = Math.abs(Math.round(net)) - settleNow
     const carryIn = Number(preview?.carry_in ?? 0)
 
@@ -361,10 +361,10 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                 />
             </Accordion>
 
-            {Math.round(net) !== 0 && (
+            {Math.round(net) > 0 && (
                 <section className="rounded-lg border bg-muted/20 p-4 flex flex-col gap-2">
                     <label className="flex flex-col gap-1.5 text-sm font-medium">
-                        {returns ? t("trips.kclose.settle_take") : t("trips.kclose.settle_give")}
+                        {t("trips.kclose.settle_take")}
                         <input
                             type="text"
                             inputMode="numeric"
@@ -380,7 +380,7 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                     {carryOut > 0 && (
                         <Row
                             className="font-medium"
-                            label={returns ? t("trips.kclose.carry_out_debt") : t("trips.kclose.carry_out_owed")}
+                            label={t("trips.kclose.carry_out_debt")}
                             value={<span className="text-orange-600">{money(carryOut)}</span>}
                         />
                     )}
