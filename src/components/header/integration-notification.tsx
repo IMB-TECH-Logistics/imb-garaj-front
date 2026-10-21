@@ -20,7 +20,8 @@ import { toast } from "sonner"
 
 export function IntegrationNotification() {
     const { t } = useTranslation()
-    const isOwner = useWarehouseOwner()
+    const canSeeWarehouse = useHasAction(["warehouse_view", "warehouse_control"])
+    const isOwner = useWarehouseOwner() && canSeeWarehouse
     const hasControl = useHasAction("warehouse_control")
     const navigate = useNavigate()
     const queryClient = useQueryClient()
