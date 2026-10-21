@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils"
 import { ReactNode, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { keepPreviousData } from "@tanstack/react-query"
-import { todayIso } from "@/lib/today-iso"
-import PayDateField from "@/pages/home/managers/managers-trips/pay-date-field"
+import PayDateField, { usePayDate } from "@/pages/home/managers/managers-trips/pay-date-field"
 import CloseDateField from "@/pages/home/managers/managers-trips/close-date-field"
 import SplitPreview from "@/pages/home/managers/managers-trips/split-preview"
 import { toast } from "sonner"
@@ -154,11 +153,7 @@ export const PayModal = ({ request }: { request: KassaRequest | null }) => {
     const { t } = useTranslation()
     const { closeModal } = useModal(M.pay)
     const post = useKassaPost(closeModal)
-    const [payDate, setPayDate] = useState("")
-    useEffect(() => {
-        const end = request?.trip_end?.slice(0, 10)
-        setPayDate(end && end < todayIso() ? end : "")
-    }, [request])
+    const [payDate, setPayDate] = usePayDate(request?.trip_end, request?.id)
     if (!request) return null
     const out = KIND_DIR[request.kind] === "out"
     return (

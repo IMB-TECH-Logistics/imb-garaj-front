@@ -24,6 +24,7 @@ import {
     useKassaRoles,
 } from "./api"
 import { Money, Part } from "./table-cells"
+import PayDateField, { usePayDate } from "@/pages/home/managers/managers-trips/pay-date-field"
 import { KassaRow, tripPeriod } from "./kassa-rows"
 
 export const DETAIL_MODAL = "kassa-v2-close-detail"
@@ -93,6 +94,7 @@ export const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onRe
     const { closeModal } = useModal(DETAIL_MODAL)
     const { mutate: post, isPending } = useKassaPost(closeModal)
     const out = !!q && KIND_DIR[q.kind] === "out"
+    const [payDate, setPayDate] = usePayDate(q?.trip_end ?? c?.trip_end, q?.id)
     return (
         <Modal modalKey={DETAIL_MODAL} title={row?.trip ? t("fin.kv2.close_detail_title", { id: row.trip }) : t("fin.kv2.close_detail_title_plain")} size="max-w-md">
             {c && row && (
@@ -109,7 +111,8 @@ export const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onRe
                         </DetailRow>
                     </div>
                     {q && cashier && (
-                        <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-col gap-3">
+                            <PayDateField value={payDate} onChange={setPayDate} />
                             <div className="flex justify-end gap-2">
                                 <Button
                                     variant="destructive"
@@ -123,7 +126,7 @@ export const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onRe
                                 <Button
                                     className="min-w-32 gap-1"
                                     loading={isPending}
-                                    onClick={() => post(`${KV2_REQUESTS}/${q.id}/pay`, {}, {
+                                    onClick={() => post(`${KV2_REQUESTS}/${q.id}/pay`, payDate ? { date: payDate } : {}, {
                                         onSuccess: () => toast.success(out ? t("fin.kv2.toast_close_paid_out") : t("fin.kv2.toast_close_paid_in")),
                                         onError: (e: unknown) => toast.error(errorText(e)),
                                     })}
