@@ -181,7 +181,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         }
         const formData = new FormData()
         formData.append("end_mileage", String(values.end_mileage))
-        formData.append("end", closeDate || values.end)
+        if (!closeDate) formData.append("end", values.end)
         formData.append("end_fuel", String(values.end_fuel))
         if (values.end_mileage_image instanceof File) {
             formData.append("end_mileage_image", values.end_mileage_image)
