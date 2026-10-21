@@ -47,6 +47,7 @@ type Preview = {
     earned: number
     spent: number
     due: number
+    carry_in?: number
     salary_default: number
     expenses: Expense[]
     salary_orders?: SalaryOrder[]
@@ -61,6 +62,7 @@ type OrderRow = { id: number; loading_name: string; unloading_name: string; date
 export type KassaCloseState = {
     ready: boolean
     amount: number
+    settle: number
     salary: number
     salaries: { order: number; amount: number }[]
     expenses: { id: number; amount: number; category: number | null; comment: string | null }[]
@@ -166,16 +168,22 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
     const salaryTotal = Object.values(salaries).reduce((a, v) => a + (Number(v) || 0), 0)
     const due = preview ? Number(preview.due) : 0
     const net = due - salaryTotal - emptyLegAmount - extraPayAmount
+    const [settle, setSettle] = useState<number | "">("")
+    useEffect(() => { setSettle(Math.abs(Math.round(net))) }, [net])
+    const settleNow = Math.min(Number(settle) || 0, Math.abs(Math.round(net)))
+    const carryOut = Math.abs(Math.round(net)) - settleNow
+    const carryIn = Number(preview?.carry_in ?? 0)
 
     useEffect(() => {
         onChange({
             ready: !!preview,
             amount: net,
+            settle: settleNow,
             salary: salaryTotal + emptyLegAmount + extraPayAmount,
             salaries: Object.entries(salaries).map(([order, value]) => ({ order: Number(order), amount: Number(value) || 0 })),
             expenses: [],
         })
-    }, [preview, net, salaryTotal, emptyLegAmount, extraPayAmount, salaries])
+    }, [preview, net, settleNow, salaryTotal, emptyLegAmount, extraPayAmount, salaries])
 
     const { mutate: patch, isPending: saving } = usePatch({ meta: { skipGlobalError: true } })
     const form = useForm<{ amount: number | ""; category: string; comment: string }>({ defaultValues: { amount: "", category: "", comment: "" } })
@@ -293,6 +301,13 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                         </div>
                     </AccordionContent>
                 </AccordionItem>
+                {carryIn !== 0 && (
+                    <Row
+                        className="py-2.5 pr-6"
+                        label={t("trips.kclose.carry_in")}
+                        value={<span className={carryIn > 0 ? "text-green-600" : "text-destructive"}>{carryIn > 0 ? "+" : "−"}{money(Math.abs(carryIn))}</span>}
+                    />
+                )}
                 <Row className="py-2.5 pr-6" label={t("trips.kclose.driver_holds")} value={<span className="text-blue-600 dark:text-blue-400">{money(due)}</span>} />
                 <AccordionItem value="salaries" className="border-0">
                     <AccordionTrigger className={trigger}>{line(t("trips.kclose.salary"), `−${money(salaryTotal)}`)}</AccordionTrigger>
@@ -345,6 +360,32 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                     value={money(Math.abs(net))}
                 />
             </Accordion>
+
+            {Math.round(net) !== 0 && (
+                <section className="rounded-lg border bg-muted/20 p-4 flex flex-col gap-2">
+                    <label className="flex flex-col gap-1.5 text-sm font-medium">
+                        {returns ? t("trips.kclose.settle_take") : t("trips.kclose.settle_give")}
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            className="h-10 rounded-md border bg-background px-3 text-sm font-normal tabular-nums"
+                            value={settle === "" ? "" : money(Number(settle))}
+                            onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, "")
+                                setSettle(raw === "" ? "" : Math.min(Number(raw), Math.abs(Math.round(net))))
+                            }}
+                        />
+                    </label>
+                    <p className="text-xs text-muted-foreground">{t("trips.kclose.settle_hint", { max: money(Math.abs(net)) })}</p>
+                    {carryOut > 0 && (
+                        <Row
+                            className="font-medium"
+                            label={returns ? t("trips.kclose.carry_out_debt") : t("trips.kclose.carry_out_owed")}
+                            value={<span className="text-orange-600">{money(carryOut)}</span>}
+                        />
+                    )}
+                </section>
+            )}
 
             <Modal modalKey={EDIT_MODAL} title={t("trips.kclose.edit_expense")} size="max-w-md">
                 <form

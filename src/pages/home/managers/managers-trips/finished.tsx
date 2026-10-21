@@ -152,6 +152,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
             const res: any = await postCloseAsync(`checkout/kassa-v2/trips/${tripId}/close`, {
                 salaries: kassa.salaries,
                 expenses: kassa.expenses,
+                settle: kassa.settle,
                 ...(closeDate ? { date: closeDate } : {}),
             })
             queryClient.invalidateQueries({
@@ -342,7 +343,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
 
                 <div className="flex justify-end">
                     <Button loading={closing} disabled={!canFinish}>
-                        {isKassaV2 ? (kassa?.amount ? t("trips.finish.finish_and_send") : t("actions.finish")) : t("actions.save")}
+                        {isKassaV2 ? (kassa?.settle ? t("trips.finish.finish_and_send") : t("actions.finish")) : t("actions.save")}
                     </Button>
                 </div>
             </form>

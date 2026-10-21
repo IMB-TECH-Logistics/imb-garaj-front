@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { MANAGERS_TRIPS } from "@/constants/api-endpoints"
-import { useHasAction } from "@/constants/useUser"
+import { useHasAction, useUser } from "@/constants/useUser"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney, formatNumber } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
@@ -29,6 +29,9 @@ export const useColumnsManagersTrips = (opts?: {
     const { t } = useTranslation()
     const { onMoliya, onEdit, onDelete } = opts || {}
     const hasControl = useHasAction("manager_vehicles_control")
+    const { data: me } = useUser()
+    const canCloseTrip = useHasAction("kassa_trip_close_control")
+    const canFinish = hasControl && (!(me?.kassa_mode === "driver_cash" && me?.kassa_version === 2) || canCloseTrip)
     const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { setData } = useGlobalStore()
     const handleFinished = (item: ManagerTrips) => {
@@ -185,7 +188,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: " ",
                 cell: ({ row }) => (
                     <div className="flex items-center justify-end gap-2 py-2">
-                        {hasControl && !row.original.end && (
+                        {canFinish && !row.original.end && (
                             <Button
                                 size="sm"
                                 className="bg-green-500/10 text-green-600 hover:bg-green-500/15"
@@ -237,6 +240,6 @@ export const useColumnsManagersTrips = (opts?: {
                 ),
             },
         ],
-        [onMoliya, onEdit, onDelete, t],
+        [onMoliya, onEdit, onDelete, t, canFinish, hasControl],
     )
 }
