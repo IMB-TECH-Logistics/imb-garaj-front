@@ -2579,7 +2579,6 @@
             "carry_out_debt": "Carried to next cycle as advance",
             "close_date": "Closing date",
             "close_date_today": "Today",
-            "close_date_hint": "If a past date is chosen, the trip is closed on that date and later records move to a new trip",
             "split_keep": "Stays in this trip ({{from}} – {{to}})",
             "split_move": "Moves to the new trip ({{from}} –)",
             "split_empty": "Nothing here",

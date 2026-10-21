@@ -2576,7 +2576,6 @@
             "carry_out_debt": "Keyingi aylanmaga avans bo'lib o'tadi",
             "close_date": "Yopilish sanasi",
             "close_date_today": "Bugun",
-            "close_date_hint": "O'tgan sana tanlansa, aylanma shu sanada yopiladi, undan keyingi ishlar yangi aylanmaga o'tadi",
             "split_keep": "Shu aylanmada qoladi ({{from}} – {{to}})",
             "split_move": "Yangi aylanmaga o'tadi ({{from}} –)",
             "split_empty": "Hech narsa yo'q",

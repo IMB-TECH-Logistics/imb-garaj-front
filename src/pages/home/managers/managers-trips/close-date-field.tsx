@@ -28,7 +28,7 @@ export default function CloseDateField({ value, onChange, label, hint, placehold
                     </Button>
                 )}
             </div>
-            <span className="text-xs text-muted-foreground">{hint ?? t("trips.kclose.close_date_hint")}</span>
+            {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
         </div>
     )
 }
