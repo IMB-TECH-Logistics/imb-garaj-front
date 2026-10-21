@@ -17,8 +17,6 @@
   "kassa_payment_requests_view",
   "kassa_trip_close_control",
   "kassa_trip_close_edit_control",
-  "kassa_trip_close_edit_view",
-  "kassa_trip_close_view",
   "logs_view",
   "manager_cashflow_approve_control",
   "manager_cashflow_approve_view",
