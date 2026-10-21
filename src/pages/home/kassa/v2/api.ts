@@ -129,6 +129,7 @@ export type KassaRequest = {
     created: string
     close?: CloseBreakdown | null
     trip_end?: string | null
+    can_manage?: boolean
     reverse_tx?: number | null
     can_unreject?: boolean
 }
@@ -209,8 +210,7 @@ export const usePeriod = () => {
 
 export const useKassaRoles = () => {
     const cashier = useHasAction("kassa_cashier_control" as never)
-    const operator = useHasAction("kassa_operator_control" as never)
-    return { cashier, operator }
+    return { cashier }
 }
 
 export const useRefreshKassa = () => {

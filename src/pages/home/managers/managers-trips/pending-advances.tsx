@@ -44,7 +44,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
     const { t } = useTranslation()
     const { data: user } = useUser()
     const isV2 = user?.kassa_mode === "driver_cash" && user?.kassa_version === 2
-    const canEdit = useHasAction("kassa_operator_control" as never)
+    const canEdit = useHasAction("manager_cashflow_control" as never)
     const qc = useQueryClient()
     const [selected, setSelected] = useState<AdvanceRequest | null>(null)
     const edit = useModal("kv2-advance-edit")

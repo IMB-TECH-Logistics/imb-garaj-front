@@ -32,7 +32,7 @@ const TABS: [View, string][] = [["trips", "fin.kv2.tab_trips"], ["kassa", "fin.k
 
 const KassaV2 = () => {
     const { t } = useTranslation()
-    const { cashier, operator } = useKassaRoles()
+    const { cashier } = useKassaRoles()
     const period = usePeriod()
     const { from_date } = period
     const { data: tripsData } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })

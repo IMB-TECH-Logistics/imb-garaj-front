@@ -28,7 +28,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
     actions?: ReactNode
 }) => {
     const { t } = useTranslation()
-    const { cashier, operator } = useKassaRoles()
+    const { cashier } = useKassaRoles()
     const [status, setStatus] = useState("all")
     const params = { ...usePaging(), status: status === "all" ? undefined : status }
     const { data, isLoading } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params })
@@ -94,12 +94,12 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                                     <X size={16} />
                                     {t("kassa.reject")}
                                 </Button>
-                                {operator && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />}
+                                {r.can_manage && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />}
                             </div>
                         </div>
                     )
                 }
-                if (r.status === STATUS.PENDING && operator)
+                if (r.status === STATUS.PENDING && r.can_manage)
                     return (
                         <div className="flex items-center gap-2 justify-end">
                             <Badge variant="orange" className="w-fit whitespace-nowrap">{t("status.pending")}</Badge>
@@ -112,7 +112,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                         <Badge variant={variant} className="w-fit whitespace-nowrap">{label ? t(label) : "—"}</Badge>
                         {r.paid_at && r.status !== STATUS.PENDING && <span className="text-xs text-muted-foreground whitespace-nowrap">{fmtDate(r.paid_at)}</span>}
                         {r.status === STATUS.REJECTED && r.rejected_comment && <span className="text-xs text-muted-foreground max-w-56 text-right">{r.rejected_comment}</span>}
-                        {r.status === STATUS.REJECTED && operator && (
+                        {r.status === STATUS.REJECTED && r.can_manage && (
                             <div className="flex items-center gap-2 mt-1">
                                 <Button
                                     size="sm"
