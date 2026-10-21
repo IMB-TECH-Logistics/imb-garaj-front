@@ -19,6 +19,7 @@ type ManagerVehicles = {
 type ImageField = File | string | null
 
 interface ManagerTrips {
+    cash_close_status?: number | null
     income_uzs: string
     pending_order_count: string
     completed_order_count: number

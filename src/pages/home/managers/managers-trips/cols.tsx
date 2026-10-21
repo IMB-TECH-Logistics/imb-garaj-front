@@ -31,6 +31,7 @@ export const useColumnsManagersTrips = (opts?: {
     const hasControl = useHasAction("manager_vehicles_control")
     const { data: me } = useUser()
     const canCloseTrip = useHasAction("kassa_trip_close_control")
+    const canEditClosed = useHasAction("kassa_trip_close_edit_control")
     const canFinish = hasControl && (!(me?.kassa_mode === "driver_cash" && me?.kassa_version === 2) || canCloseTrip)
     const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { setData } = useGlobalStore()
@@ -214,7 +215,7 @@ export const useColumnsManagersTrips = (opts?: {
                         </Button>
                         {hasControl && (
                             <>
-                                <Button
+                                {(row.original.cash_close_status !== 20 || canEditClosed) && <Button
                                     icon={<SquarePen className="text-primary" size={16} />}
                                     size="sm"
                                     className="p-0 h-3"
@@ -223,8 +224,8 @@ export const useColumnsManagersTrips = (opts?: {
                                         e.stopPropagation()
                                         onEdit?.(row.original)
                                     }}
-                                />
-                                <Button
+                                />}
+                                {row.original.cash_close_status == null && <Button
                                     icon={<Trash2 className="text-red-500" size={16} />}
                                     size="sm"
                                     className="p-0 h-3"
@@ -233,13 +234,13 @@ export const useColumnsManagersTrips = (opts?: {
                                         e.stopPropagation()
                                         onDelete?.(row.original)
                                     }}
-                                />
+                                />}
                             </>
                         )}
                     </div>
                 ),
             },
         ],
-        [onMoliya, onEdit, onDelete, t, canFinish, hasControl],
+        [onMoliya, onEdit, onDelete, t, canFinish, hasControl, canEditClosed],
     )
 }
