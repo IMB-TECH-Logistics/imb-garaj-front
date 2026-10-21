@@ -108,7 +108,6 @@ export const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onRe
                             <Money v={row.amount} dir={row.dir} />
                         </DetailRow>
                     </div>
-                    {row.trip && <TripExpenses trip={row.trip} />}
                     {q && cashier && (
                         <div className="flex flex-col gap-1.5">
                             <div className="flex justify-end gap-2">
