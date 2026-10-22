@@ -2513,6 +2513,7 @@
             "no_location": "Location not set",
             "to_loading": "To loading",
             "to_road": "To departure",
+            "parking": "Parking",
             "to_unloading": "To unloading",
             "fuel": "Fuel"
         },

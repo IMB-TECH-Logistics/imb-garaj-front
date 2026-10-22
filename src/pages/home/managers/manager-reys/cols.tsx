@@ -423,7 +423,13 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "in_transit_time",
                 header: t("trips.reys_cols.to_road"),
                 size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time)}</span>,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time, row.original.parking_minutes ?? 0)}</span>,
+            },
+            {
+                accessorKey: "parking_minutes",
+                header: t("trips.reys_cols.parking"),
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{row.original.parking_minutes ? formatMinutes(row.original.parking_minutes) : "-"}</span>,
             },
             {
                 accessorKey: "unloading_time",
@@ -466,14 +472,17 @@ const legsOf = (r: ManagerOrders): EmptyLeg[] => {
 
 const startOf = (r: ManagerOrders) => (r as any).__start ?? r.loading_time ?? r.pending_time
 
-const formatDuration = (start?: string, end?: string) => {
+const formatDuration = (start?: string, end?: string, minusMinutes = 0) => {
     if (!start || !end) return "-"
 
     const ms = new Date(end).getTime() - new Date(start).getTime()
 
     if (isNaN(ms) || ms < 0) return "-"
 
-    const totalMinutes = Math.floor(ms / 60000)
+    return formatMinutes(Math.max(0, Math.floor(ms / 60000) - minusMinutes))
+}
+
+const formatMinutes = (totalMinutes: number) => {
     const days = Math.floor(totalMinutes / 1440)
     const hours = Math.floor((totalMinutes % 1440) / 60)
     const minutes = totalMinutes % 60

@@ -82,6 +82,7 @@ type ManagerOrders = {
     in_transit_time: string
     unloading_time: string
     completed_time: string
+    parking_minutes?: number | null
     canceled_time: string
     logistics_canceled_at?: string | null
     archived_time: string

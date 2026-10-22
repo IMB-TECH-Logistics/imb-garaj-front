@@ -2510,6 +2510,7 @@
             "no_location": "Lokatsiya kiritilmagan",
             "to_loading": "Yuklashga",
             "to_road": "Yo'lga",
+            "parking": "Parking",
             "to_unloading": "Tushirishga",
             "fuel": "Yoqilg'i"
         },
