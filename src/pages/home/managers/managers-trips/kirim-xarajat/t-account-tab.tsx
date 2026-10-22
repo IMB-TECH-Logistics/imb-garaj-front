@@ -20,6 +20,7 @@ import MoveItemButton from "../move-item-button"
 import { ADVANCE_ACTION, ADVANCE_DELETE_MODAL, ADVANCE_EDIT_MODAL, ADVANCE_RETURN_MODAL, AdvanceChangeModals, AdvanceReturnModal, RowMarks, SALARY_REQUEST_MODAL, SalaryRequestModal } from "../row-extras"
 import { useUser } from "@/constants/useUser"
 import { useTranslation } from "react-i18next"
+import { useTripCashClosed } from "../use-trip-cash-closed"
 import { FinanceRow, uzsOf, formatAmount } from "./types"
 import { AddFinanceForm } from "./add-finance-form"
 import { useIncomeCols, noReceiptRow, ReceiptCell, useExpenseCols } from "./columns"
@@ -32,6 +33,8 @@ import { AddFromTAccount } from "./add-from-t-account"
 
 export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number; hideToggle?: boolean }) {
     const { t } = useTranslation()
+    const locked = useTripCashClosed(tripId)
+    const lockedTitle = locked ? t("trips.reys_cols.trip_locked") : undefined
     const { openModal: openAvansModal } = useModal("avans-berish")
     const { setData } = useGlobalStore()
     const { data: me } = useUser()
@@ -228,7 +231,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                 {row.original.return_status === 20 ? t("trips.row.returned") : row.original.return_status === -10 ? t("trips.row.rejected") : t("trips.row.awaiting_cashier")}
                             </Badge>
                         :   <RowMarks row={row.original} />}
-                        {isKassaV2 && !row.original.return_id && <MoveItemButton tripId={tripId} kind="cashflow" id={row.original.id} locked={!closePreview} />}
+                        {isKassaV2 && !row.original.return_id && <MoveItemButton tripId={tripId} kind="cashflow" id={row.original.id} locked={!closePreview || locked} />}
                     </div>
                 ),
             },
@@ -283,6 +286,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                     </div>
                     {mode === "haydovchi" && !hideToggle && (
                         <Button
+                            disabled={locked}
+                            title={lockedTitle}
                             onClick={() => openAvansModal()}
                             variant="outline"
                             className="gap-1.5 shrink-0"
@@ -340,6 +345,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                     rowColor={noReceiptRow}
                                     numeration
                                     viewAll
+                                    actionsDisabled={locked}
+                                    actionsDisabledTitle={lockedTitle}
                                     onEdit={({ original }) => startEdit(original)}
                                     onDelete={({ original }) => deleteRow(original)}
                                     head={
@@ -349,7 +356,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                                 {sel.comment?.toLowerCase().includes("qo'shimcha") ? t("trips.kirim.extra_money") : t("trips.kclose.advance")} · {formatDateTime(sel.created)} ✕
                                             </Badge>
                                             <div className="ml-auto flex items-center gap-2">
-                                                <Button size="sm" variant="outline" className="gap-1" onClick={() => openReturn()}>
+                                                <Button size="sm" variant="outline" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openReturn()}>
                                                     {t("trips.kirim.return_remainder")}
                                                 </Button>
                                             </div>
@@ -368,6 +375,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                 data={advances}
                                 numeration
                                 viewAll
+                                actionsDisabled={locked}
+                                actionsDisabledTitle={lockedTitle}
                                 onEdit={({ original }) => startEdit(original)}
                                 onDelete={({ original }) => deleteRow(original)}
                                 head={
@@ -376,7 +385,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                             <h1 className="text-lg font-semibold">{t("trips.kirim.advances")}</h1>
                                             <Badge className="text-sm">{advances.length}</Badge>
                                             <div className="ml-auto">
-                                                <Button size="sm" className="gap-1" onClick={() => openAvansModal()}><Plus size={16} />{t("actions.give_advance")}</Button>
+                                                <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openAvansModal()}><Plus size={16} />{t("actions.give_advance")}</Button>
                                             </div>
                                         </div>
                                         <PendingAdvances tripId={tripId} />
@@ -394,12 +403,12 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 const title = { tushum: t("trips.kclose.cash_trip_money"), avans: t("trips.kirim.advance_and_expenses"), xarajat: t("trips.kirim.cash_expense"), zapravka: t("trips.kirim.fuel_transfer"), oylik: t("trips.kclose.salary") }[filter]
                 const actions =
                     filter === "tushum" ?
-                        <Button size="sm" className="gap-1" onClick={() => startAdd("tushum")}><Plus size={16} />{t("page.add_income")}</Button>
+                        <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("tushum")}><Plus size={16} />{t("page.add_income")}</Button>
                     : filter === "zapravka" ?
-                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
+                        <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
                     : filter === "xarajat" ?
-                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />{t("page.add_expense")}</Button>
-                    :   <Button size="sm" className="gap-1" onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.request_salary")}</Button>
+                        <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />{t("page.add_expense")}</Button>
+                    :   <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.request_salary")}</Button>
                 return (
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <DataTable
@@ -408,6 +417,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                             rowColor={noReceiptRow}
                             numeration
                             viewAll
+                            actionsDisabled={locked}
+                            actionsDisabledTitle={lockedTitle}
                             onEdit={({ original }) => startEdit(original)}
                             onDelete={({ original }) => {
                                 if (original.action === ADVANCE_ACTION) {
@@ -464,13 +475,15 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                             }
                             handleDeleteIncome(original)
                         }}
+                        actionsDisabled={locked}
+                        actionsDisabledTitle={lockedTitle}
                         onEdit={({ original }) => startEdit(original)}
                         head={
                             <>
                                 <div className="flex mb-3 items-center gap-3">
                                     <h1 className="text-xl text-green-600">{t("form.income")}</h1>
                                     <Badge className="text-sm">{incomeRows.length}</Badge>
-                                    <Button size="sm" className="ml-auto gap-1" onClick={() => startAdd("tushum")}>
+                                    <Button size="sm" className="ml-auto gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("tushum")}>
                                         <Plus size={16} />
                                         {t("page.add_income")}
                                     </Button>
@@ -488,12 +501,14 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                         numeration
                         viewAll
                         onDelete={({ original }) => handleDeleteExpense(original)}
+                        actionsDisabled={locked}
+                        actionsDisabledTitle={lockedTitle}
                         onEdit={({ original }) => startEdit(original)}
                         head={
                             <div className="flex mb-3 items-center gap-3">
                                 <h1 className="text-xl text-red-600">{t("form.expense")}</h1>
                                 <Badge className="text-sm">{expenseRows.length}</Badge>
-                                <Button size="sm" className="ml-auto gap-1" onClick={() => startAdd("xarajat")}>
+                                <Button size="sm" className="ml-auto gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat")}>
                                     <Plus size={16} />
                                     {t("page.add_expense")}
                                 </Button>

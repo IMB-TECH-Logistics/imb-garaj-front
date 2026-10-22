@@ -47,6 +47,7 @@ export default function ManagerReys() {
         vehicle?: number
         pending_advance?: number | null
         rejected_advance?: { amount: number; reason: string | null } | null
+        cash_closed?: boolean
     }>(`${MANAGERS_TRIPS}/${tripId}`, {
         enabled: !!tripId && !name,
         options: { retry: false },
@@ -82,6 +83,8 @@ export default function ManagerReys() {
         },
     })
     const hasControl = useHasAction("manager_vehicles_control")
+    const locked = !!trip?.cash_closed
+    const lockedTitle = locked ? t("trips.reys_cols.trip_locked") : undefined
     const [approveOrder, setApproveOrder] = useState<ManagerOrders | null>(null)
     const { openModal: openApproveModal } = useModal(APPROVE_TRIP_MODAL_KEY)
 
@@ -235,6 +238,8 @@ export default function ManagerReys() {
                     paramName: "page",
                     pageSizeParamName: "page_size",
                 }}
+                actionsDisabled={locked}
+                actionsDisabledTitle={lockedTitle}
                 onDelete={hasControl ? (row) => handleDelete(row.original) : undefined}
                 onEdit={hasControl ? (row) => handleEdit(row.original) : undefined}
                 rowAction={
@@ -245,7 +250,8 @@ export default function ManagerReys() {
                                       size="sm"
                                       variant="ghost"
                                       className="h-3 p-0"
-                                      title={t("reys_confirm.approve")}
+                                      title={lockedTitle ?? t("reys_confirm.approve")}
+                                      disabled={locked}
                                       icon={<Check className="text-green-600" size={16} />}
                                       onClick={(e) => {
                                           e.stopPropagation()
@@ -266,7 +272,7 @@ export default function ManagerReys() {
                             <ReysFilters
                                 trailing={
                                     hasControl && tripId ? (
-                                        <Button onClick={handleAdd}>
+                                        <Button disabled={locked} title={lockedTitle} onClick={handleAdd}>
                                             <Plus size={16} />
                                             {t("actions.add")}
                                         </Button>

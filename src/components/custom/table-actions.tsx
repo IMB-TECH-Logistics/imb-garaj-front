@@ -27,6 +27,8 @@ type Props = {
     onRedo?: () => void
     onFinished?: () => void
     className?: string
+    disabled?: boolean
+    disabledTitle?: string
 }
 
 export default function TableActions({
@@ -38,6 +40,8 @@ export default function TableActions({
     onRedo,
     onFinished,
     className,
+    disabled = false,
+    disabledTitle,
 }: Props) {
     const { t } = useTranslation()
     return menuMode ?
@@ -66,6 +70,8 @@ export default function TableActions({
                     )}
                     {onEdit && (
                         <DropdownMenuItem
+                            disabled={disabled}
+                            title={disabled ? disabledTitle : undefined}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onEdit()
@@ -78,6 +84,8 @@ export default function TableActions({
                     )}
                     {onDelete && (
                         <DropdownMenuItem
+                            disabled={disabled}
+                            title={disabled ? disabledTitle : undefined}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onDelete()
@@ -157,30 +165,36 @@ export default function TableActions({
                     ></Button>
                 )}
                 {onEdit && (
-                    <Button
-                        aria-label={t("actions.edit")}
-                        icon={<SquarePen className="text-primary" size={16} />}
-                        size="sm"
-                        className="p-0 h-3"
-                        variant="ghost"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onEdit()
-                        }}
-                    ></Button>
+                    <span title={disabled ? disabledTitle : undefined} className="inline-flex" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                            aria-label={t("actions.edit")}
+                            icon={<SquarePen className="text-primary" size={16} />}
+                            size="sm"
+                            className="p-0 h-3"
+                            variant="ghost"
+                            disabled={disabled}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onEdit()
+                            }}
+                        ></Button>
+                    </span>
                 )}
                 {onDelete && (
-                    <Button
-                        aria-label={t("actions.delete")}
-                        icon={<Trash2 className="text-red-500" size={16} />}
-                        size="sm"
-                        className="p-0 h-3"
-                        variant="ghost"
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            onDelete()
-                        }}
-                    ></Button>
+                    <span title={disabled ? disabledTitle : undefined} className="inline-flex" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                            aria-label={t("actions.delete")}
+                            icon={<Trash2 className="text-red-500" size={16} />}
+                            size="sm"
+                            className="p-0 h-3"
+                            variant="ghost"
+                            disabled={disabled}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onDelete()
+                            }}
+                        ></Button>
+                    </span>
                 )}
                 {onUndo && (
                     <Button

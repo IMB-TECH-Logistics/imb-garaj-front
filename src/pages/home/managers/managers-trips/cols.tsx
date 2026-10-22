@@ -31,7 +31,6 @@ export const useColumnsManagersTrips = (opts?: {
     const hasControl = useHasAction("manager_vehicles_control")
     const { data: me } = useUser()
     const canCloseTrip = useHasAction("kassa_trip_close_control")
-    const canEditClosed = useHasAction("kassa_trip_close_edit_control")
     const canFinish = hasControl && (!(me?.kassa_mode === "driver_cash" && me?.kassa_version === 2) || canCloseTrip)
     const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { setData } = useGlobalStore()
@@ -215,32 +214,46 @@ export const useColumnsManagersTrips = (opts?: {
                         </Button>
                         {hasControl && (
                             <>
-                                {(row.original.cash_close_status !== 20 || canEditClosed) && <Button
-                                    icon={<SquarePen className="text-primary" size={16} />}
-                                    size="sm"
-                                    className="p-0 h-3"
-                                    variant="ghost"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onEdit?.(row.original)
-                                    }}
-                                />}
-                                {row.original.cash_close_status == null && <Button
-                                    icon={<Trash2 className="text-red-500" size={16} />}
-                                    size="sm"
-                                    className="p-0 h-3"
-                                    variant="ghost"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        onDelete?.(row.original)
-                                    }}
-                                />}
+                                <span
+                                    className="inline-flex"
+                                    onClick={(e) => e.stopPropagation()}
+                                    title={row.original.cash_close_status === 20 ? t("trips.reys_cols.trip_locked") : undefined}
+                                >
+                                    <Button
+                                        icon={<SquarePen className="text-primary" size={16} />}
+                                        size="sm"
+                                        className="p-0 h-3"
+                                        variant="ghost"
+                                        disabled={row.original.cash_close_status === 20}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            onEdit?.(row.original)
+                                        }}
+                                    />
+                                </span>
+                                <span
+                                    className="inline-flex"
+                                    onClick={(e) => e.stopPropagation()}
+                                    title={row.original.cash_close_status != null ? t("trips.reys_cols.trip_locked") : undefined}
+                                >
+                                    <Button
+                                        icon={<Trash2 className="text-red-500" size={16} />}
+                                        size="sm"
+                                        className="p-0 h-3"
+                                        variant="ghost"
+                                        disabled={row.original.cash_close_status != null}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            onDelete?.(row.original)
+                                        }}
+                                    />
+                                </span>
                             </>
                         )}
                     </div>
                 ),
             },
         ],
-        [onMoliya, onEdit, onDelete, t, canFinish, hasControl, canEditClosed],
+        [onMoliya, onEdit, onDelete, t, canFinish, hasControl],
     )
 }

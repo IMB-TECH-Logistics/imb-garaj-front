@@ -10,6 +10,7 @@ import { useGet } from "@/hooks/useGet"
 import { useGlobalStore } from "@/store/global-store"
 import { MANAGERS_CASHFLOW, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES } from "@/constants/api-endpoints"
 import { useTranslation } from "react-i18next"
+import { useTripCashClosed } from "../use-trip-cash-closed"
 import { FinanceRow, Category } from "./types"
 import { CategoryTabs } from "./category-tabs"
 import { AddCategoryForm } from "./add-category-form"
@@ -17,6 +18,8 @@ import { noReceiptRow, useExpenseCols } from "./columns"
 
 export function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { tripId?: number; onCategoryChange: (name: string | null) => void; onCategoryIdChange: (id: number | null) => void }) {
     const { t } = useTranslation()
+    const locked = useTripCashClosed(tripId)
+    const lockedTitle = locked ? t("trips.reys_cols.trip_locked") : undefined
     const { setData, clearKey } = useGlobalStore()
     const { openModal } = useModal("kirim-xarajat-add")
     const { openModal: openDeleteModal } = useModal(`${MANAGERS_EXPENSES}-xarajat-delete`)
@@ -87,6 +90,8 @@ export function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { t
                     numeration
                     viewAll
                     onDelete={({ original }) => handleDelete(original)}
+                    actionsDisabled={locked}
+                    actionsDisabledTitle={lockedTitle}
                     onEdit={({ original }) => { setData(MANAGERS_EXPENSES, original); openModal() }}
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
@@ -94,7 +99,7 @@ export function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { t
                                 <h1 className="text-xl">{t("page.expense_history")}</h1>
                                 <Badge className="text-sm">{rows.length}</Badge>
                             </div>
-                            <Button onClick={handleAdd}>
+                            <Button disabled={locked} title={lockedTitle} onClick={handleAdd}>
                                 <Plus size={18} />
                                 {t("page.add_expense")}
                             </Button>

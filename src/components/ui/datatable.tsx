@@ -50,6 +50,8 @@ interface DataTableProps<TData> {
     disabled?: boolean
     rowColor?: (data: TData) => string
     isRowLocked?: (data: TData) => boolean
+    actionsDisabled?: boolean
+    actionsDisabledTitle?: string
     paginationProps?: PaginationProps
     cursorPagination?: {
         next: string | null | undefined
@@ -107,6 +109,8 @@ export function DataTable<TData>({
     disabled,
     rowColor,
     isRowLocked,
+    actionsDisabled,
+    actionsDisabledTitle,
     paginationProps,
     cursorPagination,
     limitOffsetPagination,
@@ -182,6 +186,8 @@ export function DataTable<TData>({
                             {rowAction?.(row.original)}
                             <TableActions
                                 menuMode={actionMenuMode}
+                                disabled={actionsDisabled}
+                                disabledTitle={actionsDisabledTitle}
                                 onDelete={
                                     onDelete ? () => onDelete?.(row) : undefined
                                 }
@@ -219,6 +225,8 @@ export function DataTable<TData>({
         rowAction,
         canUseActions,
         isRowLocked,
+        actionsDisabled,
+        actionsDisabledTitle,
     ])
 
     React.useEffect(() => {
