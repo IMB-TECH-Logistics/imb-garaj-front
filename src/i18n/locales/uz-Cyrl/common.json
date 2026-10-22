@@ -880,6 +880,7 @@
             "err_price": "Бирлик нархини киритинг",
             "saved": "Кирим сақланди",
             "factory_numbers": "Завод рақамлари",
+            "factory_auto_hint": "Бўш қолдирилса, тизим ўзи рақам беради",
             "err_factory_empty": "Барча завод рақамларини киритинг",
             "err_factory_dup": "Завод рақамлари такрорланмаслиги керак"
         },
@@ -924,6 +925,15 @@
         },
         "serialized_yes": "Индексли",
         "serialized_label": "Ҳар бир дона завод рақами билан",
+        "serialize": "Рақамли қилиш",
+        "serialize_hint": "Қолдиқдаги {{count}} дона ҳар бири алоҳида рақам олади (масалан SH-0001…)",
+        "serialize_done": "{{count}} та рақам берилди",
+        "serialize_copy": "Нусха олиш",
+        "serialize_print": "Чоп этиш",
+        "serialize_copied": "Нусха олинди",
+        "serialize_km_limit": "Км лимити (балон учун)",
+        "serial_prefix": "Рақам префикси",
+        "serial_prefix_example": "Масалан: SH",
         "factory_number": "Завод рақами",
         "items": {
             "title": "Индексли маҳсулотлар",

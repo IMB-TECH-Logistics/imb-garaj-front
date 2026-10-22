@@ -79,7 +79,7 @@ const serialCount = (quantity: string) =>
 const cleanNumbers = (line: LineValues) =>
     Array.from({ length: serialCount(line.quantity) }, (_, i) =>
         (line.factory_numbers?.[i] ?? "").trim(),
-    )
+    ).filter(Boolean)
 
 type CardProps = {
     index: number
@@ -193,6 +193,9 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                 <div className="rounded-md bg-muted/60 p-2.5">
                     <div className="text-xs font-medium text-muted-foreground mb-2">
                         {t("wh.receipt.factory_numbers")}
+                        <span className="ml-2 font-normal">
+                            {t("wh.receipt.factory_auto_hint")}
+                        </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {Array.from({ length: count }, (_, i) => (
@@ -270,7 +273,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         const numbers = lines.flatMap((l) =>
             serializedOf(l.product) && !l.lot ? cleanNumbers(l) : [],
         )
-        if (numbers.some((n) => !n)) return t("wh.receipt.err_factory_empty")
+
         if (new Set(numbers).size !== numbers.length) {
             return t("wh.receipt.err_factory_dup")
         }

@@ -880,6 +880,7 @@
             "err_price": "Birlik narxini kiriting",
             "saved": "Kirim saqlandi",
             "factory_numbers": "Zavod raqamlari",
+            "factory_auto_hint": "Bo'sh qoldirilsa, tizim o'zi raqam beradi",
             "err_factory_empty": "Barcha zavod raqamlarini kiriting",
             "err_factory_dup": "Zavod raqamlari takrorlanmasligi kerak"
         },
@@ -924,6 +925,15 @@
         },
         "serialized_yes": "Indeksli",
         "serialized_label": "Har bir dona zavod raqami bilan",
+        "serialize": "Raqamli qilish",
+        "serialize_hint": "Qoldiqdagi {{count}} dona har biri alohida raqam oladi (masalan SH-0001…)",
+        "serialize_done": "{{count}} ta raqam berildi",
+        "serialize_copy": "Nusxa olish",
+        "serialize_print": "Chop etish",
+        "serialize_copied": "Nusxa olindi",
+        "serialize_km_limit": "Km limiti (balon uchun)",
+        "serial_prefix": "Raqam prefiksi",
+        "serial_prefix_example": "Masalan: SH",
         "factory_number": "Zavod raqami",
         "items": {
             "title": "Indeksli mahsulotlar",

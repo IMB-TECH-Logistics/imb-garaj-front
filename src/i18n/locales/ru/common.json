@@ -889,6 +889,7 @@
             "err_price": "Укажите цену за единицу",
             "saved": "Приход сохранён",
             "factory_numbers": "Заводские номера",
+            "factory_auto_hint": "Если оставить пустым, система присвоит номер сама",
             "err_factory_empty": "Введите все заводские номера",
             "err_factory_dup": "Заводские номера не должны повторяться"
         },
@@ -933,6 +934,15 @@
         },
         "serialized_yes": "Индексируемый",
         "serialized_label": "Каждая единица с заводским номером",
+        "serialize": "Сделать номерным",
+        "serialize_hint": "Каждая из {{count}} единиц на складе получит отдельный номер (например SH-0001…)",
+        "serialize_done": "Присвоено номеров: {{count}}",
+        "serialize_copy": "Копировать",
+        "serialize_print": "Печать",
+        "serialize_copied": "Скопировано",
+        "serialize_km_limit": "Лимит км (для шин)",
+        "serial_prefix": "Префикс номера",
+        "serial_prefix_example": "Например: SH",
         "factory_number": "Заводской номер",
         "items": {
             "title": "Индексируемые товары",

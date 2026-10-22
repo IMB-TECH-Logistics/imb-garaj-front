@@ -883,6 +883,7 @@
             "err_price": "Enter the unit price",
             "saved": "Receipt saved",
             "factory_numbers": "Factory numbers",
+            "factory_auto_hint": "If left empty, the system assigns the number",
             "err_factory_empty": "Enter all factory numbers",
             "err_factory_dup": "Factory numbers must be unique"
         },
@@ -927,6 +928,15 @@
         },
         "serialized_yes": "Tracked",
         "serialized_label": "Each piece has a factory number",
+        "serialize": "Make serialized",
+        "serialize_hint": "Each of the {{count}} pieces in stock gets its own number (e.g. SH-0001…)",
+        "serialize_done": "{{count}} numbers assigned",
+        "serialize_copy": "Copy",
+        "serialize_print": "Print",
+        "serialize_copied": "Copied",
+        "serialize_km_limit": "Km limit (for tires)",
+        "serial_prefix": "Number prefix",
+        "serial_prefix_example": "E.g. SH",
         "factory_number": "Factory number",
         "items": {
             "title": "Serialized items",
