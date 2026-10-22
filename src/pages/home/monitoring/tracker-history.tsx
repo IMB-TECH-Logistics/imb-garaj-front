@@ -14,6 +14,7 @@ import type { TFunction } from "i18next"
 import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import { type ReplayStatus, useRouteReplay } from "./route-replay"
+import { useRouteDraw } from "./route-draw"
 import { ACTIVE_STATUSES, IDLE, STATUS_META } from "./status/data"
 import { findGaps, gapKey, useGapRoutes } from "./gap-routes"
 import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
@@ -23,6 +24,7 @@ const TZ_OFFSET_MS = 5 * 3600 * 1000
 const GAP_MS = 15 * 60 * 1000
 const STOP_MIN_MS = 5 * 60 * 1000
 const STOP_MERGE_M = 100
+const MAX_REAL_SPEED = 150
 const DAY_COLORS = ["#5eb3f6", "#a78bfa", "#f472b6", "#fbbf24", "#34d399", "#fb7185", "#22d3ee"]
 
 type Point = { t: number; lat: number; lng: number; speed: number; day: string }
@@ -141,7 +143,7 @@ function summarize(points: Point[]) {
         distance,
         moving,
         stops,
-        maxSpeed: points.reduce((max, p) => Math.max(max, p.speed), 0),
+        maxSpeed: points.reduce((max, p) => (p.speed <= MAX_REAL_SPEED ? Math.max(max, p.speed) : max), 0),
     }
 }
 
@@ -427,6 +429,13 @@ export function useTrackerHistory(imei: string | null) {
         return out
     }, [drawPoints, bySpeed, colors, colorBy, statusSegments, trips, inFocus])
 
+    const drawnSegments = useRouteDraw(
+        segments,
+        `${imei}|${range?.from}|${range?.to}`,
+        !!range && !positions.isFetching && points.length > 1,
+        replay.active,
+    )
+
     const bboxKey = `${imei}|${range?.from}|${range?.to}|${focus?.kind}:${focus?.key}`
     const framed = useRef<{ key: string; bbox: [number, number, number, number] } | null>(null)
     const bbox = useMemo<[number, number, number, number] | null>(() => {
@@ -513,7 +522,7 @@ export function useTrackerHistory(imei: string | null) {
         showStops,
         setShowStops,
         map: {
-            segments,
+            segments: drawnSegments,
             bbox,
             points: first && last && points.length > 1 ? ([[first.lng, first.lat], [last.lng, last.lat]] as MapPoint[]) : undefined,
             pois,
