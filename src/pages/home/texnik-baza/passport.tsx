@@ -197,34 +197,37 @@ const PassportPage = () => {
                 </div>
             </div>
 
-            <FuelCard id={data.id} />
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+                <div className="flex flex-col gap-4">
+                    <FuelCard id={data.id} />
 
-            <section className="rounded-lg border p-4 flex flex-col gap-3">
-                <h2 className="font-semibold">🔗 {t("tb.couplings")}</h2>
-                {!data.couplings.length ?
-                    <p className="text-sm text-muted-foreground">
-                        {t("tb.couplings_empty")}
-                    </p>
-                :   <ul className="flex flex-col divide-y text-sm">
-                        {data.couplings.map((c) => (
-                            <li
-                                key={c.id}
-                                className="flex flex-wrap items-center justify-between gap-2 py-2"
-                            >
-                                <span className="font-medium">
-                                    {c.truck.plate} + {c.trailer.plate}
-                                </span>
-                                <span className="text-muted-foreground tabular-nums">
-                                    {fmtDate(c.start)} –{" "}
-                                    {c.end ? fmtDate(c.end) : t("tb.coupling_until")}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                }
-            </section>
-
-            <Timeline id={data.id} />
+                    <section className="rounded-lg border p-4 flex flex-col gap-3">
+                        <h2 className="font-semibold">🔗 {t("tb.couplings")}</h2>
+                        {!data.couplings.length ?
+                            <p className="text-sm text-muted-foreground">
+                                {t("tb.couplings_empty")}
+                            </p>
+                        :   <ul className="flex flex-col divide-y text-sm">
+                                {data.couplings.map((c) => (
+                                    <li
+                                        key={c.id}
+                                        className="flex flex-wrap items-center justify-between gap-2 py-2"
+                                    >
+                                        <span className="font-medium">
+                                            {c.truck.plate} + {c.trailer.plate}
+                                        </span>
+                                        <span className="text-muted-foreground tabular-nums">
+                                            {fmtDate(c.start)} –{" "}
+                                            {c.end ? fmtDate(c.end) : t("tb.coupling_until")}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        }
+                    </section>
+                </div>
+                <Timeline id={data.id} />
+            </div>
 
             <CoupleDialog
                 passport={data}
