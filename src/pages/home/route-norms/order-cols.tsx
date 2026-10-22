@@ -51,15 +51,6 @@ export const useOrderColumns = () => {
                 ),
             },
             {
-                header: t("route_norms.cols.osrm_distance"),
-                id: "osrm_km",
-                cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
-                        {formatKm(t, row.original.osrm_km)}
-                    </span>
-                ),
-            },
-            {
                 header: t("route_norms.cols.driven"),
                 id: "distance_km",
                 cell: ({ row }) => (
