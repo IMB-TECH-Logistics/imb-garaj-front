@@ -28,7 +28,8 @@
         "monthly_rates": "Monthly Rates",
         "activity_log": "Activity Log",
         "distributors": "Distributors",
-        "route_norms": "Route norms"
+        "route_norms": "Route norms",
+        "alerts": "Alerts"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -1027,7 +1028,8 @@
             "type_transfer": "Transfer",
             "type_payment": "Payment"
         },
-        "service_life": "Service life (after installation)"
+        "service_life": "Service life (after installation)",
+        "tire_km_limit": "Tire life, km"
     },
     "reys_confirm": {
         "short": "Unconfirmed",
@@ -1385,7 +1387,7 @@
             "given_short": "given",
             "expense_short": "expenses",
             "trip_expenses": "Trip expenses",
-            "other_expenses": "Other expenses",
+            "other_expenses": "Other expenses (non-cash)",
             "cash_out": "Cash out",
             "edit_expense": "Edit expense",
             "record_expense": "Record expense",
@@ -1448,7 +1450,6 @@
             "close_toast_sent": "Turnover closed, request sent to the cashier",
             "expenses_check": "Expenses — check and correct if wrong",
             "no_cash_expense": "No cash expenses",
-            "other_expenses": "Other expenses (non-cash)",
             "other_expenses_note": "Does not affect the driver's cash",
             "total_expenses": "Total trip expenses",
             "trip_expenses_title": "Turnover #{{id}} expenses",
@@ -2484,7 +2485,8 @@
             "turnover_start": "Turnover start",
             "payment_amount": "Payment amount",
             "km_correction": "Km (correction)",
-            "gps_distance": "By GPS: {{value}}"
+            "gps_distance": "By GPS: {{value}}",
+            "before_trip": "Drive before the turnover"
         },
         "reys_page": {
             "not_found": "Trip not found",
@@ -2791,5 +2793,62 @@
         "remove": "Remove coordinates",
         "edit_title": "Distributor coordinates",
         "only_missing": "Without coordinates"
+    },
+    "alerts": {
+        "bell_title": "Notifications",
+        "tab_open": "Open",
+        "tab_resolved": "Resolved",
+        "status_resolved": "Resolved",
+        "empty_open": "No open alerts",
+        "empty_resolved": "No resolved alerts",
+        "show_more": "Show more",
+        "overdue": "Overdue",
+        "remaining_km": "{{value}} km left",
+        "remaining_days": "{{value}} days left",
+        "open_trip": "Open turnover",
+        "resolve_with_comment": "Resolve with comment",
+        "resolve_title": "Resolve alert",
+        "resolve": "Resolve",
+        "comment": "Comment",
+        "comment_placeholder": "Write why it is being resolved",
+        "resolved_toast": "Alert resolved",
+        "reason": {
+            "auto_trip": "Turnover opened",
+            "auto_rest": "Rested",
+            "auto_service": "Service done",
+            "manual": "Resolved manually"
+        },
+        "units": {
+            "km": "km",
+            "minutes": "min",
+            "hours": "h",
+            "months": "mo.",
+            "days": "days"
+        },
+        "settings": {
+            "description": "Defines when alerts appear for managers. A vehicle that has no override of its own uses these values.",
+            "invalid_value": "Invalid value",
+            "fields": {
+                "unassigned_km": "Distance driven without a turnover",
+                "unassigned_minutes": "Time driven without a turnover",
+                "long_drive_hours": "Long drive without stopping",
+                "rest_minutes": "Rest (stop) time",
+                "oil_km": "Oil change distance",
+                "oil_months": "Oil change interval",
+                "oil_category": "Oil expense category",
+                "tire_km": "Tire life",
+                "warn_km": "Warn in advance (km)",
+                "warn_days": "Warn in advance (days)"
+            }
+        },
+        "vehicle_settings": {
+            "title": "Alert settings",
+            "hint": "An empty field uses the company setting (grey value).",
+            "history_title": "Drives without a turnover",
+            "distance": "Distance",
+            "duration": "Duration",
+            "state": "Status",
+            "resolution": "Resolution"
+        }
     }
 }

@@ -124,12 +124,13 @@ export default function ManagerReys() {
     const rows = useMemo(() => {
         const list = data?.results ?? []
         if (!legs?.length) return list
+        const legKey = (leg: EmptyLeg) => leg.before_order ?? 500_000_000 + (leg.id ?? 0)
         const legRowOf = (leg: EmptyLeg) => ({
-            id: -leg.before_order,
+            id: -legKey(leg),
             __leg: leg,
             date: leg.start,
             activity: 0,
-            activity_display: t("trips.managers.empty_run"),
+            activity_display: leg.before_order == null ? t("trips.empty_leg.before_trip") : t("trips.managers.empty_run"),
             loading_name: leg.from_place || t("trips.empty_leg.turnover_start"),
             unloading_name: leg.to_place,
             cargo_type_name: t("trips.managers.no_cargo"),
@@ -139,7 +140,7 @@ export default function ManagerReys() {
             images: [],
         } as unknown as ManagerOrders)
         const idleRowOf = (leg: EmptyLeg) => ({
-            id: -leg.before_order - 1_000_000_000,
+            id: -legKey(leg) - 1_000_000_000,
             __idle: true,
             __idleLeg: leg,
             date: leg.idle_start,
@@ -151,7 +152,8 @@ export default function ManagerReys() {
             incomes: [],
             images: [],
         } as unknown as ManagerOrders)
-        const byOrder = new Map(legs.map((l) => [l.before_order, l]))
+        const byOrder = new Map(legs.filter((l) => l.before_order != null).map((l) => [l.before_order, l]))
+        const beforeTripLegs = legs.filter((l) => l.before_order == null)
         const isEmptyRun = (r: ManagerOrders) => r.activity === 1 && r.type === 2
         const emptyRunIds = new Set(list.filter(isEmptyRun).map((r) => r.id))
         const byAfter = new Map(
@@ -178,7 +180,7 @@ export default function ManagerReys() {
             const extra =
                 kind === "empty"
                     ? legs
-                          .filter((l) => !emptyRunIds.has(l.before_order) && !(l.after_order != null && emptyRunIds.has(l.after_order)))
+                          .filter((l) => (l.before_order == null || !emptyRunIds.has(l.before_order)) && !(l.after_order != null && emptyRunIds.has(l.after_order)))
                           .map(legRowOf)
                     : kind === "idle"
                       ? legs.filter((l) => l.idle_start).map(idleRowOf)
@@ -191,6 +193,7 @@ export default function ManagerReys() {
             return [...list.map(merge), ...extra].sort((a, b) => (desc ? startAt(b) - startAt(a) : startAt(a) - startAt(b)))
         }
         const out: ManagerOrders[] = []
+        if (!desc) out.push(...beforeTripLegs.map(legRowOf))
         for (const r of list) {
             const leg = byOrder.get(r.id)
             const emptyRun = isEmptyRun(r)
@@ -208,6 +211,7 @@ export default function ManagerReys() {
                 if (idleRow) out.push(idleRow)
             }
         }
+        if (desc) out.push(...beforeTripLegs.map(legRowOf))
         return out
     }, [data, legs, search, kind, t])
     const handleAdd = () => {

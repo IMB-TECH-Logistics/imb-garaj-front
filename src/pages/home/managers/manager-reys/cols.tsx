@@ -324,7 +324,7 @@ export const useColumnsManagersOrders = (opts?: {
                                 if (r.__merged && isOrder && !(Number(leg.payment_amount) > 0)) return null
                                 const route = `${leg.from_place || t("trips.empty_leg.turnover_start")} → ${leg.to_place || "—"}`
                                 return (
-                                    <div key={leg.id ?? leg.before_order} className="flex items-center gap-2">
+                                    <div key={leg.id ?? leg.before_order ?? leg.start} className="flex items-center gap-2">
                                         {amountOf(leg.payment_amount)}
                                         {opts?.onLegPay && leg.id != null &&
                                             payButton(

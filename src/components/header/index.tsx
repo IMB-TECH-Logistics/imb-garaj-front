@@ -13,7 +13,7 @@ import { DocumentNotification } from "./document-notification"
 import { TechCheckNotification } from "./tech-check-notification"
 import { TenantFilter } from "./tenant-filter"
 import { TenantSwitcher } from "./tenant-switcher"
-import { useHasAction } from "@/constants/useUser"
+import { useAlertCounts } from "@/components/alerts/use-alert-counts"
 import OmborHeaderSearch from "@/pages/home/ombor/header-search"
 import OmborHeaderTabs from "@/pages/home/ombor/header-tabs"
 import {
@@ -103,7 +103,7 @@ const Header = () => {
         return cfg
     }, [pathname, search?.report])
 
-    const canSeeIntegration = useHasAction("manager_vehicles_view")
+    const canSeeBell = useAlertCounts().canSee
 
     const activeTab = useMemo(() => {
         // Find the matching tab for nested routes (e.g. /manager-trips/123 -> /managers)
@@ -188,7 +188,7 @@ const Header = () => {
                 <div className="flex items-center gap-2">
                     <DocumentNotification />
                     <TechCheckNotification />
-                    {canSeeIntegration && <IntegrationNotification />}
+                    {canSeeBell && <IntegrationNotification />}
                     <LangButton />
                     <ThemeColorToggle />
                 </div>

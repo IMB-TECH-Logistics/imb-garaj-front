@@ -28,7 +28,8 @@
         "monthly_rates": "Ойлик тарифлар",
         "activity_log": "Фаолият журнали",
         "distributors": "Дистрибуторлар",
-        "route_norms": "Йўналиш нормалари"
+        "route_norms": "Йўналиш нормалари",
+        "alerts": "Огоҳлантиришлар"
     },
     "actions": {
         "reverse_salary": "Сторно қилиш",
@@ -1024,7 +1025,8 @@
             "type_transfer": "Ўтказма",
             "type_payment": "Тўлов"
         },
-        "service_life": "Хизмат муддати (ўрнатилгандан кейин)"
+        "service_life": "Хизмат муддати (ўрнатилгандан кейин)",
+        "tire_km_limit": "Балон ресурси, км"
     },
     "reys_confirm": {
         "short": "Тасдиқланмаган",
@@ -1382,7 +1384,7 @@
             "given_short": "берилган",
             "expense_short": "харажат",
             "trip_expenses": "Рейс харажатлари",
-            "other_expenses": "Бошқа харажат",
+            "other_expenses": "Бошқа харажатлар (нақд эмас)",
             "cash_out": "Кассадан чиқим",
             "edit_expense": "Чиқимни таҳрирлаш",
             "record_expense": "Чиқим қилиш",
@@ -1445,7 +1447,6 @@
             "close_toast_sent": "Айланма ёпилди, сўров кассирга юборилди",
             "expenses_check": "Харажатлар — текширинг, хато бўлса тузатинг",
             "no_cash_expense": "Нақд харажат йўқ",
-            "other_expenses": "Бошқа харажатлар (нақд эмас)",
             "other_expenses_note": "Ҳайдовчи қўлидаги пулга таъсир қилмайди",
             "total_expenses": "Айланма бўйича жами харажат",
             "trip_expenses_title": "Айланма #{{id}} харажатлари",
@@ -2481,7 +2482,8 @@
             "turnover_start": "Айланма боши",
             "payment_amount": "Тўлов суммаси",
             "km_correction": "Км (тузатиш)",
-            "gps_distance": "GPS бўйича: {{value}}"
+            "gps_distance": "GPS бўйича: {{value}}",
+            "before_trip": "Айланмадан олдинги юриш"
         },
         "reys_page": {
             "not_found": "Рейс топилмади",
@@ -2788,5 +2790,62 @@
         "remove": "Координатани ўчириш",
         "edit_title": "Дистрибьютор координатаси",
         "only_missing": "Координатасиз"
+    },
+    "alerts": {
+        "bell_title": "Билдиришномалар",
+        "tab_open": "Очиқ",
+        "tab_resolved": "Ёпилганлар",
+        "status_resolved": "Ёпилган",
+        "empty_open": "Очиқ огоҳлантиришлар йўқ",
+        "empty_resolved": "Ёпилган огоҳлантиришлар йўқ",
+        "show_more": "Яна кўрсатиш",
+        "overdue": "Муддати ўтган",
+        "remaining_km": "{{value}} км қолди",
+        "remaining_days": "{{value}} кун қолди",
+        "open_trip": "Айланма очиш",
+        "resolve_with_comment": "Изоҳ билан ёпиш",
+        "resolve_title": "Огоҳлантиришни ёпиш",
+        "resolve": "Ёпиш",
+        "comment": "Изоҳ",
+        "comment_placeholder": "Нима учун ёпилаётганини ёзинг",
+        "resolved_toast": "Огоҳлантириш ёпилди",
+        "reason": {
+            "auto_trip": "Айланма очилди",
+            "auto_rest": "Дам олинди",
+            "auto_service": "Хизмат бажарилди",
+            "manual": "Қўлда ёпилди"
+        },
+        "units": {
+            "km": "км",
+            "minutes": "дақ",
+            "hours": "соат",
+            "months": "ой",
+            "days": "кун"
+        },
+        "settings": {
+            "description": "Менежерлар учун огоҳлантиришлар қачон пайдо бўлишини белгилайди. Қиймат машина созламасида ўзгартирилмаган бўлса, шу қиймат ишлатилади.",
+            "invalid_value": "Қиймат нотўғри",
+            "fields": {
+                "unassigned_km": "Айланмасиз юриш масофаси",
+                "unassigned_minutes": "Айланмасиз юриш вақти",
+                "long_drive_hours": "Узоқ тўхтамай юриш",
+                "rest_minutes": "Дам олиш (тўхташ) вақти",
+                "oil_km": "Мой алмаштириш масофаси",
+                "oil_months": "Мой алмаштириш муддати",
+                "oil_category": "Мой харажати категорияси",
+                "tire_km": "Балон ресурси",
+                "warn_km": "Олдиндан огоҳлантириш (км)",
+                "warn_days": "Олдиндан огоҳлантириш (кун)"
+            }
+        },
+        "vehicle_settings": {
+            "title": "Огоҳлантириш созламалари",
+            "hint": "Бўш қолдирилган майдон учун фирма созламаси ишлатилади (кулранг қиймат).",
+            "history_title": "Айланмасиз юришлар тарихи",
+            "distance": "Масофа",
+            "duration": "Давомийлиги",
+            "state": "Ҳолати",
+            "resolution": "Ёпилиши"
+        }
     }
 }

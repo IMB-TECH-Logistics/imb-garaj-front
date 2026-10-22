@@ -28,7 +28,8 @@
         "monthly_rates": "Oylik tariflar",
         "activity_log": "Faoliyat jurnali",
         "distributors": "Distributorlar",
-        "route_norms": "Yo'nalish normalari"
+        "route_norms": "Yo'nalish normalari",
+        "alerts": "Ogohlantirishlar"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -1024,7 +1025,8 @@
             "type_transfer": "O'tkazma",
             "type_payment": "To'lov"
         },
-        "service_life": "Xizmat muddati (o'rnatilgandan keyin)"
+        "service_life": "Xizmat muddati (o'rnatilgandan keyin)",
+        "tire_km_limit": "Balon resursi, km"
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",
@@ -1382,7 +1384,7 @@
             "given_short": "berilgan",
             "expense_short": "xarajat",
             "trip_expenses": "Reys xarajatlari",
-            "other_expenses": "Boshqa xarajat",
+            "other_expenses": "Boshqa xarajatlar (naqd emas)",
             "cash_out": "Kassadan chiqim",
             "edit_expense": "Chiqimni tahrirlash",
             "record_expense": "Chiqim qilish",
@@ -1445,7 +1447,6 @@
             "close_toast_sent": "Aylanma yopildi, so'rov kassirga yuborildi",
             "expenses_check": "Xarajatlar — tekshiring, xato bo'lsa tuzating",
             "no_cash_expense": "Naqd xarajat yo'q",
-            "other_expenses": "Boshqa xarajatlar (naqd emas)",
             "other_expenses_note": "Haydovchi qo'lidagi pulga ta'sir qilmaydi",
             "total_expenses": "Aylanma bo'yicha jami xarajat",
             "trip_expenses_title": "Aylanma #{{id}} xarajatlari",
@@ -2481,7 +2482,8 @@
             "turnover_start": "Aylanma boshi",
             "payment_amount": "To'lov summasi",
             "km_correction": "Km (tuzatish)",
-            "gps_distance": "GPS bo'yicha: {{value}}"
+            "gps_distance": "GPS bo'yicha: {{value}}",
+            "before_trip": "Aylanmadan oldingi yurish"
         },
         "reys_page": {
             "not_found": "Reys topilmadi",
@@ -2788,5 +2790,62 @@
         "remove": "Koordinatani o'chirish",
         "edit_title": "Distributor koordinatasi",
         "only_missing": "Koordinatasiz"
+    },
+    "alerts": {
+        "bell_title": "Bildirishnomalar",
+        "tab_open": "Ochiq",
+        "tab_resolved": "Yopilganlar",
+        "status_resolved": "Yopilgan",
+        "empty_open": "Ochiq ogohlantirishlar yo'q",
+        "empty_resolved": "Yopilgan ogohlantirishlar yo'q",
+        "show_more": "Yana ko'rsatish",
+        "overdue": "Muddati o'tgan",
+        "remaining_km": "{{value}} km qoldi",
+        "remaining_days": "{{value}} kun qoldi",
+        "open_trip": "Aylanma ochish",
+        "resolve_with_comment": "Izoh bilan yopish",
+        "resolve_title": "Ogohlantirishni yopish",
+        "resolve": "Yopish",
+        "comment": "Izoh",
+        "comment_placeholder": "Nima uchun yopilayotganini yozing",
+        "resolved_toast": "Ogohlantirish yopildi",
+        "reason": {
+            "auto_trip": "Aylanma ochildi",
+            "auto_rest": "Dam olindi",
+            "auto_service": "Xizmat bajarildi",
+            "manual": "Qo'lda yopildi"
+        },
+        "units": {
+            "km": "km",
+            "minutes": "daq",
+            "hours": "soat",
+            "months": "oy",
+            "days": "kun"
+        },
+        "settings": {
+            "description": "Menejerlar uchun ogohlantirishlar qachon paydo bo'lishini belgilaydi. Qiymat mashina sozlamasida o'zgartirilmagan bo'lsa, shu qiymat ishlatiladi.",
+            "invalid_value": "Qiymat noto'g'ri",
+            "fields": {
+                "unassigned_km": "Aylanmasiz yurish masofasi",
+                "unassigned_minutes": "Aylanmasiz yurish vaqti",
+                "long_drive_hours": "Uzoq to'xtamay yurish",
+                "rest_minutes": "Dam olish (to'xtash) vaqti",
+                "oil_km": "Moy almashtirish masofasi",
+                "oil_months": "Moy almashtirish muddati",
+                "oil_category": "Moy xarajati kategoriyasi",
+                "tire_km": "Balon resursi",
+                "warn_km": "Oldindan ogohlantirish (km)",
+                "warn_days": "Oldindan ogohlantirish (kun)"
+            }
+        },
+        "vehicle_settings": {
+            "title": "Ogohlantirish sozlamalari",
+            "hint": "Bo'sh qoldirilgan maydon uchun firma sozlamasi ishlatiladi (kulrang qiymat).",
+            "history_title": "Aylanmasiz yurishlar tarixi",
+            "distance": "Masofa",
+            "duration": "Davomiyligi",
+            "state": "Holati",
+            "resolution": "Yopilishi"
+        }
     }
 }

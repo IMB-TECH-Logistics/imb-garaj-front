@@ -23,6 +23,7 @@ type FormValues = {
     unit: number | ""
     is_serialized: boolean
     min_quantity: string
+    tire_km_limit: string
     life_years: string
     life_months: string
     life_days: string
@@ -52,6 +53,7 @@ const AddProductModal = () => {
             unit: current?.unit ?? "",
             is_serialized: current?.is_serialized ?? false,
             min_quantity: numberText(current?.min_quantity),
+            tire_km_limit: numberText(current?.tire_km_limit),
             life_years: numberText(current?.life_years),
             life_months: numberText(current?.life_months),
             life_days: numberText(current?.life_days),
@@ -92,6 +94,7 @@ const AddProductModal = () => {
             unit: values.unit,
             is_serialized: values.is_serialized,
             min_quantity: values.min_quantity,
+            tire_km_limit: values.tire_km_limit === "" ? null : Number(values.tire_km_limit),
             life_years: Number(values.life_years) || 0,
             life_months: Number(values.life_months) || 0,
             life_days: Number(values.life_days) || 0,
@@ -142,6 +145,16 @@ const AddProductModal = () => {
                         allowNegative={false}
                         suffix={unitName ? ` ${unitName}` : undefined}
                         wrapperClassName="md:col-span-1"
+                    />
+
+                    <FormNumberInput
+                        name="tire_km_limit"
+                        label={t("wh.tire_km_limit")}
+                        control={control}
+                        decimalScale={0}
+                        allowNegative={false}
+                        suffix={` ${t("trips.units.km")}`}
+                        wrapperClassName="md:col-span-2"
                     />
 
                     <Controller

@@ -17,7 +17,9 @@ export const EMPTY_LEG_PAY_MODAL_KEY = "empty-leg-pay"
 
 export type EmptyLeg = {
     id?: number
-    before_order: number
+    kind?: "before_trip" | "between_orders"
+    alert_id?: number | null
+    before_order: number | null
     after_order: number | null
     first: boolean
     from_place: string | null

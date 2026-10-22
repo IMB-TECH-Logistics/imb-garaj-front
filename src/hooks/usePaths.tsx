@@ -380,6 +380,11 @@ export const useItems = () => {
                         allowKey: "settings_vehicles_view",
                     },
                     {
+                        label: t("nav.alerts"),
+                        path: "/alerts",
+                        allowKey: "settings_vehicles_view",
+                    },
+                    {
                         label: t("nav.users"),
                         path: "/users",
                         allowKey: "settings_users_view",

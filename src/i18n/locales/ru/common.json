@@ -28,7 +28,8 @@
         "monthly_rates": "Ежемес. тарифы",
         "activity_log": "Журнал активности",
         "distributors": "Дистрибьюторы",
-        "route_norms": "Нормы маршрутов"
+        "route_norms": "Нормы маршрутов",
+        "alerts": "Оповещения"
     },
     "actions": {
         "reverse_salary": "Сторнировать",
@@ -1033,7 +1034,8 @@
             "type_transfer": "Передача",
             "type_payment": "Оплата"
         },
-        "service_life": "Срок службы (после установки)"
+        "service_life": "Срок службы (после установки)",
+        "tire_km_limit": "Ресурс шины, км"
     },
     "reys_confirm": {
         "short": "Не подтверждено",
@@ -1391,7 +1393,7 @@
             "given_short": "выдано",
             "expense_short": "расход",
             "trip_expenses": "Расходы по рейсам",
-            "other_expenses": "Прочие расходы",
+            "other_expenses": "Прочие расходы (безналичные)",
             "cash_out": "Расход из кассы",
             "edit_expense": "Редактировать расход",
             "record_expense": "Провести расход",
@@ -1454,7 +1456,6 @@
             "close_toast_sent": "Оборот закрыт, запрос отправлен кассиру",
             "expenses_check": "Расходы — проверьте и при ошибке исправьте",
             "no_cash_expense": "Наличных расходов нет",
-            "other_expenses": "Прочие расходы (безналичные)",
             "other_expenses_note": "Не влияет на деньги у водителя",
             "total_expenses": "Всего расходов по обороту",
             "trip_expenses_title": "Расходы оборота #{{id}}",
@@ -2490,7 +2491,8 @@
             "turnover_start": "Начало оборота",
             "payment_amount": "Сумма оплаты",
             "km_correction": "Км (корректировка)",
-            "gps_distance": "По GPS: {{value}}"
+            "gps_distance": "По GPS: {{value}}",
+            "before_trip": "Порожний пробег до оборота"
         },
         "reys_page": {
             "not_found": "Рейс не найден",
@@ -2797,5 +2799,62 @@
         "remove": "Удалить координаты",
         "edit_title": "Координаты дистрибьютора",
         "only_missing": "Без координат"
+    },
+    "alerts": {
+        "bell_title": "Уведомления",
+        "tab_open": "Открытые",
+        "tab_resolved": "Закрытые",
+        "status_resolved": "Закрыто",
+        "empty_open": "Открытых оповещений нет",
+        "empty_resolved": "Закрытых оповещений нет",
+        "show_more": "Показать ещё",
+        "overdue": "Просрочено",
+        "remaining_km": "осталось {{value}} км",
+        "remaining_days": "осталось {{value}} дн.",
+        "open_trip": "Открыть оборот",
+        "resolve_with_comment": "Закрыть с комментарием",
+        "resolve_title": "Закрыть оповещение",
+        "resolve": "Закрыть",
+        "comment": "Комментарий",
+        "comment_placeholder": "Укажите причину закрытия",
+        "resolved_toast": "Оповещение закрыто",
+        "reason": {
+            "auto_trip": "Открыт оборот",
+            "auto_rest": "Отдых",
+            "auto_service": "Обслуживание выполнено",
+            "manual": "Закрыто вручную"
+        },
+        "units": {
+            "km": "км",
+            "minutes": "мин",
+            "hours": "ч",
+            "months": "мес.",
+            "days": "дн."
+        },
+        "settings": {
+            "description": "Определяет, когда менеджерам появляются оповещения. Если значение не изменено в настройках машины, используется это значение.",
+            "invalid_value": "Неверное значение",
+            "fields": {
+                "unassigned_km": "Пробег без оборота",
+                "unassigned_minutes": "Время движения без оборота",
+                "long_drive_hours": "Долгое движение без остановки",
+                "rest_minutes": "Время отдыха (остановки)",
+                "oil_km": "Пробег до замены масла",
+                "oil_months": "Срок замены масла",
+                "oil_category": "Категория расхода на масло",
+                "tire_km": "Ресурс шины",
+                "warn_km": "Предупреждать заранее (км)",
+                "warn_days": "Предупреждать заранее (дни)"
+            }
+        },
+        "vehicle_settings": {
+            "title": "Настройки оповещений",
+            "hint": "Для пустого поля используется настройка фирмы (серое значение).",
+            "history_title": "История поездок без оборота",
+            "distance": "Расстояние",
+            "duration": "Длительность",
+            "state": "Состояние",
+            "resolution": "Закрытие"
+        }
     }
 }

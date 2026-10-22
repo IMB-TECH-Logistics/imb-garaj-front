@@ -29,6 +29,12 @@ export const TECHNICAL_INSPECT = "vehicles/technical-inspection"
 export const TECHNICAL_INSPECT_ALERTS = "vehicles/technical-inspection/alerts"
 export const TECHNICAL_INSPECT_INSTALLED = "vehicles/technical-inspection/installed"
 
+/** ===== ALERTS ===== */
+export const ALERTS = "alerts"
+export const ALERTS_COUNTS = "alerts/counts"
+export const ALERTS_SETTINGS = "alerts/settings"
+export const ALERTS_VEHICLE_SETTINGS = "alerts/vehicle-settings"
+
 /** ===== CHECKOUT ===== */
 export const CHECKOUT_BALANCES = "checkout/balances"
 export const CHECKOUT_PENDING_COUNTS = "checkout/pending-counts"

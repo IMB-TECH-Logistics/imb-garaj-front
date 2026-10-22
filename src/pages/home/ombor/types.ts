@@ -11,6 +11,7 @@ export type WhProduct = {
     unit_name: string
     is_serialized: boolean
     min_quantity: string | null
+    tire_km_limit?: number | null
     life_years: number
     life_months: number
     life_days: number

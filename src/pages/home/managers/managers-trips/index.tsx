@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { cn } from "@/lib/utils"
-import { X } from "lucide-react"
+import { BellRing, X } from "lucide-react"
 import { MANAGERS_CASHFLOW, MANAGERS_EXPENSES, MANAGERS_TRIPS, MANAGERS_VEHICLES, VEHICLES } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
@@ -15,13 +15,14 @@ import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { Plus } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useColumnsManagersTrips } from "./cols"
 import CreateManagerTrips from "./create"
 import ExpensesModal from "./create-expenses"
 import FinishedManagerTrips from "./finished"
 import KirimXarajatContent from "./kirim-xarajat-modal"
+import VehicleAlertSettingsContent, { VEHICLE_ALERT_SETTINGS_MODAL } from "./vehicle-alert-settings"
 
 export default function ManagersTrips() {
     const { t } = useTranslation()
@@ -31,6 +32,7 @@ export default function ManagersTrips() {
     const { openModal: editTripModal } = useModal(`${MANAGERS_TRIPS}-finished`)
     const [finishTab, setFinishTab] = useState<"info" | "kassa">("info")
     const { openModal: createExpenses } = useModal(MANAGERS_EXPENSES)
+    const { openModal: openAlertSettings } = useModal(VEHICLE_ALERT_SETTINGS_MODAL)
     const { openModal: deleteTrip } = useModal(`${MANAGERS_TRIPS}-delete`)
     const hasControl = useHasAction("manager_vehicles_control")
     const navigate = useNavigate()
@@ -108,6 +110,23 @@ export default function ManagersTrips() {
         [data?.results],
     )
 
+    const { create_trip: createTripParam, driver: presetDriver } = search as any
+    useEffect(() => {
+        if (!createTripParam || isLoading) return
+        if (hasControl && !hasOngoingTrip && !isError && !isNotFound) {
+            if (presetDriver) setData(MANAGERS_TRIPS, { driver: Number(presetDriver) })
+            else clearKey(MANAGERS_TRIPS)
+            createTripModal()
+        }
+        navigate({
+            search: (prev: any) => {
+                const { create_trip, driver, ...rest } = prev
+                return rest
+            },
+            replace: true,
+        } as any)
+    }, [createTripParam, isLoading])
+
     const handleAdd = () => {
         clearKey(MANAGERS_TRIPS)
         createTripModal()
@@ -158,6 +177,15 @@ export default function ManagersTrips() {
                                     from="from_date"
                                     to="to_date"
                                 />
+                                <Button
+                                    variant="outline"
+                                    onClick={openAlertSettings}
+                                    title={t("alerts.vehicle_settings.title")}
+                                    aria-label={t("alerts.vehicle_settings.title")}
+                                >
+                                    <BellRing size={16} />
+                                    <span className="hidden lg:inline">{t("alerts.vehicle_settings.title")}</span>
+                                </Button>
                                 {hasControl && (
                                     <Button onClick={handleAdd} disabled={hasOngoingTrip || isError || isNotFound}>
                                         <Plus size={16} />
@@ -180,6 +208,10 @@ export default function ManagersTrips() {
                 title={item?.id ? t("trips.managers_trips.edit_turnover") : t("trips.managers_trips.start_turnover")}
             >
                 <CreateManagerTrips />
+            </Modal>
+
+            <Modal modalKey={VEHICLE_ALERT_SETTINGS_MODAL} title={t("alerts.vehicle_settings.title")} size="max-w-4xl">
+                <VehicleAlertSettingsContent />
             </Modal>
 
             <Modal modalKey={MANAGERS_EXPENSES} title={t("page.add_expense")}>
