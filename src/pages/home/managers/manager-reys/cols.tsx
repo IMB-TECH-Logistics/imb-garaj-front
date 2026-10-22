@@ -293,7 +293,7 @@ export const useColumnsManagersOrders = (opts?: {
                     return (
                         <span
                             className={`whitespace-nowrap tabular-nums${unreliable ? " text-amber-600" : ""}${estimated ? " text-muted-foreground" : ""}`}
-                            title={unreliable ? t("trips.fuel.check") : estimated ? t("trips.fuel.estimated") : undefined}
+                            title={estimated ? t("trips.fuel.estimated") : undefined}
                         >
                             {estimated ? "≈ " : ""}
                             {formatFuel(t, fuelType, amount)}

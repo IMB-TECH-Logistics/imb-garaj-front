@@ -35,7 +35,6 @@ export default function TripFuelSummary({ fuel }: { fuel: TripFuel }) {
             <span>
                 {t("trips.fuel.empty")}: <span className="tabular-nums">{value(fuel.empty_fuel)}</span>
             </span>
-            {fuel.state === "unreliable" && <span className="text-amber-600">{t("trips.fuel.check")}</span>}
             {estimated && <span className="text-muted-foreground">{t("trips.fuel.estimated")}</span>}
         </div>
     )
