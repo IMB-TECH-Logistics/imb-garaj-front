@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TECH_BASE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
-import { useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
+import { type UIEvent, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { fmtDate } from "../ombor/utils"
 import type { TimelineItem, TimelineKind } from "./types"
@@ -35,6 +35,7 @@ const Timeline = ({ id }: { id: number }) => {
     const [filter, setFilter] = useState<Filter>("all")
     const [page, setPage] = useState(1)
     const [items, setItems] = useState<TimelineItem[]>([])
+    const boxRef = useRef<HTMLDivElement>(null)
 
     const { data, isLoading, isFetching } = useGet<ListResponse<TimelineItem>>(
         `${TECH_BASE}/${id}/timeline`,
@@ -52,10 +53,21 @@ const Timeline = ({ id }: { id: number }) => {
         if (next === filter) return
         setFilter(next)
         setPage(1)
-        setItems([])
+        boxRef.current?.scrollTo({ top: 0 })
     }
 
     const hasMore = !!data && page < data.total_pages
+
+    const onScroll = (e: UIEvent<HTMLDivElement>) => {
+        const el = e.currentTarget
+        if (
+            hasMore &&
+            !isFetching &&
+            el.scrollHeight - el.scrollTop - el.clientHeight < 80
+        ) {
+            setPage(page + 1)
+        }
+    }
 
     return (
         <section className="rounded-lg border p-4 flex flex-col gap-4">
@@ -79,6 +91,14 @@ const Timeline = ({ id }: { id: number }) => {
                 ))}
             </div>
 
+            <div
+                ref={boxRef}
+                onScroll={onScroll}
+                className={cn(
+                    "h-[420px] overflow-y-auto overscroll-contain pr-1 transition-opacity",
+                    isFetching && page === 1 && items.length > 0 && "opacity-60",
+                )}
+            >
             {isLoading && !items.length ?
                 <div className="flex flex-col gap-2">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -134,16 +154,12 @@ const Timeline = ({ id }: { id: number }) => {
                 </ul>
             }
 
-            {hasMore && (
-                <Button
-                    variant="outline"
-                    className="self-center"
-                    loading={isFetching}
-                    onClick={() => setPage(page + 1)}
-                >
-                    {t("tb.load_more")}
-                </Button>
+            {isFetching && page > 1 && (
+                <div className="flex justify-center py-3 text-muted-foreground">
+                    <Loader2 size={16} className="animate-spin" />
+                </div>
             )}
+            </div>
         </section>
     )
 }
