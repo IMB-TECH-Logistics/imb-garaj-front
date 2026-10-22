@@ -1,4 +1,12 @@
 {
+    "location": {
+        "online": "Online",
+        "offline": "Offline",
+        "speed": "Speed",
+        "updated": "Last update",
+        "no_gps": "No GPS linked or no position received yet",
+        "error": "Could not load location"
+    },
     "nav": {
         "investor_dashboard": "Investor",
         "tech_base": "Tech base",

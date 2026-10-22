@@ -4,8 +4,6 @@ import { ArrowRight, MapPin } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { formatDateTime } from "@/lib/format-date"
-import { Link } from "@tanstack/react-router"
-import { todayIso } from "@/pages/home/monitoring/types"
 
 const ACTIVITY_LABELS: Record<number, string> = {
     1: "trips.managers.on_trip",
@@ -42,7 +40,7 @@ const nextPending = (v: ManagerVehicles) =>
         ? { from: v.next_loading_name, to: v.next_unloading_name, count: v.pending_orders }
         : null
 
-export const useColumnsManagersVehicles = () => {
+export const useColumnsManagersVehicles = (onShowLocation: (vehicle: ManagerVehicles) => void) => {
     const { t } = useTranslation()
 
     return useMemo<ColumnDef<ManagerVehicles>[]>(
@@ -120,23 +118,6 @@ export const useColumnsManagersVehicles = () => {
                 },
             },
             {
-                id: "on_map",
-                header: t("table.on_map"),
-                enableSorting: false,
-                cell: ({ row }) => (
-                    <Link
-                        to="/monitoring"
-                        search={{ dimension: "vehicle", vehicle: row.original.id, mdate: todayIso() } as never}
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={t("table.on_map")}
-                        title={t("table.on_map")}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                    >
-                        <MapPin size={18} />
-                    </Link>
-                ),
-            },
-            {
                 accessorKey: "pending_orders",
                 header: t("table.pending_trips"),
                 enableSorting: true,
@@ -157,7 +138,26 @@ export const useColumnsManagersVehicles = () => {
                     )
                 },
             },
+            {
+                id: "on_map",
+                header: t("table.on_map"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onShowLocation(row.original)
+                        }}
+                        aria-label={t("table.on_map")}
+                        title={t("table.on_map")}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                    >
+                        <MapPin size={18} />
+                    </button>
+                ),
+            },
         ],
-        [t],
+        [t, onShowLocation],
     )
 }

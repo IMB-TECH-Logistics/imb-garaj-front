@@ -1,4 +1,12 @@
 {
+    "location": {
+        "online": "Onlayn",
+        "offline": "Oflayn",
+        "speed": "Tezlik",
+        "updated": "Oxirgi yangilanish",
+        "no_gps": "Bu mashinaga GPS ulanmagan yoki joylashuv hali kelmagan",
+        "error": "Joylashuvni olib bo'lmadi"
+    },
     "nav": {
         "investor_dashboard": "Investor",
         "tech_base": "Texnik baza",

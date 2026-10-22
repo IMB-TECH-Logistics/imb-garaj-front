@@ -1,4 +1,12 @@
 {
+    "location": {
+        "online": "オンライン",
+        "offline": "オフライン",
+        "speed": "速度",
+        "updated": "最終更新",
+        "no_gps": "GPS未接続、または位置情報がまだありません",
+        "error": "位置情報を取得できませんでした"
+    },
     "nav": {
         "investor_dashboard": "投資家",
         "manager": "マネージャー",

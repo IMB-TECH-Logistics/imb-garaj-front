@@ -6,13 +6,16 @@ import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useColumnsManagersVehicles } from "./cols"
+import VehicleLocationDialog from "./vehicle-location-dialog"
 export default function Managers() {
     const { t } = useTranslation()
     const search = useSearch({strict:false})
     const { setData, getData } = useGlobalStore()
-    const cols = useColumnsManagersVehicles()
+    const [locationVehicle, setLocationVehicle] = useState<ManagerVehicles | null>(null)
+    const cols = useColumnsManagersVehicles(setLocationVehicle)
     const { data, isLoading } =
         useGet<ListResponse<ManagerVehicles>>(MANAGERS_VEHICLES,{
             params:{
@@ -76,6 +79,7 @@ export default function Managers() {
                     </div>
                 }
             />
+            <VehicleLocationDialog vehicle={locationVehicle} onClose={() => setLocationVehicle(null)} />
         </>
     )
 }
