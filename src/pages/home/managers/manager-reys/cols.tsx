@@ -144,7 +144,7 @@ export const useColumnsManagersOrders = (opts?: {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const status = row.original?.status
-                    if (row.original?.activity === 4) return "-"
+                    if (row.original?.activity === 4 || isGarajOrTamirActivity(row.original?.activity)) return "-"
                     if (status === -1) {
                         return (
                             <Badge
@@ -470,7 +470,8 @@ const legsOf = (r: ManagerOrders): EmptyLeg[] => {
     return row.__legs ?? (row.__leg ? [row.__leg] : [])
 }
 
-const startOf = (r: ManagerOrders) => (r as any).__start ?? r.loading_time ?? r.pending_time
+const startOf = (r: ManagerOrders) =>
+    (r as any).__start ?? r.loading_time ?? (isGarajOrTamirActivity(r.activity) ? r.started_time : undefined) ?? r.pending_time
 
 const formatDuration = (start?: string, end?: string, minusMinutes = 0) => {
     if (!start || !end) return "-"

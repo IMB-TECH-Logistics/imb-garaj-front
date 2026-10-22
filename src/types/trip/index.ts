@@ -72,6 +72,9 @@ type DistrictType = {
 }
 
 type TripOrdersRow = {
+    pending_time?: string | null
+    started_time?: string | null
+    completed_time?: string | null
     name: string
     client_name: string
     created_at: string | number

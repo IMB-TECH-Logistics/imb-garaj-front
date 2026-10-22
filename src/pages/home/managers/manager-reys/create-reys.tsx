@@ -1,4 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
+import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
+import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { MANAGERS_ORDERS, MANAGERS_ORDERS_INTEGRATION_COUNT } from "@/constants/api-endpoints"
 import { isNaqdPaymentTypeName } from "./payment-fields"
@@ -40,6 +42,8 @@ const AddTripOrders = () => {
             trip: id,
             cargo_type: currentTripOrder?.cargo_type,
             date: currentTripOrder?.date ?? todayIso(),
+            started_at: toLocalInput(currentTripOrder?.started_time ?? currentTripOrder?.pending_time),
+            finished_at: toLocalInput(currentTripOrder?.completed_time),
             activity:
                 currentTripOrder?.activity != null
                     ? String(currentTripOrder.activity)
@@ -335,6 +339,10 @@ const AddTripOrders = () => {
         formData.append("activity", String(activity))
         formData.append("driver", data.driver ? String(data.driver) : "")
         formData.append("trailer_number", data.trailer_number ?? "")
+        if (activity === 2 || activity === 3) {
+            formData.append("started_at", data.started_at ?? "")
+            formData.append("finished_at", data.finished_at ?? "")
+        }
 
         if (isReysSel) {
             const incomes = isNaqdSel
@@ -483,7 +491,25 @@ const AddTripOrders = () => {
 
                         {/* <NaqdAmountField methods={form} matchedDirection={matchedDirection} /> */}
 
-                        {currentTripOrder?.id && !isDraft && (
+                        {isGarajOrTamirActivity && (
+                            <>
+                                <FormDateTimePicker
+                                    required
+                                    control={control}
+                                    name="started_at"
+                                    label={t("table.start_time")}
+                                    addButtonProps={{ className: "w-full justify-start text-left font-normal" }}
+                                />
+                                <FormDateTimePicker
+                                    control={control}
+                                    name="finished_at"
+                                    label={t("table.end_time")}
+                                    addButtonProps={{ className: "w-full justify-start text-left font-normal" }}
+                                />
+                            </>
+                        )}
+
+                        {currentTripOrder?.id && !isDraft && !isGarajOrTamirActivity && (
                             <FormCombobox
                                 label={t("table.status")}
                                 name="status"
@@ -546,3 +572,4 @@ const AddTripOrders = () => {
 
 export default AddTripOrders
 
+const toLocalInput = (value?: string | null) => (value ? format(new Date(value), "yyyy-MM-dd HH:mm") : "")
