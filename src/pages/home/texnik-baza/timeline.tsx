@@ -109,49 +109,49 @@ const Timeline = ({ id }: { id: number }) => {
                 <p className="text-sm text-muted-foreground py-6 text-center">
                     {t("tb.timeline_empty")}
                 </p>
-            :   <ul className="flex flex-col">
+            :   <ol className="flex flex-col">
                     {items.map((item, i) => (
                         <li
                             key={`${item.date}-${item.kind}-${i}`}
-                            className="flex gap-3 border-b last:border-b-0 py-3"
+                            className="grid grid-cols-[5.5rem_2rem_1fr] gap-x-3"
                         >
-                            <span className="text-xl leading-6">
-                                {ICONS[item.kind]}
+                            <span className="pt-1.5 text-right text-sm text-muted-foreground tabular-nums">
+                                {fmtDate(item.date)}
                             </span>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                            <div className="relative flex justify-center">
+                                <span
+                                    className={cn(
+                                        "absolute left-1/2 w-px -translate-x-1/2 bg-border",
+                                        i === 0 ? "top-4" : "top-0",
+                                        i === items.length - 1 ? "h-4" : "bottom-0",
+                                    )}
+                                />
+                                <span className="relative mt-0.5 flex size-8 items-center justify-center rounded-full border bg-background text-base">
+                                    {ICONS[item.kind]}
+                                </span>
+                            </div>
+                            <div className="min-w-0 pb-5 pt-1">
+                                <div className="flex flex-wrap items-baseline gap-x-3">
                                     <span className="font-medium">
                                         {item.title}
                                     </span>
-                                    <span className="text-xs text-muted-foreground tabular-nums">
-                                        {fmtDate(item.date)}
-                                    </span>
+                                    {item.amount !== null && (
+                                        <span className="text-sm font-semibold tabular-nums">
+                                            {formatMoney(Number(item.amount))}
+                                        </span>
+                                    )}
                                 </div>
-                                {item.detail && (
+                                {(item.detail || item.executor_name) && (
                                     <p className="text-sm text-muted-foreground break-words">
-                                        {item.detail}
+                                        {[item.detail, item.executor_name]
+                                            .filter(Boolean)
+                                            .join(" · ")}
                                     </p>
                                 )}
-                                <div className="flex flex-wrap gap-x-4 text-xs text-muted-foreground">
-                                    {item.amount !== null && (
-                                        <span>
-                                            {t("tb.amount")}:{" "}
-                                            <b className="text-foreground tabular-nums">
-                                                {formatMoney(Number(item.amount))}
-                                            </b>
-                                        </span>
-                                    )}
-                                    {item.executor_name && (
-                                        <span>
-                                            {t("tb.executor")}:{" "}
-                                            {item.executor_name}
-                                        </span>
-                                    )}
-                                </div>
                             </div>
                         </li>
                     ))}
-                </ul>
+                </ol>
             }
 
             {isFetching && page > 1 && (
