@@ -297,7 +297,6 @@ export const useColumnsManagersOrders = (opts?: {
                         >
                             {estimated ? "≈ " : ""}
                             {formatFuel(t, fuelType, amount)}
-                            {unreliable ? " ?" : ""}
                         </span>
                     )
                 },
