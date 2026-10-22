@@ -82,6 +82,8 @@ export default function ManagerReys() {
             ...(kind ? REYS_KIND_PARAMS[kind] : {}),
         },
     })
+    const canEditOrder = useHasAction("manager_flights_edit_control")
+    const canDeleteOrder = useHasAction("manager_flights_delete_control")
     const hasControl = useHasAction("manager_vehicles_control")
     const locked = !!trip?.cash_closed
     const lockedTitle = locked ? t("trips.reys_cols.trip_locked") : undefined
@@ -240,8 +242,8 @@ export default function ManagerReys() {
                 }}
                 actionsDisabled={locked}
                 actionsDisabledTitle={lockedTitle}
-                onDelete={hasControl ? (row) => handleDelete(row.original) : undefined}
-                onEdit={hasControl ? (row) => handleEdit(row.original) : undefined}
+                onDelete={canDeleteOrder ? (row) => handleDelete(row.original) : undefined}
+                onEdit={canEditOrder ? (row) => handleEdit(row.original) : undefined}
                 rowAction={
                     hasControl
                         ? (order) =>

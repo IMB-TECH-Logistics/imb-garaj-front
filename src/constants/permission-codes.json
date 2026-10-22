@@ -22,6 +22,8 @@
   "manager_cashflow_control",
   "manager_cashflow_view",
   "manager_flights_control",
+  "manager_flights_delete_control",
+  "manager_flights_edit_control",
   "manager_flights_view",
   "manager_tech_check_control",
   "manager_tech_check_view",
