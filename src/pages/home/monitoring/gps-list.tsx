@@ -26,6 +26,7 @@ const TRUCK_STATUS_LABELS: Record<TruckStatusFilter, string> = {
     all: "page.truck_status_all",
     loaded: "page.truck_status_loaded",
     empty: "page.truck_status_empty",
+    garage: "page.truck_status_garage",
     repair: "page.truck_status_repair",
 }
 
@@ -33,6 +34,7 @@ const TRUCK_STATUS_DOTS: Record<TruckStatusFilter, string | null> = {
     all: null,
     loaded: "bg-emerald-500",
     empty: "bg-sky-500",
+    garage: "bg-violet-500",
     repair: "bg-orange-500",
 }
 

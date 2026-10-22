@@ -353,6 +353,7 @@
         "truck_status_all": "Barchasi",
         "truck_status_loaded": "Yukli",
         "truck_status_empty": "Yuksiz",
+        "truck_status_garage": "Garajda",
         "truck_status_repair": "Ta'mirda",
         "list": "Ro'yxat",
         "not_found": "Ma'lumot topilmadi",

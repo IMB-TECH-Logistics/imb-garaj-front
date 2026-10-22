@@ -130,7 +130,7 @@ export type GpsLiveVehicle = {
     tracker_name: string
     vehicle: number | null
     vehicle_number: string | null
-    truck_status: "loaded" | "empty" | "repair" | null
+    truck_status: "loaded" | "empty" | "repair" | "garage" | null
     driver_name: string | null
     status: "online" | "offline" | "unknown"
     last_update: string | null
@@ -171,9 +171,9 @@ export type GpsPosition = {
     course: number | null
 }
 
-export type TruckStatusFilter = "all" | "loaded" | "empty" | "repair"
+export type TruckStatusFilter = "all" | "loaded" | "empty" | "garage" | "repair"
 
-export const TRUCK_STATUS_FILTERS: TruckStatusFilter[] = ["all", "loaded", "empty", "repair"]
+export const TRUCK_STATUS_FILTERS: TruckStatusFilter[] = ["all", "loaded", "empty", "garage", "repair"]
 
 const LOADED_GARAGE_STATUSES = new Set([5, 6, 7])
 
@@ -186,6 +186,7 @@ export function truckStatusOf(
     order: VehicleOrderBadge | null | undefined,
 ): Exclude<TruckStatusFilter, "all"> {
     if (item.truck_status === "repair") return "repair"
+    if (item.truck_status === "garage") return "garage"
     if (item.truck_status === "loaded" || isLoadedOrder(order)) return "loaded"
     return "empty"
 }

@@ -353,6 +353,7 @@
         "truck_status_all": "Барчаси",
         "truck_status_loaded": "Юкли",
         "truck_status_empty": "Юксиз",
+        "truck_status_garage": "Гаражда",
         "truck_status_repair": "Таъмирда",
         "list": "Рўйхат",
         "not_found": "Маълумот топилмади",

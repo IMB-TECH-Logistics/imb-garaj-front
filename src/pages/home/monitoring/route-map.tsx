@@ -27,6 +27,8 @@ const MAP_PROVIDER = import.meta.env.VITE_MAP_PROVIDER
 
 const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 
+export const AREA_COLOR = "#dc2626"
+
 export type MapPoint = [number, number] // [lng, lat]
 
 export type ColoredSegment = {
@@ -66,7 +68,7 @@ export type LiveMarker = {
     stale?: boolean
     selected?: boolean
     icon?: "truck"
-    tone?: "loaded" | "empty" | "repair"
+    tone?: "loaded" | "empty" | "garage" | "repair"
     russia?: boolean
     course?: number | null
     onClick?: () => void
@@ -98,6 +100,8 @@ export type RouteMapProps = {
     segments?: ColoredSegment[]
     /** Small markers drawn above the route, such as stops. */
     pois?: MapPoi[]
+    /** Closed outlines drawn in red, such as the garage yard. */
+    areas?: MapPoint[][]
     onBoundsChange?: (bounds: MapBounds) => void
 }
 
@@ -121,6 +125,7 @@ function MapLibreRouteMap({
     lineColor,
     segments,
     pois,
+    areas,
 }: RouteMapProps) {
     const { t } = useTranslation()
     const mapRef = useRef<MapRef | null>(null)
@@ -146,6 +151,22 @@ function MapLibreRouteMap({
             })),
         }
     }, [validSegments])
+
+    const areaFeatures = useMemo(() => {
+        const valid = (areas ?? []).filter((a) => a.length >= 3)
+        if (valid.length === 0) return null
+        return {
+            type: "FeatureCollection" as const,
+            features: valid.map((a) => ({
+                type: "Feature" as const,
+                properties: {},
+                geometry: {
+                    type: "Polygon" as const,
+                    coordinates: [[...a, a[0]]],
+                },
+            })),
+        }
+    }, [areas])
 
     const polylineFeature = useMemo(() => {
         if (!points || points.length < 2) return null
@@ -253,6 +274,22 @@ function MapLibreRouteMap({
                     position="bottom-right"
                     showCompass={false}
                 />
+
+                {areaFeatures && (
+                    <Source key="areas" id="areas" type="geojson" data={areaFeatures}>
+                        <Layer
+                            id="areas-fill"
+                            type="fill"
+                            paint={{ "fill-color": AREA_COLOR, "fill-opacity": 0.22 }}
+                        />
+                        <Layer
+                            id="areas-line"
+                            type="line"
+                            paint={{ "line-color": AREA_COLOR, "line-width": 2.5 }}
+                            layout={{ "line-join": "round" }}
+                        />
+                    </Source>
+                )}
 
                 {segmentFeatures ? (
                     <Source

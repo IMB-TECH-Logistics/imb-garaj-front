@@ -1,12 +1,15 @@
 import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { MONITORING_GARAGE_AREA } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { endOfMonth, startOfMonth } from "date-fns"
 import { ArrowLeft, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { ConnectionFilterBar, NoGpsFilterButton, TruckStatusFilterBar } from "./gps-list"
-import RouteMap from "./route-map"
+import RouteMap, { type MapPoint } from "./route-map"
 import { ReplayMapControl } from "./route-replay"
 import { TrackerHeader } from "./tracker-history"
 import type { TruckStatusFilter } from "./types"
@@ -65,6 +68,13 @@ export function PanelToggle({ panelOpen, setPanelOpen, panelTitle }: Pick<C, "pa
 }
 
 export function MapArea({ mode, historical, trackerImei, gpsLive, noGpsOnly, connection, truckStatus, setTruckStatus, truckStatusCounts, setConnection, connectionCounts, allUnlinked, setNoGps, selectedId, backToAll, history, replayBar, replayStatuses, mapMarkers, setMapBounds, routeSegments, polylineData }: Pick<C, "mode" | "historical" | "trackerImei" | "gpsLive" | "noGpsOnly" | "connection" | "truckStatus" | "setTruckStatus" | "truckStatusCounts" | "setConnection" | "connectionCounts" | "allUnlinked" | "setNoGps" | "selectedId" | "backToAll" | "history" | "replayBar" | "replayStatuses" | "mapMarkers" | "setMapBounds" | "routeSegments" | "polylineData">) {
+    const garageArea = useGet<{ coordinates: MapPoint[] }>(MONITORING_GARAGE_AREA, {
+        options: { staleTime: Infinity },
+    })
+    const garageAreas = useMemo(
+        () => (garageArea.data ? [garageArea.data.coordinates] : undefined),
+        [garageArea.data],
+    )
     const { t } = useTranslation()
     return (
         <div
@@ -168,6 +178,7 @@ export function MapArea({ mode, historical, trackerImei, gpsLive, noGpsOnly, con
                                   : null
                         }
                         pois={trackerImei ? history.map.pois : undefined}
+                        areas={garageAreas}
                     />
                 </CardContent>
             </Card>

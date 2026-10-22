@@ -3,6 +3,7 @@ import {
     GoogleMap,
     OverlayView,
     OverlayViewF,
+    PolygonF,
     PolylineF,
     useJsApiLoader,
 } from "@react-google-maps/api"
@@ -11,7 +12,7 @@ import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 import { ClusterMarker, DriverMarker, EndpointDot, PoiMarker, SpeedTooltip } from "./map-markers"
 import { type MarkerCluster, SPREAD_ZOOM, clusterMarkers, separatesAt } from "./marker-clusters"
-import { type MapPoint, type RouteHover, type RouteMapProps, nearestPoint } from "./route-map"
+import { AREA_COLOR, type MapPoint, type RouteHover, type RouteMapProps, nearestPoint } from "./route-map"
 
 const MAX_FIT_ZOOM = 14
 const HIDDEN_WIDTH = 50
@@ -155,6 +156,7 @@ export default function GoogleRouteMap({
     lineColor,
     segments,
     pois,
+    areas,
     onBoundsChange,
 }: RouteMapProps) {
     const { t } = useTranslation()
@@ -305,6 +307,21 @@ export default function GoogleRouteMap({
                         onBoundsChange({ north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() })
                     }}
                 >
+                    {areas?.map((a, i) => (
+                        <PolygonF
+                            key={`area-${i}`}
+                            paths={a.map(toLatLng)}
+                            options={{
+                                strokeColor: AREA_COLOR,
+                                strokeOpacity: 1,
+                                strokeWeight: 2.5,
+                                fillColor: AREA_COLOR,
+                                fillOpacity: 0.22,
+                                clickable: false,
+                            }}
+                        />
+                    ))}
+
                     {validSegments.length > 0
                         ? validSegments.map((s, i) => (
                               <PolylineF

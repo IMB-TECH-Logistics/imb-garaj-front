@@ -52,6 +52,7 @@ export function EndpointDot({
 const DOT_TONE_COLORS = {
     loaded: "#10b981",
     empty: "#0ea5e9",
+    garage: "#8b5cf6",
     repair: "#f97316",
 } as const
 
@@ -189,11 +190,12 @@ export function DriverMarker({ marker }: { marker: LiveMarker }) {
 const CLUSTER_TONE_COLORS = {
     loaded: "#10b981",
     empty: "#0ea5e9",
+    garage: "#8b5cf6",
     repair: "#f97316",
 } as const
 
 function clusterRing(members: LiveMarker[]) {
-    const counts = { loaded: 0, empty: 0, repair: 0 }
+    const counts = { loaded: 0, empty: 0, garage: 0, repair: 0 }
     members.forEach((m) => {
         counts[m.tone ?? "loaded"] += 1
     })

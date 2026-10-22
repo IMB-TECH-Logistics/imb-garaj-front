@@ -353,6 +353,7 @@
         "truck_status_all": "All",
         "truck_status_loaded": "Loaded",
         "truck_status_empty": "Empty",
+        "truck_status_garage": "In garage",
         "truck_status_repair": "In repair",
         "list": "List",
         "not_found": "No data found",

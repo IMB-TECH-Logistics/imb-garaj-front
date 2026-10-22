@@ -353,6 +353,7 @@
         "truck_status_all": "Все",
         "truck_status_loaded": "Загружен",
         "truck_status_empty": "Пустой",
+        "truck_status_garage": "В гараже",
         "truck_status_repair": "В ремонте",
         "list": "Список",
         "not_found": "Данные не найдены",
