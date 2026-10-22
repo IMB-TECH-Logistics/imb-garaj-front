@@ -10,6 +10,7 @@ import {
     CreditCard,
     Settings,
     Truck,
+    Wrench,
     User,
     Users,
     Wallet,
@@ -318,6 +319,12 @@ export const useItems = () => {
                 icon: <Users width={18} />,
                 path: "/haydovchilar",
                 allowKey: "hr_drivers_view",
+            },
+            {
+                label: t("nav.tech_base"),
+                icon: <Wrench width={18} />,
+                path: "/texnik-baza",
+                allowKey: "tech_base_view",
             },
             {
                 label: t("nav.monitoring"),

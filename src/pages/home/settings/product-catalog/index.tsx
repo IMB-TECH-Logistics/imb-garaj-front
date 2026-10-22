@@ -2,16 +2,18 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { DataTable } from "@/components/ui/datatable"
 import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
-import { useHasAction } from "@/constants/useUser"
+import { useHasAction, useWarehouseOwner } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import type { WhProduct } from "@/pages/home/ombor/types"
 import { useGlobalStore } from "@/store/global-store"
 import { useSearch } from "@tanstack/react-router"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddProductModal from "./add-product"
 import { useColumnsCatalogTable } from "./catalog-cols"
+import SerializeDialog from "./serialize-dialog"
 
 const ProductCatalogPage = () => {
     const { t } = useTranslation()
@@ -33,7 +35,11 @@ const ProductCatalogPage = () => {
 
     const { openModal: openDeleteModal } = useModal("delete")
     const { openModal: openCreateModal } = useModal("create")
-    const columns = useColumnsCatalogTable()
+    const isOwner = useWarehouseOwner()
+    const [serializing, setSerializing] = useState<WhProduct | null>(null)
+    const columns = useColumnsCatalogTable(
+        hasControl && isOwner ? setSerializing : undefined,
+    )
 
     const handleDelete = (row: { original: WhProduct }) => {
         setData(WAREHOUSE_PRODUCTS, row.original)
@@ -72,6 +78,11 @@ const ProductCatalogPage = () => {
                         count={data?.count}
                     />
                 }
+            />
+
+            <SerializeDialog
+                product={serializing}
+                onClose={() => setSerializing(null)}
             />
 
             <DeleteModal

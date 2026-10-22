@@ -1033,7 +1033,11 @@
             "load_time": "積込",
             "unload_time": "荷下ろし",
             "fuel": "燃料",
-            "status": "状態"
+            "status": "状態",
+            "flags": "要注意",
+            "osrm_distance": "道路距離 (OSRM)",
+            "driven": "走行距離 (GPS)",
+            "difference": "差"
         },
         "filters": {
             "fuel_type": "燃料の種類",
@@ -1055,7 +1059,8 @@
             "title": "ルートの便",
             "tab_in": "基準値に反映",
             "tab_out": "対象外",
-            "tab_all": "すべて"
+            "tab_all": "すべて",
+            "tab_flagged": "要注意"
         },
         "issues": {
             "no_gps_device": "GPS端末が未接続",
@@ -1068,6 +1073,17 @@
             "too_short": "短すぎる",
             "same_point": "積込地と荷下ろし地が同じ",
             "fuel_km_from_gps": "燃料の距離をGPSから算出"
+        },
+        "osrm_short": "OSRM",
+        "page": {
+            "back": "戻る"
+        },
+        "legend": {
+            "title": "フラグのルール",
+            "intro": "各便のGPS走行距離を、積込地と荷降ろし地の道路距離 (OSRM) と比較します。",
+            "yellow": "黄色フラグ — {{pct}}%以上多く走行",
+            "red": "赤フラグ — {{pct}}%以上多く走行",
+            "example": "例: OSRM 300 km。345 kmで黄色、360 km以上で赤。余分な走行は隠れた積荷や別の仕事の可能性があります。"
         }
     },
     "settings": {

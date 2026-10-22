@@ -1,7 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { cn } from "@/lib/utils"
 import { Muted } from "./cols"
+import { FLAG_TEXT, FlagIcon } from "./deviation"
 import {
     EMPTY_VALUE,
     formatDate,
@@ -49,13 +51,35 @@ export const useOrderColumns = () => {
                 ),
             },
             {
-                header: t("route_norms.cols.distance"),
+                header: t("route_norms.cols.driven"),
                 id: "distance_km",
                 cell: ({ row }) => (
-                    <span className="whitespace-nowrap">
+                    <span className="whitespace-nowrap font-medium">
                         {formatKm(t, row.original.distance_km)}
                     </span>
                 ),
+            },
+            {
+                header: t("route_norms.cols.difference"),
+                id: "extra_km",
+                cell: ({ row }) => {
+                    const { extra_km, extra_pct, deviation_level } = row.original
+                    if (extra_km === null || extra_pct === null) return <Dash />
+                    const sign = extra_km > 0 ? "+" : ""
+                    return (
+                        <span
+                            className={cn(
+                                "inline-flex items-center gap-1.5 whitespace-nowrap tabular-nums",
+                                deviation_level ? FLAG_TEXT[deviation_level] : "text-muted-foreground",
+                            )}
+                        >
+                            {deviation_level && <FlagIcon level={deviation_level} />}
+                            {sign}
+                            {formatKm(t, extra_km)} ({sign}
+                            {formatNumber(extra_pct)}%)
+                        </span>
+                    )
+                },
             },
             {
                 header: t("route_norms.cols.total_time"),

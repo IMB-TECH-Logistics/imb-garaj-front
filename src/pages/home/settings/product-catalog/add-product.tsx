@@ -24,6 +24,7 @@ type FormValues = {
     is_serialized: boolean
     min_quantity: string
     tire_km_limit: string
+    serial_prefix: string
     life_years: string
     life_months: string
     life_days: string
@@ -54,6 +55,7 @@ const AddProductModal = () => {
             is_serialized: current?.is_serialized ?? false,
             min_quantity: numberText(current?.min_quantity),
             tire_km_limit: numberText(current?.tire_km_limit),
+            serial_prefix: current?.serial_prefix ?? "",
             life_years: numberText(current?.life_years),
             life_months: numberText(current?.life_months),
             life_days: numberText(current?.life_days),
@@ -65,6 +67,7 @@ const AddProductModal = () => {
     const { control, handleSubmit } = form
 
     const unitId = useWatch({ control, name: "unit" })
+    const isSerialized = useWatch({ control, name: "is_serialized" })
     const unitName = units?.find((unit) => unit.id === unitId)?.name
 
     const onSuccess = () => {
@@ -95,6 +98,9 @@ const AddProductModal = () => {
             is_serialized: values.is_serialized,
             min_quantity: values.min_quantity,
             tire_km_limit: values.tire_km_limit === "" ? null : Number(values.tire_km_limit),
+            ...(values.is_serialized ?
+                { serial_prefix: values.serial_prefix.trim() }
+            :   {}),
             life_years: Number(values.life_years) || 0,
             life_months: Number(values.life_months) || 0,
             life_days: Number(values.life_days) || 0,
@@ -173,6 +179,16 @@ const AddProductModal = () => {
                             </div>
                         )}
                     />
+
+                    {isSerialized && (
+                        <FormInput
+                            name="serial_prefix"
+                            label={t("wh.serial_prefix")}
+                            placeholder={t("wh.serial_prefix_example")}
+                            methods={form}
+                            wrapperClassName="md:col-span-2"
+                        />
+                    )}
                 </div>
             </section>
 

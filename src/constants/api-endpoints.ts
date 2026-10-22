@@ -26,6 +26,7 @@ export const VEHICLE_DOCUMENTS_DOC_VEHICLE = "vehicles/documents/vehicle"
 export const VEHICLE_DOCUMENTS_TRUCKS = "vehicles/documents/trucks"
 export const VEHICLE_DOCUMENT_ALERTS = "vehicles/documents/alerts"
 export const TECHNICAL_INSPECT = "vehicles/technical-inspection"
+export const TECH_BASE = "vehicles/tech-base"
 export const TECHNICAL_INSPECT_ALERTS = "vehicles/technical-inspection/alerts"
 export const TECHNICAL_INSPECT_INSTALLED = "vehicles/technical-inspection/installed"
 

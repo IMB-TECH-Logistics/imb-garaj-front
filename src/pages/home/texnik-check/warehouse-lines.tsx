@@ -2,7 +2,9 @@ import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Combobox } from "@/components/ui/combobox"
-import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
+import Select from "@/components/ui/select"
+import { TECH_BASE, WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
@@ -14,6 +16,9 @@ import { useFieldArray, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { fmtDate, isPast, toNumber } from "../ombor/utils"
 import type { VehicleExpenseRow } from "./cols"
+import type { Passport } from "../texnik-baza/types"
+import { positionsOf } from "../texnik-baza/utils"
+import { usePositionLabel } from "../texnik-baza/tire-schema"
 import type { ExpenseForm, LineValues, SerialLot, SerialProduct } from "./types"
 import type { LineCheckResult } from "./use-line-check"
 
@@ -50,6 +55,19 @@ const WarehouseLines = ({ form, current, check }: Props) => {
         name: "items",
     })
     const lines = useWatch({ control, name: "items" })
+    const vehicleId = useWatch({ control, name: "vehicle" })
+    const canSeeBase = useHasAction("tech_base_view")
+
+    const { data: passport } = useGet<Passport>(`${TECH_BASE}/${vehicleId}`, {
+        enabled: canSeeBase && !!vehicleId,
+        options: { retry: false, meta: { skipGlobalError: true } },
+    })
+    const axles = passport?.axles ?? []
+    const positionLabel = usePositionLabel(axles)
+    const positionOptions = positionsOf(axles).map((code) => ({
+        value: code,
+        label: positionLabel(code),
+    }))
 
     const { data } = useGet<ListResponse<SerialProduct>>(WAREHOUSE_PRODUCTS, {
         params: { in_stock: 1, page_size: 1000 },
@@ -89,6 +107,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                     "1"
                 :   (lines[index]?.quantity ?? ""),
             odometer: "",
+            position: "",
         })
     }
 
@@ -116,6 +135,7 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                 lot: null,
                                 quantity: "",
                                 odometer: "",
+                                position: "",
                                                 })
                         }
                     >
@@ -278,6 +298,21 @@ const WarehouseLines = ({ form, current, check }: Props) => {
                                             onClick={() => remove(index)}
                                         />
                                     </div>
+                                    {serialized && positionOptions.length > 0 && (
+                                        <div className="-mt-1.5 sm:max-w-sm">
+                                            <Select
+                                                value={line.position ?? ""}
+                                                setValue={(v) =>
+                                                    update(index, {
+                                                        ...lines[index],
+                                                        position: v,
+                                                    })
+                                                }
+                                                options={positionOptions}
+                                                label={t("tb.position_optional")}
+                                            />
+                                        </div>
+                                    )}
                                     {c?.stock && (
                                         <div className={cn(GRID, "-mt-1.5")}>
                                             <span className="max-sm:hidden" />

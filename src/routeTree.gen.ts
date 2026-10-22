@@ -34,6 +34,8 @@ import { Route as MainManagersManagerTripsManagerReysIdImport } from './routes/_
 const MainDashboardLazyImport = createFileRoute('/_main/dashboard')()
 const AuthAuthLazyImport = createFileRoute('/_auth/auth')()
 const MainTexnikCheckIndexLazyImport = createFileRoute('/_main/texnik-check/')()
+const MainTexnikBazaIndexLazyImport = createFileRoute('/_main/texnik-baza/')()
+const MainTexnikBazaIdLazyImport = createFileRoute('/_main/texnik-baza/$id')()
 const MainRouteNormsIndexLazyImport = createFileRoute('/_main/route-norms/')()
 const MainMonitoringIndexLazyImport = createFileRoute('/_main/monitoring/')()
 const MainMoliyaIndexLazyImport = createFileRoute('/_main/moliya/')()
@@ -43,6 +45,9 @@ const MainHaydovchilarIndexLazyImport = createFileRoute(
 )()
 const MainBuxgalteriyaIndexLazyImport = createFileRoute(
   '/_main/buxgalteriya/',
+)()
+const MainRouteNormsRouteLazyImport = createFileRoute(
+  '/_main/route-norms/$route',
 )()
 const MainManagersManagersLazyImport = createFileRoute(
   '/_main/_managers/managers',
@@ -166,6 +171,20 @@ const MainTexnikCheckIndexLazyRoute = MainTexnikCheckIndexLazyImport.update({
   import('./routes/_main/texnik-check/index.lazy').then((d) => d.Route),
 )
 
+const MainTexnikBazaIndexLazyRoute = MainTexnikBazaIndexLazyImport.update({
+  path: '/texnik-baza/',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/texnik-baza/index.lazy').then((d) => d.Route),
+)
+
+const MainTexnikBazaIdLazyRoute = MainTexnikBazaIdLazyImport.update({
+  path: '/texnik-baza/$id',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/texnik-baza/$id.lazy').then((d) => d.Route),
+)
+
 const MainRouteNormsIndexLazyRoute = MainRouteNormsIndexLazyImport.update({
   path: '/route-norms/',
   getParentRoute: () => MainRoute,
@@ -213,6 +232,13 @@ const MainOmborIndexRoute = MainOmborIndexImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/ombor/index.lazy').then((d) => d.Route),
+)
+
+const MainRouteNormsRouteLazyRoute = MainRouteNormsRouteLazyImport.update({
+  path: '/route-norms/$route',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/route-norms/$route.lazy').then((d) => d.Route),
 )
 
 const MainManagersManagersLazyRoute = MainManagersManagersLazyImport.update({
@@ -592,6 +618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainManagersManagersLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/route-norms/$route': {
+      id: '/_main/route-norms/$route'
+      path: '/route-norms/$route'
+      fullPath: '/route-norms/$route'
+      preLoaderRoute: typeof MainRouteNormsRouteLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/ombor/': {
       id: '/_main/ombor/'
       path: '/ombor'
@@ -646,6 +679,20 @@ declare module '@tanstack/react-router' {
       path: '/texnik-check'
       fullPath: '/texnik-check'
       preLoaderRoute: typeof MainTexnikCheckIndexLazyImport
+      parentRoute: typeof MainImport
+    }
+    '/_main/texnik-baza/': {
+      id: '/_main/texnik-baza/'
+      path: '/texnik-baza'
+      fullPath: '/texnik-baza'
+      preLoaderRoute: typeof MainTexnikBazaIndexLazyImport
+      parentRoute: typeof MainImport
+    }
+    '/_main/texnik-baza/$id': {
+      id: '/_main/texnik-baza/$id'
+      path: '/texnik-baza/$id'
+      fullPath: '/texnik-baza/$id'
+      preLoaderRoute: typeof MainTexnikBazaIdLazyImport
       parentRoute: typeof MainImport
     }
     '/_main/_managers/manager-trips/$id': {
@@ -947,6 +994,7 @@ interface MainRouteChildren {
   MainIndexRoute: typeof MainIndexRoute
   MainHaydovchilarIdRoute: typeof MainHaydovchilarIdRouteWithChildren
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
+  MainRouteNormsRouteLazyRoute: typeof MainRouteNormsRouteLazyRoute
   MainOmborIndexRoute: typeof MainOmborIndexRoute
   MainBuxgalteriyaIndexLazyRoute: typeof MainBuxgalteriyaIndexLazyRoute
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
@@ -955,6 +1003,8 @@ interface MainRouteChildren {
   MainMonitoringIndexLazyRoute: typeof MainMonitoringIndexLazyRoute
   MainRouteNormsIndexLazyRoute: typeof MainRouteNormsIndexLazyRoute
   MainTexnikCheckIndexLazyRoute: typeof MainTexnikCheckIndexLazyRoute
+  MainTexnikBazaIndexLazyRoute: typeof MainTexnikBazaIndexLazyRoute
+  MainTexnikBazaIdLazyRoute: typeof MainTexnikBazaIdLazyRoute
   MainManagersManagerTripsIdRoute: typeof MainManagersManagerTripsIdRoute
   MainManagersPetrolStationsIdRoute: typeof MainManagersPetrolStationsIdRoute
   MainTrucksOrdersIdRoute: typeof MainTrucksOrdersIdRoute
@@ -998,6 +1048,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainIndexRoute: MainIndexRoute,
   MainHaydovchilarIdRoute: MainHaydovchilarIdRouteWithChildren,
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
+  MainRouteNormsRouteLazyRoute: MainRouteNormsRouteLazyRoute,
   MainOmborIndexRoute: MainOmborIndexRoute,
   MainBuxgalteriyaIndexLazyRoute: MainBuxgalteriyaIndexLazyRoute,
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
@@ -1006,6 +1057,8 @@ const MainRouteChildren: MainRouteChildren = {
   MainMonitoringIndexLazyRoute: MainMonitoringIndexLazyRoute,
   MainRouteNormsIndexLazyRoute: MainRouteNormsIndexLazyRoute,
   MainTexnikCheckIndexLazyRoute: MainTexnikCheckIndexLazyRoute,
+  MainTexnikBazaIndexLazyRoute: MainTexnikBazaIndexLazyRoute,
+  MainTexnikBazaIdLazyRoute: MainTexnikBazaIdLazyRoute,
   MainManagersManagerTripsIdRoute: MainManagersManagerTripsIdRoute,
   MainManagersPetrolStationsIdRoute: MainManagersPetrolStationsIdRoute,
   MainTrucksOrdersIdRoute: MainTrucksOrdersIdRoute,
@@ -1065,6 +1118,7 @@ export interface FileRoutesByFullPath {
   '/': typeof MainIndexRoute
   '/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/managers': typeof MainManagersManagersLazyRoute
+  '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/ombor': typeof MainOmborIndexRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
@@ -1073,6 +1127,8 @@ export interface FileRoutesByFullPath {
   '/monitoring': typeof MainMonitoringIndexLazyRoute
   '/route-norms': typeof MainRouteNormsIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
+  '/texnik-baza': typeof MainTexnikBazaIndexLazyRoute
+  '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
   '/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
   '/orders/$id': typeof MainTrucksOrdersIdRoute
@@ -1119,6 +1175,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof MainDashboardLazyRoute
   '/': typeof MainIndexRoute
   '/managers': typeof MainManagersManagersLazyRoute
+  '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/ombor': typeof MainOmborIndexRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
@@ -1127,6 +1184,8 @@ export interface FileRoutesByTo {
   '/monitoring': typeof MainMonitoringIndexLazyRoute
   '/route-norms': typeof MainRouteNormsIndexLazyRoute
   '/texnik-check': typeof MainTexnikCheckIndexLazyRoute
+  '/texnik-baza': typeof MainTexnikBazaIndexLazyRoute
+  '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
   '/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
   '/orders/$id': typeof MainTrucksOrdersIdRoute
@@ -1176,6 +1235,7 @@ export interface FileRoutesById {
   '/_main/': typeof MainIndexRoute
   '/_main/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
+  '/_main/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/_main/ombor/': typeof MainOmborIndexRoute
   '/_main/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
@@ -1184,6 +1244,8 @@ export interface FileRoutesById {
   '/_main/monitoring/': typeof MainMonitoringIndexLazyRoute
   '/_main/route-norms/': typeof MainRouteNormsIndexLazyRoute
   '/_main/texnik-check/': typeof MainTexnikCheckIndexLazyRoute
+  '/_main/texnik-baza/': typeof MainTexnikBazaIndexLazyRoute
+  '/_main/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/_main/_managers/manager-trips/$id': typeof MainManagersManagerTripsIdRoute
   '/_main/_managers/petrol-stations/$id': typeof MainManagersPetrolStationsIdRoute
   '/_main/_trucks/orders/$id': typeof MainTrucksOrdersIdRoute
@@ -1233,6 +1295,7 @@ export interface FileRouteTypes {
     | '/'
     | '/haydovchilar/$id'
     | '/managers'
+    | '/route-norms/$route'
     | '/ombor'
     | '/buxgalteriya'
     | '/haydovchilar'
@@ -1241,6 +1304,8 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/route-norms'
     | '/texnik-check'
+    | '/texnik-baza'
+    | '/texnik-baza/$id'
     | '/manager-trips/$id'
     | '/petrol-stations/$id'
     | '/orders/$id'
@@ -1286,6 +1351,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/'
     | '/managers'
+    | '/route-norms/$route'
     | '/ombor'
     | '/buxgalteriya'
     | '/haydovchilar'
@@ -1294,6 +1360,8 @@ export interface FileRouteTypes {
     | '/monitoring'
     | '/route-norms'
     | '/texnik-check'
+    | '/texnik-baza'
+    | '/texnik-baza/$id'
     | '/manager-trips/$id'
     | '/petrol-stations/$id'
     | '/orders/$id'
@@ -1341,6 +1409,7 @@ export interface FileRouteTypes {
     | '/_main/'
     | '/_main/haydovchilar/$id'
     | '/_main/_managers/managers'
+    | '/_main/route-norms/$route'
     | '/_main/ombor/'
     | '/_main/buxgalteriya/'
     | '/_main/haydovchilar/'
@@ -1349,6 +1418,8 @@ export interface FileRouteTypes {
     | '/_main/monitoring/'
     | '/_main/route-norms/'
     | '/_main/texnik-check/'
+    | '/_main/texnik-baza/'
+    | '/_main/texnik-baza/$id'
     | '/_main/_managers/manager-trips/$id'
     | '/_main/_managers/petrol-stations/$id'
     | '/_main/_trucks/orders/$id'
@@ -1429,6 +1500,7 @@ export const routeTree = rootRoute
         "/_main/",
         "/_main/haydovchilar/$id",
         "/_main/_managers/managers",
+        "/_main/route-norms/$route",
         "/_main/ombor/",
         "/_main/buxgalteriya/",
         "/_main/haydovchilar/",
@@ -1437,6 +1509,8 @@ export const routeTree = rootRoute
         "/_main/monitoring/",
         "/_main/route-norms/",
         "/_main/texnik-check/",
+        "/_main/texnik-baza/",
+        "/_main/texnik-baza/$id",
         "/_main/_managers/manager-trips/$id",
         "/_main/_managers/petrol-stations/$id",
         "/_main/_trucks/orders/$id",
@@ -1499,6 +1573,10 @@ export const routeTree = rootRoute
       "filePath": "_main/_managers/managers.lazy.tsx",
       "parent": "/_main"
     },
+    "/_main/route-norms/$route": {
+      "filePath": "_main/route-norms/$route.lazy.tsx",
+      "parent": "/_main"
+    },
     "/_main/ombor/": {
       "filePath": "_main/ombor/index.tsx",
       "parent": "/_main"
@@ -1529,6 +1607,14 @@ export const routeTree = rootRoute
     },
     "/_main/texnik-check/": {
       "filePath": "_main/texnik-check/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/texnik-baza/": {
+      "filePath": "_main/texnik-baza/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/texnik-baza/$id": {
+      "filePath": "_main/texnik-baza/$id.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/_managers/manager-trips/$id": {
