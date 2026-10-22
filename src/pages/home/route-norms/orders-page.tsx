@@ -120,8 +120,8 @@ export default function RouteNormOrdersPage() {
     const countLabel = (count?: number) =>
         count === undefined ? "" : ` (${count})`
 
-    return (
-        <div className="space-y-3 pb-6">
+    const head = (
+        <div className="space-y-3 mb-3">
             <div className="flex items-start gap-3">
                 <Button
                     variant="ghost"
@@ -186,28 +186,34 @@ export default function RouteNormOrdersPage() {
                     </TabsTrigger>
                 </TabsList>
             </Tabs>
-            {isError ?
+            {isError && (
                 <p className="text-sm text-muted-foreground" role="alert">
                     {t("route_norms.error")}
                 </p>
-            :   <DataTable
-                    columns={columns}
-                    data={data?.results ?? []}
-                    loading={isLoading || !ready}
-                    numeration
-                    className="min-w-[1450px]"
-                    skeletonRowCount={8}
-                    rowColor={(row: RouteNormOrder) =>
-                        row.deviation_level ? ROW_COLORS[row.deviation_level] : ""
-                    }
-                    paginationProps={{
-                        totalPages: data?.total_pages,
-                        paramName: PAGE_KEY,
-                        pageSizeParamName: PAGE_SIZE_KEY,
-                        page_sizes: [25, 50, 100],
-                    }}
-                />
-            }
+            )}
+        </div>
+    )
+
+    return (
+        <div className="space-y-3 pb-6">
+            <DataTable
+                columns={columns}
+                data={isError ? [] : (data?.results ?? [])}
+                loading={isLoading || !ready}
+                numeration
+                className="min-w-[1450px]"
+                skeletonRowCount={8}
+                head={head}
+                rowColor={(row: RouteNormOrder) =>
+                    row.deviation_level ? ROW_COLORS[row.deviation_level] : ""
+                }
+                paginationProps={{
+                    totalPages: data?.total_pages,
+                    paramName: PAGE_KEY,
+                    pageSizeParamName: PAGE_SIZE_KEY,
+                    page_sizes: [25, 50, 100],
+                }}
+            />
         </div>
     )
 }
