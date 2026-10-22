@@ -2507,6 +2507,7 @@
             "extra_pay_list": "Qo'shimcha to'lovlar",
             "extra_pay_title": "Haydovchiga qo'shimcha to'lov",
             "trip_locked": "Aylanma yopilgan, o'zgartirib bo'lmaydi",
+            "no_location": "Lokatsiya kiritilmagan",
             "to_loading": "Yuklashga",
             "to_road": "Yo'lga",
             "to_unloading": "Tushirishga",

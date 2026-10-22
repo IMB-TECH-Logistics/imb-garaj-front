@@ -104,6 +104,16 @@ export const useColumnsManagersOrders = (opts?: {
                     if (isGarajOrTamirActivity(row.original?.activity)) {
                         return <span className="text-muted-foreground">—</span>
                     }
+                    if (row.original.loading_located === false) {
+                        return (
+                            <div
+                                className="text-red-600 font-medium"
+                                title={t("trips.reys_cols.no_location")}
+                            >
+                                {row.original.loading_name || "-"}
+                            </div>
+                        )
+                    }
                     return <div>{row.original.loading_name || "-"}</div>
                 },
             },
@@ -114,6 +124,16 @@ export const useColumnsManagersOrders = (opts?: {
                 cell: ({ row }) => {
                     if (isGarajOrTamirActivity(row.original?.activity) || (row.original as any).__idle) {
                         return <span className="text-muted-foreground">—</span>
+                    }
+                    if (row.original.unloading_located === false) {
+                        return (
+                            <div
+                                className="text-red-600 font-medium"
+                                title={t("trips.reys_cols.no_location")}
+                            >
+                                {row.original.unloading_name || "-"}
+                            </div>
+                        )
                     }
                     return <div>{row.original.unloading_name || "-"}</div>
                 },
