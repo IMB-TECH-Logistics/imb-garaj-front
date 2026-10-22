@@ -153,7 +153,7 @@ export default function CreateManagerTrips() {
         <div className="max-h-[80vh] overflow-y-auto pr-2 pl-2 no-scrollbar-x">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{item?.id ? t("form.driver") : t("trips.create_trip.driver_and_advance")}</h3>
+                    {!isEdit && <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_trip.driver_and_advance")}</h3>}
                     <div className="grid grid-cols-1 gap-4">
                         <FormCombobox
                             control={control}
@@ -180,7 +180,7 @@ export default function CreateManagerTrips() {
                 </section>
 
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_trip.start_section")}</h3>
+                    {!isEdit && <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_trip.start_section")}</h3>}
                     <div className="grid grid-cols-1 gap-4">
                         {(!IS_READY || isEdit) && (
                             <FormDatePicker
@@ -241,7 +241,6 @@ export default function CreateManagerTrips() {
 
                 {item?.id && (
                     <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                        <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("trips.create_trip.end_section")}</h3>
                         <div className="grid grid-cols-1 gap-4">
                             <FormDatePicker
                                 fullWidth
