@@ -2469,7 +2469,8 @@
             "trip_locked": "Aylanma yopilgan, o'zgartirib bo'lmaydi",
             "to_loading": "Yuklashga",
             "to_road": "Yo'lga",
-            "to_unloading": "Tushirishga"
+            "to_unloading": "Tushirishga",
+            "fuel": "Yoqilg'i"
         },
         "common": {
             "example_amount": "Misol: 1 500 000",
@@ -2638,6 +2639,14 @@
             "payments": "To'lovlar",
             "payment_n": "To'lov #{{n}}",
             "select_payment_type": "To'lov turini tanlang"
+        },
+        "fuel": {
+            "title": "Yoqilg'i",
+            "pending": "Aylanma yopilganda hisoblanadi",
+            "check": "Sarf normadan tashqari — tekshiring",
+            "total": "Aylanma",
+            "orders": "Reyslar",
+            "empty": "Bo'sh yurish"
         }
     },
     "ui": {

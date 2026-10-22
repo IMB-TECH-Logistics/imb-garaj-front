@@ -39,6 +39,9 @@ export type EmptyLeg = {
     idle_payment_comment?: string | null
     salary_paid_at?: string | null
     locked?: boolean
+    fuel_amount?: number | null
+    fuel_state?: TripFuelState | null
+    fuel_type?: "diesel" | "methane" | null
 }
 
 type FormValues = {

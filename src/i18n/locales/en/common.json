@@ -2472,7 +2472,8 @@
             "trip_locked": "Turnover is closed, cannot be changed",
             "to_loading": "To loading",
             "to_road": "To departure",
-            "to_unloading": "To unloading"
+            "to_unloading": "To unloading",
+            "fuel": "Fuel"
         },
         "common": {
             "example_amount": "Example: 1 500 000",
@@ -2641,6 +2642,14 @@
             "payments": "Payments",
             "payment_n": "Payment #{{n}}",
             "select_payment_type": "Select payment type"
+        },
+        "fuel": {
+            "title": "Fuel",
+            "pending": "Calculated when the turnover is closed",
+            "check": "Consumption out of range — check",
+            "total": "Turnover",
+            "orders": "Trips",
+            "empty": "Empty runs"
         }
     },
     "ui": {

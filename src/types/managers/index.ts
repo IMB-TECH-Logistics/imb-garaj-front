@@ -41,6 +41,8 @@ interface ManagerTrips {
     unloading: string
 }
 
+type TripFuelState = "ok" | "pending" | "no_data" | "unreliable"
+
 type ManagerOrdersPayments = {
     id: number
     order: number
@@ -50,6 +52,9 @@ type ManagerOrdersPayments = {
 
 type ManagerOrders = {
     distance_km?: number | null
+    fuel_amount?: number | null
+    fuel_state?: TripFuelState | null
+    fuel_type?: "diesel" | "methane" | null
     id: number
     trip?: number
     loading: number

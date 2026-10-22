@@ -27,6 +27,7 @@ import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS, REYS_KIND_PARAMS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
+import TripFuelSummary, { type TripFuel } from "./trip-fuel-summary"
 import EmptyLegPayModal, { EMPTY_LEG_PAY_MODAL_KEY, type EmptyLeg } from "./empty-leg-pay-modal"
 import ExtraPayModal, { EXTRA_PAY_MODAL_KEY, type ExtraPayTarget } from "./extra-pay-modal"
 
@@ -121,6 +122,7 @@ export default function ManagerReys() {
     }
 
     const { data: legs } = useGet<EmptyLeg[]>(`${MANAGERS_TRIPS}/${tripId}/empty-legs`, { enabled: !!tripId })
+    const { data: fuel } = useGet<TripFuel>(`${MANAGERS_TRIPS}/${tripId}/fuel`, { enabled: !!tripId })
     const rows = useMemo(() => {
         const list = data?.results ?? []
         if (!legs?.length) return list
@@ -272,6 +274,7 @@ export default function ManagerReys() {
                                 }
                             />
                         </div>
+                        {fuel && <TripFuelSummary fuel={fuel} />}
                         {(trip?.pending_advance || trip?.rejected_advance) && (
                             <div className="mt-2">
                                 <AdvanceBadge pending={trip?.pending_advance} rejected={trip?.rejected_advance} />

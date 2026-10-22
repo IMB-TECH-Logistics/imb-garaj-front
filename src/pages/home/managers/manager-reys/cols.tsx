@@ -14,6 +14,7 @@ import type { EmptyLeg } from "./empty-leg-pay-modal"
 import type { ExtraPayTarget } from "./extra-pay-modal"
 import { useGet } from "@/hooks/useGet"
 import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { formatFuel } from "@/pages/home/route-norms/format"
 
 const HOLAT_COLORS: Record<number, string> = {
     1: "bg-green-500/10 text-green-600 border-transparent",
@@ -263,6 +264,35 @@ export const useColumnsManagersOrders = (opts?: {
                             title={manual ? `GPS: ${gps} ${t("trips.units.km")}` : undefined}
                         >
                             {km != null ? <>{formatMoney(Math.round(Number(km)))} {t("trips.units.km")}{manual ? " *" : ""}</> : "—"}
+                        </span>
+                    )
+                },
+            },
+            {
+                id: "fuel",
+                header: t("trips.reys_cols.fuel"),
+                size: 100,
+                cell: ({ row }) => {
+                    const r = row.original as any
+                    if (r.__idle) return <span className="text-muted-foreground">—</span>
+                    const legs = legsOf(row.original)
+                    const parts = [...legs, ...(r.__leg ? [] : [row.original])]
+                    const state = parts.find((p) => p.fuel_state)?.fuel_state
+                    if (state === "pending") {
+                        return <span className="text-muted-foreground" title={t("trips.fuel.pending")}>—</span>
+                    }
+                    const known = parts.map((p) => p.fuel_amount).filter((v): v is number => v != null)
+                    if (!known.length) return <span className="text-muted-foreground">—</span>
+                    const amount = known.reduce((sum, v) => sum + Number(v), 0)
+                    const fuelType = parts.find((p) => p.fuel_type)?.fuel_type
+                    const unreliable = parts.some((p) => p.fuel_state === "unreliable")
+                    return (
+                        <span
+                            className={`whitespace-nowrap tabular-nums${unreliable ? " text-amber-600" : ""}`}
+                            title={unreliable ? t("trips.fuel.check") : undefined}
+                        >
+                            {formatFuel(t, fuelType, amount)}
+                            {unreliable ? " ?" : ""}
                         </span>
                     )
                 },
