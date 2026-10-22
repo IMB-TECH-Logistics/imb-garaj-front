@@ -52,6 +52,7 @@ interface DataTableProps<TData> {
     isRowLocked?: (data: TData) => boolean
     actionsDisabled?: boolean
     actionsDisabledTitle?: string
+    rowEditDisabledTitle?: (data: TData) => string | undefined
     paginationProps?: PaginationProps
     cursorPagination?: {
         next: string | null | undefined
@@ -111,6 +112,7 @@ export function DataTable<TData>({
     isRowLocked,
     actionsDisabled,
     actionsDisabledTitle,
+    rowEditDisabledTitle,
     paginationProps,
     cursorPagination,
     limitOffsetPagination,
@@ -188,6 +190,7 @@ export function DataTable<TData>({
                                 menuMode={actionMenuMode}
                                 disabled={actionsDisabled}
                                 disabledTitle={actionsDisabledTitle}
+                                editDisabledTitle={rowEditDisabledTitle?.(row.original)}
                                 onDelete={
                                     onDelete ? () => onDelete?.(row) : undefined
                                 }
@@ -227,6 +230,7 @@ export function DataTable<TData>({
         isRowLocked,
         actionsDisabled,
         actionsDisabledTitle,
+        rowEditDisabledTitle,
     ])
 
     React.useEffect(() => {

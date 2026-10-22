@@ -29,6 +29,7 @@ type Props = {
     className?: string
     disabled?: boolean
     disabledTitle?: string
+    editDisabledTitle?: string
 }
 
 export default function TableActions({
@@ -42,6 +43,7 @@ export default function TableActions({
     className,
     disabled = false,
     disabledTitle,
+    editDisabledTitle,
 }: Props) {
     const { t } = useTranslation()
     return menuMode ?
@@ -70,8 +72,8 @@ export default function TableActions({
                     )}
                     {onEdit && (
                         <DropdownMenuItem
-                            disabled={disabled}
-                            title={disabled ? disabledTitle : undefined}
+                            disabled={disabled || !!editDisabledTitle}
+                            title={disabled ? disabledTitle : editDisabledTitle}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onEdit()
@@ -165,14 +167,14 @@ export default function TableActions({
                     ></Button>
                 )}
                 {onEdit && (
-                    <span title={disabled ? disabledTitle : undefined} className="inline-flex" onClick={(e) => e.stopPropagation()}>
+                    <span title={disabled ? disabledTitle : editDisabledTitle} className="inline-flex" onClick={(e) => e.stopPropagation()}>
                         <Button
                             aria-label={t("actions.edit")}
                             icon={<SquarePen className="text-primary" size={16} />}
                             size="sm"
                             className="p-0 h-3"
                             variant="ghost"
-                            disabled={disabled}
+                            disabled={disabled || !!editDisabledTitle}
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onEdit()

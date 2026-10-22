@@ -2511,6 +2511,7 @@
             "extra_pay_list": "Extra payments",
             "extra_pay_title": "Extra pay to driver",
             "trip_locked": "Turnover is closed, cannot be changed",
+            "logistics_locked": "Trip comes from logistics and cannot be edited here",
             "no_location": "Location not set",
             "to_loading": "To loading",
             "to_road": "To departure",

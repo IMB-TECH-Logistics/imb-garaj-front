@@ -244,6 +244,7 @@ export default function ManagerReys() {
                 actionsDisabledTitle={lockedTitle}
                 onDelete={canDeleteOrder ? (row) => handleDelete(row.original) : undefined}
                 onEdit={canEditOrder ? (row) => handleEdit(row.original) : undefined}
+                rowEditDisabledTitle={(row) => (row.is_integration ? t("trips.reys_cols.logistics_locked") : undefined)}
                 rowAction={
                     hasControl
                         ? (order) =>
