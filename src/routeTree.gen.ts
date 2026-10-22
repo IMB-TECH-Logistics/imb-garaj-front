@@ -87,6 +87,9 @@ const MainSettingsLogsIndexLazyImport = createFileRoute(
 const MainSettingsLocationsIndexLazyImport = createFileRoute(
   '/_main/_settings/locations/',
 )()
+const MainSettingsGarageAreasIndexLazyImport = createFileRoute(
+  '/_main/_settings/garage-areas/',
+)()
 const MainSettingsExpenseTypesIndexLazyImport = createFileRoute(
   '/_main/_settings/expense-types/',
 )()
@@ -363,6 +366,16 @@ const MainSettingsLocationsIndexLazyRoute =
     getParentRoute: () => MainRoute,
   } as any).lazy(() =>
     import('./routes/_main/_settings/locations/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const MainSettingsGarageAreasIndexLazyRoute =
+  MainSettingsGarageAreasIndexLazyImport.update({
+    path: '/garage-areas/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/_settings/garage-areas/index.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -843,6 +856,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainSettingsExpenseTypesIndexLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/_settings/garage-areas/': {
+      id: '/_main/_settings/garage-areas/'
+      path: '/garage-areas'
+      fullPath: '/garage-areas'
+      preLoaderRoute: typeof MainSettingsGarageAreasIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/_settings/locations/': {
       id: '/_main/_settings/locations/'
       path: '/locations'
@@ -1039,6 +1059,7 @@ interface MainRouteChildren {
   MainSettingsDriverSalariesIndexLazyRoute: typeof MainSettingsDriverSalariesIndexLazyRoute
   MainSettingsDriversIndexLazyRoute: typeof MainSettingsDriversIndexLazyRoute
   MainSettingsExpenseTypesIndexLazyRoute: typeof MainSettingsExpenseTypesIndexLazyRoute
+  MainSettingsGarageAreasIndexLazyRoute: typeof MainSettingsGarageAreasIndexLazyRoute
   MainSettingsLocationsIndexLazyRoute: typeof MainSettingsLocationsIndexLazyRoute
   MainSettingsLogsIndexLazyRoute: typeof MainSettingsLogsIndexLazyRoute
   MainSettingsPaymentTypesIndexLazyRoute: typeof MainSettingsPaymentTypesIndexLazyRoute
@@ -1100,6 +1121,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainSettingsDriversIndexLazyRoute: MainSettingsDriversIndexLazyRoute,
   MainSettingsExpenseTypesIndexLazyRoute:
     MainSettingsExpenseTypesIndexLazyRoute,
+  MainSettingsGarageAreasIndexLazyRoute: MainSettingsGarageAreasIndexLazyRoute,
   MainSettingsLocationsIndexLazyRoute: MainSettingsLocationsIndexLazyRoute,
   MainSettingsLogsIndexLazyRoute: MainSettingsLogsIndexLazyRoute,
   MainSettingsPaymentTypesIndexLazyRoute:
@@ -1166,6 +1188,7 @@ export interface FileRoutesByFullPath {
   '/driver-salaries': typeof MainSettingsDriverSalariesIndexLazyRoute
   '/drivers': typeof MainSettingsDriversIndexLazyRoute
   '/expense-types': typeof MainSettingsExpenseTypesIndexLazyRoute
+  '/garage-areas': typeof MainSettingsGarageAreasIndexLazyRoute
   '/locations': typeof MainSettingsLocationsIndexLazyRoute
   '/logs': typeof MainSettingsLogsIndexLazyRoute
   '/payment-types': typeof MainSettingsPaymentTypesIndexLazyRoute
@@ -1224,6 +1247,7 @@ export interface FileRoutesByTo {
   '/driver-salaries': typeof MainSettingsDriverSalariesIndexLazyRoute
   '/drivers': typeof MainSettingsDriversIndexLazyRoute
   '/expense-types': typeof MainSettingsExpenseTypesIndexLazyRoute
+  '/garage-areas': typeof MainSettingsGarageAreasIndexLazyRoute
   '/locations': typeof MainSettingsLocationsIndexLazyRoute
   '/logs': typeof MainSettingsLogsIndexLazyRoute
   '/payment-types': typeof MainSettingsPaymentTypesIndexLazyRoute
@@ -1285,6 +1309,7 @@ export interface FileRoutesById {
   '/_main/_settings/driver-salaries/': typeof MainSettingsDriverSalariesIndexLazyRoute
   '/_main/_settings/drivers/': typeof MainSettingsDriversIndexLazyRoute
   '/_main/_settings/expense-types/': typeof MainSettingsExpenseTypesIndexLazyRoute
+  '/_main/_settings/garage-areas/': typeof MainSettingsGarageAreasIndexLazyRoute
   '/_main/_settings/locations/': typeof MainSettingsLocationsIndexLazyRoute
   '/_main/_settings/logs/': typeof MainSettingsLogsIndexLazyRoute
   '/_main/_settings/payment-types/': typeof MainSettingsPaymentTypesIndexLazyRoute
@@ -1346,6 +1371,7 @@ export interface FileRouteTypes {
     | '/driver-salaries'
     | '/drivers'
     | '/expense-types'
+    | '/garage-areas'
     | '/locations'
     | '/logs'
     | '/payment-types'
@@ -1403,6 +1429,7 @@ export interface FileRouteTypes {
     | '/driver-salaries'
     | '/drivers'
     | '/expense-types'
+    | '/garage-areas'
     | '/locations'
     | '/logs'
     | '/payment-types'
@@ -1462,6 +1489,7 @@ export interface FileRouteTypes {
     | '/_main/_settings/driver-salaries/'
     | '/_main/_settings/drivers/'
     | '/_main/_settings/expense-types/'
+    | '/_main/_settings/garage-areas/'
     | '/_main/_settings/locations/'
     | '/_main/_settings/logs/'
     | '/_main/_settings/payment-types/'
@@ -1553,6 +1581,7 @@ export const routeTree = rootRoute
         "/_main/_settings/driver-salaries/",
         "/_main/_settings/drivers/",
         "/_main/_settings/expense-types/",
+        "/_main/_settings/garage-areas/",
         "/_main/_settings/locations/",
         "/_main/_settings/logs/",
         "/_main/_settings/payment-types/",
@@ -1719,6 +1748,10 @@ export const routeTree = rootRoute
     },
     "/_main/_settings/expense-types/": {
       "filePath": "_main/_settings/expense-types/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/_settings/garage-areas/": {
+      "filePath": "_main/_settings/garage-areas/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/_settings/locations/": {

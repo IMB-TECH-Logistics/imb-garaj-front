@@ -39,7 +39,8 @@
         "activity_log": "Faoliyat jurnali",
         "distributors": "Distributorlar",
         "route_norms": "Yo'nalish normalari",
-        "alerts": "Ogohlantirishlar"
+        "alerts": "Ogohlantirishlar",
+        "garage_areas": "Garaj hududlari"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -2448,6 +2449,15 @@
                 "only_xlsx": "Faqat .xlsx — yuklab olingan shablon",
                 "replace_file": "boshqa fayl tanlash uchun bosing"
             }
+        },
+        "garage_areas": {
+            "shape": "Chegara",
+            "shape_polygon": "Chizilgan chegara",
+            "shape_circle": "Doira, {{radius}} m",
+            "hint": "Mashina shu hududga kirsa «Garajda» deb hisoblanadi, bu vaqt bo'sh yurishdan ayriladi",
+            "add_title": "Garaj hududini qo'shish",
+            "edit_title": "Garaj hududini tahrirlash",
+            "polygon_note": "Bu hudud chizilgan chegara bilan belgilangan, radius ishlatilmaydi"
         }
     },
     "trips": {
@@ -2462,7 +2472,8 @@
             "stage_empty": "Bo'sh",
             "empty_run": "Bo'sh yurish",
             "no_cargo": "Yuksiz",
-            "direction_location": "Yo'nalish/Joylashuv"
+            "direction_location": "Yo'nalish/Joylashuv",
+            "in_garage": "Garajda"
         },
         "status": {
             "pending": "Kutilmoqda",

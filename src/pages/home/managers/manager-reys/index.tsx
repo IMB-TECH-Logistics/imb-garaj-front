@@ -128,9 +128,10 @@ export default function ManagerReys() {
 
     const { data: legs } = useGet<EmptyLeg[]>(`${MANAGERS_TRIPS}/${tripId}/empty-legs`, { enabled: !!tripId })
     const { data: fuel } = useGet<TripFuel>(`${MANAGERS_TRIPS}/${tripId}/fuel`, { enabled: !!tripId })
+    const { data: garageVisits } = useGet<GarageVisit[]>(`${MANAGERS_TRIPS}/${tripId}/garage-visits`, { enabled: !!tripId })
     const rows = useMemo(() => {
         const list = data?.results ?? []
-        if (!legs?.length) return list
+        if (!legs?.length) return kind ? list : withGarageRows(list, garageVisits, !String((search as any).ordering ?? "") || String((search as any).ordering).startsWith("-"), t("trips.managers.in_garage"))
         const legKey = (leg: EmptyLeg) => leg.before_order ?? 500_000_000 + (leg.id ?? 0)
         const legRowOf = (leg: EmptyLeg) => ({
             id: -legKey(leg),
@@ -219,8 +220,8 @@ export default function ManagerReys() {
             }
         }
         if (desc) out.push(...beforeTripLegs.map(legRowOf))
-        return out
-    }, [data, legs, search, kind, t])
+        return withGarageRows(out, garageVisits, desc, t("trips.managers.in_garage"))
+    }, [data, legs, garageVisits, search, kind, t])
     const handleAdd = () => {
         clearKey(MANAGERS_ORDERS)
         openTripModal()
@@ -367,5 +368,35 @@ export default function ManagerReys() {
 
 const isVirtualRow = (r: ManagerOrders) => {
     const row = r as any
-    return !!row.__idle || (!!row.__leg && !row.__merged)
+    return !!row.__idle || !!row.__garage || (!!row.__leg && !row.__merged)
+}
+
+type GarageVisit = { id: number; area_name: string | null; entered_at: string; left_at: string | null; minutes: number }
+
+const rowStart = (r: ManagerOrders) => {
+    const row = r as any
+    return new Date(row.__start ?? r.loading_time ?? r.pending_time ?? r.date ?? 0).getTime()
+}
+
+const withGarageRows = (rows: ManagerOrders[], visits: GarageVisit[] | undefined, desc: boolean, label: string) => {
+    if (!visits?.length) return rows
+    const out = [...rows]
+    for (const visit of visits) {
+        const row = {
+            id: -2_000_000_000 - visit.id,
+            __garage: true,
+            date: visit.entered_at,
+            activity: 2,
+            activity_display: label,
+            loading_name: visit.area_name,
+            loading_time: visit.entered_at,
+            completed_time: visit.left_at ?? undefined,
+            incomes: [],
+            images: [],
+        } as unknown as ManagerOrders
+        const at = new Date(visit.entered_at).getTime()
+        const index = out.findIndex((r) => (desc ? rowStart(r) < at : rowStart(r) > at))
+        out.splice(index === -1 ? out.length : index, 0, row)
+    }
+    return out
 }

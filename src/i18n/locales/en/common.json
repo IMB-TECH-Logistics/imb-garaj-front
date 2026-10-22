@@ -39,7 +39,8 @@
         "activity_log": "Activity Log",
         "distributors": "Distributors",
         "route_norms": "Route norms",
-        "alerts": "Alerts"
+        "alerts": "Alerts",
+        "garage_areas": "Garage areas"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -2451,6 +2452,15 @@
                 "only_xlsx": "Only .xlsx — the downloaded template",
                 "replace_file": "click to choose another file"
             }
+        },
+        "garage_areas": {
+            "shape": "Boundary",
+            "shape_polygon": "Drawn boundary",
+            "shape_circle": "Circle, {{radius}} m",
+            "hint": "A truck inside this area counts as «In garage»; the time is excluded from empty runs",
+            "add_title": "Add garage area",
+            "edit_title": "Edit garage area",
+            "polygon_note": "This area uses a drawn boundary, radius is not used"
         }
     },
     "trips": {
@@ -2465,7 +2475,8 @@
             "stage_empty": "Empty",
             "empty_run": "Empty run",
             "no_cargo": "No cargo",
-            "direction_location": "Direction/Location"
+            "direction_location": "Direction/Location",
+            "in_garage": "In garage"
         },
         "status": {
             "pending": "Pending",

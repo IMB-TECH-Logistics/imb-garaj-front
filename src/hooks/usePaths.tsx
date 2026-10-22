@@ -424,6 +424,11 @@ export const useItems = () => {
                         allowKey: "settings_vehicle_types_view",
                     },
                     {
+                        label: t("nav.garage_areas"),
+                        path: "/garage-areas",
+                        allowKey: "settings_vehicles_view",
+                    },
+                    {
                         label: t("nav.cargo_types"),
                         path: "/cargo-types",
                         allowKey: "settings_cargo_types_view",
