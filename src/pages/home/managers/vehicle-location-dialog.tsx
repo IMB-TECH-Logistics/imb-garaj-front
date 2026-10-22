@@ -4,7 +4,7 @@ import { MONITORING_GPS_LIVE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatDateTime } from "@/lib/format-date"
 import RouteMap, { LiveMarker } from "@/pages/home/monitoring/route-map"
-import { GpsLiveVehicle, isRussiaTruck } from "@/pages/home/monitoring/types"
+import { GpsLiveVehicle, isRussiaTruck, truckStatusOf } from "@/pages/home/monitoring/types"
 import { Loader2, MapPinOff } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,6 +12,16 @@ import { useTranslation } from "react-i18next"
 const REFRESH_MS = 15_000
 
 const normalize = (s?: string | null) => (s ?? "").replace(/\s+/g, "").toUpperCase()
+
+const LOADED_STAGES = [6, 7]
+
+const toneOf = (item: GpsLiveVehicle, vehicle: ManagerVehicles | null) => {
+    const tone = truckStatusOf(item, null)
+    if (tone !== "empty" || !vehicle) return tone
+    return vehicle.order_activity === 1 && vehicle.order_type !== 2 && LOADED_STAGES.includes(vehicle.order_status) ?
+            "loaded"
+        :   tone
+}
 
 type Props = {
     vehicle: ManagerVehicles | null
@@ -53,6 +63,7 @@ export default function VehicleLocationDialog({ vehicle, onClose }: Props) {
                             :   (item.driver_name ?? undefined),
                         stale: item.status !== "online",
                         icon: "truck",
+                        tone: toneOf(item, vehicle),
                         russia: isRussiaTruck(item),
                         course: item.course,
                         selected: true,
