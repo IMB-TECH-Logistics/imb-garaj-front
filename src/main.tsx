@@ -56,13 +56,13 @@ const queryClient = new QueryClient({
     }),
     defaultOptions: {
         queries: {
-            // 400 — so'rov noto'g'ri (masalan «Hamma tenant» chuqur sahifa chegarasi): qayta
-            // so'rash natijani o'zgartirmaydi va xabarni 5–7 s kechiktiradi. 5xx/tarmoq — avvalgidek.
+            // 400/401/403/404 — qayta so'rash natijani o'zgartirmaydi (masalan ruxsat yo'q),
+            // faqat xabarni 5–7 s kechiktiradi va so'rovlarni ko'paytiradi. 5xx/tarmoq — avvalgidek.
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             retry: (count, error: any) =>
                 count < 3 &&
                 error?.code !== "ECONNABORTED" &&
-                error?.response?.status !== 400,
+                ![400, 401, 403, 404].includes(error?.response?.status),
             refetchOnWindowFocus: false,
             refetchOnMount: false,
         },

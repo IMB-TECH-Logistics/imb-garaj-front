@@ -270,6 +270,8 @@ export const usePaths = () => {
 
 export const useItems = () => {
     const { t } = useTranslation()
+    const { data: me } = useUser()
+    const kassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
     return useMemo<MenuItem[]>(
         () => [
             {
@@ -300,8 +302,12 @@ export const useItems = () => {
                 label: t("nav.kassa"),
                 icon: <CreditCard width={18} />,
                 path: "/kassa",
-                allowKey: "manager_cashflow_view",
-                allowKeys: ["kassa_payer_view", "kassa_payment_requests_view", "kassa_cashier_view"],
+                ...(kassaV2
+                    ? { allowKeys: ["kassa_cashier_view", "kassa_cashier_control"] }
+                    : {
+                          allowKey: "manager_cashflow_view",
+                          allowKeys: ["kassa_payer_view", "kassa_payment_requests_view", "kassa_cashier_view"],
+                      }),
             },
             {
                 label: t("nav.accounting"),
@@ -462,6 +468,6 @@ export const useItems = () => {
                 ],
             },
         ],
-        [t],
+        [t, kassaV2],
     )
 }
