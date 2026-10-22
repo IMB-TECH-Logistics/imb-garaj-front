@@ -18,6 +18,8 @@ export interface OrderTripType {
     client_name: string | null
     income: number
     type: number
+    total_mileage?: string | number | null
+    fuel_consume?: string | number | null
 }
 
 export interface TripDailyStatisticType {
@@ -108,7 +110,10 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return <span className="text-muted-foreground">—</span>;
+                    if (!data.is_summary) {
+                        if (data.total_mileage == null) return <span className="text-muted-foreground">—</span>;
+                        return <span>{round2(Number(data.total_mileage))} {t("fleet.units.km")}</span>
+                    }
                     return <span className="font-bold text-white">{round2(data.total_mileage)} {t("fleet.units.km")}</span>
                 },
             },
@@ -119,7 +124,10 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 enableSorting: false,
                 cell: ({ row }) => {
                     const data = row.original;
-                    if (!data.is_summary) return <span className="text-muted-foreground">—</span>;
+                    if (!data.is_summary) {
+                        if (data.fuel_consume == null) return <span className="text-muted-foreground">—</span>;
+                        return <span>{round2(Number(data.fuel_consume))}</span>
+                    }
                     return <span className="font-bold text-white">{round2(data.fuel_consume)}</span>
                 },
             },
