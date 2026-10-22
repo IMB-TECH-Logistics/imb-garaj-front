@@ -438,6 +438,7 @@
         "orders_history": "注文履歴",
         "location": "場所",
         "pending_trips": "待機中の便",
+        "expected_arrival": "到着予定",
         "status_loaded": "積載",
         "status_empty": "空車",
         "status_repair": "修理中",

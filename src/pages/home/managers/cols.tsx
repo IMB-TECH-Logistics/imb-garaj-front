@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowRight } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { formatDateTime } from "@/lib/format-date"
 
 const ACTIVITY_LABELS: Record<number, string> = {
     1: "trips.managers.on_trip",
@@ -104,6 +105,16 @@ export const useColumnsManagersVehicles = () => {
                     }
 
                     return <span className="text-muted-foreground">{loading_name || unloading_name || "-"}</span>
+                },
+            },
+            {
+                accessorKey: "expected_arrival",
+                header: t("table.expected_arrival"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const { expected_arrival } = row.original
+                    if (!expected_arrival) return <span className="text-muted-foreground">-</span>
+                    return <span className="whitespace-nowrap">{formatDateTime(expected_arrival)}</span>
                 },
             },
             {

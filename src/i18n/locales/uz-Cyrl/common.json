@@ -452,6 +452,7 @@
         "orders_history": "Буюртмалар тарихи",
         "location": "Жойлашув",
         "pending_trips": "Кутилаётган рейслар",
+        "expected_arrival": "Тахминий етиб бориш",
         "status_loaded": "Юкли",
         "status_empty": "Юксиз",
         "status_repair": "Таъмирда",

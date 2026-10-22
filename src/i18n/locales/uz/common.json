@@ -452,6 +452,7 @@
         "orders_history": "Buyurtmalar tarixi",
         "location": "Joylashuv",
         "pending_trips": "Kutilayotgan reyslar",
+        "expected_arrival": "Taxminiy yetib borish",
         "status_loaded": "Yukli",
         "status_empty": "Yuksiz",
         "status_repair": "Ta'mirda",

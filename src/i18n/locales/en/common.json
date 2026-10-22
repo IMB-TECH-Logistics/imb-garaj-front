@@ -452,6 +452,7 @@
         "orders_history": "Order history",
         "location": "Location",
         "pending_trips": "Pending Trips",
+        "expected_arrival": "Expected arrival",
         "status_loaded": "Loaded",
         "status_empty": "Empty",
         "status_repair": "In Repair",
