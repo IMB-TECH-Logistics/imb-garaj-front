@@ -2984,6 +2984,18 @@
         "filter_driver": "Водитель",
         "back": "Техбаза",
         "position": "Место",
-        "position_optional": "Место шины (необязательно)"
+        "position_optional": "Место шины (необязательно)",
+        "install_tire": "Добавить шину",
+        "replace_tire": "Заменить",
+        "search_tire": "Поиск по заводскому номеру или товару",
+        "no_available": "На складе нет подходящих шин",
+        "condition_new": "Новая",
+        "condition_used": "Б/у",
+        "odometer_optional": "Одометр (необязательно)",
+        "old_tire_action": "Что сделать со старой шиной ({{number}})?",
+        "old_remove": "Вернуть на склад (б/у)",
+        "old_repair": "В ремонт",
+        "old_write_off": "Списать",
+        "installed_ok": "Шина установлена"
     }
 }

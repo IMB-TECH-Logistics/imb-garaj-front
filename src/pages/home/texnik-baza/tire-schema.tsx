@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { fmtDate } from "../ombor/utils"
 import type { Axle, Tire } from "./types"
+import InstallDialog from "./install-dialog"
 import { STATUS_WHEEL, fmtKm, positionsOf } from "./utils"
 
 type Props = {
@@ -69,6 +70,7 @@ type WheelProps = {
     positions: string[]
     onMove: (tire: Tire, position: string, date: string) => void
     moving: boolean
+    onInstall: (position: string, old?: Tire) => void
 }
 
 const Wheel = ({
@@ -80,6 +82,7 @@ const Wheel = ({
     positions,
     onMove,
     moving,
+    onInstall,
 }: WheelProps) => {
     const { t } = useTranslation()
     const [target, setTarget] = useState("")
@@ -88,7 +91,7 @@ const Wheel = ({
     const wheel = (
         <button
             type="button"
-            disabled={!tire}
+            disabled={!tire && !canControl}
             title={label(code)}
             className={cn(
                 "flex h-14 w-9 sm:w-11 items-center justify-center rounded-md border-2 text-[10px] sm:text-xs font-semibold tabular-nums transition-transform",
@@ -101,7 +104,20 @@ const Wheel = ({
         </button>
     )
 
-    if (!tire) return wheel
+    if (!tire) {
+        if (!canControl) return wheel
+        return (
+            <Popover>
+                <PopoverTrigger asChild>{wheel}</PopoverTrigger>
+                <PopoverContent className="w-64 text-sm flex flex-col gap-3">
+                    <div className="font-semibold">{label(code)}</div>
+                    <Button size="sm" onClick={() => onInstall(code)}>
+                        {t("tb.install_tire")}
+                    </Button>
+                </PopoverContent>
+            </Popover>
+        )
+    }
 
     const options = positions
         .filter((p) => p !== tire.position)
@@ -142,6 +158,15 @@ const Wheel = ({
                         {tire.km_limit ? ` / ${fmtKm(tire.km_limit)}` : ""}
                     </dd>
                 </dl>
+                {canControl && tire.position && (
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onInstall(tire.position, tire)}
+                    >
+                        {t("tb.replace_tire")}
+                    </Button>
+                )}
                 {canControl && (
                     <div className="flex flex-col gap-2 border-t pt-3">
                         <span className="text-xs text-muted-foreground">
@@ -278,6 +303,10 @@ const TireSchema = ({ id, axles, tires, canControl }: Props) => {
     const invalidate = useInvalidate()
     const label = usePositionLabel(axles)
     const [layoutOpen, setLayoutOpen] = useState(false)
+    const [installTarget, setInstallTarget] = useState<{
+        position: string
+        old?: Tire
+    } | null>(null)
     const positions = positionsOf(axles)
 
     const { mutate, isPending } = usePost({
@@ -308,6 +337,8 @@ const TireSchema = ({ id, axles, tires, canControl }: Props) => {
         positions,
         onMove: move,
         moving: isPending,
+        onInstall: (position: string, old?: Tire) =>
+            setInstallTarget({ position, old }),
     }
 
     const renderWheel = (code: string) => (
@@ -374,6 +405,13 @@ const TireSchema = ({ id, axles, tires, canControl }: Props) => {
                     </div>
                 </div>
             )}
+
+            <InstallDialog
+                id={id}
+                target={installTarget}
+                label={label}
+                onClose={() => setInstallTarget(null)}
+            />
 
             <LayoutDialog
                 id={id}

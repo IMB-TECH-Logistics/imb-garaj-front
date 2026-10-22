@@ -2978,6 +2978,18 @@
         "filter_driver": "Driver",
         "back": "Tech base",
         "position": "Position",
-        "position_optional": "Tire position (optional)"
+        "position_optional": "Tire position (optional)",
+        "install_tire": "Add tire",
+        "replace_tire": "Replace",
+        "search_tire": "Search by factory number or product",
+        "no_available": "No suitable tires in stock",
+        "condition_new": "New",
+        "condition_used": "Used",
+        "odometer_optional": "Odometer (optional)",
+        "old_tire_action": "What happens to the old tire ({{number}})?",
+        "old_remove": "Return to warehouse (used)",
+        "old_repair": "Send to repair",
+        "old_write_off": "Write off",
+        "installed_ok": "Tire installed"
     }
 }

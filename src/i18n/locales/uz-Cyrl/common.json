@@ -2975,6 +2975,18 @@
         "filter_driver": "Ҳайдовчи",
         "back": "Техник база",
         "position": "Жойи",
-        "position_optional": "Балон жойи (ихтиёрий)"
+        "position_optional": "Балон жойи (ихтиёрий)",
+        "install_tire": "Балон қўшиш",
+        "replace_tire": "Алмаштириш",
+        "search_tire": "Завод рақами ёки маҳсулот бўйича қидириш",
+        "no_available": "Омборда мос балон йўқ",
+        "condition_new": "Янги",
+        "condition_used": "Ишлатилган",
+        "odometer_optional": "Спидометр (ихтиёрий)",
+        "old_tire_action": "Эски балон ({{number}}) нима бўлади?",
+        "old_remove": "Омборга қайтариш (ишлатилган)",
+        "old_repair": "Таъмирга",
+        "old_write_off": "Ҳисобдан чиқариш",
+        "installed_ok": "Балон ўрнатилди"
     }
 }

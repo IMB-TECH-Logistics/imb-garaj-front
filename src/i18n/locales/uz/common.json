@@ -2975,6 +2975,18 @@
         "filter_driver": "Haydovchi",
         "back": "Texnik baza",
         "position": "Joyi",
-        "position_optional": "Balon joyi (ixtiyoriy)"
+        "position_optional": "Balon joyi (ixtiyoriy)",
+        "install_tire": "Balon qo'shish",
+        "replace_tire": "Almashtirish",
+        "search_tire": "Zavod raqami yoki mahsulot bo'yicha qidirish",
+        "no_available": "Omborda mos balon yo'q",
+        "condition_new": "Yangi",
+        "condition_used": "Ishlatilgan",
+        "odometer_optional": "Spidometr (ixtiyoriy)",
+        "old_tire_action": "Eski balon ({{number}}) nima bo'ladi?",
+        "old_remove": "Omborga qaytarish (ishlatilgan)",
+        "old_repair": "Ta'mirga",
+        "old_write_off": "Hisobdan chiqarish",
+        "installed_ok": "Balon o'rnatildi"
     }
 }
