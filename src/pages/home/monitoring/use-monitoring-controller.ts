@@ -4,7 +4,7 @@ import {
     MONITORING_STATUS_TIMELINE,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { parseLocalDate } from "./historical-summary"
 import { LIVE_REFRESH_MS } from "./monitoring-model"
@@ -36,6 +36,7 @@ export const useMonitoringController = () => {
         connection,
         setConnection,
     } = useMonitoringSearch()
+    const [plateQuery, setPlateQuery] = useState("")
     const {
         gpsLive,
         drivers,
@@ -59,7 +60,7 @@ export const useMonitoringController = () => {
         setMapBounds,
         visibleItems,
         selectTracker,
-    } = useMonitoringData({ historical, dimension, filters, mode, truckStatus, connection, noGpsOnly })
+    } = useMonitoringData({ historical, dimension, filters, mode, truckStatus, connection, noGpsOnly, plateQuery })
     const gpsMarkers: LiveMarker[] = useMemo(() => {
         if (historical) return []
         return cargoItems
@@ -403,6 +404,8 @@ export const useMonitoringController = () => {
         setMapBounds,
         visibleItems,
         selectTracker,
+        plateQuery,
+        setPlateQuery,
         gpsItems,
         selectedTracker,
         replayStatuses,

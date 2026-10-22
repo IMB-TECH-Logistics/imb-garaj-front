@@ -29,7 +29,9 @@ import type {
 } from "./types"
 import { truckStatusOf } from "./types"
 
-export const useMonitoringData = ({ historical, dimension, filters, mode, truckStatus, connection, noGpsOnly }: {
+const normalizePlate = (v: string | null | undefined) => (v ?? "").replace(/\s+/g, "").toUpperCase()
+
+export const useMonitoringData = ({ historical, dimension, filters, mode, truckStatus, connection, noGpsOnly, plateQuery }: {
     historical: boolean
     dimension: Dimension
     filters: MonitoringFilters
@@ -37,6 +39,7 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
     truckStatus: TruckStatusFilter
     connection: ConnectionFilter
     noGpsOnly: boolean
+    plateQuery: string
 }) => {
     const liveConnected = useGpsLiveSocket(!historical)
     const gpsLive = useGet<GpsLiveVehicle[]>(MONITORING_GPS_LIVE, {
@@ -116,29 +119,31 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
         () => Object.fromEntries((lastOrders.data?.results ?? []).map((o) => [o.vehicle, o])),
         [lastOrders.data],
     )
+    const linkedItems = useMemo(() => (gpsLive.data ?? []).filter((g) => g.vehicle != null), [gpsLive.data])
     const truckStatusCounts = useMemo(() => {
         const counts: Record<TruckStatusFilter, number> = { all: 0, loaded: 0, empty: 0, garage: 0, repair: 0 }
-        for (const g of gpsLive.data ?? []) {
+        for (const g of linkedItems) {
             counts.all += 1
             counts[truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined)] += 1
         }
         return counts
-    }, [gpsLive.data, ordersByVehicle])
+    }, [linkedItems, ordersByVehicle])
     const connectionCounts = useMemo(() => {
-        const all = gpsLive.data ?? []
-        const online = all.filter((g) => g.status === "online").length
-        return { all: all.length, online, offline: all.length - online }
-    }, [gpsLive.data])
+        const online = linkedItems.filter((g) => g.status === "online").length
+        return { all: linkedItems.length, online, offline: linkedItems.length - online }
+    }, [linkedItems])
+    const plateNeedle = normalizePlate(plateQuery)
     const cargoItems = useMemo(
         () =>
-            noGpsOnly ? [] : (gpsLive.data ?? []).filter(
+            noGpsOnly ? [] : linkedItems.filter(
                 (g) =>
                     (truckStatus === "all" ||
                         truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined) ===
                             truckStatus) &&
-                    (connection === "all" || (g.status === "online") === (connection === "online")),
+                    (connection === "all" || (g.status === "online") === (connection === "online")) &&
+                    (!plateNeedle || normalizePlate(g.vehicle_number).includes(plateNeedle)),
             ),
-        [gpsLive.data, ordersByVehicle, truckStatus, connection, noGpsOnly],
+        [linkedItems, ordersByVehicle, truckStatus, connection, noGpsOnly, plateNeedle],
     )
     const allVehicles = useGet<{ results: (UnlinkedVehicle & { gps_imei: string | null })[] }>(VEHICLES, {
         params: { page_size: 1000 },
@@ -149,7 +154,9 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
         () => (allVehicles.data?.results ?? []).filter((v) => !v.gps_imei),
         [allVehicles.data],
     )
-    const unlinkedVehicles = truckStatus === "all" && connection === "all" && !noGpsOnly ? allUnlinked : []
+    const unlinkedVehicles = truckStatus === "all" && connection === "all" && !noGpsOnly
+        ? allUnlinked.filter((v) => !plateNeedle || normalizePlate(v.truck_number).includes(plateNeedle))
+        : []
     const [mapBounds, setMapBounds] = useState<MapBounds | null>(null)
     const visibleItems = useMemo(
         () =>

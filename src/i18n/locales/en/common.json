@@ -1829,6 +1829,7 @@
         },
         "show_stops": "Show stops",
         "map_area": "Map area",
+        "plate_search": "Search by truck number",
         "order": "Order"
     },
     "settings": {

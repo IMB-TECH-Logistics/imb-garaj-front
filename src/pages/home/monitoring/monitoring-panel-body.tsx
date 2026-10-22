@@ -1,3 +1,5 @@
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { DimensionEmpty } from "./dimension-row"
 import GpsList, { UnlinkedVehicles } from "./gps-list"
@@ -11,7 +13,7 @@ import VehicleList from "./vehicle-list"
 
 type C = ReturnType<typeof useMonitoringController>
 
-export function MonitoringPanelBody({ mode, selectFromStatus, historical, polylineData, polyline, navigate, dimension, selectedTracker, history, noGpsOnly, allUnlinked, truckStatus, connection, cargoItems, gpsItems, visibleItems, gpsLive, ordersByVehicle, trackerImei, selectTracker, unlinkedVehicles, orders, filters, selectOrder, trips, selectTrip, vehicles, selectVehicle }: Pick<C, "mode" | "selectFromStatus" | "historical" | "polylineData" | "polyline" | "navigate" | "dimension" | "selectedTracker" | "history" | "noGpsOnly" | "allUnlinked" | "truckStatus" | "connection" | "cargoItems" | "gpsItems" | "visibleItems" | "gpsLive" | "ordersByVehicle" | "trackerImei" | "selectTracker" | "unlinkedVehicles" | "orders" | "filters" | "selectOrder" | "trips" | "selectTrip" | "vehicles" | "selectVehicle">) {
+export function MonitoringPanelBody({ mode, selectFromStatus, historical, polylineData, polyline, navigate, dimension, selectedTracker, history, noGpsOnly, allUnlinked, truckStatus, connection, cargoItems, gpsItems, visibleItems, gpsLive, ordersByVehicle, trackerImei, selectTracker, unlinkedVehicles, orders, filters, selectOrder, trips, selectTrip, vehicles, selectVehicle, plateQuery, setPlateQuery }: Pick<C, "mode" | "selectFromStatus" | "historical" | "polylineData" | "polyline" | "navigate" | "dimension" | "selectedTracker" | "history" | "noGpsOnly" | "allUnlinked" | "truckStatus" | "connection" | "cargoItems" | "gpsItems" | "visibleItems" | "gpsLive" | "ordersByVehicle" | "trackerImei" | "selectTracker" | "unlinkedVehicles" | "orders" | "filters" | "selectOrder" | "trips" | "selectTrip" | "vehicles" | "selectVehicle" | "plateQuery" | "setPlateQuery">) {
     const { t } = useTranslation()
     return (
         <>
@@ -36,9 +38,20 @@ export function MonitoringPanelBody({ mode, selectFromStatus, historical, polyli
                     <TrackerHistoryPanel history={history} />
                 ) : (
                     <>
+                    {!noGpsOnly && (
+                        <div className="relative mb-2">
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                value={plateQuery}
+                                onChange={(e) => setPlateQuery(e.target.value)}
+                                placeholder={t("mon.plate_search")}
+                                className="h-9 pl-8"
+                            />
+                        </div>
+                    )}
                     {noGpsOnly ? (
                         <UnlinkedVehicles items={allUnlinked} />
-                    ) : (truckStatus !== "all" || connection !== "all") && cargoItems.length === 0 && gpsItems.length > 0 ? (
+                    ) : (truckStatus !== "all" || connection !== "all" || plateQuery.trim() !== "") && cargoItems.length === 0 && gpsItems.length > 0 ? (
                         <DimensionEmpty title={t("page.not_found")} />
                     ) : (
                     <>
