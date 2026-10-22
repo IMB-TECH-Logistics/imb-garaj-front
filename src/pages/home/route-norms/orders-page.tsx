@@ -167,7 +167,7 @@ export default function RouteNormOrdersPage() {
                 </div>
             </div>
             <Tabs value={tab} onValueChange={changeTab}>
-                <TabsList className="flex gap-2 overflow-x-auto justify-start no-scrollbar-x">
+                <TabsList className="inline-flex w-fit max-w-full gap-2 overflow-x-auto justify-start no-scrollbar-x">
                     <TabsTrigger value="in">
                         {t("route_norms.sheet.tab_in")}
                         {countLabel(norm?.trips_count)}
