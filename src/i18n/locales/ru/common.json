@@ -452,6 +452,7 @@
         "orders_history": "История заказов",
         "location": "Местоположение",
         "pending_trips": "Ожидаемые рейсы",
+        "expected_arrival": "Ожидаемое прибытие",
         "status_loaded": "Загружен",
         "status_empty": "Пустой",
         "status_repair": "На ремонте",

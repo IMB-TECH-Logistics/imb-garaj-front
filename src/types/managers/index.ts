@@ -13,6 +13,7 @@ type ManagerVehicles = {
     order_type: number | null
     next_loading_name: string | null
     next_unloading_name: string | null
+    expected_arrival: string | null
     phone?: string | null
 }
 
