@@ -1,5 +1,6 @@
 {
     "nav": {
+        "investor_dashboard": "Инвестор",
         "tech_base": "Техник база",
         "manager": "Менегер",
         "vehicles": "Транспортлар",
@@ -454,6 +455,7 @@
         "location": "Жойлашув",
         "pending_trips": "Кутилаётган рейслар",
         "expected_arrival": "Тахминий етиб бориш",
+        "on_map": "Харитада",
         "status_loaded": "Юкли",
         "status_empty": "Юксиз",
         "status_repair": "Таъмирда",
@@ -1099,6 +1101,8 @@
         }
     },
     "route_norms": {
+        "min": "мин",
+        "max": "макс",
         "few_data": "маълумот кам",
         "error": "Маълумотни юклаб бўлмади. Кейинроқ қайта уриниб кўринг.",
         "excel_name": "Йўналиш нормалари",

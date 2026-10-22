@@ -59,15 +59,16 @@ export const formatDurationRange = (
 ) =>
     min === null || min === undefined || max === null || max === undefined ?
         null
-    :   `${formatDuration(t, min)} – ${formatDuration(t, max)}`
+    :   `${t("route_norms.min")} ${formatDuration(t, min)} · ${t("route_norms.max")} ${formatDuration(t, max)}`
 
 export const formatKmRange = (
+    t: TFunction,
     min: number | null | undefined,
     max: number | null | undefined,
 ) =>
     min === null || min === undefined || max === null || max === undefined ?
         null
-    :   `${formatNumber(min, 0)} – ${formatNumber(max, 0)}`
+    :   `${t("route_norms.min")} ${formatNumber(min, 0)} · ${t("route_norms.max")} ${formatNumber(max, 0)}`
 
 export const fuelUnit = (t: TFunction, type: FuelType | null | undefined) =>
     type === "methane" ?

@@ -122,7 +122,7 @@ export default function RouteNormOrdersPage() {
 
     const head = (
         <div className="space-y-3 mb-3">
-            <div className="flex items-start gap-3">
+            <div className="flex flex-wrap items-center gap-3">
                 <Button
                     variant="ghost"
                     size="icon"
@@ -132,38 +132,36 @@ export default function RouteNormOrdersPage() {
                 >
                     <ArrowLeft size={18} />
                 </Button>
-                <div className="space-y-1 min-w-0">
-                    <h1 className="text-xl font-semibold leading-tight">{title}</h1>
-                    <div className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
-                        {norm?.osrm_km != null && (
-                            <span>
-                                {t("route_norms.cols.osrm_distance")}:{" "}
-                                <span className="text-foreground font-medium">
-                                    {formatKm(t, norm.osrm_km)}
-                                </span>
+                <h1 className="text-xl font-semibold leading-tight min-w-0">{title}</h1>
+                <div className="ml-auto text-sm text-muted-foreground flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
+                    {norm?.osrm_km != null && (
+                        <span>
+                            {t("route_norms.cols.osrm_distance")}:{" "}
+                            <span className="text-foreground font-medium">
+                                {formatKm(t, norm.osrm_km)}
                             </span>
-                        )}
-                        {norm && norm.trips_count > 0 && (
-                            <>
-                                <span>
-                                    {t("route_norms.cols.driven")}:{" "}
-                                    {formatKm(t, norm.distance_km?.median)}
+                        </span>
+                    )}
+                    {norm && norm.trips_count > 0 && (
+                        <>
+                            <span>
+                                {t("route_norms.cols.driven")}:{" "}
+                                {formatKm(t, norm.distance_km?.median)}
+                            </span>
+                            <span>
+                                {t("route_norms.cols.total_time")}:{" "}
+                                {formatDuration(t, norm.total_minutes?.median)}
+                            </span>
+                            {norm.fuel.map((item) => (
+                                <span key={item.fuel_type}>
+                                    {fuelLabel(t, item.fuel_type)}:{" "}
+                                    {formatFuel(t, item.fuel_type, item.per_100km_median)}{" "}
+                                    / {t("route_norms.per_100km")}
                                 </span>
-                                <span>
-                                    {t("route_norms.cols.total_time")}:{" "}
-                                    {formatDuration(t, norm.total_minutes?.median)}
-                                </span>
-                                {norm.fuel.map((item) => (
-                                    <span key={item.fuel_type}>
-                                        {fuelLabel(t, item.fuel_type)}:{" "}
-                                        {formatFuel(t, item.fuel_type, item.per_100km_median)}{" "}
-                                        / {t("route_norms.per_100km")}
-                                    </span>
-                                ))}
-                            </>
-                        )}
-                        <DeviationLegend />
-                    </div>
+                            ))}
+                        </>
+                    )}
+                    <DeviationLegend />
                 </div>
             </div>
             <Tabs value={tab} onValueChange={changeTab}>

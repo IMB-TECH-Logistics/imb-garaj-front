@@ -1,5 +1,6 @@
 {
     "nav": {
+        "investor_dashboard": "投資家",
         "manager": "マネージャー",
         "vehicles": "車両",
         "flights": "便",
@@ -439,6 +440,7 @@
         "location": "場所",
         "pending_trips": "待機中の便",
         "expected_arrival": "到着予定",
+        "on_map": "地図",
         "status_loaded": "積載",
         "status_empty": "空車",
         "status_repair": "修理中",
@@ -997,6 +999,8 @@
         }
     },
     "route_norms": {
+        "min": "最小",
+        "max": "最大",
         "few_data": "データ少",
         "error": "データを読み込めませんでした。後でもう一度お試しください。",
         "excel_name": "ルート基準値",

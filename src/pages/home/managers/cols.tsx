@@ -1,9 +1,11 @@
 import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, MapPin } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { formatDateTime } from "@/lib/format-date"
+import { Link } from "@tanstack/react-router"
+import { todayIso } from "@/pages/home/monitoring/types"
 
 const ACTIVITY_LABELS: Record<number, string> = {
     1: "trips.managers.on_trip",
@@ -116,6 +118,23 @@ export const useColumnsManagersVehicles = () => {
                     if (!expected_arrival) return <span className="text-muted-foreground">-</span>
                     return <span className="whitespace-nowrap">{formatDateTime(expected_arrival)}</span>
                 },
+            },
+            {
+                id: "on_map",
+                header: t("table.on_map"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <Link
+                        to="/monitoring"
+                        search={{ dimension: "vehicle", vehicle: row.original.id, mdate: todayIso() } as never}
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={t("table.on_map")}
+                        title={t("table.on_map")}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                    >
+                        <MapPin size={18} />
+                    </Link>
+                ),
             },
             {
                 accessorKey: "pending_orders",

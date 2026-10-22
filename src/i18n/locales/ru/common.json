@@ -1,5 +1,6 @@
 {
     "nav": {
+        "investor_dashboard": "Инвестор",
         "tech_base": "Техбаза",
         "manager": "Менеджер",
         "vehicles": "Транспорт",
@@ -454,6 +455,7 @@
         "location": "Местоположение",
         "pending_trips": "Ожидаемые рейсы",
         "expected_arrival": "Ожидаемое прибытие",
+        "on_map": "На карте",
         "status_loaded": "Загружен",
         "status_empty": "Пустой",
         "status_repair": "На ремонте",
@@ -1108,6 +1110,8 @@
         }
     },
     "route_norms": {
+        "min": "мин",
+        "max": "макс",
         "few_data": "мало данных",
         "error": "Не удалось загрузить данные. Повторите попытку позже.",
         "excel_name": "Нормы маршрутов",

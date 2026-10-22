@@ -5,6 +5,7 @@ import { useNoPriceAlerts } from "@/hooks/use-no-price-alerts"
 import { useLocation } from "@tanstack/react-router"
 import {
     Activity,
+    BarChart3,
     Boxes,
     Coins,
     CreditCard,
@@ -312,6 +313,12 @@ export const useItems = () => {
                 label: t("nav.investor"),
                 icon: <Truck width={18} />,
                 path: "/truck",
+                allowKey: "investor_view",
+            },
+            {
+                label: t("nav.investor_dashboard"),
+                icon: <BarChart3 width={18} />,
+                path: "/investorlar",
                 allowKey: "investor_view",
             },
             {

@@ -138,7 +138,7 @@ export const useRouteNormColumns = () => {
                     const { distance_km: stat, osrm_km } = row.original
                     const hasDistance = hasStats(row.original) && !!stat
                     if (!hasDistance && osrm_km == null) return <Dash />
-                    const range = hasDistance ? formatKmRange(stat.min, stat.max) : null
+                    const range = hasDistance ? formatKmRange(t, stat.min, stat.max) : null
                     return (
                         <div>
                             <div className="whitespace-nowrap">

@@ -1,5 +1,6 @@
 {
     "nav": {
+        "investor_dashboard": "Investor",
         "tech_base": "Tech base",
         "manager": "Manager",
         "vehicles": "Vehicles",
@@ -454,6 +455,7 @@
         "location": "Location",
         "pending_trips": "Pending Trips",
         "expected_arrival": "Expected arrival",
+        "on_map": "On map",
         "status_loaded": "Loaded",
         "status_empty": "Empty",
         "status_repair": "In Repair",
@@ -1102,6 +1104,8 @@
         }
     },
     "route_norms": {
+        "min": "min",
+        "max": "max",
         "few_data": "limited data",
         "error": "Could not load the data. Please try again later.",
         "excel_name": "Route norms",

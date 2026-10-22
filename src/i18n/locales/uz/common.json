@@ -1,5 +1,6 @@
 {
     "nav": {
+        "investor_dashboard": "Investor",
         "tech_base": "Texnik baza",
         "manager": "Meneger",
         "vehicles": "Transportlar",
@@ -454,6 +455,7 @@
         "location": "Joylashuv",
         "pending_trips": "Kutilayotgan reyslar",
         "expected_arrival": "Taxminiy yetib borish",
+        "on_map": "Xaritada",
         "status_loaded": "Yukli",
         "status_empty": "Yuksiz",
         "status_repair": "Ta'mirda",
@@ -1099,6 +1101,8 @@
         }
     },
     "route_norms": {
+        "min": "min",
+        "max": "max",
         "few_data": "ma'lumot kam",
         "error": "Ma'lumotni yuklab bo'lmadi. Keyinroq qayta urinib ko'ring.",
         "excel_name": "Yo'nalish normalari",
