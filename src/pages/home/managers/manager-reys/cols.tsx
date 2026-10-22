@@ -322,6 +322,30 @@ export const useColumnsManagersOrders = (opts?: {
                 },
             },
             {
+                accessorKey: "loading_time",
+                header: t("trips.reys_cols.to_loading"),
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.loading_time, row.original.in_transit_time)}</span>,
+            },
+            {
+                accessorKey: "in_transit_time",
+                header: t("trips.reys_cols.to_road"),
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time, row.original.parking_minutes ?? 0)}</span>,
+            },
+            {
+                accessorKey: "parking_minutes",
+                header: t("trips.reys_cols.parking"),
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{row.original.parking_minutes ? formatMinutes(row.original.parking_minutes) : "-"}</span>,
+            },
+            {
+                accessorKey: "unloading_time",
+                header: t("trips.reys_cols.to_unloading"),
+                size: 120,
+                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
+            },
+            {
                 id: "empty_leg_pay",
                 header: t("trips.reys_cols.extra_pay"),
                 size: 150,
@@ -412,30 +436,6 @@ export const useColumnsManagersOrders = (opts?: {
                         </div>
                     )
                 },
-            },
-            {
-                accessorKey: "loading_time",
-                header: t("trips.reys_cols.to_loading"),
-                size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.loading_time, row.original.in_transit_time)}</span>,
-            },
-            {
-                accessorKey: "in_transit_time",
-                header: t("trips.reys_cols.to_road"),
-                size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time, row.original.parking_minutes ?? 0)}</span>,
-            },
-            {
-                accessorKey: "parking_minutes",
-                header: t("trips.reys_cols.parking"),
-                size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{row.original.parking_minutes ? formatMinutes(row.original.parking_minutes) : "-"}</span>,
-            },
-            {
-                accessorKey: "unloading_time",
-                header: t("trips.reys_cols.to_unloading"),
-                size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
             },
             {
                 id: "images",
