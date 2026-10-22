@@ -2474,7 +2474,8 @@
             "empty_run": "Бўш юриш",
             "no_cargo": "Юксиз",
             "direction_location": "Йўналиш/Жойлашув",
-            "in_garage": "Гаражда"
+            "in_garage": "Гаражда",
+            "in_garage_waiting": "Гаражда (рейс бириктирилган)"
         },
         "status": {
             "pending": "Кутилмоқда",

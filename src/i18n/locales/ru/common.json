@@ -2483,7 +2483,8 @@
             "empty_run": "Порожний пробег",
             "no_cargo": "Без груза",
             "direction_location": "Направление/Местоположение",
-            "in_garage": "В гараже"
+            "in_garage": "В гараже",
+            "in_garage_waiting": "В гараже (рейс назначен)"
         },
         "status": {
             "pending": "Ожидает",

@@ -2477,7 +2477,8 @@
             "empty_run": "Empty run",
             "no_cargo": "No cargo",
             "direction_location": "Direction/Location",
-            "in_garage": "In garage"
+            "in_garage": "In garage",
+            "in_garage_waiting": "In garage (trip assigned)"
         },
         "status": {
             "pending": "Pending",
