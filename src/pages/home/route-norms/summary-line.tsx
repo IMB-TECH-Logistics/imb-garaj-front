@@ -8,6 +8,7 @@ import { MONITORING_ROUTE_NORMS_SUMMARY } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useTranslation } from "react-i18next"
 import { RouteNormFilterParams } from "./filters"
+import { DeviationLegend } from "./deviation"
 import { formatDateTime } from "./format"
 import { IssueCode, RouteNormSummary } from "./types"
 
@@ -122,6 +123,8 @@ export default function SummaryLine({ params, ready }: Props) {
                     </span>
                 </>
             )}
+            <span aria-hidden>·</span>
+            <DeviationLegend levels={data.deviation_levels} />
             {!!data.last_computed_at && (
                 <>
                     <span aria-hidden>·</span>

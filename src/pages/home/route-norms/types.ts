@@ -14,6 +14,10 @@ export type IssueCode =
     | "same_point"
     | "fuel_km_from_gps"
 
+export type DeviationLevel = "yellow" | "red"
+
+export type DeviationLevels = Record<DeviationLevel, number>
+
 export type PointRef = {
     id: number
     name: string
@@ -47,6 +51,8 @@ export type RouteNorm = {
     vehicles_count: number
     enough: boolean
     distance_km: MedianRange | null
+    osrm_km: number | null
+    flags: DeviationLevels
     total_minutes: MedianRange | null
     moving_minutes: MedianOnly | null
     stop_minutes: MedianOnly | null
@@ -63,6 +69,7 @@ export type RouteNormSummary = {
     routes_count: number
     pending_orders: number
     last_computed_at: string | null
+    deviation_levels?: DeviationLevels
 }
 
 export type RouteNormOrder = {
@@ -75,6 +82,10 @@ export type RouteNormOrder = {
     driver: { id: number; name: string } | null
     vehicle: { id: number; number: string } | null
     distance_km: number | null
+    osrm_km: number | null
+    extra_km: number | null
+    extra_pct: number | null
+    deviation_level: DeviationLevel | null
     total_minutes: number | null
     moving_minutes: number | null
     stop_minutes: number | null

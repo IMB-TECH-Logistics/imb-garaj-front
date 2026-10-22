@@ -11,6 +11,7 @@ import {
     formatKmRange,
     fuelLabel,
 } from "./format"
+import { FlagCount } from "./deviation"
 import { FuelStat, PointRef, RouteNorm } from "./types"
 
 export const Muted = ({ children }: { children: ReactNode }) => (
@@ -110,6 +111,21 @@ export const useRouteNormColumns = () => {
                 },
             },
             {
+                header: t("route_norms.cols.flags"),
+                id: "flags",
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const { yellow, red } = row.original.flags
+                    if (!yellow && !red) return <Dash />
+                    return (
+                        <div className="flex items-center gap-3 whitespace-nowrap">
+                            {!!red && <FlagCount level="red" count={red} />}
+                            {!!yellow && <FlagCount level="yellow" count={yellow} />}
+                        </div>
+                    )
+                },
+            },
+            {
                 header: t("route_norms.cols.drivers"),
                 accessorKey: "drivers_count",
                 enableSorting: false,
@@ -119,15 +135,21 @@ export const useRouteNormColumns = () => {
                 accessorKey: "distance_km",
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const stat = row.original.distance_km
-                    if (!hasStats(row.original) || !stat) return <Dash />
-                    const range = formatKmRange(stat.min, stat.max)
+                    const { distance_km: stat, osrm_km } = row.original
+                    const hasDistance = hasStats(row.original) && !!stat
+                    if (!hasDistance && osrm_km == null) return <Dash />
+                    const range = hasDistance ? formatKmRange(stat.min, stat.max) : null
                     return (
                         <div>
                             <div className="whitespace-nowrap">
-                                {formatKm(t, stat.median)}
+                                {hasDistance ? formatKm(t, stat.median) : <Dash />}
                             </div>
                             {range && <Muted>{range}</Muted>}
+                            {osrm_km != null && (
+                                <Muted>
+                                    {t("route_norms.osrm_short")}: {formatKm(t, osrm_km)}
+                                </Muted>
+                            )}
                         </div>
                     )
                 },

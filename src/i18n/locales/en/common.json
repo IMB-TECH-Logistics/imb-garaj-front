@@ -1127,7 +1127,11 @@
             "load_time": "Loading",
             "unload_time": "Unloading",
             "fuel": "Fuel",
-            "status": "Status"
+            "status": "Status",
+            "flags": "Suspicious",
+            "osrm_distance": "Road distance (OSRM)",
+            "driven": "Driven (GPS)",
+            "difference": "Difference"
         },
         "filters": {
             "fuel_type": "Fuel type",
@@ -1149,7 +1153,8 @@
             "title": "Route trips",
             "tab_in": "In the norm",
             "tab_out": "Not counted",
-            "tab_all": "All"
+            "tab_all": "All",
+            "tab_flagged": "Suspicious"
         },
         "issues": {
             "no_gps_device": "No GPS device linked",
@@ -1162,6 +1167,17 @@
             "too_short": "Too short",
             "same_point": "Loading and unloading point are the same",
             "fuel_km_from_gps": "Fuel distance calculated from GPS"
+        },
+        "osrm_short": "OSRM",
+        "page": {
+            "back": "Back"
+        },
+        "legend": {
+            "title": "Flag rules",
+            "intro": "For each trip, the GPS distance driven is compared with the road distance (OSRM) between the loading and unloading points.",
+            "yellow": "Yellow flag — driven {{pct}}% or more over",
+            "red": "Red flag — driven {{pct}}% or more over",
+            "example": "Example: OSRM 300 km. 345 km — yellow, 360 km or more — red. Extra distance can mean a hidden load or another job."
         }
     },
     "core": {

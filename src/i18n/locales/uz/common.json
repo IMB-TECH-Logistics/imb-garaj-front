@@ -1124,7 +1124,11 @@
             "load_time": "Yuklashda",
             "unload_time": "Tushirishda",
             "fuel": "Yoqilg'i",
-            "status": "Holat"
+            "status": "Holat",
+            "flags": "Shubhali",
+            "osrm_distance": "Yo'l masofasi (OSRM)",
+            "driven": "Yurgan (GPS)",
+            "difference": "Farq"
         },
         "filters": {
             "fuel_type": "Yoqilg'i turi",
@@ -1146,7 +1150,8 @@
             "title": "Yo'nalish reyslari",
             "tab_in": "Normaga kirgan",
             "tab_out": "Kirmagan",
-            "tab_all": "Hammasi"
+            "tab_all": "Hammasi",
+            "tab_flagged": "Shubhali"
         },
         "issues": {
             "no_gps_device": "GPS qurilma ulanmagan",
@@ -1159,6 +1164,17 @@
             "too_short": "Juda qisqa",
             "same_point": "Yuklash va tushirish joyi bir xil",
             "fuel_km_from_gps": "Yoqilg'i masofasi GPS bo'yicha hisoblangan"
+        },
+        "osrm_short": "OSRM",
+        "page": {
+            "back": "Orqaga"
+        },
+        "legend": {
+            "title": "Bayroqlar qoidasi",
+            "intro": "Har reysda mashina GPS bo'yicha yurgan masofa yuklash va tushirish joyi orasidagi yo'l masofasi (OSRM) bilan solishtiriladi.",
+            "yellow": "Sariq bayroq — {{pct}}% va undan ko'p ortiq yurgan",
+            "red": "Qizil bayroq — {{pct}}% va undan ko'p ortiq yurgan",
+            "example": "Misol: OSRM 300 km. 345 km yursa — sariq, 360 km dan ko'p — qizil. Ortiqcha yurish yashirin yuk yoki boshqa ishga borilganini bildirishi mumkin."
         }
     },
     "core": {

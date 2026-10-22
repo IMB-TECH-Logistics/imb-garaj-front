@@ -5,7 +5,6 @@ import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import { useRouteNormColumns } from "./cols"
 import RouteNormFilters, { useRouteNormFilters } from "./filters"
-import OrdersSheet, { ROUTE_KEY } from "./orders-sheet"
 import SummaryLine from "./summary-line"
 import { RouteNorm, RouteNormListResponse } from "./types"
 
@@ -39,13 +38,9 @@ export default function RouteNormsPage() {
 
     const openRoute = (row: RouteNorm) =>
         navigate({
-            search: (prev: any) => ({
-                ...prev,
-                [ROUTE_KEY]: row.id,
-                o_tab: undefined,
-                o_page: undefined,
-                o_page_size: undefined,
-            }),
+            to: "/route-norms/$route",
+            params: { route: row.id },
+            search: (prev: any) => ({ ...prev, route: undefined }),
         } as any)
 
     return (
@@ -85,11 +80,6 @@ export default function RouteNormsPage() {
                         )}
                     </div>
                 }
-            />
-            <OrdersSheet
-                norms={data?.results ?? []}
-                params={params}
-                ready={ready}
             />
         </div>
     )

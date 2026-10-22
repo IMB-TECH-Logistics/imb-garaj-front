@@ -44,6 +44,9 @@ const MainHaydovchilarIndexLazyImport = createFileRoute(
 const MainBuxgalteriyaIndexLazyImport = createFileRoute(
   '/_main/buxgalteriya/',
 )()
+const MainRouteNormsRouteLazyImport = createFileRoute(
+  '/_main/route-norms/$route',
+)()
 const MainManagersManagersLazyImport = createFileRoute(
   '/_main/_managers/managers',
 )()
@@ -213,6 +216,13 @@ const MainOmborIndexRoute = MainOmborIndexImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/ombor/index.lazy').then((d) => d.Route),
+)
+
+const MainRouteNormsRouteLazyRoute = MainRouteNormsRouteLazyImport.update({
+  path: '/route-norms/$route',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/route-norms/$route.lazy').then((d) => d.Route),
 )
 
 const MainManagersManagersLazyRoute = MainManagersManagersLazyImport.update({
@@ -592,6 +602,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainManagersManagersLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/route-norms/$route': {
+      id: '/_main/route-norms/$route'
+      path: '/route-norms/$route'
+      fullPath: '/route-norms/$route'
+      preLoaderRoute: typeof MainRouteNormsRouteLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/ombor/': {
       id: '/_main/ombor/'
       path: '/ombor'
@@ -947,6 +964,7 @@ interface MainRouteChildren {
   MainIndexRoute: typeof MainIndexRoute
   MainHaydovchilarIdRoute: typeof MainHaydovchilarIdRouteWithChildren
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
+  MainRouteNormsRouteLazyRoute: typeof MainRouteNormsRouteLazyRoute
   MainOmborIndexRoute: typeof MainOmborIndexRoute
   MainBuxgalteriyaIndexLazyRoute: typeof MainBuxgalteriyaIndexLazyRoute
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
@@ -998,6 +1016,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainIndexRoute: MainIndexRoute,
   MainHaydovchilarIdRoute: MainHaydovchilarIdRouteWithChildren,
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
+  MainRouteNormsRouteLazyRoute: MainRouteNormsRouteLazyRoute,
   MainOmborIndexRoute: MainOmborIndexRoute,
   MainBuxgalteriyaIndexLazyRoute: MainBuxgalteriyaIndexLazyRoute,
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
@@ -1065,6 +1084,7 @@ export interface FileRoutesByFullPath {
   '/': typeof MainIndexRoute
   '/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/managers': typeof MainManagersManagersLazyRoute
+  '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/ombor': typeof MainOmborIndexRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
@@ -1119,6 +1139,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof MainDashboardLazyRoute
   '/': typeof MainIndexRoute
   '/managers': typeof MainManagersManagersLazyRoute
+  '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/ombor': typeof MainOmborIndexRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
@@ -1176,6 +1197,7 @@ export interface FileRoutesById {
   '/_main/': typeof MainIndexRoute
   '/_main/haydovchilar/$id': typeof MainHaydovchilarIdRouteWithChildren
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
+  '/_main/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/_main/ombor/': typeof MainOmborIndexRoute
   '/_main/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
@@ -1233,6 +1255,7 @@ export interface FileRouteTypes {
     | '/'
     | '/haydovchilar/$id'
     | '/managers'
+    | '/route-norms/$route'
     | '/ombor'
     | '/buxgalteriya'
     | '/haydovchilar'
@@ -1286,6 +1309,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/'
     | '/managers'
+    | '/route-norms/$route'
     | '/ombor'
     | '/buxgalteriya'
     | '/haydovchilar'
@@ -1341,6 +1365,7 @@ export interface FileRouteTypes {
     | '/_main/'
     | '/_main/haydovchilar/$id'
     | '/_main/_managers/managers'
+    | '/_main/route-norms/$route'
     | '/_main/ombor/'
     | '/_main/buxgalteriya/'
     | '/_main/haydovchilar/'
@@ -1429,6 +1454,7 @@ export const routeTree = rootRoute
         "/_main/",
         "/_main/haydovchilar/$id",
         "/_main/_managers/managers",
+        "/_main/route-norms/$route",
         "/_main/ombor/",
         "/_main/buxgalteriya/",
         "/_main/haydovchilar/",
@@ -1497,6 +1523,10 @@ export const routeTree = rootRoute
     },
     "/_main/_managers/managers": {
       "filePath": "_main/_managers/managers.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/route-norms/$route": {
+      "filePath": "_main/route-norms/$route.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/ombor/": {
