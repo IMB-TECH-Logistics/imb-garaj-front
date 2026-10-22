@@ -132,6 +132,9 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
                         ...(item.odometer ?
                             { odometer: Number(item.odometer) }
                         :   {}),
+                        ...(item.position ?
+                            { position: item.position }
+                        :   {}),
                     })),
                     services: (values.services ?? []).map((s) => ({
                         comment: s.comment.trim(),

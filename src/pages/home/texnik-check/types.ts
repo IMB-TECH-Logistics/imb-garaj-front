@@ -40,6 +40,7 @@ export type LineValues = {
     lot: number | null
     quantity: string
     odometer?: string
+    position?: string
 }
 
 export type ServiceValues = {

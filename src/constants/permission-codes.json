@@ -57,6 +57,8 @@
   "settings_vehicle_types_view",
   "settings_vehicles_control",
   "settings_vehicles_view",
+  "tech_base_control",
+  "tech_base_view",
   "warehouse_control",
   "warehouse_view"
 ]
