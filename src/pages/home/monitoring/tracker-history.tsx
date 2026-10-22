@@ -25,7 +25,22 @@ const GAP_MS = 15 * 60 * 1000
 const STOP_MIN_MS = 5 * 60 * 1000
 const STOP_MERGE_M = 100
 const MAX_REAL_SPEED = 150
-const DAY_COLORS = ["#5eb3f6", "#a78bfa", "#f472b6", "#fbbf24", "#34d399", "#fb7185", "#22d3ee"]
+const DISTINCT_COLORS = [
+    "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#a855f7", "#ec4899",
+    "#14b8a6", "#f97316", "#84cc16", "#6366f1", "#eab308", "#06b6d4",
+]
+
+const hslToHex = (h: number, s: number, l: number) => {
+    const a = s * Math.min(l, 1 - l)
+    const f = (n: number) => {
+        const k = (n + h / 30) % 12
+        return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, "0")
+    }
+    return `#${f(0)}${f(8)}${f(4)}`
+}
+
+const distinctColor = (index: number) =>
+    index < DISTINCT_COLORS.length ? DISTINCT_COLORS[index] : hslToHex((index * 137.508) % 360, 0.7, 0.55)
 
 type Point = { t: number; lat: number; lng: number; speed: number; day: string }
 type Stop = { from: number; to: number; lat: number; lng: number }
@@ -155,7 +170,6 @@ export const COLOR_BY_OPTIONS: { value: ColorBy; labelKey: string }[] = [
     { value: "speed", labelKey: "mon.color_by.speed" },
 ]
 
-const TRIP_COLORS = ["#38bdf8", "#a78bfa", "#f472b6", "#fbbf24", "#34d399", "#fb7185", "#22d3ee", "#c084fc"]
 
 type TripSpan = { key: string; start: number; end: number; color: string; index: number; from?: string | null; to?: string | null; routeKm?: number | null }
 
@@ -201,7 +215,7 @@ function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
     trips.sort((a, b) => a.start - b.start)
     trips.forEach((trip, index) => {
         trip.index = index
-        trip.color = TRIP_COLORS[index % TRIP_COLORS.length]
+        trip.color = distinctColor(index)
     })
     return trips
 }
@@ -252,7 +266,7 @@ export function useTrackerHistory(imei: string | null) {
     })
 
     const colors = useMemo<Record<string, string>>(
-        () => Object.fromEntries((days.data ?? []).map((d, i) => [d.date, DAY_COLORS[i % DAY_COLORS.length]])),
+        () => Object.fromEntries((days.data ?? []).map((d, i) => [d.date, distinctColor(i)])),
         [days.data],
     )
 

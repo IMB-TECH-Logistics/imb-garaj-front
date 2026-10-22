@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { DimensionEmpty } from "./dimension-row"
 import GpsList, { UnlinkedVehicles } from "./gps-list"
@@ -39,15 +38,14 @@ export function MonitoringPanelBody({ mode, selectFromStatus, historical, polyli
                 ) : (
                     <>
                     {!noGpsOnly && (
-                        <div className="relative mb-2">
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                value={plateQuery}
-                                onChange={(e) => setPlateQuery(e.target.value)}
-                                placeholder={t("mon.plate_search")}
-                                className="h-9 pl-8"
-                            />
-                        </div>
+                        <Input
+                            type="search"
+                            fullWidth
+                            wrapperClassName="mb-2"
+                            value={plateQuery}
+                            onChange={(e) => setPlateQuery(e.target.value)}
+                            placeholder={t("mon.plate_search")}
+                        />
                     )}
                     {noGpsOnly ? (
                         <UnlinkedVehicles items={allUnlinked} />
