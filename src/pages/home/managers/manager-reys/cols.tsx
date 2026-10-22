@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Banknote, Copy, ImageIcon } from "lucide-react"
+import { Banknote, Copy, ImageIcon, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
@@ -106,11 +106,11 @@ export const useColumnsManagersOrders = (opts?: {
                     }
                     if (row.original.loading_located === false) {
                         return (
-                            <div
-                                className="text-red-600 font-medium"
-                                title={t("trips.reys_cols.no_location")}
-                            >
-                                {row.original.loading_name || "-"}
+                            <div className="flex items-center gap-1.5">
+                                <span>{row.original.loading_name || "-"}</span>
+                                <span title={t("trips.reys_cols.no_location")}>
+                                    <TriangleAlert size={14} className="shrink-0 text-red-600" />
+                                </span>
                             </div>
                         )
                     }
@@ -127,11 +127,11 @@ export const useColumnsManagersOrders = (opts?: {
                     }
                     if (row.original.unloading_located === false) {
                         return (
-                            <div
-                                className="text-red-600 font-medium"
-                                title={t("trips.reys_cols.no_location")}
-                            >
-                                {row.original.unloading_name || "-"}
+                            <div className="flex items-center gap-1.5">
+                                <span>{row.original.unloading_name || "-"}</span>
+                                <span title={t("trips.reys_cols.no_location")}>
+                                    <TriangleAlert size={14} className="shrink-0 text-red-600" />
+                                </span>
                             </div>
                         )
                     }
