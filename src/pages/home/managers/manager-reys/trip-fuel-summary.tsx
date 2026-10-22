@@ -14,15 +14,15 @@ export type TripFuel = {
 
 export default function TripFuelSummary({ fuel }: { fuel: TripFuel }) {
     const { t } = useTranslation()
-    if (fuel.state === "pending") {
-        return (
+    const estimated = fuel.state === "pending"
+    if (fuel.used_fuel == null || (estimated && !fuel.used_fuel)) {
+        return estimated ? (
             <div className="mt-2 text-sm text-muted-foreground">
                 {t("trips.fuel.title")}: {t("trips.fuel.pending")}
             </div>
-        )
+        ) : null
     }
-    if (fuel.used_fuel == null) return null
-    const value = (v: number | null) => formatFuel(t, fuel.fuel_type, v)
+    const value = (v: number | null) => `${estimated && v != null ? "≈ " : ""}${formatFuel(t, fuel.fuel_type, v)}`
     return (
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <span className="font-medium">{t("trips.fuel.title")}</span>
@@ -36,6 +36,7 @@ export default function TripFuelSummary({ fuel }: { fuel: TripFuel }) {
                 {t("trips.fuel.empty")}: <span className="tabular-nums">{value(fuel.empty_fuel)}</span>
             </span>
             {fuel.state === "unreliable" && <span className="text-amber-600">{t("trips.fuel.check")}</span>}
+            {estimated && <span className="text-muted-foreground">{t("trips.fuel.estimated")}</span>}
         </div>
     )
 }

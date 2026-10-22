@@ -278,19 +278,24 @@ export const useColumnsManagersOrders = (opts?: {
                     const legs = legsOf(row.original)
                     const parts = [...legs, ...(r.__leg ? [] : [row.original])]
                     const state = parts.find((p) => p.fuel_state)?.fuel_state
-                    if (state === "pending") {
-                        return <span className="text-muted-foreground" title={t("trips.fuel.pending")}>—</span>
-                    }
+                    const estimated = state === "pending"
                     const known = parts.map((p) => p.fuel_amount).filter((v): v is number => v != null)
-                    if (!known.length) return <span className="text-muted-foreground">—</span>
+                    if (!known.length) {
+                        return (
+                            <span className="text-muted-foreground" title={estimated ? t("trips.fuel.pending") : undefined}>
+                                —
+                            </span>
+                        )
+                    }
                     const amount = known.reduce((sum, v) => sum + Number(v), 0)
                     const fuelType = parts.find((p) => p.fuel_type)?.fuel_type
                     const unreliable = parts.some((p) => p.fuel_state === "unreliable")
                     return (
                         <span
-                            className={`whitespace-nowrap tabular-nums${unreliable ? " text-amber-600" : ""}`}
-                            title={unreliable ? t("trips.fuel.check") : undefined}
+                            className={`whitespace-nowrap tabular-nums${unreliable ? " text-amber-600" : ""}${estimated ? " text-muted-foreground" : ""}`}
+                            title={unreliable ? t("trips.fuel.check") : estimated ? t("trips.fuel.estimated") : undefined}
                         >
+                            {estimated ? "≈ " : ""}
                             {formatFuel(t, fuelType, amount)}
                             {unreliable ? " ?" : ""}
                         </span>

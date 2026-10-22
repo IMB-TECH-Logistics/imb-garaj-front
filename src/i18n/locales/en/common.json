@@ -2650,7 +2650,8 @@
             "check": "Consumption out of range — check",
             "total": "Turnover",
             "orders": "Trips",
-            "empty": "Empty runs"
+            "empty": "Empty runs",
+            "estimated": "Estimate: starting level + refuels. Finalized when the turnover is closed"
         }
     },
     "ui": {

@@ -2647,7 +2647,8 @@
             "check": "Sarf normadan tashqari — tekshiring",
             "total": "Aylanma",
             "orders": "Reyslar",
-            "empty": "Bo'sh yurish"
+            "empty": "Bo'sh yurish",
+            "estimated": "Taxminiy: boshlang'ich qoldiq + quyilgan yoqilg'i. Aylanma yopilganda aniqlanadi"
         }
     },
     "ui": {
