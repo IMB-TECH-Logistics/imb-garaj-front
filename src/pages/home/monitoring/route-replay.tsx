@@ -23,7 +23,7 @@ export type ReplayStatus = {
 
 const RATE = 900
 const GAP_MS = 15 * 60 * 1000
-const STOP_MIN_MS = 5 * 60 * 1000
+const STOP_MIN_MS = 20 * 60 * 1000
 const CHART_W = 600
 const CHART_H = 96
 const PAD_TOP = 8

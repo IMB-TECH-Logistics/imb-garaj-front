@@ -22,7 +22,7 @@ import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
 const TZ = "Asia/Tashkent"
 const TZ_OFFSET_MS = 5 * 3600 * 1000
 const GAP_MS = 15 * 60 * 1000
-const STOP_MIN_MS = 5 * 60 * 1000
+const STOP_MIN_MS = 20 * 60 * 1000
 const STOP_MERGE_M = 100
 const MAX_REAL_SPEED = 150
 const OUTSIDE_TRIP_COLOR = "#ff00d4"
