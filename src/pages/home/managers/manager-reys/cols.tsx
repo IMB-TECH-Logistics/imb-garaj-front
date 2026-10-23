@@ -407,7 +407,7 @@ export const useColumnsManagersOrders = (opts?: {
                     }
 
                     const legs = legsOf(row.original)
-                    const isOrder = !r.__leg && (r.activity === 1 || r.activity === 4)
+                    const isOrder = !r.__leg && !r.__garage
                     if (!legs.length && !isOrder) return <span className="text-muted-foreground">—</span>
                     return (
                         <div className="flex flex-col gap-1 not-italic">
@@ -437,9 +437,9 @@ export const useColumnsManagersOrders = (opts?: {
                                                 kind: "order",
                                                 id: r.id,
                                                 title: t("trips.reys_cols.extra_pay_title"),
-                                                route: r.activity === 4
-                                                    ? `${r.loading_name ?? "—"} — ${t("status.idle_stop")}`
-                                                    : `${r.loading_name ?? "—"} → ${r.unloading_name ?? "—"}`,
+                                                route: r.activity === 1
+                                                    ? `${r.loading_name ?? "—"} → ${r.unloading_name ?? "—"}`
+                                                    : `${r.loading_name ?? "—"} — ${r.activity === 4 ? t("status.idle_stop") : r.activity_display ?? ""}`,
                                                 amount: r.extra_pay_amount,
                                                 comment: r.extra_pay_comment,
                                             }),
