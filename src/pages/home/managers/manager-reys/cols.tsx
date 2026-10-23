@@ -326,7 +326,8 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "loading_time",
                 header: t("trips.reys_cols.to_loading"),
                 size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.loading_time, row.original.in_transit_time)}</span>,
+                cell: ({ row }) =>
+                    isEmptyRow(row.original) ? "-" : <span className="whitespace-nowrap">{formatDuration(row.original.loading_time, row.original.in_transit_time)}</span>,
             },
             {
                 accessorKey: "in_transit_time",
@@ -338,13 +339,17 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "parking_minutes",
                 header: t("trips.reys_cols.parking"),
                 size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{row.original.parking_minutes ? formatMinutes(row.original.parking_minutes) : "-"}</span>,
+                cell: ({ row }) => {
+                    const minutes = parkingOf(row.original)
+                    return <span className="whitespace-nowrap">{minutes ? formatMinutes(minutes) : "-"}</span>
+                },
             },
             {
                 accessorKey: "unloading_time",
                 header: t("trips.reys_cols.to_unloading"),
                 size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
+                cell: ({ row }) =>
+                    isEmptyRow(row.original) ? "-" : <span className="whitespace-nowrap">{formatDuration(row.original.unloading_time, row.original.completed_time)}</span>,
             },
             {
                 id: "empty_leg_pay",
@@ -469,6 +474,20 @@ export const useColumnsManagersOrders = (opts?: {
 const legsOf = (r: ManagerOrders): EmptyLeg[] => {
     const row = r as any
     return row.__legs ?? (row.__leg ? [row.__leg] : [])
+}
+
+const isEmptyRow = (r: ManagerOrders) => !(r as any).__leg && r.activity === 1 && r.type === 2
+
+const minutesBetween = (start?: string | null, end?: string | null) => {
+    if (!start || !end) return 0
+    const ms = new Date(end).getTime() - new Date(start).getTime()
+    return isNaN(ms) || ms < 0 ? 0 : Math.floor(ms / 60000)
+}
+
+const parkingOf = (r: ManagerOrders) => {
+    const gps = r.parking_minutes ?? 0
+    if (!isEmptyRow(r)) return gps
+    return gps + minutesBetween(r.loading_time, r.in_transit_time) + minutesBetween(r.unloading_time, r.completed_time)
 }
 
 const startOf = (r: ManagerOrders) =>

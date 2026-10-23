@@ -178,7 +178,9 @@ export default function ManagerReys() {
         const isEmptyRun = (r: ManagerOrders) => r.activity === 1 && r.type === 2
         const emptyRunIds = new Set(list.filter(isEmptyRun).map((r) => r.id))
         const byAfter = new Map(
-            legs.filter((l) => l.after_order != null && emptyRunIds.has(l.after_order)).map((l) => [l.after_order, l]),
+            legs
+                .filter((l) => l.after_order != null && !l.idle_start && emptyRunIds.has(l.after_order))
+                .map((l) => [l.after_order, l]),
         )
         const ordering = String((search as any).ordering ?? "")
         const desc = !ordering || ordering.startsWith("-")
