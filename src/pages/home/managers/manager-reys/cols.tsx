@@ -274,7 +274,8 @@ export const useColumnsManagersOrders = (opts?: {
                             <span className="text-muted-foreground">—</span>
                         )
                     }
-                    const known = legs.map((l) => l.km ?? l.distance_km).filter((v): v is number => v != null)
+                    const own = (row.original as any).__leg ? null : row.original.distance_km
+                    const known = [...legs.map((l) => l.km ?? l.distance_km), own].filter((v): v is number => v != null)
                     const km = known.length ? known.reduce((sum, v) => sum + Number(v), 0) : null
                     const manual = legs.some((l) => l.distance_km_manual != null)
                     const gps = legs.map((l) => (l.distance_km != null ? formatMoney(Math.round(Number(l.distance_km))) : "—")).join(" + ")
