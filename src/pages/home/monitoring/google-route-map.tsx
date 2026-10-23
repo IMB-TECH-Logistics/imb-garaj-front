@@ -157,6 +157,7 @@ export default function GoogleRouteMap({
     segments,
     pois,
     areas,
+    arrows,
     onBoundsChange,
 }: RouteMapProps) {
     const { t } = useTranslation()
@@ -170,6 +171,7 @@ export default function GoogleRouteMap({
     const [hover, setHover] = useState<RouteHover | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const [refitTick, setRefitTick] = useState(0)
+    const [fitting, setFitting] = useState(false)
     const [zoom, setZoom] = useState(11)
     const [mapMode, setMapMode] = useState<MapMode>(readMapMode)
     const changeMapMode = (next: MapMode) => {
@@ -219,7 +221,9 @@ export default function GoogleRouteMap({
     }, [])
 
     const validSegments = (segments ?? []).filter((s) => s.points.length >= 2)
-    const arrowPath = validSegments.length > 0
+    const arrowPath = !arrows
+        ? []
+        : validSegments.length > 0
         ? validSegments.flatMap((s) => s.points.map(toLatLng))
         : (points ?? []).map(toLatLng)
     const startPoint = points && points.length > 0 ? points[0] : null
@@ -236,14 +240,19 @@ export default function GoogleRouteMap({
     useEffect(() => {
         if (!map || !fitSignature) return
         if (bbox && bbox.length === 4) {
+            setFitting(true)
             map.fitBounds(
                 { west: bbox[0], south: bbox[1], east: bbox[2], north: bbox[3] },
                 80,
             )
-            google.maps.event.addListenerOnce(map, "idle", () => {
+            const settle = google.maps.event.addListenerOnce(map, "idle", () => {
                 if ((map.getZoom() ?? 0) > MAX_FIT_ZOOM) map.setZoom(MAX_FIT_ZOOM)
+                setFitting(false)
             })
-            return
+            return () => {
+                settle.remove()
+                setFitting(false)
+            }
         }
         if (markers && markers.length === 1) {
             map.panTo({ lat: markers[0].lat, lng: markers[0].lng })
@@ -325,7 +334,9 @@ export default function GoogleRouteMap({
                         />
                     ))}
 
-                    {validSegments.length > 0
+                    {fitting
+                        ? null
+                        : validSegments.length > 0
                         ? validSegments.map((s, i) => (
                               <PolylineF
                                   key={i}
@@ -348,7 +359,7 @@ export default function GoogleRouteMap({
                               />
                           )}
 
-                    {arrowPath.length >= 2 && (
+                    {!fitting && arrowPath.length >= 2 && (
                         <PolylineF
                             key={`arrows-${arrowPath.length}`}
                             path={arrowPath}
@@ -359,15 +370,14 @@ export default function GoogleRouteMap({
                                 icons: [
                                     {
                                         icon: {
-                                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                                            scale: 2.6,
+                                            path: "M -3,2.5 L 0,-1 L 3,2.5",
+                                            scale: 1.6,
                                             strokeColor: "#ffffff",
-                                            strokeWeight: 1.2,
-                                            fillColor: "#111827",
-                                            fillOpacity: 0.9,
+                                            strokeOpacity: 1,
+                                            strokeWeight: 2.4,
                                         },
-                                        offset: "60px",
-                                        repeat: "140px",
+                                        offset: "40px",
+                                        repeat: "90px",
                                     },
                                 ],
                             }}

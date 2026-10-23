@@ -86,9 +86,9 @@ export const STATUS_META: Record<
     },
     [EMPTY_RUN]: {
         labelKey: "trips.managers.empty_run",
-        bar: "bg-slate-400",
-        dot: "bg-slate-400",
-        color: "#94a3b8",
+        bar: "bg-slate-600",
+        dot: "bg-slate-600",
+        color: "#475569",
     },
     [IDLE_STOP]: {
         labelKey: "status.idle_stop",

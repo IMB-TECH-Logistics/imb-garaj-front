@@ -178,6 +178,7 @@ export function MapArea({ mode, historical, trackerImei, gpsLive, noGpsOnly, con
                                   : null
                         }
                         pois={trackerImei ? history.map.pois : undefined}
+                        arrows={trackerImei ? history.map.arrows : false}
                         areas={garageAreas}
                     />
                 </CardContent>

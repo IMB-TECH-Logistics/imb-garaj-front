@@ -102,6 +102,8 @@ export type RouteMapProps = {
     pois?: MapPoi[]
     /** Closed outlines drawn in red, such as the garage yard. */
     areas?: MapPoint[][]
+    /** Direction arrows along the route. */
+    arrows?: boolean
     onBoundsChange?: (bounds: MapBounds) => void
 }
 

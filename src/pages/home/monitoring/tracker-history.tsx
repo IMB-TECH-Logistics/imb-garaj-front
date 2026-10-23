@@ -579,6 +579,7 @@ export function useTrackerHistory(imei: string | null) {
             bbox,
             points: first && last && visiblePoints.length > 1 ? ([[first.lng, first.lat], [last.lng, last.lat]] as MapPoint[]) : undefined,
             pois,
+            arrows: focus?.kind === "day" || focus?.kind === "trip",
         },
     }
 }
