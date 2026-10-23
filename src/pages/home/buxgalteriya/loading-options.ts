@@ -39,7 +39,7 @@ export const useRunFilterOptions = (scope: ScopeParams) => {
         () => ({
             loadingOptions: data?.loading ?? EMPTY,
             unloadingOptions: data?.unloading ?? EMPTY,
-            clientOptions: data?.client ?? EMPTY,
+            clientOptions: data?.client?.map((c) => (c.code ? { ...c, name: `${c.name} (${c.code})` } : c)) ?? EMPTY,
             cargoTypeOptions: data?.cargo_type ?? EMPTY,
             vehicleOptions: data?.vehicle ?? EMPTY,
             tripOptions: data?.trip ?? EMPTY,
