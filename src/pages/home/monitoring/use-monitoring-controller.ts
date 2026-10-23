@@ -1,5 +1,6 @@
 import {
     MONITORING_STATUS_GPS_TIMELINE,
+    MONITORING_STATUS_ROWS,
     MONITORING_STATUS_ROUTE,
     MONITORING_STATUS_TIMELINE,
 } from "@/constants/api-endpoints"
@@ -9,7 +10,7 @@ import { useTranslation } from "react-i18next"
 import { parseLocalDate } from "./historical-summary"
 import { LIVE_REFRESH_MS } from "./monitoring-model"
 import type { LiveMarker } from "./route-map"
-import { type ApiStatusRoute, type ApiStatusSegment, type ColoredPathSegment, STATUS_META } from "./status/data"
+import { type ApiStatusRoute, type ApiStatusSegment, type ApiVehicleRow, type ColoredPathSegment, ROW_KIND_STATUS, STATUS_META } from "./status/data"
 import type { LiveDriver, OrderTracking, TripTracking, VehicleTracking } from "./types"
 import { EMPTY_FILTERS, isRussiaTruck, todayIso, truckStatusOf } from "./types"
 import { useMonitoringData } from "./use-monitoring-data"
@@ -244,10 +245,52 @@ export const useMonitoringController = () => {
             refetchIntervalInBackground: false,
         },
     })
+    const replayRows = useGet<ApiVehicleRow[]>(MONITORING_STATUS_ROWS, {
+        params: {
+            vehicle: selectedTracker?.vehicle ?? undefined,
+            from_date: history.range?.from,
+            to_date: history.range?.to,
+        },
+        enabled: selectedTracker?.vehicle != null && !!history.range,
+        options: {
+            refetchInterval: history.live ? LIVE_REFRESH_MS : false,
+            refetchIntervalInBackground: false,
+        },
+    })
     const replaySegments = replayGpsTimeline.data?.length
         ? replayGpsTimeline.data
         : replayTimeline.data
-    const replayStatuses = useMemo(
+    const rowStatuses = useMemo(
+        () =>
+            (replayRows.data ?? []).flatMap((row, i) => {
+                const common = {
+                    order: row.order_id,
+                    from: row.from_place,
+                    to: row.to_place,
+                    routeKm: row.km,
+                    fuel: row.fuel,
+                    kind: row.kind,
+                    externalId: row.external_id,
+                    rowKey: row.order_id != null ? `o${row.order_id}` : `${row.kind}:${row.start}:${i}`,
+                }
+                if (row.kind === "reys" && row.stages.length) {
+                    return row.stages.map((stage) => ({
+                        ...common,
+                        status: stage.status,
+                        start: Date.parse(stage.start),
+                        end: Date.parse(stage.end),
+                    }))
+                }
+                return [{
+                    ...common,
+                    status: row.kind === "reys" ? 6 : ROW_KIND_STATUS[row.kind],
+                    start: Date.parse(row.start),
+                    end: Date.parse(row.end),
+                }]
+            }),
+        [replayRows.data],
+    )
+    const legacyStatuses = useMemo(
         () =>
             (replaySegments ?? []).map((s) => ({
                 status: s.status,
@@ -260,6 +303,7 @@ export const useMonitoringController = () => {
             })),
         [replaySegments],
     )
+    const replayStatuses = replayRows.data ? rowStatuses : legacyStatuses
     const setHistoryStatuses = history.setStatusSegments
     useEffect(() => {
         setHistoryStatuses(replayStatuses)

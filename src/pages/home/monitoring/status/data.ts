@@ -13,6 +13,32 @@ export const ORDER_STATUS = {
 } as const
 
 export const IDLE = -100
+export const EMPTY_RUN = -101
+export const IDLE_STOP = -102
+export const REPAIR = -103
+export const IN_GARAGE = -104
+
+export type VehicleRowKind = "reys" | "empty" | "idle" | "repair" | "garage"
+
+export const ROW_KIND_STATUS: Record<Exclude<VehicleRowKind, "reys">, number> = {
+    empty: EMPTY_RUN,
+    idle: IDLE_STOP,
+    repair: REPAIR,
+    garage: IN_GARAGE,
+}
+
+export type ApiVehicleRow = {
+    kind: VehicleRowKind
+    order_id: number | null
+    external_id: string | null
+    from_place: string | null
+    to_place: string | null
+    start: string
+    end: string
+    km: number | null
+    fuel: number | null
+    stages: { status: number; start: string; end: string }[]
+}
 
 export type StatusKey = number
 
@@ -57,6 +83,30 @@ export const STATUS_META: Record<
         bar: "bg-orange-400",
         dot: "bg-orange-400",
         color: "#fb923c",
+    },
+    [EMPTY_RUN]: {
+        labelKey: "trips.managers.empty_run",
+        bar: "bg-slate-400",
+        dot: "bg-slate-400",
+        color: "#94a3b8",
+    },
+    [IDLE_STOP]: {
+        labelKey: "status.idle_stop",
+        bar: "bg-rose-400",
+        dot: "bg-rose-400",
+        color: "#fb7185",
+    },
+    [REPAIR]: {
+        labelKey: "status.repair",
+        bar: "bg-red-600",
+        dot: "bg-red-600",
+        color: "#dc2626",
+    },
+    [IN_GARAGE]: {
+        labelKey: "status.in_garage",
+        bar: "bg-yellow-600",
+        dot: "bg-yellow-600",
+        color: "#ca8a04",
     },
     [IDLE]: {
         labelKey: "mon.status.idle",

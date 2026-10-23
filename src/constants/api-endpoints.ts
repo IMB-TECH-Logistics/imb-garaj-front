@@ -142,6 +142,7 @@ export const MONITORING_LOGISTICS_STATS = "monitoring/stats"
 export const MONITORING_STATUS_TIMELINE = "monitoring/status/timeline"
 export const MONITORING_STATUS_GPS_TIMELINE = "monitoring/status/gps-timeline"
 export const MONITORING_STATUS_ROUTE = "monitoring/status/route"
+export const MONITORING_STATUS_ROWS = "monitoring/status/rows"
 
 /** ===== WAREHOUSE / OMBOR ===== */
 export const WAREHOUSE_UNITS = "warehouse/units"

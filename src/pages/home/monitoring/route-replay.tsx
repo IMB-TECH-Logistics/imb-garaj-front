@@ -15,6 +15,10 @@ export type ReplayStatus = {
     from?: string | null
     to?: string | null
     routeKm?: number | null
+    rowKey?: string | null
+    kind?: string | null
+    fuel?: number | null
+    externalId?: string | null
 }
 
 const RATE = 900

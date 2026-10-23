@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next"
 import type { ColoredSegment, MapPoi, MapPoint } from "./route-map"
 import { type ReplayStatus, useRouteReplay } from "./route-replay"
 import { useRouteDraw } from "./route-draw"
-import { ACTIVE_STATUSES, IDLE, STATUS_META } from "./status/data"
+import { ACTIVE_STATUSES, IDLE, STATUS_META, ROW_KIND_STATUS } from "./status/data"
 import { findGaps, gapKey, useGapRoutes } from "./gap-routes"
 import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
 
@@ -172,7 +172,7 @@ export const COLOR_BY_OPTIONS: { value: ColorBy; labelKey: string }[] = [
 ]
 
 
-type TripSpan = { key: string; start: number; end: number; color: string; index: number; from?: string | null; to?: string | null; routeKm?: number | null }
+type TripSpan = { key: string; start: number; end: number; color: string; index: number; from?: string | null; to?: string | null; routeKm?: number | null; kind?: string | null; fuel?: number | null; externalId?: string | null }
 
 const STAGE_ORDER: Record<number, number> = { 0: 0, 1: 1, 5: 2, 6: 3, 7: 4 }
 
@@ -181,7 +181,32 @@ function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
     const trips: TripSpan[] = []
     const byOrder = new Map<number, TripSpan>()
     let previous: ReplayStatus | null = null
+    const byRow = new Map<string, TripSpan>()
     for (const seg of sorted) {
+        if (seg.rowKey) {
+            const row = byRow.get(seg.rowKey)
+            if (row) {
+                row.start = Math.min(row.start, seg.start)
+                row.end = Math.max(row.end, seg.end)
+            } else {
+                const span: TripSpan = {
+                    key: seg.rowKey,
+                    start: seg.start,
+                    end: seg.end,
+                    color: "",
+                    index: 0,
+                    from: seg.from ?? null,
+                    to: seg.to ?? null,
+                    routeKm: seg.routeKm ?? null,
+                    kind: seg.kind ?? null,
+                    fuel: seg.fuel ?? null,
+                    externalId: seg.externalId ?? null,
+                }
+                trips.push(span)
+                byRow.set(seg.rowKey, span)
+            }
+            continue
+        }
         const own = seg.order != null ? byOrder.get(seg.order) : undefined
         const last = trips[trips.length - 1]
         const continues =
@@ -214,9 +239,16 @@ function groupTrips(statuses: ReplayStatus[]): TripSpan[] {
         previous = seg
     }
     trips.sort((a, b) => a.start - b.start)
-    trips.forEach((trip, index) => {
-        trip.index = index
-        trip.color = distinctColor(index)
+    let reysIndex = 0
+    trips.forEach((trip) => {
+        if (trip.kind && trip.kind !== "reys") {
+            trip.index = -1
+            trip.color = STATUS_META[ROW_KIND_STATUS[trip.kind as keyof typeof ROW_KIND_STATUS]]?.color ?? OUTSIDE_TRIP_COLOR
+            return
+        }
+        trip.index = reysIndex
+        trip.color = distinctColor(reysIndex)
+        reysIndex += 1
     })
     return trips
 }
@@ -320,7 +352,7 @@ export function useTrackerHistory(imei: string | null) {
         () =>
             trips.map((trip) => ({
                 ...trip,
-                km: trip.routeKm ?? summarize(points.filter((p) => p.t >= trip.start && p.t < trip.end)).distance / 1000,
+                km: trip.routeKm ?? (trip.kind && trip.kind !== "reys" ? 0 : summarize(points.filter((p) => p.t >= trip.start && p.t < trip.end)).distance / 1000),
             })),
         [trips, points],
     )
@@ -582,16 +614,22 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                     {history.tripStats.length === 0 && (
                         <span className="text-xs text-muted-foreground">{t("mon.history.no_trips")}</span>
                     )}
-                    {[...history.tripStats.map((trip) => ({
-                        key: trip.key,
-                        start: trip.start,
-                        color: trip.color,
-                        index: String(trip.index + 1) as string | null,
-                        from: trip.from ?? t("mon.trip"),
-                        to: trip.to ?? "",
-                        km: trip.km,
-                        ms: trip.end - trip.start,
-                    })), ...history.idleGaps.map((gap) => ({
+                    {[...history.tripStats.map((trip) => {
+                        const kindStatus = trip.kind && trip.kind !== "reys" ? ROW_KIND_STATUS[trip.kind as keyof typeof ROW_KIND_STATUS] : null
+                        const label = kindStatus != null ? t(STATUS_META[kindStatus].labelKey) : null
+                        const route = trip.to && trip.to !== trip.from ? `${trip.from} – ${trip.to}` : trip.from ?? ""
+                        return {
+                            key: trip.key,
+                            start: trip.start,
+                            color: trip.color,
+                            index: trip.index >= 0 ? String(trip.index + 1) : null,
+                            from: label ? `${label}${route ? ` · ${route}` : ""}` : `${trip.externalId ? `${trip.externalId} · ` : ""}${trip.from ?? t("mon.trip")}`,
+                            to: label ? "" : trip.to ?? "",
+                            km: trip.km,
+                            fuel: trip.fuel ?? null,
+                            ms: trip.end - trip.start,
+                        }
+                    }), ...history.idleGaps.map((gap) => ({
                         key: gap.key,
                         start: gap.start,
                         color: OUTSIDE_TRIP_COLOR,
@@ -599,6 +637,7 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                         from: t("mon.history.outside_trip"),
                         to: "",
                         km: gap.km,
+                        fuel: null as number | null,
                         ms: gap.ms,
                     }))].sort((a, b) => a.start - b.start).map((row) => {
                         const selected = history.focus?.kind === "trip" && history.focus.key === row.key
@@ -619,7 +658,10 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                                     <span className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: row.color }} />
                                 </span>
                                 <span />
-                                <span className="truncate font-mono text-xs tabular-nums text-muted-foreground">{row.km.toFixed(1)} {t("mon.units.km")}</span>
+                                <span className="truncate font-mono text-xs tabular-nums text-muted-foreground">
+                                    {row.km ? `${row.km.toFixed(1)} ${t("mon.units.km")}` : "—"}
+                                    {row.fuel ? ` · ${row.fuel.toFixed(1)} m³` : ""}
+                                </span>
                                 <span className="text-center text-muted-foreground/30">|</span>
                                 <span className="flex items-center justify-end gap-2 font-mono text-xs tabular-nums text-muted-foreground">
                                     {spanLabel(row.ms, t)}
