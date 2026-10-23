@@ -133,6 +133,7 @@ export default function ManagerReys() {
     const { data: garageVisits } = useGet<GarageVisit[]>(`${MANAGERS_TRIPS}/${tripId}/garage-visits`, { enabled: !!tripId })
     const rows = useMemo(() => {
         const list = data?.results ?? []
+        if ((search as any).cargo_type || (search as any).client) return list
         const desc0 = !String((search as any).ordering ?? "") || String((search as any).ordering).startsWith("-")
         const garage = (rows: ManagerOrders[], desc: boolean) =>
             withGarageRows(rows, garageVisits, backLegs, desc, {
