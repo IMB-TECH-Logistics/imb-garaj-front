@@ -344,10 +344,10 @@ export default function GpsList({ items, orders, loading, unavailable, activeIme
                             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: color }} />
 
                             <span className={cn("flex min-w-0 items-center gap-2", item.vehicle && hasControl && "pr-6")}>
-                                <span className="w-[11ch] shrink-0 truncate font-mono text-sm font-bold leading-5 tracking-wide">
+                                <span className="shrink-0 whitespace-nowrap font-mono text-[13px] font-bold leading-5">
                                     {item.vehicle_number || item.tracker_name || item.imei}
                                 </span>
-                                <span className="ml-4 min-w-0 flex-1 truncate text-left text-[11px] text-muted-foreground tabular-nums">
+                                <span className="ml-2 min-w-0 flex-1 truncate text-left text-[11px] text-muted-foreground tabular-nums">
                                     {order ? (
                                         <>
                                             <span className="font-medium text-foreground">
