@@ -367,19 +367,17 @@ export default function GoogleRouteMap({
                                 strokeOpacity: 0,
                                 clickable: false,
                                 zIndex: 5,
-                                icons: [
-                                    {
-                                        icon: {
-                                            path: "M 0,4 L 0,-3.5 M -2,-1.2 L 0,-3.8 L 2,-1.2",
-                                            scale: 1.7,
-                                            strokeColor: "#ffffff",
-                                            strokeOpacity: 1,
-                                            strokeWeight: 1.6,
-                                        },
-                                        offset: "40px",
-                                        repeat: "90px",
+                                icons: ["#111827", "#ffffff"].map((color, i) => ({
+                                    icon: {
+                                        path: "M 0,4 L 0,-3.5 M -2,-1.2 L 0,-3.8 L 2,-1.2",
+                                        scale: 1.7,
+                                        strokeColor: color,
+                                        strokeOpacity: 1,
+                                        strokeWeight: i === 0 ? 4 : 1.6,
                                     },
-                                ],
+                                    offset: "40px",
+                                    repeat: "90px",
+                                })),
                             }}
                         />
                     )}
