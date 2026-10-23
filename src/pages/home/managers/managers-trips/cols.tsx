@@ -188,10 +188,12 @@ export const useColumnsManagersTrips = (opts?: {
                 header: " ",
                 cell: ({ row }) => (
                     <div className="flex items-center justify-end gap-2 py-2">
-                        {canFinish && !row.original.end && (
+                        {!row.original.end && (
                             <Button
                                 size="sm"
                                 className="bg-green-500/10 text-green-600 hover:bg-green-500/15"
+                                disabled={!canFinish}
+                                title={canFinish ? undefined : t("backend_messages.Permission denied")}
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleFinished(row.original)
