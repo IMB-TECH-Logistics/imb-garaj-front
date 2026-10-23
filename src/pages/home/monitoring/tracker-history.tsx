@@ -283,13 +283,22 @@ export function useTrackerHistory(imei: string | null) {
         }
     }, [imei, days.data, initialisedFor])
 
+    const trips = useMemo(() => groupTrips(statusSegments), [statusSegments])
+    const focusTrip = focus?.kind === "trip" ? trips.find((x) => x.key === focus.key) : undefined
+    const span = useMemo(() => {
+        if (!range) return null
+        const from = Math.min(Date.parse(`${range.from}T00:00:00+05:00`), focusTrip?.start ?? Infinity)
+        const to = Math.max(Date.parse(`${range.to}T23:59:59+05:00`), focusTrip ? Math.min(focusTrip.end, Date.now()) : -Infinity)
+        return { from, to }
+    }, [range, focusTrip?.start, focusTrip?.end])
+
     const [replayActive, setReplayActive] = useState(false)
     const live = !!range && range.to >= dayKey(Date.now()) && !replayActive
     const positions = useGet<GpsPosition[]>(MONITORING_GPS_HISTORY, {
         params: {
             imei,
-            from: range ? `${range.from}T00:00:00+05:00` : undefined,
-            to: range ? `${range.to}T23:59:59+05:00` : undefined,
+            from: span ? new Date(span.from).toISOString() : undefined,
+            to: span ? new Date(span.to).toISOString() : undefined,
         },
         enabled: !!imei && !!range,
         options: {
@@ -303,16 +312,17 @@ export function useTrackerHistory(imei: string | null) {
         [days.data],
     )
 
+    const track = useMemo<Point[]>(
+        () => (positions.data ?? []).map(toPoint).filter((p) => !!span && p.t >= span.from && p.t <= span.to),
+        [positions.data, span],
+    )
     const points = useMemo<Point[]>(
-        () =>
-            (positions.data ?? [])
-                .map(toPoint)
-                .filter((p) => !!range && p.day >= range.from && p.day <= range.to),
-        [positions.data, range],
+        () => track.filter((p) => !!range && p.day >= range.from && p.day <= range.to),
+        [track, range],
     )
 
     const summary = useMemo(() => summarize(points), [points])
-    const trips = useMemo(() => groupTrips(statusSegments), [statusSegments])
+    const trackSummary = useMemo(() => (track.length === points.length ? summary : summarize(track)), [track, points, summary])
 
     useEffect(() => {
         setFocus(null)
@@ -340,7 +350,7 @@ export function useTrackerHistory(imei: string | null) {
         [focus, trips, statusSegments],
     )
 
-    const replayPoints = useMemo(() => (focus ? points.filter((p) => inFocus(p.t)) : points), [points, focus, inFocus])
+    const replayPoints = useMemo(() => (focus ? track.filter((p) => inFocus(p.t)) : points), [track, points, focus, inFocus])
     const replay = useRouteReplay(replayPoints)
     useEffect(() => {
         setReplayActive(replay.active)
@@ -393,13 +403,13 @@ export function useTrackerHistory(imei: string | null) {
         return Math.max(0, to - from - inTrips)
     }, [trips, points])
 
-    const gaps = useMemo(() => findGaps(points, GAP_MS), [points])
+    const gaps = useMemo(() => findGaps(track, GAP_MS), [track])
     const roads = useGapRoutes(gaps)
     const drawPoints = useMemo<Point[]>(() => {
-        if (gaps.length === 0) return points
+        if (gaps.length === 0) return track
         const byEnd = new Map(gaps.map((g) => [g.to.t, g]))
         const out: Point[] = []
-        for (const p of points) {
+        for (const p of track) {
             const gap = byEnd.get(p.t)
             const road = (gap && roads?.get(gapKey(gap))) || []
             road.forEach(([lng, lat], i) => {
@@ -409,7 +419,7 @@ export function useTrackerHistory(imei: string | null) {
             out.push(p)
         }
         return out
-    }, [points, gaps, roads])
+    }, [track, gaps, roads])
 
     const segments = useMemo<ColoredSegment[]>(() => {
         const idleColor = STATUS_META[IDLE].color
@@ -483,8 +493,8 @@ export function useTrackerHistory(imei: string | null) {
 
     const drawnSegments = useRouteDraw(
         segments,
-        `${imei}|${range?.from}|${range?.to}`,
-        !!range && !positions.isFetching && points.length > 1,
+        `${imei}|${span?.from}|${span?.to}`,
+        !!range && !positions.isFetching && track.length > 1,
         replay.active,
     )
 
@@ -492,25 +502,25 @@ export function useTrackerHistory(imei: string | null) {
     const framed = useRef<{ key: string; bbox: [number, number, number, number] } | null>(null)
     const bbox = useMemo<[number, number, number, number] | null>(() => {
         if (framed.current?.key === bboxKey) return framed.current.bbox
-        const scope = focus ? points.filter((p) => inFocus(p.t)) : points
+        const scope = focus ? track.filter((p) => inFocus(p.t)) : points
         if (scope.length === 0) return null
         const lngs = scope.map((p) => p.lng)
         const lats = scope.map((p) => p.lat)
         const next: [number, number, number, number] = [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)]
         framed.current = { key: bboxKey, bbox: next }
         return next
-    }, [points, focus, inFocus, bboxKey])
+    }, [track, points, focus, inFocus, bboxKey])
 
     const stopGroups = useMemo(() => {
         const groups: { lat: number; lng: number; stops: Stop[] }[] = []
-        for (const stop of summary.stops) {
+        for (const stop of trackSummary.stops) {
             const here = { lat: stop.lat, lng: stop.lng } as Point
             const group = groups.find((g) => metres({ lat: g.lat, lng: g.lng } as Point, here) <= STOP_MERGE_M)
             if (group) group.stops.push(stop)
             else groups.push({ lat: stop.lat, lng: stop.lng, stops: [stop] })
         }
         return groups
-    }, [summary.stops])
+    }, [trackSummary.stops])
 
     const groupView = stopGroups.map((g) => {
         const focused = g.stops.filter((x) => inFocus(x.from))
