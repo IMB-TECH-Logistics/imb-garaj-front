@@ -177,7 +177,7 @@ export default function ManagersTrips() {
                                     from="from_date"
                                     to="to_date"
                                 />
-                                <Button
+                                {/* <Button
                                     variant="outline"
                                     onClick={openAlertSettings}
                                     title={t("alerts.vehicle_settings.title")}
@@ -185,7 +185,7 @@ export default function ManagersTrips() {
                                 >
                                     <BellRing size={16} />
                                     <span className="hidden lg:inline">{t("alerts.vehicle_settings.title")}</span>
-                                </Button>
+                                </Button> */}
                                 {hasControl && (
                                     <Button onClick={handleAdd} disabled={hasOngoingTrip || isError || isNotFound}>
                                         <Plus size={16} />
