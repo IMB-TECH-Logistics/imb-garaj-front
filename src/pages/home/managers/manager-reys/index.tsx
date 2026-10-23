@@ -203,7 +203,7 @@ export default function ManagerReys() {
             const extra =
                 kind === "empty"
                     ? legs
-                          .filter((l) => (l.before_order == null || !emptyRunIds.has(l.before_order)) && !(l.after_order != null && emptyRunIds.has(l.after_order)))
+                          .filter((l) => l.minutes > 0 && (l.before_order == null || !emptyRunIds.has(l.before_order)) && !(l.after_order != null && emptyRunIds.has(l.after_order)))
                           .map(legRowOf)
                     : kind === "idle"
                       ? legs.filter((l) => l.idle_start).map(idleRowOf)
@@ -224,7 +224,7 @@ export default function ManagerReys() {
             const leg = byOrder.get(r.id)
             const emptyRun = isEmptyRun(r)
             const mergedIntoPrev = !!leg && leg.after_order != null && byAfter.get(leg.after_order) === leg
-            const legRow = leg && !emptyRun && !mergedIntoPrev && legRowOf(leg)
+            const legRow = leg && leg.minutes > 0 && !emptyRun && !mergedIntoPrev && legRowOf(leg)
             const idleRow = leg?.idle_start && idleRowOf(leg)
             const row = merge(r)
             if (!desc) {
