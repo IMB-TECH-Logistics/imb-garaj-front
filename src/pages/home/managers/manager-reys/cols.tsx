@@ -49,6 +49,7 @@ export const useColumnsManagersOrders = (opts?: {
     onImageClick?: (images: { id: number; image: string }[]) => void
     onLegPay?: (leg: EmptyLeg) => void
     onExtraPay?: (target: ExtraPayTarget) => void
+    locked?: boolean
 }) => {
     const { t } = useTranslation()
     const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
@@ -432,7 +433,7 @@ export const useColumnsManagersOrders = (opts?: {
                                 <div className="flex items-center gap-2" title={r.extra_pay_comment ?? undefined}>
                                     {amountOf(r.extra_pay_amount)}
                                     {opts?.onExtraPay &&
-                                        payButton(t("trips.reys_cols.extra_pay_title"), !!r.extra_pay_paid_at, () =>
+                                        payButton(t("trips.reys_cols.extra_pay_title"), !!r.extra_pay_paid_at || !!opts?.locked, () =>
                                             opts.onExtraPay?.({
                                                 kind: "order",
                                                 id: r.id,
@@ -474,7 +475,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             ]
         },
-        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, t, paymentTypesData],
+        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, opts?.locked, t, paymentTypesData],
     )
 }
 

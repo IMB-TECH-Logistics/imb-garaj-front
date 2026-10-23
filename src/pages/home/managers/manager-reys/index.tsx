@@ -115,6 +115,7 @@ export default function ManagerReys() {
             setPreviewImages(images)
             setPreviewIndex(0)
         },
+        locked,
     })
 
     const handleEdit = (value: ManagerOrders) => {
