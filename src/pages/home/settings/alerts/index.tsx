@@ -25,7 +25,7 @@ type CategoryItem = { id: number; name: string }
 const AlertSettingsPage = () => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
-    const hasControl = useHasAction("settings_vehicles_control")
+    const hasControl = useHasAction("settings_alerts_control")
 
     const schema = useMemo(() => {
         const invalid = t("alerts.settings.invalid_value")

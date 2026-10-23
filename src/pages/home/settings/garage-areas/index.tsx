@@ -16,7 +16,7 @@ import AddGarageArea, { type GarageArea } from "./add-garage-area"
 
 const GarageAreas = () => {
     const { t } = useTranslation()
-    const hasControl = useHasAction("settings_vehicles_control")
+    const hasControl = useHasAction("settings_garage_areas_control")
     const { data, isLoading } = useGet<GarageArea[]>(SETTINGS_GARAGE_AREAS)
     const { getData, setData, clearKey } = useGlobalStore()
     const item = getData<GarageArea>(SETTINGS_GARAGE_AREAS)

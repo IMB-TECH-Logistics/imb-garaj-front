@@ -42,7 +42,7 @@ const CountBadge = ({ count }: { count: number }) =>
 
 const DocumentsPage = () => {
     const { t } = useTranslation()
-    const hasControl = useHasAction("settings_vehicles_control")
+    const hasControl = useHasAction("settings_documents_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
     const tab: DocTab = search.tab === "vehicles" ? "vehicles" : "drivers"

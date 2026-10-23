@@ -4,7 +4,7 @@ import { useGet } from "@/hooks/useGet"
 import { DocumentAlerts } from "@/pages/home/settings/documents/types"
 
 export const useDocumentAlerts = () => {
-    const canSee = useHasAction("settings_vehicles_view")
+    const canSee = useHasAction("settings_documents_view")
     const query = useGet<DocumentAlerts>(VEHICLE_DOCUMENT_ALERTS, {
         enabled: canSee,
         options: { refetchInterval: 60_000, staleTime: 55_000 },

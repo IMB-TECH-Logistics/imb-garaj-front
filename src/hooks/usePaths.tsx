@@ -397,12 +397,12 @@ export const useItems = () => {
                     {
                         label: t("nav.documents"),
                         path: "/documents",
-                        allowKey: "settings_vehicles_view",
+                        allowKey: "settings_documents_view",
                     },
                     {
                         label: t("nav.alerts"),
                         path: "/alerts",
-                        allowKey: "settings_vehicles_view",
+                        allowKey: "settings_alerts_view",
                     },
                     {
                         label: t("nav.users"),
@@ -432,7 +432,7 @@ export const useItems = () => {
                     {
                         label: t("nav.garage_areas"),
                         path: "/garage-areas",
-                        allowKey: "settings_vehicles_view",
+                        allowKey: "settings_garage_areas_view",
                     },
                     {
                         label: t("nav.cargo_types"),
