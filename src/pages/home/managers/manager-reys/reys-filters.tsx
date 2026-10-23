@@ -87,7 +87,8 @@ export default function ReysFilters({ trailing }: { trailing?: React.ReactNode }
                 valueKey="id"
                 labelKey="name"
                 isSearch={false}
-                addButtonProps={filterButtonProps}
+                className="w-56"
+                addButtonProps={{ className: `${filterButtonProps.className} min-w-44` }}
             />
             <ParamCombobox
                 paramName="cargo_type"
