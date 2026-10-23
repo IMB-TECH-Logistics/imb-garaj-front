@@ -219,6 +219,9 @@ export default function GoogleRouteMap({
     }, [])
 
     const validSegments = (segments ?? []).filter((s) => s.points.length >= 2)
+    const arrowPath = validSegments.length > 0
+        ? validSegments.flatMap((s) => s.points.map(toLatLng))
+        : (points ?? []).map(toLatLng)
     const startPoint = points && points.length > 0 ? points[0] : null
     const endPoint =
         points && points.length > 1 ? points[points.length - 1] : null
@@ -344,6 +347,32 @@ export default function GoogleRouteMap({
                                   }}
                               />
                           )}
+
+                    {arrowPath.length >= 2 && (
+                        <PolylineF
+                            key={`arrows-${arrowPath.length}`}
+                            path={arrowPath}
+                            options={{
+                                strokeOpacity: 0,
+                                clickable: false,
+                                zIndex: 5,
+                                icons: [
+                                    {
+                                        icon: {
+                                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                                            scale: 2.6,
+                                            strokeColor: "#ffffff",
+                                            strokeWeight: 1.2,
+                                            fillColor: "#111827",
+                                            fillOpacity: 0.9,
+                                        },
+                                        offset: "60px",
+                                        repeat: "140px",
+                                    },
+                                ],
+                            }}
+                        />
+                    )}
 
                     {validSegments.map(
                         (s, i) =>
