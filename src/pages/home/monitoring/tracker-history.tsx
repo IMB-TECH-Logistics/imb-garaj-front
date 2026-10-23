@@ -366,43 +366,6 @@ export function useTrackerHistory(imei: string | null) {
             })),
         [trips, points],
     )
-    const idleGaps = useMemo(() => {
-        if (points.length < 2) return []
-        const bounds = [...trips].sort((a, b) => a.start - b.start)
-        const edges: [number, number][] = []
-        let cursor = points[0].t
-        for (const trip of bounds) {
-            if (trip.start > cursor) edges.push([cursor, trip.start])
-            cursor = Math.max(cursor, trip.end)
-        }
-        const end = points[points.length - 1].t
-        if (end > cursor) edges.push([cursor, end])
-        return edges
-            .map(([from, to]) => {
-                const inside = points.filter((p) => p.t >= from && p.t <= to && !trips.some((x) => p.t >= x.start && p.t < x.end))
-                return {
-                    key: `gap:${from}:${to}`,
-                    start: from,
-                    end: to,
-                    km: summarize(inside).distance / 1000,
-                    ms: to - from,
-                    points: inside.length,
-                }
-            })
-            .filter((g) => g.points > 1 && g.ms >= 60 * 1000)
-    }, [trips, points])
-    const idleKm = useMemo(
-        () => summarize(points.filter((p) => !trips.some((x) => p.t >= x.start && p.t < x.end))).distance / 1000,
-        [trips, points],
-    )
-    const idleMs = useMemo(() => {
-        if (points.length < 2) return 0
-        const from = points[0].t
-        const to = points[points.length - 1].t
-        const inTrips = trips.reduce((sum, x) => sum + Math.max(0, Math.min(x.end, to) - Math.max(x.start, from)), 0)
-        return Math.max(0, to - from - inTrips)
-    }, [trips, points])
-
     const gaps = useMemo(() => findGaps(track, GAP_MS), [track])
     const roads = useGapRoutes(gaps)
     const drawPoints = useMemo<Point[]>(() => {
@@ -576,9 +539,6 @@ export function useTrackerHistory(imei: string | null) {
         focusDay,
         inFocus,
         tripStats,
-        idleGaps,
-        idleKm,
-        idleMs,
         setStatusSegments,
         live,
         trips,
@@ -640,17 +600,7 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                             fuel: trip.fuel ?? null,
                             ms: trip.end - trip.start,
                         }
-                    }), ...history.idleGaps.map((gap) => ({
-                        key: gap.key,
-                        start: gap.start,
-                        color: OUTSIDE_TRIP_COLOR,
-                        index: null as string | null,
-                        from: t("mon.history.outside_trip"),
-                        to: "",
-                        km: gap.km,
-                        fuel: null as number | null,
-                        ms: gap.ms,
-                    }))].sort((a, b) => a.start - b.start).map((row) => {
+                    })].sort((a, b) => a.start - b.start).map((row) => {
                         const selected = history.focus?.kind === "trip" && history.focus.key === row.key
                         return (
                             <button
@@ -733,6 +683,15 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
     const { days, range, summary } = history
     const today = dayKey(Date.now())
     const rangeDays = range ? days.filter((d) => d.date >= range.from && d.date <= range.to) : []
+    const dayKm = useMemo(() => {
+        const out: Record<string, number> = {}
+        for (const trip of history.trips) {
+            if (trip.routeKm == null) continue
+            const day = dayKey(trip.start)
+            out[day] = (out[day] ?? 0) + trip.routeKm
+        }
+        return out
+    }, [history.trips])
 
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -779,8 +738,11 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
                             )}
                         >
                             <span className="whitespace-nowrap text-sm font-medium">{d.date.split("-").reverse().join(".")}</span>
-                            <span className="inline-flex items-center gap-3 font-mono text-sm font-semibold tabular-nums">
-                                {d.distance_km.toFixed(1)} {t("mon.units.km")}
+                            <span
+                                className="inline-flex items-center gap-3 font-mono text-sm font-semibold tabular-nums"
+                                title={`GPS: ${d.distance_km.toFixed(1)} ${t("mon.units.km")}`}
+                            >
+                                {(dayKm[d.date] ?? 0).toFixed(1)} {t("mon.units.km")}
                                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: history.colors[d.date] }} />
                             </span>
                         </button>
