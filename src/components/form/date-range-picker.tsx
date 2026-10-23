@@ -21,6 +21,7 @@ export function DatePickerWithRange({
     setDate,
     addButtonProps,
     dateFormat = "dd/MM/yyyy",
+    startFreshOnOpen = false,
 }: {
     date: DateRange | undefined;
     setDate: SelectRangeEventHandler;
@@ -29,12 +30,22 @@ export function DatePickerWithRange({
     className?: React.HTMLAttributes<HTMLDivElement>;
      addButtonProps?: ButtonProps
      dateFormat?: string
+     startFreshOnOpen?: boolean
 }) {
     const { t } = useTranslation()
     const locale = useDateLocale()
+    const fresh = React.useRef(false)
+    const onSelect: SelectRangeEventHandler = (range, day, modifiers, e) => {
+        if (startFreshOnOpen && fresh.current) {
+            fresh.current = false
+            setDate({ from: day, to: day }, day, modifiers, e)
+            return
+        }
+        setDate(range, day, modifiers, e)
+    }
     return (
         <div className={cn("grid gap-2 w-full", className)}>
-            <Popover>
+            <Popover onOpenChange={(open) => { fresh.current = open }}>
                 <PopoverTrigger asChild>
                     <Button
                         id="date"
@@ -67,7 +78,7 @@ export function DatePickerWithRange({
                         mode="range"
                         defaultMonth={date?.from}
                         selected={date}
-                        onSelect={setDate}
+                        onSelect={onSelect}
                         numberOfMonths={2}
                         locale={locale}
                     />

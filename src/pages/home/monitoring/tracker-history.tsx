@@ -25,6 +25,7 @@ const GAP_MS = 15 * 60 * 1000
 const STOP_MIN_MS = 5 * 60 * 1000
 const STOP_MERGE_M = 100
 const MAX_REAL_SPEED = 150
+const OUTSIDE_TRIP_COLOR = "#ff00d4"
 const DISTINCT_COLORS = [
     "#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#a855f7", "#ec4899",
     "#14b8a6", "#f97316", "#84cc16", "#6366f1", "#eab308", "#06b6d4",
@@ -394,9 +395,9 @@ export function useTrackerHistory(imei: string | null) {
             return p.day
         }
         const colorOf = (key: string, p: Point) => {
-            if (key === "idle") return idleColor
+            if (key === "idle") return colorBy === "trip" ? OUTSIDE_TRIP_COLOR : idleColor
             if (colorBy === "status") return STATUS_META[Number(key.slice(1))].color
-            if (colorBy === "trip") return trips.find((x) => x.key === key)?.color ?? idleColor
+            if (colorBy === "trip") return trips.find((x) => x.key === key)?.color ?? OUTSIDE_TRIP_COLOR
             return colors[p.day]
         }
         const out: ColoredSegment[] = []
@@ -593,7 +594,7 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                     })), ...history.idleGaps.map((gap) => ({
                         key: gap.key,
                         start: gap.start,
-                        color: STATUS_META[IDLE].color,
+                        color: OUTSIDE_TRIP_COLOR,
                         index: null as string | null,
                         from: t("mon.history.outside_trip"),
                         to: "",
@@ -686,6 +687,7 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
                 <div className="min-w-0 flex-1">
                     <DatePickerWithRange
                         dateFormat="dd.MM"
+                        startFreshOnOpen
                         addButtonProps={{ className: "overflow-hidden px-3" }}
                         date={range ? { from: keyToDate(range.from), to: keyToDate(range.to) } : undefined}
                         setDate={(value) => {
