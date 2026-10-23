@@ -168,6 +168,7 @@ export default function ManagerReys() {
             activity: 4,
             activity_display: t("status.idle_stop"),
             loading_name: leg.from_place,
+            unloading_name: leg.from_place,
             loading_time: leg.idle_start,
             completed_time: leg.start,
             incomes: [],

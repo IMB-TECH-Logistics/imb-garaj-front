@@ -122,7 +122,7 @@ export const useColumnsManagersOrders = (opts?: {
                 header: t("form.unloading_location"),
                 enableSorting: true,
                 cell: ({ row }) => {
-                    if (isGarajOrTamirActivity(row.original?.activity) || (row.original as any).__idle) {
+                    if (isGarajOrTamirActivity(row.original?.activity)) {
                         return <span className="text-muted-foreground">—</span>
                     }
                     if (row.original.unloading_located === false) {
