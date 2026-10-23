@@ -241,16 +241,18 @@ export default function GoogleRouteMap({
         if (!map || !fitSignature) return
         if (bbox && bbox.length === 4) {
             setFitting(true)
+            map.setOptions({ maxZoom: MAX_FIT_ZOOM })
             map.fitBounds(
                 { west: bbox[0], south: bbox[1], east: bbox[2], north: bbox[3] },
                 80,
             )
             const settle = google.maps.event.addListenerOnce(map, "idle", () => {
-                if ((map.getZoom() ?? 0) > MAX_FIT_ZOOM) map.setZoom(MAX_FIT_ZOOM)
+                map.setOptions({ maxZoom: null })
                 setFitting(false)
             })
             return () => {
                 settle.remove()
+                map.setOptions({ maxZoom: null })
                 setFitting(false)
             }
         }
