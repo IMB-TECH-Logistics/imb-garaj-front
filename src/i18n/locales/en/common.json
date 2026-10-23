@@ -1399,6 +1399,16 @@
             "tab_vehicle_expenses": "Vehicle expenses"
         },
         "kv2": {
+            "non_trip_expenses": "Non-trip expenses",
+            "revenue": "Revenue",
+            "bank_transfer": "Bank transfer",
+            "bank_fees": "Bank fees",
+            "bank_account": "Bank account",
+            "col_cash": "Cash",
+            "col_bank": "Bank",
+            "col_sum": "Total",
+            "tax": "Tax",
+            "investors_money": "Settlements with investors",
             "tab_trips": "Turnovers",
             "tab_transactions": "Transactions",
             "closing_balance": "Closing balance",

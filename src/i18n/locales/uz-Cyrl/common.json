@@ -1396,6 +1396,16 @@
             "tab_vehicle_expenses": "Машина харажатлари"
         },
         "kv2": {
+            "non_trip_expenses": "Рейсдан ташқари харажатлар",
+            "revenue": "Тушум",
+            "bank_transfer": "Банк ўтказмаси",
+            "bank_fees": "Банк хизматлари",
+            "bank_account": "Банк ҳисоб рақами",
+            "col_cash": "Нақд",
+            "col_bank": "Банк",
+            "col_sum": "Жами",
+            "tax": "Солиқ",
+            "investors_money": "Инвестор ҳисоб-китоби",
             "tab_trips": "Айланмалар",
             "tab_transactions": "Трансаксиялар",
             "closing_balance": "Давр охирида қолдиқ",

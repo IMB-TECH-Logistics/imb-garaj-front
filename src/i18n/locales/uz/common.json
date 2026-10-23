@@ -1396,6 +1396,16 @@
             "tab_vehicle_expenses": "Mashina xarajatlari"
         },
         "kv2": {
+            "non_trip_expenses": "Reysdan tashqari xarajatlar",
+            "revenue": "Tushum",
+            "bank_transfer": "Bank o'tkazmasi",
+            "bank_fees": "Bank xizmatlari",
+            "bank_account": "Bank hisob raqami",
+            "col_cash": "Naqd",
+            "col_bank": "Bank",
+            "col_sum": "Jami",
+            "tax": "Soliq",
+            "investors_money": "Investor hisob-kitobi",
             "tab_trips": "Aylanmalar",
             "tab_transactions": "Transaksiyalar",
             "closing_balance": "Davr oxirida qoldiq",

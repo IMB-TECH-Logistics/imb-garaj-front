@@ -1405,6 +1405,16 @@
             "tab_vehicle_expenses": "Расходы на машины"
         },
         "kv2": {
+            "non_trip_expenses": "Расходы вне рейсов",
+            "revenue": "Выручка",
+            "bank_transfer": "Банковский перевод",
+            "bank_fees": "Банковские услуги",
+            "bank_account": "Расчётный счёт",
+            "col_cash": "Наличные",
+            "col_bank": "Банк",
+            "col_sum": "Итого",
+            "tax": "Налог",
+            "investors_money": "Расчёты с инвесторами",
             "tab_trips": "Рейсы-обороты",
             "tab_transactions": "Транзакции",
             "closing_balance": "Остаток на конец периода",

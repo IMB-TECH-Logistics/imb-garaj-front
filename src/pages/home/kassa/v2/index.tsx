@@ -24,6 +24,8 @@ import {
 import { CloseTripModal, DeleteIncomeModal, IncomeModal, M, PayModal, RejectModal, RequestModal, ReverseModal } from "./modals"
 import { DriverExpensesTable, KassaTable, LedgerTable, RequestsTable, TripsTable } from "./tables"
 import { Exp, SummaryPanel } from "./summary-panel"
+import { IzumiSummaryPanel } from "./summary-panel-izumi"
+import { useUser } from "@/constants/useUser"
 import { DriverHead, ExpensesHead } from "./view-head"
 
 type View = "kassa" | "requests" | "trips" | "driver" | "expenses"
@@ -100,10 +102,13 @@ const KassaV2 = () => {
     )
     const drivers = [...(ov?.drivers ?? [])].sort((a, b) => n(b.balance) - n(a.balance))
     const selected = drivers.find((d) => d.id === driver)
+    const { data: me } = useUser()
+    const izumi = me?.kassa_ui === "izumi"
+    const Panel = izumi ? IzumiSummaryPanel : SummaryPanel
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-3 xl:h-full min-h-0">
-            <SummaryPanel sm={sm} ov={ov} drivers={drivers} from_date={from_date} view={view} driver={driver} lineProps={lineProps} expProps={expProps} expenseLines={expenseLines} setDriver={setDriver} setView={setView} />
+        <div className={izumi ? "grid grid-cols-1 xl:grid-cols-[640px_1fr] gap-3 xl:h-full min-h-0" : "grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-3 xl:h-full min-h-0"}>
+            <Panel sm={sm} ov={ov} drivers={drivers} from_date={from_date} view={view} driver={driver} lineProps={lineProps} expProps={expProps} expenseLines={expenseLines} setDriver={setDriver} setView={setView} />
 
             <div className="w-full min-w-0 xl:h-full min-h-0">
                 {view === "driver" && selected ?
