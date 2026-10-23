@@ -550,7 +550,7 @@
         "rating": "Rating",
         "image_col": "Image",
         "cargo_id": "Cargo ID",
-        "used_fuel": "Total fuel used"
+        "used_fuel": "Fuel used"
     },
     "auth": {
         "welcome": "Welcome!",
