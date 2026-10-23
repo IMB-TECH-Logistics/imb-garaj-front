@@ -370,11 +370,11 @@ export default function GoogleRouteMap({
                                 icons: [
                                     {
                                         icon: {
-                                            path: "M -3,2.5 L 0,-1 L 3,2.5",
-                                            scale: 1.6,
+                                            path: "M 0,4 L 0,-3.5 M -2,-1.2 L 0,-3.8 L 2,-1.2",
+                                            scale: 1.7,
                                             strokeColor: "#ffffff",
                                             strokeOpacity: 1,
-                                            strokeWeight: 2.4,
+                                            strokeWeight: 1.6,
                                         },
                                         offset: "40px",
                                         repeat: "90px",
