@@ -2699,7 +2699,8 @@
             "edit_income": "Kirimni tahrirlash",
             "give_advance_request": "Avans berish (kassirga so'rov)",
             "t_account": "T hisob",
-            "receipt": "Chek"
+            "receipt": "Chek",
+            "no_section_permission": "Bu bo'limni boshqarishga ruxsat yo'q"
         },
         "orders": {
             "expenses": "Xarajatlar",

@@ -2708,7 +2708,8 @@
             "edit_income": "Редактировать приход",
             "give_advance_request": "Выдать аванс (запрос кассиру)",
             "t_account": "Т-счёт",
-            "receipt": "Чек"
+            "receipt": "Чек",
+            "no_section_permission": "Нет прав на управление этим разделом"
         },
         "orders": {
             "expenses": "Расходы",

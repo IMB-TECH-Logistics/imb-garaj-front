@@ -67,6 +67,18 @@
   "settings_vehicles_view",
   "tech_base_control",
   "tech_base_view",
+  "trip_kassa_advance_control",
+  "trip_kassa_advance_view",
+  "trip_kassa_balance_view",
+  "trip_kassa_expense_control",
+  "trip_kassa_expense_view",
+  "trip_kassa_fuel_tank_view",
+  "trip_kassa_fuel_transfer_control",
+  "trip_kassa_fuel_transfer_view",
+  "trip_kassa_income_control",
+  "trip_kassa_income_view",
+  "trip_kassa_salary_control",
+  "trip_kassa_salary_view",
   "warehouse_control",
   "warehouse_view"
 ]

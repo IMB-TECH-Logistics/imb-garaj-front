@@ -2702,7 +2702,8 @@
             "edit_income": "Edit income",
             "give_advance_request": "Give advance (request to the cashier)",
             "t_account": "T-account",
-            "receipt": "Receipt"
+            "receipt": "Receipt",
+            "no_section_permission": "No permission to manage this section"
         },
         "orders": {
             "expenses": "Expenses",

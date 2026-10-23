@@ -2699,7 +2699,8 @@
             "edit_income": "Киримни таҳрирлаш",
             "give_advance_request": "Аванс бериш (кассирга сўров)",
             "t_account": "Т ҳисоб",
-            "receipt": "Чек"
+            "receipt": "Чек",
+            "no_section_permission": "Бу бўлимни бошқаришга рухсат йўқ"
         },
         "orders": {
             "expenses": "Харажатлар",
