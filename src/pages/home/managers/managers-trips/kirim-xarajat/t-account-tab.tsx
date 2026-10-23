@@ -249,7 +249,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 cell: ({ row }) => row.original.order ? `${row.original.loading_name ?? ""} → ${row.original.unloading_name ?? ""}` : "—",
             },
             { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <span className="text-muted-foreground">{row.original.comment || "—"}</span> },
-            { header: t("form.payment_type"), accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || "—" },
+            { header: t("form.payment_type"), accessorKey: "payment_type_name", cell: ({ row }) => row.original.payment_type_name || (row.original.category_code === "salary" ? t("trips.kirim.cash") : "—") },
             {
                 header: t("trips.kirim.receipt"),
                 id: "receipt",

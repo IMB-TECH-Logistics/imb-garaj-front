@@ -30,6 +30,7 @@ type ExpenseRow = {
     comment: string | null
     category: number
     category_name: string
+    category_code?: string | null
     payment_type: number | null
     payment_type_name: string
     created: string
@@ -64,6 +65,8 @@ const useExpenseViewCols = () => {
                 header: t("form.payment_type"),
                 accessorKey: "payment_type_name",
                 enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.payment_type_name || (row.original.category_code === "salary" ? t("trips.kirim.cash") : ""),
             },
             {
                 header: t("form.date"),
