@@ -107,7 +107,7 @@ const KassaV2 = () => {
     const Panel = izumi ? IzumiSummaryPanel : SummaryPanel
 
     return (
-        <div className={izumi ? "grid grid-cols-1 xl:grid-cols-[640px_1fr] gap-3 xl:h-full min-h-0" : "grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-3 xl:h-full min-h-0"}>
+        <div className={izumi ? "grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-3 xl:h-full min-h-0" : "grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-3 xl:h-full min-h-0"}>
             <Panel sm={sm} ov={ov} drivers={drivers} from_date={from_date} view={view} driver={driver} lineProps={lineProps} expProps={expProps} expenseLines={expenseLines} setDriver={setDriver} setView={setView} />
 
             <div className="w-full min-w-0 xl:h-full min-h-0">

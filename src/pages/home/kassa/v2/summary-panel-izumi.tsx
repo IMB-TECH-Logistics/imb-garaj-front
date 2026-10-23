@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 import { Fragment, ReactNode } from "react"
 import { n, usePeriod, Overview } from "./api"
 
-const COLS = "grid grid-cols-[minmax(0,1fr)_126px_126px_134px] items-stretch"
-const CELL = "flex items-center justify-end border-l border-muted-foreground/25 px-2 py-1"
+const COLS = "grid grid-cols-[minmax(0,1fr)_88px_72px_92px] items-stretch"
+const CELL = "flex items-center justify-end border-l border-muted-foreground/25 px-1.5 py-0.5"
 
 const Money = ({ value, className }: { value: number | null | undefined; className?: string }) => (
     <span className={cn(CELL, "tabular-nums whitespace-nowrap", className)}>
@@ -19,7 +19,7 @@ const Money = ({ value, className }: { value: number | null | undefined; classNa
 const Line = ({ label, value, bank, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; bank?: number | null; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
     const cash = value == null ? null : n(value)
     const total = cash == null && bank == null ? null : n(cash) + n(bank)
-    const size = sub ? "text-[15px]" : "text-[17px]"
+    const size = sub ? "text-xs" : "text-[13px]"
     const weight = strong ? "font-semibold" : ""
     const color = cn(tone === "green" && "text-green-600", tone === "red" && "text-destructive")
     return (
