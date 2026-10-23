@@ -101,7 +101,7 @@ export const useAccountingCols = () => {
             {
                 header: t("form.cargo_type"),
                 accessorKey: "cargo_type_name",
-                size: 110,
+                size: 160,
                 enableSorting: true,
             },
             {
