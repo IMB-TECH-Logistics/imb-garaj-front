@@ -77,7 +77,7 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
     const { t } = useTranslation()
     const kassaBalance = n(sm?.closing ?? ov?.balance)
     const M = {
-        opening: { cash: n(sm?.opening), bank: 0 },
+        opening: { cash: n(sm?.opening) + n(sm?.drivers_opening), bank: 0, kassa: n(sm?.opening), drivers: n(sm?.drivers_opening) },
         income: {
             cash: n(sm?.income.total),
             bank: 0,
@@ -92,7 +92,7 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
             tax: { cash: null, bank: 0 },
         },
         other: { cash: -n(sm?.other_expense?.total ?? sm?.expense.garaj), bank: 0 },
-        closing: { cash: kassaBalance + n(ov?.drivers_total), bank: 0, kassa: kassaBalance, drivers: n(ov?.drivers_total) },
+        closing: { cash: kassaBalance + n(sm?.drivers_closing ?? ov?.drivers_total), bank: 0, kassa: kassaBalance, drivers: n(sm?.drivers_closing ?? ov?.drivers_total) },
     }
     return (
         <Card className="xl:h-full min-h-0 overflow-hidden">
@@ -103,6 +103,8 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
                 {from_date && (
                     <Box className="bg-muted/40 border-muted-foreground/30">
                         <Line strong label={t("fin.kv2.opening_balance")} value={M.opening.cash} bank={M.opening.bank} tone={M.opening.cash < 0 ? "red" : undefined} />
+                        <Line sub label={t("fin.kv2.cash_balance")} value={M.opening.kassa} bank={null} />
+                        <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={M.opening.drivers} bank={null} />
                     </Box>
                 )}
                 <Box className="bg-green-600/5 border-green-600/30">
