@@ -429,6 +429,11 @@ export function useTrackerHistory(imei: string | null) {
             current = []
         }
         drawPoints.forEach((p, i) => {
+            if (focus && !inFocus(p.t)) {
+                flush()
+                currentKey = ""
+                return
+            }
             const previous = drawPoints[i - 1]
             const key = `${bySpeed ? "speed" : keyOf(p)}|${inFocus(p.t) ? 1 : 0}`
             if (previous && key !== currentKey && current.length > 0) {
@@ -441,7 +446,7 @@ export function useTrackerHistory(imei: string | null) {
         })
         flush()
         return out
-    }, [drawPoints, bySpeed, colors, colorBy, statusSegments, trips, inFocus])
+    }, [drawPoints, bySpeed, colors, colorBy, statusSegments, trips, inFocus, focus])
 
     const drawnSegments = useRouteDraw(
         segments,
@@ -491,7 +496,7 @@ export function useTrackerHistory(imei: string | null) {
             .slice(0, 3),
     )
     const pois: MapPoi[] = showStops
-        ? groupView.map((g, i) => ({
+        ? groupView.flatMap((g, i) => (focus && g.focused.length === 0 ? [] : [{
               id: `stop-${i}`,
               lat: g.lat,
               lng: g.lng,
@@ -503,11 +508,12 @@ export function useTrackerHistory(imei: string | null) {
               title: g.stops
                   .map((x) => `${dayParts(dayKey(x.from), tr).name} ${clock(x.from)}–${clock(x.to)}, ${duration(x.to - x.from, tr)}`)
                   .join("\n"),
-          }))
+          }]))
         : []
 
-    const first = points[0]
-    const last = points[points.length - 1]
+    const visiblePoints = focus ? replayPoints : points
+    const first = visiblePoints[0]
+    const last = visiblePoints[visiblePoints.length - 1]
 
     return {
         days: days.data ?? [],
@@ -538,7 +544,7 @@ export function useTrackerHistory(imei: string | null) {
         map: {
             segments: drawnSegments,
             bbox,
-            points: first && last && points.length > 1 ? ([[first.lng, first.lat], [last.lng, last.lat]] as MapPoint[]) : undefined,
+            points: first && last && visiblePoints.length > 1 ? ([[first.lng, first.lat], [last.lng, last.lat]] as MapPoint[]) : undefined,
             pois,
         },
     }
