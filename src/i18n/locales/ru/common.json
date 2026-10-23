@@ -3048,5 +3048,11 @@
         "old_repair": "В ремонт",
         "old_write_off": "Списать",
         "installed_ok": "Шина установлена"
+    },
+    "truck_filter": {
+        "regions": "Регионы",
+        "vehicle_owner": "Владелец транспорта",
+        "month": "Месяц",
+        "year": "Год"
     }
 }

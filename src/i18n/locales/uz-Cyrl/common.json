@@ -3039,5 +3039,11 @@
         "old_repair": "Таъмирга",
         "old_write_off": "Ҳисобдан чиқариш",
         "installed_ok": "Балон ўрнатилди"
+    },
+    "truck_filter": {
+        "regions": "Вилоятлар",
+        "vehicle_owner": "Транспорт эгаси",
+        "month": "Ой",
+        "year": "Йил"
     }
 }

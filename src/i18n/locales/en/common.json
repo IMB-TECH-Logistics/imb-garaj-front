@@ -3042,5 +3042,11 @@
         "old_repair": "Send to repair",
         "old_write_off": "Write off",
         "installed_ok": "Tire installed"
+    },
+    "truck_filter": {
+        "regions": "Regions",
+        "vehicle_owner": "Vehicle owner",
+        "month": "Month",
+        "year": "Year"
     }
 }

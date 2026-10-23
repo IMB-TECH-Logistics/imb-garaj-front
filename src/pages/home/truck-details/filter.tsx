@@ -67,7 +67,7 @@ export default function ReportsFilter() {
                     paramName="region"
                     options={regions}
                     isSearch={false}
-                    label="Viloyatlar"
+                    label={t("truck_filter.regions")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",
@@ -108,7 +108,7 @@ export default function ReportsFilter() {
                     isSearch={false}
                     valueKey="key"
                     labelKey="name"
-                    label="Transport egasi"
+                    label={t("truck_filter.vehicle_owner")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",
@@ -121,7 +121,7 @@ export default function ReportsFilter() {
                     isSearch={false}
                     valueKey="key"
                     labelKey="name"
-                    label="Oy"
+                    label={t("truck_filter.month")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary",
@@ -133,7 +133,7 @@ export default function ReportsFilter() {
                     options={optionYears()}
                     isSearch={false}
                     asloClear={["start_date", "end_date"]}
-                    label="Yil"
+                    label={t("truck_filter.year")}
                     className="w-full"
                     addButtonProps={{
                         className: "!bg-background dark:!bg-secondary min-w-32",
