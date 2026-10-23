@@ -333,7 +333,14 @@ export const useColumnsManagersOrders = (opts?: {
                 accessorKey: "in_transit_time",
                 header: t("trips.reys_cols.to_road"),
                 size: 120,
-                cell: ({ row }) => <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time, row.original.parking_minutes ?? 0)}</span>,
+                cell: ({ row }) =>
+                    isEmptyRow(row.original) ? (
+                        <span className="whitespace-nowrap">
+                            {formatDuration(startOf(row.original), row.original.completed_time, parkingOf(row.original))}
+                        </span>
+                    ) : (
+                        <span className="whitespace-nowrap">{formatDuration(row.original.in_transit_time, row.original.unloading_time, row.original.parking_minutes ?? 0)}</span>
+                    ),
             },
             {
                 accessorKey: "parking_minutes",
