@@ -685,13 +685,13 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
     const rangeDays = range ? days.filter((d) => d.date >= range.from && d.date <= range.to) : []
     const dayKm = useMemo(() => {
         const out: Record<string, number> = {}
-        for (const trip of history.trips) {
-            if (trip.routeKm == null) continue
+        for (const trip of history.tripStats) {
+            if (!trip.km) continue
             const day = dayKey(trip.start)
-            out[day] = (out[day] ?? 0) + trip.routeKm
+            out[day] = (out[day] ?? 0) + trip.km
         }
         return out
-    }, [history.trips])
+    }, [history.tripStats])
 
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-3">
