@@ -11,7 +11,7 @@ import Forbidden from "@/components/custom/forbidden"
 import { ArrowLeft } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef } from "react"
-import { FormProvider, useForm, useWatch } from "react-hook-form"
+import { Controller, FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { Switch } from "@/components/ui/switch"
 import PermissionField from "./permission-field"
@@ -39,6 +39,7 @@ const UserFormPage = () => {
             password: "",
             role: 2,
             actions: [],
+            inherits_role: true,
         },
     })
 
@@ -188,22 +189,17 @@ const UserFormPage = () => {
                             />
 
                             {!isDriver && (
-                                <div className="md:col-span-2 flex items-center justify-between rounded-lg border p-3">
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            {t("settings.users.inherit_role")}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {t("settings.users.inherit_role_hint")}
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        checked={inheritsRole}
-                                        onCheckedChange={(checked) =>
-                                            form.setValue("inherits_role", checked, {
-                                                shouldDirty: true,
-                                            })
-                                        }
+                                <div className="flex items-center justify-between gap-3 self-end rounded-lg border px-3 h-10">
+                                    <span className="text-sm font-medium">{t("settings.users.inherit_role")}</span>
+                                    <Controller
+                                        name="inherits_role"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <Switch
+                                                checked={field.value ?? true}
+                                                onCheckedChange={(checked) => field.onChange(checked)}
+                                            />
+                                        )}
                                     />
                                 </div>
                             )}
