@@ -3,6 +3,7 @@
   "accounting_view",
   "finance_control",
   "finance_view",
+  "financial_result_view",
   "hr_drivers_control",
   "hr_drivers_view",
   "investor_control",

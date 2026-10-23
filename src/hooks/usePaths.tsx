@@ -167,8 +167,8 @@ const matches = (pathname: string, path: string) =>
 const GUARDED_EXTRA: Record<string, string | string[]> = {
     "/trip": "manager_flights_view",
     "/orders": "manager_flights_view",
-    "/dashboard": "investor_view",
-    "/truck-detail": "investor_view",
+    "/dashboard": "financial_result_view",
+    "/truck-detail": "financial_result_view",
     // RunOrderListView GET: manager_flights_view/control yoki accounting_view/control
     "/flights": ["manager_flights_view", "manager_flights_control", "accounting_view", "accounting_control"],
     // shared_warehouse UnitViewSet — APP_MODULES bo'yicha warehouse_view
@@ -319,7 +319,7 @@ export const useItems = () => {
                 label: t("nav.investor"),
                 icon: <Truck width={18} />,
                 path: "/truck",
-                allowKey: "investor_view",
+                allowKey: "financial_result_view",
             },
             {
                 label: t("nav.investor_dashboard"),
