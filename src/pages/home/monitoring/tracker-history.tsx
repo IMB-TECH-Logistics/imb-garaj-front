@@ -382,7 +382,11 @@ export function useTrackerHistory(imei: string | null) {
                 const inTrip = points.filter((p) => p.t >= trip.start && p.t < trip.end)
                 const km = trip.routeKm ?? (trip.kind && trip.kind !== "reys" ? 0 : summarize(inTrip).distance / 1000)
                 const whole = !!range && dayKey(trip.start) >= range.from && dayKey(trip.end) <= range.to
-                return { ...trip, km, dayKm: km ? splitKmByDay(inTrip, km, dayKey(trip.start), whole) : {} }
+                const dayKm = km ? splitKmByDay(inTrip, km, dayKey(trip.start), whole) : {}
+                const visibleKm = whole ? km : Object.values(dayKm).reduce((sum, v) => sum + v, 0)
+                const from = range ? Math.max(trip.start, Date.parse(`${range.from}T00:00:00+05:00`)) : trip.start
+                const to = range ? Math.min(trip.end, Date.parse(`${range.to}T23:59:59+05:00`) + 1000) : trip.end
+                return { ...trip, km, dayKm, whole, visibleKm, visibleMs: Math.max(0, to - from) }
             }),
         [trips, points, range],
     )
@@ -616,9 +620,11 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                             index: trip.index >= 0 ? String(trip.index + 1) : null,
                             from: label ? `${label}${route ? ` · ${route}` : ""}` : `${trip.externalId ? `${trip.externalId} · ` : ""}${trip.from ?? t("mon.trip")}`,
                             to: label ? "" : trip.to ?? "",
-                            km: trip.km,
-                            fuel: trip.fuel ?? null,
-                            ms: trip.end - trip.start,
+                            km: trip.visibleKm,
+                            totalKm: trip.whole ? null : trip.km,
+                            fuel: trip.whole ? trip.fuel ?? null : null,
+                            ms: trip.visibleMs,
+                            totalMs: trip.whole ? null : trip.end - trip.start,
                         }
                     })].sort((a, b) => a.start - b.start).map((row) => {
                         const selected = history.focus?.kind === "trip" && history.focus.key === row.key
@@ -639,7 +645,10 @@ export function ColorBySelect({ history, part }: { history: TrackerHistory; part
                                     <span className="ml-auto h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: row.color }} />
                                 </span>
                                 <span />
-                                <span className="truncate font-mono text-xs tabular-nums text-muted-foreground">
+                                <span
+                                    className="truncate font-mono text-xs tabular-nums text-muted-foreground"
+                                    title={row.totalKm ? `${t("mon.history.trip_total")}: ${row.totalKm.toFixed(1)} ${t("mon.units.km")} · ${spanLabel(row.totalMs ?? 0, t)}` : undefined}
+                                >
                                     {row.km ? `${row.km.toFixed(1)} ${t("mon.units.km")}` : "—"}
                                     {row.fuel ? ` · ${row.fuel.toFixed(1)} m³` : ""}
                                 </span>

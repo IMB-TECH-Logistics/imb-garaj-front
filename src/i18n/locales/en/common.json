@@ -1803,6 +1803,7 @@
         },
         "history": {
             "line_color": "Line color",
+            "trip_total": "Whole trip",
             "no_trips": "No trips in the selected range.",
             "outside_trip": "Outside a trip",
             "last_signal": "Last signal {{time}}",

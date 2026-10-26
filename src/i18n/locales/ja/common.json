@@ -1806,6 +1806,7 @@
         },
         "history": {
             "line_color": "線の色",
+            "trip_total": "便全体",
             "no_trips": "選択した期間に便はありません。",
             "outside_trip": "便の外",
             "last_signal": "最終信号 {{time}}",

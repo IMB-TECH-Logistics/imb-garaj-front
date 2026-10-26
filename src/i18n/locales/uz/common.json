@@ -1800,6 +1800,7 @@
         },
         "history": {
             "line_color": "Chiziq rangi",
+            "trip_total": "Butun reys",
             "no_trips": "Tanlangan oraliqda reys yo'q.",
             "outside_trip": "Reysdan tashqari",
             "last_signal": "Oxirgi signal {{time}}",

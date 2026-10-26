@@ -1809,6 +1809,7 @@
         },
         "history": {
             "line_color": "Цвет линии",
+            "trip_total": "Весь рейс",
             "no_trips": "В выбранном периоде нет рейсов.",
             "outside_trip": "Вне рейса",
             "last_signal": "Последний сигнал {{time}}",
