@@ -188,6 +188,19 @@ function findStops(points: Point[]): Stop[] {
     return stops
 }
 
+function settleStops(points: Point[]): Point[] {
+    const stops = findStops(points)
+    if (stops.length === 0) return points
+    let i = 0
+    return points.map((p) => {
+        while (i < stops.length && stops[i].to < p.t) i++
+        const stop = stops[i]
+        return stop && p.t >= stop.from ? { ...p, lat: stop.lat, lng: stop.lng } : p
+    })
+}
+
+const moved = (a: Point, b: Point) => a.lat !== b.lat || a.lng !== b.lng
+
 function summarize(points: Point[]) {
     let distance = 0
     let moving = 0
@@ -206,7 +219,10 @@ function summarize(points: Point[]) {
         distance,
         moving,
         stops,
-        maxSpeed: points.reduce((max, p) => (p.speed <= MAX_REAL_SPEED ? Math.max(max, p.speed) : max), 0),
+        maxSpeed: points.reduce(
+            (max, p, i) => (i > 0 && moved(points[i - 1], p) && p.speed <= MAX_REAL_SPEED ? Math.max(max, p.speed) : max),
+            0,
+        ),
     }
 }
 
@@ -369,7 +385,7 @@ export function useTrackerHistory(imei: string | null) {
     )
 
     const track = useMemo<Point[]>(
-        () => snapJitter((positions.data ?? []).map(toPoint).filter((p) => !!span && p.t >= span.from && p.t <= span.to)),
+        () => settleStops(snapJitter((positions.data ?? []).map(toPoint).filter((p) => !!span && p.t >= span.from && p.t <= span.to))),
         [positions.data, span],
     )
     const points = useMemo<Point[]>(

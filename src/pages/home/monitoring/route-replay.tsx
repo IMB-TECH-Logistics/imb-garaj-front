@@ -122,13 +122,16 @@ function runningStats(points: ReplayPoint[]) {
     const moving: number[] = []
     let top = 0
     let movingMs = 0
+    const moved = (a: ReplayPoint, b: ReplayPoint) => a.lat !== b.lat || a.lng !== b.lng
     points.forEach((p, i) => {
         if (i > 0) {
             const a = points[i - 1]
             const dt = p.t - a.t
-            if (dt > 0 && dt <= GAP_MS && (a.speed > 3 || p.speed > 3)) movingMs += dt
+            if (moved(a, p)) {
+                if (dt > 0 && dt <= GAP_MS) movingMs += dt
+                top = Math.max(top, p.speed)
+            }
         }
-        top = Math.max(top, p.speed)
         max.push(top)
         moving.push(movingMs)
     })
@@ -139,12 +142,13 @@ function runningStats(points: ReplayPoint[]) {
         if (runStart != null && runLast - runStart >= STOP_MIN_MS) stops.push({ from: runStart, to: runLast })
         runStart = null
     }
-    for (const p of points) {
-        if (p.speed <= 2) {
-            if (runStart == null) runStart = p.t
+    points.forEach((p, i) => {
+        const prev = points[i - 1]
+        if (prev && !moved(prev, p) && p.t - prev.t <= GAP_MS) {
+            if (runStart == null) runStart = prev.t
             runLast = p.t
         } else close()
-    }
+    })
     close()
     return { max, moving, stops }
 }
