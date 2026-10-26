@@ -128,6 +128,24 @@ function speedColor(speed: number) {
 
 const SPEED_LEGEND = `linear-gradient(to right, ${SPEED_STOPS.map(([s, c], i) => `rgb(${c.join(",")}) ${(i / (SPEED_STOPS.length - 1)) * 100}%`).join(", ")})`
 
+function splitKmByDay(points: Point[], km: number, fallbackDay: string, whole: boolean) {
+    const metresByDay: Record<string, number> = {}
+    let total = 0
+    for (let i = 1; i < points.length; i++) {
+        const a = points[i - 1]
+        const b = points[i]
+        const dt = b.t - a.t
+        if (dt <= 0 || dt > GAP_MS) continue
+        const d = metres(a, b)
+        if ((d / dt) * 3600 >= 180) continue
+        metresByDay[b.day] = (metresByDay[b.day] ?? 0) + d
+        total += d
+    }
+    if (total === 0) return whole ? { [fallbackDay]: km } : {}
+    const perMetre = whole ? km / total : 1 / 1000
+    return Object.fromEntries(Object.entries(metresByDay).map(([day, d]) => [day, d * perMetre]))
+}
+
 function summarize(points: Point[]) {
     let distance = 0
     let moving = 0
@@ -360,11 +378,13 @@ export function useTrackerHistory(imei: string | null) {
 
     const tripStats = useMemo(
         () =>
-            trips.map((trip) => ({
-                ...trip,
-                km: trip.routeKm ?? (trip.kind && trip.kind !== "reys" ? 0 : summarize(points.filter((p) => p.t >= trip.start && p.t < trip.end)).distance / 1000),
-            })),
-        [trips, points],
+            trips.map((trip) => {
+                const inTrip = points.filter((p) => p.t >= trip.start && p.t < trip.end)
+                const km = trip.routeKm ?? (trip.kind && trip.kind !== "reys" ? 0 : summarize(inTrip).distance / 1000)
+                const whole = !!range && dayKey(trip.start) >= range.from && dayKey(trip.end) <= range.to
+                return { ...trip, km, dayKm: km ? splitKmByDay(inTrip, km, dayKey(trip.start), whole) : {} }
+            }),
+        [trips, points, range],
     )
     const gaps = useMemo(() => findGaps(track, GAP_MS), [track])
     const roads = useGapRoutes(gaps)
@@ -686,9 +706,7 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
     const dayKm = useMemo(() => {
         const out: Record<string, number> = {}
         for (const trip of history.tripStats) {
-            if (!trip.km) continue
-            const day = dayKey(trip.start)
-            out[day] = (out[day] ?? 0) + trip.km
+            for (const [day, km] of Object.entries(trip.dayKm)) out[day] = (out[day] ?? 0) + km
         }
         return out
     }, [history.tripStats])
