@@ -99,6 +99,7 @@ export default function ManagerReys() {
     const { openModal: openExtraPayModal } = useModal(EXTRA_PAY_MODAL_KEY)
 
     const cols = useColumnsManagersOrders({
+        canEditPoints: canEditOrder,
         onLegPay: hasControl
             ? (leg) => {
                   setPayLeg(leg)

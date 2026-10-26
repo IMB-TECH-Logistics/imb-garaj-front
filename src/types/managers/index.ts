@@ -64,6 +64,10 @@ type ManagerOrders = {
     unloading_name: string
     loading_located?: boolean | null
     unloading_located?: boolean | null
+    load_lat?: number | null
+    load_lng?: number | null
+    unload_lat?: number | null
+    unload_lng?: number | null
     cargo_type: number
     cargo_type_name: string
     client: number

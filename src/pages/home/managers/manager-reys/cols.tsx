@@ -15,6 +15,7 @@ import type { ExtraPayTarget } from "./extra-pay-modal"
 import { useGet } from "@/hooks/useGet"
 import { SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
 import { formatFuel } from "@/pages/home/route-norms/format"
+import { OrderPointButton, type PointSide } from "./order-point"
 
 const HOLAT_COLORS: Record<number, string> = {
     1: "bg-green-500/10 text-green-600 border-transparent",
@@ -50,8 +51,33 @@ export const useColumnsManagersOrders = (opts?: {
     onLegPay?: (leg: EmptyLeg) => void
     onExtraPay?: (target: ExtraPayTarget) => void
     locked?: boolean
+    canEditPoints?: boolean
 }) => {
     const { t } = useTranslation()
+    const canEditPoints = !!opts?.canEditPoints
+    const placeCell = (order: ManagerOrders, side: PointSide, name: string | null, located?: boolean | null) => {
+        const r = order as any
+        const editable = canEditPoints && !r.__leg && !r.__idle && order.activity === 1
+        if (!editable && located !== false) return <div>{name || "-"}</div>
+        return (
+            <div className="flex items-center gap-1.5">
+                <span>{name || "-"}</span>
+                {editable ? (
+                    <OrderPointButton
+                        orderId={order.id}
+                        side={side}
+                        lat={side === "load" ? order.load_lat : order.unload_lat}
+                        lng={side === "load" ? order.load_lng : order.unload_lng}
+                        located={located !== false}
+                    />
+                ) : (
+                    <span title={t("trips.reys_cols.no_location")}>
+                        <TriangleAlert size={14} className="shrink-0 text-red-600" />
+                    </span>
+                )}
+            </div>
+        )
+    }
     const { data: paymentTypesData } = useGet<ListResponse<PaymentType>>(
         SETTINTS_PAYMENT_TYPE,
         { params: { page_size: 1000000 } },
@@ -105,17 +131,7 @@ export const useColumnsManagersOrders = (opts?: {
                     if (isGarajOrTamirActivity(row.original?.activity)) {
                         return <span className="text-muted-foreground">—</span>
                     }
-                    if (row.original.loading_located === false) {
-                        return (
-                            <div className="flex items-center gap-1.5">
-                                <span>{row.original.loading_name || "-"}</span>
-                                <span title={t("trips.reys_cols.no_location")}>
-                                    <TriangleAlert size={14} className="shrink-0 text-red-600" />
-                                </span>
-                            </div>
-                        )
-                    }
-                    return <div>{row.original.loading_name || "-"}</div>
+                    return placeCell(row.original, "load", row.original.loading_name, row.original.loading_located)
                 },
             },
             {
@@ -126,17 +142,7 @@ export const useColumnsManagersOrders = (opts?: {
                     if (isGarajOrTamirActivity(row.original?.activity)) {
                         return <span className="text-muted-foreground">—</span>
                     }
-                    if (row.original.unloading_located === false) {
-                        return (
-                            <div className="flex items-center gap-1.5">
-                                <span>{row.original.unloading_name || "-"}</span>
-                                <span title={t("trips.reys_cols.no_location")}>
-                                    <TriangleAlert size={14} className="shrink-0 text-red-600" />
-                                </span>
-                            </div>
-                        )
-                    }
-                    return <div>{row.original.unloading_name || "-"}</div>
+                    return placeCell(row.original, "unload", row.original.unloading_name, row.original.unloading_located)
                 },
             },
             {
@@ -475,7 +481,7 @@ export const useColumnsManagersOrders = (opts?: {
             },
             ]
         },
-        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, opts?.locked, t, paymentTypesData],
+        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, opts?.locked, canEditPoints, t, paymentTypesData],
     )
 }
 
