@@ -10,6 +10,7 @@ import {
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useMemo, useState } from "react"
+import { useSearchParam } from "./use-monitoring-search"
 import { useGpsLiveSocket } from "./gps-socket"
 import type { ConnectionFilter, UnlinkedVehicle } from "./gps-list"
 import { GPS_FALLBACK_MS, GPS_REFRESH_MS, LIVE_REFRESH_MS } from "./monitoring-model"
@@ -108,7 +109,7 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
 
     const polylineData = polyline.data
 
-    const [trackerImei, setTrackerImei] = useState<string | null>(null)
+    const [trackerImei, setTrackerImei] = useSearchParam("imei")
     const [panelOpen, setPanelOpen] = useState(true)
     const history = useTrackerHistory(trackerImei)
     const lastOrders = useGet<VehicleLastOrders>(MONITORING_VEHICLE_LAST_ORDERS, {

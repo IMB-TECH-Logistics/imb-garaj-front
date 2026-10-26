@@ -17,6 +17,7 @@ import { type ReplayStatus, useRouteReplay } from "./route-replay"
 import { useRouteDraw } from "./route-draw"
 import { ACTIVE_STATUSES, IDLE, STATUS_META, ROW_KIND_STATUS } from "./status/data"
 import { findGaps, gapKey, useGapRoutes } from "./gap-routes"
+import { useSearchParam } from "./use-monitoring-search"
 import type { GpsDay, GpsLiveVehicle, GpsPosition } from "./types"
 
 const TZ = "Asia/Tashkent"
@@ -183,6 +184,8 @@ function summarize(points: Point[]) {
 
 export type ColorBy = "day" | "trip" | "status" | "speed"
 
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/
+
 export const COLOR_BY_OPTIONS: { value: ColorBy; labelKey: string }[] = [
     { value: "day", labelKey: "mon.color_by.day" },
     { value: "trip", labelKey: "mon.color_by.trip" },
@@ -279,9 +282,16 @@ export function useTrackerHistory(imei: string | null) {
         params: { imei },
         enabled: !!imei,
     })
-    const [range, setRange] = useState<DayRange | null>(null)
-    const [initialisedFor, setInitialisedFor] = useState<string | null>(null)
-    const [colorBy, setColorBy] = useState<ColorBy>("day")
+    const [rangeParam, setRangeParam] = useSearchParam("hdays")
+    const range = useMemo<DayRange | null>(() => {
+        const [from, to] = (rangeParam ?? "").split("_")
+        return DAY_RE.test(from ?? "") && DAY_RE.test(to ?? "") ? { from, to } : null
+    }, [rangeParam])
+    const setRange = useCallback((next: DayRange | null) => setRangeParam(next ? `${next.from}_${next.to}` : null), [setRangeParam])
+    const [initialisedFor, setInitialisedFor] = useState<string | null>(() => (range ? imei : null))
+    const [colorParam, setColorParam] = useSearchParam("hcolor")
+    const colorBy: ColorBy = COLOR_BY_OPTIONS.some((o) => o.value === colorParam) ? (colorParam as ColorBy) : "day"
+    const setColorBy = useCallback((next: ColorBy) => setColorParam(next === "day" ? null : next), [setColorParam])
     const [focus, setFocus] = useState<Focus | null>(null)
     const focusDay = focus?.kind === "day" ? focus.key : null
     const [statusSegments, setStatusSegments] = useState<ReplayStatus[]>([])
@@ -712,13 +722,6 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
     const { days, range, summary } = history
     const today = dayKey(Date.now())
     const rangeDays = range ? days.filter((d) => d.date >= range.from && d.date <= range.to) : []
-    const dayKm = useMemo(() => {
-        const out: Record<string, number> = {}
-        for (const trip of history.tripStats) {
-            for (const [day, km] of Object.entries(trip.dayKm)) out[day] = (out[day] ?? 0) + km
-        }
-        return out
-    }, [history.tripStats])
 
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -765,11 +768,8 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
                             )}
                         >
                             <span className="whitespace-nowrap text-sm font-medium">{d.date.split("-").reverse().join(".")}</span>
-                            <span
-                                className="inline-flex items-center gap-3 font-mono text-sm font-semibold tabular-nums"
-                                title={`GPS: ${d.distance_km.toFixed(1)} ${t("mon.units.km")}`}
-                            >
-                                {(dayKm[d.date] ?? 0).toFixed(1)} {t("mon.units.km")}
+                            <span className="inline-flex items-center gap-3 font-mono text-sm font-semibold tabular-nums">
+                                {d.distance_km.toFixed(1)} {t("mon.units.km")}
                                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: history.colors[d.date] }} />
                             </span>
                         </button>

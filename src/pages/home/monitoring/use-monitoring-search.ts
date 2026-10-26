@@ -1,9 +1,31 @@
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import type { ConnectionFilter } from "./gps-list"
 import { num } from "./monitoring-model"
 import type { Dimension, MonitoringFilters, TruckStatusFilter } from "./types"
 import { TRUCK_STATUS_FILTERS, isHistoricalView, todayIso } from "./types"
+
+export const useSearchParam = (key: string) => {
+    const navigate = useNavigate()
+    const search = useSearch({ strict: false }) as Record<string, unknown>
+    const raw = search?.[key]
+    const value = raw == null || raw === "" ? null : String(raw)
+    const setValue = useCallback(
+        (next: string | null) =>
+            navigate({
+                replace: true,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                search: ((prev: any) => {
+                    const out = { ...prev }
+                    if (next == null || next === "") delete out[key]
+                    else out[key] = next
+                    return out
+                }) as any,
+            }),
+        [navigate, key],
+    )
+    return [value, setValue] as const
+}
 
 export const useMonitoringSearch = () => {
     const navigate = useNavigate()

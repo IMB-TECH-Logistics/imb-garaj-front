@@ -5,7 +5,7 @@ import {
     MONITORING_STATUS_TIMELINE,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { parseLocalDate } from "./historical-summary"
 import { LIVE_REFRESH_MS } from "./monitoring-model"
@@ -14,7 +14,7 @@ import { type ApiStatusRoute, type ApiStatusSegment, type ApiVehicleRow, type Co
 import type { LiveDriver, OrderTracking, TripTracking, VehicleTracking } from "./types"
 import { EMPTY_FILTERS, isRussiaTruck, todayIso, truckStatusOf } from "./types"
 import { useMonitoringData } from "./use-monitoring-data"
-import { useMonitoringSearch } from "./use-monitoring-search"
+import { useMonitoringSearch, useSearchParam } from "./use-monitoring-search"
 
 export const useMonitoringController = () => {
     const { t } = useTranslation()
@@ -37,7 +37,9 @@ export const useMonitoringController = () => {
         connection,
         setConnection,
     } = useMonitoringSearch()
-    const [plateQuery, setPlateQuery] = useState("")
+    const [plateParam, setPlateParam] = useSearchParam("q")
+    const plateQuery = plateParam ?? ""
+    const setPlateQuery = (value: string) => setPlateParam(value || null)
     const {
         gpsLive,
         drivers,
