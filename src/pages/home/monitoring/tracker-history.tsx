@@ -26,6 +26,8 @@ const GAP_MS = 15 * 60 * 1000
 const STOP_MIN_MS = 20 * 60 * 1000
 const JITTER_M = 50
 const STOP_RADIUS_M = 100
+const STOP_FOCUS_STEP_MS = 15 * 60 * 1000
+const DAY_MS = 24 * 60 * 60 * 1000
 const STOP_MERGE_M = 100
 const MAX_REAL_SPEED = 150
 const OUTSIDE_TRIP_COLOR = "#ff00d4"
@@ -545,13 +547,20 @@ export function useTrackerHistory(imei: string | null) {
         return groups
     }, [trackSummary.stops])
 
+    const stopInFocus = (x: Stop) => {
+        for (let t = x.from; t < x.to; t += STOP_FOCUS_STEP_MS) if (inFocus(t)) return true
+        return inFocus(x.to)
+    }
+    const dayStart = focusDay ? Date.parse(`${focusDay}T00:00:00+05:00`) : null
+    const focusedSpan = (x: Stop) =>
+        dayStart == null ? x.to - x.from : Math.max(0, Math.min(x.to, dayStart + DAY_MS) - Math.max(x.from, dayStart))
     const groupView = stopGroups.map((g) => {
-        const focused = g.stops.filter((x) => inFocus(x.from))
+        const focused = g.stops.filter(stopInFocus)
         const counted = focused.length ? focused : g.stops
         return {
             ...g,
             focused,
-            total: counted.reduce((sum, x) => sum + (x.to - x.from), 0),
+            total: counted.reduce((sum, x) => sum + (focused.length ? focusedSpan(x) : x.to - x.from), 0),
             count: counted.length,
         }
     })
