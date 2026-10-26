@@ -158,23 +158,29 @@ function snapJitter(points: Point[]): Point[] {
     })
 }
 
+type StopRun = { from: number; to: number; centre: Point; count: number }
+
 function findStops(points: Point[]): Stop[] {
     const stops: Stop[] = []
-    let first: Point | null = null
-    let last: Point | null = null
+    let run: StopRun | null = null
     const close = () => {
-        if (first && last && last.t - first.t >= STOP_MIN_MS) {
-            stops.push({ from: first.t, to: last.t, lat: first.lat, lng: first.lng })
+        if (run && run.to - run.from >= STOP_MIN_MS) {
+            stops.push({ from: run.from, to: run.to, lat: run.centre.lat, lng: run.centre.lng })
         }
     }
     for (const p of points) {
-        if (first && last && p.t - last.t <= GAP_MS && metres(first, p) <= STOP_RADIUS_M) {
-            last = p
+        if (run && p.t - run.to <= GAP_MS && metres(run.centre, p) <= STOP_RADIUS_M) {
+            const count: number = run.count + 1
+            const centre: Point = {
+                ...run.centre,
+                lat: run.centre.lat + (p.lat - run.centre.lat) / count,
+                lng: run.centre.lng + (p.lng - run.centre.lng) / count,
+            }
+            run = { from: run.from, to: p.t, centre, count }
             continue
         }
         close()
-        first = p
-        last = p
+        run = { from: p.t, to: p.t, centre: p, count: 1 }
     }
     close()
     return stops
