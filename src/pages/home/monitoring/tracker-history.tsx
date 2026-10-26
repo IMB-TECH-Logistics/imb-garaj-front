@@ -24,6 +24,8 @@ const TZ = "Asia/Tashkent"
 const TZ_OFFSET_MS = 5 * 3600 * 1000
 const GAP_MS = 15 * 60 * 1000
 const STOP_MIN_MS = 20 * 60 * 1000
+const JITTER_M = 50
+const STOP_RADIUS_M = 100
 const STOP_MERGE_M = 100
 const MAX_REAL_SPEED = 150
 const OUTSIDE_TRIP_COLOR = "#ff00d4"
@@ -147,6 +149,37 @@ function splitKmByDay(points: Point[], km: number, fallbackDay: string, whole: b
     return Object.fromEntries(Object.entries(metresByDay).map(([day, d]) => [day, d * perMetre]))
 }
 
+function snapJitter(points: Point[]): Point[] {
+    let anchor: Point | null = null
+    return points.map((p) => {
+        if (anchor && metres(anchor, p) < JITTER_M) return { ...p, lat: anchor.lat, lng: anchor.lng }
+        anchor = p
+        return p
+    })
+}
+
+function findStops(points: Point[]): Stop[] {
+    const stops: Stop[] = []
+    let first: Point | null = null
+    let last: Point | null = null
+    const close = () => {
+        if (first && last && last.t - first.t >= STOP_MIN_MS) {
+            stops.push({ from: first.t, to: last.t, lat: first.lat, lng: first.lng })
+        }
+    }
+    for (const p of points) {
+        if (first && last && p.t - last.t <= GAP_MS && metres(first, p) <= STOP_RADIUS_M) {
+            last = p
+            continue
+        }
+        close()
+        first = p
+        last = p
+    }
+    close()
+    return stops
+}
+
 function summarize(points: Point[]) {
     let distance = 0
     let moving = 0
@@ -157,22 +190,9 @@ function summarize(points: Point[]) {
         if (dt > GAP_MS) continue
         const d = metres(a, b)
         if (dt > 0 && (d / dt) * 3600 < 180) distance += d
-        if (a.speed > 3 || b.speed > 3) moving += dt
+        if (d > 0) moving += dt
     }
-
-    const stops: Stop[] = []
-    let run: { first: Point; last: Point } | null = null
-    const close = () => {
-        if (run && run.last.t - run.first.t >= STOP_MIN_MS) {
-            stops.push({ from: run.first.t, to: run.last.t, lat: run.first.lat, lng: run.first.lng })
-        }
-        run = null
-    }
-    for (const p of points) {
-        if (p.speed <= 2) run = run ? { ...run, last: p } : { first: p, last: p }
-        else close()
-    }
-    close()
+    const stops = findStops(points)
 
     return {
         distance,
@@ -341,7 +361,7 @@ export function useTrackerHistory(imei: string | null) {
     )
 
     const track = useMemo<Point[]>(
-        () => (positions.data ?? []).map(toPoint).filter((p) => !!span && p.t >= span.from && p.t <= span.to),
+        () => snapJitter((positions.data ?? []).map(toPoint).filter((p) => !!span && p.t >= span.from && p.t <= span.to)),
         [positions.data, span],
     )
     const points = useMemo<Point[]>(
