@@ -394,6 +394,18 @@ export function useTrackerHistory(imei: string | null) {
     )
 
     const summary = useMemo(() => summarize(points), [points])
+    const dayKm = useMemo(() => {
+        const out: Record<string, number> = {}
+        track.forEach((b, i) => {
+            out[b.day] = out[b.day] ?? 0
+            const a = track[i - 1]
+            const dt = a ? b.t - a.t : 0
+            if (!a || dt <= 0 || dt > GAP_MS || a.day !== b.day) return
+            const d = metres(a, b)
+            if ((d / dt) * 3600 < 180) out[b.day] += d / 1000
+        })
+        return out
+    }, [track])
     const trackSummary = useMemo(() => (track.length === points.length ? summary : summarize(track)), [track, points, summary])
 
     useEffect(() => {
@@ -608,6 +620,7 @@ export function useTrackerHistory(imei: string | null) {
 
     return {
         days: days.data ?? [],
+        dayKm,
         daysLoading: days.isLoading,
         loading: positions.isFetching,
         range,
@@ -820,7 +833,7 @@ export function TrackerHistoryPanel({ history, children }: PanelProps) {
                         >
                             <span className="whitespace-nowrap text-sm font-medium">{d.date.split("-").reverse().join(".")}</span>
                             <span className="inline-flex items-center gap-3 font-mono text-sm font-semibold tabular-nums">
-                                {d.distance_km.toFixed(1)} {t("mon.units.km")}
+                                {(history.dayKm[d.date] ?? d.distance_km).toFixed(1)} {t("mon.units.km")}
                                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: history.colors[d.date] }} />
                             </span>
                         </button>
