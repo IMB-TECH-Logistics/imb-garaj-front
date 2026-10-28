@@ -265,7 +265,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     )
 
     const paidNowRaw = useWatch({ control, name: "paid_now" })
-    const paidNow = Math.min(Number(paidNowRaw === "" || paidNowRaw === undefined ? total : paidNowRaw) || 0, total)
+    const paidNow = Math.min(Number(paidNowRaw === "" || paidNowRaw === undefined ? 0 : paidNowRaw) || 0, total)
     const debtLeft = Math.max(total - paidNow, 0)
 
     const serializedOf = (id: number | "") =>
@@ -330,7 +330,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
 
     const onSubmit = (values: FormValues) => {
         setServerError("")
-        const paid = Math.min(Number(values.paid_now === "" ? total : values.paid_now) || 0, total)
+        const paid = Math.min(Number(values.paid_now === "" || values.paid_now === undefined ? 0 : values.paid_now) || 0, total)
         if (!receiptId && paid < total && !values.supplier) {
             setServerError(t("wh.receipt.err_debt_needs_supplier"))
             return
@@ -467,7 +467,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                     <FormNumberInput
                         name="paid_now"
                         label={t("wh.receipt.paid_now")}
-                        placeholder={formatMoneyText(total)}
+                        placeholder="0"
                         control={control}
                         allowNegative={false}
                         decimalScale={0}
