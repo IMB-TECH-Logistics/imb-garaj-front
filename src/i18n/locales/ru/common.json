@@ -1421,7 +1421,7 @@
             "closing_balance": "Остаток на конец периода",
             "cash_balance": "Остаток кассы",
             "opening_balance": "На начало периода",
-            "from_external": "Из внешнего источника",
+            "from_external": "Инвестиции",
             "trip_cash": "Наличные за рейс",
             "reversed_expenses": "Отменённые расходы",
             "expense": "Расход",

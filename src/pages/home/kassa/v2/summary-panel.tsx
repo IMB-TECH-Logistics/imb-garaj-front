@@ -65,7 +65,6 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                     <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
                     <Line sub label={t("fin.kv2.from_external")} value={sm?.income.external} {...lineProps("in_external", "fin.kv2.from_external")} />
                     <Line sub label={t("fin.kv2.trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.trip_cash"), amount: n(sm?.income.trip_cash) })} />
-                    {!!n(sm?.income.reversals) && <Line sub label={t("fin.kv2.reversed_expenses")} value={sm?.income.reversals} {...lineProps("in_reversals", "fin.kv2.reversed_expenses")} />}
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
                     <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />
