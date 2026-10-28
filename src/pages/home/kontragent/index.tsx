@@ -93,7 +93,7 @@ const ContragentsPage = () => {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Stat
                     label={t("contragent.stat_we_owe")}
                     value={som(weOwe.reduce((s, r) => s + r.balance, 0))}
@@ -106,7 +106,6 @@ const ContragentsPage = () => {
                     sub={t("contragent.stat_count", { count: theyOwe.length })}
                     tone="green"
                 />
-                <Stat label={t("contragent.stat_total")} value={String(all.length)} />
             </div>
 
             <Card>
