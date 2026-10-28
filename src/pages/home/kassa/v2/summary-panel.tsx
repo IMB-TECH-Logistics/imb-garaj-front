@@ -122,7 +122,7 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                         <p className="text-sm font-medium text-muted-foreground">{t("fin.kv2.drivers_holding", { count: drivers.length })}</p>
                         <span className="text-sm font-semibold tabular-nums">{formatMoney(n(ov?.drivers_total))}</span>
                     </div>
-                    <div className="space-y-0.5 max-h-80 overflow-y-auto -mr-2 pr-2">
+                    <div className="space-y-0.5 max-h-[480px] overflow-y-auto -mr-2 pr-2">
                         {drivers.map((d, i) => (
                             <div
                                 key={d.id}
