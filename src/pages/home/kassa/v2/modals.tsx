@@ -64,8 +64,14 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
         { id: "investor", name: t("fin.kv2.income_type_investor") },
         { id: "other", name: t("fin.kv2.investor_loans") },
     ]
-    const investorOptions = useMemo(() => investors.map((i) => ({ id: i.name, name: i.name })), [investors])
+    const OTHER = "__other__"
+    const investorOptions = useMemo(
+        () => [...investors.map((i) => ({ id: i.name, name: i.name })), { id: OTHER, name: t("fin.kv2.source_other") }],
+        [investors, t],
+    )
     const incomeType = form.watch("income_type")
+    const source = form.watch("source")
+    const needComment = !out && (incomeType === "other" || (incomeType === "investor" && source === OTHER))
     useEffect(() => {
         if (incomeType !== "investor" && form.getValues("source") && !out) form.setValue("source", "")
     }, [incomeType])
@@ -86,8 +92,9 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
             onSubmit={form.handleSubmit((v) => {
                 if (!out && !v.income_type) return form.setError("income_type", { message: t("fin.kv2.choose_income_type") })
                 if (!out && v.income_type === "investor" && !v.source) return form.setError("source", { message: t("fin.kv2.choose_investor") })
-                if (!out && v.income_type === "other" && !v.comment.trim()) return form.setError("comment", { message: t("fin.kv2.other_source_comment") })
-                const source = out ? v.source || null : v.income_type === "investor" ? v.source : v.income_type === "vst" ? VST_SOURCE : null
+                const otherPerson = v.income_type === "investor" && v.source === OTHER
+                if (!out && (v.income_type === "other" || otherPerson) && !v.comment.trim()) return form.setError("comment", { message: t("fin.kv2.other_source_comment") })
+                const source = out ? v.source || null : otherPerson ? null : v.income_type === "investor" ? v.source : v.income_type === "vst" ? VST_SOURCE : null
                 const body = { amount: Number(v.amount), source, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? { vehicles: v.vehicles ?? [] } : {}) }
                 const url = out ? KV2_EXPENSE : KV2_INCOME
                 const done = out ? t("fin.kv2.cash_out_done") : t("fin.kv2.cash_in_done")
@@ -130,11 +137,11 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
                 </div>
             )}
             <FormTextarea
-                required={!out && incomeType === "other"}
+                required={needComment}
                 label={t("form.comment")}
                 name="comment"
                 methods={form}
-                placeholder={!out && incomeType === "other" ? t("fin.kv2.other_source_placeholder") : undefined}
+                placeholder={needComment ? t("fin.kv2.other_source_placeholder") : undefined}
             />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
             <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
