@@ -11,7 +11,8 @@ import { useModal } from "@/hooks/useModal"
 import { useGet } from "@/hooks/useGet"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatMoneyText } from "@/lib/format-money"
+import { KV2_REQUESTS, WAREHOUSES } from "@/pages/home/kassa/v2/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { Package, Plus, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -47,7 +48,7 @@ type FormValues = {
     comment: string
     lines: LineValues[]
     supplier?: number | ""
-    pay_type?: "cash" | "debt"
+    paid_now?: number | ""
 }
 
 type ReceiptLot = {
@@ -91,6 +92,11 @@ type CardProps = {
     onRemove: () => void
 }
 
+const MAX_QTY = 1_000_000
+const MAX_PRICE = 100_000_000_000
+
+const LINE_GRID = "grid grid-cols-[28px_minmax(0,1fr)_110px_160px_150px_36px] items-center gap-2"
+
 const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
     const { t } = useTranslation()
     const { control, setValue } = form
@@ -128,62 +134,49 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
     const sum = centsToNumber(lineAmountCents(line.quantity, line.unit_price))
 
     return (
-        <div className="rounded-lg border bg-card p-3 flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                    <span className="text-xs text-muted-foreground">
-                        {index + 1}
-                    </span>
-                    <Package size={16} className="text-primary shrink-0" />
-                    <span className="font-medium">
-                        {product?.name ?? (
-                            <span className="text-muted-foreground">
-                                {t("wh.receipt.no_product")}
-                            </span>
-                        )}
-                    </span>
-                    {serialized && (
-                        <Badge>{t("wh.serialized_yes")}</Badge>
-                    )}
+        <div className="rounded-lg border bg-card px-2 py-2 flex flex-col gap-2">
+            <div className={LINE_GRID}>
+                <span className="text-xs text-muted-foreground text-center tabular-nums">{index + 1}</span>
+                <div className="min-w-0 flex items-center gap-2">
+                    <div className="min-w-0 flex-1">
+                        <FormCombobox
+                            required
+                            name={`lines.${index}.product`}
+                            placeholder={t("wh.receipt.choose_from_catalog")}
+                            control={control}
+                            options={products}
+                            valueKey="id"
+                            labelKey="name"
+                            addButtonProps={used ? { disabled: true } : undefined}
+                        />
+                    </div>
+                    {serialized && <Badge className="shrink-0">{t("wh.serialized_yes")}</Badge>}
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm font-medium tabular-nums whitespace-nowrap">
-                        {formatMoney(sum)} {t("page.som")}
-                    </span>
-                    {remove}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_130px_160px]">
-                <FormCombobox
-                    required
-                    name={`lines.${index}.product`}
-                    label={t("wh.product")}
-                    placeholder={t("wh.receipt.choose_from_catalog")}
-                    control={control}
-                    options={products}
-                    valueKey="id"
-                    labelKey="name"
-                    addButtonProps={used ? { disabled: true } : undefined}
-                />
                 <FormNumberInput
                     required
                     name={`lines.${index}.quantity`}
-                    label={unit ? `${t("form.quantity")} (${unit})` : t("form.quantity")}
+                    placeholder={unit || t("form.quantity")}
                     control={control}
                     allowNegative={false}
                     decimalScale={serialized ? 0 : 2}
+                    isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_QTY}
                     disabled={fixedQty}
                 />
                 <FormNumberInput
                     required
                     name={`lines.${index}.unit_price`}
-                    label={t("form.unit_price")}
+                    placeholder={t("form.unit_price")}
                     control={control}
                     allowNegative={false}
                     decimalScale={2}
+                    thousandSeparator=" "
+                    isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_PRICE}
                     disabled={used}
                 />
+                <span className="text-sm font-medium tabular-nums text-right truncate min-w-0" title={formatMoneyText(sum)}>
+                    {formatMoneyText(sum)}
+                </span>
+                <div className="flex justify-end">{remove}</div>
             </div>
 
             {used && (
@@ -237,10 +230,14 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const [serverError, setServerError] = useState("")
     const suppliers = useSuppliersStore((s) => s.suppliers)
     const addSupplierTx = useSuppliersStore((s) => s.addTx)
-    const pendingSupplier = useRef<{ supplier: number; pay_type: "cash" | "debt"; date: string; amount: number; comment: string } | null>(null)
+    const pendingSupplier = useRef<{ supplier: number | null; date: string; amount: number; paid: number; comment: string; products: string } | null>(null)
+    const kassaRequest = usePost({
+        onSuccess: () => toast.success(t("wh.receipt.kassa_request_sent")),
+        onError: () => toast.error(t("wh.receipt.kassa_request_failed")),
+    })
 
     const form = useForm<FormValues>({
-        defaultValues: { date: todayISO(), comment: "", lines: [], supplier: "", pay_type: "debt" },
+        defaultValues: { date: todayISO(), comment: "", lines: [], supplier: "", paid_now: "" },
     })
     const { control, handleSubmit } = form
     const { fields, append, remove } = useFieldArray({ control, name: "lines" })
@@ -266,6 +263,10 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
             0n,
         ),
     )
+
+    const paidNowRaw = useWatch({ control, name: "paid_now" })
+    const paidNow = Math.min(Number(paidNowRaw === "" || paidNowRaw === undefined ? total : paidNowRaw) || 0, total)
+    const debtLeft = Math.max(total - paidNow, 0)
 
     const serializedOf = (id: number | "") =>
         !!products.find((p) => p.id === Number(id))?.is_serialized
@@ -293,9 +294,22 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         onSuccess: () => {
             const pending = pendingSupplier.current
             if (pending) {
-                addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "in", amount: pending.amount, comment: pending.comment })
-                if (pending.pay_type === "cash") {
-                    addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "out", amount: pending.amount, comment: "" })
+                if (pending.supplier) {
+                    addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "in", amount: pending.amount, comment: pending.comment })
+                    if (pending.paid > 0) {
+                        addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "out", amount: pending.paid, comment: t("wh.receipt.paid_via_kassa") })
+                    }
+                }
+                if (pending.paid > 0) {
+                    const supplierName = suppliers.find((x) => x.id === pending.supplier)?.name
+                    kassaRequest.mutate(KV2_REQUESTS, {
+                        kind: "garaj_xarajat",
+                        amount: pending.paid,
+                        comment: [t("wh.receipt.kassa_request_comment"), supplierName, pending.comment].filter(Boolean).join(" · "),
+                        expense_type: "ombor",
+                        warehouse: WAREHOUSES[0],
+                        product: pending.products,
+                    })
                 }
                 pendingSupplier.current = null
             }
@@ -316,14 +330,23 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
 
     const onSubmit = (values: FormValues) => {
         setServerError("")
+        const paid = Math.min(Number(values.paid_now === "" ? total : values.paid_now) || 0, total)
+        if (!receiptId && paid < total && !values.supplier) {
+            setServerError(t("wh.receipt.err_debt_needs_supplier"))
+            return
+        }
         pendingSupplier.current =
-            !receiptId && values.supplier ?
+            !receiptId ?
                 {
-                    supplier: Number(values.supplier),
-                    pay_type: values.pay_type ?? "debt",
+                    supplier: values.supplier ? Number(values.supplier) : null,
                     date: values.date,
                     amount: total,
+                    paid,
                     comment: values.comment.trim(),
+                    products: values.lines
+                        .map((l) => products.find((x) => x.id === Number(l.product))?.name)
+                        .filter(Boolean)
+                        .join(", "),
                 }
             :   null
         const payload = {
@@ -371,7 +394,17 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                         </Button>
                     </div>
 
-                    <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto no-scrollbar-x">
+                    {!!fields.length && (
+                        <div className={`${LINE_GRID} px-2 text-xs text-muted-foreground`}>
+                            <span className="text-center">№</span>
+                            <span>{t("wh.product")}</span>
+                            <span>{t("form.quantity")}</span>
+                            <span>{t("form.unit_price")}</span>
+                            <span className="text-right">{t("page.total")}</span>
+                            <span />
+                        </div>
+                    )}
+                    <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto no-scrollbar-x">
                         {fields.length ?
                             fields.map((field, index) => (
                                 <ReceiptLineCard
@@ -411,22 +444,6 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                                 valueKey="id"
                             />
                         )}
-                        {!receiptId && !!form.watch("supplier") && (
-                            <FormCombobox
-                                required
-                                isClearIcon={false}
-                                isSearch={false}
-                                control={control}
-                                name="pay_type"
-                                label={t("suppliers.fields.pay_type")}
-                                options={[
-                                    { id: "debt", name: t("suppliers.pay.debt") },
-                                    { id: "cash", name: t("suppliers.pay.cash") },
-                                ]}
-                                labelKey="name"
-                                valueKey="id"
-                            />
-                        )}
                     </div>
 
                     <FormTextarea
@@ -437,14 +454,38 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                 </div>
             </section>
 
-            <div className="rounded-lg bg-muted/60 p-3 flex items-center justify-between gap-3">
-                <div className="font-medium">{t("page.total")}</div>
-                <div className="text-right">
-                    <div className="font-medium tabular-nums">
-                        {formatMoney(total)} {t("page.som")}
+            {!receiptId ?
+                <section className="rounded-lg border bg-muted/20 p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-sm text-muted-foreground">{t("page.total")}</span>
+                        <span className="h-10 flex items-center gap-1 font-semibold tabular-nums">{formatMoney(total)} {t("page.som")}</span>
+                    </div>
+                    <FormNumberInput
+                        name="paid_now"
+                        label={t("wh.receipt.paid_now")}
+                        placeholder={formatMoneyText(total)}
+                        control={control}
+                        allowNegative={false}
+                        decimalScale={0}
+                        thousandSeparator=" "
+                    />
+                    <div className="flex flex-col gap-1">
+                        <span className="text-sm text-muted-foreground">{t("wh.receipt.left_as_debt")}</span>
+                        <span className={`h-10 flex items-center gap-1 font-semibold tabular-nums ${debtLeft > 0 ? "text-amber-600" : ""}`}>
+                            {formatMoney(debtLeft)} {t("page.som")}
+                        </span>
+                    </div>
+                    <p className="sm:col-span-3 text-xs text-muted-foreground">{t("wh.receipt.paid_now_hint")}</p>
+                </section>
+            :   <div className="rounded-lg bg-muted/60 p-3 flex items-center justify-between gap-3">
+                    <div className="font-medium">{t("page.total")}</div>
+                    <div className="text-right">
+                        <div className="font-medium tabular-nums">
+                            {formatMoney(total)} {t("page.som")}
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
             <div className="flex items-center justify-end gap-3 pt-1">
                 {error && (
                     <span className="text-xs text-destructive">{error}</span>
@@ -469,7 +510,7 @@ const ReceiptModal = ({ receiptId }: { receiptId?: number }) => {
             <Modal
                 modalKey={RECEIPT_EDIT_MODAL_KEY}
                 title={t("wh.receipt.edit_title", { id: receiptId })}
-                size="max-w-2xl"
+                size="max-w-5xl"
             >
                 {receiptId > 0 && <ReceiptForm key={receiptId} receiptId={receiptId} />}
             </Modal>
@@ -479,7 +520,7 @@ const ReceiptModal = ({ receiptId }: { receiptId?: number }) => {
         <Modal
             modalKey={RECEIPT_MODAL_KEY}
             title={t("wh.receipt.title")}
-            size="max-w-2xl"
+            size="max-w-5xl"
         >
             <ReceiptForm />
         </Modal>

@@ -895,7 +895,15 @@
             "factory_numbers": "Zavod raqamlari",
             "factory_auto_hint": "Bo'sh qoldirilsa, tizim o'zi raqam beradi",
             "err_factory_empty": "Barcha zavod raqamlarini kiriting",
-            "err_factory_dup": "Zavod raqamlari takrorlanmasligi kerak"
+            "err_factory_dup": "Zavod raqamlari takrorlanmasligi kerak",
+            "paid_now": "Hozir to'lanadi (kassaga so'rov)",
+            "left_as_debt": "Qarzga qoladi",
+            "paid_now_hint": "Hozir to'lanadigan summa kassaga «Ombor» xarajati so'rovi bo'lib boradi, qolgani ta'minotchiga qarz bo'lib yoziladi. Bo'sh qoldirilsa, hammasi to'lanadi.",
+            "err_debt_needs_supplier": "Qarzga qoldirish uchun ta'minotchini tanlang",
+            "kassa_request_sent": "Kassaga to'lov so'rovi yuborildi",
+            "kassa_request_failed": "Kassaga so'rov yuborib bo'lmadi",
+            "kassa_request_comment": "Omborga kirim",
+            "paid_via_kassa": "Kassa orqali (so'rov)"
         },
         "tech": {
             "block": "Ombordan mahsulotlar",

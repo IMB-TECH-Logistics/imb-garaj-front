@@ -898,7 +898,15 @@
             "factory_numbers": "製造番号",
             "factory_auto_hint": "空欄の場合、システムが番号を割り当てます",
             "err_factory_empty": "すべての製造番号を入力してください",
-            "err_factory_dup": "製造番号は重複できません"
+            "err_factory_dup": "製造番号は重複できません",
+            "paid_now": "今回支払う額（レジへ申請）",
+            "left_as_debt": "掛けとして残る額",
+            "paid_now_hint": "今回支払う額は倉庫費用の申請としてレジに送られ、残りは仕入先への債務になります。空欄の場合は全額支払います。",
+            "err_debt_needs_supplier": "掛けにするには仕入先を選択してください",
+            "kassa_request_sent": "支払申請をレジに送りました",
+            "kassa_request_failed": "レジへの申請に失敗しました",
+            "kassa_request_comment": "倉庫入庫",
+            "paid_via_kassa": "レジ経由（申請）"
         },
         "tech": {
             "block": "倉庫からの商品",

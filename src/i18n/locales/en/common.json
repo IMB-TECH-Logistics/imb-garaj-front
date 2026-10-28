@@ -898,7 +898,15 @@
             "factory_numbers": "Factory numbers",
             "factory_auto_hint": "If left empty, the system assigns the number",
             "err_factory_empty": "Enter all factory numbers",
-            "err_factory_dup": "Factory numbers must be unique"
+            "err_factory_dup": "Factory numbers must be unique",
+            "paid_now": "Pay now (cash desk request)",
+            "left_as_debt": "Left as debt",
+            "paid_now_hint": "The amount paid now goes to the cash desk as a warehouse expense request; the rest is recorded as debt to the supplier. Leave empty to pay everything.",
+            "err_debt_needs_supplier": "Choose a supplier to leave part as debt",
+            "kassa_request_sent": "Payment request sent to the cash desk",
+            "kassa_request_failed": "Could not send the request to the cash desk",
+            "kassa_request_comment": "Warehouse receipt",
+            "paid_via_kassa": "Via cash desk (request)"
         },
         "tech": {
             "block": "Products from warehouse",
