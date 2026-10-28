@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react"
+import ParamInput from "@/components/as-params/input"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
 import { MANAGERS_ORDERS, MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
@@ -63,7 +64,7 @@ export default function Managers() {
                 onRowClick={handleRowClick}
                 head={
                     <div className="p-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                                 {totals.map(([label, value], i) => (
                                     <div key={label} className="flex items-center gap-2">
@@ -75,6 +76,12 @@ export default function Managers() {
                                     </div>
                                 ))}
                             </div>
+                            <ParamInput
+                                searchKey="search"
+                                placeholder={t("actions.search")}
+                                wrapperClassName="!h-9 !w-44 sm:!w-60 shrink-0"
+                                className="!h-9 text-sm"
+                            />
                         </div>
                     </div>
                 }
