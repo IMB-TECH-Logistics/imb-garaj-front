@@ -100,7 +100,7 @@ export type OmborSearchParams = {
     to_date?: string
     tenant?: number
     vehicle_plate?: string
-    section?: "moves" | "others" | "transfers" | "debts"
+    section?: "moves" | "others" | "transfers" | "debts" | "suppliers"
     direction?: "in" | "out"
     dtab?: "owed" | "mine"
     creditor?: number

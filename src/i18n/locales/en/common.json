@@ -3125,5 +3125,43 @@
             "balance": "Balance",
             "repaid_sub": "Repaid: {{amount}}"
         }
+    },
+    "suppliers": {
+        "title": "Suppliers",
+        "kassa_debt": "Debt to suppliers",
+        "pay_hint": "The payment is taken from the cash desk and shown in “Warehouse expenses”.",
+        "fields": {
+            "name": "Supplier",
+            "supplier": "Supplier",
+            "phone": "Phone",
+            "comment": "Comment",
+            "date": "Date",
+            "kind": "Type",
+            "amount": "Amount",
+            "pay_date": "Payment date",
+            "pay_type": "Payment type"
+        },
+        "pay": {
+            "debt": "On credit",
+            "cash": "Cash (from cash desk)"
+        },
+        "list": {
+            "taken": "Goods received",
+            "paid": "Paid",
+            "debt": "Debt balance",
+            "total_debt": "Total debt"
+        },
+        "tx": {
+            "in": "Taken on credit",
+            "out": "Paid"
+        },
+        "actions": {
+            "add": "Add supplier",
+            "pay": "Pay",
+            "pay_title": "Payment to supplier"
+        },
+        "errors": {
+            "max_debt": "Must not exceed the debt balance"
+        }
     }
 }

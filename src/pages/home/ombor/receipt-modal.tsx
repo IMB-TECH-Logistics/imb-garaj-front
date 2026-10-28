@@ -14,11 +14,12 @@ import { usePost } from "@/hooks/usePost"
 import { formatMoney } from "@/lib/format-money"
 import { useQueryClient } from "@tanstack/react-query"
 import { Package, Plus, Trash2 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { useSuppliersStore } from "./suppliers-store"
 import type { WhProduct } from "./types"
 import { useCatalog } from "./use-catalog"
 import {
@@ -45,6 +46,8 @@ type FormValues = {
     date: string
     comment: string
     lines: LineValues[]
+    supplier?: number | ""
+    pay_type?: "cash" | "debt"
 }
 
 type ReceiptLot = {
@@ -232,9 +235,12 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const { data: catalog } = useCatalog()
     const products = useMemo(() => catalog?.results ?? [], [catalog])
     const [serverError, setServerError] = useState("")
+    const suppliers = useSuppliersStore((s) => s.suppliers)
+    const addSupplierTx = useSuppliersStore((s) => s.addTx)
+    const pendingSupplier = useRef<{ supplier: number; pay_type: "cash" | "debt"; date: string; amount: number; comment: string } | null>(null)
 
     const form = useForm<FormValues>({
-        defaultValues: { date: todayISO(), comment: "", lines: [] },
+        defaultValues: { date: todayISO(), comment: "", lines: [], supplier: "", pay_type: "debt" },
     })
     const { control, handleSubmit } = form
     const { fields, append, remove } = useFieldArray({ control, name: "lines" })
@@ -285,6 +291,14 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
 
     const onSaved = {
         onSuccess: () => {
+            const pending = pendingSupplier.current
+            if (pending) {
+                addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "in", amount: pending.amount, comment: pending.comment })
+                if (pending.pay_type === "cash") {
+                    addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "out", amount: pending.amount, comment: "" })
+                }
+                pendingSupplier.current = null
+            }
             toast.success(t("wh.receipt.saved"))
             closeModal()
             queryClient.invalidateQueries({
@@ -302,6 +316,16 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
 
     const onSubmit = (values: FormValues) => {
         setServerError("")
+        pendingSupplier.current =
+            !receiptId && values.supplier ?
+                {
+                    supplier: Number(values.supplier),
+                    pay_type: values.pay_type ?? "debt",
+                    date: values.date,
+                    amount: total,
+                    comment: values.comment.trim(),
+                }
+            :   null
         const payload = {
             date: values.date,
             comment: values.comment.trim() || (receiptId ? null : undefined),
@@ -377,6 +401,32 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                             label={t("form.date")}
                             control={control}
                         />
+                        {!receiptId && (
+                            <FormCombobox
+                                control={control}
+                                name="supplier"
+                                label={t("suppliers.fields.supplier")}
+                                options={suppliers}
+                                labelKey="name"
+                                valueKey="id"
+                            />
+                        )}
+                        {!receiptId && !!form.watch("supplier") && (
+                            <FormCombobox
+                                required
+                                isClearIcon={false}
+                                isSearch={false}
+                                control={control}
+                                name="pay_type"
+                                label={t("suppliers.fields.pay_type")}
+                                options={[
+                                    { id: "debt", name: t("suppliers.pay.debt") },
+                                    { id: "cash", name: t("suppliers.pay.cash") },
+                                ]}
+                                labelKey="name"
+                                valueKey="id"
+                            />
+                        )}
                     </div>
 
                     <FormTextarea

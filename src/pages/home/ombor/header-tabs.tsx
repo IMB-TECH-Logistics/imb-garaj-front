@@ -32,6 +32,7 @@ const OmborHeaderTabs = () => {
                     {t("wh.tab_transfers")}
                 </TabsTrigger>
                 <TabsTrigger value="debts">{t("wh.tab_debts")}</TabsTrigger>
+                <TabsTrigger value="suppliers">{t("suppliers.title")}</TabsTrigger>
             </TabsList>
         </Tabs>
     )

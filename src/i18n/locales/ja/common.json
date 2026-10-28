@@ -3128,5 +3128,43 @@
             "balance": "残高",
             "repaid_sub": "返済済み: {{amount}}"
         }
+    },
+    "suppliers": {
+        "title": "仕入先",
+        "kassa_debt": "仕入先への債務",
+        "pay_hint": "支払いはレジから出金され「倉庫費用」に表示されます。",
+        "fields": {
+            "name": "仕入先",
+            "supplier": "仕入先",
+            "phone": "電話",
+            "comment": "コメント",
+            "date": "日付",
+            "kind": "種類",
+            "amount": "金額",
+            "pay_date": "支払日",
+            "pay_type": "支払方法"
+        },
+        "pay": {
+            "debt": "掛け",
+            "cash": "現金（レジから）"
+        },
+        "list": {
+            "taken": "受領商品",
+            "paid": "支払済み",
+            "debt": "債務残高",
+            "total_debt": "債務合計"
+        },
+        "tx": {
+            "in": "掛けで受領",
+            "out": "支払済み"
+        },
+        "actions": {
+            "add": "仕入先を追加",
+            "pay": "支払う",
+            "pay_title": "仕入先への支払い"
+        },
+        "errors": {
+            "max_debt": "債務残高を超えないでください"
+        }
     }
 }

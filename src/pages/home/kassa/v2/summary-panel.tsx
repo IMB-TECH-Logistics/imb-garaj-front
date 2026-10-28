@@ -7,6 +7,7 @@ import { endOfMonth, startOfMonth } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { ReactNode } from "react"
 import { n, usePeriod, Overview } from "./api"
+import { supplierRows, useSuppliersStore } from "../../ombor/suppliers-store"
 
 const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
     const { t } = useTranslation()
@@ -53,6 +54,11 @@ type SummaryPanelProps = {
 export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
+    const suppliers = useSuppliersStore((s) => s.suppliers)
+    const supplierTxs = useSuppliersStore((s) => s.txs)
+    const supplierDebts = supplierRows(suppliers, supplierTxs).filter((r) => r.debt > 0)
+    const supplierDebtTotal = supplierDebts.reduce((s, r) => s + r.debt, 0)
+    const openSuppliers = () => navigate({ to: "/ombor", search: { section: "suppliers" } as never })
     return (
         <Card className="xl:h-full min-h-0 overflow-hidden">
             <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
@@ -98,6 +104,12 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                     <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.other_expense?.garaj ?? sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
                     <Line sub label={t("fin.kv2.warehouse_expense")} value={-n(sm?.other_expense?.ombor)} {...lineProps("out_ombor", "fin.kv2.warehouse_expense")} />
                     <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.expense_other")} />
+                </Box>
+                <Box className="bg-amber-500/5 border-amber-500/30">
+                    <Line strong label={t("suppliers.kassa_debt")} value={supplierDebtTotal} onClick={openSuppliers} />
+                    {supplierDebts.map((r) => (
+                        <Line key={r.id} sub label={r.name} value={r.debt} onClick={openSuppliers} />
+                    ))}
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
                     <Line strong label={t("fin.kv2.closing_balance")} value={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total)} tone={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total) < 0 ? "red" : undefined} />

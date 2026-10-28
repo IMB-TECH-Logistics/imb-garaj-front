@@ -3122,5 +3122,43 @@
             "balance": "Qoldiq",
             "repaid_sub": "To'langan: {{amount}}"
         }
+    },
+    "suppliers": {
+        "title": "Ta'minotchilar",
+        "kassa_debt": "Ta'minotchilarga qarz",
+        "pay_hint": "To'lov kassadan chiqim bo'ladi va «Ombor xarajatlari»da ko'rinadi.",
+        "fields": {
+            "name": "Ta'minotchi",
+            "supplier": "Ta'minotchi",
+            "phone": "Telefon",
+            "comment": "Izoh",
+            "date": "Sana",
+            "kind": "Turi",
+            "amount": "Summa",
+            "pay_date": "To'langan sana",
+            "pay_type": "To'lov turi"
+        },
+        "pay": {
+            "debt": "Qarzga",
+            "cash": "Naqd (kassadan)"
+        },
+        "list": {
+            "taken": "Olingan tovar",
+            "paid": "To'langan",
+            "debt": "Qarz qoldig'i",
+            "total_debt": "Jami qarz"
+        },
+        "tx": {
+            "in": "Qarzga olindi",
+            "out": "To'landi"
+        },
+        "actions": {
+            "add": "Ta'minotchi qo'shish",
+            "pay": "To'lash",
+            "pay_title": "Ta'minotchiga to'lov"
+        },
+        "errors": {
+            "max_debt": "Qarz qoldig'idan ko'p bo'lmasin"
+        }
     }
 }

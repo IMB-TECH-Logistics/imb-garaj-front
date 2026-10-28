@@ -12,6 +12,7 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useProductCols } from "./cols"
 import DebtsSection from "./debts-section"
+import SuppliersSection from "./suppliers-section"
 import LinesSection from "./lines-section"
 import OtherStockSection from "./other-stock-section"
 import TransfersSection from "./transfers-section"
@@ -136,6 +137,8 @@ const Ombor = () => {
                 <TransfersSection />
             : section === "debts" ?
                 <DebtsSection />
+            : section === "suppliers" ?
+                <SuppliersSection />
             :   <Stock />}
         </div>
     )
