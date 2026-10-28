@@ -422,13 +422,11 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                         }
                     </div>
                     {!!fields.length && (
-                        <div className={`${LINE_GRID} px-2 pt-1 border-t`}>
-                            <span />
-                            <span className="col-span-2 text-right text-sm font-medium">{t("page.total")}</span>
-                            <span className="col-span-2 text-right font-semibold tabular-nums whitespace-nowrap">
+                        <div className="flex items-baseline justify-end gap-2 px-2 pt-2 pr-[52px] border-t">
+                            <span className="text-sm text-muted-foreground">{t("page.total")}:</span>
+                            <span className="font-semibold tabular-nums whitespace-nowrap">
                                 {formatMoneyText(total)} {t("page.som")}
                             </span>
-                            <span />
                         </div>
                     )}
                 </div>
