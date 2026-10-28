@@ -14,7 +14,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { AddInvestmentForm, LoanTxFormView } from "./forms"
 import { StatCard } from "./index"
-import { Investment, LoanTxRow, investorRows, loanLedger, pct, useInvestorsStore, usd } from "./store"
+import { Investment, LoanTxRow, investorRows, loanLedger, pct, som, useInvestorsStore, usd } from "./store"
 
 const d = (v: string | null) => (v ? format(new Date(v), "dd.MM.yyyy") : "—")
 
@@ -81,14 +81,14 @@ const InvestorDetail = ({ id }: { id: number }) => {
                 header: t("investors.fields.amount"),
                 cell: ({ row }) => (
                     <span className={cn("tabular-nums font-medium", row.original.dir === "in" ? "text-amber-600" : "text-green-600")}>
-                        {row.original.dir === "in" ? "+" : "−"} {usd(row.original.amount)}
+                        {row.original.dir === "in" ? "+" : "−"} {som(row.original.amount)}
                     </span>
                 ),
             },
             {
                 accessorKey: "balance",
                 header: t("investors.loan_tx.balance"),
-                cell: ({ row }) => <span className="tabular-nums font-semibold">{usd(row.original.balance)}</span>,
+                cell: ({ row }) => <span className="tabular-nums font-semibold">{som(row.original.balance)}</span>,
             },
             { accessorKey: "comment", header: t("investors.fields.comment"), cell: ({ row }) => row.original.comment || "—" },
         ],
@@ -124,8 +124,8 @@ const InvestorDetail = ({ id }: { id: number }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 <StatCard label={t("investors.list.invested")} value={usd(row.invested)} />
                 <StatCard label={t("investors.list.share")} value={pct(row.share)} />
-                <StatCard label={t("investors.list.loaned")} value={usd(row.loaned)} sub={t("investors.loan_tx.repaid_sub", { amount: usd(row.repaid) })} />
-                <StatCard label={t("investors.list.loan_left")} value={usd(row.loan_left)} tone={row.loan_left ? "warn" : undefined} />
+                <StatCard label={t("investors.list.loaned")} value={som(row.loaned)} sub={t("investors.loan_tx.repaid_sub", { amount: som(row.repaid) })} />
+                <StatCard label={t("investors.list.loan_left")} value={som(row.loan_left)} tone={row.loan_left ? "warn" : undefined} />
             </div>
 
             <Card>

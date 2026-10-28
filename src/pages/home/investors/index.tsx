@@ -9,7 +9,7 @@ import { Plus } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { AddInvestorForm } from "./forms"
-import { InvestorRow, investorRows, pct, useInvestorsStore, usd } from "./store"
+import { InvestorRow, investorRows, pct, som, useInvestorsStore, usd } from "./store"
 
 export const StatCard = ({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "warn" }) => (
     <Card>
@@ -64,14 +64,14 @@ const InvestorsPage = () => {
             {
                 accessorKey: "loaned",
                 header: t("investors.list.loaned"),
-                cell: ({ row }) => <span className="tabular-nums">{row.original.loaned ? usd(row.original.loaned) : "—"}</span>,
+                cell: ({ row }) => <span className="tabular-nums">{row.original.loaned ? som(row.original.loaned) : "—"}</span>,
             },
             {
                 accessorKey: "loan_left",
                 header: t("investors.list.loan_left"),
                 cell: ({ row }) => (
                     <span className={`tabular-nums ${row.original.loan_left ? "font-medium text-amber-600" : ""}`}>
-                        {row.original.loan_left ? usd(row.original.loan_left) : "—"}
+                        {row.original.loan_left ? som(row.original.loan_left) : "—"}
                     </span>
                 ),
             },
@@ -94,7 +94,7 @@ const InvestorsPage = () => {
                 <StatCard label={t("investors.list.total_invested")} value={usd(totalInvested)} />
                 <StatCard
                     label={t("investors.list.total_loan_left")}
-                    value={usd(totalLoanLeft)}
+                    value={som(totalLoanLeft)}
                     sub={debtors ? t("investors.list.debt_to", { count: debtors }) : undefined}
                     tone={totalLoanLeft ? "warn" : undefined}
                 />

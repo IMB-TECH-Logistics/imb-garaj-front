@@ -55,10 +55,10 @@ const SAMPLE = {
         { id: 5, investor_id: 2, date: "2026-09-05", kind: "cash" as const, vehicle: "", amount: 10_000, comment: "Aylanma uchun" },
     ],
     loanTxs: [
-        { id: 1, investor_id: 1, date: "2026-10-03", dir: "in" as const, amount: 200, comment: "Yoqilg'i uchun kassa yetmadi" },
-        { id: 2, investor_id: 1, date: "2026-10-08", dir: "in" as const, amount: 200, comment: "" },
-        { id: 3, investor_id: 1, date: "2026-10-20", dir: "out" as const, amount: 300, comment: "" },
-        { id: 4, investor_id: 2, date: "2026-10-15", dir: "in" as const, amount: 2_000, comment: "" },
+        { id: 1, investor_id: 1, date: "2026-10-03", dir: "in" as const, amount: 2_000_000, comment: "Yoqilg'i uchun kassa yetmadi" },
+        { id: 2, investor_id: 1, date: "2026-10-08", dir: "in" as const, amount: 2_000_000, comment: "" },
+        { id: 3, investor_id: 1, date: "2026-10-20", dir: "out" as const, amount: 3_000_000, comment: "" },
+        { id: 4, investor_id: 2, date: "2026-10-15", dir: "in" as const, amount: 5_000_000, comment: "" },
     ],
 }
 
@@ -74,7 +74,7 @@ export const useInvestorsStore = create<State>()(
             addInvestment: (v) => set((s) => ({ investments: [...s.investments, { ...v, id: nextId(s.investments) }] })),
             addLoanTx: (v) => set((s) => ({ loanTxs: [...s.loanTxs, { ...v, id: nextId(s.loanTxs) }] })),
         }),
-        { name: "investors-ui-sample-v2" },
+        { name: "investors-ui-sample-v3" },
     ),
 )
 
@@ -118,5 +118,7 @@ export const investorRows = (s: Pick<State, "investors" | "investments" | "loanT
 }
 
 export const usd = (v: number) => `$ ${Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")}`
+
+export const som = (v: number) => `${Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} so'm`
 
 export const pct = (v: number) => `${v.toFixed(1).replace(".", ",").replace(",0", "")}%`

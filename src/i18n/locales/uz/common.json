@@ -3075,6 +3075,7 @@
             "vehicle": "Avtomobil raqami",
             "amount": "Summa",
             "amount_usd": "Summa, $",
+            "amount_som": "Summa, so'm",
             "loan_date": "Qarz olingan sana",
             "due_date": "Qaytarish muddati",
             "repay_date": "To'langan sana"

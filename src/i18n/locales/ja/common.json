@@ -3081,6 +3081,7 @@
             "vehicle": "車両番号",
             "amount": "金額",
             "amount_usd": "金額（$）",
+            "amount_som": "金額（スム）",
             "loan_date": "借入日",
             "due_date": "返済期限",
             "repay_date": "返済日"

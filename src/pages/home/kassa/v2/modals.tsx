@@ -55,6 +55,7 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
     const post = useKassaPost(closeModal)
     const patch = useKassaPatch(closeModal)
     const investors = useInvestorsStore((s) => s.investors)
+    const addLoanTx = useInvestorsStore((s) => s.addLoanTx)
     const OTHER = "__other__"
     const sourceOptions = useMemo(() => {
         const names = investors.map((i) => i.name)
@@ -79,7 +80,18 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
                 const url = out ? KV2_EXPENSE : KV2_INCOME
                 const done = out ? t("fin.kv2.cash_out_done") : t("fin.kv2.cash_in_done")
                 if (editing) patch.mutate(`${url}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
-                else post.mutate(url, body, { onSuccess: () => toast.success(done), onError: onErr })
+                else {
+                    const investor = !out ? investors.find((i) => i.name === v.source) : undefined
+                    post.mutate(url, body, {
+                        onSuccess: () => {
+                            if (investor) {
+                                addLoanTx({ investor_id: investor.id, date: v.date.slice(0, 10), dir: "in", amount: Number(v.amount), comment: v.comment })
+                            }
+                            toast.success(done)
+                        },
+                        onError: onErr,
+                    })
+                }
             })}
         >
             {!out && <FormCombobox required control={form.control} name="source" label={t("fin.kv2.received_from")} options={sourceOptions} valueKey="id" labelKey="name" />}

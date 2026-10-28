@@ -9,7 +9,7 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { InvestmentKind, LoanDir, useInvestorsStore, usd } from "./store"
+import { InvestmentKind, LoanDir, som, useInvestorsStore, usd } from "./store"
 
 const today = () => format(new Date(), "yyyy-MM-dd")
 
@@ -24,7 +24,7 @@ const SubmitRow = () => {
     )
 }
 
-const AmountField = ({ control, label, max }: { control: any; label: string; max?: number }) => {
+const AmountField = ({ control, label, max, fmt = usd }: { control: any; label: string; max?: number; fmt?: (v: number) => string }) => {
     const { t } = useTranslation()
     return (
         <FormNumberInput
@@ -40,7 +40,7 @@ const AmountField = ({ control, label, max }: { control: any; label: string; max
                 validate: (v: unknown) => {
                     const n = Number(v)
                     if (!(n > 0)) return t("investors.errors.gt_zero")
-                    if (max !== undefined && n > max) return t("investors.errors.max_left", { amount: usd(max) })
+                    if (max !== undefined && n > max) return t("investors.errors.max_left", { amount: fmt(max) })
                     return true
                 },
             }}
@@ -151,7 +151,7 @@ export const LoanTxFormView = ({ investorId, dir, balance }: { investorId: numbe
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
             <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t("investors.list.loan_left")}</span>
-                <span className="font-semibold tabular-nums">{usd(balance)}</span>
+                <span className="font-semibold tabular-nums">{som(balance)}</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormDatePicker
@@ -163,8 +163,9 @@ export const LoanTxFormView = ({ investorId, dir, balance }: { investorId: numbe
                 />
                 <AmountField
                     control={form.control}
-                    label={t("investors.fields.amount_usd")}
+                    label={t("investors.fields.amount_som")}
                     max={dir === "out" ? balance : undefined}
+                    fmt={som}
                 />
             </div>
             <FormTextarea name="comment" label={t("investors.fields.comment")} methods={form} rows={3} />

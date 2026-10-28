@@ -3078,6 +3078,7 @@
             "vehicle": "Vehicle plate",
             "amount": "Amount",
             "amount_usd": "Amount, $",
+            "amount_som": "Amount, UZS",
             "loan_date": "Loan date",
             "due_date": "Due date",
             "repay_date": "Payment date"
