@@ -1427,7 +1427,7 @@
             "expense_other": "その他の費用",
             "col_from": "送金元",
             "col_to": "送金先",
-            "garage_cash_expense": "ガレージ費用（現金）",
+            "garage_cash_expense": "修理と車検",
             "warehouse_expense": "倉庫費用",
             "reversed_incomes": "取消済み入金",
             "drivers_hand": "ドライバーへの支給",

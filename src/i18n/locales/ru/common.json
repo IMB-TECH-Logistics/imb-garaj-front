@@ -1430,7 +1430,7 @@
             "expense_other": "Прочие расходы",
             "col_from": "Откуда",
             "col_to": "Куда",
-            "garage_cash_expense": "Расходы гаража (наличные)",
+            "garage_cash_expense": "Ремонт и техосмотр",
             "warehouse_expense": "Складские расходы",
             "reversed_incomes": "Отменённые приходы",
             "drivers_hand": "На руки водителям",
