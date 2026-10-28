@@ -16,6 +16,7 @@ import {
     Users,
     Wallet,
     HandCoins,
+    Contact,
 } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -337,6 +338,12 @@ export const useItems = () => {
                         path: "/investor-royxati",
                         allowKey: "investor_view",
                     },
+                    {
+                        label: t("nav.contragents"),
+                        icon: <Contact width={18} />,
+                        path: "/kontragentlar",
+                        allowKey: "investor_view",
+                    },
                 ]
             :   []),
             {
@@ -375,12 +382,16 @@ export const useItems = () => {
                 path: "/ombor",
                 allowKey: "warehouse_view",
             },
-            {
-                label: t("nav.finance"),
-                icon: <Coins width={18} />,
-                path: "/moliya",
-                allowKey: "finance_view",
-            },
+            ...(investorsV1 ?
+                []
+            :   [
+                    {
+                        label: t("nav.finance"),
+                        icon: <Coins width={18} />,
+                        path: "/moliya",
+                        allowKey: "finance_view",
+                    },
+                ]),
             {
                 label: t("nav.settings"),
                 icon: <Settings width={18} />,

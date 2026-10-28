@@ -41,7 +41,8 @@
         "route_norms": "ルート基準値",
         "alerts": "アラート",
         "garage_areas": "ガレージエリア",
-        "investors_list": "投資家一覧"
+        "investors_list": "投資家一覧",
+        "contragents": "取引先"
     },
     "actions": {
         "reverse_salary": "取り消す",
@@ -3184,6 +3185,56 @@
         },
         "errors": {
             "max_debt": "債務残高を超えないでください"
+        }
+    },
+    "contragent": {
+        "title": "取引先",
+        "add": "取引先を追加",
+        "not_found": "取引先が見つかりません",
+        "all": "すべて",
+        "settled": "精算済み",
+        "we_owe": "当社の債務",
+        "they_owe": "当社への債務",
+        "we_owe_short": "当社債務",
+        "they_owe_short": "先方債務",
+        "stat_we_owe": "当社の債務",
+        "stat_they_owe": "当社への債務",
+        "stat_total": "取引先数",
+        "stat_count": "{{count}} 件",
+        "type": {
+            "investor": "投資家",
+            "supplier": "仕入先",
+            "client": "顧客",
+            "other": "その他"
+        },
+        "kind": {
+            "cash": "現金",
+            "goods": "商品",
+            "service": "サービス",
+            "trip": "運行"
+        },
+        "fields": {
+            "name": "名称",
+            "type": "種類",
+            "phone": "電話",
+            "comment": "コメント",
+            "balance": "残高",
+            "tx_count": "件数",
+            "last": "最終取引",
+            "date": "日付",
+            "kind": "種類",
+            "amount": "金額（スム）"
+        },
+        "tx": {
+            "title": "取引",
+            "in": "受取",
+            "out": "支払",
+            "in_btn": "受取 (+)",
+            "out_btn": "支払 (−)",
+            "in_total": "受取合計",
+            "out_total": "支払合計",
+            "in_hint": "取引先から現金・商品・サービスを受け取りました — 当社の債務が増えます。",
+            "out_hint": "取引先に現金・商品・サービスを渡しました — 当社の債務が減ります。"
         }
     }
 }

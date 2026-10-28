@@ -41,7 +41,8 @@
         "route_norms": "Route norms",
         "alerts": "Alerts",
         "garage_areas": "Garage areas",
-        "investors_list": "Investor list"
+        "investors_list": "Investor list",
+        "contragents": "Counterparties"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -3181,6 +3182,56 @@
         },
         "errors": {
             "max_debt": "Must not exceed the debt balance"
+        }
+    },
+    "contragent": {
+        "title": "Counterparties",
+        "add": "Add counterparty",
+        "not_found": "Counterparty not found",
+        "all": "All",
+        "settled": "Settled",
+        "we_owe": "We owe",
+        "they_owe": "Owes us",
+        "we_owe_short": "we owe",
+        "they_owe_short": "owes us",
+        "stat_we_owe": "We owe",
+        "stat_they_owe": "Owed to us",
+        "stat_total": "Counterparties",
+        "stat_count": "{{count}} counterparties",
+        "type": {
+            "investor": "Investor",
+            "supplier": "Supplier",
+            "client": "Client",
+            "other": "Other"
+        },
+        "kind": {
+            "cash": "Cash",
+            "goods": "Goods",
+            "service": "Service",
+            "trip": "Trip"
+        },
+        "fields": {
+            "name": "Name",
+            "type": "Type",
+            "phone": "Phone",
+            "comment": "Comment",
+            "balance": "Balance",
+            "tx_count": "Entries",
+            "last": "Last activity",
+            "date": "Date",
+            "kind": "Type",
+            "amount": "Amount, UZS"
+        },
+        "tx": {
+            "title": "Transactions",
+            "in": "We received",
+            "out": "We gave",
+            "in_btn": "We received (+)",
+            "out_btn": "We gave (−)",
+            "in_total": "Received by us",
+            "out_total": "Given by us",
+            "in_hint": "The counterparty gave us money, goods or a service — our debt grows (or theirs shrinks).",
+            "out_hint": "We gave the counterparty money, goods or a service — our debt shrinks (or they now owe us)."
         }
     }
 }

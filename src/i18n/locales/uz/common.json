@@ -41,7 +41,8 @@
         "route_norms": "Yo'nalish normalari",
         "alerts": "Ogohlantirishlar",
         "garage_areas": "Garaj hududlari",
-        "investors_list": "Investorlar ro'yxati"
+        "investors_list": "Investorlar ro'yxati",
+        "contragents": "Kontragentlar"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -3178,6 +3179,56 @@
         },
         "errors": {
             "max_debt": "Qarz qoldig'idan ko'p bo'lmasin"
+        }
+    },
+    "contragent": {
+        "title": "Kontragentlar",
+        "add": "Kontragent qo'shish",
+        "not_found": "Kontragent topilmadi",
+        "all": "Hammasi",
+        "settled": "Hisob-kitob yo'q",
+        "we_owe": "Biz qarzdormiz",
+        "they_owe": "U bizdan qarzdor",
+        "we_owe_short": "biz qarzdor",
+        "they_owe_short": "u qarzdor",
+        "stat_we_owe": "Biz qarzdormiz",
+        "stat_they_owe": "Bizga qarzdorlar",
+        "stat_total": "Kontragentlar soni",
+        "stat_count": "{{count}} ta kontragent",
+        "type": {
+            "investor": "Investor",
+            "supplier": "Ta'minotchi",
+            "client": "Mijoz",
+            "other": "Boshqa"
+        },
+        "kind": {
+            "cash": "Pul",
+            "goods": "Tovar",
+            "service": "Xizmat",
+            "trip": "Reys"
+        },
+        "fields": {
+            "name": "Nomi",
+            "type": "Turi",
+            "phone": "Telefon",
+            "comment": "Izoh",
+            "balance": "Qoldiq",
+            "tx_count": "Yozuvlar",
+            "last": "Oxirgi harakat",
+            "date": "Sana",
+            "kind": "Turi",
+            "amount": "Summa, so'm"
+        },
+        "tx": {
+            "title": "Tranzaksiyalar",
+            "in": "Biz oldik",
+            "out": "Biz berdik",
+            "in_btn": "Biz oldik (+)",
+            "out_btn": "Biz berdik (−)",
+            "in_total": "Biz olganimiz",
+            "out_total": "Biz berganimiz",
+            "in_hint": "Kontragent bizga pul, tovar yoki xizmat berdi — bizning qarzimiz oshadi (yoki uning qarzi kamayadi).",
+            "out_hint": "Biz kontragentga pul, tovar yoki xizmat berdik — bizning qarzimiz kamayadi (yoki u bizdan qarzdor bo'ladi)."
         }
     }
 }
