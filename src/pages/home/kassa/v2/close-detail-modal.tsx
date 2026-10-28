@@ -75,9 +75,11 @@ export const TripExpensesModal = ({ trip }: { trip: KassaTrip | null }) => {
         <Modal modalKey={TRIP_EXP_MODAL} title={trip ? t("fin.kv2.trip_expenses_title", { id: trip.id }) : ""} size="max-w-md">
             {trip && (
                 <div className="flex flex-col gap-3">
-                    <p className="text-sm text-muted-foreground">
-                        {[trip.driver_name, trip.plate, tripPeriod(trip.start, trip.end, t("fin.kv2.ongoing"))].filter(Boolean).join(" · ")}
-                    </p>
+                    <div className="rounded-lg border px-3 divide-y">
+                        <DetailRow label={t("table.driver")}><span className="font-medium">{trip.driver_name || "—"}</span></DetailRow>
+                        <DetailRow label={t("table.vehicle")}><span className="font-medium">{trip.plate || "—"}</span></DetailRow>
+                        <DetailRow label={t("fin.kv2.turnover_period")}><span className="tabular-nums whitespace-nowrap">{tripPeriod(trip.start, trip.end, t("fin.kv2.ongoing"))}</span></DetailRow>
+                    </div>
                     <TripExpenses trip={trip.id} modalKey={TRIP_EXP_MODAL} />
                 </div>
             )}
