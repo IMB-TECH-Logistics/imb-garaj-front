@@ -1419,7 +1419,7 @@
             "cash_balance": "現金残高",
             "opening_balance": "期首残高",
             "from_external": "投資家/借入",
-            "investor_loans": "借入",
+            "investor_loans": "その他の入金",
             "vst_trip_payment": "VST 運行代金",
             "street_trip_cash": "路上運行代金",
             "trip_cash": "運行現金",

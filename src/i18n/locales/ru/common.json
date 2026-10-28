@@ -1422,7 +1422,7 @@
             "cash_balance": "Остаток кассы",
             "opening_balance": "На начало периода",
             "from_external": "Инвестор/Займ",
-            "investor_loans": "Займы",
+            "investor_loans": "Другой источник",
             "vst_trip_payment": "Оплата рейсов VST",
             "street_trip_cash": "Оплата уличных рейсов",
             "trip_cash": "Наличные за рейс",

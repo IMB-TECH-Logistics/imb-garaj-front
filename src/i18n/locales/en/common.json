@@ -1416,7 +1416,7 @@
             "cash_balance": "Cash balance",
             "opening_balance": "Opening balance",
             "from_external": "Investor/Loan",
-            "investor_loans": "Loans",
+            "investor_loans": "Other source",
             "vst_trip_payment": "VST trip payments",
             "street_trip_cash": "Street trip payments",
             "trip_cash": "Cash trip money",
