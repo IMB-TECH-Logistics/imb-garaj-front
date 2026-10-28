@@ -98,7 +98,6 @@ const Stock = () => {
                             </DownloadAsExcel>
                             {isOwner && hasControl && (
                                 <Button
-                                    variant="outline"
                                     icon={<ShoppingCart size={16} />}
                                     onClick={openSale}
                                 >
