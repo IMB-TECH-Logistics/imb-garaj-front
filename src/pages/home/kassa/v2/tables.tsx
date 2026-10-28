@@ -5,6 +5,7 @@ import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
+import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { Check, Download, RotateCcw, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
@@ -18,9 +19,11 @@ import {
     KV2_REQUESTS,
     KV2_TRANSACTIONS,
     Paged,
+    n,
     STATUS,
     useKassaPost,
     useKassaRoles,
+    useOverview,
     usePeriod,
 } from "./api"
 import { Money, Party, DateCell, Head, Filter } from "./table-cells"
@@ -53,6 +56,21 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const [kindF, setKindF] = useState("all")
     const params = { ...period, ...usePaging(), dir: group || dir === "all" ? undefined : dir, kind: group || kindF === "all" ? undefined : kindF, group: group || undefined }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
+    const { data: overview } = useOverview()
+    const { data: allPeriod } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
+    const balances = useMemo(() => {
+        const byTx = new Map<number, number>()
+        const byClose = new Map<number, number>()
+        let balance = n(overview?.summary?.opening)
+        ;[...(allPeriod?.results ?? [])]
+            .sort((a, b) => a.created.localeCompare(b.created) || a.id - b.id)
+            .forEach((tx) => {
+                balance += tx.dir === "in" ? n(tx.amount) : -n(tx.amount)
+                byTx.set(tx.id, balance)
+                if (tx.close) byClose.set(tx.close.id, balance)
+            })
+        return { byTx, byClose }
+    }, [allPeriod, overview])
     const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
     const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)), [reqData])
     const pendingCount = reqs.filter((q) => q.status === STATUS.PENDING).length
@@ -104,9 +122,15 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 accessorKey: "amount",
                 cell: ({ row }) => {
                     const r = row.original
+                    const bal = r.req ? undefined : r.close ? balances.byClose.get(r.close.id) : balances.byTx.get(r.id)
                     const body = (
                         <>
                             <Money v={r.amount} dir={r.dir} />
+                            {bal !== undefined && (
+                                <span className={cn("text-xs tabular-nums whitespace-nowrap text-muted-foreground no-underline", bal < 0 && "text-destructive/80")}>
+                                    {t("fin.kv2.opening_ledger_balance")}: {formatMoney(bal)}
+                                </span>
+                            )}
                             {r.close && (
                                 <span className="text-xs text-muted-foreground whitespace-nowrap underline decoration-dotted underline-offset-2">
                                     {r.dir === "in" ? t("fin.kv2.takes") : t("fin.kv2.gives")}
@@ -128,7 +152,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 },
             },
         ],
-        [t],
+        [t, balances],
     )
     return (
         <DataTable
