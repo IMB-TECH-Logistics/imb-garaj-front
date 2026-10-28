@@ -67,22 +67,85 @@ const TripExpenses = ({ trip, modalKey = DETAIL_MODAL }: { trip: number; modalKe
     )
 }
 
+const ExpenseList = ({ title, rows, tone }: { title: string; rows: ExpenseLine[]; tone: "cash" | "other" }) => {
+    const { t } = useTranslation()
+    const total = rows.reduce((a, e) => a + Math.abs(n(e.amount)), 0)
+    return (
+        <section className="rounded-xl border overflow-hidden">
+            <header className="flex items-center justify-between gap-3 px-4 py-3 bg-muted/40 border-b">
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", tone === "cash" ? "bg-primary" : "bg-amber-500")} />
+                    <span className="font-medium">{title}</span>
+                    <span className="text-xs text-muted-foreground">{rows.length}</span>
+                </div>
+                <span className="font-semibold tabular-nums whitespace-nowrap">{rows.length ? `${money(total)} ${t("page.som")}` : "—"}</span>
+            </header>
+            {rows.length ?
+                <ul className="divide-y max-h-64 overflow-y-auto">
+                    {rows.map((e) => {
+                        const extra = [e.station, e.payment_type, e.route].filter(Boolean).join(" · ")
+                        return (
+                            <li key={e.id} className="flex items-start justify-between gap-4 px-4 py-2.5">
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-sm font-medium truncate">{e.category_name || t("fin.kv2.expense_other")}</span>
+                                    <span className="text-xs text-muted-foreground truncate">
+                                        {fmtDate(e.date)}
+                                        {extra ? ` · ${extra}` : ""}
+                                        {e.comment ? ` · ${e.comment}` : ""}
+                                    </span>
+                                </div>
+                                <span className="text-sm tabular-nums whitespace-nowrap">{money(Math.abs(n(e.amount)))}</span>
+                            </li>
+                        )
+                    })}
+                </ul>
+            :   <p className="px-4 py-4 text-sm text-muted-foreground">{t("fin.kv2.no_expenses")}</p>}
+        </section>
+    )
+}
+
+const TripExpensesBody = ({ trip }: { trip: KassaTrip }) => {
+    const { t } = useTranslation()
+    const { isOpen } = useModal(TRIP_EXP_MODAL)
+    const { data, isLoading } = useGet<ClosePreview>(`${KV2_TRIPS}/${trip.id}/close-preview`, { enabled: isOpen, options: { staleTime: 0 } })
+    const info = [
+        [t("table.driver"), trip.driver_name || "—"],
+        [t("table.vehicle"), trip.plate || "—"],
+        [t("fin.kv2.turnover_period"), tripPeriod(trip.start, trip.end, t("fin.kv2.ongoing"))],
+    ]
+    const total = data ? n(data.spent) + n(data.other_spent) : 0
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {info.map(([label, value]) => (
+                    <div key={label} className="rounded-xl border bg-muted/20 px-4 py-3 flex flex-col gap-0.5 min-w-0">
+                        <span className="text-xs text-muted-foreground">{label}</span>
+                        <span className="font-semibold tabular-nums break-words" title={value}>{value}</span>
+                    </div>
+                ))}
+            </div>
+            {isLoading || !data ?
+                <p className="text-sm text-muted-foreground">{t("messages.loading")}</p>
+            :   <>
+                    <ExpenseList title={t("fin.kv2.expenses_cash")} rows={data.expenses} tone="cash" />
+                    <ExpenseList title={t("fin.kv2.other_expenses")} rows={data.other_expenses ?? []} tone="other" />
+                    <div className="rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3 flex items-center justify-between gap-3">
+                        <span className="font-semibold">{t("fin.kv2.total_expenses")}</span>
+                        <span className="text-lg font-bold tabular-nums whitespace-nowrap text-destructive">{money(total)} {t("page.som")}</span>
+                    </div>
+                </>
+            }
+        </div>
+    )
+}
+
 export const TRIP_EXP_MODAL = "kassa-v2-trip-expenses"
 
 export const TripExpensesModal = ({ trip }: { trip: KassaTrip | null }) => {
     const { t } = useTranslation()
     return (
-        <Modal modalKey={TRIP_EXP_MODAL} title={trip ? t("fin.kv2.trip_expenses_title", { id: trip.id }) : ""} size="max-w-md">
-            {trip && (
-                <div className="flex flex-col gap-3">
-                    <div className="rounded-lg border px-3 divide-y">
-                        <DetailRow label={t("table.driver")}><span className="font-medium">{trip.driver_name || "—"}</span></DetailRow>
-                        <DetailRow label={t("table.vehicle")}><span className="font-medium">{trip.plate || "—"}</span></DetailRow>
-                        <DetailRow label={t("fin.kv2.turnover_period")}><span className="tabular-nums whitespace-nowrap">{tripPeriod(trip.start, trip.end, t("fin.kv2.ongoing"))}</span></DetailRow>
-                    </div>
-                    <TripExpenses trip={trip.id} modalKey={TRIP_EXP_MODAL} />
-                </div>
-            )}
+        <Modal modalKey={TRIP_EXP_MODAL} title={trip ? t("fin.kv2.trip_expenses_title", { id: trip.id }) : ""} size="max-w-2xl">
+            {trip && <TripExpensesBody trip={trip} />}
         </Modal>
     )
 }
