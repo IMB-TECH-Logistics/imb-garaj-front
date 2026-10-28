@@ -60,7 +60,7 @@ export type Overview = {
         drivers_closing?: number
         income: { total: number; external: number; trip_cash: number; reversals: number }
         expense: { total: number; cash: number; fuel?: number; other?: number; salary_cash?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
-        other_expense?: { total: number; garaj: number; chiqim: number }
+        other_expense?: { total: number; garaj: number; chiqim: number; ombor?: number }
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
     balance: number
