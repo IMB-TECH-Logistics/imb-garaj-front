@@ -82,9 +82,9 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
                 else post.mutate(url, body, { onSuccess: () => toast.success(done), onError: onErr })
             })}
         >
+            {!out && <FormCombobox required control={form.control} name="source" label={t("fin.kv2.received_from")} options={sourceOptions} valueKey="id" labelKey="name" />}
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
-            {!out && <FormCombobox required control={form.control} name="source" label={t("fin.kv2.received_from")} options={sourceOptions} valueKey="id" labelKey="name" />}
             {out && (
                 <div className="flex flex-col gap-1">
                     <FormMultiCombobox control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
