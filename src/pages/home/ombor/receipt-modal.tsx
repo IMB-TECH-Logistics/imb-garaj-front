@@ -93,7 +93,7 @@ type CardProps = {
 }
 
 const MAX_QTY = 1_000_000
-const MAX_PRICE = 100_000_000_000
+const MAX_PRICE = 10_000_000_000
 
 const LINE_GRID = "grid grid-cols-[28px_minmax(0,1fr)_110px_160px_150px_36px] items-center gap-2"
 
@@ -421,6 +421,16 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                             </div>
                         }
                     </div>
+                    {!!fields.length && (
+                        <div className={`${LINE_GRID} px-2 pt-1 border-t`}>
+                            <span />
+                            <span className="col-span-3 text-right text-sm font-medium">{t("page.total")}</span>
+                            <span className="text-right font-semibold tabular-nums truncate min-w-0" title={formatMoneyText(total)}>
+                                {formatMoneyText(total)} {t("page.som")}
+                            </span>
+                            <span />
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -455,11 +465,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
             </section>
 
             {!receiptId ?
-                <section className="rounded-lg border bg-muted/20 p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-sm text-muted-foreground">{t("page.total")}</span>
-                        <span className="h-10 flex items-center gap-1 font-semibold tabular-nums">{formatMoney(total)} {t("page.som")}</span>
-                    </div>
+                <section className="rounded-lg border bg-muted/20 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                     <FormNumberInput
                         name="paid_now"
                         label={t("wh.receipt.paid_now")}
@@ -468,6 +474,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                         allowNegative={false}
                         decimalScale={0}
                         thousandSeparator=" "
+                        isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= total}
                     />
                     <div className="flex flex-col gap-1">
                         <span className="text-sm text-muted-foreground">{t("wh.receipt.left_as_debt")}</span>
@@ -475,7 +482,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                             {formatMoney(debtLeft)} {t("page.som")}
                         </span>
                     </div>
-                    <p className="sm:col-span-3 text-xs text-muted-foreground">{t("wh.receipt.paid_now_hint")}</p>
+                    <p className="sm:col-span-2 text-xs text-muted-foreground">{t("wh.receipt.paid_now_hint")}</p>
                 </section>
             :   <div className="rounded-lg bg-muted/60 p-3 flex items-center justify-between gap-3">
                     <div className="font-medium">{t("page.total")}</div>
