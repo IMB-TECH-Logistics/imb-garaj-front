@@ -26,10 +26,10 @@ const OmborHeaderTabs = () => {
         >
             <TabsList className="gap-2 bg-transparent">
                 <TabsTrigger value="stock">{t("wh.tab_stock")}</TabsTrigger>
-                <TabsTrigger value="catalog">{t("wh.catalog")}</TabsTrigger>
-                <TabsTrigger value="units">{t("wh.units")}</TabsTrigger>
                 <TabsTrigger value="moves">{t("wh.tab_moves")}</TabsTrigger>
                 <TabsTrigger value="suppliers">{t("suppliers.title")}</TabsTrigger>
+                <TabsTrigger value="catalog">{t("wh.catalog")}</TabsTrigger>
+                <TabsTrigger value="units">{t("wh.units")}</TabsTrigger>
             </TabsList>
         </Tabs>
     )
