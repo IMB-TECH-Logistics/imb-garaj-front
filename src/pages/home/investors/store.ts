@@ -20,19 +20,13 @@ export type Investment = {
     comment: string
 }
 
-export type Loan = {
+export type LoanDir = "in" | "out"
+
+export type LoanTx = {
     id: number
     investor_id: number
     date: string
-    due_date: string | null
-    amount: number
-    comment: string
-}
-
-export type Repayment = {
-    id: number
-    loan_id: number
-    date: string
+    dir: LoanDir
     amount: number
     comment: string
 }
@@ -40,12 +34,10 @@ export type Repayment = {
 type State = {
     investors: Investor[]
     investments: Investment[]
-    loans: Loan[]
-    repayments: Repayment[]
+    loanTxs: LoanTx[]
     addInvestor: (v: Omit<Investor, "id">) => number
     addInvestment: (v: Omit<Investment, "id">) => void
-    addLoan: (v: Omit<Loan, "id">) => void
-    addRepayment: (v: Omit<Repayment, "id">) => void
+    addLoanTx: (v: Omit<LoanTx, "id">) => void
 }
 
 const nextId = (rows: { id: number }[]) => rows.reduce((m, r) => Math.max(m, r.id), 0) + 1
@@ -62,12 +54,11 @@ const SAMPLE = {
         { id: 4, investor_id: 1, date: "2026-09-05", kind: "cash" as const, vehicle: "", amount: 10_000, comment: "Aylanma uchun" },
         { id: 5, investor_id: 2, date: "2026-09-05", kind: "cash" as const, vehicle: "", amount: 10_000, comment: "Aylanma uchun" },
     ],
-    loans: [
-        { id: 1, investor_id: 1, date: "2026-10-03", due_date: "2026-11-03", amount: 5_000, comment: "Yoqilg'i uchun kassa yetmadi" },
-        { id: 2, investor_id: 2, date: "2026-10-15", due_date: null, amount: 2_000, comment: "" },
-    ],
-    repayments: [
-        { id: 1, loan_id: 1, date: "2026-10-20", amount: 2_000, comment: "" },
+    loanTxs: [
+        { id: 1, investor_id: 1, date: "2026-10-03", dir: "in" as const, amount: 200, comment: "Yoqilg'i uchun kassa yetmadi" },
+        { id: 2, investor_id: 1, date: "2026-10-08", dir: "in" as const, amount: 200, comment: "" },
+        { id: 3, investor_id: 1, date: "2026-10-20", dir: "out" as const, amount: 300, comment: "" },
+        { id: 4, investor_id: 2, date: "2026-10-15", dir: "in" as const, amount: 2_000, comment: "" },
     ],
 }
 
@@ -81,46 +72,47 @@ export const useInvestorsStore = create<State>()(
                 return id
             },
             addInvestment: (v) => set((s) => ({ investments: [...s.investments, { ...v, id: nextId(s.investments) }] })),
-            addLoan: (v) => set((s) => ({ loans: [...s.loans, { ...v, id: nextId(s.loans) }] })),
-            addRepayment: (v) => set((s) => ({ repayments: [...s.repayments, { ...v, id: nextId(s.repayments) }] })),
+            addLoanTx: (v) => set((s) => ({ loanTxs: [...s.loanTxs, { ...v, id: nextId(s.loanTxs) }] })),
         }),
-        { name: "investors-ui-sample-v1" },
+        { name: "investors-ui-sample-v2" },
     ),
 )
 
-export type LoanRow = Loan & { paid: number; left: number; status: "open" | "partial" | "paid" | "overdue" }
+export type LoanTxRow = LoanTx & { balance: number }
 
-export const loanRows = (loans: Loan[], repayments: Repayment[], today = new Date().toISOString().slice(0, 10)): LoanRow[] =>
-    loans.map((l) => {
-        const paid = repayments.filter((r) => r.loan_id === l.id).reduce((s, r) => s + r.amount, 0)
-        const left = Math.max(l.amount - paid, 0)
-        const status =
-            left === 0 ? "paid"
-            : l.due_date && l.due_date < today ? "overdue"
-            : paid > 0 ? "partial"
-            : "open"
-        return { ...l, paid, left, status }
-    })
+export const loanLedger = (txs: LoanTx[]): LoanTxRow[] => {
+    let balance = 0
+    return [...txs]
+        .sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id)
+        .map((tx) => {
+            balance += tx.dir === "in" ? tx.amount : -tx.amount
+            return { ...tx, balance }
+        })
+        .reverse()
+}
 
 export type InvestorRow = Investor & {
     invested: number
     share: number
     loaned: number
+    repaid: number
     loan_left: number
 }
 
-export const investorRows = (s: Pick<State, "investors" | "investments" | "loans" | "repayments">): InvestorRow[] => {
+export const investorRows = (s: Pick<State, "investors" | "investments" | "loanTxs">): InvestorRow[] => {
     const totalInvested = s.investments.reduce((sum, i) => sum + i.amount, 0)
-    const loans = loanRows(s.loans, s.repayments)
     return s.investors.map((inv) => {
         const invested = s.investments.filter((i) => i.investor_id === inv.id).reduce((sum, i) => sum + i.amount, 0)
-        const own = loans.filter((l) => l.investor_id === inv.id)
+        const own = s.loanTxs.filter((tx) => tx.investor_id === inv.id)
+        const loaned = own.filter((tx) => tx.dir === "in").reduce((sum, tx) => sum + tx.amount, 0)
+        const repaid = own.filter((tx) => tx.dir === "out").reduce((sum, tx) => sum + tx.amount, 0)
         return {
             ...inv,
             invested,
             share: totalInvested ? (invested / totalInvested) * 100 : 0,
-            loaned: own.reduce((sum, l) => sum + l.amount, 0),
-            loan_left: own.reduce((sum, l) => sum + l.left, 0),
+            loaned,
+            repaid,
+            loan_left: loaned - repaid,
         }
     })
 }

@@ -3111,6 +3111,12 @@
         "errors": {
             "gt_zero": "Summa 0 dan katta bo'lsin",
             "max_left": "Qoldiqdan ko'p bo'lmasin: {{amount}}"
+        },
+        "loan_tx": {
+            "in": "Qarz olindi",
+            "out": "Qarz to'landi",
+            "balance": "Qoldiq",
+            "repaid_sub": "To'langan: {{amount}}"
         }
     }
 }

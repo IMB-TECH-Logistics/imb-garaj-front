@@ -3114,6 +3114,12 @@
         "errors": {
             "gt_zero": "Amount must be greater than 0",
             "max_left": "Must not exceed the balance: {{amount}}"
+        },
+        "loan_tx": {
+            "in": "Loan received",
+            "out": "Loan repaid",
+            "balance": "Balance",
+            "repaid_sub": "Repaid: {{amount}}"
         }
     }
 }

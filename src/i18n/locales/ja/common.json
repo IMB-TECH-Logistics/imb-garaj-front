@@ -3117,6 +3117,12 @@
         "errors": {
             "gt_zero": "金額は 0 より大きくしてください",
             "max_left": "残高を超えないでください: {{amount}}"
+        },
+        "loan_tx": {
+            "in": "借入",
+            "out": "返済",
+            "balance": "残高",
+            "repaid_sub": "返済済み: {{amount}}"
         }
     }
 }

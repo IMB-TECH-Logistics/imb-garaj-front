@@ -9,7 +9,7 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { InvestmentKind, LoanRow, useInvestorsStore, usd } from "./store"
+import { InvestmentKind, LoanDir, useInvestorsStore, usd } from "./store"
 
 const today = () => format(new Date(), "yyyy-MM-dd")
 
@@ -130,22 +130,18 @@ export const AddInvestmentForm = ({ investorId }: { investorId: number }) => {
     )
 }
 
-type LoanForm = { date: string; due_date: string | null; amount: number | ""; comment: string }
+type LoanTxForm = { date: string; amount: number | ""; comment: string }
 
-export const AddLoanForm = ({ investorId }: { investorId: number }) => {
+export const LoanTxFormView = ({ investorId, dir, balance }: { investorId: number; dir: LoanDir; balance: number }) => {
     const { t } = useTranslation()
-    const { closeModal } = useModal("loan-create")
-    const addLoan = useInvestorsStore((s) => s.addLoan)
-    const form = useForm<LoanForm>({ defaultValues: { date: today(), due_date: null, amount: "", comment: "" } })
+    const { closeModal } = useModal(dir === "in" ? "loan-in" : "loan-out")
+    const addLoanTx = useInvestorsStore((s) => s.addLoanTx)
+    const form = useForm<LoanTxForm>({
+        defaultValues: { date: today(), amount: dir === "out" && balance > 0 ? balance : "", comment: "" },
+    })
 
-    const onSubmit = (v: LoanForm) => {
-        addLoan({
-            investor_id: investorId,
-            date: v.date,
-            due_date: v.due_date || null,
-            amount: Number(v.amount),
-            comment: v.comment,
-        })
+    const onSubmit = (v: LoanTxForm) => {
+        addLoanTx({ investor_id: investorId, date: v.date, dir, amount: Number(v.amount), comment: v.comment })
         toast.success(t("messages.success_add"))
         form.reset()
         closeModal()
@@ -153,51 +149,23 @@ export const AddLoanForm = ({ investorId }: { investorId: number }) => {
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <FormDatePicker required fullWidth control={form.control} name="date" label={t("investors.fields.loan_date")} />
-                <FormDatePicker fullWidth control={form.control} name="due_date" label={t("investors.fields.due_date")} />
-            </div>
-            <AmountField control={form.control} label={t("investors.fields.amount_usd")} />
-            <FormTextarea name="comment" label={t("investors.fields.comment")} methods={form} rows={3} />
-            <SubmitRow />
-        </form>
-    )
-}
-
-type RepayForm = { date: string; amount: number | ""; comment: string }
-
-export const RepayLoanForm = ({ loan }: { loan: LoanRow }) => {
-    const { t } = useTranslation()
-    const { closeModal } = useModal("loan-repay")
-    const addRepayment = useInvestorsStore((s) => s.addRepayment)
-    const form = useForm<RepayForm>({ defaultValues: { date: today(), amount: loan.left, comment: "" } })
-
-    const onSubmit = (v: RepayForm) => {
-        addRepayment({ loan_id: loan.id, date: v.date, amount: Number(v.amount), comment: v.comment })
-        toast.success(t("messages.success_add"))
-        form.reset()
-        closeModal()
-    }
-
-    return (
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
-            <div className="rounded-lg border bg-muted/30 px-3 py-2 text-sm grid grid-cols-3 gap-2">
-                <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{t("investors.loans.amount")}</span>
-                    <span className="font-medium tabular-nums">{usd(loan.amount)}</span>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{t("investors.loans.paid")}</span>
-                    <span className="font-medium tabular-nums">{usd(loan.paid)}</span>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{t("investors.loans.left")}</span>
-                    <span className="font-semibold tabular-nums">{usd(loan.left)}</span>
-                </div>
+            <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{t("investors.list.loan_left")}</span>
+                <span className="font-semibold tabular-nums">{usd(balance)}</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <FormDatePicker required fullWidth control={form.control} name="date" label={t("investors.fields.repay_date")} />
-                <AmountField control={form.control} label={t("investors.fields.amount_usd")} max={loan.left} />
+                <FormDatePicker
+                    required
+                    fullWidth
+                    control={form.control}
+                    name="date"
+                    label={t(dir === "in" ? "investors.fields.loan_date" : "investors.fields.repay_date")}
+                />
+                <AmountField
+                    control={form.control}
+                    label={t("investors.fields.amount_usd")}
+                    max={dir === "out" ? balance : undefined}
+                />
             </div>
             <FormTextarea name="comment" label={t("investors.fields.comment")} methods={form} rows={3} />
             <SubmitRow />

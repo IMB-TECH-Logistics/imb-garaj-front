@@ -27,12 +27,11 @@ const InvestorsPage = () => {
     const { openModal } = useModal("investor-create")
     const investors = useInvestorsStore((s) => s.investors)
     const investments = useInvestorsStore((s) => s.investments)
-    const loans = useInvestorsStore((s) => s.loans)
-    const repayments = useInvestorsStore((s) => s.repayments)
+    const loanTxs = useInvestorsStore((s) => s.loanTxs)
 
     const rows = useMemo(
-        () => investorRows({ investors, investments, loans, repayments }),
-        [investors, investments, loans, repayments],
+        () => investorRows({ investors, investments, loanTxs }),
+        [investors, investments, loanTxs],
     )
     const totalInvested = rows.reduce((s, r) => s + r.invested, 0)
     const totalLoanLeft = rows.reduce((s, r) => s + r.loan_left, 0)
