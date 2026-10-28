@@ -84,8 +84,8 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                 <Box className="bg-orange-500/5 border-orange-500/30">
                     <Line strong tone="red" label={t("fin.kv2.other_expenses")} value={-n(sm?.other_expense?.total ?? sm?.expense.garaj)} />
                     <Line sub label={t("fin.kv2.cash_out")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.cash_out")} />
-                    <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
-                    <Line sub label={t("fin.kv2.warehouse_expense")} value={-n(sm?.other_expense?.ombor)} />
+                    <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.other_expense?.garaj ?? sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
+                    <Line sub label={t("fin.kv2.warehouse_expense")} value={-n(sm?.other_expense?.ombor)} {...lineProps("out_ombor", "fin.kv2.warehouse_expense")} />
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
                     <Line strong label={t("fin.kv2.closing_balance")} value={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total)} tone={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total) < 0 ? "red" : undefined} />
