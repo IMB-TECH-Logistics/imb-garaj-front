@@ -27,7 +27,6 @@ const OmborHeaderTabs = () => {
             <TabsList className="gap-2 bg-transparent">
                 <TabsTrigger value="stock">{t("wh.tab_stock")}</TabsTrigger>
                 <TabsTrigger value="moves">{t("wh.tab_moves")}</TabsTrigger>
-                <TabsTrigger value="others">{t("wh.tab_others")}</TabsTrigger>
                 <TabsTrigger value="transfers">
                     {t("wh.tab_transfers")}
                 </TabsTrigger>
