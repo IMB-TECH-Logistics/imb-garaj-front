@@ -1421,7 +1421,7 @@
             "closing_balance": "Остаток на конец периода",
             "cash_balance": "Остаток кассы",
             "opening_balance": "На начало периода",
-            "from_external": "Средства инвестора",
+            "from_external": "Инвестор/Займ",
             "investor_loans": "Займы",
             "vst_trip_payment": "Оплата рейсов VST",
             "street_trip_cash": "Оплата уличных рейсов",
