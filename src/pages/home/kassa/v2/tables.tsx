@@ -122,15 +122,9 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 accessorKey: "amount",
                 cell: ({ row }) => {
                     const r = row.original
-                    const bal = r.req ? undefined : r.close ? balances.byClose.get(r.close.id) : balances.byTx.get(r.id)
                     const body = (
                         <>
                             <Money v={r.amount} dir={r.dir} />
-                            {bal !== undefined && (
-                                <span className={cn("text-xs tabular-nums whitespace-nowrap text-muted-foreground no-underline", bal < 0 && "text-destructive/80")}>
-                                    {t("fin.kv2.opening_ledger_balance")}: {formatMoney(bal)}
-                                </span>
-                            )}
                             {r.close && (
                                 <span className="text-xs text-muted-foreground whitespace-nowrap underline decoration-dotted underline-offset-2">
                                     {r.dir === "in" ? t("fin.kv2.takes") : t("fin.kv2.gives")}
@@ -149,6 +143,16 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                             {body}
                         </button>
                     )
+                },
+            },
+            {
+                header: t("fin.kv2.opening_ledger_balance"),
+                id: "balance",
+                cell: ({ row }) => {
+                    const r = row.original
+                    const v = r.req ? undefined : r.close ? balances.byClose.get(r.close.id) : balances.byTx.get(r.id)
+                    if (v === undefined) return <span className="text-muted-foreground">—</span>
+                    return <span className={cn("tabular-nums font-semibold whitespace-nowrap", v < 0 && "text-destructive")}>{formatMoney(v)}</span>
                 },
             },
         ],
