@@ -1463,7 +1463,7 @@
             "cash_in": "Kassaga kirim",
             "received_from": "Kimdan olindi",
             "income_type": "Kirim turi",
-            "income_type_investor": "Investor",
+            "income_type_investor": "Investor/Qarz",
             "choose_income_type": "Kirim turini tanlang",
             "choose_investor": "Investorni tanlang",
             "source_other": "Boshqa",

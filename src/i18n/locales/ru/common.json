@@ -1472,7 +1472,7 @@
             "cash_in": "Приход в кассу",
             "received_from": "От кого получено",
             "income_type": "Тип прихода",
-            "income_type_investor": "Инвестор",
+            "income_type_investor": "Инвестор/Займ",
             "choose_income_type": "Выберите тип прихода",
             "choose_investor": "Выберите инвестора",
             "source_other": "Другое",

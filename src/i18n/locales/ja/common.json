@@ -1469,7 +1469,7 @@
             "cash_in": "レジ入金",
             "received_from": "受領元",
             "income_type": "入金の種類",
-            "income_type_investor": "投資家",
+            "income_type_investor": "投資家/借入",
             "choose_income_type": "入金の種類を選択してください",
             "choose_investor": "投資家を選択してください",
             "source_other": "その他",

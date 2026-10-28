@@ -1463,7 +1463,7 @@
             "cash_in": "Кассага кирим",
             "received_from": "Кимдан олинди",
             "income_type": "Кирим тури",
-            "income_type_investor": "Инвестор",
+            "income_type_investor": "Инвестор/Қарз",
             "choose_income_type": "Кирим турини танланг",
             "choose_investor": "Инвесторни танланг",
             "source_other": "Бошқа",
