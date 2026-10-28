@@ -147,7 +147,7 @@ const InvestorDetail = ({ id }: { id: number }) => {
             </div>
 
             <Section title={t("investors.sections.investments")}>
-                <DataTable columns={investmentCols} data={ownInvestments} numeration />
+                <DataTable columns={investmentCols} data={ownInvestments} numeration wrapperClassName="p-0" />
             </Section>
 
             <Section title={t("investors.sections.loans")}>
@@ -155,6 +155,7 @@ const InvestorDetail = ({ id }: { id: number }) => {
                     columns={loanCols}
                     data={ownLoans}
                     numeration
+                    wrapperClassName="p-0"
                     rowAction={(l) =>
                         l.left > 0 ?
                             <Button
