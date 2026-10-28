@@ -1445,7 +1445,6 @@
             "expense_short": "費用",
             "trip_expenses": "運行費用",
             "other_expenses": "その他の費用",
-            "non_trip_expenses": "運行外の費用",
             "cash_out": "レジ出金",
             "edit_expense": "費用を編集",
             "record_expense": "出金を記録",

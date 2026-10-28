@@ -1442,7 +1442,6 @@
             "expense_short": "expenses",
             "trip_expenses": "Trip expenses",
             "other_expenses": "Other expenses",
-            "non_trip_expenses": "Non-trip expenses",
             "cash_out": "Cash out",
             "edit_expense": "Edit expense",
             "record_expense": "Record expense",
