@@ -1059,7 +1059,8 @@
             "type_payment": "Тўлов"
         },
         "service_life": "Хизмат муддати (ўрнатилгандан кейин)",
-        "tire_km_limit": "Балон ресурси, км"
+        "tire_km_limit": "Балон ресурси, км",
+        "tab_products": "Маҳсулотлар"
     },
     "reys_confirm": {
         "short": "Тасдиқланмаган",

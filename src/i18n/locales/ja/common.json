@@ -1065,7 +1065,8 @@
         "tire_km_limit": "タイヤ寿命（km）",
         "life_years": "{{count}}年",
         "life_months": "{{count}}か月",
-        "life_days": "{{count}}日"
+        "life_days": "{{count}}日",
+        "tab_products": "商品"
     },
     "reys_confirm": {
         "short": "未確認",

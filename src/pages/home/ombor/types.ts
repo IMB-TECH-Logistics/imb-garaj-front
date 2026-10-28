@@ -85,7 +85,7 @@ export type WhLowStock = {
     min_quantity: string
 }
 
-export type WhTab = "receipts" | "withdrawals"
+export type WhTab = "receipts" | "withdrawals" | "units" | "products"
 
 export type OmborSearchParams = {
     product?: number
@@ -100,7 +100,7 @@ export type OmborSearchParams = {
     to_date?: string
     tenant?: number
     vehicle_plate?: string
-    section?: "moves" | "others" | "transfers" | "debts" | "suppliers"
+    section?: "moves" | "others" | "transfers" | "debts" | "suppliers" | "catalog" | "units"
     direction?: "in" | "out"
     dtab?: "owed" | "mine"
     creditor?: number

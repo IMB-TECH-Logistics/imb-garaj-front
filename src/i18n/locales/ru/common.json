@@ -1068,7 +1068,8 @@
             "type_payment": "Оплата"
         },
         "service_life": "Срок службы (после установки)",
-        "tire_km_limit": "Ресурс шины, км"
+        "tire_km_limit": "Ресурс шины, км",
+        "tab_products": "Товары"
     },
     "reys_confirm": {
         "short": "Не подтверждено",

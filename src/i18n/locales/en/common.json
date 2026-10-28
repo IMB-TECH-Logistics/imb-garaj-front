@@ -1062,7 +1062,8 @@
             "type_payment": "Payment"
         },
         "service_life": "Service life (after installation)",
-        "tire_km_limit": "Tire life, km"
+        "tire_km_limit": "Tire life, km",
+        "tab_products": "Products"
     },
     "reys_confirm": {
         "short": "Unconfirmed",

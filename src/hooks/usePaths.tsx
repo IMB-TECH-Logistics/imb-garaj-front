@@ -467,12 +467,6 @@ export const useItems = () => {
                         allowKey: "settings_driver_salaries_view",
                     },
                     {
-                        label: t("nav.warehouse"),
-                        path: "/product-catalog",
-                        allowKey: "warehouse_view",
-                        ownerOnly: true,
-                    },
-                    {
                         label: t("nav.activity_log"),
                         path: "/logs",
                         allowKey: "logs_view",

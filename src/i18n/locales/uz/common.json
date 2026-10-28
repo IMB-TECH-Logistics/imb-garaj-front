@@ -1059,7 +1059,8 @@
             "type_payment": "To'lov"
         },
         "service_life": "Xizmat muddati (o'rnatilgandan keyin)",
-        "tire_km_limit": "Balon resursi, km"
+        "tire_km_limit": "Balon resursi, km",
+        "tab_products": "Mahsulotlar"
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",

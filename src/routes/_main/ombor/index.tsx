@@ -6,14 +6,14 @@ export const Route = createFileRoute("/_main/ombor/")({
         product: Number(search.product) || undefined,
         lot: Number(search.lot) || undefined,
         tab:
-            search.tab === "receipts" || search.tab === "withdrawals" ?
+            search.tab === "receipts" || search.tab === "withdrawals" || search.tab === "units" || search.tab === "products" ?
                 search.tab
             :   undefined,
         receipt: search.receipt ? 1 : undefined,
         lpage: Number(search.lpage) || undefined,
         lpage_size: Number(search.lpage_size) || undefined,
         section:
-            search.section === "moves" || search.section === "suppliers" ?
+            search.section === "moves" || search.section === "suppliers" || search.section === "catalog" || search.section === "units" ?
                 search.section
             :   undefined,
         item: Number(search.item) || undefined,
