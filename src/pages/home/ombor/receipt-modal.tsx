@@ -173,7 +173,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_PRICE}
                     disabled={used}
                 />
-                <span className="text-sm font-medium tabular-nums text-right truncate min-w-0" title={formatMoneyText(sum)}>
+                <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap">
                     {formatMoneyText(sum)}
                 </span>
                 <div className="flex justify-end">{remove}</div>
@@ -424,8 +424,8 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                     {!!fields.length && (
                         <div className={`${LINE_GRID} px-2 pt-1 border-t`}>
                             <span />
-                            <span className="col-span-3 text-right text-sm font-medium">{t("page.total")}</span>
-                            <span className="text-right font-semibold tabular-nums truncate min-w-0" title={formatMoneyText(total)}>
+                            <span className="col-span-2 text-right text-sm font-medium">{t("page.total")}</span>
+                            <span className="col-span-2 text-right font-semibold tabular-nums whitespace-nowrap">
                                 {formatMoneyText(total)} {t("page.som")}
                             </span>
                             <span />
