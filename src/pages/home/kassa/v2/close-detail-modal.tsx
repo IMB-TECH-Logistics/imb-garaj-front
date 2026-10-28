@@ -58,7 +58,7 @@ const TripExpenses = ({ trip, modalKey = DETAIL_MODAL }: { trip: number; modalKe
     return (
         <div className="rounded-lg border overflow-hidden">
             <ExpenseGroup title={t("fin.kv2.expenses_cash")} rows={data.expenses} />
-            <ExpenseGroup title={t("fin.kv2.other_expenses")} note={t("fin.kv2.other_expenses_note")} rows={other} />
+            <ExpenseGroup title={t("fin.kv2.other_expenses")} rows={other} />
             <div className="flex items-center justify-between gap-3 px-3 py-2 font-semibold text-sm">
                 <span>{t("fin.kv2.total_expenses")}</span>
                 <span className="tabular-nums whitespace-nowrap">{money(total)} {t("page.som")}</span>
