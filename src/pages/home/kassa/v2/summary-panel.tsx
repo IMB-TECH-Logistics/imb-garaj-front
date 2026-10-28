@@ -68,7 +68,7 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
                     <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />
-                    {expenseLines.map((l) => (
+                    {expenseLines.filter((l) => l.kind === "fuel").map((l) => (
                         <Line
                             key={l.key}
                             sub
@@ -78,6 +78,15 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                         />
                     ))}
                     <Line sub label={t("table.monthly_salary")} value={-(n(sm?.expense.oylik) + n(sm?.expense.salary_cash))} {...expProps({ key: "salary", kind: "salary", label: t("table.monthly_salary"), amount: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)) })} />
+                    {expenseLines.filter((l) => l.kind !== "fuel").map((l) => (
+                        <Line
+                            key={l.key}
+                            sub
+                            label={l.label}
+                            value={-l.amount}
+                            {...expProps({ key: l.key, kind: l.kind, label: l.label, amount: -l.amount })}
+                        />
+                    ))}
                     {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                 </Box>
                 <Box className="bg-orange-500/5 border-orange-500/30">
