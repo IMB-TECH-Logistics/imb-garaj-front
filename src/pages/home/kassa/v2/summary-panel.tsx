@@ -107,9 +107,11 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                 </Box>
                 <Box className="bg-amber-500/5 border-amber-500/30">
                     <Line strong label={t("suppliers.kassa_debt")} value={supplierDebtTotal} onClick={openSuppliers} />
-                    {supplierDebts.map((r) => (
-                        <Line key={r.id} sub label={r.name} value={r.debt} onClick={openSuppliers} />
-                    ))}
+                    <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto -mr-2 pr-2">
+                        {supplierDebts.map((r) => (
+                            <Line key={r.id} sub label={r.name} value={r.debt} onClick={openSuppliers} />
+                        ))}
+                    </div>
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
                     <Line strong label={t("fin.kv2.closing_balance")} value={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total)} tone={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total) < 0 ? "red" : undefined} />
