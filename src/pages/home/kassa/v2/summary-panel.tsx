@@ -66,9 +66,9 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                 <Box className="bg-green-600/5 border-green-600/30">
                     <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
                     <Line sub label={t("fin.kv2.vst_trip_payment")} value={sm?.income.vst_trips} />
+                    <Line sub label={t("fin.kv2.street_trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.street_trip_cash"), amount: n(sm?.income.trip_cash) })} />
                     <Line sub label={t("fin.kv2.from_external")} value={sm?.income.external} {...lineProps("in_external", "fin.kv2.from_external")} />
                     <Line sub label={t("fin.kv2.investor_loans")} value={sm?.income.loans} onClick={() => navigate({ to: "/investor-royxati" })} />
-                    <Line sub label={t("fin.kv2.street_trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.street_trip_cash"), amount: n(sm?.income.trip_cash) })} />
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
                     <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />
