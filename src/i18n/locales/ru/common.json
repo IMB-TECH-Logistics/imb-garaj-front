@@ -40,7 +40,8 @@
         "distributors": "Дистрибьюторы",
         "route_norms": "Нормы маршрутов",
         "alerts": "Оповещения",
-        "garage_areas": "Зоны гаража"
+        "garage_areas": "Зоны гаража",
+        "investors_list": "Список инвесторов"
     },
     "actions": {
         "reverse_salary": "Сторнировать",
@@ -3062,5 +3063,63 @@
         "vehicle_owner": "Владелец транспорта",
         "month": "Месяц",
         "year": "Год"
+    },
+    "investors": {
+        "title": "Инвесторы",
+        "not_found": "Инвестор не найден",
+        "fields": {
+            "name": "Инвестор",
+            "phone": "Телефон",
+            "comment": "Комментарий",
+            "date": "Дата",
+            "kind": "Тип",
+            "vehicle": "Госномер автомобиля",
+            "amount": "Сумма",
+            "amount_usd": "Сумма, $",
+            "loan_date": "Дата займа",
+            "due_date": "Срок возврата",
+            "repay_date": "Дата оплаты"
+        },
+        "kind": {
+            "cash": "Деньги (в кассу)",
+            "vehicle": "Автомобиль"
+        },
+        "list": {
+            "count": "Количество инвесторов",
+            "total_invested": "Всего инвестиций",
+            "total_loan_left": "Наш долг инвесторам",
+            "debt_to": "{{count}} инвесторам",
+            "invested": "Инвестиции",
+            "share": "Доля",
+            "loaned": "Получено в долг",
+            "loan_left": "Остаток долга"
+        },
+        "sections": {
+            "investments": "Инвестиции",
+            "loans": "Займы"
+        },
+        "loans": {
+            "amount": "Сумма займа",
+            "paid": "Оплачено",
+            "left": "Остаток",
+            "status": "Статус"
+        },
+        "status": {
+            "open": "Не оплачен",
+            "partial": "Частично оплачен",
+            "overdue": "Просрочен",
+            "paid": "Оплачен"
+        },
+        "actions": {
+            "add_investor": "Добавить инвестора",
+            "add_investment": "Внести инвестицию",
+            "add_loan": "Взять займ",
+            "repay": "Оплатить",
+            "repay_title": "Погашение займа"
+        },
+        "errors": {
+            "gt_zero": "Сумма должна быть больше 0",
+            "max_left": "Не больше остатка: {{amount}}"
+        }
     }
 }

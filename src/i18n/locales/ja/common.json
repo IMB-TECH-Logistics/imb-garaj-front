@@ -40,7 +40,8 @@
         "distributors": "ディストリビューター",
         "route_norms": "ルート基準値",
         "alerts": "アラート",
-        "garage_areas": "ガレージエリア"
+        "garage_areas": "ガレージエリア",
+        "investors_list": "投資家一覧"
     },
     "actions": {
         "reverse_salary": "取り消す",
@@ -3059,5 +3060,63 @@
         "vehicle_owner": "車両所有者",
         "month": "月",
         "year": "年"
+    },
+    "investors": {
+        "title": "投資家",
+        "not_found": "投資家が見つかりません",
+        "fields": {
+            "name": "投資家",
+            "phone": "電話",
+            "comment": "コメント",
+            "date": "日付",
+            "kind": "種類",
+            "vehicle": "車両番号",
+            "amount": "金額",
+            "amount_usd": "金額（$）",
+            "loan_date": "借入日",
+            "due_date": "返済期限",
+            "repay_date": "返済日"
+        },
+        "kind": {
+            "cash": "現金（レジへ）",
+            "vehicle": "車両"
+        },
+        "list": {
+            "count": "投資家数",
+            "total_invested": "投資総額",
+            "total_loan_left": "投資家への借入残高",
+            "debt_to": "{{count}} 人の投資家へ",
+            "invested": "投資額",
+            "share": "持分",
+            "loaned": "借入額",
+            "loan_left": "借入残高"
+        },
+        "sections": {
+            "investments": "投資",
+            "loans": "借入"
+        },
+        "loans": {
+            "amount": "借入額",
+            "paid": "返済済み",
+            "left": "残高",
+            "status": "状態"
+        },
+        "status": {
+            "open": "未返済",
+            "partial": "一部返済",
+            "overdue": "期限超過",
+            "paid": "返済済み"
+        },
+        "actions": {
+            "add_investor": "投資家を追加",
+            "add_investment": "投資を記録",
+            "add_loan": "借入を記録",
+            "repay": "返済",
+            "repay_title": "借入の返済"
+        },
+        "errors": {
+            "gt_zero": "金額は 0 より大きくしてください",
+            "max_left": "残高を超えないでください: {{amount}}"
+        }
     }
 }

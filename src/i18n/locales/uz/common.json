@@ -40,7 +40,8 @@
         "distributors": "Distributorlar",
         "route_norms": "Yo'nalish normalari",
         "alerts": "Ogohlantirishlar",
-        "garage_areas": "Garaj hududlari"
+        "garage_areas": "Garaj hududlari",
+        "investors_list": "Investorlar ro'yxati"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -3053,5 +3054,63 @@
         "vehicle_owner": "Transport egasi",
         "month": "Oy",
         "year": "Yil"
+    },
+    "investors": {
+        "title": "Investorlar",
+        "not_found": "Investor topilmadi",
+        "fields": {
+            "name": "Investor",
+            "phone": "Telefon",
+            "comment": "Izoh",
+            "date": "Sana",
+            "kind": "Turi",
+            "vehicle": "Avtomobil raqami",
+            "amount": "Summa",
+            "amount_usd": "Summa, $",
+            "loan_date": "Qarz olingan sana",
+            "due_date": "Qaytarish muddati",
+            "repay_date": "To'langan sana"
+        },
+        "kind": {
+            "cash": "Pul (kassaga)",
+            "vehicle": "Avtomobil"
+        },
+        "list": {
+            "count": "Investorlar soni",
+            "total_invested": "Jami investitsiya",
+            "total_loan_left": "Investorlarga qarzimiz",
+            "debt_to": "{{count}} ta investorga",
+            "invested": "Investitsiya",
+            "share": "Ulush",
+            "loaned": "Olingan qarz",
+            "loan_left": "Qarz qoldig'i"
+        },
+        "sections": {
+            "investments": "Investitsiyalar",
+            "loans": "Qarzlar"
+        },
+        "loans": {
+            "amount": "Qarz summasi",
+            "paid": "To'langan",
+            "left": "Qoldiq",
+            "status": "Holat"
+        },
+        "status": {
+            "open": "To'lanmagan",
+            "partial": "Qisman to'langan",
+            "overdue": "Muddati o'tgan",
+            "paid": "To'langan"
+        },
+        "actions": {
+            "add_investor": "Investor qo'shish",
+            "add_investment": "Investitsiya kiritish",
+            "add_loan": "Qarz olish",
+            "repay": "To'lash",
+            "repay_title": "Qarzni to'lash"
+        },
+        "errors": {
+            "gt_zero": "Summa 0 dan katta bo'lsin",
+            "max_left": "Qoldiqdan ko'p bo'lmasin: {{amount}}"
+        }
     }
 }

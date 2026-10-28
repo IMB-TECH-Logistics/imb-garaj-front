@@ -40,7 +40,8 @@
         "distributors": "Дистрибуторлар",
         "route_norms": "Йўналиш нормалари",
         "alerts": "Огоҳлантиришлар",
-        "garage_areas": "Гараж ҳудудлари"
+        "garage_areas": "Гараж ҳудудлари",
+        "investors_list": "Инвесторлар рўйхати"
     },
     "actions": {
         "reverse_salary": "Сторно қилиш",
@@ -3053,5 +3054,63 @@
         "vehicle_owner": "Транспорт эгаси",
         "month": "Ой",
         "year": "Йил"
+    },
+    "investors": {
+        "title": "Инвесторлар",
+        "not_found": "Инвестор топилмади",
+        "fields": {
+            "name": "Инвестор",
+            "phone": "Телефон",
+            "comment": "Изоҳ",
+            "date": "Сана",
+            "kind": "Тури",
+            "vehicle": "Автомобил рақами",
+            "amount": "Сумма",
+            "amount_usd": "Сумма, $",
+            "loan_date": "Қарз олинган сана",
+            "due_date": "Қайтариш муддати",
+            "repay_date": "Тўланган сана"
+        },
+        "kind": {
+            "cash": "Пул (кассага)",
+            "vehicle": "Автомобил"
+        },
+        "list": {
+            "count": "Инвесторлар сони",
+            "total_invested": "Жами инвестиция",
+            "total_loan_left": "Инвесторларга қарзимиз",
+            "debt_to": "{{count}} та инвесторга",
+            "invested": "Инвестиция",
+            "share": "Улуш",
+            "loaned": "Олинган қарз",
+            "loan_left": "Қарз қолдиғи"
+        },
+        "sections": {
+            "investments": "Инвестициялар",
+            "loans": "Қарзлар"
+        },
+        "loans": {
+            "amount": "Қарз суммаси",
+            "paid": "Тўланган",
+            "left": "Қолдиқ",
+            "status": "Ҳолат"
+        },
+        "status": {
+            "open": "Тўланмаган",
+            "partial": "Қисман тўланган",
+            "overdue": "Муддати ўтган",
+            "paid": "Тўланган"
+        },
+        "actions": {
+            "add_investor": "Инвестор қўшиш",
+            "add_investment": "Инвестиция киритиш",
+            "add_loan": "Қарз олиш",
+            "repay": "Тўлаш",
+            "repay_title": "Қарзни тўлаш"
+        },
+        "errors": {
+            "gt_zero": "Сумма 0 дан катта бўлсин",
+            "max_left": "Қолдиқдан кўп бўлмасин: {{amount}}"
+        }
     }
 }

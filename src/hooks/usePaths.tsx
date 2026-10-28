@@ -15,6 +15,7 @@ import {
     User,
     Users,
     Wallet,
+    HandCoins,
 } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -272,6 +273,7 @@ export const useItems = () => {
     const { t } = useTranslation()
     const { data: me } = useUser()
     const kassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
+    const investorsV1 = me?.investor_version === 1 || import.meta.env.VITE_INVESTORS_V1 === "1"
     return useMemo<MenuItem[]>(
         () => [
             {
@@ -327,6 +329,16 @@ export const useItems = () => {
                 path: "/investorlar",
                 allowKey: "investor_view",
             },
+            ...(investorsV1 ?
+                [
+                    {
+                        label: t("nav.investors_list"),
+                        icon: <HandCoins width={18} />,
+                        path: "/investor-royxati",
+                        allowKey: "investor_view",
+                    },
+                ]
+            :   []),
             {
                 label: t("nav.drivers"),
                 icon: <Users width={18} />,
@@ -468,6 +480,6 @@ export const useItems = () => {
                 ],
             },
         ],
-        [t, kassaV2],
+        [t, kassaV2, investorsV1],
     )
 }

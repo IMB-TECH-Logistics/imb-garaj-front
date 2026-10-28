@@ -40,7 +40,8 @@
         "distributors": "Distributors",
         "route_norms": "Route norms",
         "alerts": "Alerts",
-        "garage_areas": "Garage areas"
+        "garage_areas": "Garage areas",
+        "investors_list": "Investor list"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -3056,5 +3057,63 @@
         "vehicle_owner": "Vehicle owner",
         "month": "Month",
         "year": "Year"
+    },
+    "investors": {
+        "title": "Investors",
+        "not_found": "Investor not found",
+        "fields": {
+            "name": "Investor",
+            "phone": "Phone",
+            "comment": "Comment",
+            "date": "Date",
+            "kind": "Type",
+            "vehicle": "Vehicle plate",
+            "amount": "Amount",
+            "amount_usd": "Amount, $",
+            "loan_date": "Loan date",
+            "due_date": "Due date",
+            "repay_date": "Payment date"
+        },
+        "kind": {
+            "cash": "Cash (to cash desk)",
+            "vehicle": "Vehicle"
+        },
+        "list": {
+            "count": "Investors",
+            "total_invested": "Total investment",
+            "total_loan_left": "Our debt to investors",
+            "debt_to": "to {{count}} investors",
+            "invested": "Investment",
+            "share": "Share",
+            "loaned": "Borrowed",
+            "loan_left": "Loan balance"
+        },
+        "sections": {
+            "investments": "Investments",
+            "loans": "Loans"
+        },
+        "loans": {
+            "amount": "Loan amount",
+            "paid": "Paid",
+            "left": "Balance",
+            "status": "Status"
+        },
+        "status": {
+            "open": "Unpaid",
+            "partial": "Partially paid",
+            "overdue": "Overdue",
+            "paid": "Paid"
+        },
+        "actions": {
+            "add_investor": "Add investor",
+            "add_investment": "Add investment",
+            "add_loan": "Take a loan",
+            "repay": "Repay",
+            "repay_title": "Repay loan"
+        },
+        "errors": {
+            "gt_zero": "Amount must be greater than 0",
+            "max_left": "Must not exceed the balance: {{amount}}"
+        }
     }
 }
