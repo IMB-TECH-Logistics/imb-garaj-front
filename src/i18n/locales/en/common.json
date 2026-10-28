@@ -1418,7 +1418,7 @@
             "from_external": "Investor funds",
             "investor_loans": "Loans",
             "vst_trip_payment": "VST trip payments",
-            "street_trip_cash": "Street cash trips",
+            "street_trip_cash": "Street trip payments",
             "trip_cash": "Cash trip money",
             "reversed_expenses": "Cancelled expenses",
             "expense": "Expense",

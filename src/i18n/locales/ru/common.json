@@ -1424,7 +1424,7 @@
             "from_external": "Средства инвестора",
             "investor_loans": "Займы",
             "vst_trip_payment": "Оплата рейсов VST",
-            "street_trip_cash": "Наличные рейсы (улица)",
+            "street_trip_cash": "Оплата уличных рейсов",
             "trip_cash": "Наличные за рейс",
             "reversed_expenses": "Отменённые расходы",
             "expense": "Расход",

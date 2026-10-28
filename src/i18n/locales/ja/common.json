@@ -1421,7 +1421,7 @@
             "from_external": "投資家資金",
             "investor_loans": "借入",
             "vst_trip_payment": "VST 運行代金",
-            "street_trip_cash": "現金運行（路上）",
+            "street_trip_cash": "路上運行代金",
             "trip_cash": "運行現金",
             "reversed_expenses": "取消済み費用",
             "expense": "費用",
