@@ -1422,6 +1422,7 @@
             "cash_balance": "Остаток кассы",
             "opening_balance": "На начало периода",
             "from_external": "Инвестиции",
+            "investor_loans": "Займы",
             "trip_cash": "Наличные за рейс",
             "reversed_expenses": "Отменённые расходы",
             "expense": "Расход",

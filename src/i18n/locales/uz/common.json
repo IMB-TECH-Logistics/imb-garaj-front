@@ -1413,6 +1413,7 @@
             "cash_balance": "Kassa qoldig'i",
             "opening_balance": "Davr boshida",
             "from_external": "Investitsiya",
+            "investor_loans": "Qarz",
             "trip_cash": "Naqd reys puli",
             "reversed_expenses": "Bekor qilingan chiqimlar",
             "expense": "Xarajat",

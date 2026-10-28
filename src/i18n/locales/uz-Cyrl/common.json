@@ -1413,6 +1413,7 @@
             "cash_balance": "Касса қолдиғи",
             "opening_balance": "Давр бошида",
             "from_external": "Инвестиция",
+            "investor_loans": "Қарз",
             "trip_cash": "Нақд рейс пули",
             "reversed_expenses": "Бекор қилинган чиқимлар",
             "expense": "Харажат",

@@ -2,6 +2,7 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
+import { useNavigate } from "@tanstack/react-router"
 import { endOfMonth, startOfMonth } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { ReactNode } from "react"
@@ -51,6 +52,7 @@ type SummaryPanelProps = {
 
 export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
     const { t } = useTranslation()
+    const navigate = useNavigate()
     return (
         <Card className="xl:h-full min-h-0 overflow-hidden">
             <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
@@ -65,6 +67,7 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                     <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
                     <Line sub label={t("fin.kv2.from_external")} value={sm?.income.external} {...lineProps("in_external", "fin.kv2.from_external")} />
                     <Line sub label={t("fin.kv2.trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.trip_cash"), amount: n(sm?.income.trip_cash) })} />
+                    <Line sub label={t("fin.kv2.investor_loans")} value={sm?.income.loans} onClick={() => navigate({ to: "/investor-royxati" })} />
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
                     <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />

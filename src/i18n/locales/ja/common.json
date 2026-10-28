@@ -1419,6 +1419,7 @@
             "cash_balance": "現金残高",
             "opening_balance": "期首残高",
             "from_external": "投資",
+            "investor_loans": "借入",
             "trip_cash": "運行現金",
             "reversed_expenses": "取消済み費用",
             "expense": "費用",

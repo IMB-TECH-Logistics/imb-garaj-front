@@ -1416,6 +1416,7 @@
             "cash_balance": "Cash balance",
             "opening_balance": "Opening balance",
             "from_external": "Investment",
+            "investor_loans": "Loans",
             "trip_cash": "Cash trip money",
             "reversed_expenses": "Cancelled expenses",
             "expense": "Expense",
