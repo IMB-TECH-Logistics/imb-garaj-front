@@ -1067,7 +1067,23 @@
         "life_years": "{{count}}年",
         "life_months": "{{count}}か月",
         "life_days": "{{count}}日",
-        "tab_products": "商品"
+        "tab_products": "商品",
+        "sale": {
+            "title": "販売",
+            "contragent": "販売先（取引先）",
+            "add_line": "商品を追加",
+            "price": "販売価格（スム）",
+            "paid_now": "今回の入金（レジ入金）",
+            "left_as_debt": "掛け（先方債務）",
+            "hint": "既定では全額が取引先の当社への債務になります。入金分はレジ入金です。",
+            "submit": "販売",
+            "saved": "販売を記録しました",
+            "err_contragent": "取引先を選択してください",
+            "err_qty_price": "数量と価格は 0 より大きくしてください",
+            "err_stock": "在庫不足: {{name}}",
+            "tx_comment": "倉庫からの販売",
+            "paid_comment": "販売代金"
+        }
     },
     "reys_confirm": {
         "short": "未確認",

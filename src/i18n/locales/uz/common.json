@@ -1061,7 +1061,23 @@
         },
         "service_life": "Xizmat muddati (o'rnatilgandan keyin)",
         "tire_km_limit": "Balon resursi, km",
-        "tab_products": "Mahsulotlar"
+        "tab_products": "Mahsulotlar",
+        "sale": {
+            "title": "Sotish",
+            "contragent": "Kimga sotildi (kontragent)",
+            "add_line": "Mahsulot qo'shish",
+            "price": "Sotish narxi (so'm)",
+            "paid_now": "Hozir to'landi (kassaga kirim)",
+            "left_as_debt": "Qarzga qoladi (bizga qarzdor)",
+            "hint": "Default holatda butun summa kontragentning bizga qarzi bo'lib yoziladi. To'langan qism kassaga kirim bo'ladi.",
+            "submit": "Sotish",
+            "saved": "Sotuv yozildi",
+            "err_contragent": "Kontragentni tanlang",
+            "err_qty_price": "Miqdor va narx 0 dan katta bo'lsin",
+            "err_stock": "Omborda yetarli emas: {{name}}",
+            "tx_comment": "Ombordan sotuv",
+            "paid_comment": "Sotuv uchun to'lov"
+        }
     },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",

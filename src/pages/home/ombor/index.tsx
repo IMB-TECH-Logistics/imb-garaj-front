@@ -19,6 +19,8 @@ import LinesSection from "./lines-section"
 import OtherStockSection from "./other-stock-section"
 import TransfersSection from "./transfers-section"
 import ReceiptModal, { RECEIPT_MODAL_KEY } from "./receipt-modal"
+import SaleModal, { SALE_MODAL_KEY } from "./sale-modal"
+import { ShoppingCart } from "lucide-react"
 import type { OmborSearchParams, WhProduct } from "./types"
 import { useOmborSearch } from "./use-ombor-search"
 
@@ -29,6 +31,7 @@ const Stock = () => {
     const search = useSearch({ strict: false })
     const navigate = useNavigate()
     const { openModal: openReceipt } = useModal(RECEIPT_MODAL_KEY)
+    const { openModal: openSale } = useModal(SALE_MODAL_KEY)
 
     const receiptParam = (search as OmborSearchParams).receipt
 
@@ -95,6 +98,15 @@ const Stock = () => {
                             </DownloadAsExcel>
                             {isOwner && hasControl && (
                                 <Button
+                                    variant="outline"
+                                    icon={<ShoppingCart size={16} />}
+                                    onClick={openSale}
+                                >
+                                    {t("wh.sale.title")}
+                                </Button>
+                            )}
+                            {isOwner && hasControl && (
+                                <Button
                                     icon={<Plus size={16} />}
                                     onClick={openReceipt}
                                 >
@@ -107,6 +119,7 @@ const Stock = () => {
             />
 
             {isOwner && hasControl && <ReceiptModal />}
+            {isOwner && hasControl && <SaleModal />}
         </div>
     )
 }

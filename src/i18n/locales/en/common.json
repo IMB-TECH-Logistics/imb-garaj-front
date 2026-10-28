@@ -1064,7 +1064,23 @@
         },
         "service_life": "Service life (after installation)",
         "tire_km_limit": "Tire life, km",
-        "tab_products": "Products"
+        "tab_products": "Products",
+        "sale": {
+            "title": "Sell",
+            "contragent": "Sold to (counterparty)",
+            "add_line": "Add product",
+            "price": "Sale price (UZS)",
+            "paid_now": "Paid now (cash desk income)",
+            "left_as_debt": "On credit (owes us)",
+            "hint": "By default the whole amount is recorded as the counterparty's debt to us. The paid part is cash desk income.",
+            "submit": "Sell",
+            "saved": "Sale recorded",
+            "err_contragent": "Choose a counterparty",
+            "err_qty_price": "Quantity and price must be greater than 0",
+            "err_stock": "Not enough in stock: {{name}}",
+            "tx_comment": "Warehouse sale",
+            "paid_comment": "Payment for sale"
+        }
     },
     "reys_confirm": {
         "short": "Unconfirmed",
