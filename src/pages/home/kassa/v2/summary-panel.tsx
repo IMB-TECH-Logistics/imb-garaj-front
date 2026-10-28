@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next"
 import { ReactNode } from "react"
 import { n, usePeriod, Overview } from "./api"
 import { supplierRows, useSuppliersStore } from "../../ombor/suppliers-store"
+import { OPENING_MODAL, OpeningLedgerModal } from "./opening-ledger"
+import { useModal } from "@/hooks/useModal"
 
 const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
     const { t } = useTranslation()
@@ -54,6 +56,7 @@ type SummaryPanelProps = {
 export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
+    const { openModal: openOpening } = useModal(OPENING_MODAL)
     const suppliers = useSuppliersStore((s) => s.suppliers)
     const supplierTxs = useSuppliersStore((s) => s.txs)
     const supplierDebts = supplierRows(suppliers, supplierTxs).filter((r) => r.debt > 0)
@@ -66,9 +69,10 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
 
                 {from_date && (
                     <Box className="bg-muted/40 border-muted-foreground/30">
-                        <Line strong label={t("fin.kv2.opening_balance")} value={sm?.opening} tone={n(sm?.opening) < 0 ? "red" : undefined} />
+                        <Line strong label={t("fin.kv2.opening_balance")} value={sm?.opening} tone={n(sm?.opening) < 0 ? "red" : undefined} onClick={openOpening} />
                     </Box>
                 )}
+                {from_date && <OpeningLedgerModal fromDate={from_date} opening={n(sm?.opening)} />}
                 <Box className="bg-green-600/5 border-green-600/30">
                     <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
                     <Line sub label={t("fin.kv2.vst_trip_payment")} value={sm?.income.vst_trips} />
