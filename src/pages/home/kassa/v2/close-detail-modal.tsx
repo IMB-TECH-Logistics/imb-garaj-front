@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { useVstFinance } from "@/hooks/use-vst-finance"
 import { cn } from "@/lib/utils"
 import { Check, X } from "lucide-react"
 import { ReactNode } from "react"
@@ -48,7 +49,7 @@ const ExpenseGroup = ({ title, note, rows }: { title: string; note?: string; row
     )
 }
 
-const TripExpenses = ({ trip, modalKey = DETAIL_MODAL }: { trip: number; modalKey?: string }) => {
+const TripExpenses = ({ trip, modalKey = DETAIL_MODAL, legacyNote = false }: { trip: number; modalKey?: string; legacyNote?: boolean }) => {
     const { t } = useTranslation()
     const { isOpen } = useModal(modalKey)
     const { data, isLoading } = useGet<ClosePreview>(`${KV2_TRIPS}/${trip}/close-preview`, { enabled: isOpen, options: { staleTime: 0 } })
@@ -58,7 +59,7 @@ const TripExpenses = ({ trip, modalKey = DETAIL_MODAL }: { trip: number; modalKe
     return (
         <div className="rounded-lg border overflow-hidden">
             <ExpenseGroup title={t("fin.kv2.expenses_cash")} rows={data.expenses} />
-            <ExpenseGroup title={t("fin.kv2.other_expenses")} rows={other} />
+            <ExpenseGroup title={t("fin.kv2.other_expenses")} note={legacyNote ? t("fin.kv2.other_expenses_note") : undefined} rows={other} />
             <div className="flex items-center justify-between gap-3 px-3 py-2 font-semibold text-sm">
                 <span>{t("fin.kv2.total_expenses")}</span>
                 <span className="tabular-nums whitespace-nowrap">{money(total)} {t("page.som")}</span>
@@ -143,9 +144,18 @@ export const TRIP_EXP_MODAL = "kassa-v2-trip-expenses"
 
 export const TripExpensesModal = ({ trip }: { trip: KassaTrip | null }) => {
     const { t } = useTranslation()
+    const vst = useVstFinance()
     return (
-        <Modal modalKey={TRIP_EXP_MODAL} title={trip ? t("fin.kv2.trip_expenses_title", { id: trip.id }) : ""} size="max-w-2xl">
-            {trip && <TripExpensesBody trip={trip} />}
+        <Modal modalKey={TRIP_EXP_MODAL} title={trip ? t("fin.kv2.trip_expenses_title", { id: trip.id }) : ""} size={vst ? "max-w-2xl" : "max-w-md"}>
+            {trip &&
+                (vst ?
+                    <TripExpensesBody trip={trip} />
+                :   <div className="flex flex-col gap-3">
+                        <p className="text-sm text-muted-foreground">
+                            {[trip.driver_name, trip.plate, tripPeriod(trip.start, trip.end, t("fin.kv2.ongoing"))].filter(Boolean).join(" · ")}
+                        </p>
+                        <TripExpenses trip={trip.id} modalKey={TRIP_EXP_MODAL} legacyNote />
+                    </div>)}
         </Modal>
     )
 }

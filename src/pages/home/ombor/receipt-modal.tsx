@@ -12,7 +12,8 @@ import { useGet } from "@/hooks/useGet"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { formatMoney, formatMoneyText } from "@/lib/format-money"
-import { KV2_REQUESTS, WAREHOUSES } from "@/pages/home/kassa/v2/api"
+import { KONTRAGENT_PURCHASES, onApiError, useKontragents, useRefreshFinance } from "@/pages/home/kontragent/api"
+import { useVstFinance } from "@/hooks/use-vst-finance"
 import { useQueryClient } from "@tanstack/react-query"
 import { Package, Plus, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -20,7 +21,6 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { useSuppliersStore } from "./suppliers-store"
 import type { WhProduct } from "./types"
 import { useCatalog } from "./use-catalog"
 import {
@@ -228,12 +228,16 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const { data: catalog } = useCatalog()
     const products = useMemo(() => catalog?.results ?? [], [catalog])
     const [serverError, setServerError] = useState("")
-    const suppliers = useSuppliersStore((s) => s.suppliers)
-    const addSupplierTx = useSuppliersStore((s) => s.addTx)
-    const pendingSupplier = useRef<{ supplier: number | null; date: string; amount: number; paid: number; comment: string; products: string } | null>(null)
-    const kassaRequest = usePost({
-        onSuccess: () => toast.success(t("wh.receipt.kassa_request_sent")),
-        onError: () => toast.error(t("wh.receipt.kassa_request_failed")),
+    const vst = useVstFinance()
+    const { data: suppliers = [] } = useKontragents("supplier", vst && !receiptId)
+    const refreshFinance = useRefreshFinance()
+    const pendingSupplier = useRef<{ supplier: number | null; paid: number } | null>(null)
+    const purchase = usePost({
+        onSuccess: (data: { payment_request: number | null }) => {
+            if (data?.payment_request) toast.success(t("wh.receipt.kassa_request_sent"))
+            refreshFinance()
+        },
+        onError: onApiError(t("wh.receipt.kassa_request_failed")),
     })
 
     const form = useForm<FormValues>({
@@ -291,28 +295,12 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     })()
 
     const onSaved = {
-        onSuccess: () => {
+        onSuccess: (data: { id?: number }) => {
             const pending = pendingSupplier.current
-            if (pending) {
-                if (pending.supplier) {
-                    addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "in", amount: pending.amount, comment: pending.comment })
-                    if (pending.paid > 0) {
-                        addSupplierTx({ supplier_id: pending.supplier, date: pending.date, dir: "out", amount: pending.paid, comment: t("wh.receipt.paid_via_kassa") })
-                    }
-                }
-                if (pending.paid > 0) {
-                    const supplierName = suppliers.find((x) => x.id === pending.supplier)?.name
-                    kassaRequest.mutate(KV2_REQUESTS, {
-                        kind: "garaj_xarajat",
-                        amount: pending.paid,
-                        comment: [t("wh.receipt.kassa_request_comment"), supplierName, pending.comment].filter(Boolean).join(" · "),
-                        expense_type: "ombor",
-                        warehouse: WAREHOUSES[0],
-                        product: pending.products,
-                    })
-                }
-                pendingSupplier.current = null
+            if (pending && data?.id && (pending.supplier || pending.paid > 0)) {
+                purchase.mutate(KONTRAGENT_PURCHASES, { receipt: data.id, kontragent: pending.supplier, paid_now: pending.paid })
             }
+            pendingSupplier.current = null
             toast.success(t("wh.receipt.saved"))
             closeModal()
             queryClient.invalidateQueries({
@@ -331,24 +319,12 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const onSubmit = (values: FormValues) => {
         setServerError("")
         const paid = Math.min(Number(values.paid_now === "" || values.paid_now === undefined ? 0 : values.paid_now) || 0, total)
-        if (!receiptId && paid < total && !values.supplier) {
+        if (vst && !receiptId && paid < total && !values.supplier) {
             setServerError(t("wh.receipt.err_debt_needs_supplier"))
             return
         }
         pendingSupplier.current =
-            !receiptId ?
-                {
-                    supplier: values.supplier ? Number(values.supplier) : null,
-                    date: values.date,
-                    amount: total,
-                    paid,
-                    comment: values.comment.trim(),
-                    products: values.lines
-                        .map((l) => products.find((x) => x.id === Number(l.product))?.name)
-                        .filter(Boolean)
-                        .join(", "),
-                }
-            :   null
+            vst && !receiptId ? { supplier: values.supplier ? Number(values.supplier) : null, paid } : null
         const payload = {
             date: values.date,
             comment: values.comment.trim() || (receiptId ? null : undefined),
@@ -442,7 +418,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                             label={t("form.date")}
                             control={control}
                         />
-                        {!receiptId && (
+                        {vst && !receiptId && (
                             <FormCombobox
                                 control={control}
                                 name="supplier"
@@ -462,7 +438,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                 </div>
             </section>
 
-            {!receiptId ?
+            {vst && !receiptId ?
                 <section className="rounded-lg border bg-muted/20 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                     <FormNumberInput
                         name="paid_now"

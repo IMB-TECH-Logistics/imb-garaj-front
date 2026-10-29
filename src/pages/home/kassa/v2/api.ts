@@ -61,6 +61,7 @@ export type Overview = {
         income: { total: number; external: number; trip_cash: number; reversals: number; loans?: number; vst_trips?: number }
         expense: { total: number; cash: number; fuel?: number; other?: number; salary_cash?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
         other_expense?: { total: number; garaj: number; chiqim: number; ombor?: number }
+        income_by_type?: { vst: number; investor: number; other: number } | null
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
     balance: number
@@ -104,6 +105,8 @@ export type KassaTx = {
     can_reverse?: boolean
     can_edit?: boolean
     vehicles?: { id: number; plate: string | null }[]
+    income_type?: "vst" | "investor" | "other" | null
+    kontragent?: number | null
 }
 
 export type KassaRequest = {

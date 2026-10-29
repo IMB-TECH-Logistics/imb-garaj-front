@@ -1445,7 +1445,7 @@
             "cash_balance": "現金残高",
             "opening_balance": "期首残高",
             "opening_ledger_balance": "残高",
-            "from_external": "投資家/借入",
+            "from_external": "外部から",
             "investor_loans": "その他の入金",
             "vst_trip_payment": "VST 運行代金",
             "street_trip_cash": "路上運行代金",
@@ -1457,7 +1457,7 @@
             "expense_other": "その他の費用",
             "col_from": "送金元",
             "col_to": "送金先",
-            "garage_cash_expense": "修理と車検",
+            "garage_cash_expense": "ガレージ費用（現金）",
             "warehouse_expense": "倉庫費用",
             "reversed_incomes": "取消済み入金",
             "drivers_hand": "ドライバーへの支給",
@@ -1612,7 +1612,9 @@
             "title_operator_fix": "オペレーターが修正して再提出する必要があります",
             "title_manager_unfinished": "マネージャーがまだターンを完了していません",
             "col_turnover": "ターン",
-            "to_balance": "残高へ"
+            "to_balance": "残高へ",
+            "vst_investor_income": "投資家/借入",
+            "vst_repair_expense": "修理と車検"
         },
         "kv2_kind": {
             "avans": "前渡金",
@@ -3115,7 +3117,9 @@
             "amount_som": "金額（スム）",
             "loan_date": "借入日",
             "due_date": "返済期限",
-            "repay_date": "返済日"
+            "repay_date": "返済日",
+            "rate": "ドルレート（スム）",
+            "to_kassa": "レジ入金額"
         },
         "kind": {
             "cash": "現金（レジへ）",
@@ -3163,7 +3167,9 @@
             "out": "返済",
             "balance": "残高",
             "repaid_sub": "返済済み: {{amount}}"
-        }
+        },
+        "to_kassa": "レジに入金されます",
+        "rate_short": "レート {{rate}}"
     },
     "suppliers": {
         "title": "仕入先",
@@ -3251,6 +3257,20 @@
             "out_total": "支払合計",
             "in_hint": "取引先から現金・商品・サービスを受け取りました — 当社の債務が増えます。",
             "out_hint": "取引先に現金・商品・サービスを渡しました — 当社の債務が減ります。"
+        },
+        "pending": "レジ処理待ち",
+        "pending_sum": "レジ処理待ち: {{amount}}",
+        "source": {
+            "kassa": "レジ経由",
+            "request": "レジへの申請",
+            "receipt": "倉庫入庫",
+            "sale": "倉庫からの販売"
+        },
+        "cash": {
+            "in_btn": "入金（レジへ）",
+            "out_btn": "出金（レジから）",
+            "in_hint": "レジ入金として取引先に記録されます。",
+            "out_hint": "レジ出金として取引先に記録されます。"
         }
     }
 }

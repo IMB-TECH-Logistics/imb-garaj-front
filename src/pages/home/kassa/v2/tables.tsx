@@ -6,6 +6,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { formatMoney } from "@/lib/format-money"
+import { useVstFinance } from "@/hooks/use-vst-finance"
 import { ColumnDef } from "@tanstack/react-table"
 import { Check, Download, RotateCcw, X } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
@@ -58,6 +59,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
     const { data: overview } = useOverview()
     const { data: allPeriod } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
+    const vst = useVstFinance()
     const balances = useMemo(() => {
         const byTx = new Map<number, number>()
         const byClose = new Map<number, number>()
@@ -145,18 +147,22 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     )
                 },
             },
-            {
-                header: t("fin.kv2.opening_ledger_balance"),
-                id: "balance",
-                cell: ({ row }) => {
-                    const r = row.original
-                    const v = r.req ? undefined : r.close ? balances.byClose.get(r.close.id) : balances.byTx.get(r.id)
-                    if (v === undefined) return <span className="text-muted-foreground">—</span>
-                    return <span className={cn("tabular-nums font-semibold whitespace-nowrap", v < 0 && "text-destructive")}>{formatMoney(v)}</span>
+            ...(vst ?
+                ([
+                {
+                    header: t("fin.kv2.opening_ledger_balance"),
+                    id: "balance",
+                    cell: ({ row }) => {
+                        const r = row.original
+                        const v = r.req ? undefined : r.close ? balances.byClose.get(r.close.id) : balances.byTx.get(r.id)
+                        if (v === undefined) return <span className="text-muted-foreground">—</span>
+                        return <span className={cn("tabular-nums font-semibold whitespace-nowrap", v < 0 && "text-destructive")}>{formatMoney(v)}</span>
+                    },
                 },
-            },
+                ] as ColumnDef<KassaRow>[])
+            :   []),
         ],
-        [t, balances],
+        [t, balances, vst],
     )
     return (
         <DataTable

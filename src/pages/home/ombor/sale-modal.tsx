@@ -8,7 +8,8 @@ import { WAREHOUSE_PRODUCTS } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoneyText } from "@/lib/format-money"
-import { useContragentStore } from "@/pages/home/kontragent/store"
+import { KONTRAGENT_SALES, onApiError, useKontragents, useRefreshFinance } from "@/pages/home/kontragent/api"
+import { usePost } from "@/hooks/usePost"
 import { format } from "date-fns"
 import { Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
@@ -28,8 +29,18 @@ type F = { contragent: number | ""; date: string; lines: Line[]; paid_now: numbe
 const SaleForm = () => {
     const { t } = useTranslation()
     const { closeModal } = useModal(SALE_MODAL_KEY)
-    const contragents = useContragentStore((s) => s.contragents)
-    const addTx = useContragentStore((s) => s.addTx)
+    const { isOpen } = useModal(SALE_MODAL_KEY)
+    const { data: contragents = [] } = useKontragents(undefined, isOpen)
+    const refresh = useRefreshFinance()
+    const { mutate, isPending } = usePost({
+        onSuccess: () => {
+            toast.success(t("wh.sale.saved"))
+            form.reset()
+            closeModal()
+            refresh()
+        },
+        onError: onApiError(t("messages.error")),
+    })
     const [error, setError] = useState("")
     const { data } = useGet<ListResponse<WhProduct>>(WAREHOUSE_PRODUCTS, { params: { received: 1, page_size: 1000 } })
     const products = data?.results ?? []
@@ -54,14 +65,13 @@ const SaleForm = () => {
         if (v.lines.some((l) => !(Number(l.quantity) > 0) || !(Number(l.price) > 0))) return setError(t("wh.sale.err_qty_price"))
         const over = v.lines.find((l) => Number(l.quantity) > Number(productOf(l.product)?.qty_left ?? 0))
         if (over) return setError(t("wh.sale.err_stock", { name: productOf(over.product)?.name }))
-        const names = v.lines.map((l) => `${productOf(l.product)?.name} × ${l.quantity}`).join(", ")
-        addTx({ contragent_id: Number(v.contragent), date: v.date, dir: "out", kind: "goods", amount: total, comment: [t("wh.sale.tx_comment"), names, v.comment.trim()].filter(Boolean).join(" · ") })
-        if (paid > 0) {
-            addTx({ contragent_id: Number(v.contragent), date: v.date, dir: "in", kind: "cash", amount: paid, comment: t("wh.sale.paid_comment") })
-        }
-        toast.success(t("wh.sale.saved"))
-        form.reset()
-        closeModal()
+        mutate(KONTRAGENT_SALES, {
+            kontragent: Number(v.contragent),
+            date: v.date,
+            lines: v.lines.map((l) => ({ product: Number(l.product), quantity: Number(l.quantity), price: Number(l.price) })),
+            paid_now: paid,
+            comment: v.comment.trim(),
+        })
     }
 
     return (
@@ -163,7 +173,7 @@ const SaleForm = () => {
 
             <div className="flex items-center justify-end gap-3">
                 {error && <span className="text-xs text-destructive">{error}</span>}
-                <Button type="submit" className="min-w-36">{t("wh.sale.submit")}</Button>
+                <Button type="submit" className="min-w-36" loading={isPending}>{t("wh.sale.submit")}</Button>
             </div>
         </form>
     )

@@ -12,8 +12,8 @@ import { format } from "date-fns"
 import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { CONTRAGENT_TYPES, ContragentType, Kontragent, TYPE_STYLE, num, som, useKontragentSummary, useKontragents } from "./api"
 import { AddContragentForm, CONTRAGENT_CREATE } from "./forms"
-import { CONTRAGENT_TYPES, ContragentRow, ContragentType, TYPE_STYLE, contragentRows, som, useContragentStore } from "./store"
 
 const Stat = ({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "red" | "green" }) => (
     <Card>
@@ -40,17 +40,14 @@ const ContragentsPage = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const { openModal } = useModal(CONTRAGENT_CREATE)
-    const contragents = useContragentStore((s) => s.contragents)
-    const txs = useContragentStore((s) => s.txs)
+    const { data: all = [], isLoading } = useKontragents()
+    const { data: summary } = useKontragentSummary()
     const [type, setType] = useState<ContragentType | "all">("all")
 
-    const all = useMemo(() => contragentRows(contragents, txs), [contragents, txs])
     const rows = type === "all" ? all : all.filter((r) => r.type === type)
-    const weOwe = all.filter((r) => r.balance > 0)
-    const theyOwe = all.filter((r) => r.balance < 0)
     const open = (id: number) => navigate({ to: "/kontragentlar/$id", params: { id: String(id) } })
 
-    const columns = useMemo<ColumnDef<ContragentRow>[]>(
+    const columns = useMemo<ColumnDef<Kontragent>[]>(
         () => [
             {
                 accessorKey: "name",
@@ -71,7 +68,7 @@ const ContragentsPage = () => {
                     </Badge>
                 ),
             },
-            { accessorKey: "balance", header: t("contragent.fields.balance"), cell: ({ row }) => <BalanceCell value={row.original.balance} /> },
+            { accessorKey: "balance", header: t("contragent.fields.balance"), cell: ({ row }) => <BalanceCell value={num(row.original.balance)} /> },
             { accessorKey: "count", header: t("contragent.fields.tx_count"), cell: ({ row }) => <span className="tabular-nums">{row.original.count}</span> },
             {
                 accessorKey: "last",
@@ -96,14 +93,14 @@ const ContragentsPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Stat
                     label={t("contragent.stat_we_owe")}
-                    value={som(weOwe.reduce((s, r) => s + r.balance, 0))}
-                    sub={t("contragent.stat_count", { count: weOwe.length })}
+                    value={som(summary?.we_owe ?? 0)}
+                    sub={t("contragent.stat_count", { count: summary?.we_owe_count ?? 0 })}
                     tone="red"
                 />
                 <Stat
                     label={t("contragent.stat_they_owe")}
-                    value={som(-theyOwe.reduce((s, r) => s + r.balance, 0))}
-                    sub={t("contragent.stat_count", { count: theyOwe.length })}
+                    value={som(summary?.they_owe ?? 0)}
+                    sub={t("contragent.stat_count", { count: summary?.they_owe_count ?? 0 })}
                     tone="green"
                 />
             </div>
@@ -120,7 +117,7 @@ const ContragentsPage = () => {
                             ))}
                         </TabsList>
                     </Tabs>
-                    <DataTable columns={columns} data={rows} numeration wrapperClassName="p-0" onRowClick={(r) => open(r.id)} />
+                    <DataTable columns={columns} data={rows} loading={isLoading} numeration wrapperClassName="p-0" onRowClick={(r) => open(r.id)} />
                 </CardContent>
             </Card>
 

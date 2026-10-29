@@ -1439,7 +1439,7 @@
             "cash_balance": "Kassa qoldig'i",
             "opening_balance": "Davr boshida",
             "opening_ledger_balance": "Qoldiq",
-            "from_external": "Investor/Qarz",
+            "from_external": "Tashqi manbadan",
             "investor_loans": "Boshqa manba",
             "vst_trip_payment": "VST reys to'lovi",
             "street_trip_cash": "Ko'cha reys to'lovi",
@@ -1451,7 +1451,7 @@
             "expense_other": "Boshqa xarajat",
             "col_from": "Qayerdan",
             "col_to": "Qayerga",
-            "garage_cash_expense": "Ta'mir va texnik ko'rik",
+            "garage_cash_expense": "Garaj xarajatlari (naqd)",
             "warehouse_expense": "Ombor xarajatlari",
             "reversed_incomes": "Bekor qilingan kirimlar",
             "drivers_hand": "Haydovchilar qo'liga",
@@ -1606,7 +1606,9 @@
             "title_operator_fix": "Operator tuzatib qayta yuborishi kerak",
             "title_manager_unfinished": "Menejer aylanmani hali yakunlamagan",
             "col_turnover": "Aylanma",
-            "to_balance": "Balansga"
+            "to_balance": "Balansga",
+            "vst_investor_income": "Investor/Qarz",
+            "vst_repair_expense": "Ta'mir va texnik ko'rik"
         },
         "kv2_kind": {
             "avans": "Avans",
@@ -3109,7 +3111,9 @@
             "amount_som": "Summa, so'm",
             "loan_date": "Qarz olingan sana",
             "due_date": "Qaytarish muddati",
-            "repay_date": "To'langan sana"
+            "repay_date": "To'langan sana",
+            "rate": "Dollar kursi, so'm",
+            "to_kassa": "Kassaga tushdi"
         },
         "kind": {
             "cash": "Pul (kassaga)",
@@ -3157,7 +3161,9 @@
             "out": "Qarz to'landi",
             "balance": "Qoldiq",
             "repaid_sub": "To'langan: {{amount}}"
-        }
+        },
+        "to_kassa": "Kassaga tushadi",
+        "rate_short": "kurs {{rate}}"
     },
     "suppliers": {
         "title": "Ta'minotchilar",
@@ -3245,6 +3251,20 @@
             "out_total": "Biz berganimiz",
             "in_hint": "Kontragent bizga pul, tovar yoki xizmat berdi — bizning qarzimiz oshadi (yoki uning qarzi kamayadi).",
             "out_hint": "Biz kontragentga pul, tovar yoki xizmat berdik — bizning qarzimiz kamayadi (yoki u bizdan qarzdor bo'ladi)."
+        },
+        "pending": "Kassada kutilmoqda",
+        "pending_sum": "Kassada kutilmoqda: {{amount}}",
+        "source": {
+            "kassa": "Kassa orqali",
+            "request": "Kassaga so'rov",
+            "receipt": "Omborga kirim",
+            "sale": "Ombordan sotuv"
+        },
+        "cash": {
+            "in_btn": "Pul oldik (kassaga)",
+            "out_btn": "Pul berdik (kassadan)",
+            "in_hint": "Pul kassaga kirim bo'ladi va kontragent hisobiga yoziladi.",
+            "out_hint": "Pul kassadan chiqim bo'ladi va kontragent hisobiga yoziladi."
         }
     }
 }

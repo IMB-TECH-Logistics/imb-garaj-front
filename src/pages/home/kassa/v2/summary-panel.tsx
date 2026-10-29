@@ -7,7 +7,9 @@ import { endOfMonth, startOfMonth } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { ReactNode } from "react"
 import { n, usePeriod, Overview } from "./api"
-import { supplierRows, useSuppliersStore } from "../../ombor/suppliers-store"
+import { num, useKontragentSummary } from "@/pages/home/kontragent/api"
+import { useVstFinance } from "@/hooks/use-vst-finance"
+import { LegacySummaryPanel } from "./summary-panel-legacy"
 
 const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
     const { t } = useTranslation()
@@ -51,13 +53,12 @@ type SummaryPanelProps = {
     setView: (v: "driver") => void
 }
 
-export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
+const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const suppliers = useSuppliersStore((s) => s.suppliers)
-    const supplierTxs = useSuppliersStore((s) => s.txs)
-    const supplierDebts = supplierRows(suppliers, supplierTxs).filter((r) => r.debt > 0)
-    const supplierDebtTotal = supplierDebts.reduce((s, r) => s + r.debt, 0)
+    const { data: finance } = useKontragentSummary()
+    const supplierDebts = finance?.suppliers ?? []
+    const byType = sm?.income_by_type
     const openSuppliers = () => navigate({ to: "/ombor", search: { section: "suppliers" } as never })
     return (
         <Card className="xl:h-full min-h-0 overflow-hidden">
@@ -71,10 +72,10 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                 )}
                 <Box className="bg-green-600/5 border-green-600/30">
                     <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
-                    <Line sub label={t("fin.kv2.vst_trip_payment")} value={sm?.income.vst_trips} />
+                    <Line sub label={t("fin.kv2.vst_trip_payment")} value={byType?.vst ?? 0} />
                     <Line sub label={t("fin.kv2.street_trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.street_trip_cash"), amount: n(sm?.income.trip_cash) })} />
-                    <Line sub label={t("fin.kv2.from_external")} value={sm?.income.external} {...lineProps("in_external", "fin.kv2.from_external")} />
-                    <Line sub label={t("fin.kv2.investor_loans")} value={sm?.income.loans} onClick={() => navigate({ to: "/investor-royxati" })} />
+                    <Line sub label={t("fin.kv2.vst_investor_income")} value={byType?.investor ?? sm?.income.external} />
+                    <Line sub label={t("fin.kv2.investor_loans")} value={byType?.other ?? 0} />
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
                     <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />
@@ -101,15 +102,15 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
                 </Box>
                 <Box className="bg-orange-500/5 border-orange-500/30">
                     <Line strong tone="red" label={t("fin.kv2.non_trip_expenses")} value={-n(sm?.other_expense?.total ?? sm?.expense.garaj)} />
-                    <Line sub label={t("fin.kv2.garage_cash_expense")} value={-n(sm?.other_expense?.garaj ?? sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.garage_cash_expense")} />
+                    <Line sub label={t("fin.kv2.vst_repair_expense")} value={-n(sm?.other_expense?.garaj ?? sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.vst_repair_expense")} />
                     <Line sub label={t("fin.kv2.warehouse_expense")} value={-n(sm?.other_expense?.ombor)} {...lineProps("out_ombor", "fin.kv2.warehouse_expense")} />
                     <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.expense_other")} />
                 </Box>
                 <Box className="bg-amber-500/5 border-amber-500/30">
-                    <Line strong label={t("suppliers.kassa_debt")} value={supplierDebtTotal} onClick={openSuppliers} />
+                    <Line strong label={t("suppliers.kassa_debt")} value={num(finance?.supplier_debt)} onClick={openSuppliers} />
                     <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto -mr-2 pr-2">
                         {supplierDebts.map((r) => (
-                            <Line key={r.id} sub label={r.name} value={r.debt} onClick={openSuppliers} />
+                            <Line key={r.id} sub label={r.name} value={num(r.debt)} onClick={openSuppliers} />
                         ))}
                     </div>
                 </Box>
@@ -162,4 +163,9 @@ export const SummaryPanel = ({ sm, ov, drivers, from_date, view, driver, linePro
             </CardContent>
         </Card>
     )
+}
+
+export const SummaryPanel = (props: SummaryPanelProps) => {
+    const vst = useVstFinance()
+    return vst ? <VstSummaryPanel {...props} /> : <LegacySummaryPanel {...props} />
 }

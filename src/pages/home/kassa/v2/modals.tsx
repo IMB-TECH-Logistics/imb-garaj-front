@@ -4,7 +4,9 @@ import { FormMultiCombobox } from "@/components/form/multi-combobox"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
-import { useInvestorsStore } from "@/pages/home/investors/store"
+import { SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
+import { useVstFinance } from "@/hooks/use-vst-finance"
+import { useKontragents, useRefreshFinance } from "@/pages/home/kontragent/api"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
@@ -45,97 +47,145 @@ export { RequestModal } from "./request-modal"
 
 const inputCls = "h-9 rounded-md border bg-background px-2 text-sm w-full"
 
-export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null; out?: boolean }) => {
+const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; out?: boolean }) => {
     const { t } = useTranslation()
     const amountRules = useAmountRules()
     const { closeModal, isOpen } = useModal(M.income)
-    type IncomeType = "vst" | "investor" | "other"
-    type F = { amount: number | ""; income_type: IncomeType | ""; source: string; comment: string; date: string; vehicles: number[] }
-    const empty: F = { amount: "", income_type: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [] }
-    const form = useForm<F>({ defaultValues: empty })
+    type F = { amount: number | ""; source: string; comment: string; date: string; vehicles: number[] }
+    const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [] } })
     const { data: vehicleOptions } = useGet<{ id: number; name: string }[]>("selectable/vehicle", { params: { model_name: "vehicle" }, enabled: isOpen && out })
     const post = useKassaPost(closeModal)
     const patch = useKassaPatch(closeModal)
-    const investors = useInvestorsStore((s) => s.investors)
-    const addLoanTx = useInvestorsStore((s) => s.addLoanTx)
-    const VST_SOURCE = "VST"
-    const typeOptions = [
-        { id: "vst", name: t("fin.kv2.vst_trip_payment") },
-        { id: "investor", name: t("fin.kv2.income_type_investor") },
-        { id: "other", name: t("fin.kv2.investor_loans") },
-    ]
-    const OTHER = "__other__"
-    const investorOptions = useMemo(
-        () => [...investors.map((i) => ({ id: i.name, name: i.name })), { id: OTHER, name: t("fin.kv2.source_other") }],
-        [investors, t],
-    )
-    const incomeType = form.watch("income_type")
-    const source = form.watch("source")
-    const needComment = !out && (incomeType === "other" || (incomeType === "investor" && source === OTHER))
-    useEffect(() => {
-        if (incomeType !== "investor" && form.getValues("source") && !out) form.setValue("source", "")
-    }, [incomeType])
-    const typeOf = (tx: KassaTx): IncomeType => {
-        if (tx.source && investors.some((i) => i.name === tx.source)) return "investor"
-        if (tx.source === VST_SOURCE) return "vst"
-        return "other"
-    }
+    const { data: users } = useGet<{ id: number; first_name?: string; last_name?: string; username?: string }[]>(SETTINGS_SELECTABLE_USERS, { params: { staff: 1 }, enabled: isOpen })
+    const userOptions = useMemo(() => {
+        const names = (users ?? []).map((u) => [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || u.username || "").filter(Boolean)
+        const current = editing?.source
+        return [...new Set(current ? [current, ...names] : names)].map((name) => ({ id: name, name }))
+    }, [users, editing])
     useEffect(() => {
         if (!isOpen) return
         form.reset(editing
-            ? { amount: n(editing.amount), income_type: out ? "" : typeOf(editing), source: editing.source ?? "", comment: editing.comment ?? "", date: toLocalInput(editing.created), vehicles: (editing.vehicles ?? []).map((v) => v.id) }
-            : empty)
+            ? { amount: n(editing.amount), source: editing.source ?? "", comment: editing.comment ?? "", date: toLocalInput(editing.created), vehicles: (editing.vehicles ?? []).map((v) => v.id) }
+            : { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [] })
     }, [isOpen, editing])
     return (
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                if (!out && !v.income_type) return form.setError("income_type", { message: t("fin.kv2.choose_income_type") })
-                if (!out && v.income_type === "investor" && !v.source) return form.setError("source", { message: t("fin.kv2.choose_investor") })
-                const otherPerson = v.income_type === "investor" && v.source === OTHER
-                if (!out && (v.income_type === "other" || otherPerson) && !v.comment.trim()) return form.setError("comment", { message: t("fin.kv2.other_source_comment") })
-                const source = out ? v.source || null : otherPerson ? null : v.income_type === "investor" ? v.source : v.income_type === "vst" ? VST_SOURCE : null
-                const body = { amount: Number(v.amount), source, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? { vehicles: v.vehicles ?? [] } : {}) }
+                const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? { vehicles: v.vehicles ?? [] } : {}) }
                 const url = out ? KV2_EXPENSE : KV2_INCOME
                 const done = out ? t("fin.kv2.cash_out_done") : t("fin.kv2.cash_in_done")
                 if (editing) patch.mutate(`${url}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
-                else {
-                    const investor = !out && v.income_type === "investor" ? investors.find((i) => i.name === v.source) : undefined
-                    post.mutate(url, body, {
-                        onSuccess: () => {
-                            if (investor) {
-                                addLoanTx({ investor_id: investor.id, date: v.date.slice(0, 10), dir: "in", amount: Number(v.amount), comment: v.comment })
-                            }
-                            toast.success(done)
-                        },
-                        onError: onErr,
-                    })
-                }
+                else post.mutate(url, body, { onSuccess: () => toast.success(done), onError: onErr })
             })}
         >
-            {!out && (
-                <FormCombobox
-                    required
-                    isSearch={false}
-                    control={form.control}
-                    name="income_type"
-                    label={t("fin.kv2.income_type")}
-                    options={typeOptions}
-                    valueKey="id"
-                    labelKey="name"
-                />
-            )}
-            {!out && incomeType === "investor" && (
-                <FormCombobox required control={form.control} name="source" label={t("fin.kv2.received_from")} options={investorOptions} valueKey="id" labelKey="name" />
-            )}
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
+            {!out && <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
             {out && (
                 <div className="flex flex-col gap-1">
                     <FormMultiCombobox control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
                     <p className="text-xs text-muted-foreground">{t("fin.kv2.expense_vehicles_hint")}</p>
                 </div>
             )}
+            <FormTextarea label={t("form.comment")} name="comment" methods={form} />
+            {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
+            <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
+        </form>
+    )
+}
+
+const VstIncomeModal = ({ editing }: { editing: KassaTx | null }) => {
+    const { t } = useTranslation()
+    const amountRules = useAmountRules()
+    const { closeModal, isOpen } = useModal(M.income)
+    type IncomeType = "vst" | "investor" | "other"
+    type F = { amount: number | ""; income_type: IncomeType | ""; source: string; comment: string; date: string }
+    const OTHER = "__other__"
+    const empty: F = { amount: "", income_type: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()) }
+    const form = useForm<F>({ defaultValues: empty })
+    const post = useKassaPost(closeModal)
+    const patch = useKassaPatch(closeModal)
+    const refresh = useRefreshFinance()
+    const { data: kontragents = [] } = useKontragents(undefined, isOpen)
+    const typeOptions = [
+        { id: "vst", name: t("fin.kv2.vst_trip_payment") },
+        { id: "investor", name: t("fin.kv2.income_type_investor") },
+        { id: "other", name: t("fin.kv2.investor_loans") },
+    ]
+    const kontragentOptions = useMemo(
+        () => [
+            ...[...kontragents]
+                .sort((a, b) => Number(b.type === "investor") - Number(a.type === "investor"))
+                .map((k) => ({ id: String(k.id), name: `${k.name} · ${t(`contragent.type.${k.type}`)}` })),
+            { id: OTHER, name: t("fin.kv2.source_other") },
+        ],
+        [kontragents, t],
+    )
+    const incomeType = form.watch("income_type")
+    const source = form.watch("source")
+    const needComment = incomeType === "other" || (incomeType === "investor" && source === OTHER)
+    useEffect(() => {
+        if (!isOpen) return
+        form.reset(
+            editing ?
+                {
+                    amount: n(editing.amount),
+                    income_type: (editing.income_type as IncomeType) ?? "",
+                    source: editing.kontragent ? String(editing.kontragent) : editing.income_type === "investor" ? OTHER : "",
+                    comment: editing.comment ?? "",
+                    date: toLocalInput(editing.created),
+                }
+            :   empty,
+        )
+    }, [isOpen, editing])
+    useEffect(() => {
+        if (incomeType !== "investor" && form.getValues("source")) form.setValue("source", "")
+    }, [incomeType])
+    return (
+        <form
+            className="flex flex-col gap-3"
+            onSubmit={form.handleSubmit((v) => {
+                if (!v.income_type) return form.setError("income_type", { message: t("fin.kv2.choose_income_type") })
+                if (v.income_type === "investor" && !v.source) return form.setError("source", { message: t("fin.kv2.choose_investor") })
+                if (needComment && !v.comment.trim()) return form.setError("comment", { message: t("fin.kv2.other_source_comment") })
+                const kontragentId = v.income_type === "investor" && v.source && v.source !== OTHER ? Number(v.source) : null
+                const kontragent = kontragents.find((k) => k.id === kontragentId)
+                const body = {
+                    amount: Number(v.amount),
+                    income_type: v.income_type,
+                    kontragent: kontragentId,
+                    source: kontragent?.name ?? (v.income_type === "vst" ? "VST" : null),
+                    comment: v.comment || null,
+                    date: new Date(v.date.replace(" ", "T")).toISOString(),
+                }
+                const done = () => {
+                    refresh()
+                }
+                if (editing)
+                    patch.mutate(`${KV2_INCOME}/${editing.id}`, body, {
+                        onSuccess: () => {
+                            toast.success(t("fin.kv2.income_updated"))
+                            done()
+                        },
+                        onError: onErr,
+                    })
+                else
+                    post.mutate(KV2_INCOME, body, {
+                        onSuccess: () => {
+                            toast.success(t("fin.kv2.cash_in_done"))
+                            done()
+                        },
+                        onError: onErr,
+                    })
+            })}
+        >
+            <FormCombobox required isSearch={false} control={form.control} name="income_type" label={t("fin.kv2.income_type")} options={typeOptions} valueKey="id" labelKey="name" />
+            {incomeType === "investor" && (
+                <FormCombobox required control={form.control} name="source" label={t("fin.kv2.received_from")} options={kontragentOptions} valueKey="id" labelKey="name" />
+            )}
+            <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
+            <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
             <FormTextarea
                 required={needComment}
                 label={t("form.comment")}
@@ -144,9 +194,15 @@ export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null;
                 placeholder={needComment ? t("fin.kv2.other_source_placeholder") : undefined}
             />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
-            <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
+            <Save label={editing ? t("actions.save") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
         </form>
     )
+}
+
+export const IncomeModal = ({ editing, out = false }: { editing: KassaTx | null; out?: boolean }) => {
+    const vst = useVstFinance()
+    if (vst && !out) return <VstIncomeModal editing={editing} />
+    return <LegacyIncomeModal editing={editing} out={out} />
 }
 
 export const DeleteIncomeModal = ({ row }: { row: KassaTx | null }) => {

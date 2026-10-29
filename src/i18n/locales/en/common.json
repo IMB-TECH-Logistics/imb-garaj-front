@@ -1442,7 +1442,7 @@
             "cash_balance": "Cash balance",
             "opening_balance": "Opening balance",
             "opening_ledger_balance": "Balance",
-            "from_external": "Investor/Loan",
+            "from_external": "From external source",
             "investor_loans": "Other source",
             "vst_trip_payment": "VST trip payments",
             "street_trip_cash": "Street trip payments",
@@ -1454,7 +1454,7 @@
             "expense_other": "Other expenses",
             "col_from": "From",
             "col_to": "To",
-            "garage_cash_expense": "Repairs and inspection",
+            "garage_cash_expense": "Garage expenses (cash)",
             "warehouse_expense": "Warehouse expenses",
             "reversed_incomes": "Cancelled incomes",
             "drivers_hand": "Into drivers' hands",
@@ -1609,7 +1609,9 @@
             "title_operator_fix": "The operator must fix and resubmit",
             "title_manager_unfinished": "The manager has not finished the turnover yet",
             "col_turnover": "Turnover",
-            "to_balance": "To balance"
+            "to_balance": "To balance",
+            "vst_investor_income": "Investor/Loan",
+            "vst_repair_expense": "Repairs and inspection"
         },
         "kv2_kind": {
             "avans": "Advance",
@@ -3112,7 +3114,9 @@
             "amount_som": "Amount, UZS",
             "loan_date": "Loan date",
             "due_date": "Due date",
-            "repay_date": "Payment date"
+            "repay_date": "Payment date",
+            "rate": "Dollar rate, UZS",
+            "to_kassa": "To cash desk"
         },
         "kind": {
             "cash": "Cash (to cash desk)",
@@ -3160,7 +3164,9 @@
             "out": "Loan repaid",
             "balance": "Balance",
             "repaid_sub": "Repaid: {{amount}}"
-        }
+        },
+        "to_kassa": "Goes to the cash desk",
+        "rate_short": "rate {{rate}}"
     },
     "suppliers": {
         "title": "Suppliers",
@@ -3248,6 +3254,20 @@
             "out_total": "Given by us",
             "in_hint": "The counterparty gave us money, goods or a service — our debt grows (or theirs shrinks).",
             "out_hint": "We gave the counterparty money, goods or a service — our debt shrinks (or they now owe us)."
+        },
+        "pending": "Pending at cash desk",
+        "pending_sum": "Pending at cash desk: {{amount}}",
+        "source": {
+            "kassa": "Via cash desk",
+            "request": "Cash desk request",
+            "receipt": "Warehouse receipt",
+            "sale": "Warehouse sale"
+        },
+        "cash": {
+            "in_btn": "Received money (to cash desk)",
+            "out_btn": "Paid money (from cash desk)",
+            "in_hint": "The money is recorded as cash desk income and on the counterparty.",
+            "out_hint": "The money is paid from the cash desk and recorded on the counterparty."
         }
     }
 }
