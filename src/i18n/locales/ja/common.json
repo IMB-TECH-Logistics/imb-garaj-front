@@ -2755,7 +2755,7 @@
             "advance_and_expenses": "前払いと、そこから支払った現金支出",
             "fuel_up": "給油する",
             "edit_income": "収入を編集",
-            "give_advance_request": "前払い支給（レジ担当へリクエスト）",
+            "give_advance_request": "前払い支給",
             "from_label": "支払元",
             "from_kassa": "レジ（レジ担当へリクエスト）",
             "advance_from_kontragent": "前払いを支給し、取引先への債務として記録しました",

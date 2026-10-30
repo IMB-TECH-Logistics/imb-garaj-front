@@ -2758,7 +2758,7 @@
             "advance_and_expenses": "Аванс и оплаченные из него наличные расходы",
             "fuel_up": "Заправить топливо",
             "edit_income": "Редактировать приход",
-            "give_advance_request": "Выдать аванс (запрос кассиру)",
+            "give_advance_request": "Выдать аванс",
             "from_label": "От кого",
             "from_kassa": "Касса (запрос кассиру)",
             "advance_from_kontragent": "Аванс выдан, долг записан на контрагента",
