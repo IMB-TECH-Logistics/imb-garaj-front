@@ -13,6 +13,7 @@ import {
     KIND_DIR,
     KV2_REQUESTS,
     KV2_TRIPS,
+    looseRequests,
     n,
     Paged,
     STATUS,
@@ -44,9 +45,9 @@ const KassaV2 = () => {
         if (!txAll) return undefined
         const closes = new Set(txAll.filter((t) => t.close).map((t) => t.close!.id))
         const plain = txAll.filter((t) => !t.close).length
-        const reqs = (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)).length
+        const reqs = looseRequests(reqData?.results, tripsData).length
         return plain + closes.size + reqs
-    }, [txAll, reqData])
+    }, [txAll, reqData, tripsData])
     const counts: Partial<Record<View, number | undefined>> = { trips: tripsData?.length, kassa: txCount }
     const { data: ov } = useOverview()
     const sm = ov?.summary

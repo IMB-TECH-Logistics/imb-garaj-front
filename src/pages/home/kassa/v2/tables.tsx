@@ -17,8 +17,11 @@ import {
     KassaRequest,
     KassaTx,
     KIND_DIR,
+    KassaTrip,
     KV2_REQUESTS,
     KV2_TRANSACTIONS,
+    KV2_TRIPS,
+    looseRequests,
     Paged,
     n,
     STATUS,
@@ -74,7 +77,8 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
         return { byTx, byClose }
     }, [allPeriod, overview])
     const { data: reqData } = useGet<Paged<KassaRequest>>(KV2_REQUESTS, { params: { status: `${STATUS.PENDING},${STATUS.REJECTED}`, page_size: 1000 } })
-    const reqs = useMemo(() => (reqData?.results ?? []).filter((q) => !q.trip && (q.status === STATUS.PENDING || q.can_unreject)), [reqData])
+    const { data: tripsData } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
+    const reqs = useMemo(() => looseRequests(reqData?.results, tripsData), [reqData, tripsData])
     const pendingCount = reqs.filter((q) => q.status === STATUS.PENDING).length
     const { mutate: post, isPending } = useKassaPost()
     const act = (url: string, ok: string) =>

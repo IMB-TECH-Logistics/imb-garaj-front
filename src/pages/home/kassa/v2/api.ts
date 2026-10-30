@@ -109,6 +109,15 @@ export type KassaTx = {
     kontragent?: number | null
 }
 
+export const looseRequests = (reqs: KassaRequest[] | undefined, trips: KassaTrip[] | undefined) => {
+    const onTrips = new Set<number>()
+    ;(trips ?? []).forEach((tr) => {
+        if (tr.avans_request) onTrips.add(tr.avans_request.id)
+        if (tr.close_request) onTrips.add(tr.close_request.id)
+    })
+    return (reqs ?? []).filter((q) => !onTrips.has(q.id) && (q.status === STATUS.PENDING || q.can_unreject))
+}
+
 export type KassaRequest = {
     id: number
     kind: RequestKind
