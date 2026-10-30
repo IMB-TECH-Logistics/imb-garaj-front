@@ -85,7 +85,7 @@ export type WhLowStock = {
     min_quantity: string
 }
 
-export type WhTab = "receipts" | "withdrawals" | "units" | "products"
+export type WhTab = "receipts" | "withdrawals" | "units" | "products" | "stock"
 
 export type OmborSearchParams = {
     product?: number

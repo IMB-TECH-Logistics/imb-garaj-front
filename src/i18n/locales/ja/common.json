@@ -844,6 +844,8 @@
         "tenant": "テナント",
         "plate": "車両番号",
         "source_inspection": "技術検査 #{{id}}",
+        "stock_tab": "在庫",
+        "stock_pcs": "個",
         "receipts": "入庫",
         "withdrawals": "出庫",
         "my_withdrawals": "自社の出庫",

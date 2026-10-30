@@ -56,6 +56,7 @@ const MainTexnikBazaIdLazyImport = createFileRoute('/_main/texnik-baza/$id')()
 const MainRouteNormsRouteLazyImport = createFileRoute(
   '/_main/route-norms/$route',
 )()
+const MainOmborIdLazyImport = createFileRoute('/_main/ombor/$id')()
 const MainKontragentlarIdLazyImport = createFileRoute(
   '/_main/kontragentlar/$id',
 )()
@@ -279,6 +280,13 @@ const MainRouteNormsRouteLazyRoute = MainRouteNormsRouteLazyImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/route-norms/$route.lazy').then((d) => d.Route),
+)
+
+const MainOmborIdLazyRoute = MainOmborIdLazyImport.update({
+  path: '/ombor/$id',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/ombor/$id.lazy').then((d) => d.Route),
 )
 
 const MainKontragentlarIdLazyRoute = MainKontragentlarIdLazyImport.update({
@@ -696,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainKontragentlarIdLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/ombor/$id': {
+      id: '/_main/ombor/$id'
+      path: '/ombor/$id'
+      fullPath: '/ombor/$id'
+      preLoaderRoute: typeof MainOmborIdLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/route-norms/$route': {
       id: '/_main/route-norms/$route'
       path: '/route-norms/$route'
@@ -1102,6 +1117,7 @@ interface MainRouteChildren {
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
   MainInvestorRoyxatiIdLazyRoute: typeof MainInvestorRoyxatiIdLazyRoute
   MainKontragentlarIdLazyRoute: typeof MainKontragentlarIdLazyRoute
+  MainOmborIdLazyRoute: typeof MainOmborIdLazyRoute
   MainRouteNormsRouteLazyRoute: typeof MainRouteNormsRouteLazyRoute
   MainTexnikBazaIdLazyRoute: typeof MainTexnikBazaIdLazyRoute
   MainOmborIndexRoute: typeof MainOmborIndexRoute
@@ -1162,6 +1178,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
   MainInvestorRoyxatiIdLazyRoute: MainInvestorRoyxatiIdLazyRoute,
   MainKontragentlarIdLazyRoute: MainKontragentlarIdLazyRoute,
+  MainOmborIdLazyRoute: MainOmborIdLazyRoute,
   MainRouteNormsRouteLazyRoute: MainRouteNormsRouteLazyRoute,
   MainTexnikBazaIdLazyRoute: MainTexnikBazaIdLazyRoute,
   MainOmborIndexRoute: MainOmborIndexRoute,
@@ -1238,6 +1255,7 @@ export interface FileRoutesByFullPath {
   '/managers': typeof MainManagersManagersLazyRoute
   '/investor-royxati/$id': typeof MainInvestorRoyxatiIdLazyRoute
   '/kontragentlar/$id': typeof MainKontragentlarIdLazyRoute
+  '/ombor/$id': typeof MainOmborIdLazyRoute
   '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/ombor': typeof MainOmborIndexRoute
@@ -1301,6 +1319,7 @@ export interface FileRoutesByTo {
   '/managers': typeof MainManagersManagersLazyRoute
   '/investor-royxati/$id': typeof MainInvestorRoyxatiIdLazyRoute
   '/kontragentlar/$id': typeof MainKontragentlarIdLazyRoute
+  '/ombor/$id': typeof MainOmborIdLazyRoute
   '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/ombor': typeof MainOmborIndexRoute
@@ -1367,6 +1386,7 @@ export interface FileRoutesById {
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
   '/_main/investor-royxati/$id': typeof MainInvestorRoyxatiIdLazyRoute
   '/_main/kontragentlar/$id': typeof MainKontragentlarIdLazyRoute
+  '/_main/ombor/$id': typeof MainOmborIdLazyRoute
   '/_main/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/_main/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/_main/ombor/': typeof MainOmborIndexRoute
@@ -1433,6 +1453,7 @@ export interface FileRouteTypes {
     | '/managers'
     | '/investor-royxati/$id'
     | '/kontragentlar/$id'
+    | '/ombor/$id'
     | '/route-norms/$route'
     | '/texnik-baza/$id'
     | '/ombor'
@@ -1495,6 +1516,7 @@ export interface FileRouteTypes {
     | '/managers'
     | '/investor-royxati/$id'
     | '/kontragentlar/$id'
+    | '/ombor/$id'
     | '/route-norms/$route'
     | '/texnik-baza/$id'
     | '/ombor'
@@ -1559,6 +1581,7 @@ export interface FileRouteTypes {
     | '/_main/_managers/managers'
     | '/_main/investor-royxati/$id'
     | '/_main/kontragentlar/$id'
+    | '/_main/ombor/$id'
     | '/_main/route-norms/$route'
     | '/_main/texnik-baza/$id'
     | '/_main/ombor/'
@@ -1656,6 +1679,7 @@ export const routeTree = rootRoute
         "/_main/_managers/managers",
         "/_main/investor-royxati/$id",
         "/_main/kontragentlar/$id",
+        "/_main/ombor/$id",
         "/_main/route-norms/$route",
         "/_main/texnik-baza/$id",
         "/_main/ombor/",
@@ -1739,6 +1763,10 @@ export const routeTree = rootRoute
     },
     "/_main/kontragentlar/$id": {
       "filePath": "_main/kontragentlar/$id.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/ombor/$id": {
+      "filePath": "_main/ombor/$id.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/route-norms/$route": {

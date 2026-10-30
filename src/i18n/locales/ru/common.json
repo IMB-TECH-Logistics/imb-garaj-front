@@ -850,6 +850,8 @@
         "tenant": "Тенант",
         "plate": "Гос. номер",
         "source_inspection": "Техосмотр №{{id}}",
+        "stock_tab": "Остаток",
+        "stock_pcs": "шт.",
         "receipts": "Приходы",
         "withdrawals": "Выдачи",
         "my_withdrawals": "Мои выдачи",

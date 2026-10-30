@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     WAREHOUSE_PRODUCTS,
     WAREHOUSE_RECEIPT_LINES,
+    WAREHOUSE_ITEMS,
     WAREHOUSE_RECEIPTS,
     WAREHOUSE_WITHDRAWAL_FILTERS,
     WAREHOUSE_WITHDRAWALS,
@@ -20,6 +21,9 @@ import { Package, X } from "lucide-react"
 import { forwardRef, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useReceiptCols, useWithdrawalCols } from "./cols"
+import ItemDetailSheet from "./items/detail-sheet"
+import type { WhItem } from "./items/types"
+import StockItems from "./stock-items"
 import ReceiptModal, { RECEIPT_EDIT_MODAL_KEY } from "./receipt-modal"
 import type {
     OmborSearchParams,
@@ -50,20 +54,22 @@ const ProductHeader = ({
                         <Package size={22} />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-lg font-semibold leading-tight break-words">
-                            {product.name}
-                        </h2>
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
-                            <span>{product.unit_name}</span>
-                            {product.avg_price !== null && (
-                                <>
-                                    <span>·</span>
-                                    <span>
-                                        {formatMoney(product.avg_price)}{" "}
-                                        {t("page.som")}
-                                    </span>
-                                </>
-                            )}
+                        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                            <h2 className="text-lg font-semibold leading-tight break-words">
+                                {product.name}
+                            </h2>
+                            <span className="text-sm">
+                                <span className="text-muted-foreground">{t("wh.total_left")}:</span>{" "}
+                                <span className="font-semibold">
+                                    {formatMoney(product.qty_left)} {product.unit_name}
+                                </span>
+                            </span>
+                            <span className="text-sm">
+                                <span className="text-muted-foreground">{t("form.amount")}:</span>{" "}
+                                <span className="font-semibold">
+                                    {formatMoney(product.value)} {t("page.som")}
+                                </span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -79,41 +85,28 @@ const ProductHeader = ({
                     <span className="sr-only">{t("actions.close")}</span>
                 </button>
             </div>
-            <div className="grid grid-cols-2 gap-3 mt-3">
-                <div className="rounded-lg bg-muted/60 p-3">
-                    <div className="text-xs text-muted-foreground">
-                        {t("wh.total_left")}
-                    </div>
-                    <div className="text-base font-semibold">
-                        {formatMoney(product.qty_left)} {product.unit_name}
-                    </div>
-                </div>
-                <div className="rounded-lg bg-muted/60 p-3">
-                    <div className="text-xs text-muted-foreground">
-                        {t("form.amount")}
-                    </div>
-                    <div className="text-base font-semibold">
-                        {formatMoney(product.value)} {t("page.som")}
-                    </div>
-                </div>
-            </div>
         </div>
     )
 }
 
-const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
+type LinesSectionProps = { productId?: number; onClose?: () => void }
+
+const LinesSection = forwardRef<HTMLDivElement, LinesSectionProps>(({ productId, onClose }, ref) => {
     const { t } = useTranslation()
     const isOwner = useWarehouseOwner()
-    const { product, lot, tab, setTab, clear } = useOmborSearch()
+    const { product: searchProduct, lot, tab, setTab, clear } = useOmborSearch()
+    const product = productId ?? searchProduct
     const search = useSearch({ strict: false }) as OmborSearchParams
-
-    const activeTab: WhTab =
-        isOwner && tab !== "withdrawals" ? "receipts" : "withdrawals"
 
     const { data: selected } = useGet<WhProduct>(
         `${WAREHOUSE_PRODUCTS}/${product}`,
         { enabled: !!product },
     )
+    const serial = !!productId && !!selected?.is_serialized
+
+    const activeTab: WhTab =
+        serial && (tab === "stock" || !tab) ? "stock"
+        : isOwner && tab !== "withdrawals" ? "receipts" : "withdrawals"
 
     const listParams = {
         product,
@@ -169,6 +162,14 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
         enabled: activeTab === "withdrawals",
     })
 
+    const { data: stockItems, isLoading: stockLoading } = useGet<
+        ListResponse<WhItem>
+    >(WAREHOUSE_ITEMS, {
+        params: { product, state: "in_stock", page: search.lpage, page_size: search.lpage_size },
+        enabled: activeTab === "stock",
+    })
+    const [itemId, setItemId] = useState<number | undefined>()
+
     const receiptCols = useReceiptCols(!!product)
 
     // Xato kiritilgan kirimni o'chirish (S-U3-02): faqat ombor egasi + warehouse_control.
@@ -188,7 +189,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
     const head = (
         <>
             {product && selected && (
-                <ProductHeader product={selected} onClose={clear} />
+                <ProductHeader product={selected} onClose={onClose ?? clear} />
             )}
             <div className="mb-3 flex flex-wrap items-center gap-2">
                 <Tabs
@@ -196,6 +197,12 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                     onValueChange={(value) => setTab(value as WhTab)}
                 >
                     <TabsList>
+                        {serial && (
+                            <TabsTrigger value="stock">
+                                {t("wh.stock_tab")}
+                                {stockItems && ` (${stockItems.count})`}
+                            </TabsTrigger>
+                        )}
                         {isOwner && (
                             <TabsTrigger value="receipts">
                                 {t("wh.receipts")}
@@ -217,7 +224,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                                 "!bg-background dark:!bg-secondary min-w-32 justify-start",
                         }}
                     />
-                    <ParamCombobox
+                    {!productId && <ParamCombobox
                         paramName="product"
                         options={catalog?.results ?? []}
                         valueKey="id"
@@ -228,7 +235,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                         addButtonProps={{
                             className: "!bg-background dark:!bg-secondary min-w-44",
                         }}
-                    />
+                    />}
                     {activeTab === "withdrawals" && isOwner && (
                         <ParamCombobox
                             paramName="tenant"
@@ -267,7 +274,16 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
 
     return (
         <div ref={ref} className="scroll-mt-3">
-            {activeTab === "receipts" ?
+            {activeTab === "stock" ?
+                <StockItems
+                    data={stockItems?.results}
+                    count={stockItems?.count}
+                    loading={stockLoading}
+                    head={head}
+                    pagination={pagination(stockItems)}
+                    onOpen={setItemId}
+                />
+            : activeTab === "receipts" ?
                 <DataTable
                     loading={receiptsLoading}
                     columns={receiptCols}
@@ -305,6 +321,7 @@ const LinesSection = forwardRef<HTMLDivElement>((_, ref) => {
                     head={head}
                 />
             }
+            {serial && <ItemDetailSheet itemId={itemId} onClose={() => setItemId(undefined)} />}
             {canDeleteReceipt && <ReceiptModal receiptId={receiptToEdit} />}
             <DeleteModal
                 modalKey="receipt-delete"

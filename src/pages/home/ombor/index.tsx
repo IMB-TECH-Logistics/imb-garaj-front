@@ -73,6 +73,7 @@ const Stock = () => {
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
+                onRowClick={(row) => navigate({ to: "/ombor/$id", params: { id: String(row.id) } })}
                 className="min-w-[760px]"
                 paginationProps={{
                     totalPages: data?.total_pages,

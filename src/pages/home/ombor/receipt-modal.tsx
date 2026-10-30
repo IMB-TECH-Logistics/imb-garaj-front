@@ -4,7 +4,6 @@ import { FormDatePicker } from "@/components/form/date-picker"
 import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { WAREHOUSE_RECEIPTS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
@@ -110,6 +109,9 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                 String(toNumber(product.avg_price)),
             )
         }
+        if (product?.is_serialized && !line?.lot && line?.quantity !== "1") {
+            setValue(`lines.${index}.quantity`, "1")
+        }
     }, [product?.id])
 
     const used = !!line?.used
@@ -150,7 +152,16 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                             addButtonProps={used ? { disabled: true } : undefined}
                         />
                     </div>
-                    {serialized && <Badge className="shrink-0">{t("wh.serialized_yes")}</Badge>}
+                    {serialized && count === 1 && !line.lot && (
+                        <div className="w-40 shrink-0" title={t("wh.receipt.factory_auto_hint")}>
+                            <FormInput
+                                name={`lines.${index}.factory_numbers.0`}
+                                placeholder={t("wh.factory_number")}
+                                className="font-mono"
+                                methods={form}
+                            />
+                        </div>
+                    )}
                 </div>
                 <FormNumberInput
                     required
@@ -160,7 +171,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     allowNegative={false}
                     decimalScale={serialized ? 0 : 2}
                     isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_QTY}
-                    disabled={fixedQty}
+                    disabled={fixedQty || (serialized && !line.lot)}
                 />
                 <FormNumberInput
                     required
@@ -185,27 +196,6 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                 </div>
             )}
 
-            {serialized && count > 0 && !line.lot && (
-                <div className="rounded-md bg-muted/60 p-2.5">
-                    <div className="text-xs font-medium text-muted-foreground mb-2">
-                        {t("wh.receipt.factory_numbers")}
-                        <span className="ml-2 font-normal">
-                            {t("wh.receipt.factory_auto_hint")}
-                        </span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {Array.from({ length: count }, (_, i) => (
-                            <FormInput
-                                key={i}
-                                name={`lines.${index}.factory_numbers.${i}`}
-                                placeholder={`${t("wh.factory_number")} ${i + 1}`}
-                                className="font-mono"
-                                methods={form}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

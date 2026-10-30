@@ -841,6 +841,8 @@
         "tenant": "Тенант",
         "plate": "Авто рақам",
         "source_inspection": "Техник кўрик #{{id}}",
+        "stock_tab": "Қолдиқ",
+        "stock_pcs": "дона",
         "receipts": "Киримлар",
         "withdrawals": "Чиқимлар",
         "my_withdrawals": "Менинг чиқимларим",

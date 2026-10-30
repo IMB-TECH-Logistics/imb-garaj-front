@@ -841,6 +841,8 @@
         "tenant": "Tenant",
         "plate": "Avto raqam",
         "source_inspection": "Texnik ko'rik #{{id}}",
+        "stock_tab": "Qoldiq",
+        "stock_pcs": "dona",
         "receipts": "Kirimlar",
         "withdrawals": "Chiqimlar",
         "my_withdrawals": "Mening chiqimlarim",

@@ -844,6 +844,8 @@
         "tenant": "Tenant",
         "plate": "Plate number",
         "source_inspection": "Inspection #{{id}}",
+        "stock_tab": "In stock",
+        "stock_pcs": "pcs",
         "receipts": "Receipts",
         "withdrawals": "Withdrawals",
         "my_withdrawals": "My withdrawals",
