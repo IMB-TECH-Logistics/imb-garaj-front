@@ -38,7 +38,7 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
     )
 }
 
-export const DriverExpensesTable = ({ head, kind }: { head: (total: number | null) => ReactNode; kind: "fuel" | "other" | "trip_cash" | "salary" }) => {
+export const DriverExpensesTable = ({ head, kind }: { head: (total: number | null, filters: ReactNode) => ReactNode; kind: "fuel" | "other" | "trip_cash" | "salary" }) => {
     const { t } = useTranslation()
     const period = usePeriod()
     const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind } })
@@ -75,10 +75,9 @@ export const DriverExpensesTable = ({ head, kind }: { head: (total: number | nul
             data={rows}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
-            head={
+            head={head(
+                who || plate ? (kind === "trip_cash" ? total : -total) : null,
                 <>
-                    {head(who || plate ? (kind === "trip_cash" ? total : -total) : null)}
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
                         <Combobox
                             label={t("table.driver")}
                             options={drivers.map((d) => ({ id: d, name: d }))}
@@ -86,7 +85,7 @@ export const DriverExpensesTable = ({ head, kind }: { head: (total: number | nul
                             setValue={(v: any) => setWho(v ? String(v) : null)}
                             labelKey="name"
                             valueKey="id"
-                            className="h-10 w-64"
+                            className="h-10 w-56"
                         />
                         <Combobox
                             label={t("table.vehicle")}
@@ -95,11 +94,10 @@ export const DriverExpensesTable = ({ head, kind }: { head: (total: number | nul
                             setValue={(v: any) => setPlate(v ? String(v) : null)}
                             labelKey="name"
                             valueKey="id"
-                            className="h-10 w-48"
+                            className="h-10 w-44"
                         />
-                    </div>
-                </>
-            }
+                </>,
+            )}
         />
     )
 }

@@ -121,7 +121,7 @@ const KassaV2 = () => {
                 : view === "expenses" && exp ?
                     <DriverExpensesTable key={exp.kind}
                         kind={exp.kind}
-                        head={(total) => <ExpensesHead switcher={switcher} exp={exp} setView={setView} amount={total} />}
+                        head={(total, filters) => <ExpensesHead switcher={switcher} exp={exp} setView={setView} amount={total} filters={filters} />}
                     />
                 : view === "requests" ?
                     <RequestsTable
