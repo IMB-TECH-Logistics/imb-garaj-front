@@ -5,14 +5,17 @@ import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
+import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { CONTRAGENT_TYPES, ContragentType, EntryDir, EntryKind, KONTRAGENT, kontragentUrl, onApiError, som, useRefreshFinance } from "./api"
+import { CONTRAGENT_TYPES, ContragentType, EntryDir, EntryKind, KONTRAGENT, Kontragent, kontragentUrl, onApiError, som, useRefreshFinance } from "./api"
 
 export const CONTRAGENT_CREATE = "contragent-create"
+export const CONTRAGENT_EDIT = "contragent-edit"
+export const CONTRAGENT_DELETE = "contragent-delete"
 export const CONTRAGENT_TX = "contragent-tx"
 export const CONTRAGENT_CASH = "contragent-cash"
 
@@ -23,16 +26,28 @@ export const AddContragentForm = ({
     onCreated,
     fixedType,
     modalKey = CONTRAGENT_CREATE,
+    initial,
 }: {
     onCreated?: (id: number) => void
     fixedType?: ContragentType
     modalKey?: string
+    initial?: Kontragent
 }) => {
     const { t } = useTranslation()
     const { closeModal } = useModal(modalKey)
     const refresh = useRefreshFinance()
     const form = useForm<{ name: string; phone: string; type: ContragentType | ""; comment: string }>({
-        defaultValues: { name: "", phone: "", type: fixedType ?? "", comment: "" },
+        defaultValues: initial ?
+            { name: initial.name, phone: initial.phone, type: initial.type, comment: initial.comment }
+        :   { name: "", phone: "", type: fixedType ?? "", comment: "" },
+    })
+    const { mutate: update, isPending: updating } = usePatch({
+        onSuccess: () => {
+            toast.success(t("messages.success_edit"))
+            closeModal()
+            refresh()
+        },
+        onError: onApiError(t("messages.error")),
     })
     const { mutate, isPending } = usePost({
         onSuccess: (data: { id: number }) => {
@@ -48,9 +63,11 @@ export const AddContragentForm = ({
     return (
         <form
             className="flex flex-col gap-3"
-            onSubmit={form.handleSubmit((v) =>
-                mutate(KONTRAGENT, { name: v.name.trim(), phone: v.phone.trim(), type: fixedType ?? v.type, comment: v.comment.trim() }),
-            )}
+            onSubmit={form.handleSubmit((v) => {
+                const payload = { name: v.name.trim(), phone: v.phone.trim(), type: fixedType ?? v.type, comment: v.comment.trim() }
+                if (initial) update(kontragentUrl(initial.id), payload)
+                else mutate(KONTRAGENT, payload)
+            })}
         >
             <FormInput required name="name" label={t("contragent.fields.name")} methods={form} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -71,7 +88,7 @@ export const AddContragentForm = ({
             </div>
             <FormTextarea name="comment" label={t("contragent.fields.comment")} methods={form} rows={3} />
             <div className="flex justify-end">
-                <Button className="min-w-32" type="submit" loading={isPending}>{t("actions.save")}</Button>
+                <Button className="min-w-32" type="submit" loading={isPending || updating}>{t("actions.save")}</Button>
             </div>
         </form>
     )

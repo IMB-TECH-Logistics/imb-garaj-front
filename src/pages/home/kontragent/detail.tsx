@@ -10,6 +10,7 @@ import { ArrowDownLeft, ArrowLeft, ArrowUpRight, Wallet } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { EntryDir, Kontragent, TYPE_STYLE, kontragentUrl, num, som } from "./api"
+import { EditDeleteActions } from "./edit-actions"
 import { CONTRAGENT_CASH, CONTRAGENT_TX, CashForm, ContragentTxForm } from "./forms"
 import { LedgerTable, useLedger } from "./ledger-table"
 
@@ -55,6 +56,7 @@ const ContragentDetail = ({ id }: { id: number }) => {
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    <EditDeleteActions row={row} listUrl="/kontragentlar" />
                     <Button
                         variant="outline"
                         onClick={() => {

@@ -7,6 +7,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { Investment, kontragentUrl, num, som, usd } from "@/pages/home/kontragent/api"
 import { CashForm } from "@/pages/home/kontragent/forms"
+import { EditDeleteActions } from "@/pages/home/kontragent/edit-actions"
 import { LedgerTable, useLedger } from "@/pages/home/kontragent/ledger-table"
 import { useNavigate } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
@@ -77,13 +78,18 @@ const InvestorDetail = ({ id }: { id: number }) => {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 min-w-0">
-                <Button variant="ghost" size="icon" aria-label={t("investors.title")} onClick={back}>
-                    <ArrowLeft className="w-4 h-4" />
-                </Button>
-                <div className="min-w-0">
-                    <h1 className="text-xl font-semibold truncate">{row.name}</h1>
-                    {row.phone && <p className="text-sm text-muted-foreground">{row.phone}</p>}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                    <Button variant="ghost" size="icon" aria-label={t("investors.title")} onClick={back}>
+                        <ArrowLeft className="w-4 h-4" />
+                    </Button>
+                    <div className="min-w-0">
+                        <h1 className="text-xl font-semibold truncate">{row.name}</h1>
+                        {row.phone && <p className="text-sm text-muted-foreground">{row.phone}</p>}
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <EditDeleteActions row={row} listUrl="/investor-royxati" fixedType="investor" />
                 </div>
             </div>
 
