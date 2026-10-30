@@ -42,6 +42,13 @@ type ExtraPaySalary = {
     orders: { order: number; route: string; date: string | null; comment: string | null; amount: number }[]
 }
 
+type ManualSalary = {
+    label: string
+    count: number
+    amount: number
+    rows: { id: number; date: string | null; comment: string | null; amount: number }[]
+}
+
 type Preview = {
     given: number
     earned: number
@@ -53,6 +60,7 @@ type Preview = {
     salary_orders?: SalaryOrder[]
     empty_leg_salary?: EmptyLegSalary | null
     extra_pay_salary?: ExtraPaySalary | null
+    manual_salary?: ManualSalary | null
 }
 
 type FlowRow = { id: number; action: number; amount: number; comment: string | null; created: string; loading_name: string | null; unloading_name: string | null; payment_type_name: string | null; category_code?: string | null }
@@ -165,9 +173,11 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
     const emptyLegAmount = Number(emptyLegs?.amount ?? 0)
     const extraPay = preview?.extra_pay_salary
     const extraPayAmount = Number(extraPay?.amount ?? 0)
+    const manualSalary = preview?.manual_salary
+    const manualAmount = Number(manualSalary?.amount ?? 0)
     const salaryTotal = Object.values(salaries).reduce((a, v) => a + (Number(v) || 0), 0)
     const due = preview ? Number(preview.due) : 0
-    const net = due - salaryTotal - emptyLegAmount - extraPayAmount
+    const net = due - salaryTotal - emptyLegAmount - extraPayAmount - manualAmount
     const [settle, setSettle] = useState<number | "">("")
     useEffect(() => { setSettle(Math.abs(Math.round(net))) }, [net])
     const settleNow = net > 0 ? Math.min(Number(settle) || 0, Math.round(net)) : Math.abs(Math.round(net))
@@ -179,11 +189,11 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
             ready: !!preview,
             amount: net,
             settle: settleNow,
-            salary: salaryTotal + emptyLegAmount + extraPayAmount,
+            salary: salaryTotal + emptyLegAmount + extraPayAmount + manualAmount,
             salaries: Object.entries(salaries).map(([order, value]) => ({ order: Number(order), amount: Number(value) || 0 })),
             expenses: [],
         })
-    }, [preview, net, settleNow, salaryTotal, emptyLegAmount, extraPayAmount, salaries])
+    }, [preview, net, settleNow, salaryTotal, emptyLegAmount, extraPayAmount, manualAmount, salaries])
 
     const { mutate: patch, isPending: saving } = usePatch({ meta: { skipGlobalError: true } })
     const form = useForm<{ amount: number | ""; category: string; comment: string }>({ defaultValues: { amount: "", category: "", comment: "" } })
@@ -229,6 +239,12 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
     const extraPayCols: ColumnDef<ExtraPaySalary["orders"][number]>[] = [
         { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(Number(row.original.amount))}</span> },
         { header: t("trips.kclose.trip"), accessorKey: "route" },
+        { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => row.original.comment || "—" },
+        { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{row.original.date || "—"}</span> },
+    ]
+
+    const manualCols: ColumnDef<ManualSalary["rows"][number]>[] = [
+        { header: t("form.amount_total"), accessorKey: "amount", cell: ({ row }) => <span className="font-medium whitespace-nowrap">{formatMoney(Number(row.original.amount))}</span> },
         { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => row.original.comment || "—" },
         { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <span className="whitespace-nowrap text-muted-foreground">{row.original.date || "—"}</span> },
     ]
@@ -350,6 +366,21 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                         <AccordionContent className="pb-3">
                             <div className="max-h-[38vh] overflow-y-auto">
                                 <DataTable className={COMPACT} columns={extraPayCols} data={extraPay.orders} numeration viewAll />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                )}
+                {manualSalary && manualAmount > 0 && (
+                    <AccordionItem value="manual-salary" className="border-0">
+                        <AccordionTrigger className={trigger}>
+                            {line(
+                                <>{t("trips.row.extra_salary")}<Badge variant="outline" className="h-5 px-1.5">{manualSalary.count}</Badge></>,
+                                `−${money(manualAmount)}`,
+                            )}
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-3">
+                            <div className="max-h-[38vh] overflow-y-auto">
+                                <DataTable className={COMPACT} columns={manualCols} data={manualSalary.rows} numeration viewAll />
                             </div>
                         </AccordionContent>
                     </AccordionItem>

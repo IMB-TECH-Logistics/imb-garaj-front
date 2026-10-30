@@ -226,13 +226,13 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
         if (modal.isOpen) form.reset({ amount: "", comment: "" })
     }, [modal.isOpen])
     return (
-        <Modal modalKey={SALARY_REQUEST_MODAL} title={t("trips.row.request_salary")} size="max-w-md">
+        <Modal modalKey={SALARY_REQUEST_MODAL} title={t("trips.row.extra_salary")} size="max-w-md">
             <form
                 className="flex flex-col gap-3"
                 onSubmit={form.handleSubmit((v) => {
-                    mutate(REQUESTS, { kind: "oylik", trip: tripId, driver: driverId, amount: Number(v.amount), comment: v.comment || null }, {
+                    mutate(`checkout/kassa-v2/trips/${tripId}/extra-salary`, { amount: Number(v.amount), comment: v.comment || null }, {
                         onSuccess: () => {
-                            toast.success(t("trips.row.salary_sent"))
+                            toast.success(t("trips.row.extra_salary_saved"))
                             refresh()
                             modal.closeModal()
                         },
@@ -250,8 +250,9 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
                     registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
                 />
                 <FormTextarea label={t("form.comment")} name="comment" methods={form} />
+                <p className="text-xs text-muted-foreground">{t("trips.row.extra_salary_hint")}</p>
                 <div className="flex justify-end">
-                    <Button type="submit" className="min-w-32" loading={isPending}>{t("trips.row.send_to_cashier")}</Button>
+                    <Button type="submit" className="min-w-32" loading={isPending}>{t("actions.save")}</Button>
                 </div>
             </form>
         </Modal>

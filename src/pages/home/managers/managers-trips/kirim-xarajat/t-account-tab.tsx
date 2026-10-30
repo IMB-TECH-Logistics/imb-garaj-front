@@ -200,17 +200,19 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
         salary_orders?: { amount: number | null; tariff: number | null }[]
         empty_leg_salary?: { amount: number; legs: { id: number; route: string; start: string | null; amount: number }[] } | null
         extra_pay_salary?: { amount: number; orders: { order: number; route: string; date: string | null; comment: string | null; amount: number }[] } | null
+        manual_salary?: { amount: number; rows: { id: number; date: string | null; comment: string | null; amount: number }[] } | null
     }>(
         `checkout/kassa-v2/trips/${tripId}/close-preview`,
         { enabled: !!tripId && !!hideToggle, options: { retry: false } },
     )
     const extraSalarySum = closePreview ?
-        Number(closePreview.empty_leg_salary?.amount ?? 0) + Number(closePreview.extra_pay_salary?.amount ?? 0)
+        Number(closePreview.empty_leg_salary?.amount ?? 0) + Number(closePreview.extra_pay_salary?.amount ?? 0) + Number(closePreview.manual_salary?.amount ?? 0)
     :   0
     const extraSalaryRows = closePreview ?
         [
             ...(closePreview.extra_pay_salary?.orders ?? []).map((r) => ({ key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount) })),
             ...(closePreview.empty_leg_salary?.legs ?? []).map((r) => ({ key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount) })),
+            ...(closePreview.manual_salary?.rows ?? []).map((r) => ({ key: `m${r.id}`, route: t("trips.row.extra_salary"), date: r.date, comment: r.comment, amount: Number(r.amount) })),
         ]
     :   []
     const profit = closePreview ?
@@ -451,7 +453,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                         <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
                     : filter === "xarajat" ?
                         <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />{t("page.add_expense")}</Button>
-                    :   <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.request_salary")}</Button>
+                    :   <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.extra_salary")}</Button>
                 return (
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <DataTable
