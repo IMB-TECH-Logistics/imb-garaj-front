@@ -75,7 +75,7 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
                     <Line sub label={t("fin.kv2.vst_trip_payment")} value={byType?.vst ?? 0} />
                     <Line sub label={t("fin.kv2.street_trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.street_trip_cash"), amount: n(sm?.income.trip_cash) })} />
                     <Line sub label={t("fin.kv2.vst_investor_income")} value={byType?.investor ?? sm?.income.external} />
-                    <Line sub label={t("fin.kv2.investor_loans")} value={byType?.other ?? 0} />
+                    <Line sub label={t("fin.kv2.investor_loans")} value={byType?.other ?? 0} {...lineProps("in_other", "fin.kv2.investor_loans")} />
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
                     <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={-n(sm?.expense.total)} />
