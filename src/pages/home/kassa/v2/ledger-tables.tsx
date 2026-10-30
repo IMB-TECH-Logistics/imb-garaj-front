@@ -1,10 +1,11 @@
+import { Combobox } from "@/components/ui/combobox"
 import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { ReactNode, useMemo } from "react"
+import { ReactNode, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { DriverExpense, KV2_DRIVERS, KV2_DRIVER_EXPENSES, LedgerRow, usePeriod } from "./api"
+import { DriverExpense, KV2_DRIVERS, KV2_DRIVER_EXPENSES, LedgerRow, n, usePeriod } from "./api"
 import { Money, Party, Note, DateCell } from "./table-cells"
 
 export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number }) => {
@@ -37,10 +38,20 @@ export const LedgerTable = ({ head, driver }: { head: ReactNode; driver: number 
     )
 }
 
-export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fuel" | "other" | "trip_cash" | "salary" }) => {
+export const DriverExpensesTable = ({ head, kind }: { head: (total: number | null) => ReactNode; kind: "fuel" | "other" | "trip_cash" | "salary" }) => {
     const { t } = useTranslation()
     const period = usePeriod()
     const { data, isLoading } = useGet<DriverExpense[]>(KV2_DRIVER_EXPENSES, { params: { ...period, kind } })
+    const [who, setWho] = useState<string | null>(null)
+    const [plate, setPlate] = useState<string | null>(null)
+    const uniq = (list: (string | null)[]) => [...new Set(list.map((v) => v || "—"))].sort((a, b) => a.localeCompare(b))
+    const drivers = useMemo(() => uniq((data ?? []).filter((r) => !plate || (r.plate || "—") === plate).map((r) => r.driver)), [data, plate])
+    const plates = useMemo(() => uniq((data ?? []).filter((r) => !who || (r.driver || "—") === who).map((r) => r.plate)), [data, who])
+    const rows = useMemo(
+        () => (who || plate ? (data ?? []).filter((r) => (!who || (r.driver || "—") === who) && (!plate || (r.plate || "—") === plate)) : data),
+        [data, who, plate],
+    )
+    const total = (rows ?? []).reduce((sum, r) => sum + n(r.amount), 0)
     const columns = useMemo<ColumnDef<DriverExpense>[]>(
         () => [
             { header: t("form.date"), accessorKey: "date", cell: ({ row }) => <DateCell v={(kind === "trip_cash" && row.original.order_date) || row.original.date} /> },
@@ -61,10 +72,34 @@ export const DriverExpensesTable = ({ head, kind }: { head: ReactNode; kind: "fu
             numeration
             loading={isLoading}
             columns={columns}
-            data={data}
+            data={rows}
             wrapperClassName="md:h-full flex flex-col"
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
-            head={head}
+            head={
+                <>
+                    {head(who || plate ? (kind === "trip_cash" ? total : -total) : null)}
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <Combobox
+                            label={t("table.driver")}
+                            options={drivers.map((d) => ({ id: d, name: d }))}
+                            value={who}
+                            setValue={(v: any) => setWho(v ? String(v) : null)}
+                            labelKey="name"
+                            valueKey="id"
+                            className="h-10 w-64"
+                        />
+                        <Combobox
+                            label={t("table.vehicle")}
+                            options={plates.map((d) => ({ id: d, name: d }))}
+                            value={plate}
+                            setValue={(v: any) => setPlate(v ? String(v) : null)}
+                            labelKey="name"
+                            valueKey="id"
+                            className="h-10 w-48"
+                        />
+                    </div>
+                </>
+            }
         />
     )
 }

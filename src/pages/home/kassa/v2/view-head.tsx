@@ -24,7 +24,7 @@ export const DriverHead = ({ switcher, selected, setDriver, setView }: { switche
     )
 }
 
-export const ExpensesHead = ({ switcher, exp, setView }: { switcher: ReactNode; exp: Exp; setView: (v: "kassa") => void }) => {
+export const ExpensesHead = ({ switcher, exp, setView, amount }: { switcher: ReactNode; exp: Exp; setView: (v: "kassa") => void; amount?: number | null }) => {
     const { t } = useTranslation()
     return (
     <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
@@ -36,7 +36,7 @@ export const ExpensesHead = ({ switcher, exp, setView }: { switcher: ReactNode; 
             </Badge>
         </div>
         <span className="text-sm">
-            <b className="tabular-nums">{formatMoney(exp.amount)} {t("page.som")}</b>
+            <b className="tabular-nums">{formatMoney(amount ?? exp.amount)} {t("page.som")}</b>
         </span>
     </div>
     )
