@@ -2750,6 +2750,9 @@
             "fuel_up": "Yoqilg'i quyish",
             "edit_income": "Kirimni tahrirlash",
             "give_advance_request": "Avans berish (kassirga so'rov)",
+            "from_label": "Kimdan",
+            "from_kassa": "Kassa (kassirga so'rov)",
+            "advance_from_kontragent": "Avans berildi, kontragent hisobiga qarz yozildi",
             "t_account": "T hisob",
             "receipt": "Chek",
             "no_section_permission": "Bu bo'limni boshqarishga ruxsat yo'q"

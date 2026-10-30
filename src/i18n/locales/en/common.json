@@ -2753,6 +2753,9 @@
             "fuel_up": "Add fuel",
             "edit_income": "Edit income",
             "give_advance_request": "Give advance (request to the cashier)",
+            "from_label": "From",
+            "from_kassa": "Cash desk (request to the cashier)",
+            "advance_from_kontragent": "Advance given, debt recorded to the counterparty",
             "t_account": "T-account",
             "receipt": "Receipt",
             "no_section_permission": "No permission to manage this section"

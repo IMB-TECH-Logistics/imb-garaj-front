@@ -2750,6 +2750,9 @@
             "fuel_up": "Ёқилғи қуйиш",
             "edit_income": "Киримни таҳрирлаш",
             "give_advance_request": "Аванс бериш (кассирга сўров)",
+            "from_label": "Кимдан",
+            "from_kassa": "Касса (кассирга сўров)",
+            "advance_from_kontragent": "Аванс берилди, контрагент ҳисобига қарз ёзилди",
             "t_account": "Т ҳисоб",
             "receipt": "Чек",
             "no_section_permission": "Бу бўлимни бошқаришга рухсат йўқ"

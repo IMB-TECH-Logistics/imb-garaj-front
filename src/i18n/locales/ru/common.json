@@ -2759,6 +2759,9 @@
             "fuel_up": "Заправить топливо",
             "edit_income": "Редактировать приход",
             "give_advance_request": "Выдать аванс (запрос кассиру)",
+            "from_label": "От кого",
+            "from_kassa": "Касса (запрос кассиру)",
+            "advance_from_kontragent": "Аванс выдан, долг записан на контрагента",
             "t_account": "Т-счёт",
             "receipt": "Чек",
             "no_section_permission": "Нет прав на управление этим разделом"

@@ -12,25 +12,38 @@ import { MANAGERS_CASHFLOW, MANAGERS_TRIPS, SETTINTS_PAYMENT_TYPE } from "@/cons
 import { useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { isWithinMoneyLimit } from "@/lib/money-limit"
+import { useVstFinance } from "@/hooks/use-vst-finance"
+import { useKontragents } from "@/pages/home/kontragent/api"
 
 // ──── Avans form ────
+
+const KASSA_SOURCE = "kassa"
 
 export function AvansForm({ tripId }: { tripId?: number }) {
     const { t } = useTranslation()
     const { closeModal } = useModal("avans-berish")
-    const form = useForm({ defaultValues: { amount: "", payment_type: "", comment: "", date: "" } })
+    const form = useForm({ defaultValues: { source: KASSA_SOURCE, amount: "", payment_type: "", comment: "", date: "" } })
     const { handleSubmit, control, reset, watch, setValue } = form
     const { mutate, isPending } = usePost()
     const queryClient = useQueryClient()
     const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, {
         params: { page_size: 1000000 },
     })
+    const vst = useVstFinance()
+    const { data: kontragents } = useKontragents(undefined, vst)
+    const sourceOptions = [
+        { id: KASSA_SOURCE, name: t("trips.kirim.from_kassa") },
+        ...(kontragents ?? []).map((k) => ({ id: String(k.id), name: k.name })),
+    ]
+    const source = watch("source")
+    const fromKontragent = vst && !!source && source !== KASSA_SOURCE
 
     const onSubmit = (data: any) => {
         mutate(MANAGERS_CASHFLOW, {
             trip: tripId ?? null,
             amount: Number(data.amount),
-            payment_type: data.payment_type || null,
+            payment_type: fromKontragent ? null : data.payment_type || null,
+            kontragent: fromKontragent ? Number(data.source) : undefined,
             comment: data.comment || null,
             date: data.date || null,
             action: 2,
@@ -39,7 +52,11 @@ export function AvansForm({ tripId }: { tripId?: number }) {
             onSuccess: (res: any) => {
                 // Haydovchi-kassa rejimida server pul bermaydi — kassirga so'rov (PaymentRequest, 202) yaratadi
                 const isRequest = res != null && typeof res === "object" && "recipient_type" in res
-                toast.success(isRequest ? t("trips.kirim.advance_request_sent") : t("toast.advance_given"))
+                toast.success(
+                    fromKontragent ? t("trips.kirim.advance_from_kontragent")
+                    : isRequest ? t("trips.kirim.advance_request_sent")
+                    : t("toast.advance_given"),
+                )
                 queryClient.invalidateQueries({
                     predicate: (q) => {
                         const k = String(q.queryKey[0])
@@ -54,6 +71,17 @@ export function AvansForm({ tripId }: { tripId?: number }) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            {vst && (
+                <FormCombobox
+                    control={control}
+                    required
+                    labelKey="name"
+                    valueKey="id"
+                    name="source"
+                    options={sourceOptions}
+                    label={t("trips.kirim.from_label")}
+                />
+            )}
             <div className="flex gap-3">
                 <div className="flex-1 min-w-0">
                     <FormNumberInput
@@ -72,15 +100,17 @@ export function AvansForm({ tripId }: { tripId?: number }) {
                     />
                 </div>
             </div>
-            <FormCombobox
-                control={control}
-                required
-                labelKey="name"
-                valueKey="id"
-                name="payment_type"
-                options={paymentTypes?.results ?? []}
-                label={t("form.payment_type")}
-            />
+            {!fromKontragent && (
+                <FormCombobox
+                    control={control}
+                    required
+                    labelKey="name"
+                    valueKey="id"
+                    name="payment_type"
+                    options={paymentTypes?.results ?? []}
+                    label={t("form.payment_type")}
+                />
+            )}
             <FormDatePicker
                 required
                 label={t("form.date")}
