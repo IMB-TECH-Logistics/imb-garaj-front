@@ -72,9 +72,9 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
                 )}
                 <Box className="bg-green-600/5 border-green-600/30">
                     <Line strong tone="green" label={t("kassa.report_income")} value={sm?.income.total} />
-                    <Line sub label={t("fin.kv2.vst_trip_payment")} value={byType?.vst ?? 0} />
+                    <Line sub label={t("fin.kv2.vst_trip_payment")} value={byType?.vst ?? 0} {...lineProps("in_vst", "fin.kv2.vst_trip_payment")} />
                     <Line sub label={t("fin.kv2.street_trip_cash")} value={sm?.income.trip_cash} {...expProps({ key: "trip_cash", kind: "trip_cash", label: t("fin.kv2.street_trip_cash"), amount: n(sm?.income.trip_cash) })} />
-                    <Line sub label={t("fin.kv2.vst_investor_income")} value={byType?.investor ?? sm?.income.external} />
+                    <Line sub label={t("fin.kv2.vst_investor_income")} value={byType?.investor ?? sm?.income.external} {...lineProps(byType ? "in_investor" : "in_external", "fin.kv2.vst_investor_income")} />
                     <Line sub label={t("fin.kv2.investor_loans")} value={byType?.other ?? 0} {...lineProps("in_other", "fin.kv2.investor_loans")} />
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
@@ -101,7 +101,7 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
                     {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                 </Box>
                 <Box className="bg-orange-500/5 border-orange-500/30">
-                    <Line strong tone="red" label={t("fin.kv2.non_trip_expenses")} value={-n(sm?.other_expense?.total ?? sm?.expense.garaj)} />
+                    <Line strong tone="red" label={t("fin.kv2.non_trip_expenses")} value={-n(sm?.other_expense?.total ?? sm?.expense.garaj)} {...lineProps("out_nontrip", "fin.kv2.non_trip_expenses")} />
                     <Line sub label={t("fin.kv2.vst_repair_expense")} value={-n(sm?.other_expense?.garaj ?? sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.vst_repair_expense")} />
                     <Line sub label={t("fin.kv2.warehouse_expense")} value={-n(sm?.other_expense?.ombor)} {...lineProps("out_ombor", "fin.kv2.warehouse_expense")} />
                     <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.expense_other")} />
@@ -116,7 +116,7 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
                     <Line strong label={t("fin.kv2.closing_balance")} value={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total)} tone={n(sm?.closing ?? ov?.balance) + n(ov?.drivers_total) < 0 ? "red" : undefined} />
-                    <Line sub label={t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} />
+                    <Line sub label={t("fin.kv2.cash_balance")} value={sm?.closing ?? ov?.balance} {...lineProps("all", "fin.kv2.cash_balance")} />
                     <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={ov?.drivers_total} />
                 </Box>
 

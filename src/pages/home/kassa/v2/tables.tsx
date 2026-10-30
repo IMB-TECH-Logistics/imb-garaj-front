@@ -55,7 +55,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const period = usePeriod()
     const [dir, setDir] = useState("all")
     const [kindF, setKindF] = useState("all")
-    const params = { ...period, ...usePaging(), dir: group || dir === "all" ? undefined : dir, kind: group || kindF === "all" ? undefined : kindF, group: group || undefined }
+    const params = { ...period, ...usePaging(), dir: group || dir === "all" ? undefined : dir, kind: group || kindF === "all" ? undefined : kindF, group: group && group !== "all" ? group : undefined }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
     const { data: overview } = useOverview()
     const { data: allPeriod } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
