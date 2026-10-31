@@ -3250,6 +3250,12 @@
             "kind": "Turi",
             "amount": "Summa, so'm"
         },
+        "filter": {
+            "all": "Hammasi",
+            "from": "Dan",
+            "to": "Gacha",
+            "search": "Izoh yoki summa bo'yicha"
+        },
         "tx": {
             "title": "Tranzaksiyalar",
             "in": "Biz oldik",

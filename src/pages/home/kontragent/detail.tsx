@@ -7,7 +7,9 @@ import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, Wallet } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslation } from "react-i18next"
 import { EntryDir, Kontragent, TYPE_STYLE, kontragentUrl, num, som } from "./api"
 import { EditDeleteActions } from "./edit-actions"
@@ -19,6 +21,22 @@ const ContragentDetail = ({ id }: { id: number }) => {
     const navigate = useNavigate()
     const { data: row, isLoading } = useGet<Kontragent>(kontragentUrl(id))
     const { data: ledger, isLoading: ledgerLoading } = useLedger(id)
+    const [dirFilter, setDirFilter] = useState("all")
+    const [kindFilter, setKindFilter] = useState("all")
+    const [fromDate, setFromDate] = useState("")
+    const [toDate, setToDate] = useState("")
+    const [query, setQuery] = useState("")
+    const filtered = dirFilter !== "all" || kindFilter !== "all" || !!fromDate || !!toDate || !!query.trim()
+    const filteredLedger = useMemo(() => {
+        const q = query.trim().toLowerCase()
+        return (ledger ?? []).filter((r) =>
+            (dirFilter === "all" || r.dir === dirFilter)
+            && (kindFilter === "all" || r.kind === kindFilter)
+            && (!fromDate || r.date.slice(0, 10) >= fromDate)
+            && (!toDate || r.date.slice(0, 10) <= toDate)
+            && (!q || (r.comment ?? "").toLowerCase().includes(q) || String(num(r.amount)).includes(q.replace(/\s/g, ""))),
+        )
+    }, [ledger, dirFilter, kindFilter, fromDate, toDate, query])
     const { openModal: openTx } = useModal(CONTRAGENT_TX)
     const { openModal: openCash } = useModal(CONTRAGENT_CASH)
     const [dir, setDir] = useState<EntryDir>("in")
@@ -126,8 +144,28 @@ const ContragentDetail = ({ id }: { id: number }) => {
 
             <Card>
                 <CardContent className="p-4 flex flex-col gap-3">
-                    <h2 className="text-base font-semibold">{t("contragent.tx.title")} ({ledger?.length ?? 0})</h2>
-                    <LedgerTable rows={ledger} loading={ledgerLoading} />
+                    <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-base font-semibold mr-auto">{t("contragent.tx.title")} ({filteredLedger.length})</h2>
+                        <Tabs value={dirFilter} onValueChange={setDirFilter}>
+                            <TabsList>
+                                <TabsTrigger value="all">{t("contragent.filter.all")}</TabsTrigger>
+                                <TabsTrigger value="in">{t("contragent.tx.in")}</TabsTrigger>
+                                <TabsTrigger value="out">{t("contragent.tx.out")}</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                        <Tabs value={kindFilter} onValueChange={setKindFilter}>
+                            <TabsList>
+                                <TabsTrigger value="all">{t("contragent.filter.all")}</TabsTrigger>
+                                {(["cash", "goods", "service", "trip"] as const).map((k) => (
+                                    <TabsTrigger key={k} value={k}>{t(`contragent.kind.${k}`)}</TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </Tabs>
+                        <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-40" aria-label={t("contragent.filter.from")} />
+                        <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-40" aria-label={t("contragent.filter.to")} />
+                        <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("contragent.filter.search")} className="w-52" />
+                    </div>
+                    <LedgerTable rows={filteredLedger} loading={ledgerLoading} hideBalance={filtered} />
                 </CardContent>
             </Card>
 

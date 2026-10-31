@@ -3253,6 +3253,12 @@
             "kind": "Type",
             "amount": "Amount, UZS"
         },
+        "filter": {
+            "all": "All",
+            "from": "From",
+            "to": "To",
+            "search": "Comment or amount"
+        },
         "tx": {
             "title": "Transactions",
             "in": "We received",

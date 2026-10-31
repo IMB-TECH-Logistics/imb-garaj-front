@@ -13,7 +13,7 @@ import { LedgerRow, kontragentUrl, num, onApiError, som, useRefreshFinance } fro
 
 export const useLedger = (id: number) => useGet<LedgerRow[]>(kontragentUrl(id, "ledger"))
 
-export const LedgerTable = ({ rows, loading, onlyCash = false }: { rows: LedgerRow[] | undefined; loading?: boolean; onlyCash?: boolean }) => {
+export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = false }: { rows: LedgerRow[] | undefined; loading?: boolean; onlyCash?: boolean; hideBalance?: boolean }) => {
     const { t } = useTranslation()
     const refresh = useRefreshFinance()
     const data = useMemo(() => (rows ?? []).filter((r) => !onlyCash || r.kind === "cash"), [rows, onlyCash])
@@ -67,7 +67,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false }: { rows: LedgerR
                     </span>
                 ),
             },
-            {
+            ...(hideBalance ? [] : [{
                 accessorKey: "balance",
                 header: t("contragent.fields.balance"),
                 cell: ({ row }) => {
@@ -79,7 +79,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false }: { rows: LedgerR
                         </span>
                     )
                 },
-            },
+            } as ColumnDef<LedgerRow>]),
             {
                 accessorKey: "comment",
                 header: t("contragent.fields.comment"),
@@ -93,7 +93,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false }: { rows: LedgerR
                 ),
             },
         ],
-        [t],
+        [t, hideBalance],
     )
 
     return (
