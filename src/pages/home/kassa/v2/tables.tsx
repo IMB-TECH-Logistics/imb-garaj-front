@@ -1,5 +1,6 @@
 import TableActions from "@/components/custom/table-actions"
 import { Badge } from "@/components/ui/badge"
+import { Combobox } from "@/components/ui/combobox"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
@@ -21,6 +22,7 @@ import {
     KV2_REQUESTS,
     KV2_TRANSACTIONS,
     KV2_TRIPS,
+    VEHICLES_LIST,
     looseRequests,
     Paged,
     n,
@@ -58,7 +60,21 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const period = usePeriod()
     const [dir, setDir] = useState("all")
     const [kindF, setKindF] = useState("all")
-    const params = { ...period, ...usePaging(), dir: group || dir === "all" ? undefined : dir, kind: group || kindF === "all" ? undefined : kindF, group: group && group !== "all" ? group : undefined }
+    const [vehicle, setVehicle] = useState<number | null>(null)
+    const byVehicle = group === "out_garaj"
+    const { data: vehiclesData } = useGet<{ results?: { id: number; truck_number: string }[] } | { id: number; truck_number: string }[]>(VEHICLES_LIST, {
+        params: { page_size: 500 },
+        enabled: byVehicle,
+    })
+    const vehicleList = Array.isArray(vehiclesData) ? vehiclesData : vehiclesData?.results ?? []
+    const params = {
+        ...period,
+        ...usePaging(),
+        dir: group || dir === "all" ? undefined : dir,
+        kind: group || kindF === "all" ? undefined : kindF,
+        group: group && group !== "all" ? group : undefined,
+        vehicle: byVehicle && vehicle ? vehicle : undefined,
+    }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
     const { data: overview } = useOverview()
     const { data: allPeriod } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
@@ -240,6 +256,22 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                         </Badge>
                     )}{!!pendingCount && <Badge variant="orange">{t("fin.kv2.pending_n", { count: pendingCount })}</Badge>}</>}
                     right={<>
+                        {byVehicle && (
+                            <Combobox
+                                label={t("table.vehicle")}
+                                options={vehicleList.map((v) => ({ id: v.id, name: v.truck_number }))}
+                                value={vehicle}
+                                setValue={(v: any) => setVehicle(v ? Number(v) : null)}
+                                labelKey="name"
+                                valueKey="id"
+                                className="h-10 w-44"
+                            />
+                        )}
+                        {group && data?.totals && (
+                            <span className="text-sm whitespace-nowrap">
+                                {t("fin.kv2.col_total")}: <b className="tabular-nums">{formatMoney(n(data.totals.net))} {t("page.som")}</b>
+                            </span>
+                        )}
                         {!group && <>
                             <Filter value={kindF} onChange={setKindF} options={kindFilters(t)} />
                             <Filter value={dir} onChange={setDir} options={[["all", t("fin.kv2.filter_in_out")], ["in", t("fin.kv2.filter_only_in")], ["out", t("fin.kv2.filter_only_out")]]} />

@@ -201,7 +201,7 @@ export type LedgerRow = {
     reversed?: boolean
 }
 
-export type Paged<T> = { results: T[]; total_pages?: number; count?: number; pending_ids?: number[] }
+export type Paged<T> = { results: T[]; total_pages?: number; count?: number; pending_ids?: number[]; totals?: { income: string | number; outcome: string | number; net: string | number } }
 
 export const n = (v: string | number | null | undefined) => Number(v ?? 0)
 

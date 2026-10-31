@@ -139,6 +139,7 @@ const KassaV2 = () => {
                         onReverse={(r) => { setReverseRow(r); reverseM.openModal() }}
                     />
                 :   <KassaTable
+                        key={group ?? "all"}
                         switcher={switcher}
                         group={group}
                         groupLabel={groupLabel ? t(groupLabel) : ""}
@@ -150,7 +151,7 @@ const KassaV2 = () => {
                         onPay={(r) => { setPaying(r); pay.openModal() }}
                         onEditRequest={(r) => { setEditing(r); request.openModal() }}
                         actions={<>
-                            {cashier && <>
+                            {cashier && !group && <>
                             <Button onClick={() => { setIncomeRow(null); setIncomeOut(false); income.openModal() }}>
                                 <ArrowDownCircle size={16} />
                                 {t("fin.kv2.cash_in")}
