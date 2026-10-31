@@ -3260,6 +3260,8 @@
         },
         "tx": {
             "title": "Tranzaksiyalar",
+            "edit_title": "Yozuvni tahrirlash",
+            "kassa_edit_hint": "Bu yozuv kassada ham bor — o'zgarish kassaga ham tushadi.",
             "in": "Biz oldik",
             "out": "Biz berdik",
             "in_btn": "Biz oldik (+)",

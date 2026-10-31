@@ -1,4 +1,6 @@
+import Modal from "@/components/custom/modal"
 import TableActions from "@/components/custom/table-actions"
+import { useModal } from "@/hooks/useModal"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
@@ -6,10 +8,11 @@ import { cn } from "@/lib/utils"
 import axiosInstance from "@/services/axios-instance"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { LedgerRow, kontragentUrl, num, onApiError, som, useRefreshFinance } from "./api"
+import { CONTRAGENT_ENTRY_EDIT, EntryEditForm } from "./forms"
 
 export const useLedger = (id: number) => useGet<LedgerRow[]>(kontragentUrl(id, "ledger"))
 
@@ -17,6 +20,8 @@ export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = fal
     const { t } = useTranslation()
     const refresh = useRefreshFinance()
     const data = useMemo(() => (rows ?? []).filter((r) => !onlyCash || r.kind === "cash"), [rows, onlyCash])
+    const [editing, setEditing] = useState<LedgerRow | null>(null)
+    const { openModal: openEdit } = useModal(CONTRAGENT_ENTRY_EDIT)
 
     const remove = (row: LedgerRow) =>
         axiosInstance
@@ -97,13 +102,28 @@ export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = fal
     )
 
     return (
-        <DataTable
-            columns={cols}
-            data={data}
-            loading={loading}
-            numeration
-            wrapperClassName="p-0"
-            rowAction={(row: LedgerRow) => (row.is_manual ? <TableActions onDelete={() => remove(row)} /> : null)}
-        />
+        <>
+            <DataTable
+                columns={cols}
+                data={data}
+                loading={loading}
+                numeration
+                wrapperClassName="p-0"
+                rowAction={(row: LedgerRow) =>
+                    (row.editable ?? row.is_manual) ?
+                        <TableActions
+                            onEdit={() => {
+                                setEditing(row)
+                                openEdit()
+                            }}
+                            onDelete={() => remove(row)}
+                        />
+                    :   null
+                }
+            />
+            <Modal title={t("contragent.tx.edit_title")} modalKey={CONTRAGENT_ENTRY_EDIT}>
+                {editing && <EntryEditForm key={editing.id} row={editing} />}
+            </Modal>
+        </>
     )
 }

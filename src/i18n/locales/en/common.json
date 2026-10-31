@@ -3263,6 +3263,8 @@
         },
         "tx": {
             "title": "Transactions",
+            "edit_title": "Edit entry",
+            "kassa_edit_hint": "This entry is also in the cash desk — the change applies there too.",
             "in": "We received",
             "out": "We gave",
             "in_btn": "We received (+)",

@@ -11,13 +11,14 @@ import { format } from "date-fns"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { CONTRAGENT_TYPES, ContragentType, EntryDir, EntryKind, KONTRAGENT, Kontragent, kontragentUrl, onApiError, som, useRefreshFinance } from "./api"
+import { CONTRAGENT_TYPES, ContragentType, EntryDir, EntryKind, KONTRAGENT, Kontragent, LedgerRow, kontragentUrl, num, onApiError, som, useRefreshFinance } from "./api"
 
 export const CONTRAGENT_CREATE = "contragent-create"
 export const CONTRAGENT_EDIT = "contragent-edit"
 export const CONTRAGENT_DELETE = "contragent-delete"
 export const CONTRAGENT_TX = "contragent-tx"
 export const CONTRAGENT_CASH = "contragent-cash"
+export const CONTRAGENT_ENTRY_EDIT = "contragent-entry-edit"
 
 const MAX_AMOUNT = 10_000_000_000
 const today = () => format(new Date(), "yyyy-MM-dd")
@@ -208,6 +209,71 @@ export const CashForm = ({
                     registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("investors.errors.gt_zero") }}
                 />
             </div>
+            <FormTextarea name="comment" label={t("contragent.fields.comment")} methods={form} rows={3} />
+            <div className="flex justify-end">
+                <Button className="min-w-32" type="submit" loading={isPending}>{t("actions.save")}</Button>
+            </div>
+        </form>
+    )
+}
+
+export const EntryEditForm = ({ row }: { row: LedgerRow }) => {
+    const { t } = useTranslation()
+    const { closeModal } = useModal(CONTRAGENT_ENTRY_EDIT)
+    const refresh = useRefreshFinance()
+    const form = useForm<{ date: string; kind: EntryKind; amount: number | ""; comment: string }>({
+        defaultValues: { date: row.date.slice(0, 10), kind: row.kind, amount: num(row.amount), comment: row.comment ?? "" },
+    })
+    const kinds: EntryKind[] = ["goods", "service", "trip"]
+    const { mutate, isPending } = usePatch({
+        onSuccess: () => {
+            toast.success(t("messages.success_edit"))
+            closeModal()
+            refresh()
+        },
+        onError: onApiError(t("messages.error")),
+    })
+
+    return (
+        <form
+            className="flex flex-col gap-3"
+            onSubmit={form.handleSubmit((v) =>
+                mutate(`/kontragent/entries/${row.id}/`, {
+                    date: v.date,
+                    amount: Number(v.amount),
+                    comment: v.comment.trim(),
+                    ...(row.is_manual ? { kind: v.kind } : {}),
+                }),
+            )}
+        >
+            {!row.is_manual && <p className="text-sm text-muted-foreground">{t("contragent.tx.kassa_edit_hint")}</p>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <FormDatePicker required fullWidth control={form.control} name="date" label={t("contragent.fields.date")} />
+                {row.is_manual && (
+                    <FormCombobox
+                        required
+                        isSearch={false}
+                        isClearIcon={false}
+                        control={form.control}
+                        name="kind"
+                        label={t("contragent.fields.kind")}
+                        options={kinds.map((k) => ({ id: k, name: t(`contragent.kind.${k}`) }))}
+                        valueKey="id"
+                        labelKey="name"
+                    />
+                )}
+            </div>
+            <FormNumberInput
+                required
+                control={form.control}
+                name="amount"
+                label={t("contragent.fields.amount")}
+                thousandSeparator=" "
+                decimalScale={0}
+                allowNegative={false}
+                isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_AMOUNT}
+                registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("investors.errors.gt_zero") }}
+            />
             <FormTextarea name="comment" label={t("contragent.fields.comment")} methods={form} rows={3} />
             <div className="flex justify-end">
                 <Button className="min-w-32" type="submit" loading={isPending}>{t("actions.save")}</Button>

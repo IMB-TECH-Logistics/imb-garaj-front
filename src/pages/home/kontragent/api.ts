@@ -39,6 +39,7 @@ export type LedgerRow = {
     amount: string
     balance: string
     is_manual: boolean
+    editable?: boolean
     source: { type: "kassa" | "request" | "receipt" | "sale" | "manual"; id: number | null }
 }
 
