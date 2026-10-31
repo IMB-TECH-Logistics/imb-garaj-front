@@ -79,6 +79,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const { data: overview } = useOverview()
     const { data: allPeriod } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params: { ...period, page_size: 1000 } })
     const vst = useVstFinance()
+    const filtered = !!group || dir !== "all" || kindF !== "all" || !!vehicle
     const balances = useMemo(() => {
         const byTx = new Map<number, number>()
         const byClose = new Map<number, number>()
@@ -167,7 +168,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                     )
                 },
             },
-            ...(vst ?
+            ...(vst && !filtered ?
                 ([
                 {
                     header: t("fin.kv2.opening_ledger_balance"),
@@ -182,7 +183,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 ] as ColumnDef<KassaRow>[])
             :   []),
         ],
-        [t, balances, vst],
+        [t, balances, vst, filtered],
     )
     return (
         <DataTable
