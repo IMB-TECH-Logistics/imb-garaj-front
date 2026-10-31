@@ -75,7 +75,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false }: { rows: LedgerR
                     if (row.original.status === "pending") return <span className="text-muted-foreground">—</span>
                     return (
                         <span className={cn("tabular-nums font-semibold whitespace-nowrap", v > 0 && "text-destructive", v < 0 && "text-green-600")}>
-                            {v ? `${som(Math.abs(v))} · ${t(v > 0 ? "contragent.we_owe_short" : "contragent.they_owe_short")}` : t("contragent.settled")}
+                            {v ? som(Math.abs(v)) : t("contragent.settled")}
                         </span>
                     )
                 },
