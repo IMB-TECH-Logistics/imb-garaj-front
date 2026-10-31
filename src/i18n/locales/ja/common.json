@@ -1449,6 +1449,8 @@
             "opening_ledger_balance": "残高",
             "from_external": "外部から",
             "investor_loans": "その他の入金",
+            "real_toggle": "通過除外",
+            "real_hint": "取引先経由の前払いの通過入出金を非表示にし、実際の資金移動のみ表示します",
             "vst_trip_payment": "VST 運行代金",
             "street_trip_cash": "路上運行代金",
             "trip_cash": "運行現金",

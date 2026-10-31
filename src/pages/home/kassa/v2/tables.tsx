@@ -1,5 +1,7 @@
 import TableActions from "@/components/custom/table-actions"
 import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { useNavigate } from "@tanstack/react-router"
 import { Combobox } from "@/components/ui/combobox"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
@@ -58,6 +60,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
     const { t } = useTranslation()
     const { cashier } = useKassaRoles()
     const period = usePeriod()
+    const navigate = useNavigate()
     const [dir, setDir] = useState("all")
     const [kindF, setKindF] = useState("all")
     const [vehicle, setVehicle] = useState<number | null>(null)
@@ -277,6 +280,15 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                             <Filter value={kindF} onChange={setKindF} options={kindFilters(t)} />
                             <Filter value={dir} onChange={setDir} options={[["all", t("fin.kv2.filter_in_out")], ["in", t("fin.kv2.filter_only_in")], ["out", t("fin.kv2.filter_only_out")]]} />
                         </>}
+                        {vst && (
+                            <label className="flex items-center gap-2 text-sm whitespace-nowrap cursor-pointer" title={t("fin.kv2.real_hint")}>
+                                <Switch
+                                    checked={!!period.real}
+                                    onCheckedChange={(on) => navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, real: on ? 1 : undefined }) } as never)}
+                                />
+                                {t("fin.kv2.real_toggle")}
+                            </label>
+                        )}
                         <Button onClick={() => excelModal.openModal()}>
                             <Download size={16} />
                             Excel

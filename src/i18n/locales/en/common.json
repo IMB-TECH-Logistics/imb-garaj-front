@@ -1446,6 +1446,8 @@
             "opening_ledger_balance": "Balance",
             "from_external": "From external source",
             "investor_loans": "Other source",
+            "real_toggle": "Without transit",
+            "real_hint": "Hides pass-through income/expense of advances given via a counterparty — only real cash movement remains",
             "vst_trip_payment": "VST trip payments",
             "street_trip_cash": "Street trip payments",
             "trip_cash": "Cash trip money",

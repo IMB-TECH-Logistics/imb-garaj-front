@@ -1443,6 +1443,8 @@
             "opening_ledger_balance": "Qoldiq",
             "from_external": "Tashqi manbadan",
             "investor_loans": "Boshqa manba",
+            "real_toggle": "Tranzitsiz",
+            "real_hint": "Kontragent orqali haydovchiga berilgan avanslarning kassadan o'tgan kirim/chiqimini yashiradi — faqat real pul harakati qoladi",
             "vst_trip_payment": "VST reys to'lovi",
             "street_trip_cash": "Ko'cha reys to'lovi",
             "trip_cash": "Naqd reys puli",

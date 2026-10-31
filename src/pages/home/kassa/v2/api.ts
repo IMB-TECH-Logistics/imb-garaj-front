@@ -218,8 +218,8 @@ export const fmtDate = (iso: string | null | undefined) => {
 }
 
 export const usePeriod = () => {
-    const search = useSearch({ strict: false }) as { from_date?: string; to_date?: string }
-    return { from_date: search.from_date, to_date: search.to_date }
+    const search = useSearch({ strict: false }) as { from_date?: string; to_date?: string; real?: string | number }
+    return { from_date: search.from_date, to_date: search.to_date, real: String(search.real ?? "") === "1" ? "1" : undefined }
 }
 
 export const useKassaRoles = () => {
