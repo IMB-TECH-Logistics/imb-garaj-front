@@ -2611,6 +2611,7 @@
             "add_trip": "Reys qo'shish"
         },
         "create_reys": {
+            "point_placeholder": "Koordinata yoki Google Maps havolasi",
             "trip_info": "Reys ma'lumotlari",
             "idle_fee": "Bekor turish haqi",
             "example_idle_fee": "Misol: 150 000",

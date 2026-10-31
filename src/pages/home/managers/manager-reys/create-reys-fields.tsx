@@ -1,14 +1,19 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
+import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Control, UseFormSetValue, UseFormWatch } from "react-hook-form"
+import { Control, UseFormReturn, UseFormSetValue, UseFormWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { parsePoint } from "./order-point"
 
 type Option = { id: number | string; name: string }
 type LogisticsLocked = (field: "loading" | "unloading" | "date" | "client" | "cargo_type") => boolean
 
-export function ReysRouteFields({ control, isNaqd, setValue, watch, clientsData, loadsData, unloadsData, logisticsLocked, loadingValue }: {
+export function ReysRouteFields({ control, isNaqd, setValue, watch, clientsData, loadsData, unloadsData, logisticsLocked, loadingValue, methods, points, pointsRequired }: {
+    methods: UseFormReturn<any>
+    points: boolean
+    pointsRequired: boolean
     control: Control<any>
     isNaqd: boolean
     setValue: UseFormSetValue<any>
@@ -20,6 +25,18 @@ export function ReysRouteFields({ control, isNaqd, setValue, watch, clientsData,
     loadingValue: any
 }) {
     const { t } = useTranslation()
+    const pointInput = (name: "load_point" | "unload_point", label: string) => (
+        <FormInput
+            methods={methods}
+            name={name}
+            label={label}
+            required={pointsRequired}
+            placeholder={t("trips.create_reys.point_placeholder")}
+            registerOptions={{
+                validate: (v: string) => !v?.trim() || !!parsePoint(v) || t("trips.reys_cols.point_invalid"),
+            }}
+        />
+    )
     return (
         <>
             {/* To'lov turi tabs */}
@@ -82,6 +99,7 @@ export function ReysRouteFields({ control, isNaqd, setValue, watch, clientsData,
                                     (!isNaqd && !watch("client")),
                             }}
                         />
+                        {points && pointInput("load_point", t("trips.reys_cols.point_load"))}
                         <FormCombobox
                             required
                             hideError={false}
@@ -97,6 +115,7 @@ export function ReysRouteFields({ control, isNaqd, setValue, watch, clientsData,
                                     !loadingValue,
                             }}
                         />
+                        {points && pointInput("unload_point", t("trips.reys_cols.point_unload"))}
                     </div>
                 </div>
 

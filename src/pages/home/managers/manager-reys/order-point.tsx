@@ -31,6 +31,24 @@ export function parseCoords(text: string): [number, number] | null {
     return [lat, lng]
 }
 
+const LINK_RES = [
+    /@(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)/,
+    /!3d(-?\d{1,3}\.\d+)!4d(-?\d{1,3}\.\d+)/,
+    /[?&](?:q|query|ll|destination|center)=(-?\d{1,3}\.\d+)(?:,|%2C)\s*(-?\d{1,3}\.\d+)/i,
+]
+
+export function parsePoint(text: string): [number, number] | null {
+    const plain = parseCoords(text)
+    if (plain) return plain
+    for (const re of LINK_RES) {
+        const match = re.exec(text)
+        if (match) return parseCoords(`${match[1]}, ${match[2]}`)
+    }
+    return null
+}
+
+export const pointText = (lat?: number | null, lng?: number | null) => (lat != null && lng != null ? `${lat}, ${lng}` : "")
+
 export function OrderPointButton({ orderId, side, lat, lng, located }: Props) {
     const { t } = useTranslation()
     const queryClient = useQueryClient()

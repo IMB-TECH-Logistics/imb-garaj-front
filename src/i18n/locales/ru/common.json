@@ -2620,6 +2620,7 @@
             "add_trip": "Добавить рейс"
         },
         "create_reys": {
+            "point_placeholder": "Координаты или ссылка Google Maps",
             "trip_info": "Данные рейса",
             "idle_fee": "Плата за простой",
             "example_idle_fee": "Пример: 150 000",

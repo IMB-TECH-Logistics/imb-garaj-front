@@ -2614,6 +2614,7 @@
             "add_trip": "Add trip"
         },
         "create_reys": {
+            "point_placeholder": "Coordinates or Google Maps link",
             "trip_info": "Trip details",
             "idle_fee": "Idle fee",
             "example_idle_fee": "Example: 150 000",

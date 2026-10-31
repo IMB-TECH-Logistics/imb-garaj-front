@@ -21,6 +21,7 @@ import { ReysIncomesSection } from "./reys-incomes-section"
 import { ReysImagesSection } from "./reys-images-section"
 import { ReysImagePreviewDialog } from "./reys-image-preview-dialog"
 import { ReysCityFields, ReysCommonFields, ReysRouteFields } from "./create-reys-fields"
+import { parsePoint, pointText } from "./order-point"
 import { useReysImages, useReysLookups } from "./use-create-reys"
 
 
@@ -39,6 +40,8 @@ const AddTripOrders = () => {
         defaultValues: {
             loading: currentTripOrder?.loading,
             unloading: currentTripOrder?.unloading,
+            load_point: pointText(currentTripOrder?.load_lat, currentTripOrder?.load_lng),
+            unload_point: pointText(currentTripOrder?.unload_lat, currentTripOrder?.unload_lng),
             trip: id,
             cargo_type: currentTripOrder?.cargo_type,
             date: currentTripOrder?.date ?? todayIso(),
@@ -366,6 +369,18 @@ const AddTripOrders = () => {
 
             formData.append("loading", data.loading)
             formData.append("unloading", data.unloading)
+            if (!isLogisticsOrder) {
+                const load = parsePoint(data.load_point ?? "")
+                const unload = parsePoint(data.unload_point ?? "")
+                if (load) {
+                    formData.append("load_lat", String(load[0]))
+                    formData.append("load_lng", String(load[1]))
+                }
+                if (unload) {
+                    formData.append("unload_lat", String(unload[0]))
+                    formData.append("unload_lng", String(unload[1]))
+                }
+            }
             // S-06-03: integratsiya buyurtmasining turi (yukli/yuksiz) qulf — yuborilmaydi.
             if (!isLogisticsOrder) formData.append("type", isEmpty ? "2" : "1")
             formData.append("cargo_type", isEmpty ? "" : data.cargo_type)
@@ -447,6 +462,9 @@ const AddTripOrders = () => {
 
                         {isReysActivity && (
                             <ReysRouteFields
+                                methods={form}
+                                points={!isLogisticsOrder}
+                                pointsRequired={!currentTripOrder?.id}
                                 control={control}
                                 isNaqd={isNaqd}
                                 setValue={setValue}
