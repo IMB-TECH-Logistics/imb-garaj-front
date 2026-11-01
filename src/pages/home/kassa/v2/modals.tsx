@@ -56,8 +56,15 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
     const amountRules = useAmountRules()
     const { closeModal, isOpen } = useModal(M.income)
     const { openModal: openAddCategory } = useModal(OFFICE_CATEGORY_MODAL)
-    type F = { amount: number | ""; source: string; comment: string; date: string; vehicles: number[]; category: number | null }
-    const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null } })
+    type Kind = "office" | "vehicle" | ""
+    type F = { amount: number | ""; source: string; comment: string; date: string; vehicles: number[]; category: number | null; kind: Kind }
+    const blank: F = { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null, kind: "" }
+    const form = useForm<F>({ defaultValues: blank })
+    const kind = form.watch("kind")
+    const kindOptions = [
+        { id: "office", name: t("fin.kv2.expense_kind_office") },
+        { id: "vehicle", name: t("fin.kv2.expense_kind_vehicle") },
+    ]
     const { data: vehicleOptions } = useGet<{ id: number; name: string }[]>("selectable/vehicle", { params: { model_name: "vehicle" }, enabled: isOpen && out })
     const { data: categoryData } = useGet<{ results?: { id: number; name: string }[] } | { id: number; name: string }[]>(SETTINGS_EXPENSES, { params: { type: 4, page_size: 500, ordering: "name" }, enabled: isOpen && out })
     const categoryOptions = Array.isArray(categoryData) ? categoryData : categoryData?.results ?? []
@@ -72,33 +79,51 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
     useEffect(() => {
         if (!isOpen) return
         form.reset(editing
-            ? { amount: n(editing.amount), source: editing.source ?? "", comment: editing.comment ?? "", date: toLocalInput(editing.created), vehicles: (editing.vehicles ?? []).map((v) => v.id), category: editing.category ?? null }
-            : { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null })
+            ? {
+                amount: n(editing.amount),
+                source: editing.source ?? "",
+                comment: editing.comment ?? "",
+                date: toLocalInput(editing.created),
+                vehicles: (editing.vehicles ?? []).map((v) => v.id),
+                category: editing.category ?? null,
+                kind: editing.category ? "office" : editing.vehicles?.length ? "vehicle" : "",
+            }
+            : blank)
     }, [isOpen, editing])
     return (
         <>
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? { vehicles: v.vehicles ?? [], category: v.category ?? null } : {}) }
+                if (out && !editing && !v.kind) return form.setError("kind", { message: t("fin.kv2.choose_expense_kind") })
+                if (out && v.kind === "office" && !v.category) return form.setError("category", { message: t("fin.kv2.choose_office_category") })
+                if (out && v.kind === "vehicle" && !v.vehicles?.length) return form.setError("vehicles", { message: t("fin.kv2.choose_expense_vehicles") })
+                const target =
+                    v.kind === "office" ? { vehicles: [], category: v.category }
+                    : v.kind === "vehicle" ? { vehicles: v.vehicles, category: null }
+                    : { vehicles: v.vehicles ?? [], category: v.category ?? null }
+                const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? target : {}) }
                 const url = out ? KV2_EXPENSE : KV2_INCOME
                 const done = out ? t("fin.kv2.cash_out_done") : t("fin.kv2.cash_in_done")
                 if (editing) patch.mutate(`${url}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
                 else post.mutate(url, body, { onSuccess: () => toast.success(done), onError: onErr })
             })}
         >
-            <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
-            <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
-            {!out && <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
             {out && (
-                <FormCombobox control={form.control} name="category" label={t("fin.kv2.office_category")} placeholder={t("fin.kv2.office_category_placeholder")} options={categoryOptions} valueKey="id" labelKey="name" onAdd={openAddCategory} />
+                <FormCombobox required={!editing} control={form.control} name="kind" label={t("fin.kv2.expense_kind")} options={kindOptions} valueKey="id" labelKey="name" isSearch={false} isClearIcon={false} />
             )}
-            {out && (
+            {out && kind === "office" && (
+                <FormCombobox required control={form.control} name="category" label={t("fin.kv2.office_category")} placeholder={t("fin.kv2.office_category_placeholder")} options={categoryOptions} valueKey="id" labelKey="name" onAdd={openAddCategory} />
+            )}
+            {out && kind === "vehicle" && (
                 <div className="flex flex-col gap-1">
-                    <FormMultiCombobox control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
+                    <FormMultiCombobox required control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
                     <p className="text-xs text-muted-foreground">{t("fin.kv2.expense_vehicles_hint")}</p>
                 </div>
             )}
+            <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
+            <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
+            {!out && <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
             <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
