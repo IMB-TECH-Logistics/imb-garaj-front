@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { DataTable } from "@/components/ui/datatable"
 import { OWNER_TRIP_DAILY_STATISTIC } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -54,24 +55,59 @@ const VehicleTrips = () => {
         })
 
         trip.empty_legs?.forEach((leg) => {
+            const idlePay = Number(leg.idle_payment) || 0
+            if (leg.idle_start) {
+                const hours = Math.round((new Date(leg.start).getTime() - new Date(leg.idle_start).getTime()) / 360000) / 10
+                rows.push({
+                    is_leg: true,
+                    id: `idle-${leg.id}`,
+                    date: format(new Date(leg.idle_start), "yyyy-MM-dd"),
+                    start: leg.idle_start,
+                    loading_name: leg.from_place || "—",
+                    unloading_name: leg.from_place || "—",
+                    client_name: `${t("status.idle_stop")}${hours > 0 ? ` · ${hours} ${t("fleet.hours_short")}` : ""}`,
+                    total_mileage: null,
+                    fuel_consume: null,
+                    income: 0,
+                    expense: idlePay,
+                    salary_expense: idlePay,
+                    fuel_expense: 0,
+                    rest_expense: 0,
+                })
+            }
             const share = spreadFuel ? Math.round((tripFuel * (Number(leg.fuel_consume) || 0)) / fuelLitres) : 0
+            const pay = (Number(leg.payment) || 0) + (leg.idle_start ? 0 : idlePay)
+            if (!leg.minutes && !Number(leg.km) && !pay && !share) return
             rows.push({
                 is_leg: true,
                 id: `leg-${leg.id}`,
                 date: leg.date,
+                start: leg.start,
                 loading_name: leg.from_place || "—",
                 unloading_name: leg.to_place || "—",
                 client_name: t("trips.managers.empty_run"),
                 total_mileage: leg.km,
                 fuel_consume: leg.fuel_consume,
                 income: 0,
-                expense: share,
-                salary_expense: 0,
+                expense: share + pay,
+                salary_expense: pay,
                 fuel_expense: share,
                 rest_expense: 0,
             })
         })
-        rows.sort((x, y) => String(x.date).localeCompare(String(y.date)))
+        const sortKey = (r: any) => {
+            const dayStart = new Date(`${r.date}T06:00:00`).getTime()
+            const at = new Date(r.is_leg ? r.start : r.load_at).getTime()
+            if (Number.isNaN(at)) return dayStart
+            if (r.is_leg) return at
+            const days = (at - dayStart) / 86400000
+            return days >= -1.25 && days <= 2.75 ? at : dayStart
+        }
+        rows.forEach((r) => {
+            r._at = sortKey(r)
+            if (!r.is_leg && r.load_at && r._at !== new Date(`${r.date}T06:00:00`).getTime()) r.date = format(new Date(r._at), "yyyy-MM-dd")
+        })
+        rows.sort((x, y) => x._at - y._at)
 
         const ordersIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
         const residualIncome = Number(trip.other_income) || 0

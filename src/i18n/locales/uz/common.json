@@ -1661,6 +1661,7 @@
         }
     },
     "fleet": {
+        "hours_short": "soat",
         "trip_salary": "Oylik",
         "trip_fuel": "Yoqilg'i",
         "trip_other": "Boshqa xarajat",

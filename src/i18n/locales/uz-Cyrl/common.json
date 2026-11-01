@@ -1661,6 +1661,7 @@
         }
     },
     "fleet": {
+        "hours_short": "соат",
         "trip_salary": "Ойлик",
         "trip_fuel": "Ёқилғи",
         "trip_other": "Бошқа харажат",

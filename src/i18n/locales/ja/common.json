@@ -1667,6 +1667,7 @@
         }
     },
     "fleet": {
+        "hours_short": "時間",
         "trip_salary": "給与",
         "trip_fuel": "燃料",
         "trip_other": "その他の経費",

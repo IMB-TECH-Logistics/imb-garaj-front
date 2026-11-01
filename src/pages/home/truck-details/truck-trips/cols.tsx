@@ -16,6 +16,7 @@ export interface OrderTripType {
     loading_name: string
     unloading_name: string
     cargo_type_name: string | null
+    load_at?: string | null
     client_name: string | null
     income: number
     type: number
@@ -36,7 +37,7 @@ export interface TripDailyStatisticType {
     other_fuel?: number | string | null
     orders_fuel_consume?: number | string | null
     legs_fuel_consume?: number | string | null
-    empty_legs?: { id: number; date: string; from_place: string | null; to_place: string | null; km: number | null; fuel_consume: number | null }[]
+    empty_legs?: { id: number; date: string; start: string; idle_start: string | null; minutes: number; payment: number; idle_payment: number; from_place: string | null; to_place: string | null; km: number | null; fuel_consume: number | null }[]
     other_income: number | string | null
     total_mileage: number
     start_mileage_image: string | null
