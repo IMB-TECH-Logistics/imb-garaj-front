@@ -12,6 +12,7 @@ import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import { ArrowDownCircle, ArrowUpCircle, TrendingDown, TrendingUp, Wrench } from "lucide-react"
 import { useMemo } from "react"
 import ParamDateRange, { useDefaultRangeApplied } from "@/components/as-params/date-picker-range"
+import ParamYearMonth from "@/components/as-params/year-month-range"
 import { useCostCols, OwnerStatistic } from "./cols"
 import { MonthlyReport, VehicleExpenses, useInvestors } from "./investor-report"
 import { ParamCombobox } from "@/components/as-params/combobox"
@@ -138,6 +139,7 @@ const FinanceStatisticMain = () => {
                         }}
                     />
                 )}
+                <ParamYearMonth />
                 <ParamDateRange
                     from="from_date"
                     to="to_date"

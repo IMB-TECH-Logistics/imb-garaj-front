@@ -1667,6 +1667,8 @@
         }
     },
     "fleet": {
+        "year": "年",
+        "month": "月",
         "truck_details": {
             "tab_vehicle_expenses": "車両費用",
             "tab_monthly": "月別"

@@ -1670,6 +1670,8 @@
         }
     },
     "fleet": {
+        "year": "Год",
+        "month": "Месяц",
         "truck_details": {
             "tab_vehicle_expenses": "Расходы по машине",
             "tab_monthly": "По месяцам"

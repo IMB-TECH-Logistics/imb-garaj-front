@@ -1661,6 +1661,8 @@
         }
     },
     "fleet": {
+        "year": "Йил",
+        "month": "Ой",
         "truck_details": {
             "tab_vehicle_expenses": "Машина харажатлари",
             "tab_monthly": "Ойлар бўйича"

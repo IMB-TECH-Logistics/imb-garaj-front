@@ -1664,6 +1664,8 @@
         }
     },
     "fleet": {
+        "year": "Year",
+        "month": "Month",
         "truck_details": {
             "tab_vehicle_expenses": "Vehicle expenses",
             "tab_monthly": "By month"

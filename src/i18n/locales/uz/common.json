@@ -1661,6 +1661,8 @@
         }
     },
     "fleet": {
+        "year": "Yil",
+        "month": "Oy",
         "truck_details": {
             "tab_vehicle_expenses": "Mashina xarajatlari",
             "tab_monthly": "Oylar bo'yicha"
