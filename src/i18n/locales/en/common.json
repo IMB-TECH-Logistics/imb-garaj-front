@@ -1428,6 +1428,8 @@
             "tab_vehicle_expenses": "Vehicle expenses"
         },
         "kv2": {
+            "left_after_close": "Changed after close: {{amount}}",
+            "left_after_close_hint": "Entries were added after the turnover was closed. Reverse its close entry in Transactions and close the turnover again.",
             "non_trip_expenses": "Non-trip expenses",
             "revenue": "Revenue",
             "bank_transfer": "Bank transfer",

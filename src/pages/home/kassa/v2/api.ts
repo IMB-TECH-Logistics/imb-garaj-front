@@ -163,6 +163,7 @@ export type KassaTrip = {
     close_amount?: number | string | null
     salary_paid?: number | string
     carried?: number | string
+    left_after_close?: number | string | null
 }
 
 export type CloseBreakdown = {

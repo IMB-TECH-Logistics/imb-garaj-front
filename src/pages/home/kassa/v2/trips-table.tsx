@@ -140,6 +140,11 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                             {tr.status === "rad_etildi" && tr.close_request?.rejected_comment && (
                                 <span className="text-xs text-muted-foreground max-w-48">{tr.close_request.rejected_comment}</span>
                             )}
+                            {tr.status === "yopildi" && !!n(tr.left_after_close) && (
+                                <span className="text-xs text-destructive max-w-56" title={t("fin.kv2.left_after_close_hint")}>
+                                    {t("fin.kv2.left_after_close", { amount: money(n(tr.left_after_close)) })}
+                                </span>
+                            )}
                             {tr.status === "avans_rad_etildi" && tr.avans_request?.rejected_comment && (
                                 <span className="text-xs text-muted-foreground max-w-48">{tr.avans_request.rejected_comment}</span>
                             )}
