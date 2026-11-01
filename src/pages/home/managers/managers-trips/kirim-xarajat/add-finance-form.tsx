@@ -222,7 +222,7 @@ export function AddFinanceForm({
         if (showOrderSelect && data.order) fd.append("order", String(data.order))
         if (data.receipt instanceof File) fd.append("receipt", data.receipt)
         if (advanceId && action === -1) fd.append("advance", String(advanceId))
-        if (data.date && (!isEdit || (isSalaryExpense && data.date !== dayOf(editItem?.created)))) fd.append("date", data.date)
+        if (data.date && (!isEdit || data.date !== dayOf(editItem?.created))) fd.append("date", data.date)
 
         if (isEdit) {
             patchMutate(`${MANAGERS_EXPENSES}/${editItem.id}`, fd as any, {
@@ -346,7 +346,7 @@ export function AddFinanceForm({
                     placeholder={t("form.order_type")}
                 />
             )}
-            {(!isEdit || isSalaryExpense) && (
+            {(
                 <FormDatePicker
                     label={t("form.date")}
                     control={control}
