@@ -1,7 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { formatMoney } from "@/lib/format-money"
-import { Badge } from "@/components/ui/badge"
 import { useTranslation } from "react-i18next"
 
 // At most two figures after the decimal comma, trailing zeros trimmed.
@@ -73,23 +72,6 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                             {data.loading_name} - {data.unloading_name}
                         </span>
                     )
-                },
-            },
-            {
-                header: t("form.cargo_type"),
-                accessorKey: "cargo_type_name",
-                size: 100,
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const data = row.original;
-                    if (data.is_summary) return null;
-                    if (data.type === 2) {
-                        return <Badge variant="secondary">{t("table.status_empty")}</Badge>
-                    }
-                    if (data.type === 1 && !data.cargo_type_name) {
-                        return <Badge variant="default" className="bg-green-500/10 text-green-600 hover:bg-green-500/15">{t("status.loaded")}</Badge>
-                    }
-                    return <span>{data.cargo_type_name || "—"}</span>
                 },
             },
             {
