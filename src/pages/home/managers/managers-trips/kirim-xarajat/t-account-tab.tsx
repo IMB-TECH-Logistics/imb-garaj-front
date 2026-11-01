@@ -8,6 +8,7 @@ import { formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { Plus } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { useModal } from "@/hooks/useModal"
 import { toast } from "sonner"
@@ -145,6 +146,21 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
         setData(MANAGERS_EXPENSES, row)
         openDeleteExpenseModal()
     }
+
+    const queryClient = useQueryClient()
+    useEffect(
+        () =>
+            queryClient.getMutationCache().subscribe((event) => {
+                if (event.type !== "updated" || event.action.type !== "success") return
+                queryClient.invalidateQueries({
+                    predicate: (q) => {
+                        const k = String(q.queryKey[0])
+                        return k.endsWith("/close-preview") || k.endsWith("/statistic")
+                    },
+                })
+            }),
+        [queryClient],
+    )
 
     // Trip statistic (aylanma mode)
     const { data: tripStat } = useGet(
