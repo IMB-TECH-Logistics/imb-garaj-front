@@ -104,6 +104,10 @@ const AddTripOrders = () => {
         activityValue === "2" || activityValue === "3"
     const isCityOnlyActivity = activityValue === "4" || activityValue === "5"
 
+    useEffect(() => {
+        if (!isReysActivity) form.unregister(["load_point", "unload_point"], { keepDefaultValue: true })
+    }, [isReysActivity])
+
     const prevLoadingRef = useRef(loadingValue)
     const prevUnloadingRef = useRef(unloadingValue)
 
@@ -344,7 +348,7 @@ const AddTripOrders = () => {
         formData.append("trailer_number", data.trailer_number ?? "")
         if (activity === 2 || activity === 3) {
             formData.append("started_at", data.started_at ?? "")
-            formData.append("finished_at", data.finished_at ?? "")
+            if (data.finished_at) formData.append("finished_at", data.finished_at)
         }
 
         if (isReysSel) {
