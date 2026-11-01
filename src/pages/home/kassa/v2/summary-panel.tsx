@@ -112,7 +112,7 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
                             ))}
                         </div>
                     )}
-                    <Line sub label={t("fin.kv2.expense_other")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.expense_other")} />
+                    <Line sub label={t("fin.kv2.vehicle_expenses")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.vehicle_expenses")} />
                 </Box>
                 <Box className="bg-amber-500/5 border-amber-500/30">
                     <Line strong label={t("suppliers.kassa_debt")} value={num(finance?.supplier_debt)} onClick={openSuppliers} />
