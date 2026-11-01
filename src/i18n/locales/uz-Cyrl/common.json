@@ -1453,6 +1453,10 @@
             "cash_expense_drivers": "Нақд харажат (ҳайдовчилар)",
             "expense_fuel": "Ёқилғи",
             "expense_other": "Бошқа харажат",
+            "office_expenses": "Офис харажатлари",
+            "office_category": "Офис харажати тури",
+            "office_category_placeholder": "Офис харажати бўлса танланг",
+            "office_category_add": "Офис харажати турини қўшиш",
             "col_from": "Қаердан",
             "col_to": "Қаерга",
             "garage_cash_expense": "Гараж харажатлари (нақд)",
@@ -2380,6 +2384,7 @@
             "for_truck": "Юк машинаси учун",
             "for_order": "Буюртма учун",
             "for_trip": "Рейс учун",
+            "for_office": "Офис учун",
             "flow_income": "Кирим",
             "edit_title": "Харажат турини таҳрирлаш",
             "add_title": "Харажат тури қўшиш"

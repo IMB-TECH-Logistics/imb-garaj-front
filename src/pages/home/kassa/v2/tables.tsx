@@ -75,7 +75,8 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
         ...usePaging(),
         dir: group || dir === "all" ? undefined : dir,
         kind: group || kindF === "all" ? undefined : kindF,
-        group: group && group !== "all" ? group : undefined,
+        group: group && group !== "all" ? group.split(":")[0] : undefined,
+        category: group?.split(":")[1] || undefined,
         vehicle: byVehicle && vehicle ? vehicle : undefined,
     }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
@@ -139,8 +140,8 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 header: t("fin.kv2.col_why"),
                 accessorKey: "kind_label",
                 cell: ({ row }) =>
-                    (row.original.kind === "chiqim" || row.original.kind === "income") && row.original.comment ?
-                        row.original.comment
+                    (row.original.kind === "chiqim" || row.original.kind === "income") && (row.original.comment || row.original.category_name) ?
+                        [row.original.category_name, row.original.comment].filter(Boolean).join(" · ")
                     :   row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
             },
             {

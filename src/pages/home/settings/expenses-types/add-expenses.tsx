@@ -15,6 +15,7 @@ export enum ExpenseTypeEnum {
     TRUCK = 1,
     ORDER = 2,
     TRIP = 3,
+    OFFICE = 4,
 }
 
 export const useExpenseTypeOptions = () => {
@@ -23,6 +24,7 @@ export const useExpenseTypeOptions = () => {
         { label: t("settings.expenses.for_truck"), value: ExpenseTypeEnum.TRUCK },
         { label: t("settings.expenses.for_order"), value: ExpenseTypeEnum.ORDER },
         { label: t("settings.expenses.for_trip"), value: ExpenseTypeEnum.TRIP },
+        { label: t("settings.expenses.for_office"), value: ExpenseTypeEnum.OFFICE },
     ]
 }
 

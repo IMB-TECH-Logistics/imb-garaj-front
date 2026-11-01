@@ -4,7 +4,9 @@ import { FormMultiCombobox } from "@/components/form/multi-combobox"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
-import { SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
+import { SETTINGS_EXPENSES, SETTINGS_SELECTABLE_USERS } from "@/constants/api-endpoints"
+import Modal from "@/components/custom/modal"
+import { AddCategoryForm } from "@/pages/home/managers/managers-trips/kirim-xarajat/add-category-form"
 import { useVstFinance } from "@/hooks/use-vst-finance"
 import { useKontragents, useRefreshFinance } from "@/pages/home/kontragent/api"
 import { useGet } from "@/hooks/useGet"
@@ -45,15 +47,20 @@ import { Save } from "./modal-save"
 export { M } from "./modal-keys"
 export { RequestModal } from "./request-modal"
 
+const OFFICE_CATEGORY_MODAL = "kassa-office-category"
+
 const inputCls = "h-9 rounded-md border bg-background px-2 text-sm w-full"
 
 const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; out?: boolean }) => {
     const { t } = useTranslation()
     const amountRules = useAmountRules()
     const { closeModal, isOpen } = useModal(M.income)
-    type F = { amount: number | ""; source: string; comment: string; date: string; vehicles: number[] }
-    const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [] } })
+    const { openModal: openAddCategory } = useModal(OFFICE_CATEGORY_MODAL)
+    type F = { amount: number | ""; source: string; comment: string; date: string; vehicles: number[]; category: number | null }
+    const form = useForm<F>({ defaultValues: { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null } })
     const { data: vehicleOptions } = useGet<{ id: number; name: string }[]>("selectable/vehicle", { params: { model_name: "vehicle" }, enabled: isOpen && out })
+    const { data: categoryData } = useGet<{ results?: { id: number; name: string }[] } | { id: number; name: string }[]>(SETTINGS_EXPENSES, { params: { type: 4, page_size: 500, ordering: "name" }, enabled: isOpen && out })
+    const categoryOptions = Array.isArray(categoryData) ? categoryData : categoryData?.results ?? []
     const post = useKassaPost(closeModal)
     const patch = useKassaPatch(closeModal)
     const { data: users } = useGet<{ id: number; first_name?: string; last_name?: string; username?: string }[]>(SETTINGS_SELECTABLE_USERS, { params: { staff: 1 }, enabled: isOpen })
@@ -65,14 +72,15 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
     useEffect(() => {
         if (!isOpen) return
         form.reset(editing
-            ? { amount: n(editing.amount), source: editing.source ?? "", comment: editing.comment ?? "", date: toLocalInput(editing.created), vehicles: (editing.vehicles ?? []).map((v) => v.id) }
-            : { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [] })
+            ? { amount: n(editing.amount), source: editing.source ?? "", comment: editing.comment ?? "", date: toLocalInput(editing.created), vehicles: (editing.vehicles ?? []).map((v) => v.id), category: editing.category ?? null }
+            : { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null })
     }, [isOpen, editing])
     return (
+        <>
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? { vehicles: v.vehicles ?? [] } : {}) }
+                const body = { amount: Number(v.amount), source: v.source || null, comment: v.comment || null, date: new Date(v.date.replace(" ", "T")).toISOString(), ...(out ? { vehicles: v.vehicles ?? [], category: v.category ?? null } : {}) }
                 const url = out ? KV2_EXPENSE : KV2_INCOME
                 const done = out ? t("fin.kv2.cash_out_done") : t("fin.kv2.cash_in_done")
                 if (editing) patch.mutate(`${url}/${editing.id}`, body, { onSuccess: () => toast.success(t("fin.kv2.income_updated")), onError: onErr })
@@ -83,6 +91,9 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
             {!out && <FormCombobox control={form.control} name="source" label={t("fin.kv2.received_from")} options={userOptions} valueKey="id" labelKey="name" />}
             {out && (
+                <FormCombobox control={form.control} name="category" label={t("fin.kv2.office_category")} placeholder={t("fin.kv2.office_category_placeholder")} options={categoryOptions} valueKey="id" labelKey="name" onAdd={openAddCategory} />
+            )}
+            {out && (
                 <div className="flex flex-col gap-1">
                     <FormMultiCombobox control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
                     <p className="text-xs text-muted-foreground">{t("fin.kv2.expense_vehicles_hint")}</p>
@@ -92,6 +103,12 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
             {editing?.edited_at && <p className="text-xs text-muted-foreground">{t("fin.kv2.last_edit", { date: fmtDate(editing.edited_at) })}</p>}
             <Save label={editing ? t("actions.save") : out ? t("fin.kv2.record_expense") : t("fin.kv2.record_income")} loading={post.isPending || patch.isPending} />
         </form>
+        {out && (
+            <Modal modalKey={OFFICE_CATEGORY_MODAL} title={t("fin.kv2.office_category_add")} size="max-w-sm">
+                <AddCategoryForm flowType={-1} type={4} modalKey={OFFICE_CATEGORY_MODAL} queryKey={SETTINGS_EXPENSES} onCreated={(id) => form.setValue("category", id)} />
+            </Modal>
+        )}
+        </>
     )
 }
 

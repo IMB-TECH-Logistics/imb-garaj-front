@@ -1458,6 +1458,10 @@
             "cash_expense_drivers": "Cash expenses (drivers)",
             "expense_fuel": "Fuel",
             "expense_other": "Other expenses",
+            "office_expenses": "Office expenses",
+            "office_category": "Office expense type",
+            "office_category_placeholder": "Choose if this is an office expense",
+            "office_category_add": "Add office expense type",
             "col_from": "From",
             "col_to": "To",
             "garage_cash_expense": "Garage expenses (cash)",
@@ -2385,6 +2389,7 @@
             "for_truck": "For truck",
             "for_order": "For order",
             "for_trip": "For trip",
+            "for_office": "For office",
             "flow_income": "Income",
             "edit_title": "Edit expense type",
             "add_title": "Add expense type"
