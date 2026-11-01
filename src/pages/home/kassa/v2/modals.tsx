@@ -58,7 +58,7 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
     const { openModal: openAddCategory } = useModal(OFFICE_CATEGORY_MODAL)
     type Kind = "office" | "vehicle" | ""
     type F = { amount: number | ""; source: string; comment: string; date: string; vehicles: number[]; category: number | null; kind: Kind }
-    const blank: F = { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null, kind: "" }
+    const blank: F = { amount: "", source: "", comment: "", date: toLocalInput(new Date().toISOString()), vehicles: [], category: null, kind: "vehicle" }
     const form = useForm<F>({ defaultValues: blank })
     const kind = form.watch("kind")
     const kindOptions = [
@@ -116,10 +116,7 @@ const LegacyIncomeModal = ({ editing, out = false }: { editing: KassaTx | null; 
                 <FormCombobox required control={form.control} name="category" label={t("fin.kv2.office_category")} placeholder={t("fin.kv2.office_category_placeholder")} options={categoryOptions} valueKey="id" labelKey="name" onAdd={openAddCategory} />
             )}
             {out && kind === "vehicle" && (
-                <div className="flex flex-col gap-1">
-                    <FormMultiCombobox required control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
-                    <p className="text-xs text-muted-foreground">{t("fin.kv2.expense_vehicles_hint")}</p>
-                </div>
+                <FormMultiCombobox required control={form.control} name="vehicles" label={t("fin.kv2.expense_vehicles")} placeholder={t("fin.kv2.expense_vehicles_placeholder")} options={vehicleOptions} valueKey="id" labelKey="name" />
             )}
             <FormNumberInput required control={form.control} name="amount" label={t("form.amount")} placeholder={`${t("form.example")}: 1 000 000`} thousandSeparator=" " allowNegative={false} registerOptions={amountRules} />
             <FormDateTimePicker required control={form.control} name="date" label={t("form.date")} addButtonProps={{ className: "w-full justify-start text-left font-normal" }} />
