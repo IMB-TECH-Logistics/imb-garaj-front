@@ -37,6 +37,7 @@ export interface TripDailyStatisticType {
     other_fuel?: number | string | null
     orders_fuel_consume?: number | string | null
     legs_fuel_consume?: number | string | null
+    other_items?: { id: number; at: string; amount: number; category: string | null; comment: string }[]
     empty_legs?: { id: number; date: string; start: string; idle_start: string | null; minutes: number; payment: number; idle_payment: number; from_place: string | null; to_place: string | null; km: number | null; fuel_consume: number | null }[]
     other_income: number | string | null
     total_mileage: number
@@ -137,7 +138,18 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                     const data = row.original
                     const value = toNum(data[key])
                     if (!value) return <span className="text-muted-foreground">—</span>
-                    return <span className={`${data.is_summary ? "font-bold text-red-500" : "font-medium text-red-600"} whitespace-nowrap`}>{formatMoney(value)}</span>
+                    const notes: { text: string; amount: number }[] = key === "rest_expense" && !data.is_summary ? (data.other_notes ?? []) : []
+                    return (
+                        <div className="flex flex-col">
+                            <span className={`${data.is_summary ? "font-bold text-red-500" : "font-medium text-red-600"} whitespace-nowrap`}>{formatMoney(value)}</span>
+                            {notes.map((n, i) => (
+                                <span key={i} className="text-xs text-muted-foreground leading-tight max-w-48 break-words">
+                                    {n.text}
+                                    {notes.length > 1 && <> · {formatMoney(n.amount)}</>}
+                                </span>
+                            ))}
+                        </div>
+                    )
                 },
             })),
             {

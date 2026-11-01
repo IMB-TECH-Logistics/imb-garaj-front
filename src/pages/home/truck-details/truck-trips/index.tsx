@@ -112,7 +112,22 @@ const VehicleTrips = () => {
         const ordersIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
         const residualIncome = Number(trip.other_income) || 0
         const residualFuel = spreadFuel ? 0 : tripFuel
-        const residualExpense = (Number(trip.other_expense) || 0) - (spreadFuel ? tripFuel : 0)
+        const reysRows = rows.filter((r) => !r.is_leg)
+        let unassigned = 0
+        trip.other_items?.forEach((item) => {
+            const at = new Date(item.at).getTime()
+            const amount = Number(item.amount) || 0
+            const target = [...reysRows].reverse().find((r) => r._at <= at) ?? reysRows[0]
+            if (!target) {
+                unassigned += amount
+                return
+            }
+            target.expense = (Number(target.expense) || 0) + amount
+            target.rest_expense = (Number(target.rest_expense) || 0) + amount
+            target.other_notes = [...(target.other_notes ?? []), { text: item.comment || item.category || "—", amount }]
+        })
+        const residualSalary = Number(trip.other_salary) || 0
+        const residualExpense = residualSalary + residualFuel + unassigned
         const totalIncome = ordersIncome + residualIncome
 
         if (residualIncome || residualExpense) {
@@ -122,9 +137,9 @@ const VehicleTrips = () => {
                 trip_id: trip.id,
                 income: residualIncome,
                 expense: residualExpense,
-                salary_expense: Number(trip.other_salary) || 0,
+                salary_expense: residualSalary,
                 fuel_expense: residualFuel,
-                rest_expense: residualExpense - (Number(trip.other_salary) || 0) - residualFuel,
+                rest_expense: unassigned,
             })
         }
 
