@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next"
 
 // ──── Add category form ────
 
-export function AddCategoryForm({ flowType, modalKey = "add-category" }: { flowType: 1 | -1; modalKey?: string }) {
+export function AddCategoryForm({ flowType, modalKey = "add-category", type = 3, queryKey = MANAGERS_EXPENSE_CATEGORIES, onCreated }: { flowType: 1 | -1; modalKey?: string; type?: number; queryKey?: string; onCreated?: (id: number) => void }) {
     const { t } = useTranslation()
     const { closeModal } = useModal(modalKey)
     const form = useForm<{ name: string }>()
@@ -21,12 +21,13 @@ export function AddCategoryForm({ flowType, modalKey = "add-category" }: { flowT
     const onSubmit = (data: { name: string }) => {
         mutate(SETTINGS_EXPENSES, {
             name: data.name,
-            type: 3, // TRIP
+            type,
             flow_type: flowType,
         }, {
-            onSuccess: () => {
+            onSuccess: (res?: { id?: number }) => {
                 toast.success(t("toast.category_added"))
-                queryClient.invalidateQueries({ queryKey: [MANAGERS_EXPENSE_CATEGORIES] })
+                queryClient.invalidateQueries({ queryKey: [queryKey] })
+                if (res?.id) onCreated?.(res.id)
                 reset()
                 closeModal()
             },

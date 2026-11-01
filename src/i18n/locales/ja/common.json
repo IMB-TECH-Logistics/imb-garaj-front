@@ -1459,6 +1459,10 @@
             "cash_expense_drivers": "現金支出（ドライバー）",
             "expense_fuel": "燃料",
             "expense_other": "その他の費用",
+            "office_expenses": "事務所経費",
+            "office_category": "事務所経費の種類",
+            "office_category_placeholder": "事務所経費の場合は選択",
+            "office_category_add": "事務所経費の種類を追加",
             "col_from": "送金元",
             "col_to": "送金先",
             "garage_cash_expense": "ガレージ費用（現金）",
@@ -2386,6 +2390,7 @@
             "for_truck": "トラック用",
             "for_order": "注文用",
             "for_trip": "便用",
+            "for_office": "事務所用",
             "flow_income": "収入",
             "edit_title": "費用タイプを編集",
             "add_title": "費用タイプを追加"

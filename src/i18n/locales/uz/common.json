@@ -1455,6 +1455,10 @@
             "cash_expense_drivers": "Naqd xarajat (haydovchilar)",
             "expense_fuel": "Yoqilg'i",
             "expense_other": "Boshqa xarajat",
+            "office_expenses": "Ofis xarajatlari",
+            "office_category": "Ofis xarajati turi",
+            "office_category_placeholder": "Ofis xarajati bo'lsa tanlang",
+            "office_category_add": "Ofis xarajati turini qo'shish",
             "col_from": "Qayerdan",
             "col_to": "Qayerga",
             "garage_cash_expense": "Garaj xarajatlari (naqd)",
@@ -2382,6 +2386,7 @@
             "for_truck": "Yuk mashinasi uchun",
             "for_order": "Buyurtma uchun",
             "for_trip": "Reys uchun",
+            "for_office": "Ofis uchun",
             "flow_income": "Kirim",
             "edit_title": "Xarajat turini tahrirlash",
             "add_title": "Xarajat turi qo'shish"

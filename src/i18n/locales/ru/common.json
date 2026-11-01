@@ -1464,6 +1464,10 @@
             "cash_expense_drivers": "Наличные расходы (водители)",
             "expense_fuel": "Топливо",
             "expense_other": "Прочие расходы",
+            "office_expenses": "Офисные расходы",
+            "office_category": "Тип офисного расхода",
+            "office_category_placeholder": "Выберите, если это офисный расход",
+            "office_category_add": "Добавить тип офисного расхода",
             "col_from": "Откуда",
             "col_to": "Куда",
             "garage_cash_expense": "Расходы гаража (наличные)",
@@ -2391,6 +2395,7 @@
             "for_truck": "Для грузовика",
             "for_order": "Для заказа",
             "for_trip": "Для рейса",
+            "for_office": "Для офиса",
             "flow_income": "Приход",
             "edit_title": "Редактировать тип расхода",
             "add_title": "Добавить тип расхода"
