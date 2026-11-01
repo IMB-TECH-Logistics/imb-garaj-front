@@ -10,6 +10,7 @@ import { AddFinanceForm } from "./kirim-xarajat/add-finance-form"
 import { IncomeTab } from "./kirim-xarajat/income-tab"
 import { ExpenseTab } from "./kirim-xarajat/expense-tab"
 import { TAccountTab } from "./kirim-xarajat/t-account-tab"
+import CloseRequestRefresh from "./close-request-refresh"
 
 // ──── Main export ────
 
@@ -47,6 +48,7 @@ export default function KirimXarajatContent() {
         return (
             <div className="flex flex-col h-full overflow-hidden gap-3">
                 <div className="h-7 shrink-0" aria-hidden />
+                <CloseRequestRefresh tripId={tripId ? Number(tripId) : undefined} />
                 <TAccountTab mode="haydovchi" onToggle={() => {}} tripId={tripId} hideToggle />
             </div>
         )

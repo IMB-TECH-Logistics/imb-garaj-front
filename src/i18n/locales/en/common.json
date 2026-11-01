@@ -2720,6 +2720,12 @@
             "done": "Moved: #{{src}} → #{{target}}"
         },
         "kclose": {
+            "refresh_request": "Refresh request",
+            "request_pending": "Close request sent to the cash desk",
+            "request_rejected": "Close request rejected",
+            "request_changed_now": "Turnover changed, now: {{side}} {{amount}}",
+            "request_up_to_date": "Request matches the current turnover",
+            "request_refreshed": "Request refreshed from the current turnover",
             "carry_in_owed": "Owed to driver from previous cycle",
             "carry_in_avans": "Advance left from previous cycle",
             "settle_take": "Cashier receives now",

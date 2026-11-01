@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
 import { ColumnDef } from "@tanstack/react-table"
-import { Check, Pencil, X } from "lucide-react"
+import { Check, Pencil, X, RefreshCw } from "lucide-react"
 import { ReactNode, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
@@ -103,6 +103,12 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                     return (
                         <div className="flex items-center gap-2 justify-end">
                             <Badge variant="orange" className="w-fit whitespace-nowrap">{t("status.pending")}</Badge>
+                            {r.close && (
+                                <Button size="sm" variant="outline" className="h-8 gap-1" disabled={isPending} onClick={() => act(`${KV2_REQUESTS}/${r.id}/resend`, t("trips.kclose.request_refreshed"))}>
+                                    <RefreshCw size={14} />
+                                    {t("trips.kclose.refresh_request")}
+                                </Button>
+                            )}
                             <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />
                         </div>
                     )
