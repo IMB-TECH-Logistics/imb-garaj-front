@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { useHasAction, useUser } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
-import { formatMoney } from "@/lib/format-money"
+import { formatMoney, formatMoneyText } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { useQueryClient } from "@tanstack/react-query"
 import { RefreshCw } from "lucide-react"
@@ -71,7 +71,7 @@ export default function CloseRequestRefresh({ tripId }: { tripId?: number }) {
                 </span>
                 {now != null && (
                     <span className={cn("text-xs", changed ? "text-orange-600" : "text-muted-foreground")}>
-                        {changed ? t("trips.kclose.request_changed_now", { side: side(now), amount: formatMoney(Math.abs(now)) }) : t("trips.kclose.request_up_to_date")}
+                        {changed ? t("trips.kclose.request_changed_now", { side: side(now), amount: formatMoneyText(Math.abs(now)) }) : t("trips.kclose.request_up_to_date")}
                     </span>
                 )}
             </div>
