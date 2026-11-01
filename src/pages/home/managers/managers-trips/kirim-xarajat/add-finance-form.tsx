@@ -147,7 +147,7 @@ export function AddFinanceForm({
     const regionOptions = regionsData?.results ?? []
 
     useEffect(() => {
-        if (!isSalaryExpense) return
+        if (!isSalaryExpense || isEdit) return
         const targetMethod = deductFromBalance ? 1 : 3
         const match = (paymentTypes as any)?.results?.find(
             (p: any) => p.method === targetMethod,
