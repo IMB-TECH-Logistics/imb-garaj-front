@@ -1670,6 +1670,9 @@
         }
     },
     "fleet": {
+        "trip_salary": "Зарплата",
+        "trip_fuel": "Топливо",
+        "trip_other": "Прочие расходы",
         "year": "Год",
         "month": "Месяц",
         "truck_details": {

@@ -11,6 +11,8 @@ const toNum = (v: unknown) => Number(v ?? 0) || 0
 export interface OrderTripType {
     date: string
     expense: number | string | null
+    salary_expense?: number | string | null
+    fuel_expense?: number | string | null
     loading_name: string
     unloading_name: string
     cargo_type_name: string | null
@@ -28,6 +30,13 @@ export interface TripDailyStatisticType {
     end: string | null
     hidden_order_count: number
     total_expense: number | null
+    salary_expense?: number | string | null
+    fuel_expense?: number | string | null
+    other_salary?: number | string | null
+    other_fuel?: number | string | null
+    orders_fuel_consume?: number | string | null
+    legs_fuel_consume?: number | string | null
+    empty_legs?: { id: number; date: string; from_place: string | null; to_place: string | null; km: number | null; fuel_consume: number | null }[]
     other_income: number | string | null
     total_mileage: number
     start_mileage_image: string | null
@@ -82,6 +91,7 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                 cell: ({ row }) => {
                     const data = row.original;
                     if (data.is_summary) return null;
+                    if (data.is_leg) return <span className="italic text-muted-foreground">{data.client_name}</span>
                     return <span>{data.client_name || "—"}</span>
                 },
             },
@@ -113,6 +123,22 @@ export const useOrderCols = (opts?: { onExpenseClick?: (tripId: number, totalExp
                     return <span className="font-bold text-white">{round2(data.fuel_consume)}</span>
                 },
             },
+            ...([
+                ["salary_expense", "fleet.trip_salary"],
+                ["fuel_expense", "fleet.trip_fuel"],
+                ["rest_expense", "fleet.trip_other"],
+            ] as const).map(([key, label]) => ({
+                header: t(label),
+                id: key,
+                size: 110,
+                enableSorting: false,
+                cell: ({ row }: { row: { original: any } }) => {
+                    const data = row.original
+                    const value = toNum(data[key])
+                    if (!value) return <span className="text-muted-foreground">—</span>
+                    return <span className={`${data.is_summary ? "font-bold text-red-500" : "font-medium text-red-600"} whitespace-nowrap`}>{formatMoney(value)}</span>
+                },
+            })),
             {
                 header: t("table.total_expense"),
                 accessorKey: "total_expense",

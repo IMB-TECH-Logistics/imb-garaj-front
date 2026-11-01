@@ -1661,6 +1661,9 @@
         }
     },
     "fleet": {
+        "trip_salary": "Oylik",
+        "trip_fuel": "Yoqilg'i",
+        "trip_other": "Boshqa xarajat",
         "year": "Yil",
         "month": "Oy",
         "truck_details": {

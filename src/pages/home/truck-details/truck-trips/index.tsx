@@ -32,8 +32,18 @@ const VehicleTrips = () => {
 
         const rows: any[] = []
 
+        const tripFuel = Number(trip.other_fuel) || 0
+        const fuelLitres = (Number(trip.orders_fuel_consume) || 0) + (Number(trip.legs_fuel_consume) || 0)
+        const spreadFuel = tripFuel > 0 && fuelLitres > 0
+
         trip.orders_trip?.forEach((order, idx) => {
-            rows.push({ ...order })
+            const share = spreadFuel ? Math.round((tripFuel * (Number(order.fuel_consume) || 0)) / fuelLitres) : 0
+            rows.push({
+                ...order,
+                expense: (Number(order.expense) || 0) + share,
+                fuel_expense: (Number(order.fuel_expense) || 0) + share,
+                rest_expense: (Number(order.expense) || 0) - (Number(order.salary_expense) || 0) - (Number(order.fuel_expense) || 0),
+            })
             if (idx === 0) {
                 minDate = order.date
                 maxDate = order.date
@@ -43,9 +53,30 @@ const VehicleTrips = () => {
             }
         })
 
+        trip.empty_legs?.forEach((leg) => {
+            const share = spreadFuel ? Math.round((tripFuel * (Number(leg.fuel_consume) || 0)) / fuelLitres) : 0
+            rows.push({
+                is_leg: true,
+                id: `leg-${leg.id}`,
+                date: leg.date,
+                loading_name: leg.from_place || "—",
+                unloading_name: leg.to_place || "—",
+                client_name: t("trips.managers.empty_run"),
+                total_mileage: leg.km,
+                fuel_consume: leg.fuel_consume,
+                income: 0,
+                expense: share,
+                salary_expense: 0,
+                fuel_expense: share,
+                rest_expense: 0,
+            })
+        })
+        rows.sort((x, y) => String(x.date).localeCompare(String(y.date)))
+
         const ordersIncome = trip.orders_trip?.reduce((acc: number, val: any) => acc + (Number(val.income) || 0), 0) || 0
         const residualIncome = Number(trip.other_income) || 0
-        const residualExpense = Number(trip.other_expense) || 0
+        const residualFuel = spreadFuel ? 0 : tripFuel
+        const residualExpense = (Number(trip.other_expense) || 0) - (spreadFuel ? tripFuel : 0)
         const totalIncome = ordersIncome + residualIncome
 
         if (residualIncome || residualExpense) {
@@ -55,18 +86,24 @@ const VehicleTrips = () => {
                 trip_id: trip.id,
                 income: residualIncome,
                 expense: residualExpense,
+                salary_expense: Number(trip.other_salary) || 0,
+                fuel_expense: residualFuel,
+                rest_expense: residualExpense - (Number(trip.other_salary) || 0) - residualFuel,
             })
         }
 
+        const sumOf = (key: string) => rows.reduce((acc, r) => acc + (Number(r[key]) || 0), 0)
         rows.push({
             is_summary: true,
             id: trip.id,
             trip_id: trip.id,
-            total_expense: trip.total_expense,
+            total_expense: sumOf("expense"),
+            salary_expense: sumOf("salary_expense"),
+            fuel_expense: sumOf("fuel_expense"),
+            rest_expense: sumOf("rest_expense"),
             total_mileage: trip.total_mileage,
             fuel_consume: trip.fuel_consume,
             income: totalIncome,
-            cargo_type_name: Array.from(new Set(trip.orders_trip?.map(o => o.cargo_type_name).filter(Boolean))).join(", "),
         })
 
         return {

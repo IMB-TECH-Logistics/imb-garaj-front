@@ -1661,6 +1661,9 @@
         }
     },
     "fleet": {
+        "trip_salary": "Ойлик",
+        "trip_fuel": "Ёқилғи",
+        "trip_other": "Бошқа харажат",
         "year": "Йил",
         "month": "Ой",
         "truck_details": {

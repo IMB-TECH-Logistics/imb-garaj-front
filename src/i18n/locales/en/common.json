@@ -1664,6 +1664,9 @@
         }
     },
     "fleet": {
+        "trip_salary": "Salary",
+        "trip_fuel": "Fuel",
+        "trip_other": "Other expenses",
         "year": "Year",
         "month": "Month",
         "truck_details": {
