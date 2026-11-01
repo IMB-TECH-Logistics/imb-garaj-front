@@ -3,6 +3,7 @@ import { formatMoneyText } from "@/lib/format-money"
 import { formatDate } from "@/lib/format-date"
 import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
+import { format } from "date-fns"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormNumberInput } from "@/components/form/number-input"
 import { FormDatePicker } from "@/components/form/date-picker"
@@ -21,6 +22,8 @@ import { useTranslation } from "react-i18next"
 import { isWithinMoneyLimit } from "@/lib/money-limit"
 import { FinanceRow } from "./types"
 import { PetrolStationField } from "./petrol-station-field"
+
+const dayOf = (value?: string | null) => (value ? format(new Date(value), "yyyy-MM-dd") : "")
 
 // ──── Add finance form ────
 
@@ -75,7 +78,7 @@ export function AddFinanceForm({
             from_region: (editItem as any)?.from_region ?? "",
             to_region: (editItem as any)?.to_region ?? "",
             deduct_from_balance: true,
-            date: "",
+            date: dayOf(editItem?.created),
         },
     })
     const { handleSubmit, control, reset, watch, setValue } = form
@@ -170,7 +173,7 @@ export function AddFinanceForm({
                 from_region: (editItem as any).from_region ?? "",
                 to_region: (editItem as any).to_region ?? "",
                 deduct_from_balance: true,
-                date: "",
+                date: dayOf(editItem.created),
             })
         } else {
             reset({
@@ -219,7 +222,7 @@ export function AddFinanceForm({
         if (showOrderSelect && data.order) fd.append("order", String(data.order))
         if (data.receipt instanceof File) fd.append("receipt", data.receipt)
         if (advanceId && action === -1) fd.append("advance", String(advanceId))
-        if (!isEdit && data.date) fd.append("date", data.date)
+        if (data.date && (!isEdit || (isSalaryExpense && data.date !== dayOf(editItem?.created)))) fd.append("date", data.date)
 
         if (isEdit) {
             patchMutate(`${MANAGERS_EXPENSES}/${editItem.id}`, fd as any, {
@@ -343,7 +346,7 @@ export function AddFinanceForm({
                     placeholder={t("form.order_type")}
                 />
             )}
-            {!isEdit && (
+            {(!isEdit || isSalaryExpense) && (
                 <FormDatePicker
                     label={t("form.date")}
                     control={control}
