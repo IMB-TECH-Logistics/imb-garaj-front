@@ -224,11 +224,11 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const extraSalarySum = closePreview ?
         Number(closePreview.empty_leg_salary?.amount ?? 0) + Number(closePreview.extra_pay_salary?.amount ?? 0) + Number(closePreview.manual_salary?.amount ?? 0)
     :   0
+    const salaryCardExtra = extraSalarySum - Number(closePreview?.manual_salary?.amount ?? 0)
     const extraSalaryRows = closePreview ?
         [
             ...(closePreview.extra_pay_salary?.orders ?? []).map((r) => ({ key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount) })),
             ...(closePreview.empty_leg_salary?.legs ?? []).map((r) => ({ key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount) })),
-            ...(closePreview.manual_salary?.rows ?? []).map((r) => ({ key: `m${r.id}`, route: t("trips.row.extra_salary"), date: r.date, comment: r.comment, amount: Number(r.amount) })),
         ]
     :   []
     const profit = closePreview ?
@@ -315,7 +315,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                 {access.avans.view && <SummaryCard label={t("trips.kclose.advance")} amountUzs={avansSum} variant="advance" active={filter === "avans"} onClick={() => setFilter("avans")} />}
                                 {access.tushum.view && <SummaryCard label={t("trips.kclose.cash_trip_money")} amountUzs={incomeUzs - avansSum} variant="income" active={filter === "tushum"} onClick={() => setFilter("tushum")} />}
                                 {access.xarajat.view && <SummaryCard label={t("trips.kirim.cash_expense")} amountUzs={cashExpenseSum} variant="expense" active={filter === "xarajat"} onClick={() => setFilter("xarajat")} />}
-                                {access.oylik.view && <SummaryCard label={t("trips.kclose.salary")} amountUzs={salarySum + extraSalarySum} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />}
+                                {access.oylik.view && <SummaryCard label={t("trips.kclose.salary")} amountUzs={salarySum + salaryCardExtra} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />}
                                 {profit != null && access.balance && <SummaryCard label={t("form.balance")} amountUzs={profit} variant={profit < 0 ? "expense" : "balance"} />}
                             </>
                         :   <SummaryCard label={t("page.all_income")} amountUzs={incomeUzs} variant="income" />}
