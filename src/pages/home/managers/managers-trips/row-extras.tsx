@@ -1,4 +1,5 @@
 import Modal from "@/components/custom/modal"
+import { FormDatePicker } from "@/components/form/date-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Badge } from "@/components/ui/badge"
@@ -221,16 +222,16 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
     const modal = useModal(SALARY_REQUEST_MODAL)
     const refresh = useRefreshFinance()
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
-    const form = useForm<{ amount: number | ""; comment: string }>({ defaultValues: { amount: "", comment: "" } })
+    const form = useForm<{ amount: number | ""; comment: string; date: string }>({ defaultValues: { amount: "", comment: "", date: "" } })
     useEffect(() => {
-        if (modal.isOpen) form.reset({ amount: "", comment: "" })
+        if (modal.isOpen) form.reset({ amount: "", comment: "", date: "" })
     }, [modal.isOpen])
     return (
         <Modal modalKey={SALARY_REQUEST_MODAL} title={t("trips.row.extra_salary")} size="max-w-md">
             <form
                 className="flex flex-col gap-3"
                 onSubmit={form.handleSubmit((v) => {
-                    mutate(`checkout/kassa-v2/trips/${tripId}/extra-salary`, { amount: Number(v.amount), comment: v.comment || null }, {
+                    mutate(`checkout/kassa-v2/trips/${tripId}/extra-salary`, { amount: Number(v.amount), comment: v.comment || null, ...(v.date ? { date: v.date } : {}) }, {
                         onSuccess: () => {
                             toast.success(t("trips.row.extra_salary_saved"))
                             refresh()
@@ -248,6 +249,13 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
                     thousandSeparator=" "
                     allowNegative={false}
                     registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
+                />
+                <FormDatePicker
+                    label={t("form.date")}
+                    control={form.control}
+                    name="date"
+                    placeholder={t("trips.kirim.date_today")}
+                    calendarProps={{ disabled: { after: new Date() } }}
                 />
                 <FormTextarea label={t("form.comment")} name="comment" methods={form} />
                 <p className="text-xs text-muted-foreground">{t("trips.row.extra_salary_hint")}</p>
