@@ -15,12 +15,12 @@ import { routeTree } from "./routeTree.gen"
 
 const RELOAD_KEY = "vite:chunk-reload"
 
+const RELOAD_GAP_MS = 30000
+
 const reloadOnce = () => {
-    if (sessionStorage.getItem(RELOAD_KEY)) {
-        sessionStorage.removeItem(RELOAD_KEY)
-        return
-    }
-    sessionStorage.setItem(RELOAD_KEY, "1")
+    const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0)
+    if (Date.now() - last < RELOAD_GAP_MS) return
+    sessionStorage.setItem(RELOAD_KEY, String(Date.now()))
     window.location.reload()
 }
 
@@ -39,8 +39,6 @@ window.addEventListener("vite:preloadError", () => reloadOnce())
 window.addEventListener("unhandledrejection", (event) => {
     if (isChunkError(event.reason)) reloadOnce()
 })
-
-setTimeout(() => sessionStorage.removeItem(RELOAD_KEY), 10000)
 
 const queryClient = new QueryClient({
     queryCache: new QueryCache({
