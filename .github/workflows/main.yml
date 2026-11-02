@@ -54,7 +54,9 @@ jobs:
                   # Disable strict host key checking
                   echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
                   # Copy build files to the server
-                  rsync -avz --delete dist/ $USERNAME@$HOST:/var/www/imb-garage-front/
+                  rsync -avz dist/assets/ $USERNAME@$HOST:/var/www/imb-garage-front/assets/
+                  rsync -avz --delete --exclude 'assets/' dist/ $USERNAME@$HOST:/var/www/imb-garage-front/
+                  ssh $USERNAME@$HOST "find /var/www/imb-garage-front/assets -type f -mtime +14 -delete"
                   # Restart Nginx on the server
                   ssh -o StrictHostKeyChecking=yes $USERNAME@$HOST << 'EOF'
                     sudo systemctl reload nginx
