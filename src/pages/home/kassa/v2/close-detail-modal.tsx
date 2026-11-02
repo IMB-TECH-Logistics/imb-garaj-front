@@ -180,6 +180,7 @@ export const CloseDetailModal = ({ row, onReject }: { row: KassaRow | null; onRe
                         <DetailRow label={t("fin.kv2.given_advance")}><Part v={c.given} sign="−" /></DetailRow>
                         <DetailRow label={t("fin.kv2_kind.avans_qaytarish")}><Part v={c.avans_left} sign="+" /></DetailRow>
                         <DetailRow label={t("fin.kv2.trip_cash")}><Part v={c.earned} sign="+" /></DetailRow>
+                        <DetailRow label={t("trips.kirim.cash_expense")}><Part v={c.spent} sign="−" /></DetailRow>
                         <DetailRow label={t("table.monthly_salary")}><Part v={c.salary} sign="−" /></DetailRow>
                         <DetailRow label={row.dir === "in" ? t("fin.kv2.takes_cap") : t("fin.kv2.gives_cap")} className="font-semibold">
                             <Money v={row.amount} dir={row.dir} />
