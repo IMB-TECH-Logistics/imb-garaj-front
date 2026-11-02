@@ -10,7 +10,8 @@ import Map, {
     Source,
 } from "react-map-gl/maplibre"
 import GoogleRouteMap from "./google-route-map"
-import { DriverMarker, EndpointDot, PoiMarker, SpeedTooltip } from "./map-markers"
+import { ClusterMarker, DriverMarker, EndpointDot, PoiMarker, SpeedTooltip } from "./map-markers"
+import { type MarkerCluster, SPREAD_ZOOM, clusterMarkers, separatesAt } from "./marker-clusters"
 
 const MAP_STYLE_URL =
     import.meta.env.VITE_MAP_STYLE_URL ||
@@ -109,6 +110,35 @@ export type RouteMapProps = {
 
 export type MapBounds = { north: number; south: number; east: number; west: number }
 
+const ARROW_IMAGE = "route-arrow"
+const MAPLIBRE_TILE = 512
+
+function addArrowImage(map: any) {
+    if (map.hasImage(ARROW_IMAGE)) return
+    const size = 24
+    const canvas = document.createElement("canvas")
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+    const draw = (color: string, width: number) => {
+        ctx.strokeStyle = color
+        ctx.lineWidth = width
+        ctx.lineCap = "round"
+        ctx.lineJoin = "round"
+        ctx.beginPath()
+        ctx.moveTo(5, 12)
+        ctx.lineTo(19, 12)
+        ctx.moveTo(13, 7)
+        ctx.lineTo(19, 12)
+        ctx.lineTo(13, 17)
+        ctx.stroke()
+    }
+    draw("#111827", 5)
+    draw("#ffffff", 2)
+    map.addImage(ARROW_IMAGE, ctx.getImageData(0, 0, size, size), { pixelRatio: 2 })
+}
+
 export default function RouteMap(props: RouteMapProps) {
     return MAP_PROVIDER === "google" ? (
         <GoogleRouteMap {...props} />
@@ -128,9 +158,34 @@ function MapLibreRouteMap({
     segments,
     pois,
     areas,
+    arrows,
+    onBoundsChange,
 }: RouteMapProps) {
     const { t } = useTranslation()
     const mapRef = useRef<MapRef | null>(null)
+    const [zoom, setZoom] = useState(11)
+    const clustered = useMemo(() => clusterMarkers(markers ?? [], zoom, MAPLIBRE_TILE), [markers, zoom])
+
+    const zoomToCluster = (cluster: MarkerCluster) => {
+        const map = mapRef.current
+        if (!map) return
+        const lngs = cluster.members.map((m) => m.lng)
+        const lats = cluster.members.map((m) => m.lat)
+        map.fitBounds(
+            [
+                [Math.min(...lngs), Math.min(...lats)],
+                [Math.max(...lngs), Math.max(...lats)],
+            ],
+            { padding: 96, duration: 600, maxZoom: SPREAD_ZOOM },
+        )
+    }
+
+    const reportBounds = () => {
+        const map = mapRef.current
+        if (!map || !onBoundsChange) return
+        const b = map.getBounds()
+        onBoundsChange({ north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() })
+    }
 
     const [hover, setHover] = useState<RouteHover | null>(null)
     const validSegments = useMemo(
@@ -169,6 +224,20 @@ function MapLibreRouteMap({
             })),
         }
     }, [areas])
+
+    const arrowFeatures = useMemo(() => {
+        if (!arrows) return null
+        const lines = validSegments.length > 0 ? validSegments.map((seg) => seg.points) : points && points.length >= 2 ? [points] : []
+        if (lines.length === 0) return null
+        return {
+            type: "FeatureCollection" as const,
+            features: lines.map((coordinates) => ({
+                type: "Feature" as const,
+                properties: {},
+                geometry: { type: "LineString" as const, coordinates },
+            })),
+        }
+    }, [arrows, validSegments, points])
 
     const polylineFeature = useMemo(() => {
         if (!points || points.length < 2) return null
@@ -257,8 +326,12 @@ function MapLibreRouteMap({
                     setHover(segment ? nearestPoint(segment, e.lngLat.lng, e.lngLat.lat) : null)
                 }}
                 onMouseLeave={() => setHover(null)}
+                onZoomEnd={(e) => setZoom(e.viewState.zoom)}
+                onMoveEnd={reportBounds}
                 onLoad={(e) => {
                     const map = e.target
+                    addArrowImage(map)
+                    setZoom(map.getZoom())
                     const layers = map.getStyle().layers ?? []
                     for (const layer of layers) {
                         if (layer.type !== "symbol") continue
@@ -394,6 +467,24 @@ function MapLibreRouteMap({
                     </Source>
                 ) : null}
 
+                {arrowFeatures && (
+                    <Source key="route-arrows" id="route-arrows" type="geojson" data={arrowFeatures}>
+                        <Layer
+                            id="route-arrows-layer"
+                            type="symbol"
+                            layout={{
+                                "symbol-placement": "line",
+                                "symbol-spacing": 90,
+                                "icon-image": ARROW_IMAGE,
+                                "icon-size": 1,
+                                "icon-allow-overlap": true,
+                                "icon-ignore-placement": true,
+                                "icon-rotation-alignment": "map",
+                            }}
+                        />
+                    </Source>
+                )}
+
                 {startPoint && (
                     <Marker
                         latitude={startPoint[1]}
@@ -413,7 +504,17 @@ function MapLibreRouteMap({
                     </Marker>
                 )}
 
-                {markers?.map((m) => (
+                {clustered.clusters.map((c) => (
+                    <Marker key={`cluster-${c.id}`} latitude={c.lat} longitude={c.lng} anchor="center">
+                        <ClusterMarker
+                            cluster={c}
+                            spread={separatesAt(c.members, SPREAD_ZOOM, MAPLIBRE_TILE)}
+                            onZoom={() => zoomToCluster(c)}
+                        />
+                    </Marker>
+                ))}
+
+                {clustered.singles.map((m) => (
                     <Marker
                         key={m.id}
                         latitude={m.lat}
