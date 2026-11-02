@@ -7,6 +7,7 @@ export interface OwnerStatistic {
     id: number
     truck_type_name: string
     truck_number: string
+    model_name?: string | null
     owner_name: string
     order_count_busy: number
     order_count_empty: number
@@ -48,11 +49,11 @@ export const useCostCols = () => {
             },
             {
                 header: t("table.trip_type_name"),
-                accessorKey: "truck_type_name",
+                accessorKey: "model_name",
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="font-semibold uppercase">
-                        {row.original.truck_type_name || "—"}
+                        {row.original.model_name || "—"}
                     </span>
                 ),
             },
