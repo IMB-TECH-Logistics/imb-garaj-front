@@ -2,12 +2,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import DeleteModal from "@/components/custom/delete-modal"
+import TableActions from "@/components/custom/table-actions"
 import Modal from "@/components/custom/modal"
 import { formatMoney, formatNumber } from "@/lib/format-money"
 import { formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { useModal } from "@/hooks/useModal"
@@ -547,28 +548,13 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                             {r.comment && <span className="text-muted-foreground">{r.comment}</span>}
                                             <span className="whitespace-nowrap text-muted-foreground">{r.date ? String(r.date).slice(0, 10) : "—"}</span>
                                             {access.oylik.control && (
-                                                <div className="flex items-center gap-1">
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        className="h-7 w-7"
-                                                        disabled={locked}
-                                                        title={lockedTitle ?? t("actions.edit")}
-                                                        onClick={() => { setExtraTarget(r.target); openExtraPay() }}
-                                                    >
-                                                        <Pencil size={14} />
-                                                    </Button>
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        className="h-7 w-7 text-destructive"
-                                                        disabled={locked}
-                                                        title={lockedTitle ?? t("actions.delete")}
-                                                        onClick={() => { setExtraDelete(r.target); extraDeleteModal.openModal() }}
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </Button>
-                                                </div>
+                                                <TableActions
+                                                    className="py-0"
+                                                    disabled={locked}
+                                                    disabledTitle={lockedTitle}
+                                                    onEdit={() => { setExtraTarget(r.target); openExtraPay() }}
+                                                    onDelete={() => { setExtraDelete(r.target); extraDeleteModal.openModal() }}
+                                                />
                                             )}
                                         </div>
                                     ))}
