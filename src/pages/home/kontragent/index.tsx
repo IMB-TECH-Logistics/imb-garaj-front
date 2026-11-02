@@ -12,7 +12,7 @@ import { format } from "date-fns"
 import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { CONTRAGENT_TYPES, ContragentType, Kontragent, TYPE_STYLE, num, som, useKontragentSummary, useKontragents } from "./api"
+import { CONTRAGENT_TYPES, ContragentType, Kontragent, TYPE_STYLE, amountText, num, som, useKontragentSummary, useKontragents } from "./api"
 import { AddContragentForm, CONTRAGENT_CREATE } from "./forms"
 
 const Stat = ({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: "red" | "green" }) => (
@@ -30,7 +30,7 @@ export const BalanceCell = ({ value }: { value: number }) => {
     if (!value) return <span className="text-muted-foreground">{t("contragent.settled")}</span>
     return (
         <div className="flex flex-col">
-            <span className={cn("tabular-nums font-semibold", value > 0 ? "text-destructive" : "text-green-600")}>{som(Math.abs(value))}</span>
+            <span className={cn("tabular-nums font-semibold", value > 0 ? "text-destructive" : "text-green-600")}>{amountText(Math.abs(value))}</span>
             <span className="text-xs text-muted-foreground">{t(value > 0 ? "contragent.we_owe" : "contragent.they_owe")}</span>
         </div>
     )

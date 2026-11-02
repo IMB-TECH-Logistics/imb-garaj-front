@@ -66,7 +66,8 @@ export type Summary = {
 
 export const num = (v: string | number | null | undefined) => Number(v) || 0
 
-export const som = (v: number | string) => `${Math.round(num(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} so'm`
+export const amountText = (v: number | string) => Math.round(num(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+export const som = (v: number | string) => `${amountText(v)} so'm`
 
 export const usd = (v: number | string) => `$ ${Math.round(num(v)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")}`
 

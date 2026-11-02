@@ -9,7 +9,8 @@ import { useNavigate } from "@tanstack/react-router"
 import { ArrowDownLeft, ArrowLeft, ArrowUpRight, Wallet } from "lucide-react"
 import { useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Select from "@/components/ui/select"
+import { YearMonthRange } from "@/components/custom/year-month-range"
 import { useTranslation } from "react-i18next"
 import { EntryDir, Kontragent, TYPE_STYLE, kontragentUrl, num, som } from "./api"
 import { EditDeleteActions } from "./edit-actions"
@@ -146,23 +147,36 @@ const ContragentDetail = ({ id }: { id: number }) => {
                 <CardContent className="p-4 flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-base font-semibold mr-auto">{t("contragent.tx.title")} ({filteredLedger.length})</h2>
-                        <Tabs value={dirFilter} onValueChange={setDirFilter}>
-                            <TabsList>
-                                <TabsTrigger value="all">{t("contragent.filter.all")}</TabsTrigger>
-                                <TabsTrigger value="in">{t("contragent.tx.in")}</TabsTrigger>
-                                <TabsTrigger value="out">{t("contragent.tx.out")}</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-                        <Tabs value={kindFilter} onValueChange={setKindFilter}>
-                            <TabsList>
-                                <TabsTrigger value="all">{t("contragent.filter.all")}</TabsTrigger>
-                                {(["cash", "goods", "service", "trip"] as const).map((k) => (
-                                    <TabsTrigger key={k} value={k}>{t(`contragent.kind.${k}`)}</TabsTrigger>
-                                ))}
-                            </TabsList>
-                        </Tabs>
-                        <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-40" aria-label={t("contragent.filter.from")} />
-                        <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-40" aria-label={t("contragent.filter.to")} />
+                        <Select
+                            className="w-36"
+                            value={dirFilter}
+                            setValue={setDirFilter}
+                            label={t("contragent.filter.all")}
+                            options={[
+                                { value: "all", label: t("contragent.filter.all") },
+                                { value: "in", label: t("contragent.tx.in") },
+                                { value: "out", label: t("contragent.tx.out") },
+                            ]}
+                        />
+                        <Select
+                            className="w-40"
+                            value={kindFilter}
+                            setValue={setKindFilter}
+                            label={t("contragent.filter.all")}
+                            options={[
+                                { value: "all", label: t("contragent.filter.all") },
+                                ...(["cash", "goods", "service", "trip"] as const).map((k) => ({ value: k, label: t(`contragent.kind.${k}`) })),
+                            ]}
+                        />
+                        <YearMonthRange
+                            clearable
+                            from={fromDate}
+                            to={toDate}
+                            onChange={(a, b) => {
+                                setFromDate(a ?? "")
+                                setToDate(b ?? "")
+                            }}
+                        />
                         <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("contragent.filter.search")} className="w-52" />
                     </div>
                     <LedgerTable rows={filteredLedger} loading={ledgerLoading} hideBalance={filtered} />
