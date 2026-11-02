@@ -11,7 +11,7 @@ import { format } from "date-fns"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import { LedgerRow, kontragentUrl, num, onApiError, som, useRefreshFinance } from "./api"
+import { LedgerRow, kontragentUrl, num, onApiError, amountText, useRefreshFinance } from "./api"
 import { CONTRAGENT_ENTRY_EDIT, EntryEditForm } from "./forms"
 
 export const useLedger = (id: number) => useGet<LedgerRow[]>(kontragentUrl(id, "ledger"))
@@ -68,7 +68,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = fal
                             : "text-green-600",
                         )}
                     >
-                        {row.original.dir === "in" ? "+" : "−"} {som(row.original.amount)}
+                        {row.original.dir === "in" ? "+" : "−"} {amountText(row.original.amount)}
                     </span>
                 ),
             },
@@ -80,7 +80,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = fal
                     if (row.original.status === "pending") return <span className="text-muted-foreground">—</span>
                     return (
                         <span className={cn("tabular-nums font-semibold whitespace-nowrap", v > 0 && "text-destructive", v < 0 && "text-green-600")}>
-                            {v ? som(Math.abs(v)) : t("contragent.settled")}
+                            {v ? amountText(Math.abs(v)) : t("contragent.settled")}
                         </span>
                     )
                 },
@@ -91,7 +91,7 @@ export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = fal
                 cell: ({ row }) => (
                     <div className="flex flex-col">
                         <span>{row.original.comment || "—"}</span>
-                        {row.original.source.type !== "manual" && (
+                        {row.original.source.type !== "manual" && row.original.source.type !== "kassa" && (
                             <span className="text-xs text-muted-foreground">{t(`contragent.source.${row.original.source.type}`)}</span>
                         )}
                     </div>
