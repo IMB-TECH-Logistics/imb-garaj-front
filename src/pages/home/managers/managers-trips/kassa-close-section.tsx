@@ -21,7 +21,6 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import i18n from "@/i18n/i18n"
 import PendingAdvances from "./pending-advances"
-import CloseDateField from "./close-date-field"
 import SplitPreview from "./split-preview"
 
 type Expense = { id: number; amount: number; category: number | null; category_name: string | null; comment: string | null; date: string }
@@ -102,7 +101,7 @@ const Row = ({ label, value, className }: { label: ReactNode; value: ReactNode; 
 
 const route = (a?: string | null, b?: string | null) => [a, b].filter(Boolean).join(" → ") || "—"
 
-export default function KassaCloseSection({ tripId, onChange, tech, closeDate, onCloseDateChange }: {
+export default function KassaCloseSection({ tripId, onChange, tech, closeDate }: {
     tripId?: number
     onChange: (s: KassaCloseState) => void
     tech?: ReactNode
@@ -273,9 +272,8 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
 
     return (
         <div className="flex flex-col gap-3">
-            {onCloseDateChange && tripId && <CloseDateField value={closeDate} onChange={onCloseDateChange} />}
-            {closeDate && <SplitPreview tripId={tripId} date={closeDate} />}
             {tech && <section className="rounded-lg border bg-muted/20 p-4 space-y-3">{tech}</section>}
+            {closeDate && <SplitPreview tripId={tripId} date={closeDate} />}
 
             <Accordion type="single" collapsible className="rounded-lg border bg-muted/20 px-4 py-1 divide-y">
                 <AccordionItem value="given" className="border-0">

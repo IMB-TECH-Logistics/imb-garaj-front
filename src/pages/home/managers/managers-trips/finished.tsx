@@ -11,6 +11,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { useUser } from "@/constants/useUser"
 import KassaCloseSection, { KassaCloseState } from "./kassa-close-section"
+import CloseDateField from "./close-date-field"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
@@ -208,8 +209,11 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
     const techFields = (
         <>
 
-                <div className={cn("grid gap-3 items-start", IS_READY || closeDate ? "grid-cols-2" : "grid-cols-3")}>
-                    {!IS_READY && !closeDate && (
+                <div className={cn("grid gap-3 items-start", IS_READY ? "grid-cols-2" : "grid-cols-3")}>
+                    {!IS_READY && isKassaV2 && (
+                        <CloseDateField value={closeDate} onChange={setCloseDate} label={t("form.end_date")} />
+                    )}
+                    {!IS_READY && !isKassaV2 && (
                         <FormDatePicker
                             control={control}
                             required
