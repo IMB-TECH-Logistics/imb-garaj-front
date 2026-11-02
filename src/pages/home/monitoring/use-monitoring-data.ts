@@ -122,7 +122,7 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
     )
     const linkedItems = useMemo(() => (gpsLive.data ?? []).filter((g) => g.vehicle != null), [gpsLive.data])
     const truckStatusCounts = useMemo(() => {
-        const counts: Record<TruckStatusFilter, number> = { all: 0, loaded: 0, empty: 0, garage: 0, repair: 0 }
+        const counts: Record<TruckStatusFilter, number> = { all: 0, loaded: 0, empty: 0, jobless: 0, garage: 0, repair: 0 }
         for (const g of linkedItems) {
             counts.all += 1
             counts[truckStatusOf(g, g.vehicle != null ? ordersByVehicle[g.vehicle] : undefined)] += 1

@@ -356,6 +356,7 @@
         "truck_status_all": "すべて",
         "truck_status_loaded": "積載",
         "truck_status_empty": "空車",
+        "truck_status_jobless": "仕事なし",
         "truck_status_garage": "車庫内",
         "truck_status_repair": "修理中",
         "list": "一覧",
