@@ -7,14 +7,17 @@ import { formatMoney, formatNumber } from "@/lib/format-money"
 import { formatDateTime } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
-import { Plus } from "lucide-react"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useMemo, useState } from "react"
 import { useModal } from "@/hooks/useModal"
 import { toast } from "sonner"
 import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
+import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
+import { MANAGERS_EMPTY_LEGS, MANAGERS_ORDERS } from "@/constants/api-endpoints"
+import ExtraPayModal, { EXTRA_PAY_MODAL_KEY, type ExtraPayTarget } from "../../manager-reys/extra-pay-modal"
 import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import PendingAdvances from "../pending-advances"
 import MoveItemButton from "../move-item-button"
@@ -88,6 +91,30 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
         openAdd()
     }
     const access = useSectionAccess()
+    const [extraTarget, setExtraTarget] = useState<ExtraPayTarget | null>(null)
+    const [extraDelete, setExtraDelete] = useState<ExtraPayTarget | null>(null)
+    const { openModal: openExtraPay } = useModal(EXTRA_PAY_MODAL_KEY)
+    const extraDeleteModal = useModal("extra-pay-delete")
+    const { mutate: patchExtra, isPending: deletingExtra } = usePatch({
+        onSuccess: () => {
+            toast.success(t("messages.success_delete"))
+            queryClient.invalidateQueries({
+                predicate: (q) => {
+                    const key = String(q.queryKey[0])
+                    return key.includes("empty-legs") || key.includes(MANAGERS_ORDERS) || key.includes("close-preview") || key.includes("cashflow")
+                },
+            })
+            extraDeleteModal.closeModal()
+        },
+    })
+    const removeExtra = () => {
+        if (!extraDelete) return
+        if (extraDelete.kind === "order") {
+            patchExtra(`${MANAGERS_ORDERS}/${extraDelete.id}/extra-pay`, { extra_pay_amount: null, extra_pay_comment: null })
+        } else {
+            patchExtra(`${MANAGERS_EMPTY_LEGS}/${extraDelete.id}`, { idle_payment_amount: null, idle_payment_comment: null })
+        }
+    }
     const [filter, setFilter] = useState<Section>("avans")
     const firstVisible = SECTION_ORDER.find((s) => access[s].view)
     const filterVisible = access[filter].view
@@ -227,8 +254,14 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const salaryCardExtra = extraSalarySum - Number(closePreview?.manual_salary?.amount ?? 0)
     const extraSalaryRows = closePreview ?
         [
-            ...(closePreview.extra_pay_salary?.orders ?? []).map((r) => ({ key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount) })),
-            ...(closePreview.empty_leg_salary?.legs ?? []).map((r) => ({ key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount) })),
+            ...(closePreview.extra_pay_salary?.orders ?? []).map((r) => ({
+                key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount),
+                target: { kind: "order" as const, id: r.order, title: t("trips.reys_cols.extra_pay_title"), route: r.route, amount: r.amount, comment: r.comment },
+            })),
+            ...(closePreview.empty_leg_salary?.legs ?? []).map((r) => ({
+                key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount),
+                target: { kind: "idle" as const, id: r.id, title: t("trips.reys_cols.empty_run_pay"), route: r.route, amount: r.amount, comment: null },
+            })),
         ]
     :   []
     const profit = closePreview ?
@@ -513,6 +546,30 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                             <span className="flex-1">{r.route}</span>
                                             {r.comment && <span className="text-muted-foreground">{r.comment}</span>}
                                             <span className="whitespace-nowrap text-muted-foreground">{r.date ? String(r.date).slice(0, 10) : "—"}</span>
+                                            {access.oylik.control && (
+                                                <div className="flex items-center gap-1">
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-7 w-7"
+                                                        disabled={locked}
+                                                        title={lockedTitle ?? t("actions.edit")}
+                                                        onClick={() => { setExtraTarget(r.target); openExtraPay() }}
+                                                    >
+                                                        <Pencil size={14} />
+                                                    </Button>
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-7 w-7 text-destructive"
+                                                        disabled={locked}
+                                                        title={lockedTitle ?? t("actions.delete")}
+                                                        onClick={() => { setExtraDelete(r.target); extraDeleteModal.openModal() }}
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -606,6 +663,19 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
             </Modal>
             <Modal modalKey="avans-berish" title={isKassaV2 ? t("trips.kirim.give_advance_request") : t("actions.give_advance")} size="max-w-md">
                 <AvansForm tripId={tripId} />
+            </Modal>
+            <ExtraPayModal target={extraTarget} />
+            <Modal modalKey="extra-pay-delete" title={t("actions.delete")} size="max-w-sm">
+                <div className="flex flex-col gap-4">
+                    <p className="text-sm">
+                        {extraDelete?.route} — {formatMoney(Number(extraDelete?.amount ?? 0))}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{t("messages.confirm_delete")}</p>
+                    <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => extraDeleteModal.closeModal()} disabled={deletingExtra}>{t("actions.cancel")}</Button>
+                        <Button variant="destructive" onClick={removeExtra} loading={deletingExtra}>{t("actions.delete")}</Button>
+                    </div>
+                </div>
             </Modal>
             <DeleteModal
                 path={MANAGERS_INCOMES}
