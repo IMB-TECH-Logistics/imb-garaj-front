@@ -1,6 +1,7 @@
 import TableActions from "@/components/custom/table-actions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Combobox } from "@/components/ui/combobox"
 import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -65,9 +66,16 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     const wideTable = useMinWidth(1024)
     const period = usePeriod()
     const { data, isLoading } = useGet<KassaTrip[]>(KV2_TRIPS, { params: period })
-    const trips = useMemo(
-        () => (data ?? []).slice().sort((a, b) => (a.status === "yopildi" ? 1 : 0) - (b.status === "yopildi" ? 1 : 0)),
+    const [plate, setPlate] = useState<string | null>(null)
+    const plates = useMemo(
+        () => [...new Set((data ?? []).map((tr) => tr.plate).filter((v): v is string => !!v))].sort().map((v) => ({ id: v, name: v })),
         [data],
+    )
+    const trips = useMemo(
+        () => (data ?? [])
+            .filter((tr) => !plate || tr.plate === plate)
+            .sort((a, b) => (a.status === "yopildi" ? 1 : 0) - (b.status === "yopildi" ? 1 : 0)),
+        [data, plate],
     )
     const { mutate: postReq, isPending: posting } = useKassaPost()
     const unreject = (q: KassaRequest) =>
@@ -243,6 +251,15 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                 <Head
                     left={switcher}
                     right={<>
+                        <Combobox
+                            label={t("table.vehicle")}
+                            options={plates}
+                            value={plate}
+                            setValue={(v: any) => setPlate(v ? String(v) : null)}
+                            labelKey="name"
+                            valueKey="id"
+                            className="h-10 w-44"
+                        />
                         <CloseDetailModal row={detail} onReject={onReject} />
                         <TripExpensesModal trip={expTrip} />
                         {actions}
