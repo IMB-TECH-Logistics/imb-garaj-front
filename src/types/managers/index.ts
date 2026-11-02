@@ -1,6 +1,7 @@
 type ManagerVehicles = {
     id: number
     truck_number: string
+    model_name?: string | null
     truck_type: number
     driver_name: string
     pending_orders: number

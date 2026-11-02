@@ -54,6 +54,14 @@ export const useColumnsManagersVehicles = (onShowLocation: (vehicle: ManagerVehi
                 ),
             },
             {
+                accessorKey: "model_name",
+                header: t("table.model"),
+                enableSorting: true,
+                cell: ({ row }) => (
+                    <div>{row.original.model_name || "-"}</div>
+                ),
+            },
+            {
                 accessorKey: "driver_name",
                 header: t("table.driver"),
                 enableSorting: true,
