@@ -60,7 +60,7 @@ export type Overview = {
         drivers_closing?: number
         income: { total: number; external: number; trip_cash: number; reversals: number; loans?: number; vst_trips?: number }
         expense: { total: number; cash: number; fuel?: number; other?: number; salary_cash?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
-        other_expense?: { total: number; garaj: number; chiqim: number; ombor?: number; ofis?: number; ofis_by_category?: { id: number; name: string; amount: number }[] }
+        other_expense?: { total: number; garaj: number; chiqim: number; ombor?: number; ofis?: number; ofis_by_category?: { id: number; name: string; amount: number }[]; kontragent?: number; kontragent_by_kind?: { kind: string; label: string; amount: number }[] }
         income_by_type?: { vst: number; investor: number; other: number } | null
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
