@@ -2555,7 +2555,7 @@
             "no_cargo": "Yuksiz",
             "direction_location": "Yo'nalish/Joylashuv",
             "in_garage": "Garajda",
-            "in_garage_waiting": "Garajda (reys biriktirilgan)"
+            "in_garage_waiting": "Garajda"
         },
         "status": {
             "pending": "Kutilmoqda",

@@ -2559,7 +2559,7 @@
             "no_cargo": "荷なし",
             "direction_location": "ルート/現在地",
             "in_garage": "車庫内",
-            "in_garage_waiting": "車庫内（便割り当て済み）"
+            "in_garage_waiting": "車庫内"
         },
         "status": {
             "pending": "保留中",

@@ -2553,7 +2553,7 @@
             "no_cargo": "Юксиз",
             "direction_location": "Йўналиш/Жойлашув",
             "in_garage": "Гаражда",
-            "in_garage_waiting": "Гаражда (рейс бириктирилган)"
+            "in_garage_waiting": "Гаражда"
         },
         "status": {
             "pending": "Кутилмоқда",

@@ -2564,7 +2564,7 @@
             "no_cargo": "Без груза",
             "direction_location": "Направление/Местоположение",
             "in_garage": "В гараже",
-            "in_garage_waiting": "В гараже (рейс назначен)"
+            "in_garage_waiting": "В гараже"
         },
         "status": {
             "pending": "Ожидает",
