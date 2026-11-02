@@ -183,6 +183,10 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
     const settleNow = net > 0 ? Math.min(Number(settle) || 0, Math.round(net)) : Math.abs(Math.round(net))
     const carryOut = Math.abs(Math.round(net)) - settleNow
     const carryIn = Number(preview?.carry_in ?? 0)
+    const carryAvans = carryIn > 0 ? carryIn : 0
+    const advanceRows = useMemo<FlowRow[]>(() => carryAvans > 0
+        ? [{ id: 0, action: 2, amount: carryAvans, comment: t("trips.kclose.carry_in_avans"), created: "", loading_name: null, unloading_name: null, payment_type_name: null }, ...advances]
+        : advances, [advances, carryAvans, t])
 
     useEffect(() => {
         onChange({
@@ -278,7 +282,7 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                     <AccordionTrigger className={trigger}>
                         {line(
                             <>{t("trips.kclose.advance")}{pendingCount ? <Badge variant="orange" className="h-5 px-1.5">{pendingCount}</Badge> : null}</>,
-                            `+${money(Number(preview.given))}`,
+                            `+${money(Number(preview.given) + carryAvans)}`,
                         )}
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 space-y-2">
@@ -289,7 +293,7 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                         )}
                         <div className="max-h-[38vh] overflow-y-auto">
                             <PendingAdvances tripId={tripId} />
-                            <DataTable columns={advanceCols} data={advances} numeration viewAll className={COMPACT} />
+                            <DataTable columns={advanceCols} data={advanceRows} numeration viewAll className={COMPACT} />
                         </div>
                     </AccordionContent>
                 </AccordionItem>
@@ -317,11 +321,11 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate, o
                         </div>
                     </AccordionContent>
                 </AccordionItem>
-                {carryIn !== 0 && (
+                {carryIn < 0 && (
                     <Row
                         className="py-2.5 pr-6"
-                        label={carryIn > 0 ? t("trips.kclose.carry_in_avans") : t("trips.kclose.carry_in_owed")}
-                        value={<span className={carryIn > 0 ? "text-green-600" : "text-destructive"}>{carryIn > 0 ? "+" : "−"}{money(Math.abs(carryIn))}</span>}
+                        label={t("trips.kclose.carry_in_owed")}
+                        value={<span className="text-destructive">−{money(Math.abs(carryIn))}</span>}
                     />
                 )}
                 <Row className="py-2.5 pr-6" label={t("trips.kclose.driver_holds")} value={<span className="text-blue-600 dark:text-blue-400">{money(due)}</span>} />
