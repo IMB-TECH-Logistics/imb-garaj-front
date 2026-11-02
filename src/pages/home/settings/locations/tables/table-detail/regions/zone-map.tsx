@@ -1,6 +1,14 @@
-import { GoogleMap, CircleF, MarkerF, useJsApiLoader } from "@react-google-maps/api"
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import "maplibre-gl/dist/maplibre-gl.css"
+import maplibregl from "maplibre-gl"
+import { useEffect, useMemo, useRef } from "react"
+import Map, {
+    Layer,
+    Marker,
+    NavigationControl,
+    Source,
+    type MapMouseEvent,
+    type MapRef,
+} from "react-map-gl/maplibre"
 
 export type ZonePoint = { lat: number; lng: number }
 
@@ -34,81 +42,127 @@ export const viloyatCenter = (name?: string | null): ZonePoint | null => {
     const key = name.toLowerCase().replace(/[^a-z]/g, "")
     return VILOYAT_CENTERS[key] ?? null
 }
-const CONTAINER_STYLE = { width: "100%", height: "100%" }
-const MAP_OPTIONS: google.maps.MapOptions = {
-    clickableIcons: false,
-    fullscreenControl: false,
-    mapTypeControl: false,
-    streetViewControl: false,
+
+const RASTER_TILES = (
+    import.meta.env.VITE_MAP_RASTER_TILES ||
+    "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png," +
+        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png," +
+        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png"
+)
+    .split(",")
+    .map((url: string) => url.trim())
+    .filter(Boolean)
+
+const OSM_STYLE: maplibregl.StyleSpecification = {
+    version: 8,
+    sources: {
+        osm: {
+            type: "raster",
+            tiles: RASTER_TILES,
+            tileSize: 256,
+            attribution: "© OpenStreetMap contributors",
+        },
+    },
+    layers: [{ id: "osm", type: "raster", source: "osm" }],
 }
-const CIRCLE_OPTIONS: google.maps.CircleOptions = {
-    strokeColor: "#10b981",
-    strokeOpacity: 0.9,
-    strokeWeight: 2,
-    fillColor: "#10b981",
-    fillOpacity: 0.15,
-    clickable: false,
+
+const ZONE_COLOR = "#10b981"
+const EARTH_RADIUS = 6371008.8
+
+const circlePolygon = (center: ZonePoint, radius: number, steps = 64) => {
+    const lat = (center.lat * Math.PI) / 180
+    const lng = (center.lng * Math.PI) / 180
+    const d = radius / EARTH_RADIUS
+    const ring: [number, number][] = []
+    for (let i = 0; i <= steps; i++) {
+        const b = (2 * Math.PI * i) / steps
+        const pLat = Math.asin(
+            Math.sin(lat) * Math.cos(d) + Math.cos(lat) * Math.sin(d) * Math.cos(b),
+        )
+        const pLng =
+            lng +
+            Math.atan2(
+                Math.sin(b) * Math.sin(d) * Math.cos(lat),
+                Math.cos(d) - Math.sin(lat) * Math.sin(pLat),
+            )
+        ring.push([(pLng * 180) / Math.PI, (pLat * 180) / Math.PI])
+    }
+    return {
+        type: "Feature" as const,
+        properties: {},
+        geometry: { type: "Polygon" as const, coordinates: [ring] },
+    }
 }
 
 const ZoneMap = ({ point, radius, onChange, defaultCenter }: Props) => {
-    const { t } = useTranslation()
-    const { isLoaded, loadError } = useJsApiLoader({
-        id: "google-map-script",
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAP_API_KEY,
-        language: "uz",
-        region: "UZ",
-    })
-    const [map, setMap] = useState<google.maps.Map | null>(null)
+    const mapRef = useRef<MapRef | null>(null)
+    const initial = useMemo(() => point ?? defaultCenter ?? DEFAULT_CENTER, [])
 
     useEffect(() => {
-        if (!map || !point) return
-        map.panTo(point)
-    }, [map, point?.lat, point?.lng])
+        if (!point) return
+        mapRef.current?.panTo([point.lng, point.lat])
+    }, [point?.lat, point?.lng])
 
     useEffect(() => {
-        if (!map || point || !defaultCenter) return
-        map.panTo(defaultCenter)
-        map.setZoom(11)
-    }, [map, defaultCenter?.lat, defaultCenter?.lng])
+        if (point || !defaultCenter) return
+        mapRef.current?.jumpTo({
+            center: [defaultCenter.lng, defaultCenter.lat],
+            zoom: 11,
+        })
+    }, [defaultCenter?.lat, defaultCenter?.lng])
 
-    const pick = (e: google.maps.MapMouseEvent | google.maps.IconMouseEvent) => {
-        if (!e.latLng) return
-        onChange({ lat: e.latLng.lat(), lng: e.latLng.lng() })
-    }
+    const circle = useMemo(
+        () => (point && radius > 0 ? circlePolygon(point, radius) : null),
+        [point?.lat, point?.lng, radius],
+    )
 
-    if (loadError) {
-        return (
-            <div className="flex h-full items-center justify-center rounded-md border text-sm text-destructive">
-                {t("messages.error")}
-            </div>
-        )
-    }
-
-    if (!isLoaded) {
-        return <div className="h-full animate-pulse rounded-md bg-muted" />
-    }
+    const pick = (e: MapMouseEvent) =>
+        onChange({ lat: e.lngLat.lat, lng: e.lngLat.lng })
 
     return (
-        <GoogleMap
-            mapContainerStyle={CONTAINER_STYLE}
-            center={point ?? defaultCenter ?? DEFAULT_CENTER}
-            zoom={point ? 13 : 11}
-            options={MAP_OPTIONS}
-            onLoad={setMap}
-            onUnmount={() => setMap(null)}
-            onClick={pick}
-        >
-            {point && (
-                <>
-                    <MarkerF position={point} draggable onDragEnd={pick} />
-                    <CircleF
-                        center={point}
-                        radius={radius > 0 ? radius : 0}
-                        options={CIRCLE_OPTIONS}
+        <div className="h-full overflow-hidden rounded-md border">
+            <Map
+                ref={mapRef}
+                initialViewState={{
+                    latitude: initial.lat,
+                    longitude: initial.lng,
+                    zoom: point ? 13 : 11,
+                }}
+                mapStyle={OSM_STYLE as any}
+                onClick={pick}
+                style={{ width: "100%", height: "100%" }}
+            >
+                <NavigationControl position="top-right" showCompass={false} />
+                {circle && (
+                    <Source id="zone-circle" type="geojson" data={circle}>
+                        <Layer
+                            id="zone-circle-fill"
+                            type="fill"
+                            paint={{ "fill-color": ZONE_COLOR, "fill-opacity": 0.15 }}
+                        />
+                        <Layer
+                            id="zone-circle-line"
+                            type="line"
+                            paint={{
+                                "line-color": ZONE_COLOR,
+                                "line-opacity": 0.9,
+                                "line-width": 2,
+                            }}
+                        />
+                    </Source>
+                )}
+                {point && (
+                    <Marker
+                        latitude={point.lat}
+                        longitude={point.lng}
+                        draggable
+                        onDragEnd={(e) =>
+                            onChange({ lat: e.lngLat.lat, lng: e.lngLat.lng })
+                        }
                     />
-                </>
-            )}
-        </GoogleMap>
+                )}
+            </Map>
+        </div>
     )
 }
 
