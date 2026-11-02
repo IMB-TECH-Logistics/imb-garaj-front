@@ -5,7 +5,7 @@ import {
     QueryClientProvider,
 } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { RouterProvider, createRouter } from "@tanstack/react-router"
+import { ErrorComponent, RouterProvider, createRouter } from "@tanstack/react-router"
 import ReactDOM from "react-dom/client"
 import { I18nextProvider } from "react-i18next"
 import "./main.css"
@@ -24,19 +24,23 @@ const reloadOnce = () => {
     window.location.reload()
 }
 
-window.addEventListener("vite:preloadError", () => reloadOnce())
-
-window.addEventListener("unhandledrejection", (event) => {
-    const msg = String(event.reason?.message ?? event.reason ?? "")
-    if (
+const isChunkError = (error: unknown) => {
+    const msg = String((error as { message?: string })?.message ?? error ?? "")
+    return (
         /Failed to fetch dynamically imported module/i.test(msg) ||
         /Importing a module script failed/i.test(msg) ||
         /Loading chunk \S+ failed/i.test(msg) ||
         /error loading dynamically imported module/i.test(msg)
-    ) {
-        reloadOnce()
-    }
+    )
+}
+
+window.addEventListener("vite:preloadError", () => reloadOnce())
+
+window.addEventListener("unhandledrejection", (event) => {
+    if (isChunkError(event.reason)) reloadOnce()
 })
+
+setTimeout(() => sessionStorage.removeItem(RELOAD_KEY), 10000)
 
 const queryClient = new QueryClient({
     queryCache: new QueryCache({
@@ -72,6 +76,10 @@ const queryClient = new QueryClient({
 const router = createRouter({
     routeTree,
     defaultPreload: "intent",
+    defaultErrorComponent: ({ error }) => {
+        if (isChunkError(error)) reloadOnce()
+        return <ErrorComponent error={error} />
+    },
 })
 
 declare module "@tanstack/react-router" {
