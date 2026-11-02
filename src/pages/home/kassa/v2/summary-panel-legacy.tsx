@@ -1,9 +1,8 @@
-import ParamDateRange from "@/components/as-params/date-picker-range"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
-import { endOfMonth, startOfMonth } from "date-fns"
 import { useTranslation } from "react-i18next"
+import { KassaPeriodFilter } from "./period-filter"
 import { ReactNode } from "react"
 import { n, usePeriod, Overview } from "./api"
 
@@ -54,7 +53,7 @@ export const LegacySummaryPanel = ({ sm, ov, drivers, from_date, view, driver, l
     return (
         <Card className="xl:h-full min-h-0 overflow-hidden">
             <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
-                <ParamDateRange className="w-full" from="from_date" to="to_date" defaultValue={{ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }} addButtonProps={{ className: "w-full justify-start !bg-muted/50" }} />
+                <KassaPeriodFilter />
 
                 {from_date && (
                     <Box className="bg-muted/40 border-muted-foreground/30">

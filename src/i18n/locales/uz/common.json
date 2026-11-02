@@ -1425,6 +1425,8 @@
             "tab_vehicle_expenses": "Mashina xarajatlari"
         },
         "kv2": {
+            "year": "Yil",
+            "month": "Oy",
             "left_after_close": "Yopilgandan keyin o'zgargan: {{amount}}",
             "left_after_close_hint": "Aylanma yopilgandan keyin unga yozuv qo'shilgan. Tranzaksiyalarda shu aylanmaning yopish yozuvini storno qiling va aylanmani qayta yoping.",
             "non_trip_expenses": "Reysdan tashqari xarajatlar",

@@ -1431,6 +1431,8 @@
             "tab_vehicle_expenses": "車両費用"
         },
         "kv2": {
+            "year": "年",
+            "month": "月",
             "non_trip_expenses": "運行外費用",
             "revenue": "売上",
             "bank_transfer": "銀行振込",

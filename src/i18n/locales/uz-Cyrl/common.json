@@ -1425,6 +1425,8 @@
             "tab_vehicle_expenses": "Машина харажатлари"
         },
         "kv2": {
+            "year": "Йил",
+            "month": "Ой",
             "non_trip_expenses": "Рейсдан ташқари харажатлар",
             "revenue": "Тушум",
             "bank_transfer": "Банк ўтказмаси",
