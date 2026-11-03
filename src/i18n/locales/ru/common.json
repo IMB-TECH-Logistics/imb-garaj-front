@@ -286,7 +286,12 @@
         "fuel_placeholder": "Тип топлива",
         "vehicle_type_placeholder": "Тип автомобиля",
         "coverage": "Охват (территория)",
-        "out_of_contract": "Вне договора"
+        "out_of_contract": "Вне договора",
+        "generate_password": "Сгенерировать сложный пароль",
+        "show_password": "Показать пароль",
+        "hide_password": "Скрыть пароль",
+        "copy_password": "Скопировать пароль",
+        "password_copied": "Пароль скопирован"
     },
     "toast": {
         "salary_reversed": "Выплата зарплаты отменена (сторно)",

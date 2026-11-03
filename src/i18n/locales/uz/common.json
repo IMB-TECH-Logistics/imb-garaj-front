@@ -286,7 +286,12 @@
         "code": "Kod",
         "relative_contact_1": "Kontakt 1",
         "relative_contact_2": "Kontakt 2",
-        "distributor": "Distribyutor"
+        "distributor": "Distribyutor",
+        "generate_password": "Murakkab parol yaratish",
+        "show_password": "Parolni ko'rsatish",
+        "hide_password": "Parolni yashirish",
+        "copy_password": "Parolni nusxalash",
+        "password_copied": "Parol nusxalandi"
     },
     "toast": {
         "salary_reversed": "Oylik to'lovi bekor qilindi (storno)",

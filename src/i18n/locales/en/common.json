@@ -286,7 +286,12 @@
         "fuel_placeholder": "Fuel type",
         "vehicle_type_placeholder": "Vehicle type",
         "coverage": "Coverage (area)",
-        "out_of_contract": "Out of contract"
+        "out_of_contract": "Out of contract",
+        "generate_password": "Generate strong password",
+        "show_password": "Show password",
+        "hide_password": "Hide password",
+        "copy_password": "Copy password",
+        "password_copied": "Password copied"
     },
     "toast": {
         "salary_reversed": "Salary payout reversed",
