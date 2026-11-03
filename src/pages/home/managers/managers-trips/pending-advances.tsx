@@ -34,6 +34,7 @@ type AdvanceRequest = {
     comment: string | null
     rejected_comment: string | null
     created: string
+    advance_source?: { id: string; name: string | null } | null
 }
 
 const errorText = (e: any) => {
@@ -77,7 +78,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
     ]
     const form = useForm<{ amount: number | ""; comment: string; source: string }>({ defaultValues: { amount: "", comment: "", source: KASSA_SOURCE } })
     useEffect(() => {
-        if (edit.isOpen && selected) form.reset({ amount: Number(selected.amount), comment: selected.comment ?? "", source: KASSA_SOURCE })
+        if (edit.isOpen && selected) form.reset({ amount: Number(selected.amount), comment: selected.comment ?? "", source: selected.advance_source?.id ?? KASSA_SOURCE })
     }, [edit.isOpen, selected])
 
     const rows = data?.results ?? []
@@ -137,8 +138,7 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                     className="flex flex-col gap-3"
                     onSubmit={form.handleSubmit((v) => {
                         if (!selected) return
-                        const toKontragent = vst && v.source && v.source !== KASSA_SOURCE
-                        const body = { amount: Number(v.amount), comment: v.comment || null, ...(toKontragent ? { source: v.source } : {}) }
+                        const body = { amount: Number(v.amount), comment: v.comment || null, ...(vst && v.source ? { source: v.source } : {}) }
                         mutate(`${REQUESTS}/${selected.id}/resend`, body, {
                             onSuccess: () => {
                                 toast.success(selected.status === REJECTED ? t("trips.pending.resent") : t("trips.pending.changed"))

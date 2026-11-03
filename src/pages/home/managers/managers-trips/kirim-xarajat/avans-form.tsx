@@ -53,8 +53,8 @@ export function AvansForm({ tripId }: { tripId?: number }) {
                 // Haydovchi-kassa rejimida server pul bermaydi — kassirga so'rov (PaymentRequest, 202) yaratadi
                 const isRequest = res != null && typeof res === "object" && "recipient_type" in res
                 toast.success(
-                    fromKontragent ? t("trips.kirim.advance_from_kontragent")
-                    : isRequest ? t("trips.kirim.advance_request_sent")
+                    isRequest ? t("trips.kirim.advance_request_sent")
+                    : fromKontragent ? t("trips.kirim.advance_from_kontragent")
                     : t("toast.advance_given"),
                 )
                 queryClient.invalidateQueries({
