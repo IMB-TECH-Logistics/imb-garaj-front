@@ -2684,7 +2684,9 @@
             "return_sent": "Return request sent to the cashier",
             "left_from_advance": "Remaining from advance: <b>{{amount}} UZS</b>. The driver hands the money to the cashier, and once the cashier presses \"Received\" it is added to the cashier.",
             "set_remainder": "Fill remainder: {{amount}}",
-            "return_amount": "Amount to return"
+            "return_amount": "Amount to return",
+            "nothing_changed": "Nothing was changed",
+            "amount_needs_kassa": "To change the amount of a counterparty advance, choose Cash desk in «From»"
         },
         "create_trip": {
             "driver_and_advance": "Driver and advance",

@@ -2681,7 +2681,9 @@
             "return_sent": "Qaytarish so'rovi kassirga yuborildi",
             "left_from_advance": "Avansdan qolgan: <b>{{amount}} so'm</b>. Haydovchi pulni kassirga topshiradi, kassir «Oldim» bosgach kassaga kirim bo'ladi.",
             "set_remainder": "Qoldiqni qo'yish: {{amount}}",
-            "return_amount": "Qaytariladigan summa"
+            "return_amount": "Qaytariladigan summa",
+            "nothing_changed": "Hech narsa o'zgartirilmadi",
+            "amount_needs_kassa": "Kontragent bergan avans summasini o'zgartirish uchun «Kimdan» da Kassani tanlang"
         },
         "create_trip": {
             "driver_and_advance": "Haydovchi va avans",
