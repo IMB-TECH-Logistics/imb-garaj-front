@@ -1,4 +1,7 @@
 import Modal from "@/components/custom/modal"
+import { FormCombobox } from "@/components/form/combobox"
+import { useVstFinance } from "@/hooks/use-vst-finance"
+import { useKontragents } from "@/pages/home/kontragent/api"
 import TableActions from "@/components/custom/table-actions"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
@@ -19,6 +22,7 @@ import { toast } from "sonner"
 
 const REQUESTS = "checkout/kassa-v2/requests"
 const PENDING = 10
+const KASSA_SOURCE = "kassa"
 const REJECTED = -10
 
 type AdvanceRequest = {
@@ -65,9 +69,15 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
 
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
 
-    const form = useForm<{ amount: number | ""; comment: string }>({ defaultValues: { amount: "", comment: "" } })
+    const vst = useVstFinance()
+    const { data: kontragents } = useKontragents(undefined, vst && edit.isOpen)
+    const sourceOptions = [
+        { id: KASSA_SOURCE, name: t("trips.kirim.from_kassa") },
+        ...(kontragents ?? []).map((k) => ({ id: String(k.id), name: k.name })),
+    ]
+    const form = useForm<{ amount: number | ""; comment: string; source: string }>({ defaultValues: { amount: "", comment: "", source: KASSA_SOURCE } })
     useEffect(() => {
-        if (edit.isOpen && selected) form.reset({ amount: Number(selected.amount), comment: selected.comment ?? "" })
+        if (edit.isOpen && selected) form.reset({ amount: Number(selected.amount), comment: selected.comment ?? "", source: KASSA_SOURCE })
     }, [edit.isOpen, selected])
 
     const rows = data?.results ?? []
@@ -127,7 +137,9 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                     className="flex flex-col gap-3"
                     onSubmit={form.handleSubmit((v) => {
                         if (!selected) return
-                        mutate(`${REQUESTS}/${selected.id}/resend`, { amount: Number(v.amount), comment: v.comment || null }, {
+                        const toKontragent = vst && v.source && v.source !== KASSA_SOURCE
+                        const body = { amount: Number(v.amount), comment: v.comment || null, ...(toKontragent ? { source: v.source } : {}) }
+                        mutate(`${REQUESTS}/${selected.id}/resend`, body, {
                             onSuccess: () => {
                                 toast.success(selected.status === REJECTED ? t("trips.pending.resent") : t("trips.pending.changed"))
                                 refresh()
@@ -141,6 +153,17 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
                         <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm">
                             <span className="font-medium">{t("trips.pending.reject_reason")} </span>{selected.rejected_comment}
                         </div>
+                    )}
+                    {vst && (
+                        <FormCombobox
+                            control={form.control}
+                            required
+                            labelKey="name"
+                            valueKey="id"
+                            name="source"
+                            options={sourceOptions}
+                            label={t("trips.kirim.from_label")}
+                        />
                     )}
                     <FormNumberInput
                         required

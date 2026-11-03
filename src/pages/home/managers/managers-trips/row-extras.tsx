@@ -164,7 +164,7 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
         ...(kontragents ?? []).map((k) => ({ id: String(k.id), name: k.name })),
     ]
     const source = form.watch("source")
-    const staysKontragent = currentSource !== KASSA_SOURCE && source !== KASSA_SOURCE
+    const staysKontragent = source !== KASSA_SOURCE
 
     useEffect(() => {
         if (edit.isOpen && row)
@@ -176,6 +176,10 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                 comment: "",
             })
     }, [edit.isOpen, row])
+
+    useEffect(() => {
+        if (staysKontragent && row) form.setValue("amount", Number(row.amount))
+    }, [staysKontragent, row])
 
     const editPayload = (v: AdvanceEditForm) => {
         if (!row) return null
@@ -218,7 +222,7 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                             labelKey="name"
                             valueKey="id"
                             name="source"
-                            options={currentSource === KASSA_SOURCE ? sourceOptions.slice(0, 1) : sourceOptions}
+                            options={sourceOptions}
                             label={t("trips.kirim.from_label")}
                         />
                     )}
