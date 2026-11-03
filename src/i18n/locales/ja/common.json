@@ -286,7 +286,12 @@
         "fuel_placeholder": "燃料タイプ",
         "vehicle_type_placeholder": "車両タイプ",
         "coverage": "対象範囲(エリア)",
-        "out_of_contract": "契約外"
+        "out_of_contract": "契約外",
+        "generate_password": "強力なパスワードを生成",
+        "show_password": "パスワードを表示",
+        "hide_password": "パスワードを隠す",
+        "copy_password": "パスワードをコピー",
+        "password_copied": "パスワードをコピーしました"
     },
     "toast": {
         "salary_reversed": "給与支払いを取り消しました",

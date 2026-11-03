@@ -286,7 +286,12 @@
         "code": "Код",
         "relative_contact_1": "Контакт 1",
         "relative_contact_2": "Контакт 2",
-        "distributor": "Дистрибутор"
+        "distributor": "Дистрибутор",
+        "generate_password": "Мураккаб парол яратиш",
+        "show_password": "Паролни кўрсатиш",
+        "hide_password": "Паролни яшириш",
+        "copy_password": "Паролни нусхалаш",
+        "password_copied": "Парол нусхаланди"
     },
     "toast": {
         "salary_reversed": "Ойлик тўлови бекор қилинди (сторно)",

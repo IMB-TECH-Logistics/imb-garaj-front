@@ -1,3 +1,4 @@
+import { PasswordField } from "@/components/form/password-field"
 import { FormCombobox } from "@/components/form/combobox"
 import FormInput from "@/components/form/input"
 import { Button } from "@/components/ui/button"
@@ -106,9 +107,8 @@ const AddUserModal = () => {
                         methods={form}
                         placeholder={`${t("form.example")}: ali1`}
                     />
-                    <FormInput
+                    <PasswordField
                         required={!currentDriver?.id}
-                        type="password"
                         name="password"
                         label={t("auth.password")}
                         methods={form}

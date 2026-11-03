@@ -1,3 +1,4 @@
+import { PasswordField } from "@/components/form/password-field"
 import { FormCheckbox } from "@/components/form/checkbox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { FormFormatNumberInput } from "@/components/form/format-number-input"
@@ -262,9 +263,8 @@ const AddDriverModal = () => {
                         placeholder={`${t("form.example")}: ali.karimov`}
                     />
 
-                    <FormInput
+                    <PasswordField
                         required={!currentDriver?.id}
-                        type="password"
                         name="password"
                         label={t("auth.password")}
                         methods={form}
