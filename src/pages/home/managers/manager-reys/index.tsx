@@ -49,7 +49,7 @@ export default function ManagerReys() {
         rejected_advance?: { amount: number; reason: string | null } | null
         cash_closed?: boolean
     }>(`${MANAGERS_TRIPS}/${tripId}`, {
-        enabled: !!tripId && !name,
+        enabled: !!tripId,
         options: { retry: false },
     })
     useEffect(() => {
