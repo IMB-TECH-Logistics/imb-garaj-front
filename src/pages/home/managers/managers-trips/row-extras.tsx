@@ -1,10 +1,14 @@
 import Modal from "@/components/custom/modal"
+import { FormCombobox } from "@/components/form/combobox"
 import { FormDatePicker } from "@/components/form/date-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MANAGERS_CASHFLOW, MANAGERS_TRIPS } from "@/constants/api-endpoints"
+import { MANAGERS_CASHFLOW, MANAGERS_TRIPS, SETTINTS_PAYMENT_TYPE } from "@/constants/api-endpoints"
+import { useVstFinance } from "@/hooks/use-vst-finance"
+import { useKontragents } from "@/pages/home/kontragent/api"
+import { format } from "date-fns"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
@@ -28,7 +32,16 @@ export type RowExtras = {
     comment?: string | null
     history_count?: number
     pending_change?: { id: number; type: "edit" | "delete" | "return"; amount: number | null } | null
+    created?: string | null
+    payment_type?: number | null
+    advance_source?: { id: string; name: string } | null
 }
+
+const KASSA_SOURCE = "kassa"
+
+type AdvanceEditForm = { source: string; amount: number | ""; date: string; payment_type: number | ""; comment: string }
+
+const dayOf = (value?: string | null) => (value ? format(new Date(value), "yyyy-MM-dd") : "")
 
 type HistoryEntry = {
     id: number
@@ -140,12 +153,39 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
     const del = useModal(ADVANCE_DELETE_MODAL)
     const refresh = useRefreshFinance()
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
-    const form = useForm<{ amount: number | ""; comment: string }>({ defaultValues: { amount: "", comment: "" } })
+    const form = useForm<AdvanceEditForm>({ defaultValues: { source: KASSA_SOURCE, amount: "", date: "", payment_type: "", comment: "" } })
     const delForm = useForm<{ comment: string }>({ defaultValues: { comment: "" } })
+    const vst = useVstFinance()
+    const { data: kontragents } = useKontragents(undefined, vst && edit.isOpen)
+    const { data: paymentTypes } = useGet(SETTINTS_PAYMENT_TYPE, { params: { page_size: 1000000 }, enabled: edit.isOpen })
+    const currentSource = row?.advance_source?.id ?? KASSA_SOURCE
+    const sourceOptions = [
+        { id: KASSA_SOURCE, name: t("trips.kirim.from_kassa") },
+        ...(kontragents ?? []).map((k) => ({ id: String(k.id), name: k.name })),
+    ]
+    const source = form.watch("source")
+    const staysKontragent = currentSource !== KASSA_SOURCE && source !== KASSA_SOURCE
 
     useEffect(() => {
-        if (edit.isOpen && row) form.reset({ amount: Number(row.amount), comment: "" })
+        if (edit.isOpen && row)
+            form.reset({
+                source: currentSource,
+                amount: Number(row.amount),
+                date: dayOf(row.created),
+                payment_type: row.payment_type ?? "",
+                comment: "",
+            })
     }, [edit.isOpen, row])
+
+    const editPayload = (v: AdvanceEditForm) => {
+        if (!row) return null
+        const body: Record<string, unknown> = { kind: "avans_tuzatish", cash_flow: row.id, comment: v.comment || null }
+        if (Number(v.amount) !== Number(row.amount)) body.amount = Number(v.amount)
+        if (v.source && v.source !== currentSource) body.source = v.source
+        if (v.date && v.date !== dayOf(row.created)) body.date = v.date
+        if (v.payment_type && Number(v.payment_type) !== Number(row.payment_type ?? 0)) body.payment_type = Number(v.payment_type)
+        return Object.keys(body).length > 3 ? body : null
+    }
     useEffect(() => {
         if (del.isOpen) delForm.reset({ comment: "" })
     }, [del.isOpen])
@@ -156,8 +196,9 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                 <form
                     className="flex flex-col gap-3"
                     onSubmit={form.handleSubmit((v) => {
-                        if (!row) return
-                        mutate(REQUESTS, { kind: "avans_tuzatish", cash_flow: row.id, amount: Number(v.amount), comment: v.comment || null }, {
+                        const body = editPayload(v)
+                        if (!body) return toast.error(t("trips.row.nothing_changed"))
+                        mutate(REQUESTS, body, {
                             onSuccess: () => {
                                 toast.success(t("trips.row.edit_sent"))
                                 refresh()
@@ -170,6 +211,17 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                     <p className="text-sm text-muted-foreground">
                         <Trans i18nKey="trips.row.current_amount" values={{ amount: formatMoneyText(Number(row?.amount ?? 0)) }} components={{ b: <b /> }} />
                     </p>
+                    {vst && (
+                        <FormCombobox
+                            control={form.control}
+                            required
+                            labelKey="name"
+                            valueKey="id"
+                            name="source"
+                            options={currentSource === KASSA_SOURCE ? sourceOptions.slice(0, 1) : sourceOptions}
+                            label={t("trips.kirim.from_label")}
+                        />
+                    )}
                     <FormNumberInput
                         required
                         control={form.control}
@@ -177,8 +229,27 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
                         label={t("trips.row.new_amount")}
                         thousandSeparator=" "
                         allowNegative={false}
+                        disabled={staysKontragent}
                         registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("kassa.amount_gt_zero") }}
                     />
+                    {staysKontragent && <p className="text-xs text-muted-foreground">{t("trips.row.amount_needs_kassa")}</p>}
+                    <FormDatePicker
+                        required
+                        label={t("form.date")}
+                        control={form.control}
+                        name="date"
+                        calendarProps={{ disabled: { after: new Date() } }}
+                    />
+                    {!staysKontragent && (
+                        <FormCombobox
+                            control={form.control}
+                            labelKey="name"
+                            valueKey="id"
+                            name="payment_type"
+                            options={paymentTypes?.results ?? []}
+                            label={t("form.payment_type")}
+                        />
+                    )}
                     <FormTextarea required label={t("trips.row.reason")} name="comment" methods={form} />
                     <div className="flex justify-end">
                         <Button type="submit" className="min-w-32" loading={isPending}>{t("trips.row.send_to_cashier")}</Button>

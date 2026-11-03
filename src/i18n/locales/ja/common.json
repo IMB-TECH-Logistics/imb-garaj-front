@@ -2684,7 +2684,9 @@
             "return_sent": "返却リクエストをレジ担当に送信しました",
             "left_from_advance": "前払いの残額: <b>{{amount}} スム</b>。ドライバーが現金をレジ担当に渡し、レジ担当が「受領」を押すとレジに入金されます。",
             "set_remainder": "残額を入力: {{amount}}",
-            "return_amount": "返却額"
+            "return_amount": "返却額",
+            "nothing_changed": "変更はありません",
+            "amount_needs_kassa": "取引先からの前払金額を変更するには「誰から」でレジを選択してください"
         },
         "create_trip": {
             "driver_and_advance": "ドライバーと前払い",
