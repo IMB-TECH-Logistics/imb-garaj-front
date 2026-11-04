@@ -135,7 +135,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 ),
             },
             { header: t("table.user_col"), accessorKey: "executor_name", cell: ({ row }) => <span className="text-muted-foreground">{row.original.executor_name || "—"}</span> },
-            { header: t("fin.kv2.col_who"), accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} /> },
+            { header: t("fin.kv2.col_who"), accessorKey: "party", cell: ({ row }) => <Party name={row.original.party} trip={row.original.trip} plate={row.original.plate} /> },
             {
                 header: t("fin.kv2.col_why"),
                 accessorKey: "kind_label",

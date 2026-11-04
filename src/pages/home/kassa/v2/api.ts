@@ -105,6 +105,7 @@ export type KassaTx = {
     can_reverse?: boolean
     can_edit?: boolean
     vehicles?: { id: number; plate: string | null }[]
+    plate?: string | null
     category?: number | null
     category_name?: string | null
     income_type?: "vst" | "investor" | "other" | null
@@ -133,6 +134,7 @@ export type KassaRequest = {
     trip: number | null
     vehicle: number | null
     vehicle_number: string | null
+    plate?: string | null
     expense_type: ExpenseType | null
     expense_type_label: string | null
     warehouse: string | null

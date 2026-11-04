@@ -62,7 +62,7 @@ export const DriverExpensesTable = ({ head, kind }: { head: (total: number | nul
                   ] as ColumnDef<DriverExpense>[]
                 : [{ header: t("form.expense_type"), accessorKey: "category", cell: ({ row }) => row.original.category || "—" }] as ColumnDef<DriverExpense>[]),
             { header: t("form.amount"), accessorKey: "amount", cell: ({ row }) => <Money v={row.original.amount} dir={kind === "trip_cash" ? "in" : "out"} /> },
-            { header: t("fin.kv2.col_who"), accessorKey: "driver", cell: ({ row }) => <Party name={[row.original.driver, row.original.plate].filter(Boolean).join(" · ") || null} trip={row.original.trip} /> },
+            { header: t("fin.kv2.col_who"), accessorKey: "driver", cell: ({ row }) => <Party name={row.original.driver} trip={row.original.trip} plate={row.original.plate} /> },
             { header: t("form.comment"), accessorKey: "comment", cell: ({ row }) => <Note v={row.original.comment} /> },
         ],
         [t, kind],
