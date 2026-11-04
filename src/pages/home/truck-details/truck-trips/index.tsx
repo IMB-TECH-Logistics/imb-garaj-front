@@ -8,6 +8,11 @@ import { useTranslation } from "react-i18next"
 import { useOrderCols, TripDailyStatisticType } from "./cols"
 import ExpenseDialog from "./expense-dialog"
 
+const ORDER_TYPE_EMPTY = 2
+
+const isUnpriced = (row: any) =>
+    !row.is_leg && !row.is_residual && !row.is_summary && row.type !== ORDER_TYPE_EMPTY && !(Number(row.income) > 0)
+
 const VehicleTrips = () => {
     const { t } = useTranslation()
     const params = useParams({ strict: false })
@@ -208,7 +213,10 @@ const VehicleTrips = () => {
                         columns={columns as any}
                         data={trip.rows}
                         viewAll
-                        rowColor={(row: any) => row.is_summary ? "!bg-slate-200 dark:!bg-slate-700 hover:!bg-slate-200 dark:hover:!bg-slate-700 [&>td]:!py-1 [&>td]:!h-6" : ""}
+                        rowColor={(row: any) =>
+                            row.is_summary ? "!bg-slate-200 dark:!bg-slate-700 hover:!bg-slate-200 dark:hover:!bg-slate-700 [&>td]:!py-1 [&>td]:!h-6"
+                            : isUnpriced(row) ? "!bg-amber-100 dark:!bg-amber-900/40 hover:!bg-amber-100 dark:hover:!bg-amber-900/40"
+                            : ""}
                     />
                 </div>
             ))}
