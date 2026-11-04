@@ -382,7 +382,7 @@ export function DataTable<TData>({
                     </Table>
                 )}
 
-                {data?.length ?
+                {data?.length && !loading ?
                     <Table
                         className={`${className} select-text  bg-card rounded-md`}
                         style={{ tableLayout: "auto" }}
