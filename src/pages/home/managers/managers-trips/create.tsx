@@ -287,6 +287,14 @@ export default function CreateManagerTrips() {
                                 />
                             :   null}
 
+                            <FormNumberInput
+                                name="end_fuel"
+                                label={t("table.end_fuel")}
+                                control={control}
+                                decimalScale={2}
+                                allowNegative={false}
+                                isAllowed={({ floatValue }) => floatValue == null || floatValue <= MAX_FUEL_LITERS}
+                            />
                         </div>
                     </section>
                 )}
