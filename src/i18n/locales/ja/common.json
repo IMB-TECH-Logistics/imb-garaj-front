@@ -558,7 +558,10 @@
         "rating": "評価",
         "image_col": "画像",
         "cargo_id": "貨物ID",
-        "used_fuel": "総消費量"
+        "used_fuel": "総消費量",
+        "no_location": "位置なし",
+        "no_location_trips": "位置なしの便",
+        "no_location_hint": "積込または荷降ろし地点がない便"
     },
     "auth": {
         "welcome": "ようこそ！",

@@ -558,7 +558,10 @@
         "rating": "Rating",
         "image_col": "Image",
         "cargo_id": "Cargo ID",
-        "used_fuel": "Fuel used"
+        "used_fuel": "Fuel used",
+        "no_location": "No location",
+        "no_location_trips": "Trips without location",
+        "no_location_hint": "Trips missing a loading or unloading location"
     },
     "auth": {
         "welcome": "Welcome!",

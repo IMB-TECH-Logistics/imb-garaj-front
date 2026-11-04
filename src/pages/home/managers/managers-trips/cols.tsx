@@ -9,6 +9,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
 import AdvanceBadge from "./advance-badge"
+import NoLocationBadge from "../no-location-badge"
 
 export const STATUS_TRIP: Record<number, string> = {
     0: "trips.status.pending",
@@ -87,6 +88,12 @@ export const useColumnsManagersTrips = (opts?: {
                 cell: ({ row }) => (
                     <div>{row.original.pending_order_count || "0"}</div>
                 ),
+            },
+            {
+                accessorKey: "no_location_orders",
+                header: t("table.no_location"),
+                enableSorting: false,
+                cell: ({ row }) => <NoLocationBadge count={row.original.no_location_orders} />,
             },
             // {
             //     accessorKey: "status",

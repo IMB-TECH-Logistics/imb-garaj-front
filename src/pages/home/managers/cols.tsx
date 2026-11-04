@@ -4,6 +4,7 @@ import { ArrowRight, MapPin } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { formatDateTime } from "@/lib/format-date"
+import NoLocationBadge from "./no-location-badge"
 
 const ACTIVITY_LABELS: Record<number, string> = {
     1: "trips.managers.on_trip",
@@ -164,6 +165,12 @@ export const useColumnsManagersVehicles = (onShowLocation: (vehicle: ManagerVehi
                         <MapPin size={18} />
                     </button>
                 ),
+            },
+            {
+                accessorKey: "no_location_orders",
+                header: t("table.no_location"),
+                enableSorting: false,
+                cell: ({ row }) => <NoLocationBadge count={row.original.no_location_orders} />,
             },
         ],
         [t, onShowLocation],

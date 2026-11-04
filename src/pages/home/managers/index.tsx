@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react"
 import ParamInput from "@/components/as-params/input"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
-import { MANAGERS_ORDERS, MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
+import { MANAGERS_NO_LOCATION, MANAGERS_ORDERS, MANAGERS_TRIPS, MANAGERS_VEHICLES } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
@@ -11,6 +11,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useColumnsManagersVehicles } from "./cols"
 import VehicleLocationDialog from "./vehicle-location-dialog"
+import NoLocationBadge from "./no-location-badge"
 export default function Managers() {
     const { t } = useTranslation()
     const search = useSearch({strict:false})
@@ -28,6 +29,7 @@ export default function Managers() {
         })
     const { data: tripsTotal } = useGet<ListResponse<ManagerTrips>>(MANAGERS_TRIPS, { params: { page_size: 1 } })
     const { data: ordersTotal } = useGet<ListResponse<ManagerOrders>>(MANAGERS_ORDERS, { params: { page_size: 1 } })
+    const { data: noLocation } = useGet<{ count: number }>(MANAGERS_NO_LOCATION)
     const totals: [string, number | undefined][] = [
         [t("trips.managers.transports"), data?.count],
         [t("page.turnovers"), tripsTotal?.count],
@@ -75,6 +77,12 @@ export default function Managers() {
                                         </div>
                                     </div>
                                 ))}
+                                {!!noLocation?.count && (
+                                    <div className="flex items-center gap-1.5 sm:ml-2">
+                                        <span className="text-base text-muted-foreground">{t("table.no_location_trips")}</span>
+                                        <NoLocationBadge count={noLocation.count} />
+                                    </div>
+                                )}
                             </div>
                             <ParamInput
                                 searchKey="search"

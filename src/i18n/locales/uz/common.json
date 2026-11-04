@@ -558,7 +558,10 @@
         "field_col": "Maydon",
         "old_value": "Eski qiymat",
         "new_value": "Yangi qiymat",
-        "used_fuel": "Sarflangan yoqilg'i"
+        "used_fuel": "Sarflangan yoqilg'i",
+        "no_location": "Lokatsiyasiz",
+        "no_location_trips": "Lokatsiyasiz reyslar",
+        "no_location_hint": "Yuklash yoki tushirish lokatsiyasi yo‘q reyslar"
     },
     "auth": {
         "welcome": "Xush kelibsiz!",

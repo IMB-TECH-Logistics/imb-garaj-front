@@ -16,6 +16,7 @@ type ManagerVehicles = {
     next_unloading_name: string | null
     expected_arrival: string | null
     phone?: string | null
+    no_location_orders?: number | null
 }
 
 type ImageField = File | string | null
@@ -41,6 +42,7 @@ interface ManagerTrips {
     end_mileage_image: ImageField
     loading: string
     unloading: string
+    no_location_orders?: number | null
 }
 
 type TripFuelState = "ok" | "pending" | "no_data" | "unreliable"

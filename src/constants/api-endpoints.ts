@@ -95,6 +95,7 @@ export const OWNER_INVESTORS = "dashboard/investors"
 
 /** ===== MANAGER (BFF aggregator — unchanged) ===== */
 export const MANAGERS_VEHICLES = "manager/vehicles"
+export const MANAGERS_NO_LOCATION = "manager/vehicles/no-location"
 export const MANAGERS_TRIPS = "manager/trips"
 export const MANAGERS_EMPTY_LEGS = "manager/empty-legs"
 export const MANAGERS_TRIPS_START_DATA = "manager/trips/start-data"
