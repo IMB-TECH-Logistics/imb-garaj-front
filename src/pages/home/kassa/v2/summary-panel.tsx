@@ -104,13 +104,6 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
                     <Line sub label={t("fin.kv2.vst_repair_expense")} value={-n(sm?.other_expense?.garaj ?? sm?.expense.garaj)} {...lineProps("out_garaj", "fin.kv2.vst_repair_expense")} />
                     <Line sub label={t("fin.kv2.warehouse_expense")} value={-n(sm?.other_expense?.ombor)} {...lineProps("out_ombor", "fin.kv2.warehouse_expense")} />
                     <Line sub label={t("fin.kv2.office_expenses")} value={-n(sm?.other_expense?.ofis)} {...lineProps("out_ofis", "fin.kv2.office_expenses")} />
-                    {!!sm?.other_expense?.ofis_by_category?.length && (
-                        <div className="pl-3 flex flex-col gap-1.5">
-                            {sm.other_expense.ofis_by_category.map((c) => (
-                                <Line key={c.id} sub label={c.name} value={-n(c.amount)} {...lineProps(`out_ofis:${c.id}`, c.name)} />
-                            ))}
-                        </div>
-                    )}
                     <Line sub label={t("fin.kv2.vehicle_expenses")} value={-n(sm?.other_expense?.chiqim)} {...lineProps("out_chiqim", "fin.kv2.vehicle_expenses")} />
                 </Box>
                 <Box className="bg-amber-500/5 border-amber-500/30">
