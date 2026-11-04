@@ -31,6 +31,15 @@ import { Money, Head, Part } from "./table-cells"
 import { KassaRow, requestRow, tripPeriod } from "./kassa-rows"
 import { DETAIL_MODAL, TRIP_EXP_MODAL, TripExpensesModal, CloseDetailModal } from "./close-detail-modal"
 
+const STATUS_ORDER: Record<string, number> = {
+    avans_kutilmoqda: 0,
+    avans_rad_etildi: 1,
+    yopilmoqda: 2,
+    rad_etildi: 3,
+    yolda: 4,
+    yopildi: 5,
+}
+
 const TRIP_STATUS: Record<TripStatus, [string, "orange" | "default" | "secondary" | "destructive"]> = {
     avans_kutilmoqda: ["fin.kv2.trip_st_advance_pending", "orange"],
     avans_rad_etildi: ["fin.kv2.trip_st_advance_rejected", "destructive"],
@@ -74,7 +83,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
     const trips = useMemo(
         () => (data ?? [])
             .filter((tr) => !plate || tr.plate === plate)
-            .sort((a, b) => (a.status === "yopildi" ? 1 : 0) - (b.status === "yopildi" ? 1 : 0)),
+            .sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9)),
         [data, plate],
     )
     const { mutate: postReq, isPending: posting } = useKassaPost()
