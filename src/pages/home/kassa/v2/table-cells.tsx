@@ -12,8 +12,15 @@ export const Money = ({ v, dir }: { v: number | string; dir?: "in" | "out" }) =>
     return <span className={cn("font-semibold tabular-nums whitespace-nowrap", pos ? "text-green-600" : "text-destructive")}>{sign}{formatMoney(Math.abs(x))}</span>
 }
 
-export const Party = ({ name, trip }: { name: string | null; trip: number | null }) => {
+export const Party = ({ name, trip, plate }: { name: string | null; trip: number | null; plate?: string | null }) => {
     const { t } = useTranslation()
+    if (plate)
+        return (
+            <div className="flex flex-col">
+                <span className="whitespace-nowrap tabular-nums">{plate}</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{name || "—"}</span>
+            </div>
+        )
     return (
         <div className="flex flex-col">
             <span className="whitespace-nowrap">{name || "—"}</span>

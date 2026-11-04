@@ -50,7 +50,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                 accessorKey: "kind_label",
                 cell: ({ row }) => row.original.close ? t("fin.kv2.close_turnover") : row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
             },
-            { header: t("fin.kv2.col_to_what"), id: "who", cell: ({ row }) => <Party name={requestWho(row.original)} trip={row.original.trip} /> },
+            { header: t("fin.kv2.col_to_what"), id: "who", cell: ({ row }) => <Party name={requestWho(row.original)} trip={row.original.trip} plate={row.original.trip ? row.original.plate : null} /> },
             {
                 header: t("form.comment"),
                 accessorKey: "comment",
