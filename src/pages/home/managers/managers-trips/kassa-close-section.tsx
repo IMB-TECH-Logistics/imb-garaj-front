@@ -48,7 +48,10 @@ type ManualSalary = {
     rows: { id: number; date: string | null; comment: string | null; amount: number }[]
 }
 
+type OutOfRange = { id: number; date: string; label: string; amount: number | null; comment: string | null }
+
 type Preview = {
+    out_of_range?: OutOfRange[]
     given: number
     earned: number
     spent: number
@@ -189,7 +192,7 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate }:
 
     useEffect(() => {
         onChange({
-            ready: !!preview,
+            ready: !!preview && !preview.out_of_range?.length,
             amount: net,
             settle: settleNow,
             salary: salaryTotal + emptyLegAmount + extraPayAmount + manualAmount,
@@ -274,6 +277,21 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate }:
         <div className="flex flex-col gap-3">
             {tech && <section className="rounded-lg border bg-muted/20 p-4 space-y-3">{tech}</section>}
             {closeDate && <SplitPreview tripId={tripId} date={closeDate} />}
+            {!!preview.out_of_range?.length && (
+                <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm space-y-1.5">
+                    <p className="font-medium text-destructive">
+                        {t("trips.kclose.out_of_range_title", "Aylanma sanalaridan tashqaridagi yozuvlar bor — yakunlash uchun avval ularning sanasini to'g'rilang yoki kerakli aylanmaga o'tkazing")}
+                    </p>
+                    {preview.out_of_range.map((r) => (
+                        <div key={r.id} className="flex items-center justify-between gap-3">
+                            <span className="min-w-0 truncate">
+                                {r.date.split("-").reverse().join(".")} · {r.label}{r.comment ? ` · ${r.comment}` : ""}
+                            </span>
+                            <span className="tabular-nums whitespace-nowrap">{r.amount != null ? formatMoney(Number(r.amount)) : "—"}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <Accordion type="single" collapsible className="rounded-lg border bg-muted/20 px-4 py-1 divide-y">
                 <AccordionItem value="given" className="border-0">
