@@ -10,6 +10,7 @@ export const requestRow = (r: KassaRequest): KassaRow => ({
     kind_label: r.kind_label,
     expense_type: r.expense_type_label,
     party: requestWho(r),
+    plate: r.trip ? r.plate : null,
     driver: r.driver,
     trip: r.trip,
     comment: r.comment,
