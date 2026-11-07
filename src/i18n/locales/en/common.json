@@ -2747,6 +2747,7 @@
             "request_pending": "Close request sent to the cash desk",
             "request_rejected": "Close request rejected",
             "request_changed_now": "Turnover changed, now: {{side}} {{amount}}",
+            "carried_next": "{{amount}} carried to the next turnover",
             "request_up_to_date": "Request matches the current turnover",
             "request_refreshed": "Request refreshed from the current turnover",
             "carry_in_owed": "Owed to driver from previous cycle",

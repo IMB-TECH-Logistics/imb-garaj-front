@@ -2745,6 +2745,7 @@
             "request_rejected": "Yopish so‘rovi rad etilgan",
             "request_changed_now": "Aylanma o‘zgargan, hozirgi hisob: {{side}} {{amount}}",
             "request_up_to_date": "So‘rov aylanmadagi hozirgi hisob bilan bir xil",
+            "carried_next": "{{amount}} keyingi aylanmaga o'tadi",
             "request_refreshed": "So‘rov aylanmaning hozirgi hisobi bilan yangilandi",
             "carry_in_owed": "Oldingi aylanmadan haydovchiga beriladigan",
             "carry_in_avans": "Oldingi aylanmadan qolgan avans",

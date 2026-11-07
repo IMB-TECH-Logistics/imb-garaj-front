@@ -195,7 +195,7 @@ export const useColumnsManagersTrips = (opts?: {
                 header: " ",
                 cell: ({ row }) => (
                     <div className="flex items-center justify-end gap-2 py-2">
-                        {(!row.original.end || (row.original as any).cash_close_rejected) && (
+                        {(!row.original.end || row.original.cash_close_status === 10 || (row.original as any).cash_close_rejected) && (
                             <Button
                                 size="sm"
                                 className="bg-green-500/10 text-green-600 hover:bg-green-500/15"

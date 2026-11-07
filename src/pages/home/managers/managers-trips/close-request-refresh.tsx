@@ -14,7 +14,7 @@ const REQUESTS = "checkout/kassa-v2/requests"
 const PENDING = 10
 const REJECTED = -10
 
-type CloseRequest = { id: number; kind: "qaytarish" | "berish"; status: number; amount: string }
+type CloseRequest = { id: number; kind: "qaytarish" | "berish"; status: number; amount: string; close?: { net: number | string; carried: number | string } | null }
 
 const errorText = (e: any) => {
     const d = e?.response?.data
@@ -45,8 +45,10 @@ export default function CloseRequestRefresh({ tripId }: { tripId?: number }) {
     if (!request) return null
 
     const sent = signed(request.kind, Number(request.amount))
+    const carried = Number(request.close?.carried ?? 0)
+    const sentNet = request.close ? Number(request.close.net) : sent
     const now = preview ? Number(preview.due) - Number(preview.salary_default) : null
-    const changed = now != null && Math.round(now) !== Math.round(sent)
+    const changed = now != null && Math.round(now) !== Math.round(sentNet)
     const side = (v: number) => (v >= 0 ? t("trips.kclose.cashier_takes") : t("trips.kclose.cashier_gives"))
 
     const refresh = () =>
@@ -68,6 +70,7 @@ export default function CloseRequestRefresh({ tripId }: { tripId?: number }) {
             <div className="flex flex-col gap-0.5">
                 <span className="font-medium">
                     {t(request.status === REJECTED ? "trips.kclose.request_rejected" : "trips.kclose.request_pending")}: {side(sent)} {formatMoney(Math.abs(sent))}
+                    {!!Math.round(carried) && <span className="font-normal text-muted-foreground"> · {t("trips.kclose.carried_next", { amount: formatMoneyText(Math.abs(carried)) })}</span>}
                 </span>
                 {now != null && (
                     <span className={cn("text-xs", changed ? "text-orange-600" : "text-muted-foreground")}>
