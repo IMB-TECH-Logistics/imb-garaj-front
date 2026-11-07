@@ -526,8 +526,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                             rowColor={noReceiptRow}
                             numeration
                             viewAll
-                            actionsDisabled={locked}
-                            actionsDisabledTitle={lockedTitle}
+                            actionsDisabled={locked && filter !== "zapravka"}
+                            actionsDisabledTitle={filter === "zapravka" ? undefined : lockedTitle}
                             onEdit={control ? ({ original }) => startEdit(original) : undefined}
                             onDelete={!control ? undefined : ({ original }) => {
                                 if (original.action === ADVANCE_ACTION) {

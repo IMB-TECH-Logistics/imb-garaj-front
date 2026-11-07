@@ -90,8 +90,8 @@ export function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { t
                     numeration
                     viewAll
                     onDelete={({ original }) => handleDelete(original)}
-                    actionsDisabled={locked}
-                    actionsDisabledTitle={lockedTitle}
+                    actionsDisabled={locked && !isFuel}
+                    actionsDisabledTitle={isFuel ? undefined : lockedTitle}
                     onEdit={({ original }) => { setData(MANAGERS_EXPENSES, original); openModal() }}
                     head={
                         <div className="flex mb-3 justify-between items-center gap-3">
