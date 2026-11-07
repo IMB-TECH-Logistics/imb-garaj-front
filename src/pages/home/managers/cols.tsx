@@ -1,3 +1,4 @@
+import type React from "react"
 import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowRight, MapPin } from "lucide-react"
@@ -35,6 +36,19 @@ const REYS_STAGES: Record<number, { label: string; color: string }> = {
 }
 
 const ACTIVE_ORDER_STATUSES = [1, 5, 6, 7]
+
+const sinceText = (value: string | null | undefined, t: (k: string, o?: any) => string) => {
+    if (!value) return null
+    const ms = Date.now() - new Date(value).getTime()
+    if (isNaN(ms) || ms < 0) return null
+    const total = Math.floor(ms / 60000)
+    const d = Math.floor(total / 1440)
+    const h = Math.floor((total % 1440) / 60)
+    const m = total % 60
+    if (d > 0) return t("trips.units.duration_dhm", { d, h, m })
+    if (h > 0) return t("trips.units.duration_hm", { h, m })
+    return t("trips.units.duration_m", { m })
+}
 
 const nextPending = (v: ManagerVehicles) =>
     v.pending_orders
@@ -77,22 +91,29 @@ export const useColumnsManagersVehicles = (onShowLocation: (vehicle: ManagerVehi
                 cell: ({ row }) => {
                     const { order_activity: activity, order_type: type, order_status: status } = row.original
                     if (!activity) return <span className="text-muted-foreground">-</span>
+                    const since = sinceText(row.original.order_status_since, t)
+                    const withSince = (badge: React.ReactNode) => (
+                        <div className="flex flex-col items-start gap-0.5">
+                            {badge}
+                            {since && <span className="text-xs text-muted-foreground whitespace-nowrap tabular-nums">{since}</span>}
+                        </div>
+                    )
                     if (activity === 1) {
                         const stage = REYS_STAGES[status]
                         const emptyRun = type === 2 && ACTIVE_ORDER_STATUSES.includes(status)
-                        return (
+                        return withSince(
                             <Badge
                                 variant="outline"
                                 className={`whitespace-nowrap ${emptyRun ? EMPTY_RUN_COLOR : stage?.color || ""}`}
                             >
                                 {emptyRun ? t("trips.managers.empty_run") : stage?.label ? t(stage.label) : "-"}
-                            </Badge>
+                            </Badge>,
                         )
                     }
-                    return (
+                    return withSince(
                         <Badge variant="outline" className={`whitespace-nowrap ${ACTIVITY_COLORS[activity] || ""}`}>
                             {ACTIVITY_LABELS[activity] ? t(ACTIVITY_LABELS[activity]) : "-"}
-                        </Badge>
+                        </Badge>,
                     )
                 },
             },

@@ -14,6 +14,7 @@ type ManagerVehicles = {
     order_type: number | null
     next_loading_name: string | null
     next_unloading_name: string | null
+    order_status_since?: string | null
     expected_arrival: string | null
     phone?: string | null
     no_location_orders?: number | null
