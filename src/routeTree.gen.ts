@@ -37,6 +37,9 @@ const MainTexnikCheckIndexLazyImport = createFileRoute('/_main/texnik-check/')()
 const MainTexnikBazaIndexLazyImport = createFileRoute('/_main/texnik-baza/')()
 const MainRouteNormsIndexLazyImport = createFileRoute('/_main/route-norms/')()
 const MainMonitoringIndexLazyImport = createFileRoute('/_main/monitoring/')()
+const MainMoliyaviyHisobotIndexLazyImport = createFileRoute(
+  '/_main/moliyaviy-hisobot/',
+)()
 const MainMoliyaIndexLazyImport = createFileRoute('/_main/moliya/')()
 const MainKontragentlarIndexLazyImport = createFileRoute(
   '/_main/kontragentlar/',
@@ -57,6 +60,9 @@ const MainRouteNormsRouteLazyImport = createFileRoute(
   '/_main/route-norms/$route',
 )()
 const MainOmborIdLazyImport = createFileRoute('/_main/ombor/$id')()
+const MainMoliyaviyHisobotIdLazyImport = createFileRoute(
+  '/_main/moliyaviy-hisobot/$id',
+)()
 const MainKontragentlarIdLazyImport = createFileRoute(
   '/_main/kontragentlar/$id',
 )()
@@ -209,6 +215,14 @@ const MainMonitoringIndexLazyRoute = MainMonitoringIndexLazyImport.update({
   import('./routes/_main/monitoring/index.lazy').then((d) => d.Route),
 )
 
+const MainMoliyaviyHisobotIndexLazyRoute =
+  MainMoliyaviyHisobotIndexLazyImport.update({
+    path: '/moliyaviy-hisobot/',
+    getParentRoute: () => MainRoute,
+  } as any).lazy(() =>
+    import('./routes/_main/moliyaviy-hisobot/index.lazy').then((d) => d.Route),
+  )
+
 const MainMoliyaIndexLazyRoute = MainMoliyaIndexLazyImport.update({
   path: '/moliya/',
   getParentRoute: () => MainRoute,
@@ -287,6 +301,15 @@ const MainOmborIdLazyRoute = MainOmborIdLazyImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/ombor/$id.lazy').then((d) => d.Route),
+)
+
+const MainMoliyaviyHisobotIdLazyRoute = MainMoliyaviyHisobotIdLazyImport.update(
+  {
+    path: '/moliyaviy-hisobot/$id',
+    getParentRoute: () => MainRoute,
+  } as any,
+).lazy(() =>
+  import('./routes/_main/moliyaviy-hisobot/$id.lazy').then((d) => d.Route),
 )
 
 const MainKontragentlarIdLazyRoute = MainKontragentlarIdLazyImport.update({
@@ -704,6 +727,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainKontragentlarIdLazyImport
       parentRoute: typeof MainImport
     }
+    '/_main/moliyaviy-hisobot/$id': {
+      id: '/_main/moliyaviy-hisobot/$id'
+      path: '/moliyaviy-hisobot/$id'
+      fullPath: '/moliyaviy-hisobot/$id'
+      preLoaderRoute: typeof MainMoliyaviyHisobotIdLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/ombor/$id': {
       id: '/_main/ombor/$id'
       path: '/ombor/$id'
@@ -779,6 +809,13 @@ declare module '@tanstack/react-router' {
       path: '/moliya'
       fullPath: '/moliya'
       preLoaderRoute: typeof MainMoliyaIndexLazyImport
+      parentRoute: typeof MainImport
+    }
+    '/_main/moliyaviy-hisobot/': {
+      id: '/_main/moliyaviy-hisobot/'
+      path: '/moliyaviy-hisobot'
+      fullPath: '/moliyaviy-hisobot'
+      preLoaderRoute: typeof MainMoliyaviyHisobotIndexLazyImport
       parentRoute: typeof MainImport
     }
     '/_main/monitoring/': {
@@ -1117,6 +1154,7 @@ interface MainRouteChildren {
   MainManagersManagersLazyRoute: typeof MainManagersManagersLazyRoute
   MainInvestorRoyxatiIdLazyRoute: typeof MainInvestorRoyxatiIdLazyRoute
   MainKontragentlarIdLazyRoute: typeof MainKontragentlarIdLazyRoute
+  MainMoliyaviyHisobotIdLazyRoute: typeof MainMoliyaviyHisobotIdLazyRoute
   MainOmborIdLazyRoute: typeof MainOmborIdLazyRoute
   MainRouteNormsRouteLazyRoute: typeof MainRouteNormsRouteLazyRoute
   MainTexnikBazaIdLazyRoute: typeof MainTexnikBazaIdLazyRoute
@@ -1128,6 +1166,7 @@ interface MainRouteChildren {
   MainKassaIndexLazyRoute: typeof MainKassaIndexLazyRoute
   MainKontragentlarIndexLazyRoute: typeof MainKontragentlarIndexLazyRoute
   MainMoliyaIndexLazyRoute: typeof MainMoliyaIndexLazyRoute
+  MainMoliyaviyHisobotIndexLazyRoute: typeof MainMoliyaviyHisobotIndexLazyRoute
   MainMonitoringIndexLazyRoute: typeof MainMonitoringIndexLazyRoute
   MainRouteNormsIndexLazyRoute: typeof MainRouteNormsIndexLazyRoute
   MainTexnikBazaIndexLazyRoute: typeof MainTexnikBazaIndexLazyRoute
@@ -1178,6 +1217,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainManagersManagersLazyRoute: MainManagersManagersLazyRoute,
   MainInvestorRoyxatiIdLazyRoute: MainInvestorRoyxatiIdLazyRoute,
   MainKontragentlarIdLazyRoute: MainKontragentlarIdLazyRoute,
+  MainMoliyaviyHisobotIdLazyRoute: MainMoliyaviyHisobotIdLazyRoute,
   MainOmborIdLazyRoute: MainOmborIdLazyRoute,
   MainRouteNormsRouteLazyRoute: MainRouteNormsRouteLazyRoute,
   MainTexnikBazaIdLazyRoute: MainTexnikBazaIdLazyRoute,
@@ -1189,6 +1229,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainKassaIndexLazyRoute: MainKassaIndexLazyRoute,
   MainKontragentlarIndexLazyRoute: MainKontragentlarIndexLazyRoute,
   MainMoliyaIndexLazyRoute: MainMoliyaIndexLazyRoute,
+  MainMoliyaviyHisobotIndexLazyRoute: MainMoliyaviyHisobotIndexLazyRoute,
   MainMonitoringIndexLazyRoute: MainMonitoringIndexLazyRoute,
   MainRouteNormsIndexLazyRoute: MainRouteNormsIndexLazyRoute,
   MainTexnikBazaIndexLazyRoute: MainTexnikBazaIndexLazyRoute,
@@ -1255,6 +1296,7 @@ export interface FileRoutesByFullPath {
   '/managers': typeof MainManagersManagersLazyRoute
   '/investor-royxati/$id': typeof MainInvestorRoyxatiIdLazyRoute
   '/kontragentlar/$id': typeof MainKontragentlarIdLazyRoute
+  '/moliyaviy-hisobot/$id': typeof MainMoliyaviyHisobotIdLazyRoute
   '/ombor/$id': typeof MainOmborIdLazyRoute
   '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
@@ -1266,6 +1308,7 @@ export interface FileRoutesByFullPath {
   '/kassa': typeof MainKassaIndexLazyRoute
   '/kontragentlar': typeof MainKontragentlarIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
+  '/moliyaviy-hisobot': typeof MainMoliyaviyHisobotIndexLazyRoute
   '/monitoring': typeof MainMonitoringIndexLazyRoute
   '/route-norms': typeof MainRouteNormsIndexLazyRoute
   '/texnik-baza': typeof MainTexnikBazaIndexLazyRoute
@@ -1319,6 +1362,7 @@ export interface FileRoutesByTo {
   '/managers': typeof MainManagersManagersLazyRoute
   '/investor-royxati/$id': typeof MainInvestorRoyxatiIdLazyRoute
   '/kontragentlar/$id': typeof MainKontragentlarIdLazyRoute
+  '/moliyaviy-hisobot/$id': typeof MainMoliyaviyHisobotIdLazyRoute
   '/ombor/$id': typeof MainOmborIdLazyRoute
   '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
@@ -1330,6 +1374,7 @@ export interface FileRoutesByTo {
   '/kassa': typeof MainKassaIndexLazyRoute
   '/kontragentlar': typeof MainKontragentlarIndexLazyRoute
   '/moliya': typeof MainMoliyaIndexLazyRoute
+  '/moliyaviy-hisobot': typeof MainMoliyaviyHisobotIndexLazyRoute
   '/monitoring': typeof MainMonitoringIndexLazyRoute
   '/route-norms': typeof MainRouteNormsIndexLazyRoute
   '/texnik-baza': typeof MainTexnikBazaIndexLazyRoute
@@ -1386,6 +1431,7 @@ export interface FileRoutesById {
   '/_main/_managers/managers': typeof MainManagersManagersLazyRoute
   '/_main/investor-royxati/$id': typeof MainInvestorRoyxatiIdLazyRoute
   '/_main/kontragentlar/$id': typeof MainKontragentlarIdLazyRoute
+  '/_main/moliyaviy-hisobot/$id': typeof MainMoliyaviyHisobotIdLazyRoute
   '/_main/ombor/$id': typeof MainOmborIdLazyRoute
   '/_main/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/_main/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
@@ -1397,6 +1443,7 @@ export interface FileRoutesById {
   '/_main/kassa/': typeof MainKassaIndexLazyRoute
   '/_main/kontragentlar/': typeof MainKontragentlarIndexLazyRoute
   '/_main/moliya/': typeof MainMoliyaIndexLazyRoute
+  '/_main/moliyaviy-hisobot/': typeof MainMoliyaviyHisobotIndexLazyRoute
   '/_main/monitoring/': typeof MainMonitoringIndexLazyRoute
   '/_main/route-norms/': typeof MainRouteNormsIndexLazyRoute
   '/_main/texnik-baza/': typeof MainTexnikBazaIndexLazyRoute
@@ -1453,6 +1500,7 @@ export interface FileRouteTypes {
     | '/managers'
     | '/investor-royxati/$id'
     | '/kontragentlar/$id'
+    | '/moliyaviy-hisobot/$id'
     | '/ombor/$id'
     | '/route-norms/$route'
     | '/texnik-baza/$id'
@@ -1464,6 +1512,7 @@ export interface FileRouteTypes {
     | '/kassa'
     | '/kontragentlar'
     | '/moliya'
+    | '/moliyaviy-hisobot'
     | '/monitoring'
     | '/route-norms'
     | '/texnik-baza'
@@ -1516,6 +1565,7 @@ export interface FileRouteTypes {
     | '/managers'
     | '/investor-royxati/$id'
     | '/kontragentlar/$id'
+    | '/moliyaviy-hisobot/$id'
     | '/ombor/$id'
     | '/route-norms/$route'
     | '/texnik-baza/$id'
@@ -1527,6 +1577,7 @@ export interface FileRouteTypes {
     | '/kassa'
     | '/kontragentlar'
     | '/moliya'
+    | '/moliyaviy-hisobot'
     | '/monitoring'
     | '/route-norms'
     | '/texnik-baza'
@@ -1581,6 +1632,7 @@ export interface FileRouteTypes {
     | '/_main/_managers/managers'
     | '/_main/investor-royxati/$id'
     | '/_main/kontragentlar/$id'
+    | '/_main/moliyaviy-hisobot/$id'
     | '/_main/ombor/$id'
     | '/_main/route-norms/$route'
     | '/_main/texnik-baza/$id'
@@ -1592,6 +1644,7 @@ export interface FileRouteTypes {
     | '/_main/kassa/'
     | '/_main/kontragentlar/'
     | '/_main/moliya/'
+    | '/_main/moliyaviy-hisobot/'
     | '/_main/monitoring/'
     | '/_main/route-norms/'
     | '/_main/texnik-baza/'
@@ -1679,6 +1732,7 @@ export const routeTree = rootRoute
         "/_main/_managers/managers",
         "/_main/investor-royxati/$id",
         "/_main/kontragentlar/$id",
+        "/_main/moliyaviy-hisobot/$id",
         "/_main/ombor/$id",
         "/_main/route-norms/$route",
         "/_main/texnik-baza/$id",
@@ -1690,6 +1744,7 @@ export const routeTree = rootRoute
         "/_main/kassa/",
         "/_main/kontragentlar/",
         "/_main/moliya/",
+        "/_main/moliyaviy-hisobot/",
         "/_main/monitoring/",
         "/_main/route-norms/",
         "/_main/texnik-baza/",
@@ -1765,6 +1820,10 @@ export const routeTree = rootRoute
       "filePath": "_main/kontragentlar/$id.lazy.tsx",
       "parent": "/_main"
     },
+    "/_main/moliyaviy-hisobot/$id": {
+      "filePath": "_main/moliyaviy-hisobot/$id.lazy.tsx",
+      "parent": "/_main"
+    },
     "/_main/ombor/$id": {
       "filePath": "_main/ombor/$id.lazy.tsx",
       "parent": "/_main"
@@ -1807,6 +1866,10 @@ export const routeTree = rootRoute
     },
     "/_main/moliya/": {
       "filePath": "_main/moliya/index.lazy.tsx",
+      "parent": "/_main"
+    },
+    "/_main/moliyaviy-hisobot/": {
+      "filePath": "_main/moliyaviy-hisobot/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/monitoring/": {

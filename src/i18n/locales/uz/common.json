@@ -42,7 +42,8 @@
         "alerts": "Ogohlantirishlar",
         "garage_areas": "Garaj hududlari",
         "investors_list": "Investorlar ro'yxati",
-        "contragents": "Kontragentlar"
+        "contragents": "Kontragentlar",
+        "fin_report": "Moliyaviy hisobot"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -3350,5 +3351,33 @@
         "rehired": "Haydovchi qayta ishga olindi",
         "tab_active": "Faol",
         "tab_dismissed": "Ishdan bo'shatilganlar"
+    },
+    "fin_report": {
+        "title": "Moliyaviy hisobot",
+        "create": "Oylik hisobot yaratish",
+        "month": "Oy",
+        "create_hint": "Tanlangan oydagi reyslar bo'yicha tushum, reys xarajati va reysdan tashqari xarajatlar tizimdan hisoblanadi. Boshqaruv xarajatlari, soliq, ijara va boshqa xarajatlarni keyin kiritasiz.",
+        "computed_at": "Hisoblangan",
+        "recalculate": "Qayta hisoblash",
+        "recalculated": "Hisobot qayta hisoblandi",
+        "download": "Excel yuklab olish",
+        "loading": "Yuklanmoqda...",
+        "comment": "Izoh",
+        "counts": "Reyslar: {{trips}} · Buyurtmalar: {{orders}}",
+        "unpriced_short": "{{count}} narxsiz",
+        "unpriced_warning": "Diqqat: {{count}} ta buyurtmada narx yo'q — ularning tushumi hisobotga kirmagan. Narx qo'yilgach «Qayta hisoblash»ni bosing.",
+        "lines": {
+            "income": "Reys tushumi",
+            "trip_expense": "Reys xarajatlari",
+            "trip_profit": "Reys foydasi",
+            "vehicle_expense": "Reysdan tashqari xarajatlar",
+            "profit": "Foyda",
+            "management": "Boshqaruv xarajatlari",
+            "tax": "Soliq",
+            "rent": "Ijara",
+            "other": "Boshqa xarajatlar",
+            "overhead": "Qo'shimcha xarajatlar",
+            "net": "Kompaniya sof foydasi"
+        }
     }
 }

@@ -42,7 +42,8 @@
         "alerts": "アラート",
         "garage_areas": "ガレージエリア",
         "investors_list": "投資家一覧",
-        "contragents": "取引先"
+        "contragents": "取引先",
+        "fin_report": "財務報告"
     },
     "actions": {
         "reverse_salary": "取り消す",
@@ -3346,5 +3347,33 @@
         "rehired": "ドライバーを再雇用しました",
         "tab_active": "在籍",
         "tab_dismissed": "退職者"
+    },
+    "fin_report": {
+        "title": "財務報告",
+        "create": "月次報告を作成",
+        "month": "月",
+        "create_hint": "選択した月の運行収入、運行費用、運行外費用はシステムから計算されます。管理費、税金、賃料、その他の費用は後で入力します。",
+        "computed_at": "計算日時",
+        "recalculate": "再計算",
+        "recalculated": "報告を再計算しました",
+        "download": "Excelをダウンロード",
+        "loading": "読み込み中...",
+        "comment": "コメント",
+        "counts": "ターン: {{trips}} · 注文: {{orders}}",
+        "unpriced_short": "価格なし {{count}}",
+        "unpriced_warning": "注意: {{count}} 件の注文に価格がありません。収入は報告に含まれていません。価格設定後に「再計算」を押してください。",
+        "lines": {
+            "income": "運行収入",
+            "trip_expense": "運行費用",
+            "trip_profit": "運行利益",
+            "vehicle_expense": "運行外費用",
+            "profit": "利益",
+            "management": "管理費",
+            "tax": "税金",
+            "rent": "賃料",
+            "other": "その他の費用",
+            "overhead": "追加費用",
+            "net": "会社の純利益"
+        }
     }
 }

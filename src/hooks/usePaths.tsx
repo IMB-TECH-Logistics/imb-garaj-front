@@ -17,6 +17,7 @@ import {
     Wallet,
     HandCoins,
     Contact,
+    FileSpreadsheet,
 } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -324,6 +325,12 @@ export const useItems = () => {
                 icon: <Truck width={18} />,
                 path: "/truck",
                 allowKey: "financial_result_view",
+            },
+            {
+                label: t("nav.fin_report"),
+                icon: <FileSpreadsheet width={18} />,
+                path: "/moliyaviy-hisobot",
+                allowKeys: ["investor_view", "financial_result_view"],
             },
             {
                 label: t("nav.investor_dashboard"),

@@ -42,7 +42,8 @@
         "alerts": "Alerts",
         "garage_areas": "Garage areas",
         "investors_list": "Investor list",
-        "contragents": "Counterparties"
+        "contragents": "Counterparties",
+        "fin_report": "Financial report"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -3353,5 +3354,33 @@
         "rehired": "Driver rehired",
         "tab_active": "Active",
         "tab_dismissed": "Dismissed"
+    },
+    "fin_report": {
+        "title": "Financial report",
+        "create": "Create monthly report",
+        "month": "Month",
+        "create_hint": "Trip revenue, trip expenses and non-trip expenses for the selected month are calculated from the system. You enter management costs, tax, rent and other costs afterwards.",
+        "computed_at": "Calculated",
+        "recalculate": "Recalculate",
+        "recalculated": "Report recalculated",
+        "download": "Download Excel",
+        "loading": "Loading...",
+        "comment": "Comment",
+        "counts": "Cycles: {{trips}} · Orders: {{orders}}",
+        "unpriced_short": "{{count}} unpriced",
+        "unpriced_warning": "Note: {{count}} orders have no price — their revenue is not in the report. Set the price, then press Recalculate.",
+        "lines": {
+            "income": "Trip revenue",
+            "trip_expense": "Trip expenses",
+            "trip_profit": "Trip profit",
+            "vehicle_expense": "Non-trip expenses",
+            "profit": "Profit",
+            "management": "Management costs",
+            "tax": "Tax",
+            "rent": "Rent",
+            "other": "Other costs",
+            "overhead": "Overhead",
+            "net": "Company net profit"
+        }
     }
 }
