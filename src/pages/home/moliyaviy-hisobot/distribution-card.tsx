@@ -16,6 +16,8 @@ import { toast } from "sonner"
 import { MonthlyReport, reportUrl } from "./api"
 import { Money } from "./index"
 
+const PCT_RE = /^(100(\.0{0,2})?|\d{0,2}(\.\d{0,2})?)$/
+
 export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
@@ -72,14 +74,18 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
     const base = net > 0 ? net : 0
     const pctInput = (value: string, onChange: (v: string) => void) =>
         editable ?
-            <Input
-                className="h-8 w-20 text-right"
-                type="number"
-                min={0}
-                max={100}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-            />
+            <div className="flex justify-end">
+                <Input
+                    className="h-8 w-20 text-right"
+                    type="text"
+                    inputMode="decimal"
+                    value={value}
+                    onChange={(e) => {
+                        const v = e.target.value.replace(",", ".")
+                        if (PCT_RE.test(v)) onChange(v)
+                    }}
+                />
+            </div>
         :   <span className="tabular-nums">{num(value)}%</span>
 
     return (
