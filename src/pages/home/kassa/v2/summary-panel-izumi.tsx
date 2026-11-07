@@ -56,6 +56,17 @@ const Box = ({ children, className }: { children: ReactNode; className?: string 
     <div className={cn("rounded-lg border px-3 py-2 flex flex-col", className)}>{children}</div>
 )
 
+const incomeRows = (sm: Overview["summary"] | undefined, transport: string, other: string) => {
+    const byK = sm?.income_by_kontragent ?? []
+    const linked = byK.reduce((a, r) => a + n(r.amount), 0)
+    const rest = n(sm?.income.total) - n(sm?.income.trip_cash) - linked
+    return [
+        ...byK.map((r) => ({ name: r.name, cash: n(r.amount) as number | null, bank: null })),
+        { name: transport, cash: n(sm?.income.trip_cash) as number | null, bank: null },
+        ...(rest ? [{ name: other, cash: rest as number | null, bank: null }] : []),
+    ]
+}
+
 export type Exp = { key: string; kind: "fuel" | "other" | "trip_cash" | "salary"; label: string; amount: number }
 
 type SummaryPanelProps = {
@@ -80,7 +91,7 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
         income: {
             cash: n(sm?.income.total),
             bank: 0,
-            rows: ["Izumi Invest", "Vodiy Star", "Transport xizmati"].map((name) => ({ name, cash: null, bank: null })),
+            rows: incomeRows(sm, t("fin.kv2.transport_service"), t("fin.kv2.other_income")),
         },
         trip: {
             cash: -n(sm?.expense.total),

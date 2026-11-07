@@ -1650,7 +1650,9 @@
             "col_turnover": "Оборот",
             "to_balance": "На баланс",
             "vst_investor_income": "Инвестор/Займ",
-            "vst_repair_expense": "Ремонт и техосмотр"
+            "vst_repair_expense": "Ремонт и техосмотр",
+            "transport_service": "Транспортные услуги",
+            "other_income": "Прочий приход"
         },
         "kv2_kind": {
             "avans": "Аванс",
@@ -3417,7 +3419,9 @@
             "month": "мес",
             "total": "Итого",
             "part": "Часть",
-            "add": "Привязать"
+            "add": "Привязать",
+            "add_title": "{{name}}: привязать машину",
+            "monthly_usd": "Аренда в месяц, $"
         },
         "owners": {
             "title": "По владельцам машин",

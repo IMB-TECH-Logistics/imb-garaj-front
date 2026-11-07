@@ -1644,7 +1644,9 @@
             "col_turnover": "Turnover",
             "to_balance": "To balance",
             "vst_investor_income": "Investor/Loan",
-            "vst_repair_expense": "Repairs and inspection"
+            "vst_repair_expense": "Repairs and inspection",
+            "transport_service": "Transport service",
+            "other_income": "Other income"
         },
         "kv2_kind": {
             "avans": "Advance",
@@ -3411,7 +3413,9 @@
             "month": "mo",
             "total": "Total",
             "part": "Part",
-            "add": "Assign"
+            "add": "Assign",
+            "add_title": "{{name}}: assign vehicle",
+            "monthly_usd": "Monthly rent, $"
         },
         "owners": {
             "title": "By vehicle owner",

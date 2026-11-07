@@ -1641,7 +1641,9 @@
             "col_turnover": "Aylanma",
             "to_balance": "Balansga",
             "vst_investor_income": "Investor/Qarz",
-            "vst_repair_expense": "Ta'mir va texnik ko'rik"
+            "vst_repair_expense": "Ta'mir va texnik ko'rik",
+            "transport_service": "Transport xizmati",
+            "other_income": "Boshqa kirim"
         },
         "kv2_kind": {
             "avans": "Avans",
@@ -3408,7 +3410,9 @@
             "month": "oy",
             "total": "Jami",
             "part": "Qismi",
-            "add": "Biriktirish"
+            "add": "Biriktirish",
+            "add_title": "{{name}}: mashina biriktirish",
+            "monthly_usd": "Oylik ijara, $"
         },
         "owners": {
             "title": "Mashina egalari bo'yicha",

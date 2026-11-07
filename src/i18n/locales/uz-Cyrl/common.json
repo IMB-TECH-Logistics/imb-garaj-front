@@ -1639,7 +1639,9 @@
             "col_turnover": "Айланма",
             "to_balance": "Балансга",
             "vst_investor_income": "Инвестор/Қарз",
-            "vst_repair_expense": "Таъмир ва техник кўрик"
+            "vst_repair_expense": "Таъмир ва техник кўрик",
+            "transport_service": "Транспорт хизмати",
+            "other_income": "Бошқа кирим"
         },
         "kv2_kind": {
             "avans": "Аванс",
@@ -3398,7 +3400,9 @@
             "month": "ой",
             "total": "Жами",
             "part": "Қисми",
-            "add": "Бириктириш"
+            "add": "Бириктириш",
+            "add_title": "{{name}}: машина бириктириш",
+            "monthly_usd": "Ойлик ижара, $"
         },
         "owners": {
             "title": "Машина эгалари бўйича",

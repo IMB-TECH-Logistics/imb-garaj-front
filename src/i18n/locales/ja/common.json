@@ -1645,7 +1645,9 @@
             "col_turnover": "ターン",
             "to_balance": "残高へ",
             "vst_investor_income": "投資家/借入",
-            "vst_repair_expense": "修理と車検"
+            "vst_repair_expense": "修理と車検",
+            "transport_service": "輸送サービス",
+            "other_income": "その他の収入"
         },
         "kv2_kind": {
             "avans": "前渡金",
@@ -3404,7 +3406,9 @@
             "month": "月",
             "total": "合計",
             "part": "部分",
-            "add": "割り当て"
+            "add": "割り当て",
+            "add_title": "{{name}}: 車両の割り当て",
+            "monthly_usd": "月額賃料、$"
         },
         "owners": {
             "title": "車両オーナー別",

@@ -64,6 +64,7 @@ export type Overview = {
         expense: { total: number; cash: number; fuel?: number; other?: number; salary_cash?: number; by_category?: ExpenseByCategory[]; oylik: number; garaj: number; reversals: number }
         other_expense?: { total: number; garaj: number; chiqim: number; ombor?: number; ofis?: number; ofis_by_category?: { id: number; name: string; amount: number }[] }
         income_by_type?: { vst: number; investor: number; other: number } | null
+        income_by_kontragent?: { id: number; name: string; amount: number }[] | null
         drivers: { net: number; given: number; trip_cash: number; cash: number; returned: number }
     }
     balance: number
