@@ -1618,6 +1618,7 @@
             "request_cancelled": "So'rov bekor qilindi",
             "recalc_resend": "Qayta hisoblab yuborish",
             "fix_resend": "Tuzatib qayta yuborish",
+            "fix_in_trip": "Menejer reys tushumini tuzatsa, qayta yuboriladi",
             "all_statuses": "Barcha holatlar",
             "trip_st_advance_pending": "Avans kutilmoqda",
             "trip_st_advance_rejected": "Avans rad etildi",
@@ -1645,7 +1646,8 @@
             "berish": "Aylanma farqi",
             "oylik": "Oylik",
             "garaj_xarajat": "Garaj xarajati",
-            "avans_qaytarish": "Avans qoldig'i"
+            "avans_qaytarish": "Avans qoldig'i",
+            "naqd_reys_kassa": "Naqd reys puli (kassaga)"
         },
         "kv2_expense_type": {
             "texnik_korik": "Texnik ko'rik",
@@ -2612,6 +2614,12 @@
             "trip_locked": "Aylanma yopilgan, o'zgartirib bo'lmaydi",
             "logistics_locked": "Logistikadan kelgan reys, bu yerda tahrirlab bo'lmaydi",
             "no_location": "Lokatsiya kiritilmagan",
+            "cash_receiver": "Pul kimda",
+            "receiver_driver": "Haydovchida",
+            "receiver_kassa": "Kassada",
+            "kassa_pending": "kutilmoqda",
+            "kassa_accepted": "qabul qilindi",
+            "kassa_rejected": "rad etildi",
             "open_on_monitoring": "Monitoringda ko'rish",
             "point_load": "Yuklash lokatsiyasi",
             "point_unload": "Tushirish lokatsiyasi",

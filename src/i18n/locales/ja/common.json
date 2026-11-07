@@ -1622,6 +1622,7 @@
             "request_cancelled": "申請を取り消しました",
             "recalc_resend": "再計算して再送信",
             "fix_resend": "修正して再送信",
+            "fix_in_trip": "マネージャーが運行収入を修正すると再送信されます",
             "all_statuses": "すべてのステータス",
             "trip_st_advance_pending": "前渡金 保留中",
             "trip_st_advance_rejected": "前渡金 却下",
@@ -1649,7 +1650,8 @@
             "berish": "ターン差額",
             "oylik": "給与",
             "garaj_xarajat": "ガレージ費用",
-            "avans_qaytarish": "前渡金の残額"
+            "avans_qaytarish": "前渡金の残額",
+            "naqd_reys_kassa": "運行現金（レジへ）"
         },
         "kv2_expense_type": {
             "texnik_korik": "車両点検",
@@ -2616,6 +2618,12 @@
             "trip_locked": "ターンは閉じられているため変更できません",
             "logistics_locked": "物流システムからの便のため、ここでは編集できません",
             "no_location": "場所が未指定です",
+            "cash_receiver": "現金の保管者",
+            "receiver_driver": "ドライバー",
+            "receiver_kassa": "レジ",
+            "kassa_pending": "保留中",
+            "kassa_accepted": "受領済み",
+            "kassa_rejected": "却下",
             "open_on_monitoring": "モニタリングで表示",
             "point_load": "積込場所",
             "point_unload": "荷降ろし場所",

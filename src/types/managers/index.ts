@@ -94,7 +94,13 @@ type ManagerOrders = {
     logistics_canceled_at?: string | null
     archived_time: string
     images?: { id: number; image: string }[]
-    incomes?: { id?: number; payment_type: number | null }[]
+    incomes?: {
+        id?: number
+        payment_type: number | null
+        amount?: string | number
+        cash_receiver?: "driver" | "kassa"
+        kassa_request?: { id: number; status: "pending" | "accepted" | "rejected"; rejected_comment?: string | null } | null
+    }[]
     truck_number?: string | null
     external_id?: string | null
     is_integration?: boolean

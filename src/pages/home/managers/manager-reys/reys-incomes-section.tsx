@@ -1,6 +1,6 @@
 import { FormCombobox } from "@/components/form/combobox"
 import { Button } from "@/components/ui/button"
-import { PaymentType } from "./payment-fields"
+import { PaymentType, isNaqdPaymentTypeName } from "./payment-fields"
 import { Trash2 } from "lucide-react"
 import { FormNumberInput } from "@/components/form/number-input"
 import { useTranslation } from "react-i18next"
@@ -12,18 +12,24 @@ export function ReysIncomesSection({ control, incomeFields, allPaymentTypes, sel
     incomeFields: { id: string }[]
     allPaymentTypes: PaymentType[]
     selectedPaymentTypeIds: Set<number | null>
-    incomes: { payment_type: number | null; amount: string }[]
+    incomes: { payment_type: number | null; amount: string; cash_receiver?: string }[]
     removeIncome: (index: number) => void
-    appendIncome: (value: { payment_type: number | null; amount: string }) => void
+    appendIncome: (value: { payment_type: number | null; amount: string; cash_receiver?: string }) => void
 }) {
     const { t } = useTranslation()
+    const receiverOptions = [
+        { id: "driver", name: t("trips.reys_cols.receiver_driver") },
+        { id: "kassa", name: t("trips.reys_cols.receiver_kassa") },
+    ]
     return (
             <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
                 <div className="space-y-3">
-                {incomeFields.map((field, index) => (
+                {incomeFields.map((field, index) => {
+                    const naqd = isNaqdPaymentTypeName(allPaymentTypes.find((pt) => pt.id === incomes[index]?.payment_type)?.name)
+                    return (
                     <div
                         key={field.id}
-                        className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end"
+                        className={naqd ? "grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-end" : "grid grid-cols-[1fr_1fr_auto] gap-2 items-end"}
                     >
                         <FormCombobox
                             required
@@ -53,6 +59,18 @@ export function ReysIncomesSection({ control, incomeFields, allPaymentTypes, sel
                             }}
                         />
 
+                        {naqd && (
+                            <FormCombobox
+                                required
+                                control={control}
+                                name={`incomes.${index}.cash_receiver`}
+                                label={index === 0 ? t("trips.reys_cols.cash_receiver") : ""}
+                                options={receiverOptions}
+                                valueKey="id"
+                                labelKey="name"
+                            />
+                        )}
+
                         {incomeFields.length > 1 && (
                             <Button
                                 type="button"
@@ -66,7 +84,8 @@ export function ReysIncomesSection({ control, incomeFields, allPaymentTypes, sel
                             </Button>
                         )}
                     </div>
-                ))}
+                    )
+                })}
 
                 <Button
                     type="button"
@@ -76,6 +95,7 @@ export function ReysIncomesSection({ control, incomeFields, allPaymentTypes, sel
                         appendIncome({
                             payment_type: null,
                             amount: "",
+                            cash_receiver: "driver",
                         })
                     }
                 >

@@ -1616,6 +1616,7 @@
             "request_cancelled": "Сўров бекор қилинди",
             "recalc_resend": "Қайта ҳисоблаб юбориш",
             "fix_resend": "Тузатиб қайта юбориш",
+            "fix_in_trip": "Менежер рейс тушумини тузатса, қайта юборилади",
             "all_statuses": "Барча ҳолатлар",
             "trip_st_advance_pending": "Аванс кутилмоқда",
             "trip_st_advance_rejected": "Аванс рад этилди",
@@ -1643,7 +1644,8 @@
             "berish": "Айланма фарқи",
             "oylik": "Ойлик",
             "garaj_xarajat": "Гараж харажати",
-            "avans_qaytarish": "Аванс қолдиғи"
+            "avans_qaytarish": "Аванс қолдиғи",
+            "naqd_reys_kassa": "Нақд рейс пули (кассага)"
         },
         "kv2_expense_type": {
             "texnik_korik": "Техник кўрик",
@@ -2610,6 +2612,12 @@
             "trip_locked": "Айланма ёпилган, ўзгартириб бўлмайди",
             "logistics_locked": "Логистикадан келган рейс, бу ерда таҳрирлаб бўлмайди",
             "no_location": "Локация киритилмаган",
+            "cash_receiver": "Пул кимда",
+            "receiver_driver": "Ҳайдовчида",
+            "receiver_kassa": "Кассада",
+            "kassa_pending": "кутилмоқда",
+            "kassa_accepted": "қабул қилинди",
+            "kassa_rejected": "рад этилди",
             "open_on_monitoring": "Мониторингда кўриш",
             "point_load": "Юклаш локацияси",
             "point_unload": "Тушириш локацияси",

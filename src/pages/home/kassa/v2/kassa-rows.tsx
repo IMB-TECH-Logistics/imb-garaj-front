@@ -35,6 +35,7 @@ export const kindFilters = (t: (key: string) => string): [string, string][] => [
 
 export const requestKindFilter = (r: KassaRequest) => {
     if (r.close || r.kind === "qaytarish" || r.kind === "berish" || r.kind === "oylik") return "yopish"
+    if (r.kind === "naqd_reys_kassa") return "yopish"
     if (r.kind === "garaj_xarajat") return "garaj"
     return "avans"
 }

@@ -105,6 +105,7 @@ type TripOrdersRow = {
         id?: number
         payment_type: number | null
         amount: number | string | null
+        cash_receiver?: "driver" | "kassa"
     }[]
     payments: [
         {

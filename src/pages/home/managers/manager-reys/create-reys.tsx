@@ -64,11 +64,13 @@ const AddTripOrders = () => {
                     ? currentTripOrder.incomes.map((p) => ({
                         payment_type: p.payment_type,
                         amount: p.amount,
+                        cash_receiver: p.cash_receiver ?? "driver",
                     }))
                     : [
                         {
                             payment_type: null,
                             amount: "",
+                            cash_receiver: "driver",
                         },
                     ],
             client: currentTripOrder?.client ?? null,
@@ -357,6 +359,7 @@ const AddTripOrders = () => {
                     payment_type: inc.payment_type,
                     currency: 1,
                     amount: String(inc.amount ?? "0"),
+                    cash_receiver: inc.cash_receiver === "kassa" ? "kassa" : "driver",
                 }))
                 : [
                     {

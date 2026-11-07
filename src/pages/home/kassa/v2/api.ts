@@ -21,7 +21,7 @@ export const KV2_CATEGORIES = `${KV2}/expense-categories`
 export const VEHICLES_LIST = "vehicles"
 
 export type Dir = "in" | "out"
-export type RequestKind = "avans" | "qoshimcha" | "qaytarish" | "berish" | "oylik" | "garaj_xarajat" | "avans_qaytarish"
+export type RequestKind = "avans" | "qoshimcha" | "qaytarish" | "berish" | "oylik" | "garaj_xarajat" | "avans_qaytarish" | "naqd_reys_kassa"
 export type ExpenseType = "texnik_korik" | "tamir" | "ombor"
 export type TripStatus = "avans_kutilmoqda" | "avans_rad_etildi" | "yolda" | "yopilmoqda" | "rad_etildi" | "yopildi"
 
@@ -33,6 +33,7 @@ export const KIND_LABEL_KEY: Record<RequestKind, string> = {
     oylik: "fin.kv2_kind.oylik",
     garaj_xarajat: "fin.kv2_kind.garaj_xarajat",
     avans_qaytarish: "fin.kv2_kind.avans_qaytarish",
+    naqd_reys_kassa: "fin.kv2_kind.naqd_reys_kassa",
 }
 export const KIND_DIR: Record<RequestKind, Dir> = {
     avans: "out",
@@ -42,6 +43,7 @@ export const KIND_DIR: Record<RequestKind, Dir> = {
     oylik: "out",
     garaj_xarajat: "out",
     avans_qaytarish: "in",
+    naqd_reys_kassa: "in",
 }
 export const EXPENSE_TYPE_LABEL_KEY: Record<ExpenseType, string> = {
     texnik_korik: "fin.kv2_expense_type.texnik_korik",

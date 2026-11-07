@@ -81,6 +81,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
             tableWrapperClassName="flex-1 min-h-0 overflow-auto"
             paginationProps={paginationProps(data?.total_pages)}
             rowAction={(r: KassaRequest) => {
+                const fromTrip = r.kind === "naqd_reys_kassa"
                 if (r.status === STATUS.PENDING && cashier) {
                     const out = KIND_DIR[r.kind] === "out"
                     return (
@@ -94,7 +95,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                                     <X size={16} />
                                     {t("kassa.reject")}
                                 </Button>
-                                {r.can_manage && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />}
+                                {r.can_manage && !fromTrip && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />}
                             </div>
                         </div>
                     )
@@ -109,7 +110,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                                     {t("trips.kclose.refresh_request")}
                                 </Button>
                             )}
-                            <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />
+                            {!fromTrip && <TableActions onEdit={r.close ? undefined : () => onEdit(r)} onDelete={() => act(`${KV2_REQUESTS}/${r.id}/cancel`, t("fin.kv2.request_cancelled"))} />}
                         </div>
                     )
                 const [label, variant] = REQ_STATUS[r.status] ?? ["", "secondary"]
@@ -118,7 +119,8 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                         <Badge variant={variant} className="w-fit whitespace-nowrap">{label ? t(label) : "—"}</Badge>
                         {r.paid_at && r.status !== STATUS.PENDING && <span className="text-xs text-muted-foreground whitespace-nowrap">{fmtDate(r.paid_at)}</span>}
                         {r.status === STATUS.REJECTED && r.rejected_comment && <span className="text-xs text-muted-foreground max-w-56 text-right">{r.rejected_comment}</span>}
-                        {r.status === STATUS.REJECTED && r.can_manage && (
+                        {r.status === STATUS.REJECTED && fromTrip && <span className="text-xs text-muted-foreground max-w-56 text-right">{t("fin.kv2.fix_in_trip")}</span>}
+                        {r.status === STATUS.REJECTED && r.can_manage && !fromTrip && (
                             <div className="flex items-center gap-2 mt-1">
                                 <Button
                                     size="sm"

@@ -1621,6 +1621,7 @@
             "request_cancelled": "Request cancelled",
             "recalc_resend": "Recalculate and resend",
             "fix_resend": "Fix and resend",
+            "fix_in_trip": "Resent once the manager fixes the trip income",
             "all_statuses": "All statuses",
             "trip_st_advance_pending": "Advance pending",
             "trip_st_advance_rejected": "Advance rejected",
@@ -1648,7 +1649,8 @@
             "berish": "Turnover difference",
             "oylik": "Salary",
             "garaj_xarajat": "Garage expense",
-            "avans_qaytarish": "Advance remainder"
+            "avans_qaytarish": "Advance remainder",
+            "naqd_reys_kassa": "Trip cash (to cash desk)"
         },
         "kv2_expense_type": {
             "texnik_korik": "Technical inspection",
@@ -2615,6 +2617,12 @@
             "trip_locked": "Turnover is closed, cannot be changed",
             "logistics_locked": "Trip comes from logistics and cannot be edited here",
             "no_location": "Location not set",
+            "cash_receiver": "Cash held by",
+            "receiver_driver": "Driver",
+            "receiver_kassa": "Cash desk",
+            "kassa_pending": "pending",
+            "kassa_accepted": "accepted",
+            "kassa_rejected": "rejected",
             "open_on_monitoring": "Open in monitoring",
             "point_load": "Loading location",
             "point_unload": "Unloading location",

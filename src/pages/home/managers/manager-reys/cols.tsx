@@ -203,7 +203,30 @@ export const useColumnsManagersOrders = (opts?: {
                         ),
                     ]
                     if (!names.length) return <span className="text-muted-foreground">—</span>
-                    return <span className="whitespace-nowrap">{names.join(", ")}</span>
+                    const kassa = (row.original.incomes ?? []).filter((i) => i.cash_receiver === "kassa")
+                    if (!kassa.length) return <span className="whitespace-nowrap">{names.join(", ")}</span>
+                    return (
+                        <div className="flex flex-col gap-1">
+                            <span className="whitespace-nowrap">{names.join(", ")}</span>
+                            {kassa.map((i) => {
+                                const st = i.kassa_request?.status
+                                const tone =
+                                    st === "accepted" ? "bg-green-500/10 text-green-600" :
+                                    st === "rejected" ? "bg-red-500/10 text-red-600" :
+                                    "bg-amber-500/10 text-amber-600"
+                                return (
+                                    <Badge
+                                        key={i.id}
+                                        variant="outline"
+                                        className={`w-fit whitespace-nowrap border-transparent ${tone}`}
+                                        title={st === "rejected" ? i.kassa_request?.rejected_comment ?? undefined : undefined}
+                                    >
+                                        {t("trips.reys_cols.receiver_kassa")} · {t(`trips.reys_cols.kassa_${st ?? "pending"}`)}
+                                    </Badge>
+                                )
+                            })}
+                        </div>
+                    )
                 },
             },
             {
