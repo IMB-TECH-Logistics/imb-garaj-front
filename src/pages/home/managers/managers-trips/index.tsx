@@ -57,7 +57,7 @@ export default function ManagersTrips() {
     const { data, isLoading, isError, error } = useGet<ListResponse<ManagerTrips>>(
         MANAGERS_TRIPS,
         {
-            options: { retry: false },
+            options: { retry: false, refetchOnMount: "always" },
             params: {
                 ...(driver_id ? { driver_id } : { vehicle: id }),
                 ...(from_date ? { from_date } : {}),

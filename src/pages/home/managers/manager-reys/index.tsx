@@ -50,7 +50,7 @@ export default function ManagerReys() {
         cash_closed?: boolean
     }>(`${MANAGERS_TRIPS}/${tripId}`, {
         enabled: !!tripId,
-        options: { retry: false },
+        options: { retry: false, refetchOnMount: "always" },
     })
     useEffect(() => {
         if (trip?.vehicle) {
@@ -71,6 +71,7 @@ export default function ManagerReys() {
     const currentSelected = getData(MANAGERS_ORDERS)
     const kind = (search as any).kind as string | undefined
     const { data } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
+        options: { refetchOnMount: "always" },
         params: {
             trip: tripId,
             page_size: search.page_size,
