@@ -99,7 +99,7 @@ export function ExpenseTab({ tripId, onCategoryChange, onCategoryIdChange }: { t
                                 <h1 className="text-xl">{t("page.expense_history")}</h1>
                                 <Badge className="text-sm">{rows.length}</Badge>
                             </div>
-                            <Button disabled={locked} title={lockedTitle} onClick={handleAdd}>
+                            <Button disabled={locked && !isFuel} title={locked && !isFuel ? lockedTitle : undefined} onClick={handleAdd}>
                                 <Plus size={18} />
                                 {t("page.add_expense")}
                             </Button>

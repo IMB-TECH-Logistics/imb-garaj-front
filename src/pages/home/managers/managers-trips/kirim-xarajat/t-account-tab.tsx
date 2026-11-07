@@ -514,7 +514,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                     : filter === "tushum" ?
                         <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("tushum")}><Plus size={16} />{t("page.add_income")}</Button>
                     : filter === "zapravka" ?
-                        <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
+                        <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
                     : filter === "xarajat" ?
                         <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />{t("page.add_expense")}</Button>
                     :   <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.extra_salary")}</Button>
