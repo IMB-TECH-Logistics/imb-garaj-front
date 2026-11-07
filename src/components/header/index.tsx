@@ -122,7 +122,7 @@ const Header = () => {
 
     return (
         <header className="p-2 gap-4 flex items-center justify-between bg-card border-b border-border max-w-full box-border">
-            <div className="flex items-center xl:gap-6 max-w-full overflow-x-auto custom-scrollbar">
+            <div className="flex items-center lg:gap-6 max-w-full min-w-0 overflow-x-auto custom-scrollbar">
                 <div
                     className={cn(
                         "flex items-center gap-3 transition-all duration-300 shrink-0",
@@ -139,7 +139,7 @@ const Header = () => {
                 )}
                 {!!childPaths.length && (
                     <Tabs
-                        className="hidden xl:flex overflow-x-auto custom-scrollbar max-w-full"
+                        className="hidden lg:flex overflow-x-auto custom-scrollbar max-w-full"
                         value={activeTab}
                         onValueChange={(path) => navigate({ to: path })}
                     >

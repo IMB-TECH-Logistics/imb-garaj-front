@@ -12,7 +12,7 @@ const OmborHeaderTabs = () => {
 
     return (
         <Tabs
-            className="hidden xl:flex overflow-x-auto custom-scrollbar max-w-full"
+            className="hidden lg:flex overflow-x-auto custom-scrollbar max-w-full"
             value={section ?? "stock"}
             onValueChange={(value) =>
                 navigate({
