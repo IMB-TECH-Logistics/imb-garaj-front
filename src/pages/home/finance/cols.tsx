@@ -16,6 +16,10 @@ export interface OwnerStatistic {
     fuel_consume: number | null
     fuel_per_km: number
     fuel_estimated?: boolean
+    mileage_gps?: boolean
+    gps_mileage?: number
+    odometer_estimate?: number
+    odometer_photo?: number | null
     income: string | number | null
     expense: string | number | null
     vehicle_expense: string | number | null
@@ -78,7 +82,28 @@ export const useCostCols = () => {
                 header: t("table.mileage_km"),
                 accessorKey: "total_mileage",
                 enableSorting: true,
-                cell: ({ row }) => <span>{row.original.total_mileage != null ? round3(row.original.total_mileage) : "—"}</span>,
+                cell: ({ row }) => {
+                    const r = row.original
+                    if (r.total_mileage == null) return <span>—</span>
+                    if (!r.mileage_gps) return <span>{round3(r.total_mileage)}</span>
+                    return (
+                        <span
+                            className="whitespace-nowrap"
+                            title={t("fin.cols.mileage_gps_hint", {
+                                gps: formatNumber(r.gps_mileage ?? 0),
+                                photo: r.odometer_photo != null ? formatNumber(r.odometer_photo) : "—",
+                                odo: formatNumber(r.odometer_estimate ?? 0),
+                            })}
+                        >
+                            ≈ {formatNumber(round3(r.total_mileage))}
+                            {r.odometer_estimate != null && (
+                                <span className="block text-xs text-muted-foreground">
+                                    {t("fin.cols.odometer_short", { odo: formatNumber(r.odometer_estimate) })}
+                                </span>
+                            )}
+                        </span>
+                    )
+                },
             },
             {
                 header: t("table.fuel_consumption"),
