@@ -110,6 +110,7 @@ export const LegacySummaryPanel = ({ sm, ov, drivers, from_date, view, driver, l
                                     <span className="text-sm flex items-center gap-2 min-w-0 flex-1">
                                         <span className="text-xs text-muted-foreground w-4 text-right shrink-0">{i + 1}</span>
                                         <span className="truncate" title={d.name}>{d.name}</span>
+                                        {d.dismissed && <span className="text-[10px] rounded bg-red-500/10 text-red-600 px-1.5 py-0.5 whitespace-nowrap shrink-0">{t("dismiss.badge")}</span>}
                                         {d.plate && <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">{d.plate}</span>}
                                     </span>
                                     <span className={cn("text-sm font-medium tabular-nums whitespace-nowrap shrink-0 pl-3", n(d.balance) < 0 && "text-destructive")}>{formatMoney(n(d.balance))}</span>

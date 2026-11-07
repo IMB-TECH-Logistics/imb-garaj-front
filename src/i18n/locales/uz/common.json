@@ -3336,5 +3336,19 @@
             "in_hint": "Pul kassaga kirim bo'ladi va kontragent hisobiga yoziladi.",
             "out_hint": "Pul kassadan chiqim bo'ladi va kontragent hisobiga yoziladi."
         }
+    },
+    "dismiss": {
+        "badge": "Ishdan bo'shatilgan",
+        "action": "Ishdan bo'shatish",
+        "title": "Haydovchini ishdan bo'shatish",
+        "hint": "ro'yxatdan chiqadi, mobil ilovaga kira olmaydi, eski aylanmalarida ismi qoladi",
+        "date": "Bo'shatilgan sana",
+        "comment": "Izoh",
+        "comment_ph": "Masalan: o'z xohishi bilan",
+        "done": "Haydovchi ishdan bo'shatildi",
+        "rehire": "Qayta ishga olish",
+        "rehired": "Haydovchi qayta ishga olindi",
+        "tab_active": "Faol",
+        "tab_dismissed": "Ishdan bo'shatilganlar"
     }
 }

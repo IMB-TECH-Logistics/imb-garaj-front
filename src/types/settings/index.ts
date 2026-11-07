@@ -220,6 +220,8 @@ type UserType = {
 
 type DriversType = {
     id: number
+    dismissed_at?: string | null
+    dismiss_comment?: string
     driver: DriverInfoType
     password: string
     last_login: string

@@ -81,6 +81,8 @@ export type Overview = {
         unconfirmed_salary?: number
         unconfirmed_total?: number
         unconfirmed_left?: number
+        dismissed?: boolean
+        dismissed_at?: string | null
     }[]
     drivers_total: number
     pending_requests: number

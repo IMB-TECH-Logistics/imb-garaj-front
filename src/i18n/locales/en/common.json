@@ -3339,5 +3339,19 @@
             "in_hint": "The money is recorded as cash desk income and on the counterparty.",
             "out_hint": "The money is paid from the cash desk and recorded on the counterparty."
         }
+    },
+    "dismiss": {
+        "badge": "Dismissed",
+        "action": "Dismiss",
+        "title": "Dismiss driver",
+        "hint": "leaves the list, cannot log in to the app, name stays on past turnovers",
+        "date": "Dismissal date",
+        "comment": "Comment",
+        "comment_ph": "E.g. resigned",
+        "done": "Driver dismissed",
+        "rehire": "Rehire",
+        "rehired": "Driver rehired",
+        "tab_active": "Active",
+        "tab_dismissed": "Dismissed"
     }
 }
