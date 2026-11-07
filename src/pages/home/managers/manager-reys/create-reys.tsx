@@ -126,10 +126,7 @@ const AddTripOrders = () => {
 
     const isNaqd = !!watch("is_naqd")
     const incomes = watch("incomes") as { payment_type: number | null; amount: string }[]
-    const selectedPaymentTypeIds = useMemo(
-        () => new Set((incomes ?? []).map((inc) => inc.payment_type).filter(Boolean)),
-        [incomes],
-    )
+    const selectedPaymentTypeIds = new Set((incomes ?? []).map((inc) => inc.payment_type).filter(Boolean))
     const allPaymentTypes = paymentTypesData?.results ?? []
     const cardId = paymentTypesData?.results?.find((item) =>
         ["card", "karta"].includes(item.name.toLowerCase()),
