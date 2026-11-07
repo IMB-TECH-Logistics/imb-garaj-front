@@ -101,7 +101,8 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
             other: { cash: -n(sm?.expense.other), bank: null },
             tax: { cash: null, bank: 0 },
         },
-        other: { cash: -n(sm?.other_expense?.total ?? sm?.expense.garaj), bank: 0 },
+        other: { cash: -(n(sm?.other_expense?.total ?? sm?.expense.garaj) - n(sm?.other_expense?.kontragent)), bank: 0 },
+        kontragent: { cash: -n(sm?.other_expense?.kontragent), bank: 0 },
         closing: { cash: kassaBalance + n(sm?.drivers_closing ?? ov?.drivers_total), bank: 0, kassa: kassaBalance, drivers: n(sm?.drivers_closing ?? ov?.drivers_total) },
     }
     return (
@@ -145,7 +146,17 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
                     {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} bank={null} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                 </Box>
                 <Box className="bg-orange-500/5 border-orange-500/30">
-                    <Line strong tone="red" label={<span className="whitespace-nowrap" title={t("fin.kv2.non_trip_expenses")}>{t("fin.kv2.non_trip_short")}</span>} value={M.other.cash} bank={M.other.bank} {...lineProps("out_nontrip", "fin.kv2.non_trip_expenses")} />
+                    <Line strong tone="red" label={<span className="whitespace-nowrap" title={t("fin.kv2.non_trip_expenses")}>{t("fin.kv2.non_trip_short")}</span>} value={M.other.cash} bank={M.other.bank} {...lineProps("out_nontrip_own", "fin.kv2.non_trip_expenses")} />
+                </Box>
+                <Box className="bg-violet-500/5 border-violet-500/30">
+                    <Line
+                        strong
+                        tone="red"
+                        label={<span className="whitespace-nowrap" title={t("fin.kv2.kontragent_expenses_hint")}>{t("fin.kv2.kontragent_expenses")}</span>}
+                        value={M.kontragent.cash}
+                        bank={M.kontragent.bank}
+                        {...lineProps("out_kontragent", "fin.kv2.kontragent_expenses")}
+                    />
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
                     <Line strong label={t("fin.kv2.closing_balance")} value={M.closing.cash} bank={M.closing.bank} tone={M.closing.cash < 0 ? "red" : undefined} />

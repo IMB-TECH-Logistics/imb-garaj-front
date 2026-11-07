@@ -1644,7 +1644,9 @@
             "vst_repair_expense": "Ta'mir va texnik ko'rik",
             "transport_service": "Transport xizmati",
             "other_income": "Boshqa kirim",
-            "non_trip_short": "Reysdan tashqari"
+            "non_trip_short": "Reysdan tashqari",
+            "kontragent_expenses": "Kontragent hisobi",
+            "kontragent_expenses_hint": "Kontragent hisobidan xarajatlar — qarz bo'lib yoziladi, foydaga ta'sir qilmaydi"
         },
         "kv2_kind": {
             "avans": "Avans",
@@ -3336,7 +3338,8 @@
             "request": "Kassaga so'rov",
             "receipt": "Omborga kirim",
             "sale": "Ombordan sotuv",
-            "report": "Moliyaviy hisobotdan"
+            "report": "Moliyaviy hisobotdan",
+            "kassa_expense": "Kassa chiqimi (kontragent hisobidan)"
         },
         "cash": {
             "in_btn": "Pul oldik (kassaga)",
@@ -3429,7 +3432,7 @@
             "not_posted": "Hali kontragentlarga yozilmagan",
             "hint": "«Kontragentlarga yozish» har bir egaga 3 ta yozuv qo'shadi: ijara (+), ta'mir (−), dividend (+). Hisobot qayta hisoblansa, yozuvlar o'zi yangilanadi."
         },
-        "recoverable_note": "Egalardan undiriladigan ta'mir: {{amount}} so'm — ijaradan ushlanadi, kompaniya foydasini kamaytirmaydi",
+        "recoverable_note": "Kontragent hisobidan xarajat: {{amount}} so'm — qarz bo'lib yoziladi, kompaniya foydasini kamaytirmaydi",
         "rate": "Kurs: 1$ = {{rate}} so'm",
         "rate_source": "Markaziy bank",
         "rate_manual": "qo'lda",

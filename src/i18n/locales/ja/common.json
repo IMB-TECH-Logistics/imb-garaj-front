@@ -1648,7 +1648,9 @@
             "vst_repair_expense": "修理と車検",
             "transport_service": "輸送サービス",
             "other_income": "その他の収入",
-            "non_trip_short": "運行外"
+            "non_trip_short": "運行外",
+            "kontragent_expenses": "取引先負担",
+            "kontragent_expenses_hint": "取引先負担の支出 — 債務として記録、利益に影響しません"
         },
         "kv2_kind": {
             "avans": "前渡金",
@@ -3332,7 +3334,8 @@
             "request": "レジへの申請",
             "receipt": "倉庫入庫",
             "sale": "倉庫からの販売",
-            "report": "財務報告から"
+            "report": "財務報告から",
+            "kassa_expense": "レジ支出（取引先負担）"
         },
         "cash": {
             "in_btn": "入金（レジへ）",
@@ -3425,7 +3428,7 @@
             "not_posted": "まだ取引先に記帳されていません",
             "hint": "「取引先に記帳」は各オーナーに3件追加します: 賃料(+)、修理(−)、配当(+)。報告を再計算すると自動更新されます。"
         },
-        "recoverable_note": "オーナー負担の修理: {{amount}} — 賃料から控除、会社の利益を減らしません",
+        "recoverable_note": "取引先負担の支出: {{amount}} — 債務として記録、会社の利益を減らしません",
         "rate": "レート: $1 = {{rate}} UZS",
         "rate_source": "中央銀行",
         "rate_manual": "手動",

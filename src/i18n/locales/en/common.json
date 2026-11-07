@@ -1647,7 +1647,9 @@
             "vst_repair_expense": "Repairs and inspection",
             "transport_service": "Transport service",
             "other_income": "Other income",
-            "non_trip_short": "Non-trip"
+            "non_trip_short": "Non-trip",
+            "kontragent_expenses": "Counterparty",
+            "kontragent_expenses_hint": "Expenses on a counterparty's account — recorded as debt, do not affect profit"
         },
         "kv2_kind": {
             "avans": "Advance",
@@ -3339,7 +3341,8 @@
             "request": "Cash desk request",
             "receipt": "Warehouse receipt",
             "sale": "Warehouse sale",
-            "report": "From financial report"
+            "report": "From financial report",
+            "kassa_expense": "Cash expense (on counterparty account)"
         },
         "cash": {
             "in_btn": "Received money (to cash desk)",
@@ -3432,7 +3435,7 @@
             "not_posted": "Not posted to counterparties yet",
             "hint": "«Post to counterparties» adds 3 entries per owner: rent (+), repairs (−), dividend (+). Recalculating the report updates them automatically."
         },
-        "recoverable_note": "Repairs charged to owners: {{amount}} — deducted from rent, does not reduce company profit",
+        "recoverable_note": "Expenses on counterparty account: {{amount}} — recorded as debt, do not reduce company profit",
         "rate": "Rate: $1 = {{rate}} UZS",
         "rate_source": "Central Bank",
         "rate_manual": "manual",
