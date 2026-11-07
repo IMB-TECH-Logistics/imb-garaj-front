@@ -57,6 +57,7 @@ type Preview = {
     spent: number
     due: number
     carry_in?: number
+    carry_from?: { trip: number; start: string | null; end: string | null; amount: number }[]
     salary_default: number
     expenses: Expense[]
     salary_orders?: SalaryOrder[]
@@ -186,9 +187,14 @@ export default function KassaCloseSection({ tripId, onChange, tech, closeDate }:
     const carryOut = Math.abs(Math.round(net)) - settleNow
     const carryIn = Number(preview?.carry_in ?? 0)
     const carryAvans = carryIn > 0 ? carryIn : 0
+    const carrySrc = preview?.carry_from?.find((c) => Number(c.amount) > 0)
+    const dmy = (d: string | null) => (d ? d.slice(0, 10).split("-").reverse().join(".") : "…")
+    const carryLabel = carrySrc
+        ? `${t("trips.kclose.carry_in_avans")} · ${t("trips.kirim.carry_from_trip", { from: dmy(carrySrc.start), to: dmy(carrySrc.end) })}`
+        : t("trips.kclose.carry_in_avans")
     const advanceRows = useMemo<FlowRow[]>(() => carryAvans > 0
-        ? [{ id: 0, action: 2, amount: carryAvans, comment: t("trips.kclose.carry_in_avans"), created: "", loading_name: null, unloading_name: null, payment_type_name: null }, ...advances]
-        : advances, [advances, carryAvans, t])
+        ? [{ id: 0, action: 2, amount: carryAvans, comment: carryLabel, created: "", loading_name: null, unloading_name: null, payment_type_name: null }, ...advances]
+        : advances, [advances, carryAvans, carryLabel])
 
     useEffect(() => {
         onChange({

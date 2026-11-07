@@ -2788,6 +2788,7 @@
             "cash_expense": "現金支出",
             "fuel_transfer": "給油（銀行振込）",
             "fuel_in_tank": "タンク内の燃料",
+            "carry_from_trip": "{{from}} – {{to}} のターンから",
             "return_remainder": "残額を返却",
             "advances": "前払い",
             "advance_and_expenses": "前払いと、そこから支払った現金支出",

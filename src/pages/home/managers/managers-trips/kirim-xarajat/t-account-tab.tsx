@@ -241,6 +241,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const cashExpenseSum = sumOf(allExpenses.filter(isCashExpense))
     const { data: closePreview } = useGet<{
         due: number
+        carry_in?: number
+        carry_from?: { trip: number; start: string | null; end: string | null; amount: number }[]
         salary_orders?: { amount: number | null; tariff: number | null }[]
         empty_leg_salary?: { amount: number; legs: { id: number; route: string; start: string | null; amount: number }[] } | null
         extra_pay_salary?: { amount: number; orders: { order: number; route: string; date: string | null; comment: string | null; amount: number }[] } | null
@@ -271,6 +273,9 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 closePreview.salary_orders.reduce((a, r) => a + Number(r.amount ?? r.tariff ?? 0), 0)
             :   salarySum)
     :   null
+    const carryAvans = Math.max(Number(closePreview?.carry_in ?? 0), 0)
+    const carryFrom = (closePreview?.carry_from ?? []).filter((c) => Number(c.amount) > 0)
+    const dmy = (d: string | null) => (d ? d.slice(0, 10).split("-").reverse().join(".") : "…")
     const latestAdvanceId = [...incomeRows.filter((r) => r.action === ADVANCE_ACTION)]
         .sort((x, y) => String(y.created).localeCompare(String(x.created)))[0]?.id
     const expenseRows = expenseData?.results ?? []
@@ -346,7 +351,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                     <div className={cn("flex items-stretch gap-3 overflow-x-auto no-scrollbar", hideToggle && "flex-1")}>
                         {hideToggle ?
                             <>
-                                {access.avans.view && <SummaryCard label={t("trips.kclose.advance")} amountUzs={avansSum} variant="advance" active={filter === "avans"} onClick={() => setFilter("avans")} />}
+                                {access.avans.view && <SummaryCard label={t("trips.kclose.advance")} amountUzs={avansSum + carryAvans} variant="advance" active={filter === "avans"} onClick={() => setFilter("avans")} />}
                                 {access.tushum.view && <SummaryCard label={t("trips.kclose.cash_trip_money")} amountUzs={incomeUzs - avansSum} variant="income" active={filter === "tushum"} onClick={() => setFilter("tushum")} />}
                                 {access.xarajat.view && <SummaryCard label={t("trips.kirim.cash_expense")} amountUzs={cashExpenseSum} variant="expense" active={filter === "xarajat"} onClick={() => setFilter("xarajat")} />}
                                 {access.oylik.view && <SummaryCard label={t("trips.kclose.salary")} amountUzs={salarySum + salaryCardExtra} variant="expense" active={filter === "oylik"} onClick={() => setFilter("oylik")} />}
@@ -483,6 +488,15 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                             )}
                                         </div>
                                         <PendingAdvances tripId={tripId} />
+                                        {carryFrom.map((c) => (
+                                            <div key={c.trip} className="mb-3 flex items-center justify-between gap-3 rounded-md border border-blue-500/30 bg-blue-500/5 px-3 py-2 text-sm">
+                                                <span>
+                                                    {t("trips.kclose.carry_in_avans")}
+                                                    <span className="text-muted-foreground"> · {t("trips.kirim.carry_from_trip", { from: dmy(c.start), to: dmy(c.end) })}</span>
+                                                </span>
+                                                <span className="font-medium whitespace-nowrap tabular-nums">{formatMoney(Number(c.amount))}</span>
+                                            </div>
+                                        ))}
                                     </>
                                 }
                             />

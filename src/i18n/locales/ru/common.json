@@ -2800,6 +2800,7 @@
             "cash_expense": "Наличный расход",
             "fuel_transfer": "Заправка (перечисление)",
             "fuel_in_tank": "Топливо в баке",
+            "carry_from_trip": "из оборота {{from}} – {{to}}",
             "return_remainder": "Вернуть остаток",
             "advances": "Авансы",
             "advance_and_expenses": "Аванс и оплаченные из него наличные расходы",

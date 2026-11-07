@@ -2791,6 +2791,7 @@
             "cash_expense": "Naqd xarajat",
             "fuel_transfer": "Zapravka (pul o'tkazma)",
             "fuel_in_tank": "Bakdagi yoqilg'i",
+            "carry_from_trip": "{{from}} – {{to}} aylanmasidan",
             "return_remainder": "Qoldiqni qaytarish",
             "advances": "Avanslar",
             "advance_and_expenses": "Avans va undan qilingan naqd xarajatlar",

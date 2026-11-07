@@ -2782,6 +2782,7 @@
             "cash_expense": "Нақд харажат",
             "fuel_transfer": "Заправка (пул ўтказма)",
             "fuel_in_tank": "Бакдаги ёқилғи",
+            "carry_from_trip": "{{from}} – {{to}} айланмасидан",
             "return_remainder": "Қолдиқни қайтариш",
             "advances": "Аванслар",
             "advance_and_expenses": "Аванс ва ундан қилинган нақд харажатлар",

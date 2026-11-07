@@ -2794,6 +2794,7 @@
             "cash_expense": "Cash expense",
             "fuel_transfer": "Fuel (bank transfer)",
             "fuel_in_tank": "Fuel in tank",
+            "carry_from_trip": "from cycle {{from}} – {{to}}",
             "return_remainder": "Return remainder",
             "advances": "Advances",
             "advance_and_expenses": "Advance and cash expenses paid from it",
