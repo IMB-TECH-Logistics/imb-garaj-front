@@ -15,7 +15,9 @@ export const EditDeleteActions = ({ row, listUrl, fixedType }: { row: Kontragent
     const own = kontragentUrl(row.id)
     const onDeleted = () => {
         qc.removeQueries({ predicate: (q) => String(q.queryKey[0]).startsWith(own) })
+        qc.setQueriesData<Kontragent[]>({ queryKey: [KONTRAGENT] }, (old) => (Array.isArray(old) ? old.filter((k) => k.id !== row.id) : old))
         refresh()
+        qc.refetchQueries({ queryKey: [KONTRAGENT], type: "all" })
     }
     const { openModal: openEdit } = useModal(CONTRAGENT_EDIT)
     const { openModal: openDelete } = useModal(CONTRAGENT_DELETE)
