@@ -364,8 +364,13 @@ export function useTrackerHistory(imei: string | null) {
     const trips = useMemo(() => groupTrips(statusSegments), [statusSegments])
     useEffect(() => {
         if (!focusParam || !imei || !trips.length) return
-        if (trips.some((x) => x.key === focusParam)) setFocus({ kind: "trip", key: focusParam })
-        setFocusParam(null)
+        if (trips.some((x) => x.key === focusParam)) {
+            setFocus({ kind: "trip", key: focusParam })
+            setFocusParam(null)
+            return
+        }
+        const timer = setTimeout(() => setFocusParam(null), 20000)
+        return () => clearTimeout(timer)
     }, [focusParam, imei, trips, setFocusParam])
     const focusTrip = focus?.kind === "trip" ? trips.find((x) => x.key === focus.key) : undefined
     const span = useMemo(() => {
