@@ -100,6 +100,7 @@ export default function ManagerReys() {
 
     const cols = useColumnsManagersOrders({
         canEditPoints: canEditOrder,
+        vehicleId: trip?.vehicle,
         onLegPay: hasControl
             ? (leg) => {
                   setPayLeg(leg)

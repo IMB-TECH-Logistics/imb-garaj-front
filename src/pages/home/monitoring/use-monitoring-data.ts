@@ -9,7 +9,10 @@ import {
     VEHICLES,
 } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
+import { toast } from "sonner"
+import i18n from "@/i18n/i18n"
 import { useSearchParam } from "./use-monitoring-search"
 import { useGpsLiveSocket } from "./gps-socket"
 import type { ConnectionFilter, UnlinkedVehicle } from "./gps-list"
@@ -110,6 +113,27 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
     const polylineData = polyline.data
 
     const [trackerImei, setTrackerImei] = useSearchParam("imei")
+    const [gpsVehicle] = useSearchParam("gpsveh")
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (!gpsVehicle || !gpsLive.data) return
+        const match = gpsLive.data.find((g) => String(g.vehicle) === gpsVehicle)
+        if (!match) toast.error(i18n.t("mon.no_gps_for_vehicle"))
+        navigate({
+            replace: true,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            search: ((prev: any) => {
+                const out = { ...prev }
+                delete out.gpsveh
+                if (match) out.imei = match.imei
+                else {
+                    delete out.hdays
+                    delete out.hfocus
+                }
+                return out
+            }) as any,
+        })
+    }, [gpsVehicle, gpsLive.data, navigate])
     const [panelOpen, setPanelOpen] = useState(true)
     const history = useTrackerHistory(trackerImei)
     const lastOrders = useGet<VehicleLastOrders>(MONITORING_VEHICLE_LAST_ORDERS, {

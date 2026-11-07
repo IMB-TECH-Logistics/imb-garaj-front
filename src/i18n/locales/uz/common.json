@@ -1914,6 +1914,7 @@
         "show_stops": "To'xtashlarni ko'rsatish",
         "map_area": "Xaritadagi hudud",
         "plate_search": "Mashina raqami bo'yicha qidirish",
+        "no_gps_for_vehicle": "Bu mashinaga GPS ulanmagan",
         "order": "Buyurtma"
     },
     "settings": {
@@ -2611,6 +2612,7 @@
             "trip_locked": "Aylanma yopilgan, o'zgartirib bo'lmaydi",
             "logistics_locked": "Logistikadan kelgan reys, bu yerda tahrirlab bo'lmaydi",
             "no_location": "Lokatsiya kiritilmagan",
+            "open_on_monitoring": "Monitoringda ko'rish",
             "point_load": "Yuklash lokatsiyasi",
             "point_unload": "Tushirish lokatsiyasi",
             "point_hint": "Koordinatani kiriting: kenglik, uzunlik",

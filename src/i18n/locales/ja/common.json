@@ -1918,6 +1918,7 @@
         "show_stops": "停車を表示",
         "map_area": "地図上のエリア",
         "plate_search": "車両番号で検索",
+        "no_gps_for_vehicle": "この車両にGPSが接続されていません",
         "order": "注文"
     },
     "settings": {
@@ -2615,6 +2616,7 @@
             "trip_locked": "ターンは閉じられているため変更できません",
             "logistics_locked": "物流システムからの便のため、ここでは編集できません",
             "no_location": "場所が未指定です",
+            "open_on_monitoring": "モニタリングで表示",
             "point_load": "積込場所",
             "point_unload": "荷降ろし場所",
             "point_hint": "座標を入力: 緯度, 経度",

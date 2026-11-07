@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
-import { Banknote, Copy, ImageIcon, TriangleAlert } from "lucide-react"
+import { Banknote, Copy, ImageIcon, MapPin, TriangleAlert } from "lucide-react"
+import { Link } from "@tanstack/react-router"
 import { toast } from "sonner"
 import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
@@ -52,6 +53,7 @@ export const useColumnsManagersOrders = (opts?: {
     onExtraPay?: (target: ExtraPayTarget) => void
     locked?: boolean
     canEditPoints?: boolean
+    vehicleId?: number
 }) => {
     const { t } = useTranslation()
     const canEditPoints = !!opts?.canEditPoints
@@ -479,11 +481,40 @@ export const useColumnsManagersOrders = (opts?: {
                     )
                 },
             },
+            {
+                id: "gps",
+                header: "GPS",
+                size: 60,
+                cell: ({ row }) => {
+                    const r = row.original as any
+                    const vehicle = opts?.vehicleId ?? r.vehicle
+                    const start = startOf(row.original)
+                    if (r.__leg || r.__idle || r.__garage || !vehicle || !start) {
+                        return <span className="text-muted-foreground">—</span>
+                    }
+                    const from = tashkentDay(start)
+                    const to = tashkentDay(row.original.completed_time ?? Date.now())
+                    return (
+                        <Link
+                            to="/monitoring"
+                            search={{ gpsveh: vehicle, hdays: `${from}_${to >= from ? to : from}`, hfocus: `o${r.id}` } as any}
+                            title={t("trips.reys_cols.open_on_monitoring")}
+                            className="inline-flex text-primary transition-colors hover:text-primary/80"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <MapPin size={16} />
+                        </Link>
+                    )
+                },
+            },
             ]
         },
-        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, opts?.locked, canEditPoints, t, paymentTypesData],
+        [opts?.onImageClick, opts?.onLegPay, opts?.onExtraPay, opts?.locked, opts?.vehicleId, canEditPoints, t, paymentTypesData],
     )
 }
+
+const tashkentDay = (value: string | number) =>
+    new Date(new Date(value).getTime() + 5 * 3600 * 1000).toISOString().slice(0, 10)
 
 const legsOf = (r: ManagerOrders): EmptyLeg[] => {
     const row = r as any

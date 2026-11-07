@@ -1917,6 +1917,7 @@
         "show_stops": "Show stops",
         "map_area": "Map area",
         "plate_search": "Search by truck number",
+        "no_gps_for_vehicle": "No GPS linked to this truck",
         "order": "Order"
     },
     "settings": {
@@ -2614,6 +2615,7 @@
             "trip_locked": "Turnover is closed, cannot be changed",
             "logistics_locked": "Trip comes from logistics and cannot be edited here",
             "no_location": "Location not set",
+            "open_on_monitoring": "Open in monitoring",
             "point_load": "Loading location",
             "point_unload": "Unloading location",
             "point_hint": "Enter coordinates: latitude, longitude",

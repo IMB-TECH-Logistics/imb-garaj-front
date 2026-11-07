@@ -337,25 +337,36 @@ export function useTrackerHistory(imei: string | null) {
     const colorBy: ColorBy = COLOR_BY_OPTIONS.some((o) => o.value === colorParam) ? (colorParam as ColorBy) : "day"
     const setColorBy = useCallback((next: ColorBy) => setColorParam(next === "day" ? null : next), [setColorParam])
     const [focus, setFocus] = useState<Focus | null>(null)
+    const [focusParam, setFocusParam] = useSearchParam("hfocus")
+    const [pendingVehicle] = useSearchParam("gpsveh")
     const focusDay = focus?.kind === "day" ? focus.key : null
     const [statusSegments, setStatusSegments] = useState<ReplayStatus[]>([])
     const bySpeed = colorBy === "speed"
     const [showStops, setShowStops] = useState(true)
 
     useEffect(() => {
+        if (imei && initialisedFor !== imei && range && focusParam) {
+            setInitialisedFor(imei)
+            return
+        }
         if (imei && days.data?.length && initialisedFor !== imei) {
             const today = dayKey(Date.now())
             const initial = days.data.some((d) => d.date === today) ? today : days.data[0].date
             setRange({ from: initial, to: initial })
             setInitialisedFor(imei)
         }
-        if (!imei) {
+        if (!imei && !pendingVehicle) {
             setRange(null)
             setInitialisedFor(null)
         }
-    }, [imei, days.data, initialisedFor])
+    }, [imei, days.data, initialisedFor, range, focusParam, pendingVehicle])
 
     const trips = useMemo(() => groupTrips(statusSegments), [statusSegments])
+    useEffect(() => {
+        if (!focusParam || !imei || !trips.length) return
+        if (trips.some((x) => x.key === focusParam)) setFocus({ kind: "trip", key: focusParam })
+        setFocusParam(null)
+    }, [focusParam, imei, trips, setFocusParam])
     const focusTrip = focus?.kind === "trip" ? trips.find((x) => x.key === focus.key) : undefined
     const span = useMemo(() => {
         if (!range) return null
