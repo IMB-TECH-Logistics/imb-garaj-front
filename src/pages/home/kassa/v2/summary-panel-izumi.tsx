@@ -94,7 +94,7 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
         closing: { cash: kassaBalance + n(sm?.drivers_closing ?? ov?.drivers_total), bank: 0, kassa: kassaBalance, drivers: n(sm?.drivers_closing ?? ov?.drivers_total) },
     }
     return (
-        <Card className="xl:h-full min-h-0 overflow-hidden">
+        <Card className="lg:h-full min-h-0 overflow-hidden">
             <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
                 <KassaPeriodFilter />
 

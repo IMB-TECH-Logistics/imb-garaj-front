@@ -51,7 +51,7 @@ type SummaryPanelProps = {
 export const LegacySummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
     const { t } = useTranslation()
     return (
-        <Card className="xl:h-full min-h-0 overflow-hidden">
+        <Card className="lg:h-full min-h-0 overflow-hidden">
             <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
                 <KassaPeriodFilter />
 

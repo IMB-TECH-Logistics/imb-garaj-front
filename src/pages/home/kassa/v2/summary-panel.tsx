@@ -60,7 +60,7 @@ const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, 
     const byType = sm?.income_by_type
     const openSuppliers = () => navigate({ to: "/ombor", search: { section: "suppliers" } as never })
     return (
-        <Card className="xl:h-full min-h-0 overflow-hidden">
+        <Card className="lg:h-full min-h-0 overflow-hidden">
             <CardContent className="p-3 flex flex-col gap-3 h-full min-h-0 overflow-y-auto">
                 <KassaPeriodFilter />
 
