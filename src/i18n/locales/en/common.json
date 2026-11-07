@@ -1646,7 +1646,8 @@
             "vst_investor_income": "Investor/Loan",
             "vst_repair_expense": "Repairs and inspection",
             "transport_service": "Transport service",
-            "other_income": "Other income"
+            "other_income": "Other income",
+            "non_trip_short": "Non-trip"
         },
         "kv2_kind": {
             "avans": "Advance",

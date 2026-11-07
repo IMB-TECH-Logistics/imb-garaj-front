@@ -1652,7 +1652,8 @@
             "vst_investor_income": "Инвестор/Займ",
             "vst_repair_expense": "Ремонт и техосмотр",
             "transport_service": "Транспортные услуги",
-            "other_income": "Прочий приход"
+            "other_income": "Прочий приход",
+            "non_trip_short": "Вне рейсов"
         },
         "kv2_kind": {
             "avans": "Аванс",

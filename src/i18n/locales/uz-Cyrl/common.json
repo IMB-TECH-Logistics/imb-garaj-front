@@ -1641,7 +1641,8 @@
             "vst_investor_income": "Инвестор/Қарз",
             "vst_repair_expense": "Таъмир ва техник кўрик",
             "transport_service": "Транспорт хизмати",
-            "other_income": "Бошқа кирим"
+            "other_income": "Бошқа кирим",
+            "non_trip_short": "Рейсдан ташқари"
         },
         "kv2_kind": {
             "avans": "Аванс",

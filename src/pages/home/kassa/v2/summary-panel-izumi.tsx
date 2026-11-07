@@ -145,7 +145,7 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
                     {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} bank={null} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                 </Box>
                 <Box className="bg-orange-500/5 border-orange-500/30">
-                    <Line strong tone="red" label={t("fin.kv2.non_trip_expenses")} value={M.other.cash} bank={M.other.bank} {...lineProps("out_nontrip", "fin.kv2.non_trip_expenses")} />
+                    <Line strong tone="red" label={<span className="whitespace-nowrap" title={t("fin.kv2.non_trip_expenses")}>{t("fin.kv2.non_trip_short")}</span>} value={M.other.cash} bank={M.other.bank} {...lineProps("out_nontrip", "fin.kv2.non_trip_expenses")} />
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
                     <Line strong label={t("fin.kv2.closing_balance")} value={M.closing.cash} bank={M.closing.bank} tone={M.closing.cash < 0 ? "red" : undefined} />
