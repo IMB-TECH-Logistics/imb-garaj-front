@@ -3384,12 +3384,20 @@
             "profit": "Foyda",
             "management": "Boshqaruv xarajatlari",
             "tax": "Soliq",
-            "rent": "Ijara",
+            "rent": "Ijara to'lovi",
             "other": "Boshqa xarajatlar",
             "overhead": "Qo'shimcha xarajatlar",
-            "net": "Kompaniya sof foydasi",
+            "net": "Sof foyda",
             "company_vehicle_expense": "Mashina xarajatlari (kompaniya hisobidan)",
-            "vehicle_rent": "Mashina ijarasi"
+            "vehicle_rent": "Mashina ijarasi",
+            "other_expense": "Boshqa xarajat",
+            "other_kassa": "Kassadagi boshqa chiqimlar",
+            "tax_profit": "Daromad solig'i (firma)",
+            "tax_vat": "QQS",
+            "tax_payroll": "Ishchilar uchun soliq (YIT va daromad solig'i)",
+            "tax_other": "Boshqa soliq",
+            "management_kassa": "Kassadagi boshqaruv chiqimlari",
+            "rent_kassa": "Kassadagi ijara chiqimlari"
         },
         "by_vehicle": "Mashinalar bo'yicha",
         "by_vehicle_hint": "foyda bo'yicha saralangan",
@@ -3397,13 +3405,13 @@
         "trips": "Reyslar",
         "expense_total": "Xarajat",
         "income_short": "Tushum",
-        "overhead_hint": "Boshqaruv xarajatlari, soliq, ijara va boshqa xarajatlar kassadagi chiqimlardan olinadi: Sozlamalar → Kirim-chiqim turlari'da ofis chiqim turiga «Hisobotdagi qatori»ni belgilang va kassada shu tur bilan (mashinasiz) chiqim qiling. Keyin «Qayta hisoblash»ni bosing.",
+        "overhead_hint": "Soliq, boshqaruv, ijara va boshqa xarajatlar kassadagi chiqimlardan olinadi (Sozlamalar → Kirim-chiqim turlari → «Hisobotdagi qatori»). Boshqaruvga har mashina uchun belgilangan $, ijaraga mashinalarga biriktirilgan ijara (QQS bilan) qo'shiladi.",
         "overhead_empty": "Bu oyda shu qatorga tushadigan kassa chiqimi yo'q.",
         "report_line": "Moliyaviy hisobotdagi qatori",
         "line_none": "Hisobotga kirmaydi",
         "report_line_hint": "Shu tur bilan mashinasiz qilingan kassa chiqimlari moliyaviy hisobotda tanlangan qatorga tushadi.",
         "part": {
-            "head": "Golova",
+            "head": "Tyagach",
             "trailer": "Tirkama"
         },
         "rent_card": {
@@ -3416,7 +3424,10 @@
             "part": "Qismi",
             "add": "Biriktirish",
             "add_title": "{{name}}: mashina biriktirish",
-            "monthly_usd": "Oylik ijara, $"
+            "monthly_usd": "Oylik ijara, $",
+            "since": "Qaysi oydan",
+            "vat_percent": "QQS, %",
+            "since_label": "{{date}} dan"
         },
         "owners": {
             "title": "Mashina egalari bo'yicha",
@@ -3438,6 +3449,32 @@
         "rate_manual": "qo'lda",
         "rate_missing": "Dollar kursini olib bo'lmadi — ijarani hisoblash uchun kursni kiriting",
         "for_trailer": "Tirkama uchun",
-        "for_trailer_hint": "Bu tur bilan yozilgan ta'mir tirkama egasiga tushadi (belgilanmasa — golova egasiga)."
+        "for_trailer_hint": "Bu tur bilan yozilgan ta'mir tirkama egasiga tushadi (belgilanmasa — golova egasiga).",
+        "status": {
+            "draft": "Tasdiqlanmagan",
+            "approved": "Tasdiqlangan"
+        },
+        "fleet": "{{count}} mashina",
+        "no_rent": "Bu oyda ijara yo'q",
+        "vat": "QQS",
+        "dist": {
+            "title": "Sof foyda taqsimoti",
+            "draft_hint": "Ulushlarni tekshiring va tasdiqlang. Tasdiqlangach foyda ulushi va ijara kontragentlarga yoziladi.",
+            "approved_at": "Tasdiqlangan: {{date}} · {{name}}",
+            "approve": "Tasdiqlash",
+            "unapprove": "Tasdiqni bekor qilish",
+            "approved_ok": "Tasdiqlandi, kontragentlarga yozildi",
+            "unapproved_ok": "Tasdiq bekor qilindi, kontragent yozuvlari olib tashlandi",
+            "who": "Kimga",
+            "pct": "Ulush",
+            "profit_share": "Foyda ulushi",
+            "rent": "Ijara",
+            "to_kontragent": "Kontragentga",
+            "firm": "Firmada qoladi",
+            "total": "Jami",
+            "must_100": "Ulushlar jami 100% bo'lishi kerak.",
+            "no_profit": "Bu oyda sof foyda yo'q — ulush hisoblanmaydi.",
+            "hint": "Ta'sischining foyda ulushi va ijarasi (QQS bilan) uning kontragentiga «biz qarzdormiz» bo'lib qo'shiladi; firmadagi ulush firmada qoladi."
+        }
     }
 }

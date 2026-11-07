@@ -3383,9 +3383,17 @@
             "rent": "賃料",
             "other": "その他の費用",
             "overhead": "追加費用",
-            "net": "会社の純利益",
+            "net": "純利益",
             "company_vehicle_expense": "車両費用(会社負担)",
-            "vehicle_rent": "車両賃料"
+            "vehicle_rent": "車両賃料",
+            "other_expense": "その他の費用",
+            "other_kassa": "レジのその他支出",
+            "tax_profit": "法人所得税",
+            "tax_vat": "付加価値税",
+            "tax_payroll": "従業員の税金（個人所得税等）",
+            "tax_other": "その他の税金",
+            "management_kassa": "レジの管理費",
+            "rent_kassa": "レジの賃料"
         },
         "by_vehicle": "車両別",
         "by_vehicle_hint": "利益順",
@@ -3393,7 +3401,7 @@
         "trips": "ターン",
         "expense_total": "費用",
         "income_short": "収入",
-        "overhead_hint": "管理費、税金、賃料、その他の費用はレジの支出から取得されます。設定 → 収支タイプでオフィス支出タイプに「財務報告の行」を設定し、そのタイプで(車両なしで)支出を記録してください。その後「再計算」を押します。",
+        "overhead_hint": "税金・管理費・賃料・その他はレジの支出から取得されます。管理費には車両ごとの$、賃料には車両の賃料（VAT込み）が加わります。",
         "overhead_empty": "今月この行に該当するレジ支出はありません。",
         "report_line": "財務報告の行",
         "line_none": "報告に含めない",
@@ -3412,7 +3420,10 @@
             "part": "部分",
             "add": "割り当て",
             "add_title": "{{name}}: 車両の割り当て",
-            "monthly_usd": "月額賃料、$"
+            "monthly_usd": "月額賃料、$",
+            "since": "開始月",
+            "vat_percent": "VAT, %",
+            "since_label": "{{date}} から"
         },
         "owners": {
             "title": "車両オーナー別",
@@ -3434,6 +3445,32 @@
         "rate_manual": "手動",
         "rate_missing": "ドル相場を取得できません — 賃料計算のため入力してください",
         "for_trailer": "トレーラー用",
-        "for_trailer_hint": "このタイプの修理はトレーラーのオーナーに計上されます(未設定ならトラクターのオーナー)。"
+        "for_trailer_hint": "このタイプの修理はトレーラーのオーナーに計上されます(未設定ならトラクターのオーナー)。",
+        "status": {
+            "draft": "未承認",
+            "approved": "承認済み"
+        },
+        "fleet": "{{count}} 台",
+        "no_rent": "今月の賃料はありません",
+        "vat": "VAT",
+        "dist": {
+            "title": "純利益の配分",
+            "draft_hint": "配分を確認して承認してください。承認すると配当と賃料が取引先に記帳されます。",
+            "approved_at": "承認: {{date}} · {{name}}",
+            "approve": "承認",
+            "unapprove": "承認を取り消す",
+            "approved_ok": "承認し、取引先に記帳しました",
+            "unapproved_ok": "承認を取り消し、取引先の記帳を削除しました",
+            "who": "配分先",
+            "pct": "割合",
+            "profit_share": "利益配分",
+            "rent": "賃料",
+            "to_kontragent": "取引先へ",
+            "firm": "会社に残す",
+            "total": "合計",
+            "must_100": "割合の合計は100%である必要があります。",
+            "no_profit": "今月は純利益がありません。",
+            "hint": "出資者の利益配分と賃料（VAT込み）は取引先に「当社の債務」として加算されます。会社の分は会社に残ります。"
+        }
     }
 }

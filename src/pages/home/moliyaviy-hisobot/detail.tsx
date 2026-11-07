@@ -1,8 +1,10 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import FormTextarea from "@/components/form/textarea"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
+import { Input } from "@/components/ui/input"
 import { useHasAction } from "@/constants/useUser"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useGet } from "@/hooks/useGet"
@@ -10,7 +12,7 @@ import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { cn } from "@/lib/utils"
-import { num, onApiError } from "@/pages/home/kontragent/api"
+import { amountText, num, onApiError } from "@/pages/home/kontragent/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
@@ -29,16 +31,18 @@ import { toast } from "sonner"
 import {
     MONTHLY_REPORTS,
     MonthlyReport,
-    OVERHEAD_KEYS,
     OverheadItem,
     OverheadKey,
     REPORT_DELETE,
     VehicleRow,
     reportUrl,
 } from "./api"
+import { DistributionCard } from "./distribution-card"
 import { Money } from "./index"
-import { OwnersCard } from "./owners-card"
 import { RateEditor } from "./rate-editor"
+
+const usd = (v: string | number) =>
+    `$${Math.round(num(v)).toLocaleString("ru-RU").replace(/ /g, " ")}`
 
 const Line = ({
     label,
@@ -46,6 +50,7 @@ const Line = ({
     strong,
     tone,
     indent,
+    sub,
     onClick,
     open,
 }: {
@@ -54,6 +59,7 @@ const Line = ({
     strong?: boolean
     tone?: "head" | "total"
     indent?: boolean
+    sub?: boolean
     onClick?: () => void
     open?: boolean
 }) => {
@@ -63,7 +69,8 @@ const Line = ({
             type={onClick ? "button" : undefined}
             onClick={onClick}
             className={cn(
-                "flex w-full items-center justify-between gap-4 px-4 py-2.5 border-b last:border-b-0 text-left",
+                "flex w-full items-center justify-between gap-4 px-4 border-b last:border-b-0 text-left",
+                sub ? "py-1.5 bg-muted/10 text-xs" : "py-2.5",
                 tone === "head" && "bg-muted/40",
                 tone === "total" && "bg-green-500/10",
                 onClick && "hover:bg-muted/30 transition-colors",
@@ -71,8 +78,10 @@ const Line = ({
         >
             <span
                 className={cn(
-                    "flex items-center gap-1.5 text-sm",
+                    "flex items-center gap-1.5",
+                    !sub && "text-sm",
                     indent && "pl-4 text-muted-foreground",
+                    sub && "pl-8 text-muted-foreground",
                     strong && "font-semibold text-foreground",
                 )}
             >
@@ -91,11 +100,11 @@ const Line = ({
     )
 }
 
-const OverheadList = ({ items }: { items: OverheadItem[] }) => {
+const Items = ({ items }: { items: OverheadItem[] }) => {
     const { t } = useTranslation()
     if (!items.length)
         return (
-            <p className="px-8 py-2 text-xs text-muted-foreground border-b">
+            <p className="pl-12 pr-4 py-1.5 text-xs text-muted-foreground border-b">
                 {t("fin_report.overhead_empty")}
             </p>
         )
@@ -104,7 +113,7 @@ const OverheadList = ({ items }: { items: OverheadItem[] }) => {
             {items.map((i) => (
                 <div
                     key={i.id}
-                    className="flex items-center justify-between gap-3 px-8 py-1.5 text-xs"
+                    className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs"
                 >
                     <span className="min-w-0 truncate text-muted-foreground">
                         {format(new Date(i.date), "dd.MM.yyyy")} · {i.category}
@@ -203,6 +212,8 @@ const VehiclesCard = ({ id, stamp }: { id: number; stamp?: string | null }) => {
     )
 }
 
+type Section = "other" | "tax" | "management" | "rent"
+
 const FinanceReportDetail = ({ id }: { id: number }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
@@ -213,16 +224,22 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
         reportUrl(id, "overhead"),
         { params: { at: r?.computed_at ?? undefined }, enabled: !!r },
     )
-    const [openLine, setOpenLine] = useState<OverheadKey | null>(null)
+    const [open, setOpen] = useState<Section | null>(null)
+    const toggle = (s: Section) => () => setOpen(open === s ? null : s)
     const { openModal: openDelete } = useModal(REPORT_DELETE)
     const refresh = () =>
         qc.invalidateQueries({
-            predicate: (q) => String(q.queryKey[0]).startsWith(MONTHLY_REPORTS),
+            predicate: (q) => String(q.queryKey[0]).startsWith("kontragent"),
         })
     const excel = useDownloadAsExcel({
         url: reportUrl(id, "excel"),
         name: r ? `moliyaviy_hisobot_${r.month}` : "moliyaviy_hisobot",
     })
+    const [feeUsd, setFeeUsd] = useState("")
+    useEffect(
+        () => setFeeUsd(r ? String(num(r.management_fee_usd)) : ""),
+        [r?.management_fee_usd],
+    )
 
     const form = useForm<{ comment: string }>({
         defaultValues: { comment: "" },
@@ -253,7 +270,12 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
             </p>
         )
 
-    const noOverhead = num(r.overhead) === 0
+    const draft = r.status === "draft"
+    const editable = canEdit && draft
+    const byLine = (k: OverheadKey) => overheadItems.filter((i) => i.line === k)
+    const rentVehicles = r.owners.flatMap((o) =>
+        o.vehicles.map((v) => ({ ...v, owner: o.name })),
+    )
 
     return (
         <div className="flex flex-col gap-4">
@@ -268,9 +290,23 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                         <ArrowLeft className="w-4 h-4" />
                     </Button>
                     <div className="flex flex-col">
-                        <h1 className="text-xl font-semibold">
-                            {r.month_label}
-                        </h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-xl font-semibold">
+                                {r.month_label}
+                            </h1>
+                            <Badge
+                                variant="outline"
+                                className={cn(
+                                    draft ?
+                                        "border-amber-500/40 text-amber-600"
+                                    :   "border-green-600/40 text-green-600",
+                                )}
+                            >
+                                {draft ?
+                                    t("fin_report.status.draft")
+                                :   t("fin_report.status.approved")}
+                            </Badge>
+                        </div>
                         <span className="text-xs text-muted-foreground">
                             {t("fin_report.counts", {
                                 trips: r.trip_count,
@@ -283,7 +319,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    {canEdit && (
+                    {editable && (
                         <Button
                             variant="outline"
                             onClick={() =>
@@ -302,7 +338,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                         <Download className="w-4 h-4" />
                         {t("fin_report.download")}
                     </Button>
-                    {canEdit && (
+                    {editable && (
                         <Button
                             variant="outline"
                             size="icon"
@@ -316,7 +352,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                 </div>
             </div>
 
-            {(r.owners?.length > 0 || r.usd_rate) && <RateEditor report={r} />}
+            {(r.fleet > 0 || !!r.usd_rate) && <RateEditor report={r} />}
 
             {r.unpriced_count > 0 && (
                 <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
@@ -339,64 +375,207 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 value={-num(r.trip_expense)}
                                 indent
                             />
+
                             <Line
-                                label={t("fin_report.lines.trip_profit")}
-                                value={num(r.trip_profit)}
-                                strong
-                                tone="head"
-                            />
-                            <Line
-                                label={t(
-                                    "fin_report.lines.company_vehicle_expense",
-                                )}
-                                value={-num(r.company_vehicle_expense)}
+                                label={t("fin_report.lines.other_expense")}
+                                value={-num(r.other_expense)}
                                 indent
+                                open={open === "other"}
+                                onClick={toggle("other")}
                             />
-                            {num(r.recoverable) > 0 && (
-                                <p className="px-8 py-1.5 text-xs text-muted-foreground border-b">
-                                    {t("fin_report.recoverable_note", {
-                                        amount: num(r.recoverable)
-                                            .toLocaleString("ru-RU")
-                                            .replace(/\u00a0/g, " "),
-                                    })}
-                                </p>
+                            {open === "other" && (
+                                <>
+                                    <Line
+                                        sub
+                                        label={t(
+                                            "fin_report.lines.company_vehicle_expense",
+                                        )}
+                                        value={-num(r.company_vehicle_expense)}
+                                    />
+                                    {num(r.recoverable) > 0 && (
+                                        <p className="pl-12 pr-4 py-1 text-xs text-muted-foreground border-b">
+                                            {t("fin_report.recoverable_note", {
+                                                amount: amountText(
+                                                    r.recoverable,
+                                                ),
+                                            })}
+                                        </p>
+                                    )}
+                                    <Line
+                                        sub
+                                        label={t(
+                                            "fin_report.lines.other_kassa",
+                                        )}
+                                        value={-num(r.other)}
+                                    />
+                                    <Items items={byLine("other")} />
+                                </>
                             )}
+
                             <Line
                                 label={t("fin_report.lines.profit")}
                                 value={num(r.profit)}
                                 strong
                                 tone="head"
                             />
-                            {(num(r.vehicle_rent) > 0 ||
-                                r.owners?.length > 0) && (
-                                <Line
-                                    label={t("fin_report.lines.vehicle_rent")}
-                                    value={-num(r.vehicle_rent)}
-                                    indent
-                                />
-                            )}
-                            {OVERHEAD_KEYS.map((k) => (
-                                <div key={k}>
-                                    <Line
-                                        label={t(`fin_report.lines.${k}`)}
-                                        value={-num(r[k])}
-                                        indent
-                                        open={openLine === k}
-                                        onClick={() =>
-                                            setOpenLine(
-                                                openLine === k ? null : k,
-                                            )
-                                        }
-                                    />
-                                    {openLine === k && (
-                                        <OverheadList
-                                            items={overheadItems.filter(
-                                                (i) => i.line === k,
-                                            )}
-                                        />
+
+                            <Line
+                                label={t("fin_report.lines.tax")}
+                                value={-num(r.tax_total)}
+                                indent
+                                open={open === "tax"}
+                                onClick={toggle("tax")}
+                            />
+                            {open === "tax" && (
+                                <>
+                                    {(
+                                        [
+                                            "tax_profit",
+                                            "tax_vat",
+                                            "tax_payroll",
+                                        ] as const
+                                    ).map((k) => (
+                                        <div key={k}>
+                                            <Line
+                                                sub
+                                                label={t(
+                                                    `fin_report.lines.${k}`,
+                                                )}
+                                                value={-num(r[k])}
+                                            />
+                                            <Items items={byLine(k)} />
+                                        </div>
+                                    ))}
+                                    {num(r.tax) !== 0 && (
+                                        <>
+                                            <Line
+                                                sub
+                                                label={t(
+                                                    "fin_report.lines.tax_other",
+                                                )}
+                                                value={-num(r.tax)}
+                                            />
+                                            <Items items={byLine("tax")} />
+                                        </>
                                     )}
-                                </div>
-                            ))}
+                                </>
+                            )}
+
+                            <Line
+                                label={t("fin_report.lines.management")}
+                                value={-num(r.management_total)}
+                                indent
+                                open={open === "management"}
+                                onClick={toggle("management")}
+                            />
+                            {open === "management" && (
+                                <>
+                                    <div className="flex items-center justify-between gap-3 pl-12 pr-4 py-1.5 text-xs border-b bg-muted/10">
+                                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                                            {editable ?
+                                                <>
+                                                    $
+                                                    <Input
+                                                        className="h-7 w-20 text-right text-xs"
+                                                        type="number"
+                                                        min={0}
+                                                        value={feeUsd}
+                                                        onChange={(e) =>
+                                                            setFeeUsd(
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                    />
+                                                    {num(feeUsd) !==
+                                                        num(
+                                                            r.management_fee_usd,
+                                                        ) && (
+                                                        <Button
+                                                            size="sm"
+                                                            className="h-7 px-2 text-xs"
+                                                            loading={saving}
+                                                            onClick={() =>
+                                                                save(
+                                                                    reportUrl(
+                                                                        id,
+                                                                    ),
+                                                                    {
+                                                                        management_fee_usd:
+                                                                            num(
+                                                                                feeUsd,
+                                                                            ),
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            {t("actions.save")}
+                                                        </Button>
+                                                    )}
+                                                </>
+                                            :   usd(r.management_fee_usd)}
+                                            ×{" "}
+                                            {t("fin_report.fleet", {
+                                                count: r.fleet,
+                                            })}
+                                        </span>
+                                        <Money value={-num(r.management_fee)} />
+                                    </div>
+                                    <Line
+                                        sub
+                                        label={t(
+                                            "fin_report.lines.management_kassa",
+                                        )}
+                                        value={-num(r.management)}
+                                    />
+                                    <Items items={byLine("management")} />
+                                </>
+                            )}
+
+                            <Line
+                                label={t("fin_report.lines.rent")}
+                                value={-num(r.rent_total)}
+                                indent
+                                open={open === "rent"}
+                                onClick={toggle("rent")}
+                            />
+                            {open === "rent" && (
+                                <>
+                                    {rentVehicles.length === 0 && (
+                                        <p className="pl-12 pr-4 py-1.5 text-xs text-muted-foreground border-b">
+                                            {t("fin_report.no_rent")}
+                                        </p>
+                                    )}
+                                    {rentVehicles.map((v) => (
+                                        <div
+                                            key={`${v.vehicle}-${v.part}`}
+                                            className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs border-b bg-muted/10"
+                                        >
+                                            <span className="min-w-0 truncate text-muted-foreground">
+                                                {v.plate} ·{" "}
+                                                {t(`fin_report.part.${v.part}`)}{" "}
+                                                · {usd(v.rent_usd)} +{" "}
+                                                {num(v.vat_percent)}%{" "}
+                                                {t("fin_report.vat")} →{" "}
+                                                {v.owner}
+                                            </span>
+                                            <Money value={-num(v.rent)} />
+                                        </div>
+                                    ))}
+                                    {num(r.rent) !== 0 && (
+                                        <>
+                                            <Line
+                                                sub
+                                                label={t(
+                                                    "fin_report.lines.rent_kassa",
+                                                )}
+                                                value={-num(r.rent)}
+                                            />
+                                            <Items items={byLine("rent")} />
+                                        </>
+                                    )}
+                                </>
+                            )}
+
                             <Line
                                 label={t("fin_report.lines.net")}
                                 value={num(r.net)}
@@ -406,14 +585,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                         </CardContent>
                     </Card>
 
-                    <p
-                        className={cn(
-                            "text-xs",
-                            noOverhead ?
-                                "rounded-md border border-blue-500/30 bg-blue-500/5 px-3 py-2 text-blue-700 dark:text-blue-300"
-                            :   "text-muted-foreground",
-                        )}
-                    >
+                    <p className="text-xs text-muted-foreground">
                         {t("fin_report.overhead_hint")}
                     </p>
 
@@ -447,7 +619,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                     :   null}
                 </div>
                 <div className="flex flex-col gap-4 min-w-0">
-                    <OwnersCard report={r} />
+                    <DistributionCard report={r} />
                     <VehiclesCard id={id} stamp={r.computed_at} />
                 </div>
             </div>

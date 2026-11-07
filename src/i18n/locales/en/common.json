@@ -3386,13 +3386,21 @@
             "vehicle_expense": "Non-trip expenses",
             "profit": "Profit",
             "management": "Management costs",
-            "tax": "Tax",
+            "tax": "Taxes",
             "rent": "Rent",
             "other": "Other costs",
             "overhead": "Overhead",
-            "net": "Company net profit",
+            "net": "Net profit",
             "company_vehicle_expense": "Vehicle expenses (company-paid)",
-            "vehicle_rent": "Vehicle rent"
+            "vehicle_rent": "Vehicle rent",
+            "other_expense": "Other expenses",
+            "other_kassa": "Other cash expenses",
+            "tax_profit": "Corporate income tax",
+            "tax_vat": "VAT",
+            "tax_payroll": "Payroll taxes",
+            "tax_other": "Other taxes",
+            "management_kassa": "Management cash expenses",
+            "rent_kassa": "Rent cash expenses"
         },
         "by_vehicle": "By vehicle",
         "by_vehicle_hint": "sorted by profit",
@@ -3400,7 +3408,7 @@
         "trips": "Cycles",
         "expense_total": "Expenses",
         "income_short": "Revenue",
-        "overhead_hint": "Management costs, tax, rent and other costs come from cash-desk expenses: in Settings → Income/expense types set the «Financial report line» on an office expense type and record the expense in the cash desk with that type (no vehicle). Then press Recalculate.",
+        "overhead_hint": "Taxes, management, rent and other costs come from cash expenses (Settings → Types → «Report line»). Management also includes $ per vehicle, rent includes vehicle rent (with VAT).",
         "overhead_empty": "No cash-desk expenses for this line this month.",
         "report_line": "Financial report line",
         "line_none": "Not in report",
@@ -3419,7 +3427,10 @@
             "part": "Part",
             "add": "Assign",
             "add_title": "{{name}}: assign vehicle",
-            "monthly_usd": "Monthly rent, $"
+            "monthly_usd": "Monthly rent, $",
+            "since": "From month",
+            "vat_percent": "VAT, %",
+            "since_label": "from {{date}}"
         },
         "owners": {
             "title": "By vehicle owner",
@@ -3441,6 +3452,32 @@
         "rate_manual": "manual",
         "rate_missing": "Could not get the dollar rate — enter it to calculate rent",
         "for_trailer": "For trailer",
-        "for_trailer_hint": "Repairs of this type go to the trailer owner (otherwise to the tractor owner)."
+        "for_trailer_hint": "Repairs of this type go to the trailer owner (otherwise to the tractor owner).",
+        "status": {
+            "draft": "Not approved",
+            "approved": "Approved"
+        },
+        "fleet": "{{count}} vehicles",
+        "no_rent": "No rent this month",
+        "vat": "VAT",
+        "dist": {
+            "title": "Net profit distribution",
+            "draft_hint": "Check the shares and approve. On approval, profit shares and rent are posted to counterparties.",
+            "approved_at": "Approved: {{date}} · {{name}}",
+            "approve": "Approve",
+            "unapprove": "Cancel approval",
+            "approved_ok": "Approved and posted to counterparties",
+            "unapproved_ok": "Approval cancelled, counterparty entries removed",
+            "who": "To",
+            "pct": "Share",
+            "profit_share": "Profit share",
+            "rent": "Rent",
+            "to_kontragent": "To counterparty",
+            "firm": "Stays in company",
+            "total": "Total",
+            "must_100": "Shares must add up to 100%.",
+            "no_profit": "No net profit this month — no shares.",
+            "hint": "A founder's profit share and rent (with VAT) are added to their counterparty as «we owe»; the company share stays in the company."
+        }
     }
 }

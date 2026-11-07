@@ -30,6 +30,8 @@ type VehicleRent = {
     kontragent: number
     kontragent_name: string
     monthly_usd: string
+    vat_percent: string
+    since: string | null
 }
 
 type VehicleOption = { id: number; truck_number: string }
@@ -60,8 +62,16 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
         vehicle: number | ""
         part: "head" | "trailer"
         monthly_usd: number | ""
+        vat_percent: number | ""
+        since: string
     }>({
-        defaultValues: { vehicle: "", part: "head", monthly_usd: "" },
+        defaultValues: {
+            vehicle: "",
+            part: "head",
+            monthly_usd: "",
+            vat_percent: 12,
+            since: "",
+        },
     })
     const { mutate: add, isPending } = usePost({
         onSuccess: () => {
@@ -81,6 +91,8 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                     part: v.part,
                     kontragent: kontragentId,
                     monthly_usd: num(v.monthly_usd),
+                    vat_percent: num(v.vat_percent),
+                    since: v.since ? `${v.since}-01` : null,
                 }),
             )}
         >
@@ -124,6 +136,19 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                         Number(v) > 0 || t("investors.errors.gt_zero"),
                 }}
             />
+            <div className="grid grid-cols-2 gap-3">
+                <FormNumberInput
+                    control={form.control}
+                    name="vat_percent"
+                    label={t("fin_report.rent_card.vat_percent")}
+                    decimalScale={2}
+                    allowNegative={false}
+                />
+                <label className="flex flex-col gap-1.5 text-sm font-medium">
+                    {t("fin_report.rent_card.since")}
+                    <Input type="month" {...form.register("since")} />
+                </label>
+            </div>
             <div className="flex justify-end gap-2 pt-1">
                 <Button
                     type="button"
@@ -235,8 +260,27 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                             </span>
                             <span className="flex items-center gap-2">
                                 <span className="tabular-nums">
-                                    {usd(r.monthly_usd)} /{" "}
-                                    {t("fin_report.rent_card.month")}
+                                    {usd(r.monthly_usd)}
+                                    {num(r.vat_percent) ?
+                                        ` + ${num(r.vat_percent)}% ${t("fin_report.vat")}`
+                                    :   ""}{" "}
+                                    / {t("fin_report.rent_card.month")}
+                                    {r.since && (
+                                        <span className="text-muted-foreground">
+                                            {" "}
+                                            ·{" "}
+                                            {t(
+                                                "fin_report.rent_card.since_label",
+                                                {
+                                                    date: r.since
+                                                        .slice(0, 7)
+                                                        .split("-")
+                                                        .reverse()
+                                                        .join("."),
+                                                },
+                                            )}
+                                        </span>
+                                    )}
                                 </span>
                                 {canEdit && (
                                     <Button
