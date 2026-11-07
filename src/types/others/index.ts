@@ -24,6 +24,7 @@ type User = {
     kassa_started_at?: string | null
     kassa_version?: number
     investor_version?: number
+    kontragent_enabled?: boolean
     kassa_ui?: string
     uuid?: string
     full_name?: string

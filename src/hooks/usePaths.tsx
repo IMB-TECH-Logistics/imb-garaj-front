@@ -275,6 +275,7 @@ export const useItems = () => {
     const { data: me } = useUser()
     const kassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
     const investorsV1 = me?.investor_version === 1 || import.meta.env.VITE_INVESTORS_V1 === "1"
+    const kontragentOn = investorsV1 || !!me?.kontragent_enabled
     return useMemo<MenuItem[]>(
         () => [
             {
@@ -338,6 +339,10 @@ export const useItems = () => {
                         path: "/investor-royxati",
                         allowKey: "investor_view",
                     },
+                ]
+            :   []),
+            ...(kontragentOn ?
+                [
                     {
                         label: t("nav.contragents"),
                         icon: <Contact width={18} />,
@@ -495,6 +500,6 @@ export const useItems = () => {
                 ],
             },
         ],
-        [t, kassaV2, investorsV1],
+        [t, kassaV2, investorsV1, kontragentOn],
     )
 }
