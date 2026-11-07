@@ -3378,6 +3378,12 @@
             "other": "Boshqa xarajatlar",
             "overhead": "Qo'shimcha xarajatlar",
             "net": "Kompaniya sof foydasi"
-        }
+        },
+        "by_vehicle": "Mashinalar bo'yicha",
+        "by_vehicle_hint": "foyda bo'yicha saralangan",
+        "vehicle": "Mashina",
+        "trips": "Reyslar",
+        "expense_total": "Xarajat",
+        "income_short": "Tushum"
     }
 }

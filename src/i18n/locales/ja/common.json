@@ -3374,6 +3374,12 @@
             "other": "その他の費用",
             "overhead": "追加費用",
             "net": "会社の純利益"
-        }
+        },
+        "by_vehicle": "車両別",
+        "by_vehicle_hint": "利益順",
+        "vehicle": "車両",
+        "trips": "ターン",
+        "expense_total": "費用",
+        "income_short": "収入"
     }
 }

@@ -1,5 +1,6 @@
 export const MONTHLY_REPORTS = "kontragent/monthly-reports"
-export const reportUrl = (id: number, tail = "") => `${MONTHLY_REPORTS}/${id}${tail ? `/${tail}` : ""}`
+export const reportUrl = (id: number, tail = "") =>
+    `${MONTHLY_REPORTS}/${id}${tail ? `/${tail}` : ""}`
 export const REPORT_CREATE = "fin-report-create"
 export const REPORT_DELETE = "fin-report-delete"
 
@@ -26,6 +27,18 @@ export type MonthlyReport = {
     created: string
     updated: string
     created_by_name: string | null
+}
+
+export type VehicleRow = {
+    id?: number
+    truck_number: string
+    trip_count: number
+    order_count: number
+    income: string
+    trip_expense: string
+    trip_profit: string
+    vehicle_expense: string
+    net: string
 }
 
 export const MANUAL_KEYS = ["management", "tax", "rent", "other"] as const

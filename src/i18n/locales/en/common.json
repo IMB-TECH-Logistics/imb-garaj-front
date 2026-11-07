@@ -3381,6 +3381,12 @@
             "other": "Other costs",
             "overhead": "Overhead",
             "net": "Company net profit"
-        }
+        },
+        "by_vehicle": "By vehicle",
+        "by_vehicle_hint": "sorted by profit",
+        "vehicle": "Vehicle",
+        "trips": "Cycles",
+        "expense_total": "Expenses",
+        "income_short": "Revenue"
     }
 }
