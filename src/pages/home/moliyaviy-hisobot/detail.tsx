@@ -1,5 +1,4 @@
 import DeleteModal from "@/components/custom/delete-modal"
-import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,23 +15,28 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { ArrowLeft, Download, RefreshCw, Trash2 } from "lucide-react"
-import { ReactNode, useEffect, useMemo } from "react"
+import {
+    ArrowLeft,
+    ChevronDown,
+    Download,
+    RefreshCw,
+    Trash2,
+} from "lucide-react"
+import { ReactNode, useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import {
-    MANUAL_KEYS,
     MONTHLY_REPORTS,
-    ManualKey,
     MonthlyReport,
+    OVERHEAD_KEYS,
+    OverheadItem,
+    OverheadKey,
     REPORT_DELETE,
     VehicleRow,
     reportUrl,
 } from "./api"
 import { Money } from "./index"
-
-type FormValues = Record<ManualKey, number | ""> & { comment: string }
 
 const Line = ({
     label,
@@ -40,34 +44,76 @@ const Line = ({
     strong,
     tone,
     indent,
-    children,
+    onClick,
+    open,
 }: {
     label: ReactNode
-    value?: number
+    value: number
     strong?: boolean
     tone?: "head" | "total"
     indent?: boolean
-    children?: ReactNode
-}) => (
-    <div
-        className={cn(
-            "flex items-center justify-between gap-4 px-4 py-2.5 border-b last:border-b-0",
-            tone === "head" && "bg-muted/40",
-            tone === "total" && "bg-green-500/10",
-        )}
-    >
-        <span
+    onClick?: () => void
+    open?: boolean
+}) => {
+    const Tag = onClick ? "button" : "div"
+    return (
+        <Tag
+            type={onClick ? "button" : undefined}
+            onClick={onClick}
             className={cn(
-                "text-sm",
-                indent && "pl-4 text-muted-foreground",
-                strong && "font-semibold text-foreground",
+                "flex w-full items-center justify-between gap-4 px-4 py-2.5 border-b last:border-b-0 text-left",
+                tone === "head" && "bg-muted/40",
+                tone === "total" && "bg-green-500/10",
+                onClick && "hover:bg-muted/30 transition-colors",
             )}
         >
-            {label}
-        </span>
-        {children ?? <Money value={value ?? 0} strong={strong} />}
-    </div>
-)
+            <span
+                className={cn(
+                    "flex items-center gap-1.5 text-sm",
+                    indent && "pl-4 text-muted-foreground",
+                    strong && "font-semibold text-foreground",
+                )}
+            >
+                {label}
+                {onClick && (
+                    <ChevronDown
+                        className={cn(
+                            "w-3.5 h-3.5 transition-transform",
+                            open && "rotate-180",
+                        )}
+                    />
+                )}
+            </span>
+            <Money value={value} strong={strong} />
+        </Tag>
+    )
+}
+
+const OverheadList = ({ items }: { items: OverheadItem[] }) => {
+    const { t } = useTranslation()
+    if (!items.length)
+        return (
+            <p className="px-8 py-2 text-xs text-muted-foreground border-b">
+                {t("fin_report.overhead_empty")}
+            </p>
+        )
+    return (
+        <div className="border-b bg-muted/10">
+            {items.map((i) => (
+                <div
+                    key={i.id}
+                    className="flex items-center justify-between gap-3 px-8 py-1.5 text-xs"
+                >
+                    <span className="min-w-0 truncate text-muted-foreground">
+                        {format(new Date(i.date), "dd.MM.yyyy")} · {i.category}
+                        {i.comment ? ` · ${i.comment}` : ""}
+                    </span>
+                    <Money value={-num(i.amount)} />
+                </div>
+            ))}
+        </div>
+    )
+}
 
 const VehiclesCard = ({ id, stamp }: { id: number; stamp?: string | null }) => {
     const { t } = useTranslation()
@@ -161,6 +207,11 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
     const qc = useQueryClient()
     const canEdit = useHasAction("investor_control")
     const { data: r, isLoading } = useGet<MonthlyReport>(reportUrl(id))
+    const { data: overheadItems = [] } = useGet<OverheadItem[]>(
+        reportUrl(id, "overhead"),
+        { params: { at: r?.computed_at ?? undefined }, enabled: !!r },
+    )
+    const [openLine, setOpenLine] = useState<OverheadKey | null>(null)
     const { openModal: openDelete } = useModal(REPORT_DELETE)
     const refresh = () =>
         qc.invalidateQueries({
@@ -171,24 +222,11 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
         name: r ? `moliyaviy_hisobot_${r.month}` : "moliyaviy_hisobot",
     })
 
-    const form = useForm<FormValues>({
-        defaultValues: {
-            management: "",
-            tax: "",
-            rent: "",
-            other: "",
-            comment: "",
-        },
+    const form = useForm<{ comment: string }>({
+        defaultValues: { comment: "" },
     })
     useEffect(() => {
-        if (r)
-            form.reset({
-                management: num(r.management),
-                tax: num(r.tax),
-                rent: num(r.rent),
-                other: num(r.other),
-                comment: r.comment,
-            })
+        if (r) form.reset({ comment: r.comment })
     }, [r?.id, r?.updated])
 
     const { mutate: save, isPending: saving } = usePatch({
@@ -213,9 +251,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
             </p>
         )
 
-    const watched = form.watch()
-    const overhead = MANUAL_KEYS.reduce((a, k) => a + num(watched[k]), 0)
-    const net = num(r.profit) - overhead
+    const noOverhead = num(r.overhead) === 0
 
     return (
         <div className="flex flex-col gap-4">
@@ -316,35 +352,47 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 strong
                                 tone="head"
                             />
-                            {MANUAL_KEYS.map((k) => (
-                                <Line
-                                    key={k}
-                                    label={t(`fin_report.lines.${k}`)}
-                                    indent
-                                >
-                                    {canEdit ?
-                                        <div className="w-44">
-                                            <FormNumberInput
-                                                control={form.control}
-                                                name={k}
-                                                thousandSeparator=" "
-                                                decimalScale={0}
-                                                allowNegative={false}
-                                                hideError
-                                                className="text-right"
-                                            />
-                                        </div>
-                                    :   <Money value={-num(r[k])} />}
-                                </Line>
+                            {OVERHEAD_KEYS.map((k) => (
+                                <div key={k}>
+                                    <Line
+                                        label={t(`fin_report.lines.${k}`)}
+                                        value={-num(r[k])}
+                                        indent
+                                        open={openLine === k}
+                                        onClick={() =>
+                                            setOpenLine(
+                                                openLine === k ? null : k,
+                                            )
+                                        }
+                                    />
+                                    {openLine === k && (
+                                        <OverheadList
+                                            items={overheadItems.filter(
+                                                (i) => i.line === k,
+                                            )}
+                                        />
+                                    )}
+                                </div>
                             ))}
                             <Line
                                 label={t("fin_report.lines.net")}
-                                value={canEdit ? net : num(r.net)}
+                                value={num(r.net)}
                                 strong
                                 tone="total"
                             />
                         </CardContent>
                     </Card>
+
+                    <p
+                        className={cn(
+                            "text-xs",
+                            noOverhead ?
+                                "rounded-md border border-blue-500/30 bg-blue-500/5 px-3 py-2 text-blue-700 dark:text-blue-300"
+                            :   "text-muted-foreground",
+                        )}
+                    >
+                        {t("fin_report.overhead_hint")}
+                    </p>
 
                     {canEdit ?
                         <Card>
@@ -360,10 +408,6 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                         loading={saving}
                                         onClick={form.handleSubmit((v) =>
                                             save(reportUrl(id), {
-                                                management: num(v.management),
-                                                tax: num(v.tax),
-                                                rent: num(v.rent),
-                                                other: num(v.other),
                                                 comment: v.comment.trim(),
                                             }),
                                         )}

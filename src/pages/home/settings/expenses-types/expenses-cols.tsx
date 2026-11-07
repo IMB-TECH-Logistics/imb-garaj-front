@@ -1,13 +1,14 @@
 import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
-import { FlowTypeEnum, useExpenseTypeOptions, useFlowTypeOptions } from "./add-expenses"
+import { FlowTypeEnum, useExpenseTypeOptions, useFlowTypeOptions, useReportLineOptions } from "./add-expenses"
 import { useTranslation } from "react-i18next"
 
 export const useColumnsExpensesTable = () => {
     const { t } = useTranslation()
     const expenseTypeOptions = useExpenseTypeOptions()
     const flowTypeOptions = useFlowTypeOptions()
+    const reportLineOptions = useReportLineOptions()
     return useMemo<ColumnDef<VehicleRoleType>[]>(
         () => [
             {
@@ -34,6 +35,14 @@ export const useColumnsExpensesTable = () => {
                 },
             },
             {
+                accessorKey: "report_line",
+                header: t("fin_report.report_line"),
+                cell: ({ row }) =>
+                    row.original.report_line ?
+                        reportLineOptions.find((o) => o.value === row.original.report_line)?.label
+                    :   "—",
+            },
+            {
                 accessorKey: "flow_type",
                 header: t("form.direction"),
                 enableSorting: true,
@@ -58,6 +67,6 @@ export const useColumnsExpensesTable = () => {
                 },
             },
         ],
-        [t, expenseTypeOptions, flowTypeOptions],
+        [t, expenseTypeOptions, flowTypeOptions, reportLineOptions],
     )
 }

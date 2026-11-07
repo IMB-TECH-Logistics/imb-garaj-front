@@ -3356,7 +3356,7 @@
         "title": "Moliyaviy hisobot",
         "create": "Oylik hisobot yaratish",
         "month": "Oy",
-        "create_hint": "Tanlangan oydagi reyslar bo'yicha tushum, reys xarajati va reysdan tashqari xarajatlar tizimdan hisoblanadi. Boshqaruv xarajatlari, soliq, ijara va boshqa xarajatlarni keyin kiritasiz.",
+        "create_hint": "Tanlangan oy bo'yicha hammasi tizimdan hisoblanadi: reys tushumi va xarajatlari, mashina xarajatlari hamda kassadagi boshqaruv, soliq, ijara va boshqa chiqimlar.",
         "computed_at": "Hisoblangan",
         "recalculate": "Qayta hisoblash",
         "recalculated": "Hisobot qayta hisoblandi",
@@ -3384,6 +3384,11 @@
         "vehicle": "Mashina",
         "trips": "Reyslar",
         "expense_total": "Xarajat",
-        "income_short": "Tushum"
+        "income_short": "Tushum",
+        "overhead_hint": "Boshqaruv xarajatlari, soliq, ijara va boshqa xarajatlar kassadagi chiqimlardan olinadi: Sozlamalar → Kirim-chiqim turlari'da ofis chiqim turiga «Hisobotdagi qatori»ni belgilang va kassada shu tur bilan (mashinasiz) chiqim qiling. Keyin «Qayta hisoblash»ni bosing.",
+        "overhead_empty": "Bu oyda shu qatorga tushadigan kassa chiqimi yo'q.",
+        "report_line": "Moliyaviy hisobotdagi qatori",
+        "line_none": "Hisobotga kirmaydi",
+        "report_line_hint": "Shu tur bilan mashinasiz qilingan kassa chiqimlari moliyaviy hisobotda tanlangan qatorga tushadi."
     }
 }

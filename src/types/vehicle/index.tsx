@@ -11,6 +11,7 @@ type VehicleRoleType = {
     type: string
     owner:number
     flow_type?: number
+    report_line?: string
 }
 
 type VehicleCashflowsType = {

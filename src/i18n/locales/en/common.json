@@ -3359,7 +3359,7 @@
         "title": "Financial report",
         "create": "Create monthly report",
         "month": "Month",
-        "create_hint": "Trip revenue, trip expenses and non-trip expenses for the selected month are calculated from the system. You enter management costs, tax, rent and other costs afterwards.",
+        "create_hint": "Everything for the selected month is calculated from the system: trip revenue and expenses, vehicle expenses and cash-desk management, tax, rent and other expenses.",
         "computed_at": "Calculated",
         "recalculate": "Recalculate",
         "recalculated": "Report recalculated",
@@ -3387,6 +3387,11 @@
         "vehicle": "Vehicle",
         "trips": "Cycles",
         "expense_total": "Expenses",
-        "income_short": "Revenue"
+        "income_short": "Revenue",
+        "overhead_hint": "Management costs, tax, rent and other costs come from cash-desk expenses: in Settings → Income/expense types set the «Financial report line» on an office expense type and record the expense in the cash desk with that type (no vehicle). Then press Recalculate.",
+        "overhead_empty": "No cash-desk expenses for this line this month.",
+        "report_line": "Financial report line",
+        "line_none": "Not in report",
+        "report_line_hint": "Cash-desk expenses of this type without a vehicle go to the selected line of the financial report."
     }
 }

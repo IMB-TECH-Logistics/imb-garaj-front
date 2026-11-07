@@ -41,5 +41,14 @@ export type VehicleRow = {
     net: string
 }
 
-export const MANUAL_KEYS = ["management", "tax", "rent", "other"] as const
-export type ManualKey = (typeof MANUAL_KEYS)[number]
+export const OVERHEAD_KEYS = ["management", "tax", "rent", "other"] as const
+export type OverheadKey = (typeof OVERHEAD_KEYS)[number]
+
+export type OverheadItem = {
+    id: number
+    date: string
+    line: OverheadKey
+    category: string
+    amount: string
+    comment: string
+}

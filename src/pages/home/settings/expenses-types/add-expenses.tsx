@@ -41,18 +41,33 @@ export const useFlowTypeOptions = () => {
     ]
 }
 
+export const useReportLineOptions = () => {
+    const { t } = useTranslation()
+    return [
+        { label: t("fin_report.line_none"), value: "none" },
+        { label: t("fin_report.lines.management"), value: "management" },
+        { label: t("fin_report.lines.tax"), value: "tax" },
+        { label: t("fin_report.lines.rent"), value: "rent" },
+        { label: t("fin_report.lines.other"), value: "other" },
+    ]
+}
+
 const AddExpensesModal = () => {
     const { t } = useTranslation()
     const expenseTypeOptions = useExpenseTypeOptions()
     const flowTypeOptions = useFlowTypeOptions()
+    const reportLineOptions = useReportLineOptions()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
     const currentRole = getData<VehicleRoleType>(SETTINGS_EXPENSES)
 
     const form = useForm<VehicleRoleType>({
-        defaultValues: currentRole,
+        defaultValues: { ...currentRole, report_line: currentRole?.report_line || "none" } as VehicleRoleType,
     })
+    const isOfficeExpense =
+        Number(String(form.watch("type") ?? "").replaceAll('"', "")) === ExpenseTypeEnum.OFFICE &&
+        Number(String(form.watch("flow_type") ?? "").replaceAll('"', "")) === FlowTypeEnum.EXPENSE
 
     const { handleSubmit, reset } = form
 
@@ -82,6 +97,15 @@ const AddExpensesModal = () => {
             type: Number(String(values.type).replaceAll('"', "")),
             flow_type: Number(String(values.flow_type).replaceAll('"', "")),
         }
+        const line = String(values.report_line ?? "").replaceAll('"', "")
+        payload.report_line =
+            (
+                payload.type === ExpenseTypeEnum.OFFICE &&
+                payload.flow_type === FlowTypeEnum.EXPENSE &&
+                line !== "none"
+            ) ?
+                line
+            :   ""
 
         if (currentRole?.id) {
             updateMutate(`${SETTINGS_EXPENSES}/${currentRole.id}`, payload)
@@ -123,6 +147,20 @@ const AddExpensesModal = () => {
                     labelKey="label"
                     valueKey="value"
                 />
+
+                {isOfficeExpense && (
+                    <div className="md:col-span-2 flex flex-col gap-1">
+                        <FormCombobox
+                            name="report_line"
+                            label={t("fin_report.report_line")}
+                            options={reportLineOptions}
+                            control={form.control}
+                            labelKey="label"
+                            valueKey="value"
+                        />
+                        <span className="text-xs text-muted-foreground">{t("fin_report.report_line_hint")}</span>
+                    </div>
+                )}
 
                 <div className="flex items-center justify-end gap-2 md:col-span-2">
                     <Button
