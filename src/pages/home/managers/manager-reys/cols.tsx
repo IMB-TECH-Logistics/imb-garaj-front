@@ -497,7 +497,7 @@ export const useColumnsManagersOrders = (opts?: {
                     return (
                         <Link
                             to="/monitoring"
-                            search={{ gpsveh: vehicle, hdays: `${from}_${to >= from ? to : from}`, hfocus: `o${r.id}` } as any}
+                            search={{ gpsveh: vehicle, hdays: `${from}_${to >= from ? to : from}`, hreys: r.id, hcolor: "trip" } as any}
                             title={t("trips.reys_cols.open_on_monitoring")}
                             className="inline-flex text-primary transition-colors hover:text-primary/80"
                             onClick={(e) => e.stopPropagation()}

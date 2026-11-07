@@ -128,7 +128,7 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
                 if (match) out.imei = match.imei
                 else {
                     delete out.hdays
-                    delete out.hfocus
+                    delete out.hreys
                 }
                 return out
             }) as any,
