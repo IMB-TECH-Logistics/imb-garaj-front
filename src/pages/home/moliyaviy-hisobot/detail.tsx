@@ -5,6 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { Input } from "@/components/ui/input"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useHasAction } from "@/constants/useUser"
 import { useDownloadAsExcel } from "@/hooks/useDownloadAsExcel"
 import { useGet } from "@/hooks/useGet"
@@ -21,6 +27,7 @@ import {
     ArrowLeft,
     ChevronDown,
     Download,
+    Info,
     RefreshCw,
     Trash2,
 } from "lucide-react"
@@ -40,6 +47,8 @@ import {
 import { DistributionCard } from "./distribution-card"
 import { Money } from "./index"
 import { RateEditor } from "./rate-editor"
+
+const USD_RE = /^\d{0,6}(\.\d{0,2})?$/
 
 const usd = (v: string | number) =>
     `$${Math.round(num(v)).toLocaleString("ru-RU").replace(/ /g, " ")}`
@@ -102,12 +111,7 @@ const Line = ({
 
 const Items = ({ items }: { items: OverheadItem[] }) => {
     const { t } = useTranslation()
-    if (!items.length)
-        return (
-            <p className="pl-12 pr-4 py-1.5 text-xs text-muted-foreground border-b">
-                {t("fin_report.overhead_empty")}
-            </p>
-        )
+    if (!items.length) return null
     return (
         <div className="border-b bg-muted/10">
             {items.map((i) => (
@@ -273,9 +277,41 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
     const draft = r.status === "draft"
     const editable = canEdit && draft
     const byLine = (k: OverheadKey) => overheadItems.filter((i) => i.line === k)
-    const rentVehicles = r.owners.flatMap((o) =>
-        o.vehicles.map((v) => ({ ...v, owner: o.name })),
-    )
+    const rentVehicles = Object.values(
+        r.owners
+            .flatMap((o) => o.vehicles.map((v) => ({ ...v, owner: o.name })))
+            .reduce<
+                Record<
+                    number,
+                    {
+                        vehicle: number
+                        plate: string
+                        rent: number
+                        parts: {
+                            part: string
+                            rent_usd: string
+                            vat_percent: string
+                            owner: string
+                        }[]
+                    }
+                >
+            >((acc, v) => {
+                const g = (acc[v.vehicle] ??= {
+                    vehicle: v.vehicle,
+                    plate: v.plate,
+                    rent: 0,
+                    parts: [],
+                })
+                g.rent += num(v.rent)
+                g.parts.push({
+                    part: v.part,
+                    rent_usd: v.rent_usd,
+                    vat_percent: v.vat_percent,
+                    owner: v.owner,
+                })
+                return acc
+            }, {}),
+    ).sort((a, b) => a.plate.localeCompare(b.plate))
 
     return (
         <div className="flex flex-col gap-4">
@@ -373,13 +409,11 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                             <Line
                                 label={t("fin_report.lines.trip_expense")}
                                 value={-num(r.trip_expense)}
-                                indent
                             />
 
                             <Line
                                 label={t("fin_report.lines.other_expense")}
                                 value={-num(r.other_expense)}
-                                indent
                                 open={open === "other"}
                                 onClick={toggle("other")}
                             />
@@ -477,14 +511,18 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                                     $
                                                     <Input
                                                         className="h-7 w-20 text-right text-xs"
-                                                        type="number"
-                                                        min={0}
+                                                        type="text"
+                                                        inputMode="decimal"
                                                         value={feeUsd}
-                                                        onChange={(e) =>
-                                                            setFeeUsd(
-                                                                e.target.value,
-                                                            )
-                                                        }
+                                                        onChange={(e) => {
+                                                            const v =
+                                                                e.target.value.replace(
+                                                                    ",",
+                                                                    ".",
+                                                                )
+                                                            if (USD_RE.test(v))
+                                                                setFeeUsd(v)
+                                                        }}
                                                     />
                                                     {num(feeUsd) !==
                                                         num(
@@ -547,18 +585,60 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                     )}
                                     {rentVehicles.map((v) => (
                                         <div
-                                            key={`${v.vehicle}-${v.part}`}
+                                            key={v.vehicle}
                                             className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs border-b bg-muted/10"
                                         >
-                                            <span className="min-w-0 truncate text-muted-foreground">
-                                                {v.plate} ·{" "}
-                                                {t(`fin_report.part.${v.part}`)}{" "}
-                                                · {usd(v.rent_usd)} +{" "}
-                                                {num(v.vat_percent)}%{" "}
-                                                {t("fin_report.vat")} →{" "}
-                                                {v.owner}
+                                            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                                                <span className="truncate">
+                                                    {v.plate}
+                                                </span>
+                                                <TooltipProvider
+                                                    delayDuration={100}
+                                                >
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Info
+                                                                className="h-3.5 w-3.5 shrink-0 cursor-help"
+                                                                aria-label={t(
+                                                                    "fin_report.rent_info",
+                                                                )}
+                                                            />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent className="flex flex-col gap-0.5">
+                                                            {v.parts.map(
+                                                                (p) => (
+                                                                    <span
+                                                                        key={
+                                                                            p.part
+                                                                        }
+                                                                    >
+                                                                        {t(
+                                                                            `fin_report.part.${p.part}`,
+                                                                        )}{" "}
+                                                                        ·{" "}
+                                                                        {usd(
+                                                                            p.rent_usd,
+                                                                        )}{" "}
+                                                                        +{" "}
+                                                                        {num(
+                                                                            p.vat_percent,
+                                                                        )}
+                                                                        %{" "}
+                                                                        {t(
+                                                                            "fin_report.vat",
+                                                                        )}{" "}
+                                                                        →{" "}
+                                                                        {
+                                                                            p.owner
+                                                                        }
+                                                                    </span>
+                                                                ),
+                                                            )}
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
                                             </span>
-                                            <Money value={-num(v.rent)} />
+                                            <Money value={-v.rent} />
                                         </div>
                                     ))}
                                     {num(r.rent) !== 0 && (

@@ -3391,7 +3391,7 @@
             "other": "Other costs",
             "overhead": "Overhead",
             "net": "Net profit",
-            "company_vehicle_expense": "Vehicle expenses (company-paid)",
+            "company_vehicle_expense": "Vehicle expenses",
             "vehicle_rent": "Vehicle rent",
             "other_expense": "Other expenses",
             "other_kassa": "Other cash expenses",
@@ -3478,6 +3478,7 @@
             "must_100": "Shares must add up to 100%.",
             "no_profit": "No net profit this month — no shares.",
             "hint": "A founder's profit share and rent (with VAT) are added to their counterparty as «we owe»; the company share stays in the company."
-        }
+        },
+        "rent_info": "Rent details"
     }
 }

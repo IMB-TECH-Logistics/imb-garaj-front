@@ -3384,7 +3384,7 @@
             "other": "その他の費用",
             "overhead": "追加費用",
             "net": "純利益",
-            "company_vehicle_expense": "車両費用(会社負担)",
+            "company_vehicle_expense": "車両費用",
             "vehicle_rent": "車両賃料",
             "other_expense": "その他の費用",
             "other_kassa": "レジのその他支出",
@@ -3471,6 +3471,7 @@
             "must_100": "割合の合計は100%である必要があります。",
             "no_profit": "今月は純利益がありません。",
             "hint": "出資者の利益配分と賃料（VAT込み）は取引先に「当社の債務」として加算されます。会社の分は会社に残ります。"
-        }
+        },
+        "rent_info": "賃料の詳細"
     }
 }
