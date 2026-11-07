@@ -605,8 +605,13 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                                             />
                                                         </TooltipTrigger>
                                                         <TooltipContent className="flex flex-col gap-0.5">
-                                                            {v.parts.map(
-                                                                (p) => (
+                                                            {[...v.parts]
+                                                                .sort((x, y) =>
+                                                                    x.part.localeCompare(
+                                                                        y.part,
+                                                                    ),
+                                                                )
+                                                                .map((p) => (
                                                                     <span
                                                                         key={
                                                                             p.part
@@ -632,8 +637,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                                                             p.owner
                                                                         }
                                                                     </span>
-                                                                ),
-                                                            )}
+                                                                ))}
                                                         </TooltipContent>
                                                     </Tooltip>
                                                 </TooltipProvider>
