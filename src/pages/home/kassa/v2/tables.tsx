@@ -76,7 +76,8 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
         dir: group || dir === "all" ? undefined : dir,
         kind: group || kindF === "all" ? undefined : kindF,
         group: group && group !== "all" ? group.split(":")[0] : undefined,
-        category: group?.split(":")[1] || undefined,
+        category: group?.startsWith("in_kontragent:") ? undefined : group?.split(":")[1] || undefined,
+        kontragent: group?.startsWith("in_kontragent:") ? group.split(":")[1] : undefined,
         vehicle: byVehicle && vehicle ? vehicle : undefined,
     }
     const { data, isLoading } = useGet<Paged<KassaTx>>(KV2_TRANSACTIONS, { params })
