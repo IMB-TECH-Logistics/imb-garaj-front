@@ -3329,7 +3329,8 @@
             "kassa": "Kassa orqali",
             "request": "Kassaga so'rov",
             "receipt": "Omborga kirim",
-            "sale": "Ombordan sotuv"
+            "sale": "Ombordan sotuv",
+            "report": "Moliyaviy hisobotdan"
         },
         "cash": {
             "in_btn": "Pul oldik (kassaga)",
@@ -3377,7 +3378,9 @@
             "rent": "Ijara",
             "other": "Boshqa xarajatlar",
             "overhead": "Qo'shimcha xarajatlar",
-            "net": "Kompaniya sof foydasi"
+            "net": "Kompaniya sof foydasi",
+            "company_vehicle_expense": "Mashina xarajatlari (kompaniya hisobidan)",
+            "vehicle_rent": "Mashina ijarasi"
         },
         "by_vehicle": "Mashinalar bo'yicha",
         "by_vehicle_hint": "foyda bo'yicha saralangan",
@@ -3389,6 +3392,41 @@
         "overhead_empty": "Bu oyda shu qatorga tushadigan kassa chiqimi yo'q.",
         "report_line": "Moliyaviy hisobotdagi qatori",
         "line_none": "Hisobotga kirmaydi",
-        "report_line_hint": "Shu tur bilan mashinasiz qilingan kassa chiqimlari moliyaviy hisobotda tanlangan qatorga tushadi."
+        "report_line_hint": "Shu tur bilan mashinasiz qilingan kassa chiqimlari moliyaviy hisobotda tanlangan qatorga tushadi.",
+        "part": {
+            "head": "Golova",
+            "trailer": "Tirkama"
+        },
+        "rent_card": {
+            "title": "Mashina ijarasi va dividend",
+            "hint": "Oylik moliyaviy hisobotda shu ma'lumot bo'yicha ijara, ta'mir (ijaradan ushlanadi) va dividend hisoblanadi.",
+            "dividend_share": "Dividend ulushi, %",
+            "empty": "Hali mashina biriktirilmagan.",
+            "month": "oy",
+            "total": "Jami",
+            "part": "Qismi",
+            "add": "Biriktirish"
+        },
+        "owners": {
+            "title": "Mashina egalari bo'yicha",
+            "kontragent": "Kontragent",
+            "rent": "Ijara",
+            "repair": "Ta'mir (ushlanadi)",
+            "dividend": "Dividend",
+            "balance": "Biz qarzdormiz",
+            "post": "Kontragentlarga yozish",
+            "repost": "Qayta yozish",
+            "posted_ok": "Kontragentlarga yozildi",
+            "posted_at": "Kontragentlarga yozilgan: {{date}}",
+            "not_posted": "Hali kontragentlarga yozilmagan",
+            "hint": "«Kontragentlarga yozish» har bir egaga 3 ta yozuv qo'shadi: ijara (+), ta'mir (−), dividend (+). Hisobot qayta hisoblansa, yozuvlar o'zi yangilanadi."
+        },
+        "recoverable_note": "Egalardan undiriladigan ta'mir: {{amount}} so'm — ijaradan ushlanadi, kompaniya foydasini kamaytirmaydi",
+        "rate": "Kurs: 1$ = {{rate}} so'm",
+        "rate_source": "Markaziy bank",
+        "rate_manual": "qo'lda",
+        "rate_missing": "Dollar kursini olib bo'lmadi — ijarani hisoblash uchun kursni kiriting",
+        "for_trailer": "Tirkama uchun",
+        "for_trailer_hint": "Bu tur bilan yozilgan ta'mir tirkama egasiga tushadi (belgilanmasa — golova egasiga)."
     }
 }

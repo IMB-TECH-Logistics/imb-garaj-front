@@ -65,6 +65,10 @@ const AddExpensesModal = () => {
     const form = useForm<VehicleRoleType>({
         defaultValues: { ...currentRole, report_line: currentRole?.report_line || "none" } as VehicleRoleType,
     })
+    const typeValue = Number(String(form.watch("type") ?? "").replaceAll('"', ""))
+    const canBeTrailer =
+        (typeValue === ExpenseTypeEnum.TRUCK || typeValue === ExpenseTypeEnum.OFFICE) &&
+        Number(String(form.watch("flow_type") ?? "").replaceAll('"', "")) === FlowTypeEnum.EXPENSE
     const isOfficeExpense =
         Number(String(form.watch("type") ?? "").replaceAll('"', "")) === ExpenseTypeEnum.OFFICE &&
         Number(String(form.watch("flow_type") ?? "").replaceAll('"', "")) === FlowTypeEnum.EXPENSE
@@ -97,6 +101,7 @@ const AddExpensesModal = () => {
             type: Number(String(values.type).replaceAll('"', "")),
             flow_type: Number(String(values.flow_type).replaceAll('"', "")),
         }
+        payload.for_trailer = canBeTrailer && !!values.for_trailer
         const line = String(values.report_line ?? "").replaceAll('"', "")
         payload.report_line =
             (
@@ -147,6 +152,16 @@ const AddExpensesModal = () => {
                     labelKey="label"
                     valueKey="value"
                 />
+
+                {canBeTrailer && (
+                    <label className="md:col-span-2 flex items-start gap-2 text-sm">
+                        <input type="checkbox" className="mt-0.5 h-4 w-4" {...form.register("for_trailer")} />
+                        <span className="flex flex-col">
+                            {t("fin_report.for_trailer")}
+                            <span className="text-xs text-muted-foreground">{t("fin_report.for_trailer_hint")}</span>
+                        </span>
+                    </label>
+                )}
 
                 {isOfficeExpense && (
                     <div className="md:col-span-2 flex flex-col gap-1">

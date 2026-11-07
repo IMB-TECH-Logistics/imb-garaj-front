@@ -15,7 +15,15 @@ export type MonthlyReport = {
     trip_expense: string
     trip_profit: string
     vehicle_expense: string
+    recoverable: string
+    company_vehicle_expense: string
     profit: string
+    vehicle_rent: string
+    dividends: string
+    usd_rate: string | null
+    rate_date: string | null
+    owners: OwnerRow[]
+    posted_at: string | null
     management: string
     tax: string
     rent: string
@@ -51,4 +59,18 @@ export type OverheadItem = {
     category: string
     amount: string
     comment: string
+}
+
+export type OwnerVehicle = { vehicle: number; plate: string; part: "head" | "trailer"; rent_usd: string; rent: string; repair: string }
+
+export type OwnerRow = {
+    kontragent: number
+    name: string
+    share: string
+    rent_usd: string
+    rent: string
+    repair: string
+    dividend: string
+    balance: string
+    vehicles: OwnerVehicle[]
 }

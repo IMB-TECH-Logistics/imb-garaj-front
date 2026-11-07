@@ -3332,7 +3332,8 @@
             "kassa": "Via cash desk",
             "request": "Cash desk request",
             "receipt": "Warehouse receipt",
-            "sale": "Warehouse sale"
+            "sale": "Warehouse sale",
+            "report": "From financial report"
         },
         "cash": {
             "in_btn": "Received money (to cash desk)",
@@ -3380,7 +3381,9 @@
             "rent": "Rent",
             "other": "Other costs",
             "overhead": "Overhead",
-            "net": "Company net profit"
+            "net": "Company net profit",
+            "company_vehicle_expense": "Vehicle expenses (company-paid)",
+            "vehicle_rent": "Vehicle rent"
         },
         "by_vehicle": "By vehicle",
         "by_vehicle_hint": "sorted by profit",
@@ -3392,6 +3395,41 @@
         "overhead_empty": "No cash-desk expenses for this line this month.",
         "report_line": "Financial report line",
         "line_none": "Not in report",
-        "report_line_hint": "Cash-desk expenses of this type without a vehicle go to the selected line of the financial report."
+        "report_line_hint": "Cash-desk expenses of this type without a vehicle go to the selected line of the financial report.",
+        "part": {
+            "head": "Tractor",
+            "trailer": "Trailer"
+        },
+        "rent_card": {
+            "title": "Vehicle rent and dividend",
+            "hint": "The monthly financial report uses this to calculate rent, repairs (deducted from rent) and dividends.",
+            "dividend_share": "Dividend share, %",
+            "empty": "No vehicles assigned yet.",
+            "month": "mo",
+            "total": "Total",
+            "part": "Part",
+            "add": "Assign"
+        },
+        "owners": {
+            "title": "By vehicle owner",
+            "kontragent": "Counterparty",
+            "rent": "Rent",
+            "repair": "Repairs (deducted)",
+            "dividend": "Dividend",
+            "balance": "We owe",
+            "post": "Post to counterparties",
+            "repost": "Post again",
+            "posted_ok": "Posted to counterparties",
+            "posted_at": "Posted to counterparties: {{date}}",
+            "not_posted": "Not posted to counterparties yet",
+            "hint": "«Post to counterparties» adds 3 entries per owner: rent (+), repairs (−), dividend (+). Recalculating the report updates them automatically."
+        },
+        "recoverable_note": "Repairs charged to owners: {{amount}} — deducted from rent, does not reduce company profit",
+        "rate": "Rate: $1 = {{rate}} UZS",
+        "rate_source": "Central Bank",
+        "rate_manual": "manual",
+        "rate_missing": "Could not get the dollar rate — enter it to calculate rent",
+        "for_trailer": "For trailer",
+        "for_trailer_hint": "Repairs of this type go to the trailer owner (otherwise to the tractor owner)."
     }
 }

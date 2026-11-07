@@ -16,6 +16,7 @@ import { EntryDir, Kontragent, TYPE_STYLE, kontragentUrl, num, som } from "./api
 import { EditDeleteActions } from "./edit-actions"
 import { CONTRAGENT_CASH, CONTRAGENT_TX, CashForm, ContragentTxForm } from "./forms"
 import { LedgerTable, useLedger } from "./ledger-table"
+import { RentCard } from "./rent-card"
 
 const ContragentDetail = ({ id }: { id: number }) => {
     const { t } = useTranslation()
@@ -142,6 +143,8 @@ const ContragentDetail = ({ id }: { id: number }) => {
                     </CardContent>
                 </Card>
             </div>
+
+            {row.type === "investor" && <RentCard row={row} />}
 
             <Card>
                 <CardContent className="p-4 flex flex-col gap-3">

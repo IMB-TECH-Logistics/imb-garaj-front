@@ -37,6 +37,8 @@ import {
     reportUrl,
 } from "./api"
 import { Money } from "./index"
+import { OwnersCard } from "./owners-card"
+import { RateEditor } from "./rate-editor"
 
 const Line = ({
     label,
@@ -314,6 +316,8 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                 </div>
             </div>
 
+            {(r.owners?.length > 0 || r.usd_rate) && <RateEditor report={r} />}
+
             {r.unpriced_count > 0 && (
                 <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
                     {t("fin_report.unpriced_warning", {
@@ -342,16 +346,35 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 tone="head"
                             />
                             <Line
-                                label={t("fin_report.lines.vehicle_expense")}
-                                value={-num(r.vehicle_expense)}
+                                label={t(
+                                    "fin_report.lines.company_vehicle_expense",
+                                )}
+                                value={-num(r.company_vehicle_expense)}
                                 indent
                             />
+                            {num(r.recoverable) > 0 && (
+                                <p className="px-8 py-1.5 text-xs text-muted-foreground border-b">
+                                    {t("fin_report.recoverable_note", {
+                                        amount: num(r.recoverable)
+                                            .toLocaleString("ru-RU")
+                                            .replace(/\u00a0/g, " "),
+                                    })}
+                                </p>
+                            )}
                             <Line
                                 label={t("fin_report.lines.profit")}
                                 value={num(r.profit)}
                                 strong
                                 tone="head"
                             />
+                            {(num(r.vehicle_rent) > 0 ||
+                                r.owners?.length > 0) && (
+                                <Line
+                                    label={t("fin_report.lines.vehicle_rent")}
+                                    value={-num(r.vehicle_rent)}
+                                    indent
+                                />
+                            )}
                             {OVERHEAD_KEYS.map((k) => (
                                 <div key={k}>
                                     <Line
@@ -423,7 +446,10 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                         </p>
                     :   null}
                 </div>
-                <VehiclesCard id={id} stamp={r.computed_at} />
+                <div className="flex flex-col gap-4 min-w-0">
+                    <OwnersCard report={r} />
+                    <VehiclesCard id={id} stamp={r.computed_at} />
+                </div>
             </div>
 
             <DeleteModal

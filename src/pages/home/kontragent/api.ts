@@ -17,6 +17,7 @@ export type Kontragent = {
     phone: string
     type: ContragentType
     comment: string
+    dividend_share?: string
     balance: string
     taken: string
     given: string
@@ -40,7 +41,7 @@ export type LedgerRow = {
     balance: string
     is_manual: boolean
     editable?: boolean
-    source: { type: "kassa" | "request" | "receipt" | "sale" | "manual"; id: number | null }
+    source: { type: "kassa" | "request" | "receipt" | "sale" | "manual" | "report"; id: number | null }
 }
 
 export type Investment = {

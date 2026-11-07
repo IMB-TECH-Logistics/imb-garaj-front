@@ -6,6 +6,7 @@ import { DataTable } from "@/components/ui/datatable"
 import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import axiosInstance from "@/services/axios-instance"
+import { Link } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { useMemo, useState } from "react"
@@ -91,7 +92,15 @@ export const LedgerTable = ({ rows, loading, onlyCash = false, hideBalance = fal
                 cell: ({ row }) => (
                     <div className="flex flex-col">
                         <span>{row.original.comment || "—"}</span>
-                        {row.original.source.type !== "manual" && row.original.source.type !== "kassa" && (
+                        {row.original.source.type === "report" && row.original.source.id ?
+                            <Link
+                                to="/moliyaviy-hisobot/$id"
+                                params={{ id: String(row.original.source.id) }}
+                                className="text-xs text-primary hover:underline w-fit"
+                            >
+                                {t("contragent.source.report")} →
+                            </Link>
+                        : row.original.source.type !== "manual" && row.original.source.type !== "kassa" && (
                             <span className="text-xs text-muted-foreground">{t(`contragent.source.${row.original.source.type}`)}</span>
                         )}
                     </div>
