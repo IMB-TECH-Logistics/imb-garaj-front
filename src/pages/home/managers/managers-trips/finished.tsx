@@ -61,7 +61,7 @@ export default function FinishManagerTrips({ tab: tabProp, onTabChange }: { tab?
         defaultValues: {
             ...item,
             vehicle: id,
-            end: todayIso(),
+            end: item?.end ?? todayIso(),
         },
     })
 
