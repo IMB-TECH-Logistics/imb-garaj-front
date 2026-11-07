@@ -1,9 +1,10 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
+import { FormCombobox } from "@/components/form/combobox"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import Select from "@/components/ui/select"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -12,6 +13,7 @@ import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
 import { Plus, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { Kontragent, kontragentUrl, num, onApiError } from "./api"
@@ -44,7 +46,7 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
     const { closeModal } = useModal(RENT_ADD)
-    const { data: vehiclesData } = useGet<
+    const { data: vehiclesData, isLoading } = useGet<
         { results: VehicleOption[] } | VehicleOption[]
     >("vehicles", { params: { page_size: 1000 } })
     const vehicles = useMemo(
@@ -54,14 +56,17 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
             ),
         [vehiclesData],
     )
-    const [vehicle, setVehicle] = useState("")
-    const [part, setPart] = useState<"head" | "trailer">("head")
-    const [amount, setAmount] = useState("")
+    const form = useForm<{
+        vehicle: number | ""
+        part: "head" | "trailer"
+        monthly_usd: number | ""
+    }>({
+        defaultValues: { vehicle: "", part: "head", monthly_usd: "" },
+    })
     const { mutate: add, isPending } = usePost({
         onSuccess: () => {
             toast.success(t("messages.success_add"))
-            setVehicle("")
-            setAmount("")
+            form.reset()
             closeModal()
             refreshKontragent(qc)
         },
@@ -70,60 +75,65 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
     return (
         <form
             className="flex flex-col gap-3"
-            onSubmit={(e) => {
-                e.preventDefault()
-                if (vehicle && num(amount) > 0)
-                    add(VEHICLE_RENTS, {
-                        vehicle: Number(vehicle),
-                        part,
-                        kontragent: kontragentId,
-                        monthly_usd: num(amount),
-                    })
-            }}
+            onSubmit={form.handleSubmit((v) =>
+                add(VEHICLE_RENTS, {
+                    vehicle: Number(v.vehicle),
+                    part: v.part,
+                    kontragent: kontragentId,
+                    monthly_usd: num(v.monthly_usd),
+                }),
+            )}
         >
-            <label className="flex flex-col gap-1.5 text-sm font-medium">
-                {t("fin_report.vehicle")}
-                <Select
-                    label={t("fin_report.vehicle")}
-                    value={vehicle}
-                    setValue={setVehicle}
-                    options={vehicles.map((v) => ({
-                        value: String(v.id),
-                        label: v.truck_number,
-                    }))}
-                />
-            </label>
-            <label className="flex flex-col gap-1.5 text-sm font-medium">
-                {t("fin_report.rent_card.part")}
-                <Select
-                    label={t("fin_report.rent_card.part")}
-                    value={part}
-                    setValue={(v) => setPart(v as "head" | "trailer")}
-                    options={[
-                        { value: "head", label: t("fin_report.part.head") },
-                        {
-                            value: "trailer",
-                            label: t("fin_report.part.trailer"),
-                        },
-                    ]}
-                />
-            </label>
-            <label className="flex flex-col gap-1.5 text-sm font-medium">
-                {t("fin_report.rent_card.monthly_usd")}
-                <Input
-                    type="number"
-                    min={0}
-                    placeholder="2000"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                />
-            </label>
-            <div className="flex justify-end">
+            <FormCombobox
+                required
+                control={form.control}
+                name="vehicle"
+                label={t("fin_report.vehicle")}
+                options={vehicles.map((v) => ({
+                    id: v.id,
+                    name: v.truck_number,
+                }))}
+                isLoading={isLoading}
+                valueKey="id"
+                labelKey="name"
+            />
+            <FormCombobox
+                required
+                isSearch={false}
+                isClearIcon={false}
+                control={form.control}
+                name="part"
+                label={t("fin_report.rent_card.part")}
+                options={[
+                    { id: "head", name: t("fin_report.part.head") },
+                    { id: "trailer", name: t("fin_report.part.trailer") },
+                ]}
+                valueKey="id"
+                labelKey="name"
+            />
+            <FormNumberInput
+                required
+                control={form.control}
+                name="monthly_usd"
+                label={t("fin_report.rent_card.monthly_usd")}
+                thousandSeparator=" "
+                decimalScale={0}
+                allowNegative={false}
+                registerOptions={{
+                    validate: (v: unknown) =>
+                        Number(v) > 0 || t("investors.errors.gt_zero"),
+                }}
+            />
+            <div className="flex justify-end gap-2 pt-1">
                 <Button
-                    type="submit"
-                    disabled={!vehicle || !(num(amount) > 0)}
-                    loading={isPending}
+                    type="button"
+                    variant="outline"
+                    className="min-w-28"
+                    onClick={closeModal}
                 >
+                    {t("actions.cancel")}
+                </Button>
+                <Button type="submit" className="min-w-32" loading={isPending}>
                     {t("actions.save")}
                 </Button>
             </div>
