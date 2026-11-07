@@ -69,7 +69,14 @@ export const OwnersCard = ({ report }: { report: MonthlyReport }) => {
                     )}
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[560px] table-fixed text-sm">
+                        <colgroup>
+                            <col className="w-[28%]" />
+                            <col className="w-[18%]" />
+                            <col className="w-[18%]" />
+                            <col className="w-[18%]" />
+                            <col className="w-[18%]" />
+                        </colgroup>
                         <thead>
                             <tr className="text-muted-foreground text-xs border-b">
                                 <th className="text-left font-medium py-2 pr-2">
@@ -156,17 +163,19 @@ export const OwnersCard = ({ report }: { report: MonthlyReport }) => {
                                                 key={`${v.vehicle}-${v.part}`}
                                                 className="border-b bg-muted/10 text-xs"
                                             >
-                                                <td className="py-1.5 pr-2 pl-6 text-muted-foreground">
+                                                <td className="py-1.5 pr-2 pl-6 text-muted-foreground truncate">
                                                     {v.plate} ·{" "}
                                                     {t(
                                                         `fin_report.part.${v.part}`,
                                                     )}
                                                 </td>
                                                 <td className="py-1.5 px-2 text-right">
-                                                    <Money value={v.rent} />{" "}
-                                                    <span className="text-muted-foreground">
-                                                        ({usd(v.rent_usd)})
-                                                    </span>
+                                                    <div className="flex flex-col items-end">
+                                                        <Money value={v.rent} />
+                                                        <span className="text-muted-foreground">
+                                                            {usd(v.rent_usd)}
+                                                        </span>
+                                                    </div>
                                                 </td>
                                                 <td className="py-1.5 px-2 text-right">
                                                     <Money
