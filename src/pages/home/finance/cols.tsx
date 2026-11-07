@@ -1,4 +1,4 @@
-import { formatMoney, formatNumber } from "@/lib/format-money"
+import { formatMoney, formatMoneyText, formatNumber } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -17,6 +17,7 @@ export interface OwnerStatistic {
     fuel_per_km: number
     fuel_estimated?: boolean
     mileage_gps?: boolean
+    fuel_norm_per_100?: number
     gps_mileage?: number
     odometer_estimate?: number
     odometer_photo?: number | null
@@ -90,15 +91,15 @@ export const useCostCols = () => {
                         <span
                             className="whitespace-nowrap"
                             title={t("fin.cols.mileage_gps_hint", {
-                                gps: formatNumber(r.gps_mileage ?? 0),
-                                photo: r.odometer_photo != null ? formatNumber(r.odometer_photo) : "—",
-                                odo: formatNumber(r.odometer_estimate ?? 0),
+                                gps: formatMoneyText(r.gps_mileage ?? 0),
+                                photo: r.odometer_photo != null ? formatMoneyText(r.odometer_photo) : "—",
+                                odo: formatMoneyText(r.odometer_estimate ?? 0),
                             })}
                         >
                             ≈ {formatNumber(round3(r.total_mileage))}
                             {r.odometer_estimate != null && (
                                 <span className="block text-xs text-muted-foreground">
-                                    {t("fin.cols.odometer_short", { odo: formatNumber(r.odometer_estimate) })}
+                                    {t("fin.cols.odometer_short", { odo: formatMoneyText(r.odometer_estimate) })}
                                 </span>
                             )}
                         </span>
@@ -113,7 +114,7 @@ export const useCostCols = () => {
                     if (row.original.fuel_consume === null) return <span>—</span>
                     const estimated = row.original.fuel_estimated
                     return (
-                        <span title={estimated ? t("fin.cols.fuel_estimated") : undefined}>
+                        <span title={estimated ? (row.original.fuel_norm_per_100 != null ? t("fin.cols.fuel_norm_estimated", { rate: row.original.fuel_norm_per_100 }) : t("fin.cols.fuel_estimated")) : undefined}>
                             {estimated ? "≈ " : ""}
                             {formatNumber(round3(row.original.fuel_consume))}{" "}
                             {unitFor(row.original.fuel, t("fin.common.unit_liter"))}
@@ -130,7 +131,7 @@ export const useCostCols = () => {
                     if (v == null) return <span>—</span>
                     const estimated = row.original.fuel_estimated
                     return (
-                        <span title={estimated ? t("fin.cols.fuel_estimated") : undefined}>
+                        <span title={estimated ? (row.original.fuel_norm_per_100 != null ? t("fin.cols.fuel_norm_estimated", { rate: row.original.fuel_norm_per_100 }) : t("fin.cols.fuel_estimated")) : undefined}>
                             {estimated ? "≈ " : ""}
                             {Number((toNum(v) * 100).toFixed(1))}{" "}
                             {unitFor(row.original.fuel, t("fin.common.unit_liter"))}

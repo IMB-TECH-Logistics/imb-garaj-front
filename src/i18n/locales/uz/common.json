@@ -1394,6 +1394,7 @@
             "unpriced_trips": "Narxsiz reys",
             "fuel_per_100km": "Sarfi / 100 km",
             "fuel_estimated": "Taxminiy: aylanma hali ochiq, bakdagi qoldiq ayirilmagan",
+            "fuel_norm_estimated": "Taxminiy: ochiq aylanma uchun GPS km × norma ({{rate}} / 100 km, shu mashinaning oxirgi 5 yopilgan aylanmasidan)",
             "mileage_gps_hint": "Ochiq aylanma: GPS bo'yicha {{gps}} km qo'shildi. Oxirgi rasm: {{photo}} km, hozirgi taxminiy probeg: {{odo}} km. Aylanma yopilganda rasmdagi km bilan yangilanadi.",
             "odometer_short": "odometr ≈ {{odo}}",
             "trip_income": "Reys daromadi",

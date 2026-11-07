@@ -1397,6 +1397,7 @@
             "unpriced_trips": "Unpriced trip",
             "fuel_per_100km": "Consumption / 100 km",
             "fuel_estimated": "Estimate: the trip is still open, the fuel left in the tank is not subtracted yet",
+            "fuel_norm_estimated": "Estimate: open turnover GPS km × norm ({{rate}} / 100 km, from this truck's last 5 closed turnovers)",
             "mileage_gps_hint": "Open turnover: {{gps}} km added from GPS. Last photo: {{photo}} km, current odometer ≈ {{odo}} km. Updated from the photo when the turnover closes.",
             "odometer_short": "odometer ≈ {{odo}}",
             "trip_income": "Trip income",

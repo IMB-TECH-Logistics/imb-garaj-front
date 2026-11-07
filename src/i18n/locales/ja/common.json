@@ -1400,6 +1400,7 @@
             "unpriced_trips": "価格未設定の運行",
             "fuel_per_100km": "燃費 / 100 km",
             "fuel_estimated": "概算: 運行が未完了のため、タンクに残った燃料はまだ差し引かれていません",
+            "fuel_norm_estimated": "推定: 未完了の回転は GPS km × 基準 ({{rate}} / 100 km、この車両の直近5回の締め済み回転より)",
             "mileage_gps_hint": "未完了の回転: GPSで{{gps}} km加算。最後の写真: {{photo}} km、現在の走行距離 ≈ {{odo}} km。回転の締めで写真の値に更新されます。",
             "odometer_short": "走行計 ≈ {{odo}}",
             "trip_income": "運行収入",
