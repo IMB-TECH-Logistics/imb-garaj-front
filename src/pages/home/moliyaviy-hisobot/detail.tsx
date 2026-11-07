@@ -277,41 +277,22 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
     const draft = r.status === "draft"
     const editable = canEdit && draft
     const byLine = (k: OverheadKey) => overheadItems.filter((i) => i.line === k)
-    const rentVehicles = Object.values(
-        r.owners
-            .flatMap((o) => o.vehicles.map((v) => ({ ...v, owner: o.name })))
-            .reduce<
-                Record<
-                    number,
-                    {
-                        vehicle: number
-                        plate: string
-                        rent: number
-                        parts: {
-                            part: string
-                            rent_usd: string
-                            vat_percent: string
-                            owner: string
-                        }[]
-                    }
-                >
-            >((acc, v) => {
-                const g = (acc[v.vehicle] ??= {
-                    vehicle: v.vehicle,
-                    plate: v.plate,
-                    rent: 0,
-                    parts: [],
-                })
-                g.rent += num(v.rent)
-                g.parts.push({
-                    part: v.part,
-                    rent_usd: v.rent_usd,
-                    vat_percent: v.vat_percent,
-                    owner: v.owner,
-                })
-                return acc
-            }, {}),
-    ).sort((a, b) => a.plate.localeCompare(b.plate))
+    const rentParts = (["head", "trailer"] as const)
+        .map((part) => {
+            const rows = r.owners
+                .flatMap((o) =>
+                    o.vehicles.map((v) => ({ ...v, owner: o.name })),
+                )
+                .filter((v) => v.part === part)
+                .sort((x, y) => x.plate.localeCompare(y.plate))
+            return {
+                part,
+                rows,
+                total: rows.reduce((acc, v) => acc + num(v.rent), 0),
+                owners: [...new Set(rows.map((v) => v.owner))].join(", "),
+            }
+        })
+        .filter((g) => g.rows.length > 0)
 
     return (
         <div className="flex flex-col gap-4">
@@ -578,71 +559,67 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                             />
                             {open === "rent" && (
                                 <>
-                                    {rentVehicles.length === 0 && (
+                                    {rentParts.length === 0 && (
                                         <p className="pl-12 pr-4 py-1.5 text-xs text-muted-foreground border-b">
                                             {t("fin_report.no_rent")}
                                         </p>
                                     )}
-                                    {rentVehicles.map((v) => (
-                                        <div
-                                            key={v.vehicle}
-                                            className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs border-b bg-muted/10"
-                                        >
-                                            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
-                                                <span className="truncate">
-                                                    {v.plate}
-                                                </span>
-                                                <TooltipProvider
-                                                    delayDuration={100}
+                                    {rentParts.map((g) => (
+                                        <div key={g.part}>
+                                            <Line
+                                                sub
+                                                label={`${t(`fin_report.part.${g.part}`)} → ${g.owners}`}
+                                                value={-g.total}
+                                            />
+                                            {g.rows.map((v) => (
+                                                <div
+                                                    key={`${v.vehicle}-${v.part}`}
+                                                    className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs border-b bg-muted/10"
                                                 >
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Info
-                                                                className="h-3.5 w-3.5 shrink-0 cursor-help"
-                                                                aria-label={t(
-                                                                    "fin_report.rent_info",
-                                                                )}
-                                                            />
-                                                        </TooltipTrigger>
-                                                        <TooltipContent className="flex flex-col gap-0.5">
-                                                            {[...v.parts]
-                                                                .sort((x, y) =>
-                                                                    x.part.localeCompare(
-                                                                        y.part,
-                                                                    ),
-                                                                )
-                                                                .map((p) => (
-                                                                    <span
-                                                                        key={
-                                                                            p.part
-                                                                        }
-                                                                    >
-                                                                        {t(
-                                                                            `fin_report.part.${p.part}`,
-                                                                        )}{" "}
-                                                                        ·{" "}
-                                                                        {usd(
-                                                                            p.rent_usd,
-                                                                        )}{" "}
-                                                                        +{" "}
-                                                                        {num(
-                                                                            p.vat_percent,
+                                                    <span className="flex min-w-0 items-center gap-1.5 pl-4 text-muted-foreground">
+                                                        <span className="truncate">
+                                                            {v.plate}
+                                                        </span>
+                                                        <TooltipProvider
+                                                            delayDuration={100}
+                                                        >
+                                                            <Tooltip>
+                                                                <TooltipTrigger
+                                                                    asChild
+                                                                >
+                                                                    <Info
+                                                                        className="h-3.5 w-3.5 shrink-0 cursor-help"
+                                                                        aria-label={t(
+                                                                            "fin_report.rent_info",
                                                                         )}
-                                                                        %{" "}
-                                                                        {t(
-                                                                            "fin_report.vat",
-                                                                        )}{" "}
-                                                                        →{" "}
-                                                                        {
-                                                                            p.owner
-                                                                        }
-                                                                    </span>
-                                                                ))}
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            </span>
-                                            <Money value={-v.rent} />
+                                                                    />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    {t(
+                                                                        `fin_report.part.${v.part}`,
+                                                                    )}{" "}
+                                                                    ·{" "}
+                                                                    {usd(
+                                                                        v.rent_usd,
+                                                                    )}{" "}
+                                                                    +{" "}
+                                                                    {num(
+                                                                        v.vat_percent,
+                                                                    )}
+                                                                    %{" "}
+                                                                    {t(
+                                                                        "fin_report.vat",
+                                                                    )}{" "}
+                                                                    → {v.owner}
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    </span>
+                                                    <Money
+                                                        value={-num(v.rent)}
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
                                     ))}
                                     {num(r.rent) !== 0 && (
