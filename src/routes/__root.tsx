@@ -16,6 +16,7 @@ import { ThemeProvider } from "@/layouts/theme"
 import { ViewProvider } from "@/layouts/view"
 import { ModalProvider } from "@/providers/modal-provider"
 import { useTranslation } from "react-i18next"
+import { useTableArrowScroll } from "@/hooks/use-table-arrow-scroll"
 
 function NotFound() {
     const { t } = useTranslation()
@@ -51,6 +52,7 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+    useTableArrowScroll()
     return (
         <ModalProvider>
             <ThemeProvider defaultTheme="dark" storageKey="theme">
