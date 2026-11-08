@@ -77,6 +77,7 @@ interface DataTableProps<TData> {
     manualSorting?: boolean
     stickyHeader?: boolean
     stickyActions?: boolean
+    stickyFirstColumn?: boolean
     numeration?: boolean
     wrapperClassName?: string
     actionMenuMode?: boolean
@@ -120,8 +121,9 @@ export function DataTable<TData>({
     head,
     numeration = false,
     manualSorting = false,
-    stickyHeader = false,
+    stickyHeader = true,
     stickyActions = true,
+    stickyFirstColumn = true,
     wrapperClassName,
     actionMenuMode,
     onEdit,
@@ -311,6 +313,19 @@ export function DataTable<TData>({
         }
     }, [rowSelection])
 
+    const SELECT_W = 32
+    const NUM_W = 40
+    const numLeft = selecteds_row ? SELECT_W : 0
+    const firstColLeft = numLeft + (numeration ? NUM_W : 0)
+    const stickyLeftHead = "sticky z-30 bg-secondary dark:bg-muted"
+    const stickyLeftBody = (rowIndex: number) => [
+        "sticky z-10 bg-card",
+        "before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:content-['']",
+        rowIndex % 2 !== 0 && "before:bg-zinc-200/70 dark:before:bg-secondary/70",
+        "group-hover:before:bg-zinc-200/90 dark:group-hover:before:bg-secondary",
+    ]
+    const edgeShadow = "shadow-[6px_0_8px_-6px_rgba(0,0,0,0.35)]"
+
     return (
         <div
             className={cn("w-full   p-4 bg-card rounded-md ", wrapperClassName)}
@@ -337,6 +352,7 @@ export function DataTable<TData>({
                 className={cn(
                     "relative overflow-x-auto no-scollbar-x   rounded-md ",
                     !stickyHeader && "overflow-y-hidden",
+                    stickyHeader && "overflow-y-auto max-h-[calc(100dvh-9rem)]",
                     tableWrapperClassName,
                 )}
             >
@@ -398,9 +414,10 @@ export function DataTable<TData>({
                                         {selecteds_row && (
                                             <TableHead
                                                 className={cn(
-                                                    "w-8 px-2",
+                                                    "w-8 min-w-8 max-w-8 px-2",
                                                     stickyHeader &&
                                                         "sticky top-0 bg-card z-10",
+                                                    stickyFirstColumn && [stickyLeftHead, "left-0"],
                                                 )}
                                             >
                                                 <Checkbox
@@ -422,10 +439,12 @@ export function DataTable<TData>({
                                             <TableHead
                                                 className={cn(
                                                     " px-2  cursor-pointer",
-                                                    index === 0 && "w-8",
+                                                    stickyFirstColumn ? "w-10 min-w-10 max-w-10" : index === 0 && "w-8",
                                                     stickyHeader &&
                                                         "sticky top-0 bg-card z-10",
+                                                    stickyFirstColumn && stickyLeftHead,
                                                 )}
+                                                style={stickyFirstColumn ? { left: numLeft } : undefined}
                                             >
                                                 №
                                             </TableHead>
@@ -457,22 +476,15 @@ export function DataTable<TData>({
                                                             stickyActions &&
                                                                 isActionsColumn(header.column.id) &&
                                                                 "sticky right-0 z-20 bg-secondary dark:bg-muted shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
+                                                            stickyFirstColumn &&
+                                                                index === 0 &&
+                                                                !isActionsColumn(header.column.id) && [stickyLeftHead, edgeShadow],
                                                             (header.column.columnDef.meta as { className?: string } | undefined)?.className,
                                                         )}
-                                                        style={
-                                                            (
-                                                                header.column
-                                                                    .columnDef
-                                                                    .size
-                                                            ) ?
-                                                                {
-                                                                    width: header
-                                                                        .column
-                                                                        .columnDef
-                                                                        .size,
-                                                                }
-                                                            :   undefined
-                                                        }
+                                                        style={{
+                                                            ...(header.column.columnDef.size ? { width: header.column.columnDef.size } : {}),
+                                                            ...(stickyFirstColumn && index === 0 && !isActionsColumn(header.column.id) ? { left: firstColLeft } : {}),
+                                                        }}
                                                         onClick={
                                                             showSort ?
                                                                 header.column.getToggleSortingHandler()
@@ -546,7 +558,7 @@ export function DataTable<TData>({
                                         )}
                                     >
                                         {selecteds_row && (
-                                            <TableCell className="w-8 ">
+                                            <TableCell className={cn("w-8 min-w-8 max-w-8", stickyFirstColumn && [stickyLeftBody(index), "left-0"])}>
                                                 {isRowLocked?.(row.original) ? null : <Checkbox
                                                     checked={row.getIsSelected()}
                                                     onCheckedChange={(value) =>
@@ -559,7 +571,10 @@ export function DataTable<TData>({
                                             </TableCell>
                                         )}
                                         {numeration && (
-                                            <TableCell className="w-8 ">
+                                            <TableCell
+                                                className={cn(stickyFirstColumn ? ["w-10 min-w-10 max-w-10", stickyLeftBody(index)] : "w-8 ")}
+                                                style={stickyFirstColumn ? { left: numLeft } : undefined}
+                                            >
                                                 {(Math.min(
                                                     search[paramName] || 1,
                                                     totalPages ?? 1
@@ -571,7 +586,11 @@ export function DataTable<TData>({
                                             </TableCell>
                                         )}
 
-                                        {row.getVisibleCells().map((cell) => {
+                                        {row.getVisibleCells().map((cell, cellIndex) => {
+                                            const pinLeft =
+                                                stickyFirstColumn &&
+                                                cellIndex === 0 &&
+                                                !isActionsColumn(cell.column.id)
                                             const clickable =
                                                 !!onRowClick &&
                                                 cell.column.id !== "action" &&
@@ -601,8 +620,10 @@ export function DataTable<TData>({
                                                                     "before:bg-zinc-200/70 dark:before:bg-secondary/70",
                                                                 "group-hover:before:bg-zinc-200/90 dark:group-hover:before:bg-secondary",
                                                             ],
+                                                        pinLeft && [stickyLeftBody(index), edgeShadow],
                                                         (cell.column.columnDef.meta as { className?: string } | undefined)?.className,
                                                     )}
+                                                    style={pinLeft ? { left: firstColLeft } : undefined}
                                                 >
                                                     {flexRender(
                                                         cell.column.columnDef
