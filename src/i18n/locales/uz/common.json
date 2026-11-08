@@ -1400,7 +1400,9 @@
             "trip_income": "Reys daromadi",
             "trip_profit": "Reys foydasi",
             "vehicle_expense": "Mashina xarajati",
-            "net_profit": "Sof foyda"
+            "net_profit": "Sof foyda",
+            "investor_expense": "Investor xarajati",
+            "investor_expense_hint": "Sof foydaga kirmaydi — investor qarzi"
         },
         "fuel": {
             "diesel": "Dizel",

@@ -3,7 +3,6 @@ import FormTextarea from "@/components/form/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { DataTable } from "@/components/ui/datatable"
 import { Input } from "@/components/ui/input"
 import {
     Tooltip,
@@ -21,7 +20,6 @@ import { cn } from "@/lib/utils"
 import { amountText, num, onApiError } from "@/pages/home/kontragent/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
-import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import {
     ArrowLeft,
@@ -31,7 +29,7 @@ import {
     RefreshCw,
     Trash2,
 } from "lucide-react"
-import { ReactNode, useEffect, useMemo, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -41,7 +39,6 @@ import {
     OverheadItem,
     OverheadKey,
     REPORT_DELETE,
-    VehicleRow,
     reportUrl,
 } from "./api"
 import { DistributionCard } from "./distribution-card"
@@ -127,92 +124,6 @@ const Items = ({ items }: { items: OverheadItem[] }) => {
                 </div>
             ))}
         </div>
-    )
-}
-
-const VehiclesCard = ({ id, stamp }: { id: number; stamp?: string | null }) => {
-    const { t } = useTranslation()
-    const { data = [], isLoading } = useGet<VehicleRow[]>(
-        reportUrl(id, "vehicles"),
-        { params: { at: stamp ?? undefined } },
-    )
-    const rows = useMemo(
-        () =>
-            [...data]
-                .sort((a, b) => num(b.net) - num(a.net))
-                .map((r, i) => ({ ...r, id: i + 1 })),
-        [data],
-    )
-    const columns = useMemo<ColumnDef<VehicleRow>[]>(
-        () => [
-            {
-                accessorKey: "truck_number",
-                header: t("fin_report.vehicle"),
-                cell: ({ row }) => (
-                    <span className="font-medium whitespace-nowrap">
-                        {row.original.truck_number}
-                    </span>
-                ),
-            },
-            {
-                accessorKey: "trip_count",
-                header: t("fin_report.trips"),
-                cell: ({ row }) => (
-                    <span className="tabular-nums">
-                        {row.original.trip_count}
-                    </span>
-                ),
-            },
-            {
-                accessorKey: "income",
-                header: t("fin_report.income_short"),
-                cell: ({ row }) => <Money value={row.original.income} />,
-            },
-            {
-                id: "expense",
-                header: t("fin_report.expense_total"),
-                cell: ({ row }) => (
-                    <Money
-                        value={
-                            -(
-                                num(row.original.trip_expense) +
-                                num(row.original.vehicle_expense)
-                            )
-                        }
-                    />
-                ),
-            },
-            {
-                accessorKey: "net",
-                header: t("fin_report.lines.profit"),
-                cell: ({ row }) => <Money value={row.original.net} strong />,
-            },
-        ],
-        [t],
-    )
-    return (
-        <Card className="min-w-0">
-            <CardContent className="p-4 flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-base font-semibold">
-                        {t("fin_report.by_vehicle")}
-                    </h2>
-                    <span className="text-xs text-muted-foreground">
-                        {t("fin_report.by_vehicle_hint")}
-                    </span>
-                </div>
-                <div className="overflow-x-auto">
-                    <DataTable
-                        className="min-w-0"
-                        columns={columns}
-                        data={rows}
-                        loading={isLoading}
-                        viewAll
-                        wrapperClassName="p-0"
-                    />
-                </div>
-            </CardContent>
-        </Card>
     )
 }
 
@@ -681,7 +592,6 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                 </div>
                 <div className="flex flex-col gap-4 min-w-0">
                     <DistributionCard report={r} />
-                    <VehiclesCard id={id} stamp={r.computed_at} />
                 </div>
             </div>
 

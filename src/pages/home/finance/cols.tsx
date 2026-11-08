@@ -24,6 +24,7 @@ export interface OwnerStatistic {
     income: string | number | null
     expense: string | number | null
     vehicle_expense: string | number | null
+    investor_expense?: string | number | null
     owner_id: number | null
     unpriced_count: number
     cargo_type_name: string | null
@@ -168,10 +169,11 @@ export const useCostCols = () => {
             },
             {
                 header: t("fin.cols.vehicle_expense"),
-                accessorKey: "vehicle_expense",
+                id: "vehicle_expense",
+                accessorFn: (r) => toNum(r.vehicle_expense) - toNum(r.investor_expense),
                 enableSorting: true,
                 cell: ({ row }) => {
-                    const v = round3(row.original.vehicle_expense)
+                    const v = round3(toNum(row.original.vehicle_expense) - toNum(row.original.investor_expense))
                     return <span className="text-red-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
@@ -181,9 +183,21 @@ export const useCostCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => {
                     const net = round3(
-                        toNum(row.original.income) - toNum(row.original.expense) - toNum(row.original.vehicle_expense),
+                        toNum(row.original.income) -
+                            toNum(row.original.expense) -
+                            (toNum(row.original.vehicle_expense) - toNum(row.original.investor_expense)),
                     )
                     return <span className={`font-semibold ${net >= 0 ? "text-blue-600" : "text-red-600"}`}>{formatMoney(net)}</span>
+                },
+            },
+            {
+                header: t("fin.cols.investor_expense"),
+                id: "investor_expense",
+                accessorFn: (r) => toNum(r.investor_expense),
+                enableSorting: true,
+                cell: ({ row }) => {
+                    const v = round3(row.original.investor_expense)
+                    return <span className="text-orange-600 font-medium">{v ? formatMoney(v) : "—"}</span>
                 },
             },
         ],

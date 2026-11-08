@@ -1403,7 +1403,9 @@
             "trip_income": "Trip income",
             "trip_profit": "Trip profit",
             "vehicle_expense": "Vehicle expense",
-            "net_profit": "Net profit"
+            "net_profit": "Net profit",
+            "investor_expense": "Investor expense",
+            "investor_expense_hint": "Not included in net profit — investor's debt"
         },
         "fuel": {
             "diesel": "Diesel",

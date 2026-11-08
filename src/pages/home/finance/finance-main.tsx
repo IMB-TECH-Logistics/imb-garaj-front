@@ -94,7 +94,9 @@ const FinanceStatisticMain = () => {
         const toNum = (v: string | number | null | undefined) => Number(v ?? 0) || 0
         const totalIncome = data.reduce((sum, item) => sum + toNum(item.income), 0)
         const totalExpense = data.reduce((sum, item) => sum + toNum(item.expense), 0)
-        const totalVehicleExpense = data.reduce((sum, item) => sum + toNum(item.vehicle_expense), 0)
+        const totalInvestorExpense = data.reduce((sum, item) => sum + toNum(item.investor_expense), 0)
+        const totalVehicleExpense =
+            data.reduce((sum, item) => sum + toNum(item.vehicle_expense), 0) - totalInvestorExpense
         const totalProfit = totalIncome - totalExpense
         return {
             totalIncome: round3(totalIncome),
@@ -102,6 +104,7 @@ const FinanceStatisticMain = () => {
             totalProfit: round3(totalProfit),
             totalVehicleExpense: round3(totalVehicleExpense),
             totalNet: round3(totalProfit - totalVehicleExpense),
+            totalInvestorExpense: round3(totalInvestorExpense),
         }
     }, [statisticsData])
 
@@ -114,6 +117,9 @@ const FinanceStatisticMain = () => {
         { title: t("fin.cols.trip_profit"), value: totals.totalProfit, icon: totals.totalProfit >= 0 ? TrendingUp : TrendingDown, tone: totals.totalProfit >= 0 ? "green" : "red", signed: true },
         { title: t("fin.cols.vehicle_expense"), value: totals.totalVehicleExpense, icon: Wrench, tone: "yellow", expense: true },
         { title: t("fin.cols.net_profit"), value: totals.totalNet, icon: totals.totalNet >= 0 ? TrendingUp : TrendingDown, tone: totals.totalNet >= 0 ? "green" : "red", signed: true },
+        ...(totals.totalInvestorExpense
+            ? [{ title: t("fin.cols.investor_expense"), hint: t("fin.cols.investor_expense_hint"), value: totals.totalInvestorExpense, icon: Wrench, tone: "orange", expense: true } as const]
+            : []),
     ] as const
 
     const toneClass: Record<string, { card: string; icon: string }> = {
@@ -150,7 +156,7 @@ const FinanceStatisticMain = () => {
                 />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+            <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${cards.length > 5 ? "xl:grid-cols-6" : "xl:grid-cols-5"}`}>
                 {cards.map((c) => (
                     <Card key={c.title} className={`relative overflow-hidden border-none shadow-none ${toneClass[c.tone].card}`}>
                         <CardHeader className="pb-2">
@@ -165,6 +171,7 @@ const FinanceStatisticMain = () => {
                             <div className="text-xl font-bold tabular-nums">
                                 {isError ? "—" : <>{"signed" in c && c.signed && c.value > 0 ? "+" : ""}{"expense" in c && c.expense && c.value > 0 ? "−" : ""}{formatMoney(c.value)} {t("page.som")}</>}
                             </div>
+                            {"hint" in c && c.hint && <p className="mt-1 text-xs opacity-75">{c.hint}</p>}
                         </CardContent>
                     </Card>
                 ))}

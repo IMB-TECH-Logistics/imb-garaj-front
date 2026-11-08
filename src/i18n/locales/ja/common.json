@@ -1406,7 +1406,9 @@
             "trip_income": "運行収入",
             "trip_profit": "運行利益",
             "vehicle_expense": "車両費用",
-            "net_profit": "純利益"
+            "net_profit": "純利益",
+            "investor_expense": "投資家負担の費用",
+            "investor_expense_hint": "純利益には含まれません（投資家の債務）"
         },
         "fuel": {
             "diesel": "軽油",

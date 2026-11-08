@@ -1400,7 +1400,9 @@
             "trip_income": "Рейс даромади",
             "trip_profit": "Рейс фойдаси",
             "vehicle_expense": "Машина харажати",
-            "net_profit": "Соф фойда"
+            "net_profit": "Соф фойда",
+            "investor_expense": "Инвестор харажати",
+            "investor_expense_hint": "Соф фойдага кирмайди — инвестор қарзи"
         },
         "fuel": {
             "diesel": "Дизел",

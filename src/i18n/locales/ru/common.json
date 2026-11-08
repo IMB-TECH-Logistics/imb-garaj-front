@@ -1409,7 +1409,9 @@
             "trip_income": "Доход с рейса",
             "trip_profit": "Прибыль с рейса",
             "vehicle_expense": "Расходы на машину",
-            "net_profit": "Чистая прибыль"
+            "net_profit": "Чистая прибыль",
+            "investor_expense": "Расходы инвестора",
+            "investor_expense_hint": "Не влияет на чистую прибыль — долг инвестора"
         },
         "fuel": {
             "diesel": "Дизель",
