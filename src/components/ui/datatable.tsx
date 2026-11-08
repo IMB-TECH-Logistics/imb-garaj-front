@@ -317,7 +317,7 @@ export function DataTable<TData>({
     const NUM_W = 40
     const numLeft = selecteds_row ? SELECT_W : 0
     const firstColLeft = numLeft + (numeration ? NUM_W : 0)
-    const stickyLeftHead = "sticky z-30 bg-secondary dark:bg-muted"
+    const stickyLeftHead = "sticky z-20 bg-secondary dark:bg-muted"
     const stickyLeftBody = (rowIndex: number) => [
         "sticky z-10 bg-card",
         "before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:content-['']",
