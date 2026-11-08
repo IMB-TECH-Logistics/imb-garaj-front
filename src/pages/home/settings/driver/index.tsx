@@ -3,6 +3,8 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { DataTable } from "@/components/ui/datatable"
 import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
@@ -144,9 +146,15 @@ const Drivers = () => {
                             <Badge className="text-sm">
                                 {formatMoney(data?.count ?? 0)}
                             </Badge>
-                            <div className="ml-2 inline-flex rounded-md border p-0.5">
-                                <Button size="sm" variant={dismissedView ? "ghost" : "default"} className="h-7" onClick={() => setView("active")}>{t("dismiss.tab_active")}</Button>
-                                <Button size="sm" variant={dismissedView ? "default" : "ghost"} className="h-7" onClick={() => setView("dismissed")}>{t("dismiss.tab_dismissed")}</Button>
+                            <div className="ml-2 flex items-center gap-2">
+                                <Switch
+                                    id="drivers-archive"
+                                    checked={dismissedView}
+                                    onCheckedChange={(checked) => setView(checked ? "dismissed" : "active")}
+                                />
+                                <Label htmlFor="drivers-archive" className="cursor-pointer whitespace-nowrap">
+                                    {t("status.archive")}
+                                </Label>
                             </div>
                         </div>
 
