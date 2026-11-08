@@ -14,27 +14,28 @@ export type PetrolStationOption = {
     is_cash?: boolean
 }
 
-export function PetrolStationField({ control }: { control: any }) {
+export function PetrolStationField({
+    control,
+    current,
+}: {
+    control: any
+    current?: { id: number | null | undefined; name: string | null | undefined }
+}) {
     const { t } = useTranslation()
     const { data } = useGet<ListResponse<PetrolStationOption>>(
         SETTINGS_PETROL_STATIONS,
         { params: { page_size: 1000 } },
     )
-    const formatBalance = (n: number) =>
-        Math.round(n)
-            .toString()
-            .replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-    const options = useMemo(
-        () =>
-            (data?.results ?? [])
-                .slice()
-                .sort((a, b) => Number(!!b.is_cash) - Number(!!a.is_cash))
-                .map((p) => ({
-                id: p.id,
-                name: t("trips.kirim.station_balance", { name: p.name, balance: formatBalance(Number(p.balance ?? 0)) }),
-            })),
-        [data, t],
-    )
+    const options = useMemo(() => {
+        const list = (data?.results ?? [])
+            .slice()
+            .sort((a, b) => Number(!!b.is_cash) - Number(!!a.is_cash))
+            .map((p) => ({ id: p.id, name: p.name }))
+        if (current?.id && !list.some((o) => o.id === current.id)) {
+            list.unshift({ id: current.id, name: current.name || `#${current.id}` })
+        }
+        return list
+    }, [data, current?.id, current?.name])
     return (
         <FormCombobox
             control={control}

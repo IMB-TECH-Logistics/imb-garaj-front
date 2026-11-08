@@ -242,7 +242,12 @@ export function AddFinanceForm({
         >
             {isFuel && (
                 <>
-                    {withStation && <PetrolStationField control={control} />}
+                    {withStation && (
+                        <PetrolStationField
+                            control={control}
+                            current={isEdit ? { id: editItem?.petrol_station, name: editItem?.petrol_station_name } : undefined}
+                        />
+                    )}
                     <FormNumberInput
                         required
                         control={control}
