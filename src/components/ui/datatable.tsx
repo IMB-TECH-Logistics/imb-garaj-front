@@ -416,7 +416,7 @@ export function DataTable<TData>({
                                                 className={cn(
                                                     "w-8 min-w-8 max-w-8 px-2",
                                                     stickyHeader &&
-                                                        "sticky top-0 bg-card z-10",
+                                                        "sticky top-0 bg-secondary dark:bg-muted z-10",
                                                     stickyFirstColumn && [stickyLeftHead, "left-0"],
                                                 )}
                                             >
@@ -441,7 +441,7 @@ export function DataTable<TData>({
                                                     " px-2  cursor-pointer",
                                                     stickyFirstColumn ? "w-10 min-w-10 max-w-10" : index === 0 && "w-8",
                                                     stickyHeader &&
-                                                        "sticky top-0 bg-card z-10",
+                                                        "sticky top-0 bg-secondary dark:bg-muted z-10",
                                                     stickyFirstColumn && stickyLeftHead,
                                                 )}
                                                 style={stickyFirstColumn ? { left: numLeft } : undefined}
@@ -472,7 +472,7 @@ export function DataTable<TData>({
                                                         className={cn(
                                                             " px-2 cursor-pointer",
                                                             stickyHeader &&
-                                                                "sticky top-0 bg-card z-10",
+                                                                "sticky top-0 bg-secondary dark:bg-muted z-10",
                                                             stickyActions &&
                                                                 isActionsColumn(header.column.id) &&
                                                                 "sticky right-0 z-20 bg-secondary dark:bg-muted shadow-[-6px_0_8px_-6px_rgba(0,0,0,0.35)]",
