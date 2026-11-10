@@ -302,6 +302,16 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 label={t("fin_report.lines.trip_expense")}
                                 value={-num(r.trip_expense)}
                             />
+                            {(
+                                ["trip_fuel", "trip_salary", "trip_other"] as const
+                            ).map((k) => (
+                                <Line
+                                    key={k}
+                                    sub
+                                    label={t(`fin_report.lines.${k}`)}
+                                    value={-num(r[k])}
+                                />
+                            ))}
 
                             <Line
                                 label={t("fin_report.lines.other_expense")}
@@ -359,6 +369,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                             "tax_profit",
                                             "tax_vat",
                                             "tax_payroll",
+                                            "tax_cash",
                                         ] as const
                                     ).map((k) => (
                                         <div key={k}>

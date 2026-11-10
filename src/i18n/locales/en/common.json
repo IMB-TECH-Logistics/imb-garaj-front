@@ -3400,6 +3400,10 @@
             "tax_profit": "Corporate income tax",
             "tax_vat": "VAT",
             "tax_payroll": "Payroll taxes",
+            "tax_cash": "Cash-out fees",
+            "trip_fuel": "Fuel",
+            "trip_salary": "Driver salary",
+            "trip_other": "Other trip expenses",
             "tax_other": "Other taxes",
             "management_kassa": "Management cash expenses",
             "rent_kassa": "Rent cash expenses"

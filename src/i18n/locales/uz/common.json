@@ -3397,6 +3397,10 @@
             "tax_profit": "Daromad solig'i (firma)",
             "tax_vat": "QQS",
             "tax_payroll": "Ishchilar uchun soliq (YIT va daromad solig'i)",
+            "tax_cash": "Naqd qilish xarajatlari",
+            "trip_fuel": "Yoqilg'i",
+            "trip_salary": "Haydovchi oyligi",
+            "trip_other": "Boshqa reys xarajatlari",
             "tax_other": "Boshqa soliq",
             "management_kassa": "Kassadagi boshqaruv chiqimlari",
             "rent_kassa": "Kassadagi ijara chiqimlari"

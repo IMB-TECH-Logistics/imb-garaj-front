@@ -15,6 +15,9 @@ export type MonthlyReport = {
     unpriced_count: number
     income: string
     trip_expense: string
+    trip_fuel: string
+    trip_salary: string
+    trip_other: string
     trip_profit: string
     vehicle_expense: string
     recoverable: string
@@ -32,6 +35,7 @@ export type MonthlyReport = {
     tax_profit: string
     tax_vat: string
     tax_payroll: string
+    tax_cash: string
     tax_total: string
     rent: string
     rent_total: string
@@ -73,6 +77,7 @@ export const OVERHEAD_KEYS = [
     "tax_profit",
     "tax_vat",
     "tax_payroll",
+    "tax_cash",
     "tax",
     "rent",
     "other",

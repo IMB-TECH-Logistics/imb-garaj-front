@@ -3393,6 +3393,10 @@
             "tax_profit": "法人所得税",
             "tax_vat": "付加価値税",
             "tax_payroll": "従業員の税金（個人所得税等）",
+            "tax_cash": "現金化手数料",
+            "trip_fuel": "燃料",
+            "trip_salary": "運転手の給与",
+            "trip_other": "その他の運行経費",
             "tax_other": "その他の税金",
             "management_kassa": "レジの管理費",
             "rent_kassa": "レジの賃料"

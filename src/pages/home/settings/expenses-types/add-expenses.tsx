@@ -49,6 +49,7 @@ export const useReportLineOptions = () => {
         { label: t("fin_report.lines.tax_profit"), value: "tax_profit" },
         { label: t("fin_report.lines.tax_vat"), value: "tax_vat" },
         { label: t("fin_report.lines.tax_payroll"), value: "tax_payroll" },
+        { label: t("fin_report.lines.tax_cash"), value: "tax_cash" },
         { label: t("fin_report.lines.tax_other"), value: "tax" },
         { label: t("fin_report.lines.rent"), value: "rent" },
         { label: t("fin_report.lines.other_expense"), value: "other" },
