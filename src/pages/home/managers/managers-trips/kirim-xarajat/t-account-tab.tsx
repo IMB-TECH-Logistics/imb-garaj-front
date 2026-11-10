@@ -33,6 +33,7 @@ import { AvansForm } from "./avans-form"
 import { ModeToggle } from "./mode-toggle"
 import { SummaryCard } from "./summary-card"
 import { AddFromTAccount } from "./add-from-t-account"
+import { CloseBalanceStrip } from "./close-balance"
 
 // ──── T hisob tab ────
 
@@ -389,6 +390,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                         </Button>
                     )}
                 </div>
+                {hideToggle && access.balance && <CloseBalanceStrip tripId={tripId} />}
             </div>
 
             {hideToggle ? (() => {

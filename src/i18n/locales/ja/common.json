@@ -2835,6 +2835,19 @@
             "orders": "便",
             "empty": "空車走行",
             "estimated": "概算: 開始時の残量 + 給油量。ターンを閉じると確定します"
+        },
+        "close_balance": {
+            "title": "締め時の残高",
+            "column": "残高（締め時／現在）",
+            "at_close": "締め時（{{date}}）",
+            "at_close_short": "締め時",
+            "now": "現在",
+            "diff": "差額",
+            "changes": "変更（{{count}}）",
+            "changes_title": "締め後の変更",
+            "kind_added": "追加",
+            "kind_edited": "変更",
+            "kind_deleted": "削除"
         }
     },
     "ui": {

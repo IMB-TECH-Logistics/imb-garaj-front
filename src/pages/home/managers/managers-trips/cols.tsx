@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { CheckCircle, HandCoins, SquarePen, Trash2 } from "lucide-react"
 import AdvanceBadge from "./advance-badge"
 import NoLocationBadge from "../no-location-badge"
+import { DiffText } from "./kirim-xarajat/close-balance"
 
 export const STATUS_TRIP: Record<number, string> = {
     0: "trips.status.pending",
@@ -32,6 +33,7 @@ export const useColumnsManagersTrips = (opts?: {
     const hasControl = useHasAction("manager_vehicles_control")
     const { data: me } = useUser()
     const canCloseTrip = useHasAction("kassa_trip_close_control")
+    const canSeeBalance = useHasAction("trip_kassa_balance_view")
     const canFinish = hasControl && (!(me?.kassa_mode === "driver_cash" && me?.kassa_version === 2) || canCloseTrip)
     const { openModal: openFinished } = useModal(`${MANAGERS_TRIPS}-finished`)
     const { setData } = useGlobalStore()
@@ -189,6 +191,35 @@ export const useColumnsManagersTrips = (opts?: {
                     <div>{formatMoney(row.original.cash_flow_sum)}</div>
                 ),
             },
+            ...(canSeeBalance ?
+                [
+                    {
+                        id: "close_balance",
+                        header: t("trips.close_balance.column"),
+                        cell: ({ row }: { row: { original: ManagerTrips } }) => {
+                            const b = row.original.close_balance
+                            if (!b) return <div className="text-muted-foreground">—</div>
+                            return (
+                                <div className="flex flex-col whitespace-nowrap text-xs leading-5">
+                                    <span>
+                                        <span className="text-muted-foreground">{t("trips.close_balance.at_close_short")}: </span>
+                                        {formatMoney(Number(b.at_close))}
+                                    </span>
+                                    <span>
+                                        <span className="text-muted-foreground">{t("trips.close_balance.now")}: </span>
+                                        {formatMoney(Number(b.now))}
+                                    </span>
+                                    {Number(b.diff) !== 0 && (
+                                        <span className="flex w-fit items-center gap-1 rounded bg-amber-100 px-1 dark:bg-amber-900/40">
+                                            ⚠ <DiffText diff={Number(b.diff)} />
+                                        </span>
+                                    )}
+                                </div>
+                            )
+                        },
+                    } as ColumnDef<ManagerTrips>,
+                ]
+            :   []),
 
             {
                 id: "actions",
@@ -263,6 +294,6 @@ export const useColumnsManagersTrips = (opts?: {
                 ),
             },
         ],
-        [onMoliya, onEdit, onDelete, t, canFinish, hasControl],
+        [onMoliya, onEdit, onDelete, t, canFinish, hasControl, canSeeBalance],
     )
 }

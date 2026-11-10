@@ -44,6 +44,7 @@ interface ManagerTrips {
     loading: string
     unloading: string
     no_location_orders?: number | null
+    close_balance?: { closed_at: string; at_close: number; now: number; diff: number } | null
 }
 
 type TripFuelState = "ok" | "pending" | "no_data" | "unreliable"

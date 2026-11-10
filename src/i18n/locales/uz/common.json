@@ -2839,6 +2839,19 @@
             "orders": "Reyslar",
             "empty": "Bo'sh yurish",
             "estimated": "Taxminiy: boshlang'ich qoldiq + quyilgan yoqilg'i. Aylanma yopilganda aniqlanadi"
+        },
+        "close_balance": {
+            "title": "Yopilgandagi qoldiq",
+            "column": "Qoldiq (yopilganda / hozir)",
+            "at_close": "Yopilganda ({{date}})",
+            "at_close_short": "Yopilganda",
+            "now": "Hozir",
+            "diff": "Farq",
+            "changes": "O'zgarishlar ({{count}})",
+            "changes_title": "Yopilgandan keyingi o'zgarishlar",
+            "kind_added": "Qo'shilgan",
+            "kind_edited": "O'zgartirilgan",
+            "kind_deleted": "O'chirilgan"
         }
     },
     "ui": {

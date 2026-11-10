@@ -2842,6 +2842,19 @@
             "orders": "Trips",
             "empty": "Empty runs",
             "estimated": "Estimate: starting level + refuels. Finalized when the turnover is closed"
+        },
+        "close_balance": {
+            "title": "Balance at close",
+            "column": "Balance (at close / now)",
+            "at_close": "At close ({{date}})",
+            "at_close_short": "At close",
+            "now": "Now",
+            "diff": "Difference",
+            "changes": "Changes ({{count}})",
+            "changes_title": "Changes after close",
+            "kind_added": "Added",
+            "kind_edited": "Edited",
+            "kind_deleted": "Deleted"
         }
     },
     "ui": {
