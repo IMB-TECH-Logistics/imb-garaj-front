@@ -17,7 +17,7 @@ import SerializeDialog from "./serialize-dialog"
 
 const ProductCatalogPage = () => {
     const { t } = useTranslation()
-    const hasControl = useHasAction("warehouse_control")
+    const hasControl = useHasAction(["settings_products_control", "warehouse_control"])
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<ListResponse<WhProduct>>(
         WAREHOUSE_PRODUCTS,

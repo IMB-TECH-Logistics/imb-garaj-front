@@ -16,7 +16,7 @@ import { useColumnsUnitTable } from "./unit-cols"
 
 const UnitsPage = () => {
     const { t } = useTranslation()
-    const hasControl = useHasAction("warehouse_control")
+    const hasControl = useHasAction(["settings_products_control", "warehouse_control"])
     const search = useSearch({ strict: false })
     const { data, isLoading } = useGet<WhUnit[]>(WAREHOUSE_UNITS)
 

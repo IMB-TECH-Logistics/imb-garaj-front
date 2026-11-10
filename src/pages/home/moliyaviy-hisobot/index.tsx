@@ -89,7 +89,7 @@ const CreateForm = ({ onCreated }: { onCreated: (id: number) => void }) => {
 const FinanceReportsPage = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const canEdit = useHasAction("investor_control")
+    const canEdit = useHasAction("fin_report_control")
     const { openModal } = useModal(REPORT_CREATE)
     const { data = [], isLoading } = useGet<MonthlyReport[]>(MONTHLY_REPORTS)
     const open = (id: number) =>

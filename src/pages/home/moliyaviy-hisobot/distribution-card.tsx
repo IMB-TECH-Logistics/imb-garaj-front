@@ -21,7 +21,7 @@ const PCT_RE = /^(100(\.0{0,2})?|\d{0,2}(\.\d{0,2})?)$/
 export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
-    const canEdit = useHasAction("investor_control")
+    const canEdit = useHasAction("fin_report_control")
     const draft = report.status === "draft"
     const editable = canEdit && draft
     const initial = useMemo(

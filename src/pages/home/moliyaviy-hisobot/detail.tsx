@@ -133,7 +133,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const qc = useQueryClient()
-    const canEdit = useHasAction("investor_control")
+    const canEdit = useHasAction("fin_report_control")
     const { data: r, isLoading } = useGet<MonthlyReport>(reportUrl(id))
     const { data: overheadItems = [] } = useGet<OverheadItem[]>(
         reportUrl(id, "overhead"),

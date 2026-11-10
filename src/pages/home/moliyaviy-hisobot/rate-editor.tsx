@@ -14,7 +14,7 @@ import { MonthlyReport, reportUrl } from "./api"
 export const RateEditor = ({ report }: { report: MonthlyReport }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
-    const canEdit = useHasAction("investor_control") && report.status === "draft"
+    const canEdit = useHasAction("fin_report_control") && report.status === "draft"
     const [editing, setEditing] = useState(false)
     const [value, setValue] = useState(
         report.usd_rate ? String(num(report.usd_rate)) : "",

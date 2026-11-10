@@ -169,7 +169,7 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
 export const RentCard = ({ row }: { row: Kontragent }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
-    const canEdit = useHasAction("investor_control")
+    const canEdit = useHasAction(["kontragent_control", "investor_control", "fin_report_control"])
     const { data: rents = [] } = useGet<VehicleRent[]>(VEHICLE_RENTS, {
         params: { kontragent: row.id },
     })

@@ -330,7 +330,7 @@ export const useItems = () => {
                 label: t("nav.fin_report"),
                 icon: <FileSpreadsheet width={18} />,
                 path: "/moliyaviy-hisobot",
-                allowKeys: ["investor_view", "financial_result_view"],
+                allowKeys: ["fin_report_view", "fin_report_control"],
             },
             {
                 label: t("nav.investor_dashboard"),
@@ -354,7 +354,7 @@ export const useItems = () => {
                         label: t("nav.contragents"),
                         icon: <Contact width={18} />,
                         path: "/kontragentlar",
-                        allowKey: "investor_view",
+                        allowKeys: ["kontragent_view", "kontragent_control"],
                     },
                 ]
             :   []),
@@ -384,7 +384,7 @@ export const useItems = () => {
                     {
                         label: t("nav.route_norms"),
                         path: "/route-norms",
-                        allowKey: "monitoring_view",
+                        allowKey: "route_norms_view",
                     },
                 ],
             },
@@ -495,7 +495,7 @@ export const useItems = () => {
                             {
                                 label: t("nav.warehouse"),
                                 path: "/product-catalog",
-                                allowKey: "warehouse_view",
+                                allowKeys: ["settings_products_view", "settings_products_control"],
                                 ownerOnly: true,
                             },
                         ]),
