@@ -2,7 +2,8 @@ import { FormCombobox } from "@/components/form/combobox"
 import { FormDateTimePicker } from "@/components/form/form-datetime-picker"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
-import { MANAGERS_ORDERS, MANAGERS_ORDERS_INTEGRATION_COUNT } from "@/constants/api-endpoints"
+import { MANAGERS_ORDERS, MANAGERS_ORDERS_INTEGRATION_COUNT, SETTINGS_SELECTABLE_REGION } from "@/constants/api-endpoints"
+import { useGet } from "@/hooks/useGet"
 import { isNaqdPaymentTypeName } from "./payment-fields"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
@@ -159,17 +160,27 @@ const AddTripOrders = () => {
         return all.filter((d) => d.owner === Number(clientValue))
     }, [directionsResponse, isNaqd, clientValue])
 
-    const loadsData = useMemo(
-        () =>
-            distinctOptions(directions, (d) => ({
-                id: d.load,
-                name: d.load_name,
-            })),
-        [directions],
+    const { data: allPlaces } = useGet<{ id: number; name: string }[]>(
+        SETTINGS_SELECTABLE_REGION,
+        { enabled: isNaqd },
     )
+    const naqdPlaces = useMemo(
+        () =>
+            [...(allPlaces ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
+        [allPlaces],
+    )
+
+    const loadsData = useMemo(() => {
+        if (isNaqd && allPlaces) return naqdPlaces
+        return distinctOptions(directions, (d) => ({
+            id: d.load,
+            name: d.load_name,
+        }))
+    }, [directions, isNaqd, allPlaces, naqdPlaces])
 
     const unloadsData = useMemo(() => {
         if (isNaqd) {
+            if (allPlaces) return naqdPlaces
             return distinctOptions(directions, (d) => ({
                 id: d.unload,
                 name: d.unload_name,
@@ -181,7 +192,7 @@ const AddTripOrders = () => {
             id: d.unload,
             name: d.unload_name,
         }))
-    }, [directions, loadingValue, isNaqd])
+    }, [directions, loadingValue, isNaqd, allPlaces, naqdPlaces])
 
     const cargoTypesData = useMemo(() => {
         const all = cargoTypesResponse?.results ?? []
