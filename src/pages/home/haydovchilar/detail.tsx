@@ -15,7 +15,15 @@ import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import {
+    AlertTriangle,
     ArrowLeft,
+    Heart,
+    HeartPulse,
+    MapPin,
+    Route,
+    Scale,
+    ShieldCheck,
+    Wrench,
     Calendar,
     CalendarClock,
     Clock,
@@ -52,6 +60,23 @@ type DriverOverview = {
     can_go_abroad?: boolean
     note?: string
     photo?: string | null
+    middle_name?: string | null
+    birth_date?: string | null
+    marital_status?: string | null
+    address?: string | null
+    license_issued_date?: string | null
+    license_categories?: string[] | null
+    has_adr?: boolean | null
+    has_international?: boolean | null
+    previous_jobs?: { company: string; position: string; period: string; leave_reason: string }[] | null
+    vehicle_brands?: string | null
+    can_repair?: boolean | null
+    ready_for_long_trips?: boolean | null
+    had_accident?: boolean | null
+    accident_note?: string | null
+    health?: string | null
+    health_note?: string | null
+    convicted?: boolean | null
     completed_trips: number
     total_trips: number
     ongoing_trips: number
@@ -254,7 +279,7 @@ const InfoSection = ({
     title: string
     children: React.ReactNode
 }) => (
-    <section className="border rounded-2xl px-5 py-4 bg-background">
+    <section className="border rounded-2xl px-5 py-4 bg-card shadow-sm">
         <h2 className="text-lg font-semibold mb-3">{title}</h2>
         <div className="flex flex-col gap-1.5">{children}</div>
     </section>
@@ -381,6 +406,19 @@ export default function HaydovchiDetail() {
         overview.experience,
     )
 
+    const yesNo = (v?: boolean | null) =>
+        v === true ? t("actions.yes")
+        : v === false ? t("actions.no")
+        : null
+    const withNote = (v?: boolean | null, note?: string | null) =>
+        yesNo(v) ?
+            <span>
+                {yesNo(v)}
+                {note ? <span className="text-muted-foreground"> · {note}</span> : null}
+            </span>
+        :   null
+    const jobs = overview.previous_jobs ?? []
+
     const tabs = [
         {
             value: "trips",
@@ -412,7 +450,10 @@ export default function HaydovchiDetail() {
             content: (
                 <div className="grid lg:grid-cols-2 gap-3">
                     <InfoSection title={t("driver_profile.personal")}>
-                        <InfoField icon={<User size={16} />} label={t("form.first_name")} value={`${overview.first_name ?? ""} ${overview.last_name ?? ""}`.trim()} />
+                        <InfoField icon={<User size={16} />} label={t("form.first_name")} value={`${overview.first_name ?? ""} ${overview.last_name ?? ""} ${overview.middle_name ?? ""}`.trim()} />
+                        <InfoField icon={<Calendar size={16} />} label={t("anketa.birth_date")} value={overview.birth_date ? formatDate(overview.birth_date) : null} />
+                        <InfoField icon={<Heart size={16} />} label={t("anketa.marital_status")} value={overview.marital_status ? t(`anketa.marital.${overview.marital_status}`) : null} />
+                        <InfoField icon={<MapPin size={16} />} label={t("anketa.address")} value={overview.address} />
                         <InfoField icon={<Phone size={16} />} label={t("form.phone")} value={overview.phone ? formatPhoneNumber(overview.phone) : null} />
                         <InfoField icon={<PhoneCall size={16} />} label={t("form.relative_phone_1")} value={relative(overview.relative_phone_1, overview.relative_contact_1)} />
                         <InfoField icon={<PhoneCall size={16} />} label={t("form.relative_phone_2")} value={relative(overview.relative_phone_2, overview.relative_contact_2)} />
@@ -432,6 +473,10 @@ export default function HaydovchiDetail() {
                                 :   null
                             }
                         />
+                        <InfoField icon={<CalendarClock size={16} />} label={t("anketa.license_issued")} value={overview.license_issued_date ? formatDate(overview.license_issued_date) : null} />
+                        <InfoField icon={<CreditCard size={16} />} label={t("anketa.categories")} value={(overview.license_categories ?? []).join(", ")} />
+                        <InfoField icon={<ShieldCheck size={16} />} label={t("anketa.adr")} value={yesNo(overview.has_adr)} />
+                        <InfoField icon={<ShieldCheck size={16} />} label={t("anketa.international")} value={yesNo(overview.has_international)} />
                     </InfoSection>
                     <InfoSection title={t("driver_profile.work")}>
                         <InfoField icon={<Calendar size={16} />} label={t("form.hired_at")} value={overview.hired_at ? formatDate(overview.hired_at) : null} />
@@ -446,6 +491,40 @@ export default function HaydovchiDetail() {
                                 :   <span className="text-muted-foreground">{t("actions.no")}</span>
                             }
                         />
+                    </InfoSection>
+                    <InfoSection title={t("anketa.skills")}>
+                        <InfoField icon={<Truck size={16} />} label={t("anketa.vehicle_brands")} value={overview.vehicle_brands} />
+                        <InfoField icon={<Wrench size={16} />} label={t("anketa.can_repair")} value={yesNo(overview.can_repair)} />
+                        <InfoField icon={<Route size={16} />} label={t("anketa.long_trips")} value={yesNo(overview.ready_for_long_trips)} />
+                    </InfoSection>
+                    <InfoSection title={t("anketa.extra")}>
+                        <InfoField icon={<AlertTriangle size={16} />} label={t("anketa.accident")} value={withNote(overview.had_accident, overview.accident_note)} />
+                        <InfoField
+                            icon={<HeartPulse size={16} />}
+                            label={t("anketa.health_label")}
+                            value={
+                                overview.health ?
+                                    <span>
+                                        {t(`anketa.health.${overview.health}`)}
+                                        {overview.health_note ? <span className="text-muted-foreground"> · {overview.health_note}</span> : null}
+                                    </span>
+                                :   overview.health_note || null
+                            }
+                        />
+                        <InfoField icon={<Scale size={16} />} label={t("anketa.convicted")} value={yesNo(overview.convicted)} />
+                    </InfoSection>
+                    <InfoSection title={t("anketa.jobs")}>
+                        {jobs.length === 0 ?
+                            <span className="text-sm text-muted-foreground">—</span>
+                        :   jobs.map((j, i) => (
+                                <div key={i} className="text-sm border-b last:border-b-0 pb-2 last:pb-0">
+                                    <div className="font-medium">{j.company || "—"}</div>
+                                    <div className="text-muted-foreground">
+                                        {[j.position, j.period, j.leave_reason && `${t("anketa.job_reason")}: ${j.leave_reason}`].filter(Boolean).join(" · ")}
+                                    </div>
+                                </div>
+                            ))
+                        }
                     </InfoSection>
                     <InfoSection title={t("note.title")}>
                         <p className="text-sm whitespace-pre-wrap">
@@ -478,7 +557,7 @@ export default function HaydovchiDetail() {
                 )}
             </div>
 
-            <div className="bg-background border relative rounded-lg p-4">
+            <div className="bg-card shadow-sm border relative rounded-lg p-4">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
                     <div className="xl:col-span-2 flex flex-col sm:flex-row items-start gap-6">
                         <div className="w-full sm:w-[160px] h-[180px] rounded-lg border flex items-center justify-center bg-muted text-4xl font-semibold text-muted-foreground shrink-0 overflow-hidden">

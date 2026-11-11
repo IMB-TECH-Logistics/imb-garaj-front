@@ -1,4 +1,44 @@
 {
+    "anketa": {
+        "middle_name": "Otasining ismi",
+        "birth_date": "Tug'ilgan sana",
+        "marital_status": "Oilaviy holati",
+        "address": "Yashash manzili",
+        "choose": "Tanlang",
+        "license_issued": "Guvohnoma berilgan sana",
+        "driving_years": "Haydovchilik staji (yil)",
+        "categories": "Ruxsat etilgan toifalar",
+        "adr": "ADR ruxsatnomasi",
+        "international": "Xalqaro ruxsatnoma",
+        "jobs": "Mehnat faoliyati va tajriba",
+        "no_jobs": "Oldingi ish joylari kiritilmagan",
+        "job_company": "Tashkilot nomi",
+        "job_position": "Lavozimi / mashina rusumi",
+        "job_period": "Ishlagan davri",
+        "job_reason": "Bo'shash sababi",
+        "skills": "Ko'nikmalar va texnik bilimlar",
+        "vehicle_brands": "Boshqara oladigan avtomobillar",
+        "can_repair": "Kichik ta'mirni o'zi qila oladimi?",
+        "long_trips": "Uzoq safarlarga (komandirovka) tayyormi?",
+        "extra": "Qo'shimcha ma'lumotlar",
+        "accident": "So'nggi yillarda YTH bo'lganmi?",
+        "accident_note": "YTH izohi",
+        "health_label": "Sog'lig'i",
+        "health_note": "Tibbiy monelik",
+        "convicted": "Sudlanganmi?",
+        "marital": {
+            "single": "Bo'ydoq / turmushga chiqmagan",
+            "married": "Oilali",
+            "divorced": "Ajrashgan",
+            "widowed": "Beva"
+        },
+        "health": {
+            "excellent": "A'lo",
+            "satisfactory": "Qoniqarli"
+        },
+        "personal": "Shaxsiy",
+        "license": "Haydovchilik guvohnomasi"
+    },
     "driver_form": {
         "photo": "Расм",
         "photo_failed": "Расм юкланмади, қайта уриниб кўринг"

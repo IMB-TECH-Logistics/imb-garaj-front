@@ -250,6 +250,23 @@ type DriverInfoType = {
     can_go_abroad?: boolean
     note?: string
     photo?: string | null
+    middle_name?: string
+    birth_date?: string | null
+    marital_status?: string
+    address?: string
+    license_issued_date?: string | null
+    license_categories?: string[]
+    has_adr?: boolean
+    has_international?: boolean
+    previous_jobs?: { company: string; position: string; period: string; leave_reason: string }[]
+    vehicle_brands?: string
+    can_repair?: boolean | null
+    ready_for_long_trips?: boolean | null
+    had_accident?: boolean | null
+    accident_note?: string
+    health?: string
+    health_note?: string
+    convicted?: boolean | null
     experience_months?: number | null
 }
 

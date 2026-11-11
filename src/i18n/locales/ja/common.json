@@ -1,4 +1,44 @@
 {
+    "anketa": {
+        "middle_name": "Middle name",
+        "birth_date": "Birth date",
+        "marital_status": "Marital status",
+        "address": "Home address",
+        "choose": "Choose",
+        "license_issued": "License issued on",
+        "driving_years": "Driving experience (years)",
+        "categories": "License categories",
+        "adr": "ADR permit",
+        "international": "International permit",
+        "jobs": "Work history",
+        "no_jobs": "No previous jobs entered",
+        "job_company": "Company",
+        "job_position": "Position / vehicle",
+        "job_period": "Period",
+        "job_reason": "Reason for leaving",
+        "skills": "Skills",
+        "vehicle_brands": "Vehicles they can drive",
+        "can_repair": "Can do minor repairs?",
+        "long_trips": "Ready for long trips?",
+        "extra": "Additional",
+        "accident": "Any accidents recently?",
+        "accident_note": "Accident note",
+        "health_label": "Health",
+        "health_note": "Medical restrictions",
+        "convicted": "Criminal record?",
+        "marital": {
+            "single": "Single",
+            "married": "Married",
+            "divorced": "Divorced",
+            "widowed": "Widowed"
+        },
+        "health": {
+            "excellent": "Excellent",
+            "satisfactory": "Satisfactory"
+        },
+        "personal": "Personal",
+        "license": "Driving license"
+    },
     "driver_form": {
         "photo": "写真",
         "photo_failed": "写真をアップロードできませんでした"

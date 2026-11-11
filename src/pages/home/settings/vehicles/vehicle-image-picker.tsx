@@ -19,6 +19,7 @@ type Props<IForm extends FieldValues> = {
     methods: UseFormReturn<IForm>
     clearable?: boolean
     maxSizeMB?: number
+    noPaste?: boolean
 }
 
 export default function VehicleImagePicker<IForm extends FieldValues>({
@@ -27,6 +28,7 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
     methods,
     clearable = false,
     maxSizeMB,
+    noPaste = false,
 }: Props<IForm>) {
     const { t } = useTranslation()
     const { field } = useController({ name, control: methods.control })
@@ -69,7 +71,7 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
     return (
         <div className="flex flex-col gap-2">
             <span className="text-sm font-medium">{label}</span>
-            <PasteInput onFile={setFile} />
+            {!noPaste && <PasteInput onFile={setFile} />}
             {preview ?
                 <div className="relative h-36 w-full">
                     <SeeInView url={preview} fullWidth>
@@ -129,9 +131,11 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
                     <span className="text-sm font-medium">
                         {t("documents_page.upload_click")}
                     </span>
-                    <span className="px-2 text-xs text-muted-foreground">
-                        {t("documents_page.upload_hint")}
-                    </span>
+                    {!noPaste && (
+                        <span className="px-2 text-xs text-muted-foreground">
+                            {t("documents_page.upload_hint")}
+                        </span>
+                    )}
                 </div>
             }
             <input
