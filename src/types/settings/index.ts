@@ -247,6 +247,7 @@ type DriverInfoType = {
     driver_license_date: string
     experience: string
     hired_at?: string | null
+    can_go_abroad?: boolean
     experience_months?: number | null
 }
 

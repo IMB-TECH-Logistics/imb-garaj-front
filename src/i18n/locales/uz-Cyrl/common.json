@@ -241,6 +241,7 @@
         "tech_passport_num": "Тех. пасспорт рақами",
         "experience": "Иш стажи (йил)",
         "hired_at": "Ишга кирган сана",
+        "can_go_abroad": "Чет элга чиқишга рухсати бор",
         "work_experience": "Иш стажи",
         "experience_years": "{{count}} йил",
         "experience_months": "{{count}} ой",

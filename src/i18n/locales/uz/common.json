@@ -241,6 +241,7 @@
         "tech_passport_num": "Tex. passport raqami",
         "experience": "Ish staji (yil)",
         "hired_at": "Ishga kirgan sana",
+        "can_go_abroad": "Chet elga chiqishga ruxsati bor",
         "work_experience": "Ish staji",
         "experience_years": "{{count}} yil",
         "experience_months": "{{count}} oy",

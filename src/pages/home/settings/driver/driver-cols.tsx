@@ -101,6 +101,15 @@ export const useColumnsDriverTable = () => {
                 cell: ({ row }) => row.getValue("work_experience") as string,
                 id: "work_experience",
             },
+            {
+                id: "can_go_abroad",
+                header: t("form.can_go_abroad"),
+                enableSorting: false,
+                cell: ({ row }) =>
+                    row.original?.driver?.can_go_abroad ?
+                        <span className="font-medium text-emerald-600">{t("actions.yes")}</span>
+                    :   <span className="text-muted-foreground">{t("actions.no")}</span>,
+            },
             // {
             //     accessorKey: "is_active",
             //     header: "Aktiv",

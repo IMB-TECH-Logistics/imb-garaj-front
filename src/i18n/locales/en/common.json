@@ -238,6 +238,7 @@
         "example": "Example",
         "experience": "Work Experience (years)",
         "hired_at": "Hire date",
+        "can_go_abroad": "Allowed to travel abroad",
         "work_experience": "Work experience",
         "experience_years": "{{count}} yr",
         "experience_months": "{{count}} mo",

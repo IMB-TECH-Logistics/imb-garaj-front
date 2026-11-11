@@ -238,6 +238,7 @@
         "example": "例",
         "experience": "勤続年数",
         "hired_at": "入社日",
+        "can_go_abroad": "海外渡航可",
         "work_experience": "勤続期間",
         "experience_years": "{{count}}年",
         "experience_months": "{{count}}ヶ月",

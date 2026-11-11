@@ -1,7 +1,17 @@
+import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
-import { DRIVERS_LIST } from "@/constants/api-endpoints"
-import { useGet } from "@/hooks/useGet"
+import { DRIVERS_LIST, SETTINGS_DRIVERS } from "@/constants/api-endpoints"
+import { useHasAction } from "@/constants/useUser"
+import { getRequest, useGet } from "@/hooks/useGet"
+import { useModal } from "@/hooks/useModal"
+import AddDriverModal from "@/pages/home/settings/driver/add-driver"
+import DismissDriverModal, { DISMISS_MODAL } from "@/pages/home/settings/driver/dismiss-modal"
+import { useGlobalStore } from "@/store/global-store"
+import { PlusCircle, UserMinus } from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { formatExperience } from "@/lib/format-experience"
 import { formatMoney } from "@/lib/format-money"
@@ -40,6 +50,7 @@ type DriverRow = {
     latest_trip_end: string | null
     score: string | number
     tier: "A" | "B" | "C" | "D"
+    can_go_abroad?: boolean
 }
 
 const num = (v: unknown) => Number(v ?? 0) || 0
@@ -77,6 +88,16 @@ const useCols = () => {
                         row.original.experience_months,
                         row.original.experience,
                     ),
+            },
+            {
+                header: t("form.can_go_abroad"),
+                id: "can_go_abroad",
+                accessorFn: (row) => (row.can_go_abroad ? 1 : 0),
+                enableSorting: true,
+                cell: ({ row }) =>
+                    row.original.can_go_abroad ?
+                        <span className="font-medium text-emerald-600">{t("actions.yes")}</span>
+                    :   <span className="text-muted-foreground">{t("actions.no")}</span>,
             },
             {
                 header: t("page.trips"),
@@ -172,6 +193,33 @@ export default function HaydovchilarList() {
 
     const rows = data ?? []
 
+    const hasControl = useHasAction("hr_drivers_control")
+    const { getData, setData, clearKey } = useGlobalStore()
+    const editing = getData<DriversType>(SETTINGS_DRIVERS)
+    const { openModal: openCreateModal } = useModal("create")
+    const { openModal: openDismiss } = useModal(DISMISS_MODAL)
+    const [dismissing, setDismissing] = useState<DriversType | null>(null)
+    const [loadingEdit, setLoadingEdit] = useState(false)
+
+    const handleAdd = () => {
+        clearKey(SETTINGS_DRIVERS)
+        openCreateModal()
+    }
+
+    const handleEdit = async (row: DriverRow) => {
+        if (loadingEdit) return
+        setLoadingEdit(true)
+        try {
+            const full = await getRequest(`${SETTINGS_DRIVERS}/${row.id}`)
+            setData(SETTINGS_DRIVERS, full)
+            openCreateModal()
+        } catch {
+            toast.error(t("trips.row.error"))
+        } finally {
+            setLoadingEdit(false)
+        }
+    }
+
     const handleRowClick = (row: DriverRow) => {
         navigate({
             to: "/haydovchilar/$id",
@@ -181,10 +229,31 @@ export default function HaydovchilarList() {
     }
 
     return (
+        <>
         <DataTable
             loading={isLoading}
             columns={cols}
             data={rows}
+            onEdit={hasControl ? ({ original }) => handleEdit(original) : undefined}
+            rowAction={
+                hasControl ?
+                    (d: DriverRow) => (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 gap-1 text-red-600"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setDismissing(d as unknown as DriversType)
+                                openDismiss()
+                            }}
+                        >
+                            <UserMinus size={14} />
+                            {t("dismiss.action")}
+                        </Button>
+                    )
+                :   undefined
+            }
             paginationProps={{
                 page_sizes: [25, 50, 100, 250, 500],
                 PageSize: 50,
@@ -199,8 +268,30 @@ export default function HaydovchilarList() {
                             {formatMoney(rows.length)}
                         </Badge>
                     </div>
+                    {hasControl && (
+                        <Button
+                            className="flex items-center gap-2"
+                            onClick={handleAdd}
+                            icon={<PlusCircle size={18} />}
+                        >
+                            {t("actions.add")}
+                        </Button>
+                    )}
                 </div>
             }
         />
+
+        <Modal size="max-w-md" title={t("dismiss.title")} modalKey={DISMISS_MODAL}>
+            <DismissDriverModal driver={dismissing} />
+        </Modal>
+
+        <Modal
+            size="max-w-2xl"
+            title={editing?.id ? t("form.edit_driver") : t("form.add_driver")}
+            modalKey="create"
+        >
+            <AddDriverModal />
+        </Modal>
+        </>
     )
 }

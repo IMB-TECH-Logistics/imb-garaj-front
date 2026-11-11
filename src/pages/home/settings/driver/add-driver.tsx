@@ -28,6 +28,10 @@ const AddDriverModal = () => {
     const form = useForm<DriversType>({
         defaultValues: {
             ...currentDriver,
+            driver: {
+                ...currentDriver?.driver,
+                can_go_abroad: !!currentDriver?.driver?.can_go_abroad,
+            } as DriverInfoType,
             password: "",
         },
     })
@@ -41,7 +45,9 @@ const AddDriverModal = () => {
         reset()
         clearKey(SETTINGS_DRIVERS)
         closeModal()
-        queryClient.refetchQueries({ queryKey: [SETTINGS_DRIVERS] })
+        queryClient.invalidateQueries({
+            predicate: (q) => String(q.queryKey[0]).startsWith(SETTINGS_DRIVERS),
+        })
     }
 
     const onError = (error: unknown) => handleFormError(error, form)
@@ -248,6 +254,14 @@ const AddDriverModal = () => {
                         placeholder={t("form.select_date")}
                         calendarProps={{ disabled: { after: new Date() } }}
                     />
+
+                    <div className="md:col-span-2">
+                        <FormCheckbox
+                            name="driver.can_go_abroad"
+                            label={t("form.can_go_abroad")}
+                            control={form.control}
+                        />
+                    </div>
                     </div>
                 </section>
 
