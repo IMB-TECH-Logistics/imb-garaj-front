@@ -3294,6 +3294,11 @@
         }
     },
     "contragent": {
+        "owned": {
+            "title": "Vehicles ({{count}})",
+            "hint": "Vehicles whose owner in Transport is this counterparty",
+            "trailer": "Trailer"
+        },
         "title": "Counterparties",
         "add": "Add counterparty",
         "not_found": "Counterparty not found",

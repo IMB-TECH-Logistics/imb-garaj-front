@@ -17,9 +17,11 @@ import { EditDeleteActions } from "./edit-actions"
 import { CONTRAGENT_CASH, CONTRAGENT_TX, CashForm, ContragentTxForm } from "./forms"
 import { LedgerTable, useLedger } from "./ledger-table"
 import { RentCard } from "./rent-card"
+import { OwnedVehiclesCard, useOwnedVehicles } from "./owned-vehicles-card"
 
 const ContragentDetail = ({ id }: { id: number }) => {
     const { t } = useTranslation()
+    const { data: owned = [] } = useOwnedVehicles(id)
     const navigate = useNavigate()
     const { data: row, isLoading } = useGet<Kontragent>(kontragentUrl(id))
     const { data: ledger, isLoading: ledgerLoading } = useLedger(id)
@@ -144,7 +146,11 @@ const ContragentDetail = ({ id }: { id: number }) => {
                 </Card>
             </div>
 
-            {row.type === "investor" && <RentCard row={row} />}
+            {owned.length > 0 ?
+                <OwnedVehiclesCard rows={owned} />
+            : row.type === "investor" ?
+                <RentCard row={row} />
+            :   null}
 
             <Card>
                 <CardContent className="p-4 flex flex-col gap-3">

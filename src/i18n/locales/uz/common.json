@@ -3291,6 +3291,11 @@
         }
     },
     "contragent": {
+        "owned": {
+            "title": "Mashinalari ({{count}})",
+            "hint": "Transportlar bo'limida egasi shu kontragent bo'lgan mashinalar",
+            "trailer": "Tirkama"
+        },
         "title": "Kontragentlar",
         "add": "Kontragent qo'shish",
         "not_found": "Kontragent topilmadi",
