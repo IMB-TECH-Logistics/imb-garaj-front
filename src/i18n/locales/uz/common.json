@@ -1,4 +1,12 @@
 {
+    "note": {
+        "column": "Izoh",
+        "title": "Izoh",
+        "add": "Izoh yozish",
+        "placeholder": "Masalan: rangi oq, kabinasi almashgan",
+        "truck": "Tyagach",
+        "trailer": "Pritsep"
+    },
     "location": {
         "online": "Onlayn",
         "offline": "Oflayn",

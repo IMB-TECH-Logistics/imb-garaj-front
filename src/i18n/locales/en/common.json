@@ -1,4 +1,12 @@
 {
+    "note": {
+        "column": "Note",
+        "title": "Note",
+        "add": "Add note",
+        "placeholder": "E.g.: white, cabin replaced",
+        "truck": "Truck",
+        "trailer": "Trailer"
+    },
     "location": {
         "online": "Online",
         "offline": "Offline",

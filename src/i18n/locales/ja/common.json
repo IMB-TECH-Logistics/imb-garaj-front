@@ -1,4 +1,12 @@
 {
+    "note": {
+        "column": "メモ",
+        "title": "メモ",
+        "add": "メモを追加",
+        "placeholder": "例：白色、キャビン交換済み",
+        "truck": "トラクター",
+        "trailer": "トレーラー"
+    },
     "location": {
         "online": "オンライン",
         "offline": "オフライン",

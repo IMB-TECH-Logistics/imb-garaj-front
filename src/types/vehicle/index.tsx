@@ -28,6 +28,8 @@ type VehicleCashflowsType = {
 
 type VehicleDetailType = {
     id: number
+    note?: string
+    trailer_note?: string
     driver_name: string
     trailer_type_name: string
     truck_type_name: string

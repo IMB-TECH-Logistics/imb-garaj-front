@@ -1,4 +1,5 @@
 import Modal from "@/components/custom/modal"
+import { NoteButton } from "@/components/custom/note-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
@@ -51,6 +52,7 @@ type DriverRow = {
     score: string | number
     tier: "A" | "B" | "C" | "D"
     can_go_abroad?: boolean
+    note?: string
 }
 
 const num = (v: unknown) => Number(v ?? 0) || 0
@@ -58,8 +60,24 @@ const num = (v: unknown) => Number(v ?? 0) || 0
 
 const useCols = () => {
     const { t } = useTranslation()
+    const canEdit = useHasAction("hr_drivers_control")
     return useMemo<ColumnDef<DriverRow>[]>(
         () => [
+            {
+                id: "note",
+                header: t("note.column"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <NoteButton
+                        value={row.original.note}
+                        url={`${SETTINGS_DRIVERS}/${row.original.id}`}
+                        payload={(note) => ({ driver: { note } })}
+                        refetchPrefix="users/drivers"
+                        canEdit={canEdit}
+                        title={row.original.full_name}
+                    />
+                ),
+            },
             {
                 header: t("form.first_name"),
                 accessorKey: "first_name",
@@ -176,7 +194,7 @@ const useCols = () => {
                 },
             },
         ],
-        [t],
+        [t, canEdit],
     )
 }
 
