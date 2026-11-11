@@ -132,6 +132,35 @@ const Items = ({ items }: { items: OverheadItem[] }) => {
 
 type Section = "other" | "tax" | "management" | "rent" | "leasing"
 
+const OfficeGroups = ({ items }: { items: OverheadItem[] }) => {
+    const { t } = useTranslation()
+    if (!items.length)
+        return (
+            <p className="pl-12 pr-4 py-1.5 text-xs text-muted-foreground border-b">
+                {t("fin_report.no_office")}
+            </p>
+        )
+    const groups = new Map<string, OverheadItem[]>()
+    for (const i of items) groups.set(i.category, [...(groups.get(i.category) ?? []), i])
+    return (
+        <>
+            {[...groups.entries()]
+                .map(([category, rows]) => ({
+                    category,
+                    rows,
+                    total: rows.reduce((a, i) => a + num(i.amount), 0),
+                }))
+                .sort((a, b) => b.total - a.total)
+                .map((g) => (
+                    <div key={g.category}>
+                        <Line sub label={g.category} value={-g.total} />
+                        <Items items={g.rows} />
+                    </div>
+                ))}
+        </>
+    )
+}
+
 type ManualTaxKey =
     | "tax_profit_manual"
     | "tax_vat_manual"
@@ -520,13 +549,20 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                             )}
 
                             <Line
-                                label={t("fin_report.lines.management")}
+                                label={
+                                    r.leasing_mode ?
+                                        t("fin_report.lines.office")
+                                    :   t("fin_report.lines.management")
+                                }
                                 value={-num(r.management_total)}
                                 indent
                                 open={open === "management"}
                                 onClick={toggle("management")}
                             />
-                            {open === "management" && (
+                            {open === "management" && r.leasing_mode && (
+                                <OfficeGroups items={byLine("management")} />
+                            )}
+                            {open === "management" && !r.leasing_mode && (
                                 <>
                                     <div className="flex items-center justify-between gap-3 pl-12 pr-4 py-1.5 text-xs border-b bg-muted/10">
                                         <span className="flex items-center gap-1.5 text-muted-foreground">
