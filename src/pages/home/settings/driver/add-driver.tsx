@@ -241,12 +241,12 @@ export const DriverForm = ({
                 className={page ? "grid md:grid-cols-2 gap-6 my-4" : "grid md:grid-cols-2 gap-4"}
             >
                 <section className={sectionCls}>
-                    <h3 className={titleCls}>{t("settings.driver.fio")}</h3>
+                    {!page && <h3 className={titleCls}>{t("settings.driver.fio")}</h3>}
                     <div className={page ? "flex flex-col lg:flex-row gap-6 items-start" : "grid md:grid-cols-[180px_1fr] gap-4 items-start"}>
                     <div className={page ? "w-full lg:w-52 shrink-0" : undefined}>
                     <VehicleImagePicker
                         name="photo_file"
-                        label={t("driver_form.photo")}
+                        label={page ? "" : t("driver_form.photo")}
                         methods={form}
                         clearable
                         noPaste

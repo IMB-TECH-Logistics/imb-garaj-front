@@ -70,7 +70,7 @@ export default function VehicleImagePicker<IForm extends FieldValues>({
 
     return (
         <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">{label}</span>
+            {label && <span className="text-sm font-medium">{label}</span>}
             {!noPaste && <PasteInput onFile={setFile} />}
             {preview ?
                 <div className="relative h-36 w-full">
