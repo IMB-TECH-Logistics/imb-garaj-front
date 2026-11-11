@@ -3386,6 +3386,8 @@
         "computed_at": "Hisoblangan",
         "recalculate": "Qayta hisoblash",
         "recalculated": "Hisobot qayta hisoblandi",
+        "manual_amount": "Summa (qo'lda)",
+        "from_kassa": "Kassadan",
         "download": "Excel yuklab olish",
         "loading": "Yuklanmoqda...",
         "comment": "Izoh",

@@ -37,6 +37,10 @@ export type MonthlyReport = {
     tax_payroll: string
     tax_cash: string
     tax_total: string
+    tax_profit_manual: string
+    tax_vat_manual: string
+    tax_payroll_manual: string
+    tax_cash_manual: string
     rent: string
     rent_total: string
     other: string

@@ -3376,6 +3376,8 @@
         "computed_at": "Ҳисобланган",
         "recalculate": "Қайта ҳисоблаш",
         "recalculated": "Ҳисобот қайта ҳисобланди",
+        "manual_amount": "Сумма (қўлда)",
+        "from_kassa": "Кассадан",
         "download": "Excel юклаб олиш",
         "loading": "Юкланмоқда...",
         "comment": "Изоҳ",

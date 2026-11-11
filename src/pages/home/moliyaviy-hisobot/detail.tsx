@@ -129,6 +129,78 @@ const Items = ({ items }: { items: OverheadItem[] }) => {
 
 type Section = "other" | "tax" | "management" | "rent"
 
+type ManualTaxKey =
+    | "tax_profit_manual"
+    | "tax_vat_manual"
+    | "tax_payroll_manual"
+    | "tax_cash_manual"
+
+const groupDigits = (v: string) => v.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+
+const ManualTax = ({
+    value,
+    kassa,
+    editable,
+    saving,
+    onSave,
+}: {
+    value: string
+    kassa: number
+    editable: boolean
+    saving: boolean
+    onSave: (v: number) => void
+}) => {
+    const { t } = useTranslation()
+    const saved = String(Math.round(num(value)))
+    const [draft, setDraft] = useState(saved === "0" ? "" : saved)
+    useEffect(() => setDraft(saved === "0" ? "" : saved), [saved])
+    if (!editable && num(value) === 0) return null
+    const dirty = (draft || "0") !== saved
+    return (
+        <div className="flex items-center justify-between gap-3 pl-12 pr-4 py-1.5 text-xs border-b bg-muted/10">
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+                {t("fin_report.manual_amount")}
+                {editable && (
+                    <>
+                        <Input
+                            className="h-7 w-36 text-right text-xs"
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="0"
+                            value={groupDigits(draft)}
+                            onChange={(e) =>
+                                setDraft(
+                                    e.target.value
+                                        .replace(/\D/g, "")
+                                        .replace(/^0+(?=\d)/, "")
+                                        .slice(0, 15),
+                                )
+                            }
+                        />
+                        {dirty && (
+                            <Button
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                loading={saving}
+                                onClick={() => onSave(Number(draft || 0))}
+                            >
+                                {t("actions.save")}
+                            </Button>
+                        )}
+                    </>
+                )}
+                {kassa !== 0 && (
+                    <span>
+                        · {t("fin_report.from_kassa")}:{" "}
+                        {amountText(String(kassa))}
+                    </span>
+                )}
+            </span>
+            {!editable && <Money value={-num(value)} />}
+        </div>
+    )
+}
+
 const FinanceReportDetail = ({ id }: { id: number }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
@@ -379,6 +451,28 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                                     `fin_report.lines.${k}`,
                                                 )}
                                                 value={-num(r[k])}
+                                            />
+                                            <ManualTax
+                                                value={
+                                                    r[
+                                                        `${k}_manual` as ManualTaxKey
+                                                    ] ?? "0"
+                                                }
+                                                kassa={
+                                                    num(r[k]) -
+                                                    num(
+                                                        r[
+                                                            `${k}_manual` as ManualTaxKey
+                                                        ] ?? "0",
+                                                    )
+                                                }
+                                                editable={editable}
+                                                saving={saving}
+                                                onSave={(v) =>
+                                                    save(reportUrl(id), {
+                                                        [`${k}_manual`]: v,
+                                                    })
+                                                }
                                             />
                                             <Items items={byLine(k)} />
                                         </div>

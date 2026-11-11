@@ -3382,6 +3382,8 @@
         "computed_at": "計算日時",
         "recalculate": "再計算",
         "recalculated": "報告を再計算しました",
+        "manual_amount": "金額（手入力）",
+        "from_kassa": "レジから",
         "download": "Excelをダウンロード",
         "loading": "読み込み中...",
         "comment": "コメント",

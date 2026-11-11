@@ -3395,6 +3395,8 @@
         "computed_at": "Рассчитан",
         "recalculate": "Пересчитать",
         "recalculated": "Отчёт пересчитан",
+        "manual_amount": "Сумма (вручную)",
+        "from_kassa": "Из кассы",
         "download": "Скачать Excel",
         "loading": "Загрузка...",
         "comment": "Комментарий",

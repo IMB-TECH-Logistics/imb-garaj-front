@@ -3389,6 +3389,8 @@
         "computed_at": "Calculated",
         "recalculate": "Recalculate",
         "recalculated": "Report recalculated",
+        "manual_amount": "Amount (manual)",
+        "from_kassa": "From cash desk",
         "download": "Download Excel",
         "loading": "Loading...",
         "comment": "Comment",
