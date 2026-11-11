@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
-import { Input } from "@/components/ui/input"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
@@ -66,13 +65,22 @@ const CreateForm = ({ onCreated }: { onCreated: (id: number) => void }) => {
         >
             <label className="flex flex-col gap-1.5 text-sm font-medium">
                 {t("fin_report.month")}
-                <Input
-                    type="month"
+                <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     value={month}
-                    max={format(new Date(), "yyyy-MM")}
                     onChange={(e) => setMonth(e.target.value)}
                     required
-                />
+                >
+                    {Array.from({ length: 24 }, (_, i) => subMonths(new Date(), i)).map((d) => {
+                        const value = format(d, "yyyy-MM")
+                        const name = t(`core.months.m${d.getMonth() + 1}`)
+                        return (
+                            <option key={value} value={value}>
+                                {name.charAt(0).toUpperCase() + name.slice(1)} {d.getFullYear()}
+                            </option>
+                        )
+                    })}
+                </select>
             </label>
             <p className="text-sm text-muted-foreground">
                 {t("fin_report.create_hint")}
