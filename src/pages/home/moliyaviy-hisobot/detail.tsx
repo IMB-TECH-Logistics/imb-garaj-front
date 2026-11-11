@@ -25,9 +25,12 @@ import {
     ArrowLeft,
     ChevronDown,
     Download,
+    Check,
     Info,
+    Pencil,
     RefreshCw,
     Trash2,
+    X,
 } from "lucide-react"
 import { ReactNode, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -137,66 +140,95 @@ type ManualTaxKey =
 
 const groupDigits = (v: string) => v.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
 
-const ManualTax = ({
-    value,
-    kassa,
+const TaxLine = ({
+    label,
+    total,
+    manual,
     editable,
     saving,
     onSave,
 }: {
-    value: string
-    kassa: number
+    label: string
+    total: number
+    manual: number
     editable: boolean
     saving: boolean
     onSave: (v: number) => void
 }) => {
     const { t } = useTranslation()
-    const saved = String(Math.round(num(value)))
-    const [draft, setDraft] = useState(saved === "0" ? "" : saved)
-    useEffect(() => setDraft(saved === "0" ? "" : saved), [saved])
-    if (!editable && num(value) === 0) return null
-    const dirty = (draft || "0") !== saved
+    const [editing, setEditing] = useState(false)
+    const [draft, setDraft] = useState("")
+    const kassa = total - manual
+    const start = () => {
+        setDraft(manual ? String(Math.round(manual)) : "")
+        setEditing(true)
+    }
+    const submit = () => {
+        onSave(Number(draft || 0))
+        setEditing(false)
+    }
     return (
         <div className="flex items-center justify-between gap-3 pl-12 pr-4 py-1.5 text-xs border-b bg-muted/10">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-                {t("fin_report.manual_amount")}
-                {editable && (
-                    <>
-                        <Input
-                            className="h-7 w-36 text-right text-xs"
-                            type="text"
-                            inputMode="numeric"
-                            placeholder="0"
-                            value={groupDigits(draft)}
-                            onChange={(e) =>
-                                setDraft(
-                                    e.target.value
-                                        .replace(/\D/g, "")
-                                        .replace(/^0+(?=\d)/, "")
-                                        .slice(0, 15),
-                                )
-                            }
-                        />
-                        {dirty && (
-                            <Button
-                                size="sm"
-                                className="h-7 px-2 text-xs"
-                                loading={saving}
-                                onClick={() => onSave(Number(draft || 0))}
-                            >
-                                {t("actions.save")}
-                            </Button>
-                        )}
-                    </>
-                )}
+            <span className="flex flex-col text-muted-foreground">
+                {label}
                 {kassa !== 0 && (
-                    <span>
-                        · {t("fin_report.from_kassa")}:{" "}
-                        {amountText(String(kassa))}
+                    <span className="text-[11px]">
+                        {t("fin_report.from_kassa")}: {amountText(String(kassa))}
                     </span>
                 )}
             </span>
-            {!editable && <Money value={-num(value)} />}
+            {editing ?
+                <span className="flex items-center gap-1">
+                    <Input
+                        autoFocus
+                        className="h-7 w-36 text-right text-xs"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
+                        value={groupDigits(draft)}
+                        onChange={(e) =>
+                            setDraft(
+                                e.target.value
+                                    .replace(/\D/g, "")
+                                    .replace(/^0+(?=\d)/, "")
+                                    .slice(0, 15),
+                            )
+                        }
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") submit()
+                            if (e.key === "Escape") setEditing(false)
+                        }}
+                    />
+                    <Button
+                        size="icon"
+                        className="h-7 w-7"
+                        loading={saving}
+                        onClick={submit}
+                    >
+                        <Check className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => setEditing(false)}
+                    >
+                        <X className="w-3.5 h-3.5" />
+                    </Button>
+                </span>
+            :   <span className="flex items-center gap-1.5">
+                    <Money value={-total} />
+                    {editable && (
+                        <button
+                            type="button"
+                            onClick={start}
+                            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
+                            <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                    )}
+                </span>
+            }
         </div>
     )
 }
@@ -445,27 +477,16 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                         ] as const
                                     ).map((k) => (
                                         <div key={k}>
-                                            <Line
-                                                sub
+                                            <TaxLine
                                                 label={t(
                                                     `fin_report.lines.${k}`,
                                                 )}
-                                                value={-num(r[k])}
-                                            />
-                                            <ManualTax
-                                                value={
+                                                total={num(r[k])}
+                                                manual={num(
                                                     r[
                                                         `${k}_manual` as ManualTaxKey
-                                                    ] ?? "0"
-                                                }
-                                                kassa={
-                                                    num(r[k]) -
-                                                    num(
-                                                        r[
-                                                            `${k}_manual` as ManualTaxKey
-                                                        ] ?? "0",
-                                                    )
-                                                }
+                                                    ] ?? "0",
+                                                )}
                                                 editable={editable}
                                                 saving={saving}
                                                 onSave={(v) =>
