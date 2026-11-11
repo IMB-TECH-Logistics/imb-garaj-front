@@ -152,10 +152,7 @@ const OfficeGroups = ({ items }: { items: OverheadItem[] }) => {
                 }))
                 .sort((a, b) => b.total - a.total)
                 .map((g) => (
-                    <div key={g.category}>
-                        <Line sub label={g.category} value={-g.total} />
-                        <Items items={g.rows} />
-                    </div>
+                    <Line key={g.category} sub label={g.category} value={-g.total} />
                 ))}
         </>
     )
