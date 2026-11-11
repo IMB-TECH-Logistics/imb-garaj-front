@@ -178,9 +178,10 @@ const TaxLine = ({
                 )}
             </span>
             {editing ?
-                <span className="flex items-center gap-1">
+                <span className="flex h-7 items-center gap-1">
                     <Input
                         autoFocus
+                        wrapperClassName="h-7 w-36 sm:w-36"
                         className="h-7 w-36 text-right text-xs"
                         type="text"
                         inputMode="numeric"
@@ -528,6 +529,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                                 <>
                                                     $
                                                     <Input
+                                                        wrapperClassName="h-7 w-20 sm:w-20"
                                                         className="h-7 w-20 text-right text-xs"
                                                         type="text"
                                                         inputMode="decimal"
