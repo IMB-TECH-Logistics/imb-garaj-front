@@ -80,7 +80,7 @@ const AddUserModal = () => {
             <FormProvider {...form}>
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start"
                 >
                     <FormInput
                         required
