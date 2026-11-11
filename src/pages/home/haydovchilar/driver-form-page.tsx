@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { getRequest } from "@/hooks/useGet"
 import { DriverForm } from "@/pages/home/settings/driver/add-driver"
@@ -25,7 +24,7 @@ export default function DriverFormPage({
         gcTime: 0,
     })
     return (
-        <div className="space-y-3 pb-6">
+        <div className="pb-6">
             <div className="flex items-center gap-3">
                 <Button variant="default" size="icon" onClick={onBack} className="shrink-0">
                     <ArrowLeft size={18} />
@@ -34,18 +33,16 @@ export default function DriverFormPage({
                     {driverId ? t("form.edit_driver") : t("form.add_driver")}
                 </h1>
             </div>
-            <Card>
-                <CardContent className="p-4">
-                    {driverId && isLoading ?
-                        <p className="py-10 text-center text-muted-foreground">{t("messages.loading")}</p>
-                    :   <DriverForm
-                            key={data?.id ?? "new"}
-                            currentDriver={driverId ? data : null}
-                            onDone={(saved) => onSaved(saved?.id ?? driverId ?? 0)}
-                        />
-                    }
-                </CardContent>
-            </Card>
+            {driverId && isLoading ?
+                <p className="py-10 text-center text-muted-foreground">{t("messages.loading")}</p>
+            :   <DriverForm
+                    key={data?.id ?? "new"}
+                    page
+                    onCancel={onBack}
+                    currentDriver={driverId ? data : null}
+                    onDone={(saved) => onSaved(saved?.id ?? driverId ?? 0)}
+                />
+            }
         </div>
     )
 }

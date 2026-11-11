@@ -26,11 +26,18 @@ type DriverFormValues = DriversType & { photo_file?: File | string | null }
 export const DriverForm = ({
     currentDriver,
     onDone,
+    page = false,
+    onCancel,
 }: {
     currentDriver?: DriversType | null
     onDone: (saved: DriversType) => void
+    page?: boolean
+    onCancel?: () => void
 }) => {
     const { t } = useTranslation()
+    const sectionCls = page ? "md:col-span-2 px-4 py-6 border rounded-2xl" : "md:col-span-2 rounded-lg border bg-muted/20 p-4"
+    const titleCls = page ? "font-bold text-xl mb-6" : "mb-3 text-sm font-semibold text-muted-foreground"
+    const gridCls = page ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5 items-start" : "grid md:grid-cols-2 gap-4 items-start"
     const queryClient = useQueryClient()
     const [uploading, setUploading] = useState(false)
 
@@ -140,14 +147,15 @@ export const DriverForm = ({
         }
     }
     return (
-        <div className="w-full max-w-4xl mx-auto p-1">
+        <div className={page ? "w-full" : "w-full max-w-4xl mx-auto p-1"}>
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="grid md:grid-cols-2 gap-4"
+                className={page ? "grid md:grid-cols-2 gap-6 my-4" : "grid md:grid-cols-2 gap-4"}
             >
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.driver.fio")}</h3>
-                    <div className="grid md:grid-cols-[180px_1fr] gap-4 items-start">
+                <section className={sectionCls}>
+                    <h3 className={titleCls}>{t("settings.driver.fio")}</h3>
+                    <div className={page ? "flex flex-col lg:flex-row gap-6 items-start" : "grid md:grid-cols-[180px_1fr] gap-4 items-start"}>
+                    <div className={page ? "w-full lg:w-52 shrink-0" : undefined}>
                     <VehicleImagePicker
                         name="photo_file"
                         label={t("driver_form.photo")}
@@ -155,7 +163,8 @@ export const DriverForm = ({
                         clearable
                         maxSizeMB={10}
                     />
-                    <div className="grid gap-4">
+                    </div>
+                    <div className={page ? `flex-1 w-full ${gridCls}` : "grid gap-4"}>
                     <FormInput
                         required
                         name="first_name"
@@ -177,10 +186,10 @@ export const DriverForm = ({
                     </div>
                 </section>
 
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.driver.phones")}</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
+                <section className={sectionCls}>
+                    <h3 className={titleCls}>{t("settings.driver.phones")}</h3>
+                    <div className={gridCls}>
+                    <div className={page ? undefined : "md:col-span-2"}>
                         <FormFormatNumberInput
                             control={form.control}
                             format="+998 ## ### ## ##"
@@ -225,9 +234,9 @@ export const DriverForm = ({
                     </div>
                 </section>
 
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("nav.documents")}</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
+                <section className={sectionCls}>
+                    <h3 className={titleCls}>{t("nav.documents")}</h3>
+                    <div className={gridCls}>
                     <FormInput
                         required
                         registerOptions={{
@@ -307,9 +316,9 @@ export const DriverForm = ({
                     </div>
                 </section>
 
-                <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
-                    <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.common.login_and_password")}</h3>
-                    <div className="grid md:grid-cols-2 gap-4 items-start">
+                <section className={sectionCls}>
+                    <h3 className={titleCls}>{t("settings.common.login_and_password")}</h3>
+                    <div className={gridCls}>
                     <FormInput
                         required
                         name="username"
@@ -333,9 +342,19 @@ export const DriverForm = ({
                     </div>
                 </section>
 
-                <div className="flex items-center justify-end gap-2 md:col-span-2">
+                <div className="flex items-center justify-end gap-3 md:col-span-2">
+                    {page && onCancel && (
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={isPending}
+                            onClick={onCancel}
+                        >
+                            {t("actions.cancel")}
+                        </Button>
+                    )}
                     <Button
-                        className="min-w-36 w-full md:w-max"
+                        className={page ? "min-w-28" : "min-w-36 w-full md:w-max"}
                         type="submit"
                         loading={isPending}
                     >
