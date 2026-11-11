@@ -25,6 +25,12 @@
         "accident_note": "Accident note",
         "health_label": "Health",
         "health_note": "Medical restrictions",
+        "convicted_note": "Criminal record note",
+        "accident_ph": "When, where, who was at fault",
+        "health_ph": "What restrictions",
+        "convicted_ph": "When, which article",
+        "issued_after_expiry": "License issue date must be before its expiry",
+        "years_range": "Experience must be 0–60 years",
         "convicted": "Criminal record?",
         "marital": {
             "single": "Single",

@@ -77,6 +77,7 @@ type DriverOverview = {
     health?: string | null
     health_note?: string | null
     convicted?: boolean | null
+    convicted_note?: string | null
     completed_trips: number
     total_trips: number
     ongoing_trips: number
@@ -511,7 +512,7 @@ export default function HaydovchiDetail() {
                                 :   overview.health_note || null
                             }
                         />
-                        <InfoField icon={<Scale size={16} />} label={t("anketa.convicted")} value={yesNo(overview.convicted)} />
+                        <InfoField icon={<Scale size={16} />} label={t("anketa.convicted")} value={withNote(overview.convicted, overview.convicted_note)} />
                     </InfoSection>
                     <InfoSection title={t("anketa.jobs")}>
                         {jobs.length === 0 ?

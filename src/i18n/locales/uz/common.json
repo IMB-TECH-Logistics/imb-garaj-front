@@ -25,6 +25,12 @@
         "accident_note": "YTH izohi",
         "health_label": "Sog'lig'i",
         "health_note": "Tibbiy monelik",
+        "convicted_note": "Sudlanganlik izohi",
+        "accident_ph": "Qachon, qayerda, kim aybdor",
+        "health_ph": "Qanday monelik bor",
+        "convicted_ph": "Qachon, qaysi modda bo'yicha",
+        "issued_after_expiry": "Guvohnoma berilgan sana amal qilish muddatidan oldin bo'lishi kerak",
+        "years_range": "Staj 0 dan 60 yilgacha bo'lishi kerak",
         "convicted": "Sudlanganmi?",
         "marital": {
             "single": "Bo'ydoq / turmushga chiqmagan",

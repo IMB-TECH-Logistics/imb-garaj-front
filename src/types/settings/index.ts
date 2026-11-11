@@ -267,6 +267,7 @@ type DriverInfoType = {
     health?: string
     health_note?: string
     convicted?: boolean | null
+    convicted_note?: string
     experience_months?: number | null
 }
 

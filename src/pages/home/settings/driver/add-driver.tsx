@@ -16,7 +16,7 @@ import { useState } from "react"
 import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
-import { Controller, useFieldArray, useForm } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { FormCombobox } from "@/components/form/combobox"
 import { FormTextarea } from "@/components/form/textarea"
 import { Plus, Trash2 } from "lucide-react"
@@ -132,6 +132,11 @@ export const DriverForm = ({
 
     const { handleSubmit, reset } = form
     const jobs = useFieldArray({ control: form.control, name: "driver.previous_jobs" as any })
+    const hadAccident = useWatch({ control: form.control, name: "driver.had_accident" as any })
+    const health = useWatch({ control: form.control, name: "driver.health" as any })
+    const convicted = useWatch({ control: form.control, name: "driver.convicted" as any })
+    const adultBefore = new Date()
+    adultBefore.setFullYear(adultBefore.getFullYear() - 18)
     const maritalOptions = [
         { id: "single", name: t("anketa.marital.single") },
         { id: "married", name: t("anketa.marital.married") },
@@ -198,6 +203,21 @@ export const DriverForm = ({
         if (!isValid) {
             toast.error(t("toast.error_fields"))
             return
+        }
+
+        const d = values.driver
+        if (d) {
+            if (d.had_accident !== true) d.accident_note = ""
+            if (d.health !== "satisfactory") d.health_note = ""
+            if (d.convicted !== true) d.convicted_note = ""
+            if (d.license_issued_date && d.driver_license_date && d.license_issued_date >= d.driver_license_date) {
+                form.setError("driver.license_issued_date", {
+                    type: "manual",
+                    message: t("anketa.issued_after_expiry"),
+                })
+                toast.error(t("anketa.issued_after_expiry"))
+                return
+            }
         }
 
         const phoneValue = values.driver.phone || ""
@@ -286,7 +306,7 @@ export const DriverForm = ({
                         label={t("anketa.birth_date")}
                         control={form.control}
                         placeholder={t("form.select_date")}
-                        calendarProps={{ disabled: { after: new Date() } }}
+                        calendarProps={{ disabled: { after: adultBefore }, defaultMonth: adultBefore }}
                     />
 
                     <FormCombobox
@@ -433,6 +453,12 @@ export const DriverForm = ({
                     <FormInput
                         name="driver.experience"
                         type="number"
+                        min={0}
+                        max={60}
+                        registerOptions={{
+                            min: { value: 0, message: t("anketa.years_range") },
+                            max: { value: 60, message: t("anketa.years_range") },
+                        }}
                         label={t("anketa.driving_years")}
                         methods={form}
                         placeholder={`${t("form.example")}: 8`}
@@ -520,27 +546,47 @@ export const DriverForm = ({
                 <section className={sectionCls}>
                     <h3 className={titleCls}>{t("anketa.extra")}</h3>
                     <div className={gridCls}>
-                        <YesNo control={form.control} name="driver.had_accident" label={t("anketa.accident")} />
-                        <FormCombobox
-                            name="driver.health"
-                            label={t("anketa.health_label")}
-                            options={healthOptions}
-                            control={form.control}
-                            valueKey="id"
-                            labelKey="name"
-                            placeholder={t("anketa.choose")}
-                        />
-                        <YesNo control={form.control} name="driver.convicted" label={t("anketa.convicted")} />
-                        <FormTextarea
-                            name="driver.accident_note"
-                            label={t("anketa.accident_note")}
-                            methods={form}
-                        />
-                        <FormTextarea
-                            name="driver.health_note"
-                            label={t("anketa.health_note")}
-                            methods={form}
-                        />
+                        <div className="flex flex-col gap-3">
+                            <YesNo control={form.control} name="driver.had_accident" label={t("anketa.accident")} />
+                            {hadAccident === true && (
+                                <FormTextarea
+                                    name="driver.accident_note"
+                                    label={t("anketa.accident_note")}
+                                    methods={form}
+                                    placeholder={t("anketa.accident_ph")}
+                                />
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <FormCombobox
+                                name="driver.health"
+                                label={t("anketa.health_label")}
+                                options={healthOptions}
+                                control={form.control}
+                                valueKey="id"
+                                labelKey="name"
+                                placeholder={t("anketa.choose")}
+                            />
+                            {health === "satisfactory" && (
+                                <FormTextarea
+                                    name="driver.health_note"
+                                    label={t("anketa.health_note")}
+                                    methods={form}
+                                    placeholder={t("anketa.health_ph")}
+                                />
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <YesNo control={form.control} name="driver.convicted" label={t("anketa.convicted")} />
+                            {convicted === true && (
+                                <FormTextarea
+                                    name="driver.convicted_note"
+                                    label={t("anketa.convicted_note")}
+                                    methods={form}
+                                    placeholder={t("anketa.convicted_ph")}
+                                />
+                            )}
+                        </div>
                     </div>
                 </section>
 
