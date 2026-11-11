@@ -21,6 +21,8 @@ interface IProps<IForm extends FieldValues> {
     hideError?: boolean
     prefixIcon?: React.ReactNode
     uppercase?: boolean // Added new prop
+    suffix?: React.ReactNode
+    noPasswordToggle?: boolean
 }
 
 export function getNestedValue(obj: any, path: string): any {

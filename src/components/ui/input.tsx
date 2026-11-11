@@ -9,6 +9,7 @@ export interface InputProps
     suffix?: React.ReactNode
     prefixIcon?: React.ReactNode
     wrapperClassName?: string
+    noPasswordToggle?: boolean
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -20,6 +21,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             fullWidth,
             suffix,
             prefixIcon,
+            noPasswordToggle,
             ...props
         },
         ref,
@@ -75,14 +77,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     }
                     className={cn(
                         "flex h-10 w-full no-time-icon rounded-md border bg-background border-input px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-                        className,
                         (type === "search" || !!prefixIcon) && "pl-9",
                         (type === "password" || !!suffix) && "pr-8",
+                        className,
                     )}
                     {...props}
                     hidden={props.hidden}
                 />
-                {type === "password" && (
+                {type === "password" && !noPasswordToggle && (
                     <button
                         type="button"
                         aria-label={hide ? "Parolni ko'rsatish" : "Parolni yashirish"}
