@@ -1,20 +1,17 @@
 import { format } from "date-fns"
 import ParamTabs from "@/components/as-params/tabs"
-import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
-import { DRIVERS_OVERVIEW, SETTINGS_DRIVERS } from "@/constants/api-endpoints"
+import { DRIVERS_OVERVIEW } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
-import { getRequest, useGet } from "@/hooks/useGet"
-import { useModal } from "@/hooks/useModal"
+import { useGet } from "@/hooks/useGet"
 import { formatDriverLicense, formatPassportSerial } from "@/lib/format-driver-docs"
 import { formatExperience } from "@/lib/format-experience"
 import { formatMoney } from "@/lib/format-money"
-import AddDriverModal from "@/pages/home/settings/driver/add-driver"
+import DriverFormPage from "./driver-form-page"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
-import { useGlobalStore } from "@/store/global-store"
 import { ColumnDef } from "@tanstack/react-table"
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router"
 import {
@@ -32,9 +29,8 @@ import {
     Truck,
     User,
 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { toast } from "sonner"
 
 type DriverOverview = {
     id: number
@@ -55,6 +51,7 @@ type DriverOverview = {
     relative_contact_2?: string | null
     can_go_abroad?: boolean
     note?: string
+    photo?: string | null
     completed_trips: number
     total_trips: number
     ongoing_trips: number
@@ -313,10 +310,6 @@ export default function HaydovchiDetail() {
     const search = useSearch({ strict: false }) as any
     const driverId = Number(id)
     const canEdit = useHasAction("hr_drivers_control")
-    const { setData } = useGlobalStore()
-    const editing = useGlobalStore().getData<DriversType>(SETTINGS_DRIVERS)
-    const { openModal: openEdit } = useModal("create")
-    const [loadingEdit, setLoadingEdit] = useState(false)
 
     const { data: overview, isError: overviewError, isLoading: overviewLoading } = useGet<DriverOverview>(
         `${DRIVERS_OVERVIEW}/${driverId}/overview`,
@@ -329,6 +322,21 @@ export default function HaydovchiDetail() {
     )
 
     const aylanmaCols = useAylanmaCols()
+
+    const setEditing = (on: boolean) =>
+        navigate({
+            search: ((prev: any) => ({ ...prev, edit: on ? "1" : undefined })) as any,
+        })
+
+    if (search?.edit === "1" && canEdit) {
+        return (
+            <DriverFormPage
+                driverId={driverId}
+                onBack={() => setEditing(false)}
+                onSaved={() => setEditing(false)}
+            />
+        )
+    }
 
     if (overviewLoading) {
         return <div className="py-20 flex justify-center text-muted-foreground">{t("messages.loading")}</div>
@@ -358,19 +366,7 @@ export default function HaydovchiDetail() {
         })
     }
 
-    const handleEdit = async () => {
-        if (loadingEdit) return
-        setLoadingEdit(true)
-        try {
-            const full = await getRequest(`${SETTINGS_DRIVERS}/${driverId}`)
-            setData(SETTINGS_DRIVERS, full)
-            openEdit()
-        } catch {
-            toast.error(t("trips.row.error"))
-        } finally {
-            setLoadingEdit(false)
-        }
-    }
+    const handleEdit = () => setEditing(true)
 
     const fullName = overview.full_name || search?.name || t("form.driver")
     const initials = `${overview.first_name?.[0] ?? ""}${overview.last_name?.[0] ?? ""}`.toUpperCase()
@@ -476,7 +472,7 @@ export default function HaydovchiDetail() {
                     <h1 className="text-xl font-semibold">{t("driver_profile.title")}</h1>
                 </div>
                 {canEdit && (
-                    <Button loading={loadingEdit} onClick={handleEdit}>
+                    <Button onClick={handleEdit}>
                         <Edit size={18} />
                     </Button>
                 )}
@@ -485,8 +481,14 @@ export default function HaydovchiDetail() {
             <div className="bg-background border relative rounded-lg p-4">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
                     <div className="xl:col-span-2 flex flex-col sm:flex-row items-start gap-6">
-                        <div className="w-full sm:w-[160px] h-[180px] rounded-lg border flex items-center justify-center bg-muted text-4xl font-semibold text-muted-foreground shrink-0">
-                            {initials || <User size={48} />}
+                        <div className="w-full sm:w-[160px] h-[180px] rounded-lg border flex items-center justify-center bg-muted text-4xl font-semibold text-muted-foreground shrink-0 overflow-hidden">
+                            {overview.photo ?
+                                <img
+                                    src={overview.photo}
+                                    alt={fullName}
+                                    className="w-full h-full object-cover object-center"
+                                />
+                            :   initials || <User size={48} />}
                         </div>
                         <div className="flex-1 flex flex-col gap-1.5">
                             <div className="font-bold text-2xl mb-2 flex items-center gap-2 flex-wrap">
@@ -561,13 +563,6 @@ export default function HaydovchiDetail() {
 
             <ParamTabs options={tabs} paramName="driver_tab" />
 
-            <Modal
-                size="max-w-2xl"
-                title={editing?.id ? t("form.edit_driver") : t("form.add_driver")}
-                modalKey="create"
-            >
-                <AddDriverModal />
-            </Modal>
         </div>
     )
 }

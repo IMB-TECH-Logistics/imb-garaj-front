@@ -1,4 +1,8 @@
 {
+    "driver_form": {
+        "photo": "写真",
+        "photo_failed": "写真をアップロードできませんでした"
+    },
     "driver_profile": {
         "title": "運転手情報",
         "info": "情報",

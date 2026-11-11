@@ -1,4 +1,8 @@
 {
+    "driver_form": {
+        "photo": "Photo",
+        "photo_failed": "Photo upload failed, try again"
+    },
     "driver_profile": {
         "title": "Driver profile",
         "info": "Details",

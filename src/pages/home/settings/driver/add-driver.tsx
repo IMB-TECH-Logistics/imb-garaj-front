@@ -9,7 +9,10 @@ import { normalizeDocNumber } from "@/lib/format-driver-docs"
 import { SETTINGS_DRIVERS } from "@/constants/api-endpoints"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
-import { usePost } from "@/hooks/usePost"
+import { postRequest, usePost } from "@/hooks/usePost"
+import { deleteRequest } from "@/hooks/useDelete"
+import VehicleImagePicker from "@/pages/home/settings/vehicles/vehicle-image-picker"
+import { useState } from "react"
 import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
@@ -18,14 +21,20 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { validateUsername } from "@/lib/reserved-username"
 
-const AddDriverModal = () => {
+type DriverFormValues = DriversType & { photo_file?: File | string | null }
+
+export const DriverForm = ({
+    currentDriver,
+    onDone,
+}: {
+    currentDriver?: DriversType | null
+    onDone: (saved: DriversType) => void
+}) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
-    const { closeModal } = useModal("create")
-    const { getData, clearKey } = useGlobalStore()
-    const currentDriver = getData<DriversType>(SETTINGS_DRIVERS)
+    const [uploading, setUploading] = useState(false)
 
-    const form = useForm<DriversType>({
+    const form = useForm<DriverFormValues>({
         defaultValues: {
             ...currentDriver,
             driver: {
@@ -33,21 +42,44 @@ const AddDriverModal = () => {
                 can_go_abroad: !!currentDriver?.driver?.can_go_abroad,
             } as DriverInfoType,
             password: "",
+            photo_file: currentDriver?.driver?.photo || null,
         },
     })
 
     const { handleSubmit, reset } = form
 
-    const onSuccess = () => {
+    const syncPhoto = async (driverId: number) => {
+        const value = form.getValues("photo_file")
+        const had = !!currentDriver?.driver?.photo
+        if (value instanceof File) {
+            const fd = new FormData()
+            fd.append("photo", value)
+            await postRequest(`${SETTINGS_DRIVERS}/${driverId}/photo`, fd)
+        } else if (!value && had) {
+            await deleteRequest(`${SETTINGS_DRIVERS}/${driverId}/photo`)
+        }
+    }
+
+    const onSuccess = async (saved: DriversType) => {
+        const driverId = saved?.id ?? currentDriver?.id
+        if (driverId) {
+            setUploading(true)
+            try {
+                await syncPhoto(driverId)
+            } catch {
+                toast.error(t("driver_form.photo_failed"))
+            } finally {
+                setUploading(false)
+            }
+        }
         toast.success(
             currentDriver?.id ? t("messages.success_edit") : t("messages.success_add"),
         )
         reset()
-        clearKey(SETTINGS_DRIVERS)
-        closeModal()
         queryClient.invalidateQueries({
             predicate: (q) => String(q.queryKey[0]).startsWith(SETTINGS_DRIVERS),
         })
+        onDone(saved)
     }
 
     const onError = (error: unknown) => handleFormError(error, form)
@@ -62,9 +94,10 @@ const AddDriverModal = () => {
         onError,
     })
 
-    const isPending = isPendingCreate || isPendingUpdate
+    const isPending = isPendingCreate || isPendingUpdate || uploading
 
-    const onSubmit = async (values: DriversType) => {
+    const onSubmit = async (formValues: DriverFormValues) => {
+        const { photo_file: _photo, ...values } = formValues
         const isValid = await form.trigger()
 
         if (!isValid) {
@@ -114,7 +147,15 @@ const AddDriverModal = () => {
             >
                 <section className="md:col-span-2 rounded-lg border bg-muted/20 p-4">
                     <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("settings.driver.fio")}</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-[180px_1fr] gap-4 items-start">
+                    <VehicleImagePicker
+                        name="photo_file"
+                        label={t("driver_form.photo")}
+                        methods={form}
+                        clearable
+                        maxSizeMB={10}
+                    />
+                    <div className="grid gap-4">
                     <FormInput
                         required
                         name="first_name"
@@ -132,6 +173,7 @@ const AddDriverModal = () => {
                         methods={form}
                         placeholder={`${t("form.example")}: Karimov`}
                     />
+                    </div>
                     </div>
                 </section>
 
@@ -302,6 +344,21 @@ const AddDriverModal = () => {
                 </div>
             </form>
         </div>
+    )
+}
+
+const AddDriverModal = () => {
+    const { closeModal } = useModal("create")
+    const { getData, clearKey } = useGlobalStore()
+    const currentDriver = getData<DriversType>(SETTINGS_DRIVERS)
+    return (
+        <DriverForm
+            currentDriver={currentDriver}
+            onDone={() => {
+                clearKey(SETTINGS_DRIVERS)
+                closeModal()
+            }}
+        />
     )
 }
 

@@ -1,4 +1,8 @@
 {
+    "driver_form": {
+        "photo": "Rasm",
+        "photo_failed": "Rasm yuklanmadi, qayta urinib ko'ring"
+    },
     "driver_profile": {
         "title": "Haydovchi ma'lumoti",
         "info": "Ma'lumotlar",

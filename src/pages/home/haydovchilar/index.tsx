@@ -4,15 +4,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
 import { DRIVERS_LIST, SETTINGS_DRIVERS } from "@/constants/api-endpoints"
+import DriverFormPage from "./driver-form-page"
 import { useHasAction } from "@/constants/useUser"
-import { getRequest, useGet } from "@/hooks/useGet"
+import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import AddDriverModal from "@/pages/home/settings/driver/add-driver"
 import DismissDriverModal, { DISMISS_MODAL } from "@/pages/home/settings/driver/dismiss-modal"
-import { useGlobalStore } from "@/store/global-store"
 import { PlusCircle, UserMinus } from "lucide-react"
 import { useState } from "react"
-import { toast } from "sonner"
 import { formatPhoneNumber } from "@/pages/home/settings/customers/phone-number"
 import { formatExperience } from "@/lib/format-experience"
 import { formatMoney } from "@/lib/format-money"
@@ -212,30 +210,31 @@ export default function HaydovchilarList() {
     const rows = data ?? []
 
     const hasControl = useHasAction("hr_drivers_control")
-    const { getData, setData, clearKey } = useGlobalStore()
-    const editing = getData<DriversType>(SETTINGS_DRIVERS)
-    const { openModal: openCreateModal } = useModal("create")
     const { openModal: openDismiss } = useModal(DISMISS_MODAL)
     const [dismissing, setDismissing] = useState<DriversType | null>(null)
-    const [loadingEdit, setLoadingEdit] = useState(false)
+    const handleAdd = () =>
+        navigate({ search: ((prev: any) => ({ ...prev, form: "create" })) as any })
 
-    const handleAdd = () => {
-        clearKey(SETTINGS_DRIVERS)
-        openCreateModal()
-    }
+    const handleEdit = (row: DriverRow) =>
+        navigate({
+            to: "/haydovchilar/$id",
+            params: { id: row.id.toString() },
+            search: { name: row.full_name, edit: "1" } as any,
+        })
 
-    const handleEdit = async (row: DriverRow) => {
-        if (loadingEdit) return
-        setLoadingEdit(true)
-        try {
-            const full = await getRequest(`${SETTINGS_DRIVERS}/${row.id}`)
-            setData(SETTINGS_DRIVERS, full)
-            openCreateModal()
-        } catch {
-            toast.error(t("trips.row.error"))
-        } finally {
-            setLoadingEdit(false)
-        }
+    if ((search as any).form === "create" && hasControl) {
+        return (
+            <DriverFormPage
+                onBack={() =>
+                    navigate({ search: ((prev: any) => ({ ...prev, form: undefined })) as any })
+                }
+                onSaved={(id) =>
+                    id ?
+                        navigate({ to: "/haydovchilar/$id", params: { id: String(id) } })
+                    :   navigate({ search: ((prev: any) => ({ ...prev, form: undefined })) as any })
+                }
+            />
+        )
     }
 
     const handleRowClick = (row: DriverRow) => {
@@ -303,13 +302,6 @@ export default function HaydovchilarList() {
             <DismissDriverModal driver={dismissing} />
         </Modal>
 
-        <Modal
-            size="max-w-2xl"
-            title={editing?.id ? t("form.edit_driver") : t("form.add_driver")}
-            modalKey="create"
-        >
-            <AddDriverModal />
-        </Modal>
         </>
     )
 }

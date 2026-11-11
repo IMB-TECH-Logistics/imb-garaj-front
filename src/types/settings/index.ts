@@ -249,6 +249,7 @@ type DriverInfoType = {
     hired_at?: string | null
     can_go_abroad?: boolean
     note?: string
+    photo?: string | null
     experience_months?: number | null
 }
 
