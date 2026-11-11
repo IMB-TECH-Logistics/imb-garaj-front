@@ -44,22 +44,6 @@ export const useColumnsVehiclesTable = () => {
     return useMemo<ColumnDef<VehicleDetailType>[]>(
         () => [
             {
-                id: "note",
-                header: t("note.column"),
-                enableSorting: false,
-                size: 60,
-                cell: ({ row }) => (
-                    <NoteButton
-                        value={row.original.note}
-                        url={`${VEHICLES}/${row.original.id}`}
-                        payload={(note) => ({ note })}
-                        refetchPrefix={VEHICLES}
-                        canEdit={canEdit}
-                        title={`${t("note.truck")} · ${row.original.truck_number}`}
-                    />
-                ),
-            },
-            {
                 accessorKey: "truck_number",
                 header: t("form.vehicle_number"),
                 enableSorting: true,
@@ -132,6 +116,22 @@ export const useColumnsVehiclesTable = () => {
                         formatDate(row.original.registered_date)
                     :   "-",
             },
+            {
+                id: "note",
+                header: t("note.column"),
+                enableSorting: false,
+                size: 60,
+                cell: ({ row }) => (
+                    <NoteButton
+                        value={row.original.note}
+                        url={`${VEHICLES}/${row.original.id}`}
+                        payload={(note) => ({ note })}
+                        refetchPrefix={VEHICLES}
+                        canEdit={canEdit}
+                        title={`${t("note.truck")} · ${row.original.truck_number}`}
+                    />
+                ),
+            },
         ],
         [t, canEdit],
     )
@@ -142,22 +142,6 @@ export const useColumnsTrailersTable = () => {
     const canEdit = useHasAction("settings_vehicles_control")
     return useMemo<ColumnDef<VehicleDetailType>[]>(
         () => [
-            {
-                id: "trailer_note",
-                header: t("note.column"),
-                enableSorting: false,
-                size: 60,
-                cell: ({ row }) => (
-                    <NoteButton
-                        value={row.original.trailer_note}
-                        url={`${VEHICLES}/${row.original.id}`}
-                        payload={(trailer_note) => ({ trailer_note })}
-                        refetchPrefix={VEHICLES}
-                        canEdit={canEdit}
-                        title={`${t("note.trailer")} · ${row.original.trailer_number}`}
-                    />
-                ),
-            },
             {
                 accessorKey: "trailer_number",
                 header: t("form.trailer_number"),
@@ -195,6 +179,22 @@ export const useColumnsTrailersTable = () => {
                     row.original.registered_date ?
                         formatDate(row.original.registered_date)
                     :   "-",
+            },
+            {
+                id: "trailer_note",
+                header: t("note.column"),
+                enableSorting: false,
+                size: 60,
+                cell: ({ row }) => (
+                    <NoteButton
+                        value={row.original.trailer_note}
+                        url={`${VEHICLES}/${row.original.id}`}
+                        payload={(trailer_note) => ({ trailer_note })}
+                        refetchPrefix={VEHICLES}
+                        canEdit={canEdit}
+                        title={`${t("note.trailer")} · ${row.original.trailer_number}`}
+                    />
+                ),
             },
         ],
         [t, canEdit],

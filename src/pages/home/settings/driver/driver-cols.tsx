@@ -13,21 +13,6 @@ export const useColumnsDriverTable = () => {
     return useMemo<ColumnDef<DriversType>[]>(
         () => [
             {
-                id: "note",
-                header: t("note.column"),
-                enableSorting: false,
-                cell: ({ row }) => (
-                    <NoteButton
-                        value={row.original.driver?.note}
-                        url={`${SETTINGS_DRIVERS}/${row.original.id}`}
-                        payload={(note) => ({ driver: { note } })}
-                        refetchPrefix="users/drivers"
-                        canEdit={canEdit}
-                        title={`${row.original.first_name} ${row.original.last_name}`}
-                    />
-                ),
-            },
-            {
                 accessorKey: "first_name",
                 header: t("form.first_name"),
                 enableSorting: true,
@@ -138,6 +123,21 @@ export const useColumnsDriverTable = () => {
             //         return isActive ? "Aktiv" : "Aktiv emas"
             //     },
             // },
+            {
+                id: "note",
+                header: t("note.column"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <NoteButton
+                        value={row.original.driver?.note}
+                        url={`${SETTINGS_DRIVERS}/${row.original.id}`}
+                        payload={(note) => ({ driver: { note } })}
+                        refetchPrefix="users/drivers"
+                        canEdit={canEdit}
+                        title={`${row.original.first_name} ${row.original.last_name}`}
+                    />
+                ),
+            },
         ],
         [t, canEdit],
     )

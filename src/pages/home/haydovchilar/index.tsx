@@ -64,21 +64,6 @@ const useCols = () => {
     return useMemo<ColumnDef<DriverRow>[]>(
         () => [
             {
-                id: "note",
-                header: t("note.column"),
-                enableSorting: false,
-                cell: ({ row }) => (
-                    <NoteButton
-                        value={row.original.note}
-                        url={`${SETTINGS_DRIVERS}/${row.original.id}`}
-                        payload={(note) => ({ driver: { note } })}
-                        refetchPrefix="users/drivers"
-                        canEdit={canEdit}
-                        title={row.original.full_name}
-                    />
-                ),
-            },
-            {
                 header: t("form.first_name"),
                 accessorKey: "first_name",
                 enableSorting: true,
@@ -192,6 +177,21 @@ const useCols = () => {
                         </span>
                     )
                 },
+            },
+            {
+                id: "note",
+                header: t("note.column"),
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <NoteButton
+                        value={row.original.note}
+                        url={`${SETTINGS_DRIVERS}/${row.original.id}`}
+                        payload={(note) => ({ driver: { note } })}
+                        refetchPrefix="users/drivers"
+                        canEdit={canEdit}
+                        title={row.original.full_name}
+                    />
+                ),
             },
         ],
         [t, canEdit],
