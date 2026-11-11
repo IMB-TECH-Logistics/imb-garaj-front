@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table"
 import { formatMoney } from "@/lib/format-money"
 import { differenceInCalendarDays, parseISO } from "date-fns"
-import { Wrench, Boxes, FileText, PackageMinus, SquarePen } from "lucide-react"
+import { Wrench, Boxes, FileText, PackageMinus, SquarePen, Trash2 } from "lucide-react"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { fmtDate, toNumber } from "../ombor/utils"
@@ -27,6 +27,7 @@ type Props = {
     row: VehicleExpenseRow | null
     onClose: () => void
     onEdit?: (row: VehicleExpenseRow) => void
+    onDelete?: (row: VehicleExpenseRow) => void
 }
 
 const Block = ({
@@ -72,7 +73,7 @@ const PAY_VARIANT: Record<number, "default" | "secondary" | "destructive" | "ora
     [-20]: "secondary",
 }
 
-const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
+const ExpenseDetailSheet = ({ row, onClose, onEdit, onDelete }: Props) => {
     const { t } = useTranslation()
     const isWarehouse = row?.category_code === TECH_INSPECTION_CODE
     const items = row?.items ?? []
@@ -260,6 +261,15 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit }: Props) => {
                             <Button variant="outline" onClick={onClose}>
                                 {t("actions.close")}
                             </Button>
+                            {onDelete && (
+                                <Button
+                                    variant="destructive"
+                                    icon={<Trash2 size={16} />}
+                                    onClick={() => onDelete(row)}
+                                >
+                                    {t("actions.delete")}
+                                </Button>
+                            )}
                             {onEdit && (
                                 <Button
                                     icon={<SquarePen size={16} />}

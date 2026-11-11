@@ -246,6 +246,7 @@ const VehiclesTab = () => {
     const [addVehicle, setAddVehicle] = useState<number | undefined>(undefined)
     const { setData, getData, clearKey } = useGlobalStore()
     const { openModal } = useModal("add-expense")
+    const { openModal: openDeleteModal } = useModal("delete")
     const canControl = useHasAction("manager_tech_check_control")
     const currentExpense = getData<VehicleExpenseRow>(TECHNICAL_INSPECT)
 
@@ -261,6 +262,12 @@ const VehiclesTab = () => {
         setAddVehicle(undefined)
         openModal()
     }
+    const deleteExpense = (row: VehicleExpenseRow) => {
+        setExpense(null)
+        setData(TECHNICAL_INSPECT, row)
+        openDeleteModal()
+    }
+
     const itemId = typeof search.item === "number" ? search.item : search.item ? Number(search.item) : undefined
 
     const { data, isLoading } = useGet<VehicleRow[]>(TECHNICAL_INSPECT_INSTALLED, {
@@ -364,6 +371,7 @@ const VehiclesTab = () => {
                 row={expense}
                 onClose={() => setExpense(null)}
                 onEdit={canControl ? editExpense : undefined}
+                onDelete={canControl ? deleteExpense : undefined}
             />
             <Modal
                 modalKey="add-expense"
@@ -372,7 +380,12 @@ const VehiclesTab = () => {
             >
                 <AddExpenseModal vehicleId={addVehicle} />
             </Modal>
-            <DeleteModal path={TECHNICAL_INSPECT} id={currentExpense?.id} />
+            <DeleteModal
+                path={TECHNICAL_INSPECT}
+                id={currentExpense?.id}
+                refetchKeys={[TECHNICAL_INSPECT_INSTALLED]}
+                onSuccessAction={() => clearKey(TECHNICAL_INSPECT)}
+            />
             <ItemDetailSheet itemId={itemId} onClose={() => setItem(undefined)} />
         </>
     )
