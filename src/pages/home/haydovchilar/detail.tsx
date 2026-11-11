@@ -613,7 +613,7 @@ export default function HaydovchiDetail() {
                                 {overview.completed_trips}/{overview.total_trips}
                             </SumRow>
                             <SumRow label={t("page.trips")}>
-                                {overview.completed_orders}/{overview.total_orders}
+                                {overview.completed_orders}
                             </SumRow>
                             <SumRow label={t("fleet.drivers.revenue_cash")}>
                                 <span className="text-green-600">{formatMoneyText(num(overview.revenue_uzs))}</span>

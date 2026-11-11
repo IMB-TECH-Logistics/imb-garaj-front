@@ -106,8 +106,7 @@ const useCols = () => {
                 enableSorting: true,
                 cell: ({ row }) => (
                     <span className="tabular-nums">
-                        {row.original.completed_orders} /{" "}
-                        {row.original.total_orders}
+                        {row.original.completed_orders}
                     </span>
                 ),
             },
