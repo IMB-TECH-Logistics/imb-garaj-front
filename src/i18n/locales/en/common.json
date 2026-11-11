@@ -1,4 +1,11 @@
 {
+    "driver_profile": {
+        "title": "Driver profile",
+        "info": "Details",
+        "personal": "Personal",
+        "work": "Work",
+        "last_vehicle": "Last vehicle"
+    },
     "note": {
         "column": "Note",
         "title": "Note",

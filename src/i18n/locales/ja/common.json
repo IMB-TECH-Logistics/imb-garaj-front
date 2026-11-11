@@ -1,4 +1,11 @@
 {
+    "driver_profile": {
+        "title": "運転手情報",
+        "info": "情報",
+        "personal": "個人情報",
+        "work": "勤務情報",
+        "last_vehicle": "最後の車両"
+    },
     "note": {
         "column": "メモ",
         "title": "メモ",
