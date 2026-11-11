@@ -248,6 +248,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
         empty_leg_salary?: { amount: number; legs: { id: number; route: string; start: string | null; amount: number }[] } | null
         extra_pay_salary?: { amount: number; orders: { order: number; route: string; date: string | null; comment: string | null; amount: number }[] } | null
         manual_salary?: { amount: number; rows: { id: number; date: string | null; comment: string | null; amount: number }[] } | null
+        paid_extra_salary?: { amount: number; rows: { kind: "order" | "idle"; id: number; route: string; date: string | null; comment: string | null; amount: number }[] } | null
     }>(
         `checkout/kassa-v2/trips/${tripId}/close-preview`,
         { enabled: !!tripId && !!hideToggle, options: { retry: false } },
@@ -255,16 +256,27 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const extraSalarySum = closePreview ?
         Number(closePreview.empty_leg_salary?.amount ?? 0) + Number(closePreview.extra_pay_salary?.amount ?? 0) + Number(closePreview.manual_salary?.amount ?? 0)
     :   0
-    const salaryCardExtra = extraSalarySum - Number(closePreview?.manual_salary?.amount ?? 0)
+    const salaryCardExtra = extraSalarySum - Number(closePreview?.manual_salary?.amount ?? 0) + Number(closePreview?.paid_extra_salary?.amount ?? 0)
     const extraSalaryRows = closePreview ?
         [
             ...(closePreview.extra_pay_salary?.orders ?? []).map((r) => ({
-                key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount),
+                key: `o${r.order}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount), paid: false,
                 target: { kind: "order" as const, id: r.order, title: t("trips.reys_cols.extra_pay_title"), route: r.route, amount: r.amount, comment: r.comment },
             })),
             ...(closePreview.empty_leg_salary?.legs ?? []).map((r) => ({
-                key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount),
+                key: `l${r.id}`, route: r.route, date: r.start, comment: null as string | null, amount: Number(r.amount), paid: false,
                 target: { kind: "idle" as const, id: r.id, title: t("trips.reys_cols.empty_run_pay"), route: r.route, amount: r.amount, comment: null },
+            })),
+            ...(closePreview.paid_extra_salary?.rows ?? []).map((r) => ({
+                key: `p${r.kind}${r.id}`, route: r.route, date: r.date, comment: r.comment, amount: Number(r.amount), paid: true,
+                target: {
+                    kind: r.kind,
+                    id: r.id,
+                    title: r.kind === "order" ? t("trips.reys_cols.extra_pay_title") : t("trips.reys_cols.empty_run_pay"),
+                    route: r.route,
+                    amount: r.amount,
+                    comment: r.comment,
+                },
             })),
         ]
     :   []
@@ -563,7 +575,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                                             <span className="flex-1">{r.route}</span>
                                             {r.comment && <span className="text-muted-foreground">{r.comment}</span>}
                                             <span className="whitespace-nowrap text-muted-foreground">{r.date ? String(r.date).slice(0, 10) : "—"}</span>
-                                            {access.oylik.control && (
+                                            {r.paid && <Badge variant="outline" className="h-5 px-1.5">{t("table.paid")}</Badge>}
+                                            {access.oylik.control && !r.paid && (
                                                 <TableActions
                                                     className="py-0"
                                                     disabled={locked}
