@@ -3409,6 +3409,7 @@
             "other": "Other costs",
             "overhead": "Overhead",
             "net": "Net profit",
+            "leasing": "Leasing (paid by investors)",
             "company_vehicle_expense": "Vehicle expenses",
             "vehicle_rent": "Vehicle rent",
             "other_expense": "Other expenses",

@@ -41,6 +41,9 @@ export type MonthlyReport = {
     tax_vat_manual: string
     tax_payroll_manual: string
     tax_cash_manual: string
+    leasing: Record<string, string>
+    leasing_total: string
+    leasing_mode: boolean
     rent: string
     rent_total: string
     other: string
@@ -116,4 +119,6 @@ export type OwnerRow = {
     dividend: string
     balance: string
     vehicles: OwnerVehicle[]
+    leasing?: string
+    leasing_vehicles?: { vehicle: number; plate: string; amount: string }[]
 }

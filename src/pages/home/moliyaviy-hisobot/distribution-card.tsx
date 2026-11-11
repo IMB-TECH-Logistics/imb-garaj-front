@@ -160,7 +160,9 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                                     {t("fin_report.dist.profit_share")}
                                 </th>
                                 <th className="text-right font-medium py-2 px-2">
-                                    {t("fin_report.dist.rent")}
+                                    {report.leasing_mode ?
+                                        t("fin_report.lines.leasing")
+                                    :   t("fin_report.dist.rent")}
                                 </th>
                                 <th className="text-right font-medium py-2 pl-2">
                                     {t("fin_report.dist.to_kontragent")}
@@ -220,11 +222,17 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                                             <Money value={share} />
                                         </td>
                                         <td className="py-2 px-2 text-right">
-                                            <Money value={num(o?.rent)} />
+                                            <Money
+                                                value={
+                                                    report.leasing_mode ?
+                                                        -num(o?.leasing)
+                                                    :   num(o?.rent)
+                                                }
+                                            />
                                         </td>
                                         <td className="py-2 pl-2 text-right">
                                             <Money
-                                                value={share + num(o?.rent)}
+                                                value={share + num(o?.rent) - num(o?.leasing)}
                                                 strong
                                             />
                                         </td>

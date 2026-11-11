@@ -130,7 +130,7 @@ const Items = ({ items }: { items: OverheadItem[] }) => {
     )
 }
 
-type Section = "other" | "tax" | "management" | "rent"
+type Section = "other" | "tax" | "management" | "rent" | "leasing"
 
 type ManualTaxKey =
     | "tax_profit_manual"
@@ -460,6 +460,8 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 tone="head"
                             />
 
+                            {!r.leasing_mode && (
+                            <>
                             <Line
                                 label={t("fin_report.lines.tax")}
                                 value={-num(r.tax_total)}
@@ -512,6 +514,9 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                         </>
                                     )}
                                 </>
+                            )}
+
+                            </>
                             )}
 
                             <Line
@@ -589,6 +594,8 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 </>
                             )}
 
+                            {(!r.leasing_mode || num(r.rent_total) !== 0) && (
+                            <>
                             <Line
                                 label={t("fin_report.lines.rent")}
                                 value={-num(r.rent_total)}
@@ -676,12 +683,50 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                 </>
                             )}
 
+                            </>
+                            )}
+
                             <Line
                                 label={t("fin_report.lines.net")}
                                 value={num(r.net)}
                                 strong
                                 tone="total"
                             />
+
+                            {r.leasing_mode && (
+                                <>
+                                    <Line
+                                        label={t("fin_report.lines.leasing")}
+                                        value={-num(r.leasing_total)}
+                                        indent
+                                        open={open === "leasing"}
+                                        onClick={toggle("leasing")}
+                                    />
+                                    {open === "leasing" &&
+                                        r.owners
+                                            .filter((o) => (o.leasing_vehicles ?? []).length > 0)
+                                            .map((o) => (
+                                                <div key={o.kontragent}>
+                                                    <Line sub label={o.name} value={-num(o.leasing)} />
+                                                    {(o.leasing_vehicles ?? []).map((v) => (
+                                                        <TaxLine
+                                                            key={v.vehicle}
+                                                            label={v.plate}
+                                                            total={num(v.amount)}
+                                                            manual={num(v.amount)}
+                                                            editable={editable}
+                                                            saving={saving}
+                                                            onSave={(val) =>
+                                                                save(reportUrl(id), {
+                                                                    leasing: { [String(v.vehicle)]: val },
+                                                                })
+                                                            }
+                                                        />
+                                                    ))}
+                                                </div>
+                                            ))}
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 

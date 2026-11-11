@@ -3402,6 +3402,7 @@
             "other": "その他の費用",
             "overhead": "追加費用",
             "net": "純利益",
+            "leasing": "リース（投資家負担）",
             "company_vehicle_expense": "車両費用",
             "vehicle_rent": "車両賃料",
             "other_expense": "その他の費用",
