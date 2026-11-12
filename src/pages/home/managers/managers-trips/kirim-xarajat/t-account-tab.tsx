@@ -27,6 +27,7 @@ import { useHasAction, useUser } from "@/constants/useUser"
 import { useTranslation } from "react-i18next"
 import { useTripCashClosed } from "../use-trip-cash-closed"
 import { FinanceRow, uzsOf, formatAmount } from "./types"
+import { formatQuantity } from "@/pages/home/settings/petrol-stations/cashflow-cols"
 import { AddFinanceForm } from "./add-finance-form"
 import { useIncomeCols, noReceiptRow, ReceiptCell, useExpenseCols } from "./columns"
 import { AvansForm } from "./avans-form"
@@ -348,6 +349,28 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const moliyaTrip = useGlobalStore.getState().getData(`${MANAGERS_TRIPS}-moliya`) as any
     const fuelKind = String(moliyaTrip?.fuel_type ?? moliyaTrip?.vehicle_fuel ?? "").toLowerCase()
     const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : t("trips.units.liter")
+    const zapravkaCols = useMemo<ColumnDef<FinanceRow>[]>(
+        () => [
+            mixedCols[0],
+            {
+                header: t("settings.petrol.station"),
+                accessorKey: "petrol_station_name",
+                cell: ({ row }) => row.original.petrol_station_name || "—",
+            },
+            {
+                header: t("form.quantity"),
+                accessorKey: "quantity",
+                cell: ({ row }) =>
+                    row.original.quantity ?
+                        <span className="font-medium whitespace-nowrap tabular-nums">
+                            {formatQuantity(row.original.quantity, fuelUnit)}
+                        </span>
+                    :   "—",
+            },
+            ...mixedCols.slice(1),
+        ],
+        [mixedCols, fuelUnit, t],
+    )
     const stat = mode === "aylanma" ? tripStat : driverStat
     const incomeUzs = Number(stat?.income_uzs ?? 0)
     const expenseUzs = Number(stat?.expense_uzs ?? 0)
@@ -535,7 +558,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 return (
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <DataTable
-                            columns={mixedCols}
+                            columns={filter === "zapravka" ? zapravkaCols : mixedCols}
                             data={rows}
                             rowColor={noReceiptRow}
                             numeration
