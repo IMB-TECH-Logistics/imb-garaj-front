@@ -3132,7 +3132,7 @@
     },
     "tb": {
         "title": "Texnik baza",
-        "truck": "Golova",
+        "truck": "Avtomobil",
         "trailer": "Tirkama",
         "search": "Raqam bo'yicha qidirish",
         "add_trailer": "Tirkama qo'shish",
@@ -3161,7 +3161,7 @@
         "couple_title": "Ulash",
         "uncouple_title": "Uzish",
         "choose_trailer": "Tirkamani tanlang",
-        "choose_truck": "Golovani tanlang",
+        "choose_truck": "Avtomobilni tanlang",
         "date": "Sana",
         "coupled_ok": "Ulandi",
         "uncoupled_ok": "Uzildi",
