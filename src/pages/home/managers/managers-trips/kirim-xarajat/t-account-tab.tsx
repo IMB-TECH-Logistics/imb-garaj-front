@@ -17,7 +17,7 @@ import { useGet } from "@/hooks/useGet"
 import { usePost } from "@/hooks/usePost"
 import { usePatch } from "@/hooks/usePatch"
 import { useGlobalStore } from "@/store/global-store"
-import { MANAGERS_EMPTY_LEGS, MANAGERS_ORDERS } from "@/constants/api-endpoints"
+import { MANAGERS_EMPTY_LEGS, MANAGERS_ORDERS, SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
 import ExtraPayModal, { EXTRA_PAY_MODAL_KEY, type ExtraPayTarget } from "../../manager-reys/extra-pay-modal"
 import { MANAGERS_CASHFLOW, MANAGERS_CASHFLOW_DRIVER_STAT, MANAGERS_CASHFLOW_TRIP_STAT, MANAGERS_EXPENSE_CATEGORIES, MANAGERS_EXPENSES, MANAGERS_INCOMES, MANAGERS_TRIPS } from "@/constants/api-endpoints"
 import PendingAdvances from "../pending-advances"
@@ -349,6 +349,18 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const moliyaTrip = useGlobalStore.getState().getData(`${MANAGERS_TRIPS}-moliya`) as any
     const fuelKind = String(moliyaTrip?.fuel_type ?? moliyaTrip?.vehicle_fuel ?? "").toLowerCase()
     const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : t("trips.units.liter")
+    const { data: stationsData } = useGet<ListResponse<{ id: number; fuel_type?: string | null }>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { page_size: 1000 } },
+    )
+    const stationUnit = useMemo(() => {
+        const m = new Map<number, string>()
+        for (const st of stationsData?.results ?? []) {
+            if (st.fuel_type === "methane") m.set(st.id, "m³")
+            else if (st.fuel_type === "diesel") m.set(st.id, t("trips.units.liter"))
+        }
+        return m
+    }, [stationsData, t])
     const zapravkaCols = useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             mixedCols[0],
@@ -363,13 +375,13 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 cell: ({ row }) =>
                     row.original.quantity ?
                         <span className="font-medium whitespace-nowrap tabular-nums">
-                            {formatQuantity(row.original.quantity, fuelUnit)}
+                            {formatQuantity(row.original.quantity, (row.original.petrol_station != null && stationUnit.get(row.original.petrol_station)) || fuelUnit)}
                         </span>
                     :   "—",
             },
             ...mixedCols.slice(1),
         ],
-        [mixedCols, fuelUnit, t],
+        [mixedCols, fuelUnit, stationUnit, t],
     )
     const stat = mode === "aylanma" ? tripStat : driverStat
     const incomeUzs = Number(stat?.income_uzs ?? 0)
