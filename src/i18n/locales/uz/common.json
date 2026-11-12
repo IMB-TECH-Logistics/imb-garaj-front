@@ -1157,6 +1157,15 @@
             "paid_comment": "Sotuv uchun to'lov"
         }
     },
+    "reys_move": {
+        "title": "Boshqa aylanmaga ko'chirish",
+        "placeholder": "Aylanmani tanlang",
+        "open": "ochiq",
+        "hint": "Reys kirim-chiqimi bilan birga ko'chadi. Kassada yopilgan aylanmalar ro'yxatda yo'q — ularga ko'chirish uchun avval kassada yopilishni bekor qiling.",
+        "submit": "Ko'chirish",
+        "moved": "Reys ko'chirildi",
+        "error": "Ko'chirishda xatolik"
+    },
     "reys_confirm": {
         "short": "Tasdiqlanmagan",
         "unconfirmed": "Aylanma tasdiqlanmagan",

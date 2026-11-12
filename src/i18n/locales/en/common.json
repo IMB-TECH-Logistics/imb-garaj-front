@@ -1160,6 +1160,15 @@
             "paid_comment": "Payment for sale"
         }
     },
+    "reys_move": {
+        "title": "Move to another trip",
+        "placeholder": "Choose a trip",
+        "open": "open",
+        "hint": "The order moves with its income and expenses. Trips closed in the cash desk are not listed — reopen the cash close first.",
+        "submit": "Move",
+        "moved": "Order moved",
+        "error": "Failed to move"
+    },
     "reys_confirm": {
         "short": "Unconfirmed",
         "unconfirmed": "Trip not confirmed",

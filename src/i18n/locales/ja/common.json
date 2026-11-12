@@ -1163,6 +1163,15 @@
             "paid_comment": "販売代金"
         }
     },
+    "reys_move": {
+        "title": "別の運行へ移動",
+        "placeholder": "運行を選択",
+        "open": "進行中",
+        "hint": "注文は収支と一緒に移動します。レジで締めた運行は表示されません。",
+        "submit": "移動",
+        "moved": "移動しました",
+        "error": "移動に失敗しました"
+    },
     "reys_confirm": {
         "short": "未確認",
         "unconfirmed": "運行未確認",

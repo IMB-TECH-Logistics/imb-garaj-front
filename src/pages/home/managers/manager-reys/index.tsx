@@ -19,11 +19,12 @@ import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useParams, useSearch } from "@tanstack/react-router"
-import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react"
+import { ArrowRightLeft, Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useColumnsManagersOrders } from "./cols"
 import ApproveTripModal, { APPROVE_TRIP_MODAL_KEY } from "./approve-trip-modal"
+import MoveTripModal, { MOVE_TRIP_MODAL_KEY } from "./move-trip-modal"
 import AddTripOrders from "./create-reys"
 import ReysFilters, { REYS_FILTER_KEYS, REYS_KIND_PARAMS } from "./reys-filters"
 import AdvanceBadge from "../managers-trips/advance-badge"
@@ -90,6 +91,8 @@ export default function ManagerReys() {
     const lockedTitle = locked ? t("trips.reys_cols.trip_locked") : undefined
     const [approveOrder, setApproveOrder] = useState<ManagerOrders | null>(null)
     const { openModal: openApproveModal } = useModal(APPROVE_TRIP_MODAL_KEY)
+    const [moveOrder, setMoveOrder] = useState<ManagerOrders | null>(null)
+    const { openModal: openMoveModal } = useModal(MOVE_TRIP_MODAL_KEY)
 
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
     const [previewIndex, setPreviewIndex] = useState<number | null>(null)
@@ -273,7 +276,8 @@ export default function ManagerReys() {
                 rowAction={
                     hasControl
                         ? (order) =>
-                              order.trip_confirmed === false ? (
+                              isVirtualRow(order) ? null
+                              : order.trip_confirmed === false ? (
                                   <Button
                                       size="sm"
                                       variant="ghost"
@@ -287,7 +291,21 @@ export default function ManagerReys() {
                                           openApproveModal()
                                       }}
                                   />
-                              ) : null
+                              ) : (
+                                  <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-3 p-0"
+                                      title={lockedTitle ?? t("reys_move.title")}
+                                      disabled={locked}
+                                      icon={<ArrowRightLeft className="text-blue-600" size={16} />}
+                                      onClick={(e) => {
+                                          e.stopPropagation()
+                                          setMoveOrder(order)
+                                          openMoveModal()
+                                      }}
+                                  />
+                              )
                         : undefined
                 }
                 head={
@@ -328,6 +346,7 @@ export default function ManagerReys() {
             </Modal>
 
             <ApproveTripModal order={approveOrder} />
+            <MoveTripModal order={moveOrder} vehicle={trip?.vehicle} />
 
             <EmptyLegPayModal leg={payLeg} />
             <ExtraPayModal target={extraPay} />
