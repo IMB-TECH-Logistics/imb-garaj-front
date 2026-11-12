@@ -69,7 +69,7 @@ const AddExpenseModal = ({ modalKey = "add-expense", vehicleId }: Props) => {
     const services = useWatch({ control, name: "services" }) ?? []
 
     const { data: vehicles } = useGet<SelectItem[]>("selectable/vehicle", {
-        params: { model_name: "vehicle" },
+        params: { model_name: "vehicle", with_trailers: 1 },
     })
 
     const { data: categoriesData } = useGet<ListResponse<ExpenseCategory>>(

@@ -59,6 +59,7 @@ type InstalledItem = {
 type VehicleRow = {
     id: number
     truck_number: string
+    kind?: "truck" | "trailer"
     driver_name: string | null
     expired: number
     expiring: number
@@ -283,7 +284,14 @@ const VehiclesTab = () => {
                 accessorKey: "truck_number",
                 header: t("wh.plate"),
                 cell: ({ row }) => (
-                    <span className="font-medium whitespace-nowrap">{row.original.truck_number}</span>
+                    <span className="flex items-center gap-2 font-medium whitespace-nowrap">
+                        {row.original.truck_number}
+                        {row.original.kind === "trailer" && (
+                            <Badge variant="outline" className="font-normal">
+                                {t("texnik.vehicles.trailer")}
+                            </Badge>
+                        )}
+                    </span>
                 ),
             },
             {

@@ -1213,6 +1213,7 @@
             "all": "All",
             "expired": "Expired",
             "soon": "Expiring soon",
+            "trailer": "Trailer",
             "expired_count": "{{count}} expired",
             "soon_count": "{{count}} expiring",
             "no_expenses": "No expenses in this period"
