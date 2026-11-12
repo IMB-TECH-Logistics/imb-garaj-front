@@ -1,3 +1,4 @@
+import ParamTabs from "@/components/as-params/tabs"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
@@ -242,6 +243,7 @@ const VehiclesTab = () => {
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as Record<string, unknown>
     const status = search.ti_status === "expired" || search.ti_status === "soon" ? search.ti_status : undefined
+    const kind = search.ti_kind === "trailer" ? "trailer" : "truck"
     const [openId, setOpenId] = useState<number | null>(null)
     const [expense, setExpense] = useState<VehicleExpenseRow | null>(null)
     const [addVehicle, setAddVehicle] = useState<number | undefined>(undefined)
@@ -284,14 +286,7 @@ const VehiclesTab = () => {
                 accessorKey: "truck_number",
                 header: t("wh.plate"),
                 cell: ({ row }) => (
-                    <span className="flex items-center gap-2 font-medium whitespace-nowrap">
-                        {row.original.truck_number}
-                        {row.original.kind === "trailer" && (
-                            <Badge variant="outline" className="font-normal">
-                                {t("texnik.vehicles.trailer")}
-                            </Badge>
-                        )}
-                    </span>
+<span className="font-medium whitespace-nowrap">{row.original.truck_number}</span>
                 ),
             },
             {
@@ -329,6 +324,7 @@ const VehiclesTab = () => {
         [t],
     )
 
+    const rows = useMemo(() => (data ?? []).filter((r) => (r.kind ?? "truck") === kind), [data, kind])
     const openRow = data?.find((r) => r.id === openId) ?? null
 
     const setItem = (lot?: number) =>
@@ -342,10 +338,19 @@ const VehiclesTab = () => {
                 numeration
                 loading={isLoading}
                 columns={columns}
-                data={data ?? []}
+                data={rows}
                 onRowClick={(row) => setOpenId(row.id)}
                 head={
                     <div className="mb-3 flex items-center justify-end gap-3 flex-wrap">
+                        <div className="mr-auto">
+                            <ParamTabs
+                                paramName="ti_kind"
+                                options={[
+                                    { value: "truck", label: t("tb.truck") },
+                                    { value: "trailer", label: t("tb.trailer") },
+                                ]}
+                            />
+                        </div>
                         <ParamCombobox
                             paramName="ti_status"
                             isSearch={false}
