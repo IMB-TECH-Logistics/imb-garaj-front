@@ -1216,6 +1216,7 @@
             "all": "すべて",
             "expired": "期限切れ",
             "soon": "期限間近",
+            "truck": "車両",
             "trailer": "トレーラー",
             "expired_count": "{{count}}件 期限切れ",
             "soon_count": "{{count}}件 期限間近",

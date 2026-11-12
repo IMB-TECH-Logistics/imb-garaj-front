@@ -1213,6 +1213,7 @@
             "all": "All",
             "expired": "Expired",
             "soon": "Expiring soon",
+            "truck": "Vehicle",
             "trailer": "Trailer",
             "expired_count": "{{count}} expired",
             "soon_count": "{{count}} expiring",

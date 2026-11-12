@@ -1210,6 +1210,7 @@
             "all": "Hammasi",
             "expired": "Eskirgan",
             "soon": "Yaqinlashmoqda",
+            "truck": "Avtomobil",
             "trailer": "Tirkama",
             "expired_count": "{{count}} ta eskirgan",
             "soon_count": "{{count}} ta yaqinlashmoqda",

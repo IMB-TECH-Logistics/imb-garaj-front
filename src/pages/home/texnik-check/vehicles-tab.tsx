@@ -346,7 +346,7 @@ const VehiclesTab = () => {
                             <ParamTabs
                                 paramName="ti_kind"
                                 options={[
-                                    { value: "truck", label: t("tb.truck") },
+                                    { value: "truck", label: t("texnik.vehicles.truck") },
                                     { value: "trailer", label: t("tb.trailer") },
                                 ]}
                             />
