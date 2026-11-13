@@ -37,7 +37,7 @@ import { useTranslation } from "react-i18next"
 import ItemDetailSheet from "../ombor/items/detail-sheet"
 import { fmtDate, toNumber } from "../ombor/utils"
 import AddExpenseModal from "./add-expense"
-import { lifespanHint, type VehicleExpenseRow } from "./cols"
+import { expenseNote, lifespanHint, type VehicleExpenseRow } from "./cols"
 import ExpenseDetailSheet from "./detail-sheet"
 
 type ItemStatus = "expired" | "soon" | "ok" | null
@@ -127,6 +127,7 @@ const VehicleExpenses = ({
                 <TableRow>
                     <TableHead>{t("form.date")}</TableHead>
                     <TableHead>{t("form.expense_type")}</TableHead>
+                    <TableHead>{t("form.comment")}</TableHead>
                     <TableHead className="text-right">{t("form.amount")}</TableHead>
                     <TableHead>{t("form.lifespan")}</TableHead>
                 </TableRow>
@@ -136,6 +137,11 @@ const VehicleExpenses = ({
                     <TableRow key={r.id} className="cursor-pointer" onClick={() => onOpen(r)}>
                         <TableCell className="whitespace-nowrap">{fmtDate(r.date)}</TableCell>
                         <TableCell>{r.category_name || "—"}</TableCell>
+                        <TableCell className="max-w-64 text-muted-foreground">
+                            <span className="line-clamp-2" title={expenseNote(r)}>
+                                {expenseNote(r) || "—"}
+                            </span>
+                        </TableCell>
                         <TableCell className="text-right whitespace-nowrap font-medium text-red-600">
                             {formatMoney((Number(r.services_total ?? r.amount) || 0) + (Number(r.warehouse_total) || 0))}
                         </TableCell>

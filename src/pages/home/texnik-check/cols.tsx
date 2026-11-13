@@ -30,6 +30,15 @@ export type VehicleExpenseRow = {
     created: string
 }
 
+export const expenseNote = (row: Pick<VehicleExpenseRow, "comment" | "items" | "services">) =>
+    [
+        ...(row.services ?? []).map((s) => s.comment?.trim()),
+        ...(row.items ?? []).map((i) => i.product_name?.trim()),
+        row.comment?.trim(),
+    ]
+        .filter(Boolean)
+        .join(", ")
+
 const STATUS_CLASSES: Record<string, string> = {
     expired:
         "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-800 font-semibold",
@@ -116,7 +125,7 @@ export const useExpenseCols = () => {
                 size: 200,
                 enableSorting: false,
                 cell: ({ row }) => (
-                    <span className="text-muted-foreground">{row.original.comment || "—"}</span>
+                    <span className="text-muted-foreground">{expenseNote(row.original) || "—"}</span>
                 ),
             },
         ],
