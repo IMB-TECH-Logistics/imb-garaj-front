@@ -431,7 +431,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
 
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)] gap-4 items-start">
                 <div className="flex flex-col gap-4 min-w-0">
-                    {formula && <TaxReport report={r} overhead={overheadItems} />}
+                    {formula && <TaxReport report={r} part="inputs" />}
                     {!formula && (
                     <Card>
                         <CardContent className="p-0">
@@ -812,6 +812,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                 </div>
                 <div className="flex flex-col gap-4 min-w-0">
                     {!r.leasing_mode && !formula && <TaxToggle report={r} />}
+                    {formula && <TaxReport report={r} overhead={overheadItems} part="calc" />}
                     <DistributionCard report={r} />
                 </div>
             </div>

@@ -179,10 +179,12 @@ export const TaxToggle = ({ report: r }: { report: MonthlyReport }) => {
 
 export const TaxReport = ({
     report: r,
-    overhead,
+    overhead = [],
+    part,
 }: {
     report: MonthlyReport
-    overhead: OverheadItem[]
+    overhead?: OverheadItem[]
+    part: "inputs" | "calc"
 }) => {
     const { t } = useTranslation()
     const editable = useHasAction("fin_report_control") && r.status === "draft"
@@ -267,11 +269,10 @@ export const TaxReport = ({
         num(r.rent) +
         num(r.tax)
 
-    return (
-        <div className="flex flex-col gap-4">
+    const inputs = (
             <Section
-                n={1}
-                title={t("fin_report.tf.income")}
+                title={t("fin_report.tf.inputs")}
+                note={t("fin_report.tf.inputs_note")}
                 right={
                     <Switch
                         checked
@@ -280,18 +281,6 @@ export const TaxReport = ({
                     />
                 }
             >
-                <Row label={t("fin_report.tf.income_total")} value={r.income} />
-                <Row sub label={t("fin_report.tf.bank_income")} value={c.bank_income} />
-                <Row sub label={t("fin_report.tf.cash_income_gross")} value={c.cash_income_gross} />
-                <Row
-                    sub
-                    label={t("fin_report.tf.cash_fee", { rate: num(p.cash_fee_rate) })}
-                    value={-num(c.cash_fee)}
-                />
-                <Row label={t("fin_report.tf.cash_income")} value={c.cash_income} strong />
-            </Section>
-
-            <Section n={2} title={t("fin_report.tf.inputs")} note={t("fin_report.tf.inputs_note")}>
                 {AMOUNTS.map((k) => input(k, false))}
                 {c.bank_income_auto && (
                     <p className="px-4 py-1.5 text-[11px] text-muted-foreground border-b">
@@ -348,16 +337,35 @@ export const TaxReport = ({
                     </div>
                 )}
             </Section>
+    )
+    if (part === "inputs") return inputs
+
+    return (
+        <div className="flex flex-col gap-4">
+            <Section
+                n={1}
+                title={t("fin_report.tf.income")}
+            >
+                <Row label={t("fin_report.tf.income_total")} value={r.income} />
+                <Row sub label={t("fin_report.tf.bank_income")} value={c.bank_income} />
+                <Row sub label={t("fin_report.tf.cash_income_gross")} value={c.cash_income_gross} />
+                <Row
+                    sub
+                    label={t("fin_report.tf.cash_fee", { rate: num(p.cash_fee_rate) })}
+                    value={-num(c.cash_fee)}
+                />
+                <Row label={t("fin_report.tf.cash_income")} value={c.cash_income} strong />
+            </Section>
 
             <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 items-start">
-                <Section n={3} title={t("fin_report.tf.vat")}>
+                <Section n={2} title={t("fin_report.tf.vat")}>
                     <Row sub label={t("fin_report.tf.bank_vat")} value={c.bank_vat} />
                     <Row sub label={t("fin_report.tf.fuel_vat")} value={-num(c.fuel_vat)} />
                     <Row sub label={t("fin_report.tf.rent_vat")} value={-num(c.rent_vat)} />
                     <Row label={t("fin_report.tf.vat_pay")} value={-num(c.vat_pay)} strong />
                 </Section>
 
-                <Section n={4} title={t("fin_report.tf.payroll")}>
+                <Section n={3} title={t("fin_report.tf.payroll")}>
                     <Row sub label={t("fin_report.tf.salary_gross")} value={c.salary_gross} />
                     <Row sub label={t("fin_report.tf.pit")} value={-num(c.pit)} />
                     <Row sub label={t("fin_report.tf.social")} value={-num(c.social)} />
@@ -365,7 +373,7 @@ export const TaxReport = ({
                 </Section>
             </div>
 
-            <Section n={5} title={t("fin_report.tf.profit")}>
+            <Section n={4} title={t("fin_report.tf.profit")}>
                 <Row
                     sub
                     label={t("fin_report.tf.after_costs")}
@@ -391,7 +399,7 @@ export const TaxReport = ({
                 <Row label={t("fin_report.tf.dividend")} value={c.dividend} strong />
             </Section>
 
-            <Section n={6} title={t("fin_report.tf.split")} note={t("fin_report.tf.split_note")}>
+            <Section n={5} title={t("fin_report.tf.split")} note={t("fin_report.tf.split_note")}>
                 <Row
                     sub
                     label={t("fin_report.tf.split_fuel")}
@@ -432,7 +440,7 @@ export const TaxReport = ({
                 <Row label={t("fin_report.tf.split_total")} value={c.bank_income} strong />
             </Section>
 
-            <Section n={7} title={t("fin_report.tf.cash")}>
+            <Section n={6} title={t("fin_report.tf.cash")}>
                 <Row sub label={t("fin_report.tf.dividend")} value={c.dividend} />
                 <Row sub label={t("fin_report.tf.cash_income")} value={c.cash_income} />
                 <Row sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
