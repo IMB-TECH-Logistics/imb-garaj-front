@@ -13,6 +13,7 @@ import { CheckCircle2, Undo2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { InfoTip } from "./tax-card"
 import { MonthlyReport, reportUrl } from "./api"
 import { Money } from "./index"
 
@@ -93,12 +94,13 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
             <CardContent className="p-4 flex flex-col gap-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-col">
-                        <h2 className="text-base font-semibold">
+                        <h2 className="flex items-center gap-1.5 text-base font-semibold">
                             {t("fin_report.dist.title")}
+                            {draft && <InfoTip text={t("fin_report.dist.draft_hint")} />}
                         </h2>
                         <span className="text-xs text-muted-foreground">
                             {draft ?
-                                t("fin_report.dist.draft_hint")
+                                null
                             :   t("fin_report.dist.approved_at", {
                                     date:
                                         report.approved_at ?
@@ -112,31 +114,6 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                             }
                         </span>
                     </div>
-                    {canEdit &&
-                        (draft ?
-                            <Button
-                                loading={approving}
-                                disabled={dirty || total !== 100}
-                                onClick={() =>
-                                    approve(reportUrl(report.id, "approve"), {})
-                                }
-                            >
-                                <CheckCircle2 className="w-4 h-4" />
-                                {t("fin_report.dist.approve")}
-                            </Button>
-                        :   <Button
-                                variant="outline"
-                                loading={unapproving}
-                                onClick={() =>
-                                    unapprove(
-                                        reportUrl(report.id, "unapprove"),
-                                        {},
-                                    )
-                                }
-                            >
-                                <Undo2 className="w-4 h-4" />
-                                {t("fin_report.dist.unapprove")}
-                            </Button>)}
                 </div>
 
                 <div className="overflow-x-auto">
@@ -270,8 +247,9 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                         {t("fin_report.dist.no_profit")}
                     </p>
                 )}
-                {editable && dirty && (
-                    <div className="flex justify-end">
+                {canEdit && (
+                    <div className="flex justify-end gap-2">
+                        {editable && dirty && (
                         <Button
                             loading={saving}
                             disabled={total !== 100}
@@ -287,6 +265,32 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                         >
                             {t("actions.save")}
                         </Button>
+                        )}
+                        {draft ?
+                            <Button
+                                loading={approving}
+                                disabled={dirty || total !== 100}
+                                onClick={() =>
+                                    approve(reportUrl(report.id, "approve"), {})
+                                }
+                            >
+                                <CheckCircle2 className="w-4 h-4" />
+                                {t("fin_report.dist.approve")}
+                            </Button>
+                        :   <Button
+                                variant="outline"
+                                loading={unapproving}
+                                onClick={() =>
+                                    unapprove(
+                                        reportUrl(report.id, "unapprove"),
+                                        {},
+                                    )
+                                }
+                            >
+                                <Undo2 className="w-4 h-4" />
+                                {t("fin_report.dist.unapprove")}
+                            </Button>
+                        }
                     </div>
                 )}
             </CardContent>

@@ -2,13 +2,19 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useHasAction } from "@/constants/useUser"
 import { usePatch } from "@/hooks/usePatch"
 import { cn } from "@/lib/utils"
 import { amountText, num, onApiError } from "@/pages/home/kontragent/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { ChevronDown, RotateCcw } from "lucide-react"
+import { ChevronDown, Info, RotateCcw } from "lucide-react"
 import { ReactNode, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -29,6 +35,25 @@ const RATES: Field[] = [
 const AMOUNTS: Field[] = ["bank_income", "salary_official", "bank_fee_salary", "bank_fee_dividend"]
 
 const groupDigits = (v: string) => v.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+
+export const InfoTip = ({ text }: { text?: ReactNode }) =>
+    text ?
+        <TooltipProvider delayDuration={100}>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <span
+                        role="img"
+                        aria-label="info"
+                        className="inline-flex shrink-0 cursor-help text-muted-foreground hover:text-foreground"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Info className="h-3.5 w-3.5" />
+                    </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs leading-snug">{text}</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    :   null
 
 const Row = ({
     label,
@@ -71,15 +96,13 @@ const Row = ({
             >
                 <span className="flex items-center gap-1.5">
                     {label}
+                    <InfoTip text={hint} />
                     {onClick && (
                         <ChevronDown
                             className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")}
                         />
                     )}
                 </span>
-                {hint && (
-                    <span className="text-[11px] font-normal text-muted-foreground">{hint}</span>
-                )}
             </span>
             {value !== undefined && <Money value={value} strong={strong} />}
         </Tag>
@@ -128,13 +151,11 @@ const Section = ({
     <Card>
         <CardContent className="p-0">
             <div className="flex items-center justify-between gap-3 px-4 py-2.5 border-b">
-                <div className="flex flex-col">
-                    <span className="text-sm font-semibold">
-                        {n ? `${n}. ` : ""}
-                        {title}
-                    </span>
-                    {note && <span className="text-[11px] text-muted-foreground">{note}</span>}
-                </div>
+                <span className="flex items-center gap-1.5 text-sm font-semibold">
+                    {n ? `${n}. ` : ""}
+                    {title}
+                    <InfoTip text={note} />
+                </span>
                 {right}
             </div>
             {children}
@@ -229,7 +250,15 @@ export const TaxReport = ({
 
     const input = (k: Field, rate: boolean) => (
         <label key={k} className="flex items-center justify-between gap-3 px-4 py-1.5 text-xs border-b">
-            <span className="text-muted-foreground">{t(`fin_report.tf.in.${k}`)}</span>
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+                {t(`fin_report.tf.in.${k}`)}
+                <InfoTip
+                    text={t(`fin_report.tf.i.in_${k}`, {
+                        amount: amountText(c.bank_income_suggested ?? "0"),
+                        markup: num(p.bank_markup),
+                    })}
+                />
+            </span>
             <span className="flex items-center gap-1">
                 <Input
                     disabled={!editable}
@@ -282,18 +311,11 @@ export const TaxReport = ({
                 }
             >
                 {AMOUNTS.map((k) => input(k, false))}
-                {c.bank_income_auto && (
-                    <p className="px-4 py-1.5 text-[11px] text-muted-foreground border-b">
-                        {t("fin_report.tf.bank_auto", {
-                            amount: amountText(c.bank_income_suggested ?? "0"),
-                            markup: num(p.bank_markup),
-                        })}
-                    </p>
-                )}
                 {RATES.map((k) => input(k, true))}
                 <label className="flex items-center justify-between gap-3 px-4 py-1.5 text-xs border-b">
-                    <span className="text-muted-foreground">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
                         {t("fin_report.tf.in.management_fee_usd", { fleet: r.fleet })}
+                        <InfoTip text={t("fin_report.tf.i.in_management_fee_usd")} />
                     </span>
                     <span className="flex items-center gap-1">
                         $
@@ -346,30 +368,30 @@ export const TaxReport = ({
                 n={1}
                 title={t("fin_report.tf.income")}
             >
-                <Row label={t("fin_report.tf.income_total")} value={r.income} />
-                <Row sub label={t("fin_report.tf.bank_income")} value={c.bank_income} />
-                <Row sub label={t("fin_report.tf.cash_income_gross")} value={c.cash_income_gross} />
-                <Row
+                <Row hint={t("fin_report.tf.i.income_total")} label={t("fin_report.tf.income_total")} value={r.income} />
+                <Row hint={t("fin_report.tf.i.bank_income")} sub label={t("fin_report.tf.bank_income")} value={c.bank_income} />
+                <Row hint={t("fin_report.tf.i.cash_income_gross")} sub label={t("fin_report.tf.cash_income_gross")} value={c.cash_income_gross} />
+                <Row hint={t("fin_report.tf.i.cash_fee")}
                     sub
                     label={t("fin_report.tf.cash_fee", { rate: num(p.cash_fee_rate) })}
                     value={-num(c.cash_fee)}
                 />
-                <Row label={t("fin_report.tf.cash_income")} value={c.cash_income} strong />
+                <Row hint={t("fin_report.tf.i.cash_income")} label={t("fin_report.tf.cash_income")} value={c.cash_income} strong />
             </Section>
 
             <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 items-start">
                 <Section n={2} title={t("fin_report.tf.vat")}>
-                    <Row sub label={t("fin_report.tf.bank_vat")} value={c.bank_vat} />
-                    <Row sub label={t("fin_report.tf.fuel_vat")} value={-num(c.fuel_vat)} />
-                    <Row sub label={t("fin_report.tf.rent_vat")} value={-num(c.rent_vat)} />
-                    <Row label={t("fin_report.tf.vat_pay")} value={-num(c.vat_pay)} strong />
+                    <Row hint={t("fin_report.tf.i.bank_vat")} sub label={t("fin_report.tf.bank_vat")} value={c.bank_vat} />
+                    <Row hint={t("fin_report.tf.i.fuel_vat")} sub label={t("fin_report.tf.fuel_vat")} value={-num(c.fuel_vat)} />
+                    <Row hint={t("fin_report.tf.i.rent_vat")} sub label={t("fin_report.tf.rent_vat")} value={-num(c.rent_vat)} />
+                    <Row hint={t("fin_report.tf.i.vat_pay")} label={t("fin_report.tf.vat_pay")} value={-num(c.vat_pay)} strong />
                 </Section>
 
                 <Section n={3} title={t("fin_report.tf.payroll")}>
-                    <Row sub label={t("fin_report.tf.salary_gross")} value={c.salary_gross} />
-                    <Row sub label={t("fin_report.tf.pit")} value={-num(c.pit)} />
-                    <Row sub label={t("fin_report.tf.social")} value={-num(c.social)} />
-                    <Row label={t("fin_report.tf.payroll_cost")} value={-num(c.payroll_cost)} strong />
+                    <Row hint={t("fin_report.tf.i.salary_gross")} sub label={t("fin_report.tf.salary_gross")} value={c.salary_gross} />
+                    <Row hint={t("fin_report.tf.i.pit")} sub label={t("fin_report.tf.pit")} value={-num(c.pit)} />
+                    <Row hint={t("fin_report.tf.i.social")} sub label={t("fin_report.tf.social")} value={-num(c.social)} />
+                    <Row hint={t("fin_report.tf.i.payroll_cost")} label={t("fin_report.tf.payroll_cost")} value={-num(c.payroll_cost)} strong />
                 </Section>
             </div>
 
@@ -380,23 +402,23 @@ export const TaxReport = ({
                     value={c.after_costs}
                     hint={t("fin_report.tf.after_costs_hint")}
                 />
-                <Row sub label={t("fin_report.tf.payroll_cost")} value={-num(c.payroll_cost)} />
+                <Row hint={t("fin_report.tf.i.payroll_cost")} sub label={t("fin_report.tf.payroll_cost")} value={-num(c.payroll_cost)} />
                 {num(c.bank_fees) !== 0 && (
-                    <Row sub label={t("fin_report.tf.bank_fees")} value={-num(c.bank_fees)} />
+                    <Row hint={t("fin_report.tf.i.bank_fees")} sub label={t("fin_report.tf.bank_fees")} value={-num(c.bank_fees)} />
                 )}
-                <Row label={t("fin_report.tf.before_tax")} value={c.before_tax} />
-                <Row
+                <Row hint={t("fin_report.tf.i.before_tax")} label={t("fin_report.tf.before_tax")} value={c.before_tax} />
+                <Row hint={t("fin_report.tf.i.profit_tax")}
                     sub
                     label={t("fin_report.tf.profit_tax", { rate: num(p.profit_rate) })}
                     value={-num(c.profit_tax)}
                 />
-                <Row label={t("fin_report.tf.net_profit")} value={c.net_profit} />
-                <Row
+                <Row hint={t("fin_report.tf.i.net_profit")} label={t("fin_report.tf.net_profit")} value={c.net_profit} />
+                <Row hint={t("fin_report.tf.i.dividend_tax")}
                     sub
                     label={t("fin_report.tf.dividend_tax", { rate: num(p.dividend_rate) })}
                     value={-num(c.dividend_tax)}
                 />
-                <Row label={t("fin_report.tf.dividend")} value={c.dividend} strong />
+                <Row hint={t("fin_report.tf.i.dividend")} label={t("fin_report.tf.dividend")} value={c.dividend} strong />
             </Section>
 
             <Section n={5} title={t("fin_report.tf.split")} note={t("fin_report.tf.split_note")}>
@@ -427,24 +449,24 @@ export const TaxReport = ({
                             <Money value={v.rent} />
                         </div>
                     ))}
-                <Row sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
-                <Row sub label={t("fin_report.tf.vat_pay")} value={c.vat_pay} />
-                <Row sub label={t("fin_report.tf.pit")} value={c.pit} />
-                <Row sub label={t("fin_report.tf.social")} value={c.social} />
-                <Row sub label={t("fin_report.tf.profit_tax", { rate: num(p.profit_rate) })} value={c.profit_tax} />
-                <Row sub label={t("fin_report.tf.dividend_tax", { rate: num(p.dividend_rate) })} value={c.dividend_tax} />
+                <Row hint={t("fin_report.tf.i.cash_salary_back")} sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
+                <Row hint={t("fin_report.tf.i.vat_pay")} sub label={t("fin_report.tf.vat_pay")} value={c.vat_pay} />
+                <Row hint={t("fin_report.tf.i.pit")} sub label={t("fin_report.tf.pit")} value={c.pit} />
+                <Row hint={t("fin_report.tf.i.social")} sub label={t("fin_report.tf.social")} value={c.social} />
+                <Row hint={t("fin_report.tf.i.profit_tax")} sub label={t("fin_report.tf.profit_tax", { rate: num(p.profit_rate) })} value={c.profit_tax} />
+                <Row hint={t("fin_report.tf.i.dividend_tax")} sub label={t("fin_report.tf.dividend_tax", { rate: num(p.dividend_rate) })} value={c.dividend_tax} />
                 {num(c.bank_fees) !== 0 && (
-                    <Row sub label={t("fin_report.tf.bank_fees")} value={c.bank_fees} />
+                    <Row hint={t("fin_report.tf.i.bank_fees")} sub label={t("fin_report.tf.bank_fees")} value={c.bank_fees} />
                 )}
-                <Row sub label={t("fin_report.tf.dividend")} value={c.dividend} />
-                <Row label={t("fin_report.tf.split_total")} value={c.bank_income} strong />
+                <Row hint={t("fin_report.tf.i.dividend")} sub label={t("fin_report.tf.dividend")} value={c.dividend} />
+                <Row hint={t("fin_report.tf.i.split_total")} label={t("fin_report.tf.split_total")} value={c.bank_income} strong />
             </Section>
 
             <Section n={6} title={t("fin_report.tf.cash")}>
-                <Row sub label={t("fin_report.tf.dividend")} value={c.dividend} />
-                <Row sub label={t("fin_report.tf.cash_income")} value={c.cash_income} />
-                <Row sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
-                <Row label={t("fin_report.tf.cash_in")} value={c.cash_in} strong />
+                <Row hint={t("fin_report.tf.i.dividend")} sub label={t("fin_report.tf.dividend")} value={c.dividend} />
+                <Row hint={t("fin_report.tf.i.cash_income")} sub label={t("fin_report.tf.cash_income")} value={c.cash_income} />
+                <Row hint={t("fin_report.tf.i.cash_salary_back")} sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
+                <Row hint={t("fin_report.tf.i.cash_in")} label={t("fin_report.tf.cash_in")} value={c.cash_in} strong />
 
                 <Row
                     sub
@@ -506,7 +528,7 @@ export const TaxReport = ({
                         <Items items={byLine("tax")} />
                     </>
                 )}
-                <Row label={t("fin_report.tf.cash_out")} value={-cashOut} strong />
+                <Row hint={t("fin_report.tf.i.cash_out")} label={t("fin_report.tf.cash_out")} value={-cashOut} strong />
                 <Row
                     label={t("fin_report.tf.cash_net")}
                     value={r.net}
