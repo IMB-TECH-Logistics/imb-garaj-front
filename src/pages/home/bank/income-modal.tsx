@@ -18,6 +18,7 @@ import { toast } from "sonner"
 
 export const BANK_INCOME = "checkout/bank/income"
 export const BANK_INCOME_MODAL = "bank-income"
+const SELECT_BORDER = "border border-input shadow-sm"
 
 export type IncomeType = "bank_reys" | "bank_kontragent" | "bank_boshqa"
 
@@ -92,6 +93,36 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            <FormSelect
+                required
+                control={control}
+                label={t("bank_page.income_type")}
+                name="income_type"
+                options={typeOptions}
+                valueKey="id"
+                labelKey="name"
+                className={SELECT_BORDER}
+            />
+            {incomeType === "bank_kontragent" && (
+                <FormSelect
+                    required
+                    control={control}
+                    label={t("bank_page.income_type_kontragent")}
+                    name="kontragent"
+                    options={kontragents ?? []}
+                    valueKey="id"
+                    labelKey="name"
+                    className={SELECT_BORDER}
+                />
+            )}
+            {incomeType === "bank_boshqa" && (
+                <FormInput
+                    name="source"
+                    label={t("bank_page.income_source")}
+                    placeholder={t("bank_page.income_source_hint")}
+                    methods={form}
+                />
+            )}
             <FormNumberInput
                 required
                 control={control}
@@ -115,34 +146,6 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                 name="date"
                 placeholder={t("form.select_date")}
             />
-            <FormSelect
-                required
-                control={control}
-                label={t("bank_page.income_type")}
-                name="income_type"
-                options={typeOptions}
-                valueKey="id"
-                labelKey="name"
-            />
-            {incomeType === "bank_kontragent" && (
-                <FormSelect
-                    required
-                    control={control}
-                    label={t("bank_page.income_type_kontragent")}
-                    name="kontragent"
-                    options={kontragents ?? []}
-                    valueKey="id"
-                    labelKey="name"
-                />
-            )}
-            {incomeType === "bank_boshqa" && (
-                <FormInput
-                    name="source"
-                    label={t("bank_page.income_source")}
-                    placeholder={t("bank_page.income_source_hint")}
-                    methods={form}
-                />
-            )}
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             <div className="flex justify-end mt-1">
                 <Button className="min-w-32" type="submit" loading={isPending}>

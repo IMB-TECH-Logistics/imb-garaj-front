@@ -238,7 +238,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                 {line.duplicate ?
                                                     <Badge variant="outline">{t("bank_page.import.already")}</Badge>
                                                 :   <select
-                                                        className="h-8 rounded-md border bg-background px-2"
+                                                        className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
                                                         value={choice?.action}
                                                         onChange={(e) => setChoice(line.key, { action: e.target.value as Action })}
                                                     >
@@ -260,7 +260,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                 {!line.duplicate && choice?.action === "station_top_up" ?
                                                     <div className="flex flex-col gap-1">
                                                         <select
-                                                            className="h-8 rounded-md border bg-background px-2"
+                                                            className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
                                                             value={choice.petrol_station ? String(choice.petrol_station) : NEW_STATION}
                                                             onChange={(e) =>
                                                                 e.target.value === NEW_STATION ?
@@ -280,7 +280,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                         </select>
                                                         {!choice.petrol_station && (
                                                             <input
-                                                                className="h-8 rounded-md border bg-background px-2"
+                                                                className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
                                                                 value={choice.new_station_name ?? ""}
                                                                 onChange={(e) => setChoice(line.key, { new_station_name: e.target.value })}
                                                             />
@@ -289,7 +289,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                 : !line.duplicate && choice?.action === "income" ?
                                                     <div className="flex flex-col gap-1">
                                                         <select
-                                                            className="h-8 rounded-md border bg-background px-2"
+                                                            className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
                                                             value={choice.income_type ?? "bank_boshqa"}
                                                             onChange={(e) =>
                                                                 setChoice(line.key, {
@@ -307,7 +307,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                         </select>
                                                         {choice.income_type === "bank_kontragent" && (
                                                             <select
-                                                                className="h-8 rounded-md border bg-background px-2"
+                                                                className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
                                                                 value={choice.kontragent ? String(choice.kontragent) : NEW_STATION}
                                                                 onChange={(e) =>
                                                                     setChoice(line.key, {
@@ -326,14 +326,14 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                         )}
                                                         {choice.income_type === "bank_kontragent" && !choice.kontragent && (
                                                             <input
-                                                                className="h-8 rounded-md border bg-background px-2"
+                                                                className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
                                                                 value={choice.new_kontragent_name ?? ""}
                                                                 onChange={(e) => setChoice(line.key, { new_kontragent_name: e.target.value })}
                                                             />
                                                         )}
                                                         {choice.income_type === "bank_boshqa" && (
                                                             <input
-                                                                className="h-8 w-full rounded-md border bg-background px-2"
+                                                                className="h-8 w-full rounded-md border border-input bg-background shadow-sm px-2"
                                                                 value={choice.label}
                                                                 onChange={(e) => setChoice(line.key, { label: e.target.value })}
                                                             />
@@ -341,7 +341,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                     </div>
                                                 : !line.duplicate && choice && choice.action !== "skip" ?
                                                     <input
-                                                        className="h-8 w-full rounded-md border bg-background px-2"
+                                                        className="h-8 w-full rounded-md border border-input bg-background shadow-sm px-2"
                                                         value={choice.label}
                                                         onChange={(e) => setChoice(line.key, { label: e.target.value })}
                                                     />
