@@ -291,6 +291,7 @@ export const TaxReport = ({
         .flatMap((o) => o.vehicles.map((v) => ({ ...v, owner: o.name })))
         .sort((x, y) => x.plate.localeCompare(y.plate) || x.part.localeCompare(y.part))
     const cashOut =
+        num(c.fuel_cash) +
         num(r.trip_salary) +
         num(r.trip_other) +
         num(r.other_expense) +
@@ -425,7 +426,7 @@ export const TaxReport = ({
                 <Row
                     sub
                     label={t("fin_report.tf.split_fuel")}
-                    value={r.trip_fuel}
+                    value={c.fuel_bank}
                     hint={t("fin_report.tf.split_fuel_hint")}
                 />
                 <Row
@@ -468,6 +469,12 @@ export const TaxReport = ({
                 <Row hint={t("fin_report.tf.i.cash_salary_back")} sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
                 <Row hint={t("fin_report.tf.i.cash_in")} label={t("fin_report.tf.cash_in")} value={c.cash_in} strong />
 
+                <Row
+                    sub
+                    label={t("fin_report.tf.cash_fuel")}
+                    value={-num(c.fuel_cash)}
+                    hint={t("fin_report.tf.cash_fuel_hint")}
+                />
                 <Row
                     sub
                     label={t("fin_report.tf.cash_salary")}

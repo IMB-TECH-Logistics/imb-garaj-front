@@ -3627,7 +3627,7 @@
             "payroll_cost": "Korxonaning jami oylik xarajati",
             "profit": "Foyda va dividend (bank)",
             "after_costs": "QQSsiz tushum − yoqilg'i − ijara",
-            "after_costs_hint": "QQSsiz bank tushumi − QQSsiz yoqilg'i − QQSsiz ijara",
+            "after_costs_hint": "QQSsiz bank tushumi − QQSsiz perechisleniye yoqilg'i − QQSsiz ijara",
             "bank_fees": "Bank komissiyalari",
             "before_tax": "Soliqdan oldingi foyda",
             "profit_tax": "Foyda solig'i ({{rate}}%)",
@@ -3649,8 +3649,8 @@
             "manual": "Qo'lda kiritiladi",
             "split": "Bank tushumining taqsimlanishi",
             "split_note": "Bank orqali kelgan pul nimaga ketadi",
-            "split_fuel": "Yoqilg'i (QQS bilan)",
-            "split_fuel_hint": "Reys xarajatlaridan «yoqilg'i» turi",
+            "split_fuel": "Yoqilg'i — perechisleniye (QQS bilan)",
+            "split_fuel_hint": "Shartnomali zapravkalarga o'tkazma bilan to'langan yoqilg'i. Naqd yoqilg'i 6-kartada",
             "split_rent": "Ijara (QQS bilan)",
             "split_rent_hint": "Mashina ijarasi sozlamasi ($ + QQS) × MB kursi. Bosing — mashinalar bo'yicha",
             "split_total": "Jami (= bank orqali tushum)",
@@ -3661,7 +3661,7 @@
             "cash_out": "Jami naqd xarajatlar",
             "no_items": "Kassada yozuv yo'q",
             "i": {
-                "in_bank_income": "Bank orqali o'tgan tushum (QQS bilan). Bo'sh qolsa avtomatik: (yoqilg'i + ijara + rasmiy oylik) × (1 + {{markup}}%) = {{amount}}",
+                "in_bank_income": "Bank orqali o'tgan tushum (QQS bilan). Bo'sh qolsa avtomatik: (perechisleniye yoqilg'i + ijara + rasmiy oylik) × (1 + {{markup}}%) = {{amount}}",
                 "in_salary_official": "Rasmiy xodimlar qo'liga tegadigan oylik (soliqlardan keyin). Shundan YIT va ijtimoiy soliq hisoblanadi; summa naqdga to'liq qaytadi",
                 "in_bank_fee_salary": "Oylikni o'tkazish uchun bank olgan komissiya, so'mda. Soliqdan oldingi foydadan ayriladi",
                 "in_bank_fee_dividend": "Dividendni o'tkazish uchun bank olgan komissiya, so'mda. Soliqdan oldingi foydadan ayriladi",
@@ -3671,7 +3671,7 @@
                 "in_profit_rate": "Soliqdan oldingi foydadan olinadi (foyda musbat bo'lsa)",
                 "in_dividend_rate": "Sof foydadan olinadi (musbat bo'lsa)",
                 "in_cash_fee_rate": "Naqdga aylantiriladigan qismdan (tushum − bank) olinadi",
-                "in_bank_markup": "Bank tushumi kiritilmasa ishlatiladi: (yoqilg'i + ijara + rasmiy oylik) × (1 + ustama)",
+                "in_bank_markup": "Bank tushumi kiritilmasa ishlatiladi: (perechisleniye yoqilg'i + ijara + rasmiy oylik) × (1 + ustama)",
                 "in_management_fee_usd": "Har mashina uchun oyiga $; × mashina soni × MB kursi. Kassadagi boshqaruv chiqimlari ustiga qo'shiladi",
                 "income_total": "Shu oy reyslaridagi buyurtmalar narxi yig'indisi",
                 "bank_income": "Chapdagi «Bank orqali tushum» katagi (bo'sh bo'lsa avtomatik)",
@@ -3679,7 +3679,7 @@
                 "cash_fee": "Naqd qism × naqd qilish stavkasi",
                 "cash_income": "Naqd qism − naqd qilish xarajati",
                 "bank_vat": "Bank tushumi × QQS ÷ (1 + QQS)",
-                "fuel_vat": "Yoqilg'i × QQS ÷ (1 + QQS)",
+                "fuel_vat": "Perechisleniye yoqilg'i × QQS ÷ (1 + QQS). Naqd yoqilg'ida QQS yo'q",
                 "rent_vat": "Ijara × QQS ÷ (1 + QQS)",
                 "vat_pay": "Tushum ichidagi QQS − yoqilg'i ichidagi QQS − ijara ichidagi QQS",
                 "salary_gross": "Rasmiy sof oylik ÷ (1 − YIT stavkasi)",
@@ -3695,8 +3695,10 @@
                 "cash_salary_back": "Rasmiy xodimlarga bank orqali to'lanadi va naqdga to'liq qaytadi",
                 "split_total": "Yuqoridagi qatorlar yig'indisi = bank orqali tushum",
                 "cash_in": "Sof dividend + sof naqd tushum + rasmiy oylik",
-                "cash_out": "Naqd oylik + reys + reysdan tashqari + boshqaruv xarajatlari"
-            }
+                "cash_out": "Naqd yoqilg'i + oylik + reys + reysdan tashqari + boshqaruv xarajatlari"
+            },
+            "cash_fuel": "Naqd yoqilg'i xarajati",
+            "cash_fuel_hint": "Reys yoqilg'isidan perechisleniye ayrilgani (naqd zapravkalar)"
         }
     }
 }

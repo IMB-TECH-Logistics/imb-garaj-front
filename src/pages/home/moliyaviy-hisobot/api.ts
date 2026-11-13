@@ -46,6 +46,7 @@ export type MonthlyReport = {
     leasing_mode: boolean
     tax_params: TaxParams
     tax_calc: TaxCalc
+    trip_fuel_bank: string
     rent: string
     rent_total: string
     other: string
@@ -168,7 +169,9 @@ export type TaxCalc = Partial<
         | "dividend"
         | "cash_salary_back"
         | "cash_in"
-        | "taxes",
+        | "taxes"
+        | "fuel_bank"
+        | "fuel_cash",
         string
     >
 > & { bank_income_auto?: boolean; kassa?: Record<string, string> }
