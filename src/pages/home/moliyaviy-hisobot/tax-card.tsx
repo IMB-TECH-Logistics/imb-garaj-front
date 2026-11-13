@@ -30,9 +30,11 @@ const RATES: Field[] = [
     "profit_rate",
     "dividend_rate",
     "cash_fee_rate",
+    "salary_fee_rate",
+    "dividend_fee_rate",
     "bank_markup",
 ]
-const AMOUNTS: Field[] = ["bank_income", "salary_official", "bank_fee_salary", "bank_fee_dividend"]
+const AMOUNTS: Field[] = ["bank_income", "salary_official", "bank_service"]
 
 const groupDigits = (v: string) => v.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
 
@@ -404,9 +406,13 @@ export const TaxReport = ({
                     hint={t("fin_report.tf.after_costs_hint")}
                 />
                 <Row hint={t("fin_report.tf.i.payroll_cost")} sub label={t("fin_report.tf.payroll_cost")} value={-num(c.payroll_cost)} />
-                {num(c.bank_fees) !== 0 && (
-                    <Row hint={t("fin_report.tf.i.bank_fees")} sub label={t("fin_report.tf.bank_fees")} value={-num(c.bank_fees)} />
-                )}
+                <Row hint={t("fin_report.tf.i.bank_service")} sub label={t("fin_report.tf.bank_service")} value={-num(c.bank_service)} />
+                <Row
+                    hint={t("fin_report.tf.i.salary_fee")}
+                    sub
+                    label={t("fin_report.tf.salary_fee", { rate: num(p.salary_fee_rate) })}
+                    value={-num(c.salary_fee)}
+                />
                 <Row hint={t("fin_report.tf.i.before_tax")} label={t("fin_report.tf.before_tax")} value={c.before_tax} />
                 <Row hint={t("fin_report.tf.i.profit_tax")}
                     sub
@@ -418,6 +424,12 @@ export const TaxReport = ({
                     sub
                     label={t("fin_report.tf.dividend_tax", { rate: num(p.dividend_rate) })}
                     value={-num(c.dividend_tax)}
+                />
+                <Row
+                    hint={t("fin_report.tf.i.dividend_fee")}
+                    sub
+                    label={t("fin_report.tf.dividend_fee", { rate: num(p.dividend_fee_rate) })}
+                    value={-num(c.dividend_fee)}
                 />
                 <Row hint={t("fin_report.tf.i.dividend")} label={t("fin_report.tf.dividend")} value={c.dividend} strong />
             </Section>
@@ -456,9 +468,12 @@ export const TaxReport = ({
                 <Row hint={t("fin_report.tf.i.social")} sub label={t("fin_report.tf.social")} value={c.social} />
                 <Row hint={t("fin_report.tf.i.profit_tax")} sub label={t("fin_report.tf.profit_tax", { rate: num(p.profit_rate) })} value={c.profit_tax} />
                 <Row hint={t("fin_report.tf.i.dividend_tax")} sub label={t("fin_report.tf.dividend_tax", { rate: num(p.dividend_rate) })} value={c.dividend_tax} />
-                {num(c.bank_fees) !== 0 && (
-                    <Row hint={t("fin_report.tf.i.bank_fees")} sub label={t("fin_report.tf.bank_fees")} value={c.bank_fees} />
-                )}
+                <Row
+                    hint={t("fin_report.tf.i.bank_fees")}
+                    sub
+                    label={t("fin_report.tf.bank_fees")}
+                    value={num(c.bank_fees) + num(c.dividend_fee)}
+                />
                 <Row hint={t("fin_report.tf.i.dividend")} sub label={t("fin_report.tf.dividend")} value={c.dividend} />
                 <Row hint={t("fin_report.tf.i.split_total")} label={t("fin_report.tf.split_total")} value={c.bank_income} strong />
             </Section>

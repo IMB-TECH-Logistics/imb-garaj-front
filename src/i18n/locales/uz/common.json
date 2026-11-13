@@ -3596,8 +3596,6 @@
             "in": {
                 "bank_income": "Bank orqali tushum (QQS bilan)",
                 "salary_official": "Rasmiy xodimlar qo'liga sof oylik",
-                "bank_fee_salary": "Oylik uchun bank komissiyasi",
-                "bank_fee_dividend": "Dividend uchun bank komissiyasi",
                 "vat_rate": "QQS",
                 "pit_rate": "Ish haqidan daromad solig'i",
                 "social_rate": "Ijtimoiy soliq",
@@ -3605,7 +3603,10 @@
                 "dividend_rate": "Dividend solig'i",
                 "cash_fee_rate": "Naqd qilish xarajati",
                 "bank_markup": "Bank tushumi ustamasi",
-                "management_fee_usd": "Boshqaruv xarajati, 1 mashinaga ({{fleet}} ta)"
+                "management_fee_usd": "Boshqaruv xarajati, 1 mashinaga ({{fleet}} ta)",
+                "bank_service": "Oylik bank xizmati",
+                "salary_fee_rate": "Oylik uchun bank komissiyasi",
+                "dividend_fee_rate": "Dividend uchun bank komissiyasi"
             },
             "bank_auto": "Bank tushumi kiritilmagan — avtomatik: (yoqilg'i + ijara + rasmiy oylik) × {{markup}}% ustama = {{amount}}",
             "bank_reset": "Avtomatikka qaytarish",
@@ -3628,7 +3629,7 @@
             "profit": "Foyda va dividend (bank)",
             "after_costs": "QQSsiz tushum − yoqilg'i − ijara",
             "after_costs_hint": "QQSsiz bank tushumi − QQSsiz perechisleniye yoqilg'i − QQSsiz ijara",
-            "bank_fees": "Bank komissiyalari",
+            "bank_fees": "Bank xizmati va komissiyalari",
             "before_tax": "Soliqdan oldingi foyda",
             "profit_tax": "Foyda solig'i ({{rate}}%)",
             "net_profit": "Sof foyda",
@@ -3663,8 +3664,6 @@
             "i": {
                 "in_bank_income": "Bank orqali o'tgan tushum (QQS bilan). Bo'sh qolsa avtomatik: (perechisleniye yoqilg'i + ijara + rasmiy oylik) × (1 + {{markup}}%) = {{amount}}",
                 "in_salary_official": "Rasmiy xodimlar qo'liga tegadigan oylik (soliqlardan keyin). Shundan YIT va ijtimoiy soliq hisoblanadi; summa naqdga to'liq qaytadi",
-                "in_bank_fee_salary": "Oylikni o'tkazish uchun bank olgan komissiya, so'mda. Soliqdan oldingi foydadan ayriladi",
-                "in_bank_fee_dividend": "Dividendni o'tkazish uchun bank olgan komissiya, so'mda. Soliqdan oldingi foydadan ayriladi",
                 "in_vat_rate": "Tushum, yoqilg'i va ijara ichidagi QQS shu stavka bilan ajratiladi",
                 "in_pit_rate": "Hisoblangan ish haqi = sof oylik ÷ (1 − stavka); ushlanma = hisoblangan ish haqi × stavka",
                 "in_social_rate": "Korxona hisoblangan ish haqi ustiga to'laydigan soliq",
@@ -3686,19 +3685,28 @@
                 "pit": "Hisoblangan ish haqi × YIT stavkasi",
                 "social": "Hisoblangan ish haqi × ijtimoiy soliq stavkasi",
                 "payroll_cost": "Hisoblangan ish haqi + ijtimoiy soliq",
-                "bank_fees": "Oylik va dividend uchun bank komissiyalari yig'indisi",
-                "before_tax": "QQSsiz qoldiq − korxonaning oylik xarajati − bank komissiyalari",
+                "bank_fees": "Bank xizmati + oylik komissiyasi + dividend komissiyasi",
+                "before_tax": "QQSsiz qoldiq − korxonaning oylik xarajati − bank xizmati − oylik komissiyasi",
                 "profit_tax": "Soliqdan oldingi foyda × foyda solig'i stavkasi (manfiy bo'lsa 0)",
                 "net_profit": "Soliqdan oldingi foyda − foyda solig'i",
                 "dividend_tax": "Sof foyda × dividend solig'i stavkasi",
-                "dividend": "Sof foyda − dividend solig'i",
+                "dividend": "Sof foyda − dividend solig'i − dividend komissiyasi",
                 "cash_salary_back": "Rasmiy xodimlarga bank orqali to'lanadi va naqdga to'liq qaytadi",
                 "split_total": "Yuqoridagi qatorlar yig'indisi = bank orqali tushum",
                 "cash_in": "Sof dividend + sof naqd tushum + rasmiy oylik",
-                "cash_out": "Naqd yoqilg'i + oylik + reys + reysdan tashqari + boshqaruv xarajatlari"
+                "cash_out": "Naqd yoqilg'i + oylik + reys + reysdan tashqari + boshqaruv xarajatlari",
+                "in_bank_service": "Bankning oylik abonent/xizmat to'lovi, so'mda. Soliqdan oldingi foydadan ayriladi",
+                "in_salary_fee_rate": "Rasmiy oylikni bank orqali o'tkazish komissiyasi, %. Sof oylikdan hisoblanadi va soliqdan oldingi foydadan ayriladi",
+                "in_dividend_fee_rate": "Dividendni bank orqali o'tkazish komissiyasi, %. Dividend solig'idan keyingi summadan olinadi",
+                "bank_service": "Chapdagi «Oylik bank xizmati» katagi",
+                "salary_fee": "Rasmiy sof oylik × oylik komissiyasi stavkasi",
+                "dividend_fee": "(Sof foyda − dividend solig'i) × dividend komissiyasi stavkasi"
             },
             "cash_fuel": "Naqd yoqilg'i xarajati",
-            "cash_fuel_hint": "Reys yoqilg'isidan perechisleniye ayrilgani (naqd zapravkalar)"
+            "cash_fuel_hint": "Reys yoqilg'isidan perechisleniye ayrilgani (naqd zapravkalar)",
+            "bank_service": "Oylik bank xizmati",
+            "salary_fee": "Oylik uchun bank komissiyasi ({{rate}}%)",
+            "dividend_fee": "Dividend uchun bank komissiyasi ({{rate}}%)"
         }
     }
 }

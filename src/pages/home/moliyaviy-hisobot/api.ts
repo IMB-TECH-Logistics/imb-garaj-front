@@ -137,8 +137,9 @@ export type TaxParams = {
     profit_rate: string
     dividend_rate: string
     cash_fee_rate: string
-    bank_fee_salary: string
-    bank_fee_dividend: string
+    bank_service: string
+    salary_fee_rate: string
+    dividend_fee_rate: string
 }
 
 export type TaxCalc = Partial<
@@ -162,6 +163,9 @@ export type TaxCalc = Partial<
         | "payroll_cost"
         | "after_costs"
         | "bank_fees"
+        | "bank_service"
+        | "salary_fee"
+        | "dividend_fee"
         | "before_tax"
         | "profit_tax"
         | "net_profit"
