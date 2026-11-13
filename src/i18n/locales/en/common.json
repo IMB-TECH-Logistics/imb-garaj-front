@@ -3392,7 +3392,8 @@
             "investor": "Investor",
             "supplier": "Supplier",
             "client": "Client",
-            "other": "Other"
+            "other": "Other",
+            "petrol": "Petrol station"
         },
         "kind": {
             "cash": "Cash",
@@ -3446,7 +3447,10 @@
             "out_btn": "Paid money (from cash desk)",
             "in_hint": "The money is recorded as cash desk income and on the counterparty.",
             "out_hint": "The money is paid from the cash desk and recorded on the counterparty."
-        }
+        },
+        "stat_net": "Net",
+        "stat_net_sub": "Owed to us − we owe",
+        "with_stations": "Including petrol stations"
     },
     "dismiss": {
         "badge": "Dismissed",

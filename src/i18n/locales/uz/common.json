@@ -3389,7 +3389,8 @@
             "investor": "Investor",
             "supplier": "Ta'minotchi",
             "client": "Mijoz",
-            "other": "Boshqa"
+            "other": "Boshqa",
+            "petrol": "Zapravka"
         },
         "kind": {
             "cash": "Pul",
@@ -3443,7 +3444,10 @@
             "out_btn": "Pul berdik (kassadan)",
             "in_hint": "Pul kassaga kirim bo'ladi va kontragent hisobiga yoziladi.",
             "out_hint": "Pul kassadan chiqim bo'ladi va kontragent hisobiga yoziladi."
-        }
+        },
+        "stat_net": "Jami",
+        "stat_net_sub": "Bizga qarzdorlar − biz qarzdormiz",
+        "with_stations": "Zapravkalar bilan birga"
     },
     "dismiss": {
         "badge": "Ishdan bo'shatilgan",

@@ -63,6 +63,12 @@ export type Summary = {
     they_owe_count: number
     supplier_debt: string
     suppliers: { id: number; name: string; debt: string }[]
+    stations?: { id: number; name: string; fuel_type: string; balance: string }[]
+    total_we_owe?: string
+    total_we_owe_count?: number
+    total_they_owe?: string
+    total_they_owe_count?: number
+    net?: string
 }
 
 export const num = (v: string | number | null | undefined) => Number(v) || 0
