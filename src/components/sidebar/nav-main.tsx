@@ -29,7 +29,7 @@ export function NavMain() {
     const [openGroup, setOpenGroup] = useState<string | null>(null)
 
     const hasActivePathDeep = (item: MenuItem, pathname: string): boolean => {
-        if (pathname.includes(item.path)) {
+        if (pathname === item.path || pathname.startsWith(item.path + "/")) {
             return true
         }
 

@@ -47,6 +47,7 @@ import {
 import { DistributionCard } from "./distribution-card"
 import { Money } from "./index"
 import { RateEditor } from "./rate-editor"
+import { TaxReport, TaxToggle } from "./tax-card"
 
 const USD_RE = /^\d{0,6}(\.\d{0,2})?$/
 
@@ -173,10 +174,12 @@ const TaxLine = ({
     editable,
     saving,
     onSave,
+    formula,
 }: {
     label: string
     total: number
     manual: number
+    formula?: boolean
     editable: boolean
     saving: boolean
     onSave: (v: number) => void
@@ -197,7 +200,11 @@ const TaxLine = ({
         <div className="flex items-center justify-between gap-3 pl-12 pr-4 py-1.5 text-xs border-b bg-muted/10">
             <span className="flex flex-col text-muted-foreground">
                 {label}
-                {kassa !== 0 && (
+                {formula ?
+                    <span className="text-[11px]">
+                        {t("fin_report.tf.by_formula")}: {amountText(String(kassa))}
+                    </span>
+                : kassa !== 0 && (
                     <span className="text-[11px]">
                         {t("fin_report.from_kassa")}: {amountText(String(kassa))}
                     </span>
@@ -316,6 +323,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
             </p>
         )
 
+    const formula = !r.leasing_mode && !!r.tax_params?.enabled
     const draft = r.status === "draft"
     const editable = canEdit && draft
     const byLine = (k: OverheadKey) => overheadItems.filter((i) => i.line === k)
@@ -423,6 +431,8 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
 
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)] gap-4 items-start">
                 <div className="flex flex-col gap-4 min-w-0">
+                    {formula && <TaxReport report={r} overhead={overheadItems} />}
+                    {!formula && (
                     <Card>
                         <CardContent className="p-0">
                             <Line
@@ -516,6 +526,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                                                         `${k}_manual` as ManualTaxKey
                                                     ] ?? "0",
                                                 )}
+                                                formula={!!r.tax_params?.enabled}
                                                 editable={editable}
                                                 saving={saving}
                                                 onSave={(v) =>
@@ -762,10 +773,13 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                             )}
                         </CardContent>
                     </Card>
+                    )}
 
+                    {!formula && (
                     <p className="text-xs text-muted-foreground">
                         {t("fin_report.overhead_hint")}
                     </p>
+                    )}
 
                     {canEdit ?
                         <Card>
@@ -797,6 +811,7 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                     :   null}
                 </div>
                 <div className="flex flex-col gap-4 min-w-0">
+                    {!r.leasing_mode && !formula && <TaxToggle report={r} />}
                     <DistributionCard report={r} />
                 </div>
             </div>

@@ -44,6 +44,8 @@ export type MonthlyReport = {
     leasing: Record<string, string>
     leasing_total: string
     leasing_mode: boolean
+    tax_params: TaxParams
+    tax_calc: TaxCalc
     rent: string
     rent_total: string
     other: string
@@ -122,3 +124,51 @@ export type OwnerRow = {
     leasing?: string
     leasing_vehicles?: { vehicle: number; plate: string; amount: string }[]
 }
+
+export type TaxParams = {
+    enabled: boolean
+    bank_income: string | null
+    bank_markup: string
+    salary_official: string
+    vat_rate: string
+    pit_rate: string
+    social_rate: string
+    profit_rate: string
+    dividend_rate: string
+    cash_fee_rate: string
+    bank_fee_salary: string
+    bank_fee_dividend: string
+}
+
+export type TaxCalc = Partial<
+    Record<
+        | "bank_income"
+        | "bank_income_suggested"
+        | "cash_income_gross"
+        | "cash_fee"
+        | "cash_income"
+        | "bank_income_net"
+        | "bank_vat"
+        | "fuel_net"
+        | "fuel_vat"
+        | "rent_net"
+        | "rent_vat"
+        | "vat_pay"
+        | "salary_net"
+        | "salary_gross"
+        | "pit"
+        | "social"
+        | "payroll_cost"
+        | "after_costs"
+        | "bank_fees"
+        | "before_tax"
+        | "profit_tax"
+        | "net_profit"
+        | "dividend_tax"
+        | "dividend"
+        | "cash_salary_back"
+        | "cash_in"
+        | "taxes",
+        string
+    >
+> & { bank_income_auto?: boolean; kassa?: Record<string, string> }

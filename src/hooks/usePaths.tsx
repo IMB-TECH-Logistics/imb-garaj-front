@@ -324,6 +324,7 @@ export const useItems = () => {
                 label: t("nav.investor"),
                 icon: <Truck width={18} />,
                 path: "/truck",
+                extraPaths: ["/truck-detail"],
                 allowKey: "financial_result_view",
             },
             {
