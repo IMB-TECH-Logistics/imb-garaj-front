@@ -292,35 +292,6 @@ export const TaxReport = ({
             </Section>
 
             <Section n={2} title={t("fin_report.tf.inputs")} note={t("fin_report.tf.inputs_note")}>
-                <Row tone="head" label={t("fin_report.tf.from_system")} value={undefined} />
-                <Row
-                    sub
-                    label={t("fin_report.tf.split_fuel")}
-                    value={r.trip_fuel}
-                    hint={t("fin_report.tf.split_fuel_hint")}
-                />
-                <Row
-                    sub
-                    label={t("fin_report.tf.split_rent")}
-                    value={r.vehicle_rent}
-                    hint={t("fin_report.tf.split_rent_hint")}
-                    open={open === "rent"}
-                    onClick={rentRows.length ? toggle("rent") : undefined}
-                />
-                {open === "rent" &&
-                    rentRows.map((v) => (
-                        <div
-                            key={`${v.vehicle}-${v.part}`}
-                            className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs border-b bg-muted/10"
-                        >
-                            <span className="text-muted-foreground">
-                                {v.plate} · {t(`fin_report.part.${v.part}`)} · ${num(v.rent_usd)} +{" "}
-                                {num(v.vat_percent)}% → {v.owner}
-                            </span>
-                            <Money value={v.rent} />
-                        </div>
-                    ))}
-                <Row tone="head" label={t("fin_report.tf.manual")} value={undefined} />
                 {AMOUNTS.map((k) => input(k, false))}
                 {c.bank_income_auto && (
                     <p className="px-4 py-1.5 text-[11px] text-muted-foreground border-b">
@@ -421,8 +392,33 @@ export const TaxReport = ({
             </Section>
 
             <Section n={6} title={t("fin_report.tf.split")} note={t("fin_report.tf.split_note")}>
-                <Row sub label={t("fin_report.tf.split_fuel")} value={r.trip_fuel} />
-                <Row sub label={t("fin_report.tf.split_rent")} value={r.vehicle_rent} />
+                <Row
+                    sub
+                    label={t("fin_report.tf.split_fuel")}
+                    value={r.trip_fuel}
+                    hint={t("fin_report.tf.split_fuel_hint")}
+                />
+                <Row
+                    sub
+                    label={t("fin_report.tf.split_rent")}
+                    value={r.vehicle_rent}
+                    hint={t("fin_report.tf.split_rent_hint")}
+                    open={open === "rent"}
+                    onClick={rentRows.length ? toggle("rent") : undefined}
+                />
+                {open === "rent" &&
+                    rentRows.map((v) => (
+                        <div
+                            key={`${v.vehicle}-${v.part}`}
+                            className="flex items-center justify-between gap-3 pl-12 pr-4 py-1 text-xs border-b bg-muted/10"
+                        >
+                            <span className="text-muted-foreground">
+                                {v.plate} · {t(`fin_report.part.${v.part}`)} · ${num(v.rent_usd)} +{" "}
+                                {num(v.vat_percent)}% → {v.owner}
+                            </span>
+                            <Money value={v.rent} />
+                        </div>
+                    ))}
                 <Row sub label={t("fin_report.tf.cash_salary_back")} value={c.cash_salary_back} />
                 <Row sub label={t("fin_report.tf.vat_pay")} value={c.vat_pay} />
                 <Row sub label={t("fin_report.tf.pit")} value={c.pit} />
