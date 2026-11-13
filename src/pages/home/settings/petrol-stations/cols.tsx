@@ -15,6 +15,9 @@ export type PetrolStationRow = {
     balance: string | number | null
     has_contract?: boolean
     is_cash?: boolean
+    is_bank?: boolean
+    inn?: string
+    legal_name?: string
     fuel_type?: FuelType
     total_outcomes?: string | number | null
     total_liters?: string | number | null

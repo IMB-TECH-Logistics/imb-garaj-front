@@ -77,6 +77,7 @@ const HEADER_SEARCH: { prefix: string; searchKey: string; placeholderKey: string
     { prefix: "/texnik-check", searchKey: "vehicle_search", placeholderKey: "ui.header_search.vehicle_number" },
     { prefix: "/technic-check", searchKey: "vehicle_search", placeholderKey: "ui.header_search.vehicle_number" },
     { prefix: "/petrol-stations", searchKey: "petrol_search", placeholderKey: "ui.header_search.search" },
+    { prefix: "/bank", searchKey: "bank_search", placeholderKey: "ui.header_search.search" },
     { prefix: "/truck", searchKey: "search", placeholderKey: "ui.header_search.vehicle_number" },
     { prefix: "/ombor", searchKey: "search", placeholderKey: "ui.header_search.product" },
     { prefix: "/monitoring", searchKey: "q", placeholderKey: "ui.header_search.vehicle_or_driver" },

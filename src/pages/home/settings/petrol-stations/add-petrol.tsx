@@ -1,4 +1,5 @@
 import FormInput from "@/components/form/input"
+import { FormSelect } from "@/components/form/select"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -16,6 +17,8 @@ import { useTranslation } from "react-i18next"
 
 type FormValues = {
     name: string
+    legal_name: string
+    inn: string
     address: string
     latitude: number | null
     longitude: number | null
@@ -23,16 +26,29 @@ type FormValues = {
     fuel_type: FuelType
 }
 
-const AddPetrolStationModal = ({ defaultFuel = "methane" }: { defaultFuel?: FuelType }) => {
+const AddPetrolStationModal = ({
+    defaultFuel = "methane",
+    isBank = false,
+}: {
+    defaultFuel?: FuelType
+    isBank?: boolean
+}) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal } = useModal("create")
     const { getData, clearKey } = useGlobalStore()
     const current = getData<PetrolStationRow>(SETTINGS_PETROL_STATIONS)
+    const bankStation = current?.id ? !!current.is_bank : isBank
+    const fuelOptions = [
+        { id: "methane", name: t("settings.petrol.tab_methane") },
+        { id: "diesel", name: t("settings.petrol.tab_diesel") },
+    ]
 
     const form = useForm<FormValues>({
         defaultValues: {
             name: current?.name ?? "",
+            legal_name: current?.legal_name ?? "",
+            inn: current?.inn ?? "",
             address: current?.address ?? "",
             latitude: current?.latitude ?? null,
             longitude: current?.longitude ?? null,
@@ -83,11 +99,14 @@ const AddPetrolStationModal = ({ defaultFuel = "methane" }: { defaultFuel?: Fuel
     const onSubmit = (values: FormValues) => {
         const payload = {
             name: values.name,
+            legal_name: values.legal_name.trim(),
+            inn: values.inn.trim(),
             address: values.address,
             has_contract: values.has_contract,
             fuel_type: values.fuel_type,
             latitude: values.latitude,
             longitude: values.longitude,
+            ...(!current?.id && bankStation ? { is_bank: true } : {}),
         }
 
         if (current?.id) {
@@ -104,7 +123,38 @@ const AddPetrolStationModal = ({ defaultFuel = "methane" }: { defaultFuel?: Fuel
                 <div className="grid grid-cols-1 gap-4">
                     <FormInput required name="name" label={t("form.name")} methods={form} />
 
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-4">
+                        <FormInput
+                            name="legal_name"
+                            label={t("settings.petrol.legal_name")}
+                            placeholder={t("settings.petrol.legal_name_hint")}
+                            methods={form}
+                        />
+                        <FormInput
+                            name="inn"
+                            label={t("settings.petrol.inn")}
+                            placeholder="312993579"
+                            methods={form}
+                            registerOptions={{
+                                validate: (v) =>
+                                    !v || /^(\d{9}|\d{14})$/.test(String(v).trim()) || t("settings.petrol.inn_invalid"),
+                            }}
+                        />
+                    </div>
+
                     <FormInput required name="address" label={t("form.address")} methods={form} />
+
+                    {bankStation && (
+                        <FormSelect
+                            required
+                            control={form.control}
+                            label={t("settings.petrol.fuel_type")}
+                            name="fuel_type"
+                            options={fuelOptions}
+                            valueKey="id"
+                            labelKey="name"
+                        />
+                    )}
 
                     <Controller
                         control={form.control}

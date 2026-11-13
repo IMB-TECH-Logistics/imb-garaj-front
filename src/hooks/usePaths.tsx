@@ -18,6 +18,7 @@ import {
     HandCoins,
     Contact,
     FileSpreadsheet,
+    Landmark,
 } from "lucide-react"
 import { ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -277,6 +278,7 @@ export const useItems = () => {
     const kassaV2 = me?.kassa_mode === "driver_cash" && me?.kassa_version === 2
     const investorsV1 = me?.investor_version === 1 || import.meta.env.VITE_INVESTORS_V1 === "1"
     const kontragentOn = investorsV1 || !!me?.kontragent_enabled
+    const bankOn = !!me?.bank_enabled
     return useMemo<MenuItem[]>(
         () => [
             {
@@ -314,6 +316,16 @@ export const useItems = () => {
                           allowKeys: ["kassa_payer_view", "kassa_payment_requests_view", "kassa_cashier_view"],
                       }),
             },
+            ...(bankOn ?
+                [
+                    {
+                        label: t("nav.bank"),
+                        icon: <Landmark width={18} />,
+                        path: "/bank",
+                        allowKeys: ["kassa_cashier_view", "kassa_cashier_control", "settings_petrol_stations_view"],
+                    },
+                ]
+            :   []),
             {
                 label: t("nav.accounting"),
                 icon: <Wallet width={18} />,
@@ -508,6 +520,6 @@ export const useItems = () => {
                 ],
             },
         ],
-        [t, kassaV2, investorsV1, kontragentOn],
+        [t, kassaV2, investorsV1, kontragentOn, bankOn],
     )
 }

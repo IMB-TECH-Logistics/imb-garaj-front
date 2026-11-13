@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DataTable } from "@/components/ui/datatable"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SETTINGS_PETROL_STATIONS } from "@/constants/api-endpoints"
-import { useHasAction } from "@/constants/useUser"
+import { useHasAction, useUser } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
@@ -66,11 +66,16 @@ const PetrolStationsPage = () => {
     const hasControl = useHasAction("settings_petrol_stations_control")
     const search = useSearch({ strict: false }) as Record<string, any>
     const navigate = useNavigate()
+    const { data: me } = useUser()
+    const bankEnabled = !!me?.bank_enabled
     const tab =
-        search.fuel === "diesel" || search.fuel === "vehicles" || search.fuel === "cash" ?
+        search.fuel === "diesel" || search.fuel === "vehicles" || search.fuel === "cash" ||
+        (search.fuel === "bank" && bankEnabled) ?
             search.fuel
         :   "methane"
     const isCash = tab === "cash"
+    const isBank = tab === "bank"
+    const isMixed = isCash || isBank
     const fuel: FuelType = tab === "diesel" ? "diesel" : "methane"
     const { getData, setData } = useGlobalStore()
     const item = getData<PetrolStationRow>(SETTINGS_PETROL_STATIONS)
@@ -125,8 +130,9 @@ const PetrolStationsPage = () => {
                 page: search.page,
                 page_size: search.page_size,
                 ordering: search.ordering,
-                fuel_type: isCash ? undefined : fuel,
+                fuel_type: isMixed ? undefined : fuel,
                 is_cash: isCash,
+                is_bank: bankEnabled ? isBank : undefined,
                 from_date: search.from_date,
                 to_date: search.to_date,
             },
@@ -138,8 +144,9 @@ const PetrolStationsPage = () => {
         {
             params: {
                 search: search.petrol_search,
-                fuel_type: isCash ? undefined : fuel,
+                fuel_type: isMixed ? undefined : fuel,
                 is_cash: isCash,
+                is_bank: bankEnabled ? isBank : undefined,
                 from_date: search.from_date,
                 to_date: search.to_date,
             },
@@ -149,15 +156,19 @@ const PetrolStationsPage = () => {
     const countParams = { search: search.petrol_search, page_size: 1 }
     const { data: methaneCount } = useGet<ListResponse<PetrolStationRow>>(
         SETTINGS_PETROL_STATIONS,
-        { params: { ...countParams, fuel_type: "methane", is_cash: false } },
+        { params: { ...countParams, fuel_type: "methane", is_cash: false, is_bank: bankEnabled ? false : undefined } },
     )
     const { data: dieselCount } = useGet<ListResponse<PetrolStationRow>>(
         SETTINGS_PETROL_STATIONS,
-        { params: { ...countParams, fuel_type: "diesel", is_cash: false } },
+        { params: { ...countParams, fuel_type: "diesel", is_cash: false, is_bank: bankEnabled ? false : undefined } },
     )
     const { data: cashCount } = useGet<ListResponse<PetrolStationRow>>(
         SETTINGS_PETROL_STATIONS,
         { params: { ...countParams, is_cash: true } },
+    )
+    const { data: bankCount } = useGet<ListResponse<PetrolStationRow>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { ...countParams, is_cash: false, is_bank: true }, enabled: bankEnabled },
     )
     const { data: vehicleFuelCount } = useGet<ListResponse<unknown>>(VEHICLE_FUEL, {
         params: { page_size: 1, from_date: search.from_date, to_date: search.to_date },
@@ -203,6 +214,12 @@ const PetrolStationsPage = () => {
                         value: "cash",
                         label: tabLabel(t("settings.petrol.tab_cash"), cashCount?.count),
                     },
+                    ...(bankEnabled ?
+                        [{
+                            value: "bank",
+                            label: tabLabel(t("settings.petrol.tab_bank"), bankCount?.count),
+                        }]
+                    :   []),
                     {
                         value: "vehicles",
                         label: tabLabel(t("settings.petrol.tab_vehicles"), vehicleFuelCount?.count),
@@ -220,7 +237,7 @@ const PetrolStationsPage = () => {
                     tone="bg-amber-500/10 text-amber-600"
                     label={t("settings.petrol.fuel_received")}
                     value={
-                        isCash ?
+                        isMixed ?
                             `${formatQuantity(Number(stats?.total_gas ?? 0), "m3")} · ${formatQuantity(Number(stats?.total_liters ?? 0), "liter")}`
                         : fuel === "diesel" ?
                             formatQuantity(Number(stats?.total_liters ?? 0), "liter")
@@ -345,7 +362,7 @@ const PetrolStationsPage = () => {
                 modalKey="create"
                 size="max-w-2xl"
             >
-                <AddPetrolStationModal defaultFuel={fuel} />
+                <AddPetrolStationModal defaultFuel={fuel} isBank={isBank} />
             </Modal>
         </>
     )
