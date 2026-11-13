@@ -3644,7 +3644,7 @@
             "cash_net": "Jami taqsimlanadigan naqd sof foyda",
             "cash_net_hint": "Jami naqd pul tushum − jami naqd xarajatlar. Shu summa Taqsimotda ulushlarga bo'linadi",
             "income_hint": "Reyslar: {{trips}} · buyurtmalar: {{orders}}",
-            "inputs_note": "Sariq kataklarni o'zgartiring — soliqlar va sof foyda darhol qayta hisoblanadi",
+            "inputs_note": "Qiymatlarni o'zgartirib «Saqlash»ni bosing — soliqlar va sof foyda qayta hisoblanadi",
             "from_system": "Tizimdan",
             "manual": "Qo'lda kiritiladi",
             "split": "Bank tushumining taqsimlanishi",

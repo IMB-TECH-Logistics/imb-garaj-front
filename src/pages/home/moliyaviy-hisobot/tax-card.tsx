@@ -264,7 +264,7 @@ export const TaxReport = ({
                     disabled={!editable}
                     wrapperClassName={rate ? "h-7 w-16 sm:w-16" : "h-7 w-36 sm:w-36"}
                     className={cn(
-                        "h-7 text-right text-xs bg-amber-50 dark:bg-amber-500/10",
+                        "h-7 text-right text-xs",
                         rate ? "w-16" : "w-36",
                     )}
                     type="text"
@@ -322,7 +322,7 @@ export const TaxReport = ({
                         <Input
                             disabled={!editable}
                             wrapperClassName="h-7 w-20 sm:w-20"
-                            className="h-7 w-20 text-right text-xs bg-amber-50 dark:bg-amber-500/10"
+                            className="h-7 w-20 text-right text-xs"
                             type="text"
                             inputMode="decimal"
                             value={feeUsd}
