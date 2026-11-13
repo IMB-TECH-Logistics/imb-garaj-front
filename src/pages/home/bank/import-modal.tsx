@@ -19,7 +19,7 @@ export const BANK_IMPORT_MODAL = "bank-import"
 const PREVIEW_URL = "checkout/bank/import/preview/"
 const CONFIRM_URL = "checkout/bank/import/confirm/"
 
-type Action = "station_top_up" | "bank_fee" | "expense" | "income" | "skip"
+type Action = "station_top_up" | "kontragent_out" | "bank_fee" | "to_kassa" | "expense" | "income" | "skip"
 
 type PreviewLine = {
     key: string
@@ -91,7 +91,9 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
     const actionOptions = useMemo(
         () => [
             { value: "station_top_up", label: t("bank_page.import.action_top_up") },
+            { value: "kontragent_out", label: t("bank_page.expense_type_kontragent") },
             { value: "bank_fee", label: t("bank_page.import.action_fee") },
+            { value: "to_kassa", label: t("bank_page.expense_type_kassa") },
             { value: "expense", label: t("bank_page.import.action_expense") },
             { value: "income", label: t("bank_page.import.action_income") },
             { value: "skip", label: t("bank_page.import.action_skip") },
@@ -286,6 +288,35 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                             />
                                                         )}
                                                     </div>
+                                                : !line.duplicate && choice?.action === "kontragent_out" ?
+                                                    <div className="flex flex-col gap-1">
+                                                        <select
+                                                            className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
+                                                            value={choice.kontragent ? String(choice.kontragent) : NEW_STATION}
+                                                            onChange={(e) =>
+                                                                setChoice(line.key, {
+                                                                    kontragent: e.target.value === NEW_STATION ? null : Number(e.target.value),
+                                                                    new_kontragent_name: choice.new_kontragent_name || line.counterparty_name,
+                                                                })
+                                                            }
+                                                        >
+                                                            <option value={NEW_STATION}>{t("bank_page.import.new_kontragent")}</option>
+                                                            {(kontragents ?? []).map((k) => (
+                                                                <option key={k.id} value={k.id}>
+                                                                    {k.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        {!choice.kontragent && (
+                                                            <input
+                                                                className="h-8 rounded-md border border-input bg-background shadow-sm px-2"
+                                                                value={choice.new_kontragent_name ?? ""}
+                                                                onChange={(e) => setChoice(line.key, { new_kontragent_name: e.target.value })}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                : !line.duplicate && choice?.action === "to_kassa" ?
+                                                    <span className="text-xs text-muted-foreground">{t("bank_page.expense_kassa_hint")}</span>
                                                 : !line.duplicate && choice?.action === "income" ?
                                                     <div className="flex flex-col gap-1">
                                                         <select

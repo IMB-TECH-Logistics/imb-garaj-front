@@ -1,4 +1,6 @@
+import { useState } from "react"
 import { FormCombobox } from "@/components/form/combobox"
+import PaymentMethodToggle, { type PaymentMethod, useBankEnabled } from "@/components/custom/payment-method"
 import { FormDatePicker } from "@/components/form/date-picker"
 import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
@@ -171,6 +173,8 @@ export const CashForm = ({
     const form = useForm<{ date: string; amount: number | ""; comment: string }>({
         defaultValues: { date: today(), amount: dir === "out" && max ? max : "", comment: "" },
     })
+    const bankEnabled = useBankEnabled()
+    const [via, setVia] = useState<PaymentMethod>("kassa")
     const { mutate, isPending } = usePost({
         onSuccess: () => {
             toast.success(t(dir === "in" ? "fin.kv2.cash_in_done" : "fin.kv2.cash_out_done"))
@@ -185,9 +189,16 @@ export const CashForm = ({
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) =>
-                mutate(kontragentUrl(contragentId, "cash"), { dir, amount: Number(v.amount), date: v.date, comment: v.comment.trim() }),
+                mutate(kontragentUrl(contragentId, "cash"), {
+                    dir,
+                    amount: Number(v.amount),
+                    date: v.date,
+                    comment: v.comment.trim(),
+                    ...(bankEnabled ? { via } : {}),
+                }),
             )}
         >
+            {bankEnabled && <PaymentMethodToggle value={via} onChange={setVia} />}
             <p className="text-sm text-muted-foreground">{t(dir === "in" ? "contragent.cash.in_hint" : "contragent.cash.out_hint")}</p>
             {max !== undefined && (
                 <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center justify-between text-sm">

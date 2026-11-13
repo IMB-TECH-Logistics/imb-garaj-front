@@ -9,6 +9,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
+import PaymentMethodToggle, { type PaymentMethod, useBankEnabled } from "@/components/custom/payment-method"
+import { useState } from "react"
 
 type FormValues = {
     amount: string | number | ""
@@ -30,6 +32,8 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
         },
     })
     const { control, handleSubmit, reset } = form
+    const bankEnabled = useBankEnabled()
+    const [method, setMethod] = useState<PaymentMethod>("bank")
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
@@ -37,8 +41,10 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
             reset()
             queryClient.refetchQueries({ queryKey: [SETTINGS_PETROL_STATIONS] })
             queryClient.refetchQueries({
-                predicate: (q) =>
-                    String(q.queryKey[0]).includes("petrol-stations"),
+                predicate: (q) => {
+                    const key = String(q.queryKey[0])
+                    return key.includes("petrol-stations") || key.startsWith("checkout/bank") || key.startsWith("checkout/kassa")
+                },
             })
             closeModal()
         },
@@ -49,11 +55,13 @@ const TopUpModal = ({ stationId }: { stationId: number }) => {
             amount: Number(values.amount),
             comment: values.comment || null,
             paid_at: values.paid_at ? new Date(values.paid_at).toISOString() : null,
+            ...(bankEnabled ? { payment_method: method } : {}),
         })
     }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            {bankEnabled && <PaymentMethodToggle value={method} onChange={setMethod} />}
             <div className="flex gap-3">
                 <div className="flex-1 min-w-0">
                     <FormNumberInput

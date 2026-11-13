@@ -13,9 +13,10 @@ import { cn } from "@/lib/utils"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { ArrowDownCircle, ArrowUpCircle, FileUp, Landmark, Plus } from "lucide-react"
+import { ArrowDownCircle, ArrowUpCircle, FileUp, Landmark, Minus, Plus } from "lucide-react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import BankExpenseModal, { BANK_EXPENSE_MODAL } from "./expense-modal"
 import BankImportModal, { BANK_IMPORT_MODAL } from "./import-modal"
 import BankIncomeModal, { BANK_INCOME_MODAL } from "./income-modal"
 
@@ -177,6 +178,7 @@ const BankPage = () => {
     const canAdd = useHasAction("kassa_cashier_control")
     const { openModal: openIncome } = useModal(BANK_INCOME_MODAL)
     const { openModal: openImport } = useModal(BANK_IMPORT_MODAL)
+    const { openModal: openExpense } = useModal(BANK_EXPENSE_MODAL)
     const balance = Number(overview?.balance ?? 0)
 
     return (
@@ -191,6 +193,12 @@ const BankPage = () => {
                             <Button variant="outline" onClick={openImport} className="shrink-0">
                                 <FileUp size={16} className="mr-1" />
                                 {t("bank_page.import.button")}
+                            </Button>
+                        )}
+                        {canAdd && (
+                            <Button variant="destructive" onClick={openExpense} className="shrink-0">
+                                <Minus size={16} className="mr-1" />
+                                {t("bank_page.add_expense")}
                             </Button>
                         )}
                         {canAdd && (
@@ -248,6 +256,9 @@ const BankPage = () => {
             />
             <Modal title={t("bank_page.import.title")} modalKey={BANK_IMPORT_MODAL} size="max-w-6xl">
                 <BankImportModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
+            </Modal>
+            <Modal title={t("bank_page.add_expense")} modalKey={BANK_EXPENSE_MODAL} size="max-w-lg">
+                <BankExpenseModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
             </Modal>
             <Modal title={t("bank_page.add_income")} modalKey={BANK_INCOME_MODAL} size="max-w-lg">
                 <BankIncomeModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
