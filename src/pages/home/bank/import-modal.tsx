@@ -12,7 +12,8 @@ import { FileSpreadsheet } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
-import OrderPicker, { type PickedOrder } from "./order-picker"
+import { useKontragents } from "@/pages/home/kontragent/api"
+import { type IncomeType, useIncomeTypeOptions } from "./income-modal"
 
 export const BANK_IMPORT_MODAL = "bank-import"
 const PREVIEW_URL = "checkout/bank/import/preview/"
@@ -34,6 +35,10 @@ type PreviewLine = {
     petrol_station?: number | null
     new_station_name?: string | null
     fuel_type?: string
+    income_type?: IncomeType
+    kontragent?: number | null
+    new_kontragent_name?: string | null
+    new_kontragent_type?: string
     duplicate: boolean
 }
 
@@ -45,7 +50,10 @@ type Choice = {
     petrol_station: number | null
     new_station_name: string | null
     fuel_type?: string
-    order?: PickedOrder | null
+    income_type?: IncomeType
+    kontragent?: number | null
+    new_kontragent_name?: string | null
+    new_kontragent_type?: string
 }
 
 type StationOption = { id: number; name: string; fuel_type?: string }
@@ -69,6 +77,8 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
         enabled: isOpen,
     })
     const stationOptions = stations?.results ?? []
+    const { data: kontragents } = useKontragents(undefined, isOpen)
+    const incomeTypeOptions = useIncomeTypeOptions()
 
     useEffect(() => {
         if (!isOpen) {
@@ -105,6 +115,10 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                     petrol_station: line.petrol_station ?? null,
                     new_station_name: line.new_station_name ?? null,
                     fuel_type: line.fuel_type,
+                    income_type: line.income_type,
+                    kontragent: line.kontragent ?? null,
+                    new_kontragent_name: line.new_kontragent_name ?? null,
+                    new_kontragent_type: line.new_kontragent_type,
                 }
             })
             setChoices(next)
@@ -131,12 +145,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
             form.append("file", file)
             form.append(
                 "choices",
-                JSON.stringify(
-                    toSave.map((l) => {
-                        const { order, ...rest } = choices[l.key]
-                        return { key: l.key, ...rest, order: order?.id ?? null }
-                    }),
-                ),
+                JSON.stringify(toSave.map((l) => ({ key: l.key, ...choices[l.key] }))),
             )
             const { data } = await axiosInstance.post(CONFIRM_URL, form)
             const total = Object.values(data.created as Record<string, number>).reduce((a, b) => a + b, 0)
@@ -279,16 +288,56 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                     </div>
                                                 : !line.duplicate && choice?.action === "income" ?
                                                     <div className="flex flex-col gap-1">
-                                                        <input
-                                                            className="h-8 w-full rounded-md border bg-background px-2"
-                                                            value={choice.label}
-                                                            onChange={(e) => setChoice(line.key, { label: e.target.value })}
-                                                        />
-                                                        <OrderPicker
-                                                            compact
-                                                            value={choice.order ?? null}
-                                                            onChange={(next) => setChoice(line.key, { order: next })}
-                                                        />
+                                                        <select
+                                                            className="h-8 rounded-md border bg-background px-2"
+                                                            value={choice.income_type ?? "bank_boshqa"}
+                                                            onChange={(e) =>
+                                                                setChoice(line.key, {
+                                                                    income_type: e.target.value as IncomeType,
+                                                                    new_kontragent_name:
+                                                                        choice.new_kontragent_name || line.counterparty_name,
+                                                                })
+                                                            }
+                                                        >
+                                                            {incomeTypeOptions.map((o) => (
+                                                                <option key={o.id} value={o.id}>
+                                                                    {o.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        {choice.income_type === "bank_kontragent" && (
+                                                            <select
+                                                                className="h-8 rounded-md border bg-background px-2"
+                                                                value={choice.kontragent ? String(choice.kontragent) : NEW_STATION}
+                                                                onChange={(e) =>
+                                                                    setChoice(line.key, {
+                                                                        kontragent:
+                                                                            e.target.value === NEW_STATION ? null : Number(e.target.value),
+                                                                    })
+                                                                }
+                                                            >
+                                                                <option value={NEW_STATION}>{t("bank_page.import.new_kontragent")}</option>
+                                                                {(kontragents ?? []).map((k) => (
+                                                                    <option key={k.id} value={k.id}>
+                                                                        {k.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        )}
+                                                        {choice.income_type === "bank_kontragent" && !choice.kontragent && (
+                                                            <input
+                                                                className="h-8 rounded-md border bg-background px-2"
+                                                                value={choice.new_kontragent_name ?? ""}
+                                                                onChange={(e) => setChoice(line.key, { new_kontragent_name: e.target.value })}
+                                                            />
+                                                        )}
+                                                        {choice.income_type === "bank_boshqa" && (
+                                                            <input
+                                                                className="h-8 w-full rounded-md border bg-background px-2"
+                                                                value={choice.label}
+                                                                onChange={(e) => setChoice(line.key, { label: e.target.value })}
+                                                            />
+                                                        )}
                                                     </div>
                                                 : !line.duplicate && choice && choice.action !== "skip" ?
                                                     <input

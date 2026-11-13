@@ -37,7 +37,8 @@ type BankTransaction = {
     amount: string
     source: string
     manual: boolean
-    order: { id: number; label: string } | null
+    income_type: string | null
+    kontragent: { id: number; name: string } | null
     payment_type: string | null
     petrol_station: string | null
     vehicle: string | null
@@ -120,9 +121,7 @@ const useBankColumns = () => {
                 cell: ({ row }) => (
                     <div className="flex flex-col">
                         <span>{row.original.source || "—"}</span>
-                        {row.original.order && (
-                            <span className="text-xs text-primary">{row.original.order.label}</span>
-                        )}
+
                         {row.original.payment_type && (
                             <span className="text-xs text-muted-foreground">{row.original.payment_type}</span>
                         )}

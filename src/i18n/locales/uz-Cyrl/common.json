@@ -73,14 +73,12 @@
         "error": "Жойлашувни олиб бўлмади"
     },
     "bank_page": {
-        "order_field": "Рейс (ихтиёрий)",
-        "order_hint": "Мижоз қайси рейс учун тўлаганини танланг",
-        "order_pick": "Рейсни танланг",
-        "order_search": "Код, йўналиш, машина ёки мижоз",
-        "order_none": "Рейс топилмади",
-        "order_income": "Рейс суммаси",
-        "order_received": "Банкка келган",
+        "income_type": "Кирим тури",
+        "income_type_reys": "Рейс тушуми",
+        "income_type_kontragent": "Контрагент",
+        "income_type_other": "Бошқа",
         "import": {
+            "new_kontragent": "+ Янги контрагент",
             "button": "Excel юклаш",
             "title": "Банк кўчирмасини юклаш",
             "pick_file": "Банк кўчирмасини (.xlsx) танланг",

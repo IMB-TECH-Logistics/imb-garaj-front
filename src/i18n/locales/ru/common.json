@@ -73,14 +73,12 @@
         "error": "Не удалось получить местоположение"
     },
     "bank_page": {
-        "order_field": "Рейс (необязательно)",
-        "order_hint": "Выберите рейс, за который заплатил клиент",
-        "order_pick": "Выберите рейс",
-        "order_search": "Код, направление, машина или клиент",
-        "order_none": "Рейс не найден",
-        "order_income": "Сумма рейса",
-        "order_received": "Поступило в банк",
+        "income_type": "Тип прихода",
+        "income_type_reys": "Выручка за рейсы",
+        "income_type_kontragent": "Контрагент",
+        "income_type_other": "Прочее",
         "import": {
+            "new_kontragent": "+ Новый контрагент",
             "button": "Загрузить Excel",
             "title": "Загрузка банковской выписки",
             "pick_file": "Выберите выписку (.xlsx)",

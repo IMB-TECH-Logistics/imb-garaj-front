@@ -73,14 +73,12 @@
         "error": "位置情報を取得できませんでした"
     },
     "bank_page": {
-        "order_field": "便(任意)",
-        "order_hint": "顧客が支払った便を選択",
-        "order_pick": "便を選択",
-        "order_search": "コード・ルート・車両・顧客",
-        "order_none": "便が見つかりません",
-        "order_income": "便の金額",
-        "order_received": "銀行入金済み",
+        "income_type": "入金種別",
+        "income_type_reys": "運行売上",
+        "income_type_kontragent": "取引先",
+        "income_type_other": "その他",
         "import": {
+            "new_kontragent": "+ 新しい取引先",
             "button": "Excelアップロード",
             "title": "銀行明細のアップロード",
             "pick_file": "明細(.xlsx)を選択",
