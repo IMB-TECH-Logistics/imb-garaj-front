@@ -37,6 +37,7 @@ type BankTransaction = {
     amount: string
     source: string
     manual: boolean
+    order: { id: number; label: string } | null
     payment_type: string | null
     petrol_station: string | null
     vehicle: string | null
@@ -86,11 +87,13 @@ const useBankColumns = () => {
             {
                 accessorKey: "created",
                 header: t("bank_page.date"),
+                size: 120,
                 cell: ({ row }) => <span className="whitespace-nowrap">{formatDateTime(row.original.created)}</span>,
             },
             {
                 accessorKey: "kind",
                 header: t("bank_page.kind"),
+                size: 80,
                 cell: ({ row }) =>
                     row.original.kind === "kirim" ?
                         <Badge className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/10">{t("bank_page.income")}</Badge>
@@ -117,6 +120,9 @@ const useBankColumns = () => {
                 cell: ({ row }) => (
                     <div className="flex flex-col">
                         <span>{row.original.source || "—"}</span>
+                        {row.original.order && (
+                            <span className="text-xs text-primary">{row.original.order.label}</span>
+                        )}
                         {row.original.payment_type && (
                             <span className="text-xs text-muted-foreground">{row.original.payment_type}</span>
                         )}
@@ -136,7 +142,10 @@ const useBankColumns = () => {
             {
                 accessorKey: "comment",
                 header: t("bank_page.comment"),
-                cell: ({ row }) => row.original.comment || "—",
+                meta: { className: "min-w-[360px] w-[40%]" },
+                cell: ({ row }) => (
+                    <span className="block whitespace-normal break-words text-sm">{row.original.comment || "—"}</span>
+                ),
             },
             {
                 accessorKey: "executor",

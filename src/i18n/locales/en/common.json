@@ -73,6 +73,13 @@
         "error": "Could not load location"
     },
     "bank_page": {
+        "order_field": "Trip (optional)",
+        "order_hint": "Pick the trip the client paid for",
+        "order_pick": "Select trip",
+        "order_search": "Code, route, vehicle or client",
+        "order_none": "No trips found",
+        "order_income": "Trip amount",
+        "order_received": "Received in bank",
         "import": {
             "button": "Upload Excel",
             "title": "Upload bank statement",

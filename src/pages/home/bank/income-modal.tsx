@@ -9,10 +9,11 @@ import { isWithinMoneyLimit } from "@/lib/money-limit"
 import { handleFormError } from "@/lib/show-form-errors"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import OrderPicker, { BANK_ORDERS, type PickedOrder } from "./order-picker"
 
 export const BANK_INCOME = "checkout/bank/income"
 export const BANK_INCOME_MODAL = "bank-income"
@@ -32,15 +33,19 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
     const { closeModal, isOpen } = useModal(BANK_INCOME_MODAL)
     const form = useForm<FormValues>({ defaultValues: emptyValues() })
     const { control, handleSubmit, reset } = form
+    const [order, setOrder] = useState<PickedOrder | null>(null)
 
     useEffect(() => {
-        if (!isOpen) reset(emptyValues())
+        if (!isOpen) {
+            reset(emptyValues())
+            setOrder(null)
+        }
     }, [isOpen, reset])
 
     const { mutate, isPending } = usePost({
         onSuccess: () => {
             toast.success(t("bank_page.income_added"))
-            refetchKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }))
+            ;[...refetchKeys, BANK_ORDERS].forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }))
             closeModal()
         },
         meta: { skipGlobalError: true },
@@ -54,6 +59,7 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                 date: values.date ? format(new Date(values.date), "yyyy-MM-dd") : null,
                 source: values.source || null,
                 comment: values.comment || null,
+                order: order?.id ?? null,
             },
             { onError: (e: unknown) => handleFormError(e, form) },
         )
@@ -84,6 +90,11 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                 name="date"
                 placeholder={t("form.select_date")}
             />
+            <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">{t("bank_page.order_field")}</span>
+                <OrderPicker value={order} onChange={setOrder} />
+                <span className="text-xs text-muted-foreground">{t("bank_page.order_hint")}</span>
+            </div>
             <FormInput
                 name="source"
                 label={t("bank_page.income_source")}

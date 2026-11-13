@@ -73,6 +73,13 @@
         "error": "位置情報を取得できませんでした"
     },
     "bank_page": {
+        "order_field": "便(任意)",
+        "order_hint": "顧客が支払った便を選択",
+        "order_pick": "便を選択",
+        "order_search": "コード・ルート・車両・顧客",
+        "order_none": "便が見つかりません",
+        "order_income": "便の金額",
+        "order_received": "銀行入金済み",
         "import": {
             "button": "Excelアップロード",
             "title": "銀行明細のアップロード",

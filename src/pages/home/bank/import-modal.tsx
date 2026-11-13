@@ -12,6 +12,7 @@ import { FileSpreadsheet } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import OrderPicker, { type PickedOrder } from "./order-picker"
 
 export const BANK_IMPORT_MODAL = "bank-import"
 const PREVIEW_URL = "checkout/bank/import/preview/"
@@ -38,7 +39,14 @@ type PreviewLine = {
 
 type Preview = { own_inn: string; lines: PreviewLine[]; totals: { debit: number; credit: number } }
 
-type Choice = { action: Action; label: string; petrol_station: number | null; new_station_name: string | null; fuel_type?: string }
+type Choice = {
+    action: Action
+    label: string
+    petrol_station: number | null
+    new_station_name: string | null
+    fuel_type?: string
+    order?: PickedOrder | null
+}
 
 type StationOption = { id: number; name: string; fuel_type?: string }
 
@@ -123,7 +131,12 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
             form.append("file", file)
             form.append(
                 "choices",
-                JSON.stringify(toSave.map((l) => ({ key: l.key, ...choices[l.key] }))),
+                JSON.stringify(
+                    toSave.map((l) => {
+                        const { order, ...rest } = choices[l.key]
+                        return { key: l.key, ...rest, order: order?.id ?? null }
+                    }),
+                ),
             )
             const { data } = await axiosInstance.post(CONFIRM_URL, form)
             const total = Object.values(data.created as Record<string, number>).reduce((a, b) => a + b, 0)
@@ -263,6 +276,19 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                                 onChange={(e) => setChoice(line.key, { new_station_name: e.target.value })}
                                                             />
                                                         )}
+                                                    </div>
+                                                : !line.duplicate && choice?.action === "income" ?
+                                                    <div className="flex flex-col gap-1">
+                                                        <input
+                                                            className="h-8 w-full rounded-md border bg-background px-2"
+                                                            value={choice.label}
+                                                            onChange={(e) => setChoice(line.key, { label: e.target.value })}
+                                                        />
+                                                        <OrderPicker
+                                                            compact
+                                                            value={choice.order ?? null}
+                                                            onChange={(next) => setChoice(line.key, { order: next })}
+                                                        />
                                                     </div>
                                                 : !line.duplicate && choice && choice.action !== "skip" ?
                                                     <input

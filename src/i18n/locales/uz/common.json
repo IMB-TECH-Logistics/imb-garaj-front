@@ -73,6 +73,13 @@
         "error": "Joylashuvni olib bo'lmadi"
     },
     "bank_page": {
+        "order_field": "Reys (ixtiyoriy)",
+        "order_hint": "Mijoz qaysi reys uchun to'laganini tanlang",
+        "order_pick": "Reysni tanlang",
+        "order_search": "Kod, yo'nalish, mashina yoki mijoz",
+        "order_none": "Reys topilmadi",
+        "order_income": "Reys summasi",
+        "order_received": "Bankka kelgan",
         "import": {
             "button": "Excel yuklash",
             "title": "Bank ko'chirmasini yuklash",
