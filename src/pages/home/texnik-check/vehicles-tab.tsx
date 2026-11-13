@@ -272,7 +272,6 @@ const VehiclesTab = () => {
         openModal()
     }
     const deleteExpense = (row: VehicleExpenseRow) => {
-        setExpense(null)
         setData(TECHNICAL_INSPECT, row)
         openDeleteModal()
     }
@@ -403,7 +402,10 @@ const VehiclesTab = () => {
                 path={TECHNICAL_INSPECT}
                 id={currentExpense?.id}
                 refetchKeys={[TECHNICAL_INSPECT_INSTALLED]}
-                onSuccessAction={() => clearKey(TECHNICAL_INSPECT)}
+                onSuccessAction={() => {
+                    clearKey(TECHNICAL_INSPECT)
+                    setExpense(null)
+                }}
             />
             <ItemDetailSheet itemId={itemId} onClose={() => setItem(undefined)} />
         </>
