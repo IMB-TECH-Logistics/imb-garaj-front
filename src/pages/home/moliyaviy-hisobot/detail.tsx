@@ -375,12 +375,8 @@ const FinanceReportDetail = ({ id }: { id: number }) => {
                             </Badge>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                            {t("fin_report.counts", {
-                                trips: r.trip_count,
-                                orders: r.order_count,
-                            })}
                             {r.computed_at ?
-                                ` · ${t("fin_report.computed_at")}: ${format(new Date(r.computed_at), "dd.MM.yyyy HH:mm")}`
+                                `${t("fin_report.computed_at")}: ${format(new Date(r.computed_at), "dd.MM.yyyy HH:mm")}`
                             :   ""}
                         </span>
                     </div>
