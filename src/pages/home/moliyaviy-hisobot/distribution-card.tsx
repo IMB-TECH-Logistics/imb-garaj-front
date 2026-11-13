@@ -289,9 +289,6 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                         </Button>
                     </div>
                 )}
-                <p className="text-xs text-muted-foreground">
-                    {t("fin_report.dist.hint")}
-                </p>
             </CardContent>
         </Card>
     )
