@@ -1192,6 +1192,15 @@
         },
         "tab_stock": "Остаток",
         "tab_moves": "Архив",
+        "tab_spend": "Расходы по машинам",
+        "spend": {
+            "vehicle": "Машина",
+            "products": "Установленные товары",
+            "products_sum": "Сумма товаров",
+            "service": "Услуги мастера",
+            "service_sum": "Мастеру",
+            "vehicle_search": "Номер машины"
+        },
         "tab_others": "Другие склады",
         "tab_transfers": "Передачи",
         "tab_debts": "Долги",

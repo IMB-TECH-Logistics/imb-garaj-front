@@ -1183,6 +1183,15 @@
         },
         "tab_stock": "Қолдиқ",
         "tab_moves": "Архив",
+        "tab_spend": "Машина харажатлари",
+        "spend": {
+            "vehicle": "Машина",
+            "products": "Ўрнатилган маҳсулотлар",
+            "products_sum": "Маҳсулот суммаси",
+            "service": "Уста хизмати",
+            "service_sum": "Устага",
+            "vehicle_search": "Машина рақами"
+        },
         "tab_others": "Бошқа омборлар",
         "tab_transfers": "Ўтказмалар",
         "tab_debts": "Қарзлар",

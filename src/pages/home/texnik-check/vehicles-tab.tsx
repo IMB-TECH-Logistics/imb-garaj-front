@@ -51,6 +51,8 @@ type InstalledItem = {
     unit_name: string
     factory_number: string | null
     quantity: string
+    unit_price?: string | number | null
+    total?: string | number | null
     installed_at: string
     expires_at: string | null
     status: ItemStatus
@@ -202,6 +204,7 @@ const VehicleItemsSheet = ({
                             <TableRow>
                                 <TableHead>{t("wh.product")}</TableHead>
                                 <TableHead>{t("form.quantity")}</TableHead>
+                                <TableHead className="text-right">{t("form.amount")}</TableHead>
                                 <TableHead>{t("texnik.vehicles.installed_at")}</TableHead>
                                 <TableHead>{t("texnik.vehicles.expires_at")}</TableHead>
                                 <TableHead>{t("texnik.vehicles.status")}</TableHead>
@@ -224,6 +227,9 @@ const VehicleItemsSheet = ({
                                     </TableCell>
                                     <TableCell className="whitespace-nowrap">
                                         {formatNumber(toNumber(item.quantity))} {item.unit_name}
+                                    </TableCell>
+                                    <TableCell className="text-right whitespace-nowrap font-medium">
+                                        {item.total == null ? "—" : formatMoney(Number(item.total) || 0)}
                                     </TableCell>
                                     <TableCell className="whitespace-nowrap">
                                         {fmtDate(item.installed_at)}

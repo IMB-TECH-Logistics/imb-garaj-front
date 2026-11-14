@@ -1183,6 +1183,15 @@
         },
         "tab_stock": "Qoldiq",
         "tab_moves": "Arxiv",
+        "tab_spend": "Mashina xarajatlari",
+        "spend": {
+            "vehicle": "Mashina",
+            "products": "O'rnatilgan mahsulotlar",
+            "products_sum": "Mahsulot summasi",
+            "service": "Usta xizmati",
+            "service_sum": "Ustaga",
+            "vehicle_search": "Mashina raqami"
+        },
         "tab_others": "Boshqa omborlar",
         "tab_transfers": "O'tkazmalar",
         "tab_debts": "Qarzlar",

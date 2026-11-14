@@ -18,6 +18,7 @@ import UnitsPage from "@/pages/home/settings/units"
 import LinesSection from "./lines-section"
 import OtherStockSection from "./other-stock-section"
 import TransfersSection from "./transfers-section"
+import VehicleSpendSection from "./vehicle-spend-section"
 import ReceiptModal, { RECEIPT_MODAL_KEY } from "./receipt-modal"
 import SaleModal, { SALE_MODAL_KEY } from "./sale-modal"
 import { ShoppingCart } from "lucide-react"
@@ -148,6 +149,8 @@ const Ombor = () => {
         <div className="flex flex-col w-full gap-3">
             {section === "moves" ?
                 <Moves />
+            : section === "spend" ?
+                <VehicleSpendSection />
             : section === "others" ?
                 <OtherStockSection />
             : section === "transfers" ?

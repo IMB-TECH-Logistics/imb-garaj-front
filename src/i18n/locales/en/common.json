@@ -1186,6 +1186,15 @@
         },
         "tab_stock": "Stock",
         "tab_moves": "Archive",
+        "tab_spend": "Vehicle expenses",
+        "spend": {
+            "vehicle": "Vehicle",
+            "products": "Installed products",
+            "products_sum": "Products total",
+            "service": "Mechanic service",
+            "service_sum": "To mechanic",
+            "vehicle_search": "Plate number"
+        },
         "tab_others": "Other warehouses",
         "tab_transfers": "Transfers",
         "tab_debts": "Debts",
