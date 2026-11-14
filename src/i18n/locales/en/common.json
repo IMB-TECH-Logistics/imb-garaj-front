@@ -1188,6 +1188,7 @@
         "tab_moves": "Archive",
         "tab_spend": "Vehicle expenses",
         "spend": {
+            "name": "Name",
             "vehicle": "Vehicle",
             "products": "Installed products",
             "products_sum": "Products total",

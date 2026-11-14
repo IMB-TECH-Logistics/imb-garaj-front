@@ -1,4 +1,3 @@
-import ParamTabs from "@/components/as-params/tabs"
 import { ParamCombobox } from "@/components/as-params/combobox"
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
@@ -39,6 +38,7 @@ import { fmtDate, toNumber } from "../ombor/utils"
 import AddExpenseModal from "./add-expense"
 import { expenseNote, lifespanHint, type VehicleExpenseRow } from "./cols"
 import ExpenseDetailSheet from "./detail-sheet"
+import { TexnikTabs } from "./spend-tab"
 
 type ItemStatus = "expired" | "soon" | "ok" | null
 
@@ -354,13 +354,7 @@ const VehiclesTab = () => {
                 head={
                     <div className="mb-3 flex items-center justify-end gap-3 flex-wrap">
                         <div className="mr-auto">
-                            <ParamTabs
-                                paramName="ti_kind"
-                                options={[
-                                    { value: "truck", label: t("texnik.vehicles.truck") },
-                                    { value: "trailer", label: t("tb.trailer") },
-                                ]}
-                            />
+                            <TexnikTabs />
                         </div>
                         <ParamCombobox
                             paramName="ti_status"

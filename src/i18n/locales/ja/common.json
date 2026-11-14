@@ -1188,6 +1188,7 @@
         "tab_moves": "アーカイブ",
         "tab_spend": "車両別費用",
         "spend": {
+            "name": "名称",
             "vehicle": "車両",
             "products": "取付商品",
             "products_sum": "商品合計",

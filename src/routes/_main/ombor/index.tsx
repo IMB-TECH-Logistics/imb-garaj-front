@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_main/ombor/")({
         lpage: Number(search.lpage) || undefined,
         lpage_size: Number(search.lpage_size) || undefined,
         section:
-            search.section === "moves" || search.section === "spend" || search.section === "suppliers" || search.section === "catalog" || search.section === "units" ?
+            search.section === "moves" || search.section === "suppliers" || search.section === "catalog" || search.section === "units" ?
                 search.section
             :   undefined,
         item: Number(search.item) || undefined,
