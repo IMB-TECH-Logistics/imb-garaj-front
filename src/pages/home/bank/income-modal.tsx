@@ -5,6 +5,7 @@ import { FormSelect } from "@/components/form/select"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
+import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { isWithinMoneyLimit } from "@/lib/money-limit"
 import { handleFormError } from "@/lib/show-form-errors"
@@ -15,6 +16,7 @@ import { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
+import { BANK_TRANSACTION, type BankEditRow } from "./types"
 
 export const BANK_INCOME = "checkout/bank/income"
 export const BANK_INCOME_MODAL = "bank-income"
@@ -52,7 +54,16 @@ const emptyValues = (): FormValues => ({
     comment: "",
 })
 
-const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
+const fromRow = (r: BankEditRow): FormValues => ({
+    amount: Number(r.amount),
+    date: new Date(r.created),
+    income_type: (r.income_type as IncomeType) || "bank_boshqa",
+    kontragent: r.kontragent?.id ?? null,
+    source: r.income_type === "bank_boshqa" ? r.note || "" : "",
+    comment: r.comment || "",
+})
+
+const BankIncomeModal = ({ refetchKeys, edit }: { refetchKeys: string[]; edit?: BankEditRow | null }) => {
     const { t } = useTranslation()
     const queryClient = useQueryClient()
     const { closeModal, isOpen } = useModal(BANK_INCOME_MODAL)
@@ -63,32 +74,41 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
     const { data: kontragents } = useKontragents(undefined, isOpen && incomeType === "bank_kontragent")
 
     useEffect(() => {
-        if (!isOpen) reset(emptyValues())
-    }, [isOpen, reset])
+        reset(isOpen && edit ? fromRow(edit) : emptyValues())
+    }, [isOpen, edit, reset])
 
+    const onDone = () => {
+        refetchKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }))
+        queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("kontragent") })
+        closeModal()
+    }
+    const { mutate: patch, isPending: isPatching } = usePatch({
+        onSuccess: () => {
+            toast.success(t("messages.success_edit"))
+            onDone()
+        },
+        meta: { skipGlobalError: true },
+    })
     const { mutate, isPending } = usePost({
         onSuccess: () => {
             toast.success(t("bank_page.income_added"))
-            refetchKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }))
-            queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("kontragent") })
-            closeModal()
+            onDone()
         },
         meta: { skipGlobalError: true },
     })
 
     const onSubmit = (values: FormValues) => {
-        mutate(
-            BANK_INCOME,
-            {
-                amount: Number(values.amount),
-                date: values.date ? format(new Date(values.date), "yyyy-MM-dd") : null,
-                income_type: values.income_type,
-                kontragent: values.income_type === "bank_kontragent" ? values.kontragent : null,
-                source: values.income_type === "bank_boshqa" ? values.source || null : null,
-                comment: values.comment || null,
-            },
-            { onError: (e: unknown) => handleFormError(e, form) },
-        )
+        const body = {
+            amount: Number(values.amount),
+            date: values.date ? format(new Date(values.date), "yyyy-MM-dd") : null,
+            income_type: values.income_type,
+            kontragent: values.income_type === "bank_kontragent" ? values.kontragent : null,
+            source: values.income_type === "bank_boshqa" ? values.source || null : null,
+            comment: values.comment || null,
+        }
+        const opts = { onError: (e: unknown) => handleFormError(e, form) }
+        if (edit) patch(`${BANK_TRANSACTION}/${edit.id}`, body, opts)
+        else mutate(BANK_INCOME, body, opts)
     }
 
     return (
@@ -148,7 +168,7 @@ const BankIncomeModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
             />
             <FormTextarea label={t("form.comment")} name="comment" methods={form} />
             <div className="flex justify-end mt-1">
-                <Button className="min-w-32" type="submit" loading={isPending}>
+                <Button className="min-w-32" type="submit" loading={isPending || isPatching}>
                     {t("actions.save")}
                 </Button>
             </div>

@@ -6,7 +6,7 @@ import { KassaPeriodFilter } from "./period-filter"
 import { Fragment, ReactNode } from "react"
 import { n, usePeriod, Overview } from "./api"
 
-const COLS = "grid grid-cols-[minmax(0,1fr)_88px_72px_92px] items-stretch"
+const COLS = "grid grid-cols-[minmax(0,1fr)_112px] items-stretch"
 const CELL = "flex items-center justify-end border-l border-muted-foreground/25 px-1.5 py-0.5"
 
 const Money = ({ value, className }: { value: number | null | undefined; className?: string }) => (
@@ -15,9 +15,8 @@ const Money = ({ value, className }: { value: number | null | undefined; classNa
     </span>
 )
 
-const Line = ({ label, value, bank, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; bank?: number | null; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
+const Line = ({ label, value, strong, sub, tone, onClick, active }: { label: ReactNode; value: number | string | null | undefined; strong?: boolean; sub?: boolean; tone?: "green" | "red"; onClick?: () => void; active?: boolean }) => {
     const cash = value == null ? null : n(value)
-    const total = cash == null && bank == null ? null : n(cash) + n(bank)
     const size = sub ? "text-xs" : "text-[13px]"
     const weight = strong ? "font-semibold" : ""
     const color = cn(tone === "green" && "text-green-600", tone === "red" && "text-destructive")
@@ -34,8 +33,6 @@ const Line = ({ label, value, bank, strong, sub, tone, onClick, active }: { labe
         >
             <span className={cn("min-w-0 self-center break-words leading-tight py-1 pr-2", strong && "font-semibold text-foreground", size)}>{label}</span>
             <Money value={cash} className={cn(size, weight, color)} />
-            <Money value={bank} className={cn(size, weight, color)} />
-            <Money value={total} className={cn(size, weight, color, !sub && "text-foreground")} />
         </div>
     )
 }
@@ -46,8 +43,6 @@ const Head = () => {
         <div className={cn(COLS, "px-3 text-sm font-medium text-muted-foreground")}>
             <span className="py-1" />
             <span className={cn(CELL, "justify-start")}>{t("fin.kv2.col_cash")}</span>
-            <span className={cn(CELL, "justify-start")}>{t("fin.kv2.col_bank")}</span>
-            <span className={cn(CELL, "justify-start")}>{t("fin.kv2.col_sum")}</span>
         </div>
     )
 }
@@ -61,9 +56,9 @@ const incomeRows = (sm: Overview["summary"] | undefined, transport: string, othe
     const linked = byK.reduce((a, r) => a + n(r.amount), 0)
     const rest = n(sm?.income.total) - n(sm?.income.trip_cash) - linked
     return [
-        ...byK.map((r) => ({ g: `in_kontragent:${r.id}`, name: r.name, cash: n(r.amount) as number | null, bank: null })),
-        { g: "in_trips", name: transport, cash: n(sm?.income.trip_cash) as number | null, bank: null },
-        ...(rest ? [{ g: "in_unlinked", name: other, cash: rest as number | null, bank: null }] : []),
+        ...byK.map((r) => ({ g: `in_kontragent:${r.id}`, name: r.name, cash: n(r.amount) as number | null })),
+        { g: "in_trips", name: transport, cash: n(sm?.income.trip_cash) as number | null },
+        ...(rest ? [{ g: "in_unlinked", name: other, cash: rest as number | null }] : []),
     ]
 }
 
@@ -87,23 +82,20 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
     const { t } = useTranslation()
     const kassaBalance = n(sm?.closing ?? ov?.balance)
     const M = {
-        opening: { cash: n(sm?.opening) + n(sm?.drivers_opening), bank: 0, kassa: n(sm?.opening), drivers: n(sm?.drivers_opening) },
+        opening: { cash: n(sm?.opening) + n(sm?.drivers_opening), kassa: n(sm?.opening), drivers: n(sm?.drivers_opening) },
         income: {
             cash: n(sm?.income.total),
-            bank: 0,
             rows: incomeRows(sm, t("fin.kv2.transport_service"), t("fin.kv2.other_income")),
         },
         trip: {
             cash: -n(sm?.expense.total),
-            bank: 0,
-            fuel: { cash: -n(sm?.expense.fuel), bank: 0 },
-            salary: { cash: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)), bank: null },
-            other: { cash: -n(sm?.expense.other), bank: null },
-            tax: { cash: null, bank: 0 },
+            fuel: { cash: -n(sm?.expense.fuel) },
+            salary: { cash: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)) },
+            other: { cash: -n(sm?.expense.other) },
         },
-        other: { cash: -(n(sm?.other_expense?.total ?? sm?.expense.garaj) - n(sm?.other_expense?.kontragent)), bank: 0 },
-        kontragent: { cash: -n(sm?.other_expense?.kontragent), bank: 0 },
-        closing: { cash: kassaBalance + n(sm?.drivers_closing ?? ov?.drivers_total), bank: 0, kassa: kassaBalance, drivers: n(sm?.drivers_closing ?? ov?.drivers_total) },
+        other: { cash: -(n(sm?.other_expense?.total ?? sm?.expense.garaj) - n(sm?.other_expense?.kontragent)) },
+        kontragent: { cash: -n(sm?.other_expense?.kontragent) },
+        closing: { cash: kassaBalance + n(sm?.drivers_closing ?? ov?.drivers_total), kassa: kassaBalance, drivers: n(sm?.drivers_closing ?? ov?.drivers_total) },
     }
     return (
         <Card className="lg:h-full min-h-0 overflow-hidden">
@@ -113,40 +105,36 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
                 <Head />
                 {from_date && (
                     <Box className="bg-muted/40 border-muted-foreground/30">
-                        <Line strong label={t("fin.kv2.opening_balance")} value={M.opening.cash} bank={M.opening.bank} tone={M.opening.cash < 0 ? "red" : undefined} />
-                        <Line sub label={t("fin.kv2.cash_balance")} value={M.opening.kassa} bank={null} />
-                        <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={M.opening.drivers} bank={null} />
+                        <Line strong label={t("fin.kv2.opening_balance")} value={M.opening.cash} tone={M.opening.cash < 0 ? "red" : undefined} />
+                        <Line sub label={t("fin.kv2.cash_balance")} value={M.opening.kassa} />
+                        <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={M.opening.drivers} />
                     </Box>
                 )}
                 <Box className="bg-green-600/5 border-green-600/30">
-                    <Line strong tone="green" label={t("fin.kv2.revenue")} value={M.income.cash} bank={M.income.bank} />
+                    <Line strong tone="green" label={t("fin.kv2.revenue")} value={M.income.cash} />
                     {M.income.rows.map((r) => (
-                        <Line key={r.g} sub label={r.name} value={r.cash} bank={r.bank} {...lineProps(r.g, r.name)} />
+                        <Line key={r.g} sub label={r.name} value={r.cash} {...lineProps(r.g, r.name)} />
                     ))}
                 </Box>
                 <Box className="bg-red-600/5 border-red-600/30">
-                    <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={M.trip.cash} bank={M.trip.bank} />
+                    <Line strong tone="red" label={t("fin.kv2.trip_expenses")} value={M.trip.cash} />
                     {expenseLines.map((l) => (
                         <Fragment key={l.key}>
-                            {l.kind === "other" && (
-                                <Line sub label={t("fin.kv2.tax")} value={M.trip.tax.cash} bank={M.trip.tax.bank} />
-                            )}
                             <Line
                                 sub
                                 label={l.label}
                                 value={M.trip[l.kind === "fuel" ? "fuel" : "other"].cash}
-                                bank={M.trip[l.kind === "fuel" ? "fuel" : "other"].bank}
                                 {...expProps({ key: l.key, kind: l.kind, label: l.label, amount: -l.amount })}
                             />
                             {l.kind === "fuel" && (
-                                <Line sub label={t("table.monthly_salary")} value={M.trip.salary.cash} bank={M.trip.salary.bank} {...expProps({ key: "salary", kind: "salary", label: t("table.monthly_salary"), amount: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)) })} />
+                                <Line sub label={t("table.monthly_salary")} value={M.trip.salary.cash} {...expProps({ key: "salary", kind: "salary", label: t("table.monthly_salary"), amount: -(n(sm?.expense.oylik) + n(sm?.expense.salary_cash)) })} />
                             )}
                         </Fragment>
                     ))}
-                    {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} bank={null} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
+                    {!!n(sm?.expense.reversals) && <Line sub label={t("fin.kv2.reversed_incomes")} value={-n(sm?.expense.reversals)} {...lineProps("out_reversals", "fin.kv2.reversed_incomes")} />}
                 </Box>
                 <Box className="bg-orange-500/5 border-orange-500/30">
-                    <Line strong tone="red" label={<span className="whitespace-nowrap" title={t("fin.kv2.non_trip_expenses")}>{t("fin.kv2.non_trip_short")}</span>} value={M.other.cash} bank={M.other.bank} {...lineProps("out_nontrip_own", "fin.kv2.non_trip_expenses")} />
+                    <Line strong tone="red" label={<span className="whitespace-nowrap" title={t("fin.kv2.non_trip_expenses")}>{t("fin.kv2.non_trip_short")}</span>} value={M.other.cash} {...lineProps("out_nontrip_own", "fin.kv2.non_trip_expenses")} />
                 </Box>
                 <Box className="bg-violet-500/5 border-violet-500/30">
                     <Line
@@ -154,15 +142,13 @@ export const IzumiSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, li
                         tone="red"
                         label={<span className="whitespace-nowrap" title={t("fin.kv2.kontragent_expenses_hint")}>{t("fin.kv2.kontragent_expenses")}</span>}
                         value={M.kontragent.cash}
-                        bank={M.kontragent.bank}
                         {...lineProps("out_kontragent", "fin.kv2.kontragent_expenses")}
                     />
                 </Box>
                 <Box className="bg-primary/5 border-primary/30">
-                    <Line strong label={t("fin.kv2.closing_balance")} value={M.closing.cash} bank={M.closing.bank} tone={M.closing.cash < 0 ? "red" : undefined} />
-                    <Line sub label={t("fin.kv2.bank_account")} value={null} bank={M.closing.bank} />
-                    <Line sub label={t("fin.kv2.cash_balance")} value={M.closing.kassa} bank={null} />
-                    <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={M.closing.drivers} bank={null} />
+                    <Line strong label={t("fin.kv2.closing_balance")} value={M.closing.cash} tone={M.closing.cash < 0 ? "red" : undefined} />
+                    <Line sub label={t("fin.kv2.cash_balance")} value={M.closing.kassa} />
+                    <Line sub label={t("fin.kv2.drivers_holding", { count: drivers.length })} value={M.closing.drivers} />
                 </Box>
 
                 <div className="rounded-lg border border-muted-foreground/20 bg-muted/20 p-3 flex flex-col min-h-0">

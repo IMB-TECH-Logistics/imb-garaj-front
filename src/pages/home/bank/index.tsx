@@ -2,6 +2,7 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamTabs from "@/components/as-params/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
@@ -14,14 +15,16 @@ import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ArrowDownCircle, ArrowUpCircle, FileUp, Landmark, Minus, Plus } from "lucide-react"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import BankExpenseModal, { BANK_EXPENSE_MODAL } from "./expense-modal"
 import BankImportModal, { BANK_IMPORT_MODAL } from "./import-modal"
 import BankIncomeModal, { BANK_INCOME_MODAL } from "./income-modal"
+import type { BankEditRow } from "./types"
 
 export const BANK_OVERVIEW = "checkout/bank/overview"
 export const BANK_TRANSACTIONS = "checkout/bank/transactions"
+const BANK_DELETE_MODAL = "bank-delete"
 
 type BankOverview = {
     balance: string
@@ -31,19 +34,13 @@ type BankOverview = {
     closing_balance: string
 }
 
-type BankTransaction = {
-    id: number
-    created: string
-    kind: "kirim" | "chiqim"
-    amount: string
+type BankTransaction = BankEditRow & {
     source: string
     manual: boolean
-    income_type: string | null
-    kontragent: { id: number; name: string } | null
+    editable: boolean
     payment_type: string | null
     petrol_station: string | null
     vehicle: string | null
-    comment: string | null
     executor: string | null
 }
 
@@ -179,6 +176,23 @@ const BankPage = () => {
     const { openModal: openIncome } = useModal(BANK_INCOME_MODAL)
     const { openModal: openImport } = useModal(BANK_IMPORT_MODAL)
     const { openModal: openExpense } = useModal(BANK_EXPENSE_MODAL)
+    const { openModal: openDelete } = useModal(BANK_DELETE_MODAL)
+    const [edit, setEdit] = useState<BankTransaction | null>(null)
+    const startEdit = (row: BankTransaction) => {
+        if (!row.editable) return
+        setEdit(row)
+        if (row.kind === "kirim") openIncome()
+        else openExpense()
+    }
+    const startDelete = (row: BankTransaction) => {
+        if (!row.editable) return
+        setEdit(row)
+        openDelete()
+    }
+    const addNew = (open: () => void) => () => {
+        setEdit(null)
+        open()
+    }
     const balance = Number(overview?.balance ?? 0)
 
     return (
@@ -190,19 +204,19 @@ const BankPage = () => {
                     <div className="flex items-center gap-2">
                         <ParamDateRange from="from_date" to="to_date" />
                         {canAdd && (
-                            <Button variant="outline" onClick={openImport} className="shrink-0">
+                            <Button variant="outline" onClick={addNew(openImport)} className="shrink-0">
                                 <FileUp size={16} className="mr-1" />
                                 {t("bank_page.import.button")}
                             </Button>
                         )}
                         {canAdd && (
-                            <Button variant="destructive" onClick={openExpense} className="shrink-0">
+                            <Button variant="destructive" onClick={addNew(openExpense)} className="shrink-0">
                                 <Minus size={16} className="mr-1" />
                                 {t("bank_page.add_expense")}
                             </Button>
                         )}
                         {canAdd && (
-                            <Button onClick={openIncome} className="shrink-0">
+                            <Button onClick={addNew(openIncome)} className="shrink-0">
                                 <Plus size={16} className="mr-1" />
                                 {t("bank_page.add_income")}
                             </Button>
@@ -248,6 +262,8 @@ const BankPage = () => {
                 columns={columns}
                 data={data?.results}
                 numeration
+                onEdit={canAdd ? ({ original }) => startEdit(original) : undefined}
+                onDelete={canAdd ? ({ original }) => startDelete(original) : undefined}
                 paginationProps={{
                     totalPages: data?.total_pages,
                     paramName: "page",
@@ -257,12 +273,20 @@ const BankPage = () => {
             <Modal title={t("bank_page.import.title")} modalKey={BANK_IMPORT_MODAL} size="max-w-6xl">
                 <BankImportModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
             </Modal>
-            <Modal title={t("bank_page.add_expense")} modalKey={BANK_EXPENSE_MODAL} size="max-w-lg">
-                <BankExpenseModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
+            <Modal title={edit ? t("bank_page.edit_expense") : t("bank_page.add_expense")} modalKey={BANK_EXPENSE_MODAL} size="max-w-lg">
+                <BankExpenseModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} edit={edit} />
             </Modal>
-            <Modal title={t("bank_page.add_income")} modalKey={BANK_INCOME_MODAL} size="max-w-lg">
-                <BankIncomeModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
+            <Modal title={edit ? t("bank_page.edit_income") : t("bank_page.add_income")} modalKey={BANK_INCOME_MODAL} size="max-w-lg">
+                <BankIncomeModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} edit={edit} />
             </Modal>
+            <DeleteModal
+                modalKey={BANK_DELETE_MODAL}
+                path={BANK_TRANSACTIONS}
+                id={edit?.id}
+                name={edit ? `${formatMoney(Number(edit.amount))} · ${edit.source || ""}` : ""}
+                disableRefetch
+                refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]}
+            />
         </>
     )
 }

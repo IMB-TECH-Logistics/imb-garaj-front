@@ -133,7 +133,9 @@
         "comment": "コメント",
         "executor": "登録者",
         "amount": "金額",
-        "trip": "運行"
+        "trip": "運行",
+        "edit_income": "入金を編集",
+        "edit_expense": "出金を編集"
     },
     "nav": {
         "investor_dashboard": "投資家",

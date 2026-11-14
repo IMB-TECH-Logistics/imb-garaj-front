@@ -133,7 +133,9 @@
         "comment": "Comment",
         "executor": "Entered by",
         "amount": "Amount",
-        "trip": "Trip cycle"
+        "trip": "Trip cycle",
+        "edit_income": "Edit income",
+        "edit_expense": "Edit expense"
     },
     "nav": {
         "investor_dashboard": "Investor",

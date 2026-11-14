@@ -133,7 +133,9 @@
         "comment": "Izoh",
         "executor": "Kiritgan",
         "amount": "Summa",
-        "trip": "Aylanma"
+        "trip": "Aylanma",
+        "edit_income": "Kirimni tahrirlash",
+        "edit_expense": "Chiqimni tahrirlash"
     },
     "nav": {
         "investor_dashboard": "Investor",

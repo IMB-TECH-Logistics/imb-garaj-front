@@ -133,7 +133,9 @@
         "comment": "Изоҳ",
         "executor": "Киритган",
         "amount": "Сумма",
-        "trip": "Айланма"
+        "trip": "Айланма",
+        "edit_income": "Киримни таҳрирлаш",
+        "edit_expense": "Чиқимни таҳрирлаш"
     },
     "nav": {
         "investor_dashboard": "Инвестор",
