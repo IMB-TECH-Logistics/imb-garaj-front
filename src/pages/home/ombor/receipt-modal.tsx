@@ -12,7 +12,7 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { formatMoney, formatMoneyText } from "@/lib/format-money"
 import { KONTRAGENT_PURCHASES, onApiError, useKontragents, useRefreshFinance } from "@/pages/home/kontragent/api"
-import { useSuppliersOn, useVstFinance } from "@/hooks/use-vst-finance"
+import { useSuppliersOn } from "@/hooks/use-vst-finance"
 import PaymentMethodToggle, { type PaymentMethod, useBankEnabled } from "@/components/custom/payment-method"
 import { useQueryClient } from "@tanstack/react-query"
 import { Package, Plus, Trash2 } from "lucide-react"
@@ -219,7 +219,6 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const { data: catalog } = useCatalog()
     const products = useMemo(() => catalog?.results ?? [], [catalog])
     const [serverError, setServerError] = useState("")
-    const vst = useVstFinance()
     const suppliersOn = useSuppliersOn()
     const bankEnabled = useBankEnabled()
     const [via, setVia] = useState<PaymentMethod>("kassa")
@@ -322,7 +321,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         const paid = Math.min(Number(values.paid_now === "" || values.paid_now === undefined ? 0 : values.paid_now) || 0, total)
         const supplier = values.supplier ? Number(values.supplier) : null
         const payVia: PaymentMethod = bankEnabled ? via : "kassa"
-        const wantsPurchase = withSupplier && (vst || !!supplier || paid > 0)
+        const wantsPurchase = withSupplier
         if (wantsPurchase && paid < total && !supplier) {
             setServerError(t("wh.receipt.err_debt_needs_supplier"))
             return
