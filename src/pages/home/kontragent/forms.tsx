@@ -6,11 +6,13 @@ import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { format } from "date-fns"
+import { Info } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -134,7 +136,21 @@ export const ContragentTxForm = ({ contragentId, dir, max }: { contragentId: num
             })}
         >
             <fieldset className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium">{t("contragent.fields.kind")}</span>
+                <span className="flex items-center gap-1.5 text-sm font-medium">
+                    {t("contragent.fields.kind")}
+                    <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button type="button" tabIndex={-1} className="text-muted-foreground hover:text-foreground">
+                                    <Info className="w-4 h-4" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" align="start" className="max-w-72 font-normal">
+                                {t(isCash ? (dir === "in" ? "contragent.cash.in_hint" : "contragent.cash.out_hint") : dir === "in" ? "contragent.tx.in_hint" : "contragent.tx.out_hint")}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {DEAL_KINDS.map((k) => (
                         <button
@@ -152,9 +168,6 @@ export const ContragentTxForm = ({ contragentId, dir, max }: { contragentId: num
                 </div>
             </fieldset>
             {isCash && bankEnabled && <PaymentMethodToggle value={via} onChange={setVia} />}
-            <p className="text-sm text-muted-foreground">
-                {t(isCash ? (dir === "in" ? "contragent.cash.in_hint" : "contragent.cash.out_hint") : dir === "in" ? "contragent.tx.in_hint" : "contragent.tx.out_hint")}
-            </p>
             {limit !== undefined && (
                 <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">{t("investors.list.loan_left")}</span>
