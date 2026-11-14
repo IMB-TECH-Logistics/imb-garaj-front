@@ -6,7 +6,7 @@ import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
-import { ArrowDownLeft, ArrowLeft, ArrowUpRight, Wallet } from "lucide-react"
+import { ArrowDownLeft, ArrowLeft, ArrowUpRight } from "lucide-react"
 import { useMemo, useState } from "react"
 import { Input } from "@/components/ui/input"
 import Select from "@/components/ui/select"
@@ -14,7 +14,7 @@ import { YearMonthRange } from "@/components/custom/year-month-range"
 import { useTranslation } from "react-i18next"
 import { EntryDir, Kontragent, TYPE_STYLE, kontragentUrl, num, som } from "./api"
 import { EditDeleteActions } from "./edit-actions"
-import { CONTRAGENT_CASH, CONTRAGENT_TX, CashForm, ContragentTxForm } from "./forms"
+import { CONTRAGENT_TX, ContragentTxForm } from "./forms"
 import { LedgerTable, useLedger } from "./ledger-table"
 import { RentCard } from "./rent-card"
 import { OwnedVehiclesCard, useOwnedVehicles } from "./owned-vehicles-card"
@@ -42,9 +42,7 @@ const ContragentDetail = ({ id }: { id: number }) => {
         )
     }, [ledger, dirFilter, kindFilter, fromDate, toDate, query])
     const { openModal: openTx } = useModal(CONTRAGENT_TX)
-    const { openModal: openCash } = useModal(CONTRAGENT_CASH)
     const [dir, setDir] = useState<EntryDir>("in")
-    const [cashDir, setCashDir] = useState<EntryDir>("in")
 
     const back = () => navigate({ to: "/kontragentlar" })
 
@@ -79,26 +77,6 @@ const ContragentDetail = ({ id }: { id: number }) => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <EditDeleteActions row={row} listUrl="/kontragentlar" />
-                    <Button
-                        variant="outline"
-                        onClick={() => {
-                            setCashDir("in")
-                            openCash()
-                        }}
-                    >
-                        <Wallet className="w-4 h-4" />
-                        {t("contragent.cash.in_btn")}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => {
-                            setCashDir("out")
-                            openCash()
-                        }}
-                    >
-                        <Wallet className="w-4 h-4" />
-                        {t("contragent.cash.out_btn")}
-                    </Button>
                     <Button
                         onClick={() => {
                             setDir("in")
@@ -193,14 +171,11 @@ const ContragentDetail = ({ id }: { id: number }) => {
             </Card>
 
             <Modal title={t(dir === "in" ? "contragent.tx.in_btn" : "contragent.tx.out_btn")} modalKey={CONTRAGENT_TX}>
-                <ContragentTxForm key={dir} contragentId={id} dir={dir} />
-            </Modal>
-            <Modal title={t(cashDir === "in" ? "contragent.cash.in_btn" : "contragent.cash.out_btn")} modalKey={CONTRAGENT_CASH}>
-                <CashForm
-                    key={cashDir}
+                <ContragentTxForm
+                    key={dir}
                     contragentId={id}
-                    dir={cashDir}
-                    max={cashDir === "out" && (row.type === "investor" || row.type === "supplier") ? Math.max(balance, 0) : undefined}
+                    dir={dir}
+                    max={dir === "out" && (row.type === "investor" || row.type === "supplier") ? Math.max(balance, 0) : undefined}
                 />
             </Modal>
         </div>

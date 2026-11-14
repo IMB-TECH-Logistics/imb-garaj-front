@@ -7,6 +7,7 @@ import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/hooks/useModal"
+import { cn } from "@/lib/utils"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { format } from "date-fns"
@@ -98,17 +99,24 @@ export const AddContragentForm = ({
     )
 }
 
-export const ContragentTxForm = ({ contragentId, dir }: { contragentId: number; dir: EntryDir }) => {
+type DealKind = "cash" | "goods" | "service" | "trip"
+const DEAL_KINDS: DealKind[] = ["cash", "goods", "service", "trip"]
+
+export const ContragentTxForm = ({ contragentId, dir, max }: { contragentId: number; dir: EntryDir; max?: number }) => {
     const { t } = useTranslation()
     const { closeModal } = useModal(CONTRAGENT_TX)
     const refresh = useRefreshFinance()
-    const form = useForm<{ date: string; kind: EntryKind; amount: number | ""; comment: string }>({
-        defaultValues: { date: today(), kind: "goods", amount: "", comment: "" },
+    const form = useForm<{ date: string; amount: number | ""; comment: string }>({
+        defaultValues: { date: today(), amount: "", comment: "" },
     })
-    const kinds: EntryKind[] = ["goods", "service", "trip"]
+    const [kind, setKind] = useState<DealKind>("cash")
+    const isCash = kind === "cash"
+    const limit = isCash && dir === "out" ? max : undefined
+    const bankEnabled = useBankEnabled()
+    const [via, setVia] = useState<PaymentMethod>("kassa")
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success(t("messages.success_add"))
+            toast.success(t(!isCash ? "messages.success_add" : dir === "in" ? "fin.kv2.cash_in_done" : "fin.kv2.cash_out_done"))
             form.reset()
             closeModal()
             refresh()
@@ -119,36 +127,59 @@ export const ContragentTxForm = ({ contragentId, dir }: { contragentId: number; 
     return (
         <form
             className="flex flex-col gap-3"
-            onSubmit={form.handleSubmit((v) =>
-                mutate(kontragentUrl(contragentId, "ledger"), { date: v.date, dir, kind: v.kind, amount: Number(v.amount), comment: v.comment.trim() }),
-            )}
+            onSubmit={form.handleSubmit((v) => {
+                const base = { dir, amount: Number(v.amount), date: v.date, comment: v.comment.trim() }
+                if (isCash) mutate(kontragentUrl(contragentId, "cash"), { ...base, ...(bankEnabled ? { via } : {}) })
+                else mutate(kontragentUrl(contragentId, "ledger"), { ...base, kind })
+            })}
         >
-            <p className="text-sm text-muted-foreground">{t(dir === "in" ? "contragent.tx.in_hint" : "contragent.tx.out_hint")}</p>
+            <fieldset className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">{t("contragent.fields.kind")}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {DEAL_KINDS.map((k) => (
+                        <button
+                            key={k}
+                            type="button"
+                            onClick={() => setKind(k)}
+                            className={cn(
+                                "flex h-10 items-center justify-center rounded-md border border-input text-sm shadow-sm transition-colors",
+                                kind === k ? "border-primary bg-primary/10 text-primary font-medium" : "bg-background hover:bg-muted",
+                            )}
+                        >
+                            {t(`contragent.kind.${k}`)}
+                        </button>
+                    ))}
+                </div>
+            </fieldset>
+            {isCash && bankEnabled && <PaymentMethodToggle value={via} onChange={setVia} />}
+            <p className="text-sm text-muted-foreground">
+                {t(isCash ? (dir === "in" ? "contragent.cash.in_hint" : "contragent.cash.out_hint") : dir === "in" ? "contragent.tx.in_hint" : "contragent.tx.out_hint")}
+            </p>
+            {limit !== undefined && (
+                <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t("investors.list.loan_left")}</span>
+                    <span className="font-semibold tabular-nums">{som(limit)}</span>
+                </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormDatePicker required fullWidth control={form.control} name="date" label={t("contragent.fields.date")} />
-                <FormCombobox
+                <FormNumberInput
                     required
-                    isSearch={false}
-                    isClearIcon={false}
                     control={form.control}
-                    name="kind"
-                    label={t("contragent.fields.kind")}
-                    options={kinds.map((k) => ({ id: k, name: t(`contragent.kind.${k}`) }))}
-                    valueKey="id"
-                    labelKey="name"
+                    name="amount"
+                    label={t("contragent.fields.amount")}
+                    thousandSeparator=" "
+                    decimalScale={0}
+                    allowNegative={false}
+                    isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_AMOUNT}
+                    registerOptions={{
+                        validate: (v: unknown) =>
+                            Number(v) <= 0 ? t("investors.errors.gt_zero")
+                            : limit !== undefined && Number(v) > limit ? `${t("investors.list.loan_left")}: ${som(limit)}`
+                            : true,
+                    }}
                 />
             </div>
-            <FormNumberInput
-                required
-                control={form.control}
-                name="amount"
-                label={t("contragent.fields.amount")}
-                thousandSeparator=" "
-                decimalScale={0}
-                allowNegative={false}
-                isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_AMOUNT}
-                registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("investors.errors.gt_zero") }}
-            />
             <FormTextarea name="comment" label={t("contragent.fields.comment")} methods={form} rows={3} />
             <div className="flex justify-end">
                 <Button className="min-w-32" type="submit" loading={isPending}>{t("actions.save")}</Button>
