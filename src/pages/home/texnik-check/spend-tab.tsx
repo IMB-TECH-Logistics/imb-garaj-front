@@ -3,12 +3,13 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamTabs from "@/components/as-params/tabs"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
+import { Input } from "@/components/ui/input"
 import { TECHNICAL_INSPECT, TECHNICAL_INSPECT_INSTALLED } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { formatMoney } from "@/lib/format-money"
 import { useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { fmtDate, toNumber } from "../ombor/utils"
 import type { VehicleExpenseRow } from "./cols"
@@ -82,6 +83,7 @@ const SpendTab = () => {
     const { data: vehicles } = useGet<{ id: number; kind?: "truck" | "trailer" }[]>(TECHNICAL_INSPECT_INSTALLED, { params: {} })
     const kindOf = useMemo(() => new Map((vehicles ?? []).map((v) => [v.id, v.kind ?? "truck"])), [vehicles])
     const query = String(search.vehicle_search ?? "")
+    const [text, setText] = useState("")
     const { data, isLoading } = useGet<ListResponse<VehicleExpenseRow>>(TECHNICAL_INSPECT, {
         params: {
             from_date: search.from_date || undefined,
@@ -92,12 +94,14 @@ const SpendTab = () => {
 
     const rows = useMemo(() => {
         const q = query.trim().toLowerCase().replace(/\s/g, "")
+        const words = text.trim().toLowerCase().split(/\s+/).filter(Boolean)
         return [...(data?.results ?? [])]
             .filter((r) => !q || (r.vehicle_name ?? "").toLowerCase().replace(/\s/g, "").includes(q))
             .filter((r) => !kind || (kindOf.get(r.vehicle) ?? "truck") === kind)
             .sort((a, b) => b.date.localeCompare(a.date) || (a.vehicle_name ?? "").localeCompare(b.vehicle_name ?? "") || b.id - a.id)
             .flatMap(flatten)
-    }, [data, query, kind, kindOf])
+            .filter((r) => !words.length || words.every((w) => `${r.vehicle} ${r.name}`.toLowerCase().includes(w)))
+    }, [data, query, kind, kindOf, text])
 
     const totals = useMemo(
         () =>
@@ -172,6 +176,12 @@ const SpendTab = () => {
                     <div className="flex justify-between items-center gap-3 flex-wrap">
                         <TexnikTabs />
                         <div className="flex items-center gap-2 flex-wrap">
+                            <Input
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                placeholder={t("wh.spend.search")}
+                                className="w-64"
+                            />
                             <ParamCombobox
                                 paramName="sp_kind"
                                 isSearch={false}

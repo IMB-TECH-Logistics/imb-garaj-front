@@ -1185,6 +1185,7 @@
         "tab_moves": "Arxiv",
         "tab_spend": "Mashina xarajatlari",
         "spend": {
+            "search": "Qidirish: mashina, mahsulot, xizmat",
             "name": "Nomi",
             "vehicle": "Mashina",
             "products": "O'rnatilgan mahsulotlar",

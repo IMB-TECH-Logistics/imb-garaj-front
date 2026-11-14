@@ -1188,6 +1188,7 @@
         "tab_moves": "アーカイブ",
         "tab_spend": "車両別費用",
         "spend": {
+            "search": "検索：車両・商品・サービス",
             "name": "名称",
             "vehicle": "車両",
             "products": "取付商品",

@@ -1188,6 +1188,7 @@
         "tab_moves": "Archive",
         "tab_spend": "Vehicle expenses",
         "spend": {
+            "search": "Search: vehicle, product, service",
             "name": "Name",
             "vehicle": "Vehicle",
             "products": "Installed products",
