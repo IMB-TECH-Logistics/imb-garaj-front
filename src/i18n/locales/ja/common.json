@@ -112,7 +112,8 @@
             "new_station": "+ 新しいスタンド",
             "already": "取込済み",
             "save": "{{count}} 件を保存",
-            "saved": "{{count}} 件を保存しました"
+            "saved": "{{count}} 件を保存しました",
+            "action_approve_request": "申請を承認"
         },
         "add_income": "入金を追加",
         "income_added": "入金を追加しました",
@@ -135,7 +136,27 @@
         "amount": "金額",
         "trip": "運行",
         "edit_income": "入金を編集",
-        "edit_expense": "出金を編集"
+        "edit_expense": "出金を編集",
+        "req": {
+            "tab": "申請",
+            "hint": "取引先・倉庫・給油所の各画面で「銀行経由」と記録された支払い。承認されるまで銀行残高に反映されません。",
+            "approve": "承認",
+            "reject": "却下",
+            "approve_title": "銀行申請を承認",
+            "reject_title": "銀行申請を却下",
+            "amount_paid": "実際の支払額",
+            "date_paid": "振込日",
+            "approve_hint": "承認すると金額が銀行残高と取引先勘定に反映されます。",
+            "reject_hint": "却下すると、この支払いは銀行にも取引先勘定にも表示されません。",
+            "reject_fuel_hint": "却下しても燃料は運行経費に残り、銀行からは差し引かれません。",
+            "reject_reason": "理由",
+            "approved": "申請を承認しました",
+            "rejected": "申請を却下しました",
+            "kind_kontragent_out": "取引先への支払い",
+            "kind_kontragent_in": "取引先からの入金",
+            "kind_station_top_up": "給油所への支払い",
+            "kind_station_fuel": "E給油所の燃料"
+        }
     },
     "nav": {
         "investor_dashboard": "投資家",
@@ -1050,7 +1071,7 @@
             "err_debt_needs_supplier": "掛けにするには仕入先を選択してください",
             "kassa_request_sent": "支払申請をレジに送りました",
             "err_bank_needs_supplier": "銀行で支払うには仕入先を選択してください",
-            "bank_paid": "銀行から仕入先へ支払いました",
+            "bank_paid": "銀行申請を送信しました",
             "kassa_request_failed": "レジへの申請に失敗しました",
             "kassa_request_comment": "倉庫入庫",
             "paid_via_kassa": "レジ経由（申請）"
@@ -3402,7 +3423,7 @@
         "title": "仕入先",
         "kassa_debt": "仕入先への債務",
         "pay_hint": "支払いはレジから出金され「倉庫費用」に表示されます。",
-        "pay_hint_bank": "支払いは銀行から出金され「銀行」に表示されます。",
+        "pay_hint_bank": "支払いは「銀行」画面に申請として届き、承認後に残高から差し引かれます。",
         "fields": {
             "name": "仕入先",
             "supplier": "仕入先",

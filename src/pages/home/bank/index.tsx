@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next"
 import BankExpenseModal, { BANK_EXPENSE_MODAL } from "./expense-modal"
 import BankImportModal, { BANK_IMPORT_MODAL } from "./import-modal"
 import BankIncomeModal, { BANK_INCOME_MODAL } from "./income-modal"
+import BankRequestsTab, { useBankRequests } from "./requests-tab"
 import type { BankEditRow } from "./types"
 
 export const BANK_OVERVIEW = "checkout/bank/overview"
@@ -158,6 +159,9 @@ const BankPage = () => {
     const { t } = useTranslation()
     const search = useSearch({ strict: false }) as Record<string, any>
     const kind = search.bank_kind === "kirim" || search.bank_kind === "chiqim" ? search.bank_kind : undefined
+    const onRequests = search.bank_kind === "requests"
+    const { data: requests } = useBankRequests()
+    const pendingCount = requests?.count ?? 0
     const period = { from_date: search.from_date, to_date: search.to_date }
     const hasPeriod = !!(search.from_date || search.to_date)
 
@@ -227,6 +231,17 @@ const BankPage = () => {
                     { value: "all", label: t("bank_page.all") },
                     { value: "kirim", label: t("bank_page.income") },
                     { value: "chiqim", label: t("bank_page.expense") },
+                    {
+                        value: "requests",
+                        label: (
+                            <span className="inline-flex items-center gap-1.5">
+                                {t("bank_page.req.tab")}
+                                {pendingCount > 0 && (
+                                    <Badge className="h-5 min-w-5 px-1.5 bg-amber-500 text-white hover:bg-amber-500">{pendingCount}</Badge>
+                                )}
+                            </span>
+                        ),
+                    },
                 ]}
             />
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4">
@@ -257,7 +272,9 @@ const BankPage = () => {
                     valueClass={cn(balance < 0 && "text-rose-600", balance > 0 && "text-emerald-600")}
                 />
             </div>
-            <DataTable
+            {onRequests ?
+                <BankRequestsTab />
+            :   <DataTable
                 loading={isLoading}
                 columns={columns}
                 data={data?.results}
@@ -270,6 +287,7 @@ const BankPage = () => {
                     pageSizeParamName: "page_size",
                 }}
             />
+            }
             <Modal title={t("bank_page.import.title")} modalKey={BANK_IMPORT_MODAL} size="max-w-6xl">
                 <BankImportModal refetchKeys={[BANK_OVERVIEW, BANK_TRANSACTIONS]} />
             </Modal>

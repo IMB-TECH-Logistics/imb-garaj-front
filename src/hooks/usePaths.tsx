@@ -322,7 +322,7 @@ export const useItems = () => {
                         label: t("nav.bank"),
                         icon: <Landmark width={18} />,
                         path: "/bank",
-                        allowKeys: ["kassa_cashier_view", "kassa_cashier_control", "settings_petrol_stations_view"],
+                        allowKeys: ["kassa_cashier_view", "kassa_cashier_control", "settings_petrol_stations_view", "bank_approve_control"],
                     },
                 ]
             :   []),

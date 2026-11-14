@@ -19,7 +19,7 @@ export const BANK_IMPORT_MODAL = "bank-import"
 const PREVIEW_URL = "checkout/bank/import/preview/"
 const CONFIRM_URL = "checkout/bank/import/confirm/"
 
-type Action = "station_top_up" | "kontragent_out" | "bank_fee" | "to_kassa" | "expense" | "income" | "skip"
+type Action = "station_top_up" | "kontragent_out" | "bank_fee" | "to_kassa" | "expense" | "income" | "approve_request" | "skip"
 
 type PreviewLine = {
     key: string
@@ -39,6 +39,7 @@ type PreviewLine = {
     kontragent?: number | null
     new_kontragent_name?: string | null
     new_kontragent_type?: string
+    request?: string | null
     duplicate: boolean
 }
 
@@ -54,6 +55,7 @@ type Choice = {
     kontragent?: number | null
     new_kontragent_name?: string | null
     new_kontragent_type?: string
+    request?: string | null
 }
 
 type StationOption = { id: number; name: string; fuel_type?: string }
@@ -96,6 +98,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
             { value: "to_kassa", label: t("bank_page.expense_type_kassa") },
             { value: "expense", label: t("bank_page.import.action_expense") },
             { value: "income", label: t("bank_page.import.action_income") },
+            { value: "approve_request", label: t("bank_page.import.action_approve_request") },
             { value: "skip", label: t("bank_page.import.action_skip") },
         ],
         [t],
@@ -121,6 +124,7 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                     kontragent: line.kontragent ?? null,
                     new_kontragent_name: line.new_kontragent_name ?? null,
                     new_kontragent_type: line.new_kontragent_type,
+                    request: line.request ?? null,
                 }
             })
             setChoices(next)
@@ -246,9 +250,9 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                     >
                                                         {actionOptions
                                                             .filter((o) =>
-                                                                isIn ?
-                                                                    o.value === "income" || o.value === "skip"
-                                                                :   o.value !== "income",
+                                                                o.value === "approve_request" ? !!line.request
+                                                                : isIn ? o.value === "income" || o.value === "skip"
+                                                                : o.value !== "income",
                                                             )
                                                             .map((o) => (
                                                                 <option key={o.value} value={o.value}>
@@ -259,7 +263,9 @@ const BankImportModal = ({ refetchKeys }: { refetchKeys: string[] }) => {
                                                 }
                                             </td>
                                             <td className="px-2 py-2 min-w-[220px]">
-                                                {!line.duplicate && choice?.action === "station_top_up" ?
+                                                {!line.duplicate && choice?.action === "approve_request" ?
+                                                    <span className="text-xs text-emerald-700">{choice.label}</span>
+                                                : !line.duplicate && choice?.action === "station_top_up" ?
                                                     <div className="flex flex-col gap-1">
                                                         <select
                                                             className="h-8 rounded-md border border-input bg-background shadow-sm px-2"

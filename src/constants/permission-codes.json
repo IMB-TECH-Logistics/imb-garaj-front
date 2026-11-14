@@ -1,6 +1,7 @@
 [
   "accounting_control",
   "accounting_view",
+  "bank_approve_control",
   "fin_report_control",
   "fin_report_view",
   "finance_control",

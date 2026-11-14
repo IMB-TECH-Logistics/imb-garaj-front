@@ -112,7 +112,8 @@
             "new_station": "+ Yangi zapravka",
             "already": "Yuklangan",
             "save": "{{count}} ta yozuvni saqlash",
-            "saved": "{{count}} ta yozuv saqlandi"
+            "saved": "{{count}} ta yozuv saqlandi",
+            "action_approve_request": "So'rovni tasdiqlash"
         },
         "add_income": "Kirim qo'shish",
         "income_added": "Kirim qo'shildi",
@@ -135,7 +136,27 @@
         "amount": "Summa",
         "trip": "Aylanma",
         "edit_income": "Kirimni tahrirlash",
-        "edit_expense": "Chiqimni tahrirlash"
+        "edit_expense": "Chiqimni tahrirlash",
+        "req": {
+            "tab": "So'rovlar",
+            "hint": "Kontragent, ombor va zapravka bo'limlaridan «bank orqali» yozilgan to'lovlar. Tasdiqlanmaguncha bank balansiga ta'sir qilmaydi.",
+            "approve": "Tasdiqlash",
+            "reject": "Rad etish",
+            "approve_title": "Bank so'rovini tasdiqlash",
+            "reject_title": "Bank so'rovini rad etish",
+            "amount_paid": "Bankdan haqiqatda o'tgan summa",
+            "date_paid": "O'tkazma sanasi",
+            "approve_hint": "Tasdiqlangach summa bank balansiga va kontragent hisobiga o'tadi.",
+            "reject_hint": "Rad etilsa, bu to'lov bankda ham, kontragent hisobida ham ko'rinmaydi.",
+            "reject_fuel_hint": "Rad etilsa, yoqilg'i reys xarajatida qoladi, faqat bankdan ayrilmaydi.",
+            "reject_reason": "Sabab",
+            "approved": "So'rov tasdiqlandi",
+            "rejected": "So'rov rad etildi",
+            "kind_kontragent_out": "Kontragentga to'lov",
+            "kind_kontragent_in": "Kontragentdan kirim",
+            "kind_station_top_up": "Zapravkaga to'lov",
+            "kind_station_fuel": "E-zapravka yoqilg'isi"
+        }
     },
     "nav": {
         "investor_dashboard": "Investor",
@@ -1047,7 +1068,7 @@
             "err_debt_needs_supplier": "Qarzga qoldirish uchun ta'minotchini tanlang",
             "kassa_request_sent": "Kassaga to'lov so'rovi yuborildi",
             "err_bank_needs_supplier": "Bank orqali to'lash uchun ta'minotchini tanlang",
-            "bank_paid": "Ta'minotchiga bankdan to'landi",
+            "bank_paid": "Bankka so'rov yuborildi",
             "kassa_request_failed": "Kassaga so'rov yuborib bo'lmadi",
             "kassa_request_comment": "Omborga kirim",
             "paid_via_kassa": "Kassa orqali (so'rov)"
@@ -3406,7 +3427,7 @@
         "title": "Ta'minotchilar",
         "kassa_debt": "Ta'minotchilarga qarz",
         "pay_hint": "To'lov kassadan chiqim bo'ladi va «Ombor xarajatlari»da ko'rinadi.",
-        "pay_hint_bank": "To'lov bankdan chiqadi va Bank bo'limida ko'rinadi.",
+        "pay_hint_bank": "To'lov Bank bo'limiga so'rov bo'lib tushadi; bank tasdiqlagach balansdan ayriladi.",
         "fields": {
             "name": "Ta'minotchi",
             "supplier": "Ta'minotchi",

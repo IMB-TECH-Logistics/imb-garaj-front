@@ -112,7 +112,8 @@
             "new_station": "+ New station",
             "already": "Imported",
             "save": "Save {{count}} records",
-            "saved": "{{count}} records saved"
+            "saved": "{{count}} records saved",
+            "action_approve_request": "Approve request"
         },
         "add_income": "Add income",
         "income_added": "Income added",
@@ -135,7 +136,27 @@
         "amount": "Amount",
         "trip": "Trip cycle",
         "edit_income": "Edit income",
-        "edit_expense": "Edit expense"
+        "edit_expense": "Edit expense",
+        "req": {
+            "tab": "Requests",
+            "hint": "Payments marked «via bank» in counterparty, warehouse and petrol station sections. They do not affect the bank balance until approved.",
+            "approve": "Approve",
+            "reject": "Reject",
+            "approve_title": "Approve bank request",
+            "reject_title": "Reject bank request",
+            "amount_paid": "Amount actually paid",
+            "date_paid": "Transfer date",
+            "approve_hint": "Once approved, the amount goes to the bank balance and the counterparty account.",
+            "reject_hint": "If rejected, the payment appears neither in the bank nor in the counterparty account.",
+            "reject_fuel_hint": "If rejected, the fuel stays in the trip expenses but is not deducted from the bank.",
+            "reject_reason": "Reason",
+            "approved": "Request approved",
+            "rejected": "Request rejected",
+            "kind_kontragent_out": "Payment to counterparty",
+            "kind_kontragent_in": "Income from counterparty",
+            "kind_station_top_up": "Petrol station payment",
+            "kind_station_fuel": "E-station fuel"
+        }
     },
     "nav": {
         "investor_dashboard": "Investor",
@@ -1050,7 +1071,7 @@
             "err_debt_needs_supplier": "Choose a supplier to leave part as debt",
             "kassa_request_sent": "Payment request sent to the cash desk",
             "err_bank_needs_supplier": "Choose a supplier to pay via bank",
-            "bank_paid": "Paid to the supplier from the bank",
+            "bank_paid": "Bank request sent",
             "kassa_request_failed": "Could not send the request to the cash desk",
             "kassa_request_comment": "Warehouse receipt",
             "paid_via_kassa": "Via cash desk (request)"
@@ -3409,7 +3430,7 @@
         "title": "Suppliers",
         "kassa_debt": "Debt to suppliers",
         "pay_hint": "The payment is taken from the cash desk and shown in “Warehouse expenses”.",
-        "pay_hint_bank": "The payment is taken from the bank and shown in “Bank”.",
+        "pay_hint_bank": "The payment goes to the Bank section as a request and is deducted after approval.",
         "fields": {
             "name": "Supplier",
             "supplier": "Supplier",
