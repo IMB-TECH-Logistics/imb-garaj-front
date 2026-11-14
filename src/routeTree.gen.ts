@@ -55,6 +55,7 @@ const MainHaydovchilarIndexLazyImport = createFileRoute(
 const MainBuxgalteriyaIndexLazyImport = createFileRoute(
   '/_main/buxgalteriya/',
 )()
+const MainBankIndexLazyImport = createFileRoute('/_main/bank/')()
 const MainTexnikBazaIdLazyImport = createFileRoute('/_main/texnik-baza/$id')()
 const MainRouteNormsRouteLazyImport = createFileRoute(
   '/_main/route-norms/$route',
@@ -273,6 +274,13 @@ const MainBuxgalteriyaIndexLazyRoute = MainBuxgalteriyaIndexLazyImport.update({
   getParentRoute: () => MainRoute,
 } as any).lazy(() =>
   import('./routes/_main/buxgalteriya/index.lazy').then((d) => d.Route),
+)
+
+const MainBankIndexLazyRoute = MainBankIndexLazyImport.update({
+  path: '/bank/',
+  getParentRoute: () => MainRoute,
+} as any).lazy(() =>
+  import('./routes/_main/bank/index.lazy').then((d) => d.Route),
 )
 
 const MainOmborIndexRoute = MainOmborIndexImport.update({
@@ -762,6 +770,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainOmborIndexImport
       parentRoute: typeof MainImport
     }
+    '/_main/bank/': {
+      id: '/_main/bank/'
+      path: '/bank'
+      fullPath: '/bank'
+      preLoaderRoute: typeof MainBankIndexLazyImport
+      parentRoute: typeof MainImport
+    }
     '/_main/buxgalteriya/': {
       id: '/_main/buxgalteriya/'
       path: '/buxgalteriya'
@@ -1159,6 +1174,7 @@ interface MainRouteChildren {
   MainRouteNormsRouteLazyRoute: typeof MainRouteNormsRouteLazyRoute
   MainTexnikBazaIdLazyRoute: typeof MainTexnikBazaIdLazyRoute
   MainOmborIndexRoute: typeof MainOmborIndexRoute
+  MainBankIndexLazyRoute: typeof MainBankIndexLazyRoute
   MainBuxgalteriyaIndexLazyRoute: typeof MainBuxgalteriyaIndexLazyRoute
   MainHaydovchilarIndexLazyRoute: typeof MainHaydovchilarIndexLazyRoute
   MainInvestorRoyxatiIndexLazyRoute: typeof MainInvestorRoyxatiIndexLazyRoute
@@ -1222,6 +1238,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainRouteNormsRouteLazyRoute: MainRouteNormsRouteLazyRoute,
   MainTexnikBazaIdLazyRoute: MainTexnikBazaIdLazyRoute,
   MainOmborIndexRoute: MainOmborIndexRoute,
+  MainBankIndexLazyRoute: MainBankIndexLazyRoute,
   MainBuxgalteriyaIndexLazyRoute: MainBuxgalteriyaIndexLazyRoute,
   MainHaydovchilarIndexLazyRoute: MainHaydovchilarIndexLazyRoute,
   MainInvestorRoyxatiIndexLazyRoute: MainInvestorRoyxatiIndexLazyRoute,
@@ -1301,6 +1318,7 @@ export interface FileRoutesByFullPath {
   '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/ombor': typeof MainOmborIndexRoute
+  '/bank': typeof MainBankIndexLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/investor-royxati': typeof MainInvestorRoyxatiIndexLazyRoute
@@ -1367,6 +1385,7 @@ export interface FileRoutesByTo {
   '/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/ombor': typeof MainOmborIndexRoute
+  '/bank': typeof MainBankIndexLazyRoute
   '/buxgalteriya': typeof MainBuxgalteriyaIndexLazyRoute
   '/haydovchilar': typeof MainHaydovchilarIndexLazyRoute
   '/investor-royxati': typeof MainInvestorRoyxatiIndexLazyRoute
@@ -1436,6 +1455,7 @@ export interface FileRoutesById {
   '/_main/route-norms/$route': typeof MainRouteNormsRouteLazyRoute
   '/_main/texnik-baza/$id': typeof MainTexnikBazaIdLazyRoute
   '/_main/ombor/': typeof MainOmborIndexRoute
+  '/_main/bank/': typeof MainBankIndexLazyRoute
   '/_main/buxgalteriya/': typeof MainBuxgalteriyaIndexLazyRoute
   '/_main/haydovchilar/': typeof MainHaydovchilarIndexLazyRoute
   '/_main/investor-royxati/': typeof MainInvestorRoyxatiIndexLazyRoute
@@ -1505,6 +1525,7 @@ export interface FileRouteTypes {
     | '/route-norms/$route'
     | '/texnik-baza/$id'
     | '/ombor'
+    | '/bank'
     | '/buxgalteriya'
     | '/haydovchilar'
     | '/investor-royxati'
@@ -1570,6 +1591,7 @@ export interface FileRouteTypes {
     | '/route-norms/$route'
     | '/texnik-baza/$id'
     | '/ombor'
+    | '/bank'
     | '/buxgalteriya'
     | '/haydovchilar'
     | '/investor-royxati'
@@ -1637,6 +1659,7 @@ export interface FileRouteTypes {
     | '/_main/route-norms/$route'
     | '/_main/texnik-baza/$id'
     | '/_main/ombor/'
+    | '/_main/bank/'
     | '/_main/buxgalteriya/'
     | '/_main/haydovchilar/'
     | '/_main/investor-royxati/'
@@ -1737,6 +1760,7 @@ export const routeTree = rootRoute
         "/_main/route-norms/$route",
         "/_main/texnik-baza/$id",
         "/_main/ombor/",
+        "/_main/bank/",
         "/_main/buxgalteriya/",
         "/_main/haydovchilar/",
         "/_main/investor-royxati/",
@@ -1838,6 +1862,10 @@ export const routeTree = rootRoute
     },
     "/_main/ombor/": {
       "filePath": "_main/ombor/index.tsx",
+      "parent": "/_main"
+    },
+    "/_main/bank/": {
+      "filePath": "_main/bank/index.lazy.tsx",
       "parent": "/_main"
     },
     "/_main/buxgalteriya/": {
