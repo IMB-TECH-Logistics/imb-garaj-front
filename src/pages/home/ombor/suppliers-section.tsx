@@ -1,4 +1,6 @@
 import Modal from "@/components/custom/modal"
+import PaymentMethodToggle, { type PaymentMethod, useBankEnabled } from "@/components/custom/payment-method"
+import { useQueryClient } from "@tanstack/react-query"
 import { FormNumberInput } from "@/components/form/number-input"
 import FormTextarea from "@/components/form/textarea"
 import { Badge } from "@/components/ui/badge"
@@ -27,22 +29,30 @@ const PayForm = ({ supplier }: { supplier: Kontragent }) => {
     const { t } = useTranslation()
     const { closeModal } = useModal(SUPPLIER_PAY)
     const refresh = useRefreshFinance()
+    const queryClient = useQueryClient()
+    const bankEnabled = useBankEnabled()
+    const [via, setVia] = useState<PaymentMethod>("kassa")
+    const byBank = bankEnabled && via === "bank"
     const max = openDebt(supplier)
     const form = useForm<{ amount: number | ""; comment: string }>({ defaultValues: { amount: max, comment: "" } })
     const { mutate, isPending } = usePost({
         onSuccess: () => {
-            toast.success(t("wh.receipt.kassa_request_sent"))
+            toast.success(byBank ? t("wh.receipt.bank_paid") : t("wh.receipt.kassa_request_sent"))
             closeModal()
             refresh()
+            if (byBank) queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("checkout/bank") })
         },
         onError: onApiError(t("messages.error")),
     })
 
+    const submit = (v: { amount: number | ""; comment: string }) => {
+        const body = { amount: Number(v.amount), comment: v.comment.trim() }
+        if (byBank) mutate(kontragentUrl(supplier.id, "cash"), { ...body, dir: "out", via: "bank" })
+        else mutate(kontragentUrl(supplier.id, "pay-request"), body)
+    }
+
     return (
-        <form
-            className="flex flex-col gap-3"
-            onSubmit={form.handleSubmit((v) => mutate(kontragentUrl(supplier.id, "pay-request"), { amount: Number(v.amount), comment: v.comment.trim() }))}
-        >
+        <form className="flex flex-col gap-3" onSubmit={form.handleSubmit(submit)}>
             <div className="rounded-lg border bg-muted/30 px-3 py-2 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t("suppliers.list.debt")}</span>
                 <span className="font-semibold tabular-nums">{som(max)}</span>
@@ -58,7 +68,8 @@ const PayForm = ({ supplier }: { supplier: Kontragent }) => {
                 isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= max}
                 registerOptions={{ validate: (v: unknown) => Number(v) > 0 || t("investors.errors.gt_zero") }}
             />
-            <p className="text-xs text-muted-foreground">{t("suppliers.pay_hint")}</p>
+            {bankEnabled && <PaymentMethodToggle value={via} onChange={setVia} />}
+            <p className="text-xs text-muted-foreground">{byBank ? t("suppliers.pay_hint_bank") : t("suppliers.pay_hint")}</p>
             <FormTextarea name="comment" label={t("suppliers.fields.comment")} methods={form} rows={3} />
             <div className="flex justify-end">
                 <Button className="min-w-32" type="submit" loading={isPending}>{t("actions.save")}</Button>

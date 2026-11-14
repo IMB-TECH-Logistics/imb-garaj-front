@@ -2,13 +2,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import type { OmborSearchParams } from "./types"
-import { useVstFinance } from "@/hooks/use-vst-finance"
+import { useSuppliersOn, useVstFinance } from "@/hooks/use-vst-finance"
 
 const OmborHeaderTabs = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const { section } = useSearch({ strict: false }) as OmborSearchParams
     const vst = useVstFinance()
+    const suppliersOn = useSuppliersOn()
 
     return (
         <Tabs
@@ -36,6 +37,7 @@ const OmborHeaderTabs = () => {
                         <TabsTrigger value="units">{t("wh.units")}</TabsTrigger>
                     </>
                 :   <>
+                        {suppliersOn && <TabsTrigger value="suppliers">{t("suppliers.title")}</TabsTrigger>}
                         <TabsTrigger value="others">{t("wh.tab_others")}</TabsTrigger>
                         <TabsTrigger value="transfers">{t("wh.tab_transfers")}</TabsTrigger>
                         <TabsTrigger value="debts">{t("wh.tab_debts")}</TabsTrigger>

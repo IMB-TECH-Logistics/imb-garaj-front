@@ -1047,6 +1047,8 @@
             "paid_now_hint": "既定では全額が仕入先への債務になります。今回支払う額を入力すると、倉庫費用の申請としてレジに送られます。",
             "err_debt_needs_supplier": "掛けにするには仕入先を選択してください",
             "kassa_request_sent": "支払申請をレジに送りました",
+            "err_bank_needs_supplier": "銀行で支払うには仕入先を選択してください",
+            "bank_paid": "銀行から仕入先へ支払いました",
             "kassa_request_failed": "レジへの申請に失敗しました",
             "kassa_request_comment": "倉庫入庫",
             "paid_via_kassa": "レジ経由（申請）"
@@ -3398,6 +3400,7 @@
         "title": "仕入先",
         "kassa_debt": "仕入先への債務",
         "pay_hint": "支払いはレジから出金され「倉庫費用」に表示されます。",
+        "pay_hint_bank": "支払いは銀行から出金され「銀行」に表示されます。",
         "fields": {
             "name": "仕入先",
             "supplier": "仕入先",

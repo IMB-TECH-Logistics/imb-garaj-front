@@ -1047,6 +1047,8 @@
             "paid_now_hint": "By default the whole amount is recorded as debt to the supplier. If you enter an amount to pay now, it goes to the cash desk as a warehouse expense request.",
             "err_debt_needs_supplier": "Choose a supplier to leave part as debt",
             "kassa_request_sent": "Payment request sent to the cash desk",
+            "err_bank_needs_supplier": "Choose a supplier to pay via bank",
+            "bank_paid": "Paid to the supplier from the bank",
             "kassa_request_failed": "Could not send the request to the cash desk",
             "kassa_request_comment": "Warehouse receipt",
             "paid_via_kassa": "Via cash desk (request)"
@@ -3405,6 +3407,7 @@
         "title": "Suppliers",
         "kassa_debt": "Debt to suppliers",
         "pay_hint": "The payment is taken from the cash desk and shown in “Warehouse expenses”.",
+        "pay_hint_bank": "The payment is taken from the bank and shown in “Bank”.",
         "fields": {
             "name": "Supplier",
             "supplier": "Supplier",

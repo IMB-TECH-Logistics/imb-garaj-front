@@ -12,7 +12,8 @@ import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { formatMoney, formatMoneyText } from "@/lib/format-money"
 import { KONTRAGENT_PURCHASES, onApiError, useKontragents, useRefreshFinance } from "@/pages/home/kontragent/api"
-import { useVstFinance } from "@/hooks/use-vst-finance"
+import { useSuppliersOn, useVstFinance } from "@/hooks/use-vst-finance"
+import PaymentMethodToggle, { type PaymentMethod, useBankEnabled } from "@/components/custom/payment-method"
 import { useQueryClient } from "@tanstack/react-query"
 import { Package, Plus, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -219,11 +220,16 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const products = useMemo(() => catalog?.results ?? [], [catalog])
     const [serverError, setServerError] = useState("")
     const vst = useVstFinance()
-    const { data: suppliers = [] } = useKontragents("supplier", vst && !receiptId)
+    const suppliersOn = useSuppliersOn()
+    const bankEnabled = useBankEnabled()
+    const [via, setVia] = useState<PaymentMethod>("kassa")
+    const withSupplier = suppliersOn && !receiptId
+    const { data: suppliers = [] } = useKontragents("supplier", withSupplier)
     const refreshFinance = useRefreshFinance()
-    const pendingSupplier = useRef<{ supplier: number | null; paid: number } | null>(null)
+    const pendingSupplier = useRef<{ supplier: number | null; paid: number; via: PaymentMethod } | null>(null)
     const purchase = usePost({
-        onSuccess: (data: { payment_request: number | null }) => {
+        onSuccess: (data: { payment_request: number | null; bank_transaction?: number | null }) => {
+            if (data?.bank_transaction) toast.success(t("wh.receipt.bank_paid"))
             if (data?.payment_request) toast.success(t("wh.receipt.kassa_request_sent"))
             refreshFinance()
         },
@@ -288,7 +294,12 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         onSuccess: (data: { id?: number }) => {
             const pending = pendingSupplier.current
             if (pending && data?.id && (pending.supplier || pending.paid > 0)) {
-                purchase.mutate(KONTRAGENT_PURCHASES, { receipt: data.id, kontragent: pending.supplier, paid_now: pending.paid })
+                purchase.mutate(KONTRAGENT_PURCHASES, {
+                    receipt: data.id,
+                    kontragent: pending.supplier,
+                    paid_now: pending.paid,
+                    ...(bankEnabled ? { via: pending.via } : {}),
+                })
             }
             pendingSupplier.current = null
             toast.success(t("wh.receipt.saved"))
@@ -309,12 +320,18 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     const onSubmit = (values: FormValues) => {
         setServerError("")
         const paid = Math.min(Number(values.paid_now === "" || values.paid_now === undefined ? 0 : values.paid_now) || 0, total)
-        if (vst && !receiptId && paid < total && !values.supplier) {
+        const supplier = values.supplier ? Number(values.supplier) : null
+        const payVia: PaymentMethod = bankEnabled ? via : "kassa"
+        const wantsPurchase = withSupplier && (vst || !!supplier || paid > 0)
+        if (wantsPurchase && paid < total && !supplier) {
             setServerError(t("wh.receipt.err_debt_needs_supplier"))
             return
         }
-        pendingSupplier.current =
-            vst && !receiptId ? { supplier: values.supplier ? Number(values.supplier) : null, paid } : null
+        if (wantsPurchase && paid > 0 && payVia === "bank" && !supplier) {
+            setServerError(t("wh.receipt.err_bank_needs_supplier"))
+            return
+        }
+        pendingSupplier.current = wantsPurchase ? { supplier, paid, via: payVia } : null
         const payload = {
             date: values.date,
             comment: values.comment.trim() || (receiptId ? null : undefined),
@@ -408,7 +425,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                             label={t("form.date")}
                             control={control}
                         />
-                        {vst && !receiptId && (
+                        {withSupplier && (
                             <FormCombobox
                                 control={control}
                                 name="supplier"
@@ -428,8 +445,13 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                 </div>
             </section>
 
-            {vst && !receiptId ?
+            {withSupplier ?
                 <section className="rounded-lg border bg-muted/20 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                    {bankEnabled && (
+                        <div className="sm:col-span-2">
+                            <PaymentMethodToggle value={via} onChange={setVia} />
+                        </div>
+                    )}
                     <FormNumberInput
                         name="paid_now"
                         label={t("wh.receipt.paid_now")}
@@ -446,7 +468,9 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                             {formatMoney(debtLeft)} {t("page.som")}
                         </span>
                     </div>
-                    <p className="sm:col-span-2 text-xs text-muted-foreground">{t("wh.receipt.paid_now_hint")}</p>
+                    <p className="sm:col-span-2 text-xs text-muted-foreground">
+                        {bankEnabled && via === "bank" ? t("suppliers.pay_hint_bank") : t("wh.receipt.paid_now_hint")}
+                    </p>
                 </section>
             :   <div className="rounded-lg bg-muted/60 p-3 flex items-center justify-between gap-3">
                     <div className="font-medium">{t("page.total")}</div>

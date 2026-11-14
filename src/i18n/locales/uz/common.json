@@ -1044,6 +1044,8 @@
             "paid_now_hint": "Default holatda butun summa ta'minotchiga qarz bo'lib yoziladi. Hozir to'lanadigan qismni kiritsangiz, u kassaga «Ombor» xarajati so'rovi bo'lib boradi.",
             "err_debt_needs_supplier": "Qarzga qoldirish uchun ta'minotchini tanlang",
             "kassa_request_sent": "Kassaga to'lov so'rovi yuborildi",
+            "err_bank_needs_supplier": "Bank orqali to'lash uchun ta'minotchini tanlang",
+            "bank_paid": "Ta'minotchiga bankdan to'landi",
             "kassa_request_failed": "Kassaga so'rov yuborib bo'lmadi",
             "kassa_request_comment": "Omborga kirim",
             "paid_via_kassa": "Kassa orqali (so'rov)"
@@ -3402,6 +3404,7 @@
         "title": "Ta'minotchilar",
         "kassa_debt": "Ta'minotchilarga qarz",
         "pay_hint": "To'lov kassadan chiqim bo'ladi va «Ombor xarajatlari»da ko'rinadi.",
+        "pay_hint_bank": "To'lov bankdan chiqadi va Bank bo'limida ko'rinadi.",
         "fields": {
             "name": "Ta'minotchi",
             "supplier": "Ta'minotchi",
