@@ -61,6 +61,7 @@ const InvestorsPage = () => {
                     <div className="flex flex-col">
                         <span className="font-medium">{row.original.name}</span>
                         {row.original.phone && <span className="text-xs text-muted-foreground">{row.original.phone}</span>}
+                        {row.original.inn && <span className="text-xs text-muted-foreground">INN {row.original.inn}</span>}
                     </div>
                 ),
             },

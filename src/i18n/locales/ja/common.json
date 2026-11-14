@@ -3471,6 +3471,7 @@
             "name": "名称",
             "type": "種類",
             "phone": "電話",
+            "inn": "納税者番号 (INN)",
             "comment": "コメント",
             "balance": "残高",
             "tx_count": "件数",

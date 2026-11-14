@@ -3475,6 +3475,7 @@
             "name": "Nomi",
             "type": "Turi",
             "phone": "Telefon",
+            "inn": "INN",
             "comment": "Izoh",
             "balance": "Balans",
             "tx_count": "Yozuvlar",

@@ -15,6 +15,7 @@ export type Kontragent = {
     id: number
     name: string
     phone: string
+    inn?: string
     type: ContragentType
     comment: string
     dividend_share?: string

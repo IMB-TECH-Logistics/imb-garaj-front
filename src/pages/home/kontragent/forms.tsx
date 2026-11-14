@@ -39,10 +39,10 @@ export const AddContragentForm = ({
     const { t } = useTranslation()
     const { closeModal } = useModal(modalKey)
     const refresh = useRefreshFinance()
-    const form = useForm<{ name: string; phone: string; type: ContragentType | ""; comment: string }>({
+    const form = useForm<{ name: string; phone: string; inn: string; type: ContragentType | ""; comment: string }>({
         defaultValues: initial ?
-            { name: initial.name, phone: initial.phone, type: initial.type, comment: initial.comment }
-        :   { name: "", phone: "", type: fixedType ?? "", comment: "" },
+            { name: initial.name, phone: initial.phone, inn: initial.inn ?? "", type: initial.type, comment: initial.comment }
+        :   { name: "", phone: "", inn: "", type: fixedType ?? "", comment: "" },
     })
     const { mutate: update, isPending: updating } = usePatch({
         onSuccess: () => {
@@ -67,7 +67,7 @@ export const AddContragentForm = ({
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const payload = { name: v.name.trim(), phone: v.phone.trim(), type: fixedType ?? v.type, comment: v.comment.trim() }
+                const payload = { name: v.name.trim(), phone: v.phone.trim(), inn: v.inn.replace(/\s/g, ""), type: fixedType ?? v.type, comment: v.comment.trim() }
                 if (initial) update(kontragentUrl(initial.id), payload)
                 else mutate(KONTRAGENT, payload)
             })}
@@ -88,6 +88,7 @@ export const AddContragentForm = ({
                     />
                 )}
                 <FormInput name="phone" label={t("contragent.fields.phone")} placeholder="+998" methods={form} />
+                <FormInput name="inn" label={t("contragent.fields.inn")} placeholder="123456789" inputMode="numeric" maxLength={14} methods={form} />
             </div>
             <FormTextarea name="comment" label={t("contragent.fields.comment")} methods={form} rows={3} />
             <div className="flex justify-end">
