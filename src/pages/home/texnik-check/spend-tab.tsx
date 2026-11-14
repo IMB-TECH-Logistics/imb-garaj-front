@@ -3,6 +3,7 @@ import ParamDateRange from "@/components/as-params/date-picker-range"
 import ParamTabs from "@/components/as-params/tabs"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
+import DownloadAsExcel from "@/components/download-as-excel"
 import { Input } from "@/components/ui/input"
 import { TECHNICAL_INSPECT, TECHNICAL_INSPECT_INSTALLED } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
@@ -198,6 +199,19 @@ const SpendTab = () => {
                                 to="to_date"
                                 addButtonProps={{ className: "!bg-background dark:!bg-secondary min-w-32 justify-start" }}
                             />
+                            <DownloadAsExcel
+                                url={`${TECHNICAL_INSPECT}/spend-excel`}
+                                name={t("texnik.tab_expenses")}
+                                params={{
+                                    from_date: search.from_date || undefined,
+                                    to_date: search.to_date || undefined,
+                                    kind,
+                                    vehicle_search: query || undefined,
+                                    q: text.trim() || undefined,
+                                }}
+                            >
+                                {t("actions.download")}
+                            </DownloadAsExcel>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
