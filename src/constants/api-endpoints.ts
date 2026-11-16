@@ -117,6 +117,7 @@ export const MOBILE_ORDER_UPDATE = "mobile/order-update"
 
 /** ===== MONITORING (GPS routes & live tracking) ===== */
 export const MONITORING_ROUTES = "monitoring/routes"
+export const MONITORING_VEHICLE_QUEUE = "monitoring/vehicle-queue"
 export const MONITORING_ROUTES_POLYLINE = "monitoring/routes/polyline"
 export const MONITORING_LIVE_TRACKING = "monitoring/live-tracking"
 // Append `/<tripId>/track` when calling: `${MONITORING_TRIP_TRACK}/${id}/track`

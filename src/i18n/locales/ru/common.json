@@ -197,7 +197,8 @@
         "contragents": "Контрагенты",
         "fin_report": "Финансовый отчёт",
         "investor_results": "Результаты",
-        "investors_info": "Инвесторы: инфо"
+        "investors_info": "Инвесторы: инфо",
+        "vehicle_queue": "Состояние машин"
     },
     "actions": {
         "reverse_salary": "Сторнировать",
@@ -3719,5 +3720,14 @@
             "investors_total": "Итого инвесторам"
         },
         "rent_info": "Детали аренды"
+    },
+    "vq": {
+        "vehicle": "Машина",
+        "driver": "Водитель",
+        "state": "Статус",
+        "since": "с {{date}}",
+        "current": "Текущий рейс",
+        "queue": "Рейсы в очереди",
+        "free_at": "Ожидаемое освобождение"
     }
 }

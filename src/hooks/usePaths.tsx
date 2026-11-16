@@ -392,11 +392,16 @@ export const useItems = () => {
                 label: t("nav.monitoring"),
                 icon: <Activity width={18} />,
                 path: "/monitoring",
-                extraPaths: ["/route-norms"],
+                extraPaths: ["/route-norms", "/vehicle-queue"],
                 items: [
                     {
                         label: t("nav.monitoring"),
                         path: "/monitoring",
+                        allowKey: "monitoring_view",
+                    },
+                    {
+                        label: t("nav.vehicle_queue"),
+                        path: "/vehicle-queue",
                         allowKey: "monitoring_view",
                     },
                     {

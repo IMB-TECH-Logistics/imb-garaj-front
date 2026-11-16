@@ -197,7 +197,8 @@
         "contragents": "Контрагентлар",
         "fin_report": "Молиявий ҳисобот",
         "investor_results": "Натижалар",
-        "investors_info": "Инвесторлар инфо"
+        "investors_info": "Инвесторлар инфо",
+        "vehicle_queue": "Машиналар ҳолати"
     },
     "actions": {
         "reverse_salary": "Сторно қилиш",
@@ -3689,5 +3690,14 @@
             "investors_total": "Инвесторлар жами"
         },
         "rent_info": "Ижара тафсилоти"
+    },
+    "vq": {
+        "vehicle": "Машина",
+        "driver": "Ҳайдовчи",
+        "state": "Ҳолат",
+        "since": "{{date}} дан бери",
+        "current": "Ҳозирги рейс",
+        "queue": "Навбатдаги рейслар",
+        "free_at": "Тахминий бўшаш"
     }
 }

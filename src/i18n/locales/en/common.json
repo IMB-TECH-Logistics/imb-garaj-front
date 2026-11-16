@@ -197,7 +197,8 @@
         "contragents": "Counterparties",
         "fin_report": "Financial report",
         "investor_results": "Results",
-        "investors_info": "Investors info"
+        "investors_info": "Investors info",
+        "vehicle_queue": "Vehicle status"
     },
     "actions": {
         "reverse_salary": "Reverse payout",
@@ -3713,5 +3714,14 @@
             "investors_total": "Investors total"
         },
         "rent_info": "Rent details"
+    },
+    "vq": {
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "state": "Status",
+        "since": "since {{date}}",
+        "current": "Current trip",
+        "queue": "Queued trips",
+        "free_at": "Expected free"
     }
 }

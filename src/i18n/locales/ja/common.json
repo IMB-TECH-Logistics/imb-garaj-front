@@ -197,7 +197,8 @@
         "contragents": "取引先",
         "fin_report": "財務報告",
         "investor_results": "結果",
-        "investors_info": "投資家情報"
+        "investors_info": "投資家情報",
+        "vehicle_queue": "車両の状況"
     },
     "actions": {
         "reverse_salary": "取り消す",
@@ -3706,5 +3707,14 @@
             "investors_total": "投資家合計"
         },
         "rent_info": "賃料の詳細"
+    },
+    "vq": {
+        "vehicle": "車両",
+        "driver": "運転手",
+        "state": "状態",
+        "since": "{{date}} から",
+        "current": "現在の便",
+        "queue": "待機中の便",
+        "free_at": "空き予定"
     }
 }

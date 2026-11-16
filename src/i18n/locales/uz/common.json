@@ -197,7 +197,8 @@
         "contragents": "Kontragentlar",
         "fin_report": "Moliyaviy hisobot",
         "investor_results": "Natijalar",
-        "investors_info": "Investorlar info"
+        "investors_info": "Investorlar info",
+        "vehicle_queue": "Mashinalar holati"
     },
     "actions": {
         "reverse_salary": "Storno qilish",
@@ -3831,5 +3832,14 @@
             "salary_fee": "Oylik uchun bank komissiyasi ({{rate}}%)",
             "dividend_fee": "Dividend uchun bank komissiyasi ({{rate}}%)"
         }
+    },
+    "vq": {
+        "vehicle": "Mashina",
+        "driver": "Haydovchi",
+        "state": "Holat",
+        "since": "{{date}} dan beri",
+        "current": "Hozirgi reys",
+        "queue": "Navbatdagi reyslar",
+        "free_at": "Taxminiy bo'shash"
     }
 }
