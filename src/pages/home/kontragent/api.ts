@@ -92,7 +92,8 @@ export const useKontragents = (type?: ContragentType | ContragentType[], enabled
         enabled,
     })
 
-export const useKontragentSummary = (enabled = true) => useGet<Summary>(KONTRAGENT_SUMMARY, { enabled })
+export const useKontragentSummary = (enabled = true, toDate?: string) =>
+    useGet<Summary>(KONTRAGENT_SUMMARY, { enabled, params: toDate ? { to_date: toDate } : undefined })
 
 export const useRefreshFinance = () => {
     const qc = useQueryClient()

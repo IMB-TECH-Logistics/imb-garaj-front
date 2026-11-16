@@ -55,7 +55,8 @@ type SummaryPanelProps = {
 const VstSummaryPanel = ({ sm, ov, drivers, from_date, view, driver, lineProps, expProps, expenseLines, setDriver, setView }: SummaryPanelProps) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
-    const { data: finance } = useKontragentSummary()
+    const { to_date } = usePeriod()
+    const { data: finance } = useKontragentSummary(true, to_date)
     const supplierDebts = finance?.suppliers ?? []
     const byType = sm?.income_by_type
     const openSuppliers = () => navigate({ to: "/ombor", search: { section: "suppliers" } as never })
