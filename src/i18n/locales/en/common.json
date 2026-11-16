@@ -3700,9 +3700,12 @@
             "to_kontragent": "To counterparty",
             "firm": "Stays in company",
             "total": "Total",
-            "must_100": "Shares must add up to 100%.",
+            "must_100": "Investor shares must total 100%; firm share must be 0–100%.",
             "no_profit": "No net profit this month — no shares.",
-            "hint": "A founder's profit share and rent (with VAT) are added to their counterparty as «we owe»; the company share stays in the company."
+            "hint": "The firm share is taken from net profit, the rest goes to investors. Investor shares split the investors' part (total 100%).",
+            "net": "Net profit",
+            "investors": "To investors",
+            "investors_total": "Investors total"
         },
         "rent_info": "Rent details"
     }

@@ -3697,9 +3697,12 @@
             "to_kontragent": "Kontragentga",
             "firm": "Firmada qoladi",
             "total": "Jami",
-            "must_100": "Ulushlar jami 100% bo'lishi kerak.",
+            "must_100": "Investorlar ulushlari jami 100% bo'lishi kerak, firma ulushi 0–100% oralig'ida.",
             "no_profit": "Bu oyda sof foyda yo'q — ulush hisoblanmaydi.",
-            "hint": "Ta'sischining foyda ulushi va ijarasi (QQS bilan) uning kontragentiga «biz qarzdormiz» bo'lib qo'shiladi; firmadagi ulush firmada qoladi."
+            "hint": "Firma ulushi sof foydadan olinadi, qolgani investorlarga. Investorlar ulushi investorlarga ajratilgan qismdan hisoblanadi (jami 100%). Ta'sischining foyda ulushi va ijarasi (QQS bilan) uning kontragentiga «biz qarzdormiz» bo'lib qo'shiladi.",
+            "net": "Sof foyda",
+            "investors": "Investorlarga",
+            "investors_total": "Investorlar jami"
         },
         "rent_info": "Ijara tafsiloti",
         "tf": {

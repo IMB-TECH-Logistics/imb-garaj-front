@@ -40,8 +40,15 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
         setFirm(initial.firm)
         setShares(initial.shares)
     }, [initial])
-    const total =
-        num(firm) + Object.values(shares).reduce((a, v) => a + num(v), 0)
+    const round2 = (v: number) => Math.round(v * 100) / 100
+    const investorsTotal = round2(
+        Object.values(shares).reduce((a, v) => a + num(v), 0),
+    )
+    const investorsPct = round2(100 - num(firm))
+    const valid =
+        num(firm) >= 0 &&
+        num(firm) <= 100 &&
+        (report.shares.length ? investorsTotal === 100 : num(firm) === 100)
     const dirty =
         firm !== initial.firm ||
         report.shares.some(
@@ -73,6 +80,11 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
     const owner = (id: number) => report.owners.find((o) => o.kontragent === id)
     const net = num(report.net)
     const base = net > 0 ? net : 0
+    const pool = (base * investorsPct) / 100
+    const investorsSum = report.shares.reduce(
+        (a, s) => a + Math.round((pool * num(shares[s.kontragent] ?? "0")) / 100),
+        0,
+    )
     const pctInput = (value: string, onChange: (v: string) => void) =>
         editable ?
             <div className="flex justify-end">
@@ -147,6 +159,18 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                             </tr>
                         </thead>
                         <tbody>
+                            <tr className="border-b bg-muted/40">
+                                <td className="py-2 pr-2 font-semibold">
+                                    {t("fin_report.dist.net")}
+                                </td>
+                                <td className="py-2 px-2 text-right tabular-nums text-muted-foreground">
+                                    100%
+                                </td>
+                                <td className="py-2 px-2 text-right">
+                                    <Money value={net} strong />
+                                </td>
+                                <td colSpan={2} />
+                            </tr>
                             <tr className="border-b">
                                 <td className="py-2 pr-2 font-medium">
                                     {t("fin_report.dist.firm")}
@@ -168,15 +192,27 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                                     —
                                 </td>
                             </tr>
+                            <tr className="border-b">
+                                <td className="py-2 pr-2 font-medium">
+                                    {t("fin_report.dist.investors")}
+                                </td>
+                                <td className="py-2 px-2 text-right tabular-nums">
+                                    {investorsPct}%
+                                </td>
+                                <td className="py-2 px-2 text-right">
+                                    <Money value={Math.round(pool)} strong />
+                                </td>
+                                <td colSpan={2} />
+                            </tr>
                             {report.shares.map((s) => {
                                 const o = owner(s.kontragent)
                                 const pct = shares[s.kontragent] ?? "0"
                                 const share = Math.round(
-                                    (base * num(pct)) / 100,
+                                    (pool * num(pct)) / 100,
                                 )
                                 return (
                                     <tr key={s.kontragent} className="border-b">
-                                        <td className="py-2 pr-2">
+                                        <td className="py-2 pr-2 pl-4">
                                             <Link
                                                 to="/kontragentlar/$id"
                                                 params={{
@@ -217,19 +253,19 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                                 )
                             })}
                             <tr>
-                                <td className="py-2 pr-2 text-xs text-muted-foreground">
-                                    {t("fin_report.dist.total")}
+                                <td className="py-2 pr-2 pl-4 text-xs text-muted-foreground">
+                                    {t("fin_report.dist.investors_total")}
                                 </td>
                                 <td
                                     className={cn(
                                         "py-2 px-2 text-right text-xs font-semibold tabular-nums",
-                                        total !== 100 && "text-destructive",
+                                        report.shares.length > 0 && investorsTotal !== 100 && "text-destructive",
                                     )}
                                 >
-                                    {total}%
+                                    {investorsTotal}%
                                 </td>
                                 <td className="py-2 px-2 text-right">
-                                    <Money value={net} strong />
+                                    <Money value={investorsSum} strong />
                                 </td>
                                 <td colSpan={2} />
                             </tr>
@@ -237,7 +273,7 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                     </table>
                 </div>
 
-                {total !== 100 && (
+                {!valid && (
                     <p className="text-xs text-destructive">
                         {t("fin_report.dist.must_100")}
                     </p>
@@ -252,7 +288,7 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                         {editable && dirty && (
                         <Button
                             loading={saving}
-                            disabled={total !== 100}
+                            disabled={!valid}
                             onClick={() =>
                                 save(reportUrl(report.id), {
                                     firm_share: num(firm),
@@ -269,7 +305,7 @@ export const DistributionCard = ({ report }: { report: MonthlyReport }) => {
                         {draft ?
                             <Button
                                 loading={approving}
-                                disabled={dirty || total !== 100}
+                                disabled={dirty || !valid}
                                 onClick={() =>
                                     approve(reportUrl(report.id, "approve"), {})
                                 }
