@@ -148,6 +148,21 @@ export const useColumnsManagersVehicles = (onShowLocation: (vehicle: ManagerVehi
                 },
             },
             {
+                accessorKey: "expected_free_at",
+                header: t("table.expected_free_at"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const { expected_free_at } = row.original
+                    if (!expected_free_at) return <span className="text-muted-foreground">-</span>
+                    const overdue = new Date(expected_free_at).getTime() < Date.now()
+                    return (
+                        <span className={overdue ? "whitespace-nowrap text-destructive" : "whitespace-nowrap"}>
+                            {formatDateTime(expected_free_at)}
+                        </span>
+                    )
+                },
+            },
+            {
                 accessorKey: "pending_orders",
                 header: t("table.pending_trips"),
                 enableSorting: true,

@@ -16,6 +16,7 @@ type ManagerVehicles = {
     next_unloading_name: string | null
     order_status_since?: string | null
     expected_arrival: string | null
+    expected_free_at?: string | null
     phone?: string | null
     no_location_orders?: number | null
 }

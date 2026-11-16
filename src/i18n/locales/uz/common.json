@@ -717,7 +717,8 @@
         "used_fuel": "Sarflangan yoqilg'i",
         "no_location": "Lokatsiyasiz",
         "no_location_trips": "Lokatsiyasiz reyslar",
-        "no_location_hint": "Yuklash yoki tushirish lokatsiyasi yo‘q reyslar"
+        "no_location_hint": "Yuklash yoki tushirish lokatsiyasi yo‘q reyslar",
+        "expected_free_at": "Taxminiy bo'shash"
     },
     "auth": {
         "welcome": "Xush kelibsiz!",

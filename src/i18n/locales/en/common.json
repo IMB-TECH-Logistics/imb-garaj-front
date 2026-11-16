@@ -717,7 +717,8 @@
         "used_fuel": "Fuel used",
         "no_location": "No location",
         "no_location_trips": "Trips without location",
-        "no_location_hint": "Trips missing a loading or unloading location"
+        "no_location_hint": "Trips missing a loading or unloading location",
+        "expected_free_at": "Expected free"
     },
     "auth": {
         "welcome": "Welcome!",

@@ -717,7 +717,8 @@
         "used_fuel": "総消費量",
         "no_location": "位置なし",
         "no_location_trips": "位置なしの便",
-        "no_location_hint": "積込または荷降ろし地点がない便"
+        "no_location_hint": "積込または荷降ろし地点がない便",
+        "expected_free_at": "空き予定"
     },
     "auth": {
         "welcome": "ようこそ！",
