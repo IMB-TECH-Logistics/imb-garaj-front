@@ -2112,7 +2112,11 @@
         "map_area": "Map area",
         "plate_search": "Search by truck number",
         "no_gps_for_vehicle": "No GPS linked to this truck",
-        "order": "Order"
+        "order": "Order",
+        "picked_point": "Selected point",
+        "copy_coords": "Copy",
+        "coords_copied": "Coordinates copied",
+        "coords_copy_failed": "Could not copy — select the coordinates manually"
     },
     "settings": {
         "logs": {

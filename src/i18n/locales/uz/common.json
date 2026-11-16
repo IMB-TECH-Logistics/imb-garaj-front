@@ -2109,7 +2109,11 @@
         "map_area": "Xaritadagi hudud",
         "plate_search": "Mashina raqami bo'yicha qidirish",
         "no_gps_for_vehicle": "Bu mashinaga GPS ulanmagan",
-        "order": "Buyurtma"
+        "order": "Buyurtma",
+        "picked_point": "Tanlangan nuqta",
+        "copy_coords": "Nusxa olish",
+        "coords_copied": "Koordinata nusxalandi",
+        "coords_copy_failed": "Nusxalab bo'lmadi — koordinatani qo'lda belgilang"
     },
     "settings": {
         "logs": {

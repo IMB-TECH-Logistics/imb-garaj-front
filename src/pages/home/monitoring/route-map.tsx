@@ -4,11 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import Map, {
     Layer,
+    type MapLayerMouseEvent,
+    type MapLayerTouchEvent,
     type MapRef,
     Marker,
     NavigationControl,
+    Popup,
     Source,
 } from "react-map-gl/maplibre"
+import { toast } from "sonner"
 import GoogleRouteMap from "./google-route-map"
 import { ClusterMarker, DriverMarker, EndpointDot, PoiMarker, SpeedTooltip } from "./map-markers"
 import { type MarkerCluster, SPREAD_ZOOM, clusterMarkers, separatesAt } from "./marker-clusters"
@@ -25,6 +29,8 @@ const LOCALIZED_TEXT_FIELD: any = [
 ]
 
 const MAP_PROVIDER = import.meta.env.VITE_MAP_PROVIDER
+
+const LONG_PRESS_MS = 600
 
 const DEFAULT_CENTER = { lat: 41.31115, lng: 69.27969 }
 
@@ -164,6 +170,36 @@ function MapLibreRouteMap({
     const { t } = useTranslation()
     const mapRef = useRef<MapRef | null>(null)
     const [zoom, setZoom] = useState(11)
+    const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null)
+    const pressTimer = useRef<number | null>(null)
+    const cancelPress = () => {
+        if (pressTimer.current != null) {
+            window.clearTimeout(pressTimer.current)
+            pressTimer.current = null
+        }
+    }
+    const startPress = (e: MapLayerMouseEvent | MapLayerTouchEvent) => {
+        cancelPress()
+        const original = e.originalEvent as MouseEvent | TouchEvent
+        if ("touches" in original && original.touches.length > 1) return
+        if ("button" in original && original.button !== 0) return
+        const { lat, lng } = e.lngLat
+        pressTimer.current = window.setTimeout(() => {
+            pressTimer.current = null
+            setPicked({ lat, lng })
+        }, LONG_PRESS_MS)
+    }
+    useEffect(() => cancelPress, [])
+    const pickedText = picked ? `${picked.lat.toFixed(6)}, ${picked.lng.toFixed(6)}` : ""
+    const copyPicked = () => {
+        const done = () => toast.success(t("mon.coords_copied"))
+        const fail = () => toast.error(t("mon.coords_copy_failed"))
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(pickedText).then(done, fail)
+        } else {
+            fail()
+        }
+    }
     const clustered = useMemo(() => clusterMarkers(markers ?? [], zoom, MAPLIBRE_TILE), [markers, zoom])
 
     const zoomToCluster = (cluster: MarkerCluster) => {
@@ -325,7 +361,22 @@ function MapLibreRouteMap({
                     const segment = feature ? validSegments[feature.properties?.idx] : undefined
                     setHover(segment ? nearestPoint(segment, e.lngLat.lng, e.lngLat.lat) : null)
                 }}
-                onMouseLeave={() => setHover(null)}
+                onMouseLeave={() => {
+                    setHover(null)
+                    cancelPress()
+                }}
+                onMouseDown={startPress}
+                onMouseUp={cancelPress}
+                onTouchStart={startPress}
+                onTouchEnd={cancelPress}
+                onTouchCancel={cancelPress}
+                onDragStart={cancelPress}
+                onZoomStart={cancelPress}
+                onContextMenu={(e) => {
+                    e.preventDefault()
+                    cancelPress()
+                    setPicked({ lat: e.lngLat.lat, lng: e.lngLat.lng })
+                }}
                 onZoomEnd={(e) => setZoom(e.viewState.zoom)}
                 onMoveEnd={reportBounds}
                 onLoad={(e) => {
@@ -540,6 +591,39 @@ function MapLibreRouteMap({
                         <PoiMarker poi={p} />
                     </Marker>
                 ))}
+
+                {picked && (
+                    <Popup
+                        latitude={picked.lat}
+                        longitude={picked.lng}
+                        anchor="bottom"
+                        closeOnClick={false}
+                        onClose={() => setPicked(null)}
+                        maxWidth="260px"
+                    >
+                        <div className="flex flex-col gap-1.5 pr-3 text-xs text-slate-900">
+                            <span className="font-medium text-slate-500">{t("mon.picked_point")}</span>
+                            <code className="select-all font-mono text-[13px]">{pickedText}</code>
+                            <div className="flex gap-1.5">
+                                <button
+                                    type="button"
+                                    className="rounded bg-slate-900 px-2 py-1 font-medium text-white hover:bg-slate-700"
+                                    onClick={copyPicked}
+                                >
+                                    {t("mon.copy_coords")}
+                                </button>
+                                <a
+                                    href={`https://www.google.com/maps?q=${picked.lat.toFixed(6)},${picked.lng.toFixed(6)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="rounded border border-slate-300 px-2 py-1 font-medium text-slate-700 hover:bg-slate-100"
+                                >
+                                    Google Maps
+                                </a>
+                            </div>
+                        </div>
+                    </Popup>
+                )}
             </Map>
 
             {/* edge vignette — subtle dark fade for a 'screen' feel */}

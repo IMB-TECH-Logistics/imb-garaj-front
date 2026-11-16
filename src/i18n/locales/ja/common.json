@@ -2113,7 +2113,11 @@
         "map_area": "地図上のエリア",
         "plate_search": "車両番号で検索",
         "no_gps_for_vehicle": "この車両にGPSが接続されていません",
-        "order": "注文"
+        "order": "注文",
+        "picked_point": "選択した地点",
+        "copy_coords": "コピー",
+        "coords_copied": "座標をコピーしました",
+        "coords_copy_failed": "コピーできませんでした。座標を手動で選択してください"
     },
     "settings": {
         "logs": {
