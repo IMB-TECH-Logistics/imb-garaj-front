@@ -84,6 +84,10 @@ export default function ManagerReys() {
             ...(kind ? REYS_KIND_PARAMS[kind] : {}),
         },
     })
+    const { data: reysCount } = useGet<ListResponse<ManagerOrders>>(`${MANAGERS_ORDERS}`, {
+        params: { trip: tripId, page_size: 1, activity: REYS_KIND_PARAMS.reys.activity },
+        enabled: !!tripId,
+    })
     const canEditOrder = useHasAction("manager_flights_edit_control")
     const canDeleteOrder = useHasAction("manager_flights_delete_control")
     const hasControl = useHasAction("manager_vehicles_control")
@@ -312,7 +316,7 @@ export default function ManagerReys() {
                     <div className="mb-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <InlineBreadcrumb
-                                counts={[vehiclesCount?.count, tripsCount?.count, data?.count]}
+                                counts={[vehiclesCount?.count, tripsCount?.count, tripId ? reysCount?.count : data?.count]}
                                 trailing={<span>{tripLabel}</span>}
                             />
                             <ReysFilters
