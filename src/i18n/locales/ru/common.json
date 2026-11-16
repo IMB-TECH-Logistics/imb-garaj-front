@@ -195,7 +195,9 @@
         "garage_areas": "Зоны гаража",
         "investors_list": "Список инвесторов",
         "contragents": "Контрагенты",
-        "fin_report": "Финансовый отчёт"
+        "fin_report": "Финансовый отчёт",
+        "investor_results": "Результаты",
+        "investors_info": "Инвесторы: инфо"
     },
     "actions": {
         "reverse_salary": "Сторнировать",

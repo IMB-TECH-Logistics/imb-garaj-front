@@ -195,7 +195,9 @@
         "garage_areas": "Garage areas",
         "investors_list": "Investor list",
         "contragents": "Counterparties",
-        "fin_report": "Financial report"
+        "fin_report": "Financial report",
+        "investor_results": "Results",
+        "investors_info": "Investors info"
     },
     "actions": {
         "reverse_salary": "Reverse payout",

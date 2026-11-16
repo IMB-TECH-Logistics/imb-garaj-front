@@ -195,7 +195,9 @@
         "garage_areas": "Гараж ҳудудлари",
         "investors_list": "Инвесторлар рўйхати",
         "contragents": "Контрагентлар",
-        "fin_report": "Молиявий ҳисобот"
+        "fin_report": "Молиявий ҳисобот",
+        "investor_results": "Натижалар",
+        "investors_info": "Инвесторлар инфо"
     },
     "actions": {
         "reverse_salary": "Сторно қилиш",

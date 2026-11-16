@@ -195,7 +195,9 @@
         "garage_areas": "ガレージエリア",
         "investors_list": "投資家一覧",
         "contragents": "取引先",
-        "fin_report": "財務報告"
+        "fin_report": "財務報告",
+        "investor_results": "結果",
+        "investors_info": "投資家情報"
     },
     "actions": {
         "reverse_salary": "取り消す",

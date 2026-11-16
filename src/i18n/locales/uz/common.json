@@ -195,7 +195,9 @@
         "garage_areas": "Garaj hududlari",
         "investors_list": "Investorlar ro'yxati",
         "contragents": "Kontragentlar",
-        "fin_report": "Moliyaviy hisobot"
+        "fin_report": "Moliyaviy hisobot",
+        "investor_results": "Natijalar",
+        "investors_info": "Investorlar info"
     },
     "actions": {
         "reverse_salary": "Storno qilish",

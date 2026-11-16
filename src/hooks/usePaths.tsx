@@ -15,7 +15,6 @@ import {
     User,
     Users,
     Wallet,
-    HandCoins,
     Contact,
     FileSpreadsheet,
     Landmark,
@@ -349,18 +348,24 @@ export const useItems = () => {
                 label: t("nav.investor_dashboard"),
                 icon: <BarChart3 width={18} />,
                 path: "/investorlar",
-                allowKey: "investor_view",
-            },
-            ...(investorsV1 ?
-                [
+                extraPaths: investorsV1 ? ["/investor-royxati"] : [],
+                items: [
                     {
-                        label: t("nav.investors_list"),
-                        icon: <HandCoins width={18} />,
-                        path: "/investor-royxati",
+                        label: t("nav.investor_results"),
+                        path: "/investorlar",
                         allowKey: "investor_view",
                     },
-                ]
-            :   []),
+                    ...(investorsV1 ?
+                        [
+                            {
+                                label: t("nav.investors_info"),
+                                path: "/investor-royxati",
+                                allowKey: "investor_view",
+                            },
+                        ]
+                    :   []),
+                ],
+            },
             ...(kontragentOn ?
                 [
                     {
