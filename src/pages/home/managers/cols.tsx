@@ -138,16 +138,6 @@ export const useColumnsManagersVehicles = (onShowLocation: (vehicle: ManagerVehi
                 },
             },
             {
-                accessorKey: "expected_arrival",
-                header: t("table.expected_arrival"),
-                enableSorting: false,
-                cell: ({ row }) => {
-                    const { expected_arrival } = row.original
-                    if (!expected_arrival) return <span className="text-muted-foreground">-</span>
-                    return <span className="whitespace-nowrap">{formatDateTime(expected_arrival)}</span>
-                },
-            },
-            {
                 accessorKey: "expected_free_at",
                 header: t("table.expected_free_at"),
                 enableSorting: false,
