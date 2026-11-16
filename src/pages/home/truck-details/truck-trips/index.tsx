@@ -9,9 +9,10 @@ import { useOrderCols, TripDailyStatisticType } from "./cols"
 import ExpenseDialog from "./expense-dialog"
 
 const ORDER_TYPE_EMPTY = 2
+const ACTIVITY_REYS = 1
 
 const isUnpriced = (row: any) =>
-    !row.is_leg && !row.is_residual && !row.is_summary && row.type !== ORDER_TYPE_EMPTY && !(Number(row.income) > 0)
+    !row.is_leg && !row.is_residual && !row.is_summary && row.type !== ORDER_TYPE_EMPTY && (row.activity == null || row.activity === ACTIVITY_REYS) && !(Number(row.income) > 0)
 
 const VehicleTrips = () => {
     const { t } = useTranslation()
