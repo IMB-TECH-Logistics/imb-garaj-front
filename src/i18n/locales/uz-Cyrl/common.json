@@ -2749,7 +2749,10 @@
             "no_cargo": "Юксиз",
             "direction_location": "Йўналиш/Жойлашув",
             "in_garage": "Гаражда",
-            "in_garage_waiting": "Гаражда"
+            "in_garage_waiting": "Гаражда",
+            "state": "Ҳолат",
+            "state_free": "Бўш (рейс йўқ)",
+            "state_idle": "1 кундан ортиқ бўш"
         },
         "status": {
             "pending": "Кутилмоқда",

@@ -2762,7 +2762,10 @@
             "no_cargo": "Yuksiz",
             "direction_location": "Yo'nalish/Joylashuv",
             "in_garage": "Garajda",
-            "in_garage_waiting": "Garajda"
+            "in_garage_waiting": "Garajda",
+            "state": "Holat",
+            "state_free": "Bo'sh (reys yo'q)",
+            "state_idle": "1 kundan ortiq bo'sh"
         },
         "status": {
             "pending": "Kutilmoqda",

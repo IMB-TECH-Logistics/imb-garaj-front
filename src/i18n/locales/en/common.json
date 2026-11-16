@@ -2765,7 +2765,10 @@
             "no_cargo": "No cargo",
             "direction_location": "Direction/Location",
             "in_garage": "In garage",
-            "in_garage_waiting": "In garage"
+            "in_garage_waiting": "In garage",
+            "state": "Status",
+            "state_free": "Free (no trip)",
+            "state_idle": "Idle over 1 day"
         },
         "status": {
             "pending": "Pending",

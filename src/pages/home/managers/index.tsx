@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react"
+import { ParamCombobox } from "@/components/as-params/combobox"
 import ParamInput from "@/components/as-params/input"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
@@ -24,6 +25,7 @@ export default function Managers() {
                 page_size:search.page_size,
                 page:search.page,
                 search:search.search,
+                state:(search as Record<string, any>).state,
                 ordering:(search as Record<string, any>).ordering ?? "pending_orders",
             }
         })
@@ -34,6 +36,15 @@ export default function Managers() {
         [t("trips.managers.transports"), data?.count],
         [t("page.turnovers"), tripsTotal?.count],
         [t("page.trips"), ordersTotal?.count],
+    ]
+    const stateOptions = [
+        { id: "reys", name: t("trips.managers.on_trip") },
+        { id: "garaj", name: t("status.in_garage") },
+        { id: "remont", name: t("status.repair") },
+        { id: "prastoy", name: t("status.idle_stop") },
+        { id: "navbat", name: t("status.in_queue") },
+        { id: "bosh", name: t("trips.managers.state_free") },
+        { id: "idle", name: t("trips.managers.state_idle") },
     ]
     const navigate = useNavigate()
 
@@ -84,12 +95,22 @@ export default function Managers() {
                                     </div>
                                 )}
                             </div>
-                            <ParamInput
-                                searchKey="search"
-                                placeholder={t("actions.search")}
-                                wrapperClassName="!h-9 !w-44 sm:!w-60 shrink-0"
-                                className="!h-9 text-sm"
-                            />
+                            <div className="flex flex-wrap items-center gap-2">
+                                <ParamCombobox
+                                    paramName="state"
+                                    options={stateOptions}
+                                    label={t("trips.managers.state")}
+                                    isSearch={false}
+                                    asloClear={["page"]}
+                                    addButtonProps={{ className: "!h-9 min-w-44 justify-between !bg-background dark:!bg-secondary" }}
+                                />
+                                <ParamInput
+                                    searchKey="search"
+                                    placeholder={t("actions.search")}
+                                    wrapperClassName="!h-9 !w-44 sm:!w-60 shrink-0"
+                                    className="!h-9 text-sm"
+                                />
+                            </div>
                         </div>
                     </div>
                 }

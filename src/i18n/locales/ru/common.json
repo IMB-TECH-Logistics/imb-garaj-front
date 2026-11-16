@@ -2771,7 +2771,10 @@
             "no_cargo": "Без груза",
             "direction_location": "Направление/Местоположение",
             "in_garage": "В гараже",
-            "in_garage_waiting": "В гараже"
+            "in_garage_waiting": "В гараже",
+            "state": "Статус",
+            "state_free": "Свободен (нет рейса)",
+            "state_idle": "Простой более 1 дня"
         },
         "status": {
             "pending": "Ожидает",
