@@ -155,6 +155,7 @@ export type KassaRequest = {
     can_manage?: boolean
     reverse_tx?: number | null
     can_unreject?: boolean
+    advance_source?: { id: string; name: string | null } | null
 }
 
 export type KassaTrip = {

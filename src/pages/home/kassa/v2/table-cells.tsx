@@ -29,6 +29,17 @@ export const Party = ({ name, trip, plate }: { name: string | null; trip: number
     )
 }
 
+export const KindWithFrom = ({ label, from }: { label: string; from: string | null }) => {
+    const { t } = useTranslation()
+    if (!from) return <>{label}</>
+    return (
+        <div className="flex flex-col">
+            <span>{label}</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">{t("fin.kv2.from_who", { name: from })}</span>
+        </div>
+    )
+}
+
 export const Note = ({ v }: { v: string | null | undefined }) => <span className="text-muted-foreground line-clamp-2 max-w-48">{v || "—"}</span>
 
 export const CloseLines = ({ c }: { c: CloseBreakdown }) => {

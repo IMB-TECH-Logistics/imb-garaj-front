@@ -42,6 +42,7 @@ import {
 } from "./api"
 import { CloseLines } from "./tables"
 import { M } from "./modal-keys"
+import { advanceFrom } from "./kassa-rows"
 import { useAmountRules, toLocalInput, onErr } from "./modal-utils"
 import { Save } from "./modal-save"
 export { M } from "./modal-keys"
@@ -311,6 +312,7 @@ export const PayModal = ({ request }: { request: KassaRequest | null }) => {
         <div className="flex flex-col gap-4">
             <p className="text-sm">
                 <b>{money(request.amount)} {t("page.som")}</b> · {request.close ? t("fin.kv2.close_turnover_n", { id: request.trip }) : request.kind_label} · {request.driver_name || "—"}
+                {advanceFrom(request, t("fin.kv2.from_kassa")) && <> · {t("fin.kv2.from_who", { name: advanceFrom(request, t("fin.kv2.from_kassa")) })}</>}
             </p>
             {request.close && (
                 <div className="rounded-lg border px-3 py-2">

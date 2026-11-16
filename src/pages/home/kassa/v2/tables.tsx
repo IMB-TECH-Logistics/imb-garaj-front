@@ -34,10 +34,10 @@ import {
     useOverview,
     usePeriod,
 } from "./api"
-import { Money, Party, DateCell, Head, Filter } from "./table-cells"
+import { Money, Party, DateCell, Head, Filter, KindWithFrom } from "./table-cells"
 import { EXCEL_MODAL, ExcelModal } from "./excel-modal"
 import { usePaging, paginationProps } from "./table-utils"
-import { KassaRow, requestRow, kindFilters, requestKindFilter, mergeCloses } from "./kassa-rows"
+import { KassaRow, requestRow, kindFilters, requestKindFilter, mergeCloses, advanceFrom } from "./kassa-rows"
 import { DETAIL_MODAL, CloseDetailModal } from "./close-detail-modal"
 export { CloseLines } from "./table-cells"
 export { RequestsTable } from "./requests-table"
@@ -143,7 +143,7 @@ export const KassaTable = ({ switcher, actions, onEdit, onDelete, onReverse, onR
                 cell: ({ row }) =>
                     (row.original.kind === "chiqim" || row.original.kind === "income") && (row.original.comment || row.original.category_name) ?
                         [row.original.category_name, row.original.comment].filter(Boolean).join(" · ")
-                    :   row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : ""),
+                    :   <KindWithFrom label={row.original.kind_label + (row.original.expense_type ? ` · ${row.original.expense_type}` : "")} from={advanceFrom(row.original.req, t("fin.kv2.from_kassa"))} />,
             },
             {
                 header: t("fin.kv2.col_total"),

@@ -9,9 +9,9 @@ import { ReactNode, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { errorText, fmtDate, KassaRequest, KIND_DIR, KV2_REQUESTS, money, n, Paged, STATUS, useKassaPost, useKassaRoles } from "./api"
-import { Money, Party, Note, CloseLines, DateCell, Head, Filter } from "./table-cells"
+import { Money, Party, Note, CloseLines, DateCell, Head, Filter, KindWithFrom } from "./table-cells"
 import { usePaging, paginationProps } from "./table-utils"
-import { requestWho } from "./kassa-rows"
+import { requestWho, advanceFrom, requestNote } from "./kassa-rows"
 
 const REQ_STATUS: Record<number, [string, "orange" | "default" | "destructive" | "secondary"]> = {
     [STATUS.PENDING]: ["status.pending", "orange"],
@@ -48,7 +48,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
             {
                 header: t("fin.kv2.col_kind"),
                 accessorKey: "kind_label",
-                cell: ({ row }) => row.original.close ? t("fin.kv2.close_turnover") : row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : ""),
+                cell: ({ row }) => row.original.close ? t("fin.kv2.close_turnover") : <KindWithFrom label={row.original.kind_label + (row.original.expense_type_label ? ` · ${row.original.expense_type_label}` : "")} from={advanceFrom(row.original, t("fin.kv2.from_kassa"))} />,
             },
             { header: t("fin.kv2.col_to_what"), id: "who", cell: ({ row }) => <Party name={requestWho(row.original)} trip={row.original.trip} plate={row.original.trip ? row.original.plate : null} /> },
             {
@@ -56,7 +56,7 @@ export const RequestsTable = ({ switcher, onReject, onPay, onEdit, actions }: {
                 accessorKey: "comment",
                 cell: ({ row }) => row.original.close ? <CloseLines c={row.original.close} /> : (
                     <div className="flex flex-col">
-                        <Note v={row.original.comment} />
+                        <Note v={requestNote(row.original.comment)} />
                         {row.original.expected_amount != null && n(row.original.expected_amount) !== n(row.original.amount) && (
                             <span className="text-xs text-orange-500 whitespace-nowrap">
                                 {t("fin.kv2.expected_note", { amount: money(row.original.expected_amount) })}

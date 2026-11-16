@@ -1620,6 +1620,8 @@
             "tab_vehicle_expenses": "Vehicle expenses"
         },
         "kv2": {
+            "from_who": "From: {{name}}",
+            "from_kassa": "Cash desk",
             "year": "Year",
             "month": "Month",
             "left_after_close": "Changed after close: {{amount}}",

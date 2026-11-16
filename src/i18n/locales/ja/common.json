@@ -1623,6 +1623,8 @@
             "tab_vehicle_expenses": "車両費用"
         },
         "kv2": {
+            "from_who": "出金元: {{name}}",
+            "from_kassa": "レジ",
             "year": "年",
             "month": "月",
             "non_trip_expenses": "運行外費用",

@@ -13,7 +13,7 @@ export const requestRow = (r: KassaRequest): KassaRow => ({
     plate: r.trip ? r.plate : null,
     driver: r.driver,
     trip: r.trip,
-    comment: r.comment,
+    comment: requestNote(r.comment),
     executor_name: r.creator_name,
     created: r.created,
     edited_at: null,
@@ -58,6 +58,13 @@ export const mergeCloses = (list: KassaRow[], closeLabel: string): KassaRow[] =>
 
 const dm = (d: string | null) => (d ? `${d.slice(8, 10)}.${d.slice(5, 7)}` : "…")
 export const tripPeriod = (a: string | null, b: string | null, ongoing: string) => `${dm(a)} – ${b ? dm(b) : ongoing}`
+
+export const advanceFrom = (r: KassaRequest | null | undefined, kassaLabel: string) => {
+    if (!r || (r.kind !== "avans" && r.kind !== "qoshimcha")) return null
+    return r.advance_source ? r.advance_source.name || "—" : kassaLabel
+}
+
+export const requestNote = (c: string | null | undefined) => (c ? c.replace(/(^|\s·\s)Kimdan: [^·]*$/, "").trim() || null : c ?? null)
 
 export const requestWho = (r: KassaRequest) => {
     if (r.kind !== "garaj_xarajat") return r.driver_name

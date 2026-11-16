@@ -1617,6 +1617,8 @@
             "tab_vehicle_expenses": "Mashina xarajatlari"
         },
         "kv2": {
+            "from_who": "Kimdan: {{name}}",
+            "from_kassa": "Kassa",
             "year": "Yil",
             "month": "Oy",
             "left_after_close": "Yopilgandan keyin o'zgargan: {{amount}}",

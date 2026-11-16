@@ -1606,6 +1606,8 @@
             "tab_vehicle_expenses": "Машина харажатлари"
         },
         "kv2": {
+            "from_who": "Кимдан: {{name}}",
+            "from_kassa": "Касса",
             "year": "Йил",
             "month": "Ой",
             "non_trip_expenses": "Рейсдан ташқари харажатлар",

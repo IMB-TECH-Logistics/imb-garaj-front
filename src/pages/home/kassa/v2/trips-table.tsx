@@ -28,7 +28,7 @@ import {
     usePeriod,
 } from "./api"
 import { Money, Head, Part } from "./table-cells"
-import { KassaRow, requestRow, tripPeriod } from "./kassa-rows"
+import { KassaRow, requestRow, tripPeriod, advanceFrom } from "./kassa-rows"
 import { DETAIL_MODAL, TRIP_EXP_MODAL, TripExpensesModal, CloseDetailModal } from "./close-detail-modal"
 
 const STATUS_ORDER: Record<string, number> = {
@@ -138,7 +138,7 @@ export const TripsTable = ({ switcher, onPay, onReject, onReverse, actions }: {
                             <Part v={tr.given} sign="−" />
                             {tr.avans_request && (
                                 <span className={cn("text-xs whitespace-nowrap", tr.avans_request.status === STATUS.REJECTED ? "text-destructive" : "text-orange-500")}>
-                                    {tr.avans_request.status === STATUS.REJECTED ? t("fin.kv2.advance_rejected_lbl") : t("fin.kv2.advance_requested_lbl")}: {money(tr.avans_request.amount)}
+                                    {tr.avans_request.status === STATUS.REJECTED ? t("fin.kv2.advance_rejected_lbl") : t("fin.kv2.advance_requested_lbl")}: {money(tr.avans_request.amount)} · {advanceFrom(tr.avans_request, t("fin.kv2.from_kassa"))}
                                 </span>
                             )}
                         </div>
