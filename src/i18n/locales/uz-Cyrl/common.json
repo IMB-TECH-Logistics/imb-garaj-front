@@ -1316,7 +1316,11 @@
             "soon": "Яқинлашмоқда",
             "expired_count": "{{count}} та эскирган",
             "soon_count": "{{count}} та яқинлашмоқда",
-            "no_expenses": "Бу даврда харажат йўқ"
+            "no_expenses": "Бу даврда харажат йўқ",
+            "state": "Ҳолат",
+            "state_choose": "Танланг",
+            "state_on_reys": "Рейсда",
+            "state_changed": "Ҳолат ўзгартирилди"
         }
     },
     "route_norms": {

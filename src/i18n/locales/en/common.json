@@ -1330,7 +1330,11 @@
             "trailer": "Trailer",
             "expired_count": "{{count}} expired",
             "soon_count": "{{count}} expiring",
-            "no_expenses": "No expenses in this period"
+            "no_expenses": "No expenses in this period",
+            "state": "State",
+            "state_choose": "Choose",
+            "state_on_reys": "On trip",
+            "state_changed": "State changed"
         }
     },
     "route_norms": {

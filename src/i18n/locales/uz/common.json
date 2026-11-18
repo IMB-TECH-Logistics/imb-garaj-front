@@ -1327,7 +1327,11 @@
             "trailer": "Tirkama",
             "expired_count": "{{count}} ta eskirgan",
             "soon_count": "{{count}} ta yaqinlashmoqda",
-            "no_expenses": "Bu davrda xarajat yo'q"
+            "no_expenses": "Bu davrda xarajat yo'q",
+            "state": "Holat",
+            "state_choose": "Tanlang",
+            "state_on_reys": "Reysda",
+            "state_changed": "Holat o'zgartirildi"
         }
     },
     "route_norms": {

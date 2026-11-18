@@ -1336,7 +1336,11 @@
             "trailer": "Прицеп",
             "expired_count": "{{count}} просрочено",
             "soon_count": "{{count}} скоро истекает",
-            "no_expenses": "За этот период расходов нет"
+            "no_expenses": "За этот период расходов нет",
+            "state": "Состояние",
+            "state_choose": "Выберите",
+            "state_on_reys": "В рейсе",
+            "state_changed": "Состояние изменено"
         }
     },
     "route_norms": {

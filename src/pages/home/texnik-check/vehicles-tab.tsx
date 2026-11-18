@@ -4,6 +4,7 @@ import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/datatable"
+import Select from "@/components/ui/select"
 import {
     Sheet,
     SheetContent,
@@ -25,14 +26,18 @@ import {
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { usePost } from "@/hooks/usePost"
 import { formatMoney, formatNumber } from "@/lib/format-money"
+import { handleFormError } from "@/lib/show-form-errors"
 import { cn } from "@/lib/utils"
 import { useGlobalStore } from "@/store/global-store"
+import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Plus } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
 import ItemDetailSheet from "../ombor/items/detail-sheet"
 import { fmtDate, toNumber } from "../ombor/utils"
 import AddExpenseModal from "./add-expense"
@@ -59,6 +64,8 @@ type InstalledItem = {
     days_left: number | null
 }
 
+type GarageState = "garaj" | "remont"
+
 type VehicleRow = {
     id: number
     truck_number: string
@@ -67,6 +74,11 @@ type VehicleRow = {
     expired: number
     expiring: number
     items: InstalledItem[]
+    garage_state?: {
+        state: GarageState | null
+        since: string | null
+        on_reys: boolean
+    } | null
 }
 
 const STATUS_CLASS: Record<string, string> = {
@@ -91,6 +103,54 @@ const StatusBadge = ({ item }: { item: InstalledItem }) => {
                 t("texnik.vehicles.ok")
             :   lifespanHint(item.days_left)}
         </span>
+    )
+}
+
+const GARAGE_STATE_LABEL: Record<GarageState, string> = {
+    garaj: "status.in_garage",
+    remont: "status.repair",
+}
+
+const GarageStateCell = ({ row, canControl }: { row: VehicleRow; canControl: boolean }) => {
+    const { t } = useTranslation()
+    const queryClient = useQueryClient()
+    const { mutate, isPending } = usePost({
+        onSuccess: () => {
+            toast.success(t("texnik.vehicles.state_changed"))
+            queryClient.invalidateQueries({
+                predicate: (q) => String(q.queryKey[0]).startsWith(TECHNICAL_INSPECT_INSTALLED),
+            })
+        },
+        onError: (e: unknown) => handleFormError(e),
+    })
+    const info = row.garage_state
+    if (!info) return <span className="text-muted-foreground">—</span>
+    if (info.on_reys) {
+        return <Badge variant="outline">{t("texnik.vehicles.state_on_reys")}</Badge>
+    }
+    if (!canControl) {
+        return info.state ?
+                <Badge variant="outline">{t(GARAGE_STATE_LABEL[info.state])}</Badge>
+            :   <span className="text-muted-foreground">—</span>
+    }
+    return (
+        <div className="w-36" onClick={(e) => e.stopPropagation()}>
+            <Select
+                value={info.state ?? ""}
+                setValue={(state: string) =>
+                    mutate(`${TECHNICAL_INSPECT}/vehicles/${row.id}/state`, { state })
+                }
+                disabled={isPending}
+                placeholder={t("texnik.vehicles.state_choose")}
+                label={t("texnik.vehicles.state")}
+                options={(Object.keys(GARAGE_STATE_LABEL) as GarageState[]).map((id) => ({
+                    id,
+                    name: t(GARAGE_STATE_LABEL[id]),
+                }))}
+                valueKey="id"
+                labelKey="name"
+            />
+        </div>
     )
 }
 
@@ -306,6 +366,11 @@ const VehiclesTab = () => {
                 cell: ({ row }) => row.original.driver_name || "—",
             },
             {
+                id: "garage_state",
+                header: t("texnik.vehicles.state"),
+                cell: ({ row }) => <GarageStateCell row={row.original} canControl={canControl} />,
+            },
+            {
                 id: "items",
                 header: t("texnik.vehicles.installed"),
                 cell: ({ row }) => row.original.items.length || "—",
@@ -332,7 +397,7 @@ const VehiclesTab = () => {
                 ),
             },
         ],
-        [t],
+        [t, canControl],
     )
 
     const rows = useMemo(() => (data ?? []).filter((r) => (r.kind ?? "truck") === kind), [data, kind])
