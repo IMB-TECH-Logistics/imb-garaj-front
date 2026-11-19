@@ -235,7 +235,7 @@ export const useColumnsManagersOrders = (opts?: {
                 size: 120,
                 cell: ({ row }) => {
                     const extId = row.original.external_id
-                    if (!extId) return <span className="text-muted-foreground">—</span>
+                    if (!extId || String(extId).startsWith("garaj:")) return <span className="text-muted-foreground">—</span>
                     return (
                         <span
                             className="inline-flex items-center gap-1 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"

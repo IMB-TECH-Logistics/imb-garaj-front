@@ -43,7 +43,7 @@ export const useAccountingCols = () => {
                 cell({ row: { original } }) {
                     return (
                         <div>
-                            {original?.external_id ?
+                            {original?.external_id && !String(original.external_id).startsWith("garaj:") ?
                                 CopyButton(original?.external_id)
                             :   "-"}
                         </div>
