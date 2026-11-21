@@ -324,6 +324,7 @@
         "truck_model": "Модель автомобиля",
         "trailer_number": "Номер прицепа",
         "trailer_type": "Тип прицепа",
+        "trailer_capacity_tons": "Грузоподъёмность (т)",
         "fuel_type": "Тип топлива",
         "order_type": "Тип заказа",
         "trip_type": "Тип рейса",

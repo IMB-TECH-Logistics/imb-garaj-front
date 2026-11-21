@@ -154,6 +154,15 @@ export const useColumnsTrailersTable = () => {
                 cell: ({ row }) => row.original.trailer_type_name || "-",
             },
             {
+                accessorKey: "trailer_capacity_tons",
+                header: t("form.trailer_capacity_tons"),
+                enableSorting: false,
+                cell: ({ row }) =>
+                    row.original.trailer_capacity_tons != null ?
+                        `${Number(row.original.trailer_capacity_tons)} t`
+                    :   "-",
+            },
+            {
                 accessorKey: "driver_name",
                 header: t("form.driver"),
                 enableSorting: true,

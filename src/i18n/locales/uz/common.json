@@ -324,6 +324,7 @@
         "truck_model": "Avtomobil modeli",
         "trailer_number": "Tirkama raqami",
         "trailer_type": "Tirkama turi",
+        "trailer_capacity_tons": "Yuk ko'tarish kuchi (t)",
         "fuel_type": "Yoqilg'i turi",
         "order_type": "Buyurtma turi",
         "trip_type": "Reys turi",

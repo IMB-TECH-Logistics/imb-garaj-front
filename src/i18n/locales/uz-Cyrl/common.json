@@ -324,6 +324,7 @@
         "truck_model": "Автомобил модели",
         "trailer_number": "Тиркама рақами",
         "trailer_type": "Тиркама тури",
+        "trailer_capacity_tons": "Юк кўтариш кучи (т)",
         "fuel_type": "Ёқилғи тури",
         "order_type": "Буюртма тури",
         "trip_type": "Рейс тури",

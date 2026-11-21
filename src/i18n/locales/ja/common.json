@@ -324,6 +324,7 @@
         "truck_model": "車両モデル",
         "trailer_number": "トレーラー番号",
         "trailer_type": "トレーラー種別",
+        "trailer_capacity_tons": "積載量 (t)",
         "fuel_type": "燃料種別",
         "order_type": "注文種別",
         "trip_type": "便種別",

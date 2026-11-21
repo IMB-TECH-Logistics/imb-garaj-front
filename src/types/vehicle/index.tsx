@@ -27,6 +27,7 @@ type VehicleCashflowsType = {
 }
 
 type VehicleDetailType = {
+    trailer_capacity_tons?: number | null
     id: number
     note?: string
     trailer_note?: string
