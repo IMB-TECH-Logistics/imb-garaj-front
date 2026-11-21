@@ -15,6 +15,7 @@ export type TechRow = {
     tires: { total: number; positions: number; warn: number; over: number }
     oil: { pct: number | null; status: TechStatus }
     inspection: { lifespan: string | null; status: TechStatus }
+    capacity_tons: number | null
 }
 
 export type Axle = { dual: boolean }
@@ -75,6 +76,7 @@ export type Passport = {
     tires: Tire[]
     oil: Oil | null
     documents: PassportDocument[]
+    capacity_tons: number | null
     can_control: boolean
 }
 
