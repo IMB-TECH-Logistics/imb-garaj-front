@@ -1,4 +1,5 @@
 import FormInput from "@/components/form/input"
+import { FormNumberInput } from "@/components/form/number-input"
 import { FormCombobox } from "@/components/form/combobox"
 import { Button } from "@/components/ui/button"
 import { VEHICLES, SETTINGS_VEHICLE_TYPE } from "@/constants/api-endpoints"
@@ -15,6 +16,7 @@ type TrailerForm = {
     vehicle: number | null
     trailer_number: string
     trailer_type: number | null
+    trailer_capacity_tons: string
 }
 
 const AddTrailerModal = () => {
@@ -41,6 +43,10 @@ const AddTrailerModal = () => {
             vehicle: current?.id ?? null,
             trailer_number: current?.trailer_number ?? "",
             trailer_type: current?.trailer_type ?? null,
+            trailer_capacity_tons:
+                current?.trailer_capacity_tons != null ?
+                    String(current.trailer_capacity_tons)
+                :   "",
         },
     })
     const { handleSubmit, reset, control } = form
@@ -59,6 +65,10 @@ const AddTrailerModal = () => {
         mutate(`${VEHICLES}/${values.vehicle}`, {
             trailer_number: values.trailer_number,
             trailer_type: values.trailer_type,
+            trailer_capacity_tons:
+                values.trailer_capacity_tons === "" ?
+                    null
+                :   values.trailer_capacity_tons,
         })
     }
 
@@ -97,6 +107,16 @@ const AddTrailerModal = () => {
                         control={control}
                         labelKey="name"
                         valueKey="id"
+                    />
+
+                    <FormNumberInput
+                        name="trailer_capacity_tons"
+                        label={t("form.trailer_capacity_tons")}
+                        control={control}
+                        placeholder="24"
+                        thousandSeparator=""
+                        decimalScale={2}
+                        allowNegative={false}
                     />
                 </div>
             </section>

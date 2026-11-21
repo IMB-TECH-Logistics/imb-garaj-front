@@ -324,6 +324,7 @@
         "truck_model": "Vehicle model",
         "trailer_number": "Trailer Number",
         "trailer_type": "Trailer Type",
+        "trailer_capacity_tons": "Load capacity (t)",
         "fuel_type": "Fuel Type",
         "order_type": "Order Type",
         "trip_type": "Trip Type",
