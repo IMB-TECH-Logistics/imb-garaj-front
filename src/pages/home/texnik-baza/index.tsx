@@ -23,6 +23,7 @@ import { fmtDate } from "../ombor/utils"
 import AddTrailer from "./add-trailer"
 import StatusDot from "./status-dot"
 import type { TechKind, TechRow } from "./types"
+import { fmtTons } from "./utils"
 
 const pctLabel = (pct: number | null) =>
     pct === null ? "—" : `${Math.round(pct)}%`
@@ -104,6 +105,9 @@ const TexnikBaza = () => {
                             {kind === "truck" && (
                                 <TableHead>{t("tb.driver")}</TableHead>
                             )}
+                            {kind === "trailer" && (
+                                <TableHead>{t("tb.capacity_tons")}</TableHead>
+                            )}
                             <TableHead>{t("tb.tires")}</TableHead>
                             <TableHead>{t("tb.oil")}</TableHead>
                             <TableHead>{t("tb.inspection")}</TableHead>
@@ -162,6 +166,13 @@ const TexnikBaza = () => {
                                     {kind === "truck" && (
                                         <TableCell>
                                             {row.driver_name ?? "—"}
+                                        </TableCell>
+                                    )}
+                                    {kind === "trailer" && (
+                                        <TableCell className="tabular-nums">
+                                            {row.capacity_tons === null ?
+                                                "—"
+                                            :   `${fmtTons(row.capacity_tons)} t`}
                                         </TableCell>
                                     )}
                                     <TableCell>

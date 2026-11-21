@@ -11,6 +11,7 @@ import { fmtDate } from "../ombor/utils"
 import CoupleDialog, { type CoupleMode } from "./couple-dialog"
 import DocumentsCard from "./documents-card"
 import FuelCard from "./fuel-card"
+import CapacityCard from "./capacity-card"
 import OilCard from "./oil-card"
 import TireSchema from "./tire-schema"
 import Timeline from "./timeline"
@@ -188,6 +189,13 @@ const PassportPage = () => {
                     canControl={data.can_control}
                 />
                 <div className="flex flex-col gap-4">
+                    {!isTruck && (
+                        <CapacityCard
+                            id={data.id}
+                            capacity={data.capacity_tons}
+                            canControl={data.can_control}
+                        />
+                    )}
                     <OilCard
                         id={data.id}
                         oil={data.oil}

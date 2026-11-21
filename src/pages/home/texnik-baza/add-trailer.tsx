@@ -32,6 +32,7 @@ const AddTrailer = ({ open, onOpenChange }: Props) => {
     const [typeId, setTypeId] = useState("")
     const [front, setFront] = useState<File | null>(null)
     const [back, setBack] = useState<File | null>(null)
+    const [capacity, setCapacity] = useState("")
 
     const { data: types } = useGet<{ id: number; name: string }[]>(
         SETTINGS_SELECTABLE_VEHICLE_TYPE,
@@ -46,6 +47,7 @@ const AddTrailer = ({ open, onOpenChange }: Props) => {
             setTypeId("")
             setFront(null)
             setBack(null)
+            setCapacity("")
             onOpenChange(false)
         },
         onError: (e: unknown) => handleFormError(e),
@@ -55,6 +57,8 @@ const AddTrailer = ({ open, onOpenChange }: Props) => {
         const payload = new FormData()
         payload.append("plate", plate.trim())
         if (typeId) payload.append("type_id", typeId)
+        if (capacity.trim())
+            payload.append("capacity_tons", capacity.trim().replace(",", "."))
         if (front) payload.append("trailer_front", front)
         if (back) payload.append("trailer_back", back)
         mutate(`${TECH_BASE}/trailers`, payload)
@@ -86,6 +90,15 @@ const AddTrailer = ({ open, onOpenChange }: Props) => {
                             label={t("tb.type")}
                         />
                     </div>
+                    <label className="flex flex-col gap-1.5 text-sm">
+                        {t("tb.capacity_tons")}
+                        <Input
+                            inputMode="decimal"
+                            value={capacity}
+                            onChange={(e) => setCapacity(e.target.value)}
+                            placeholder="24"
+                        />
+                    </label>
                     <label className="flex flex-col gap-1.5 text-sm">
                         {t("tb.photo_front")}
                         <Input

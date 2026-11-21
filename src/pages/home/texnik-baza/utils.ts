@@ -42,3 +42,6 @@ export const statusOf = (pct: number | null | undefined): TechStatus =>
     : pct >= 100 ? "over"
     : pct >= 80 ? "warn"
     : "ok"
+
+export const fmtTons = (value: number) =>
+    Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)))
