@@ -375,6 +375,7 @@
         "optional_comment": "コメント（任意）",
         "tariff_no": "料金未設定",
         "company_code": "会社コード",
+        "client_percent": "割合 (%)",
         "amount_total": "金額",
         "distance": "距離",
         "total_amount": "合計金額",

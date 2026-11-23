@@ -375,6 +375,7 @@
         "optional_comment": "Comment (optional)",
         "tariff_no": "no tariff",
         "company_code": "Company Code",
+        "client_percent": "Percent (%)",
         "amount_total": "Amount",
         "distance": "Distance",
         "total_amount": "Total Amount",

@@ -27,6 +27,19 @@ export const useColumnsCustomersTable = () => {
                 ),
             },
             {
+                accessorKey: "percent",
+                header: t("form.client_percent"),
+                size: 80,
+                enableSorting: false,
+                cell: ({ row }) => (
+                    <span>
+                        {row.original.percent != null && row.original.percent !== ""
+                            ? `${Number(row.original.percent)}%`
+                            : "—"}
+                    </span>
+                ),
+            },
+            {
                 id: "coordinates",
                 header: t("coordinates.title"),
                 enableSorting: false,

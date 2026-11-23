@@ -375,6 +375,7 @@
         "optional_comment": "Izoh (ixtiyoriy)",
         "tariff_no": "tarif yo'q",
         "company_code": "Firma kodi",
+        "client_percent": "Foiz (%)",
         "amount_total": "Summa",
         "distance": "Masofa",
         "total_amount": "Jami summa",

@@ -375,6 +375,7 @@
         "optional_comment": "Комментарий (необязательно)",
         "tariff_no": "тариф не указан",
         "company_code": "Код компании",
+        "client_percent": "Процент (%)",
         "amount_total": "Сумма",
         "distance": "Расстояние",
         "total_amount": "Итоговая сумма",

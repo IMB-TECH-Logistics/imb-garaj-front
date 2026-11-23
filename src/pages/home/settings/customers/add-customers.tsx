@@ -1,4 +1,5 @@
 import FormInput from "@/components/form/input"
+import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { SETTINGS_CUSTOMERS } from "@/constants/api-endpoints"
 import { useConfirm } from "@/hooks/useConfirm"
@@ -14,7 +15,11 @@ import axiosInstance from "@/services/axios-instance"
 import CoordinatesFields from "@/components/custom/coordinates-fields"
 import { formatCoordinates, parseCoordinates } from "@/lib/coordinates"
 
-type CustomerForm = CustomersType & { coordinates: string; radius_m: number | string }
+type CustomerForm = Omit<CustomersType, "percent"> & {
+    coordinates: string
+    radius_m: number | string
+    percent: number | string | null
+}
 
 const normalizeName = (value?: string) =>
     (value ?? "").trim().replace(/\s+/g, " ").toLocaleLowerCase()
@@ -33,6 +38,7 @@ const AddCustomerModal = () => {
             code: currentForwarder?.code ?? "",
             coordinates: formatCoordinates(currentForwarder?.lat, currentForwarder?.lng),
             radius_m: currentForwarder?.radius_m ?? 1000,
+            percent: currentForwarder?.percent ?? null,
         },
     })
 
@@ -79,6 +85,10 @@ const AddCustomerModal = () => {
             lat: point?.lat ?? null,
             lng: point?.lng ?? null,
             radius_m: Number(values.radius_m) || 1000,
+            percent:
+                values.percent === null || values.percent === ""
+                    ? null
+                    : Number(values.percent),
         }
 
         const name = normalizeName(values.name)
@@ -130,6 +140,19 @@ const AddCustomerModal = () => {
                         label={t("form.company_code")}
                         methods={form}
                         placeholder={t("settings.customers.code_placeholder")}
+                    />
+
+                    <FormNumberInput
+                        name="percent"
+                        label={t("form.client_percent")}
+                        placeholder="85"
+                        control={form.control}
+                        decimalScale={2}
+                        allowNegative={false}
+                        suffix="%"
+                        isAllowed={({ floatValue }) =>
+                            floatValue === undefined || floatValue <= 100
+                        }
                     />
 
                     <CoordinatesFields methods={form} />

@@ -198,6 +198,7 @@ type CustomersType = {
     lat?: number | null
     lng?: number | null
     radius_m?: number | null
+    percent?: number | string | null
     created?: string
     updated?: string
     is_deleted?: false
