@@ -1,4 +1,6 @@
+import ParamTabs from "@/components/as-params/tabs"
 import Modal from "@/components/custom/modal"
+import BalancePage from "@/pages/home/balans"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,7 +12,7 @@ import { usePost } from "@/hooks/usePost"
 import { cn } from "@/lib/utils"
 import { amountText, num, onApiError } from "@/pages/home/kontragent/api"
 import { useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { ColumnDef } from "@tanstack/react-table"
 import { format, subMonths } from "date-fns"
 import { Plus } from "lucide-react"
@@ -166,19 +168,31 @@ const FinanceReportsPage = () => {
         [t],
     )
 
+    const search = useSearch({ from: "/_main" }) as Record<string, string | undefined>
+    const tab = search.fin_tab || "reports"
+
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h1 className="text-xl font-semibold">
-                    {t("fin_report.title")}
-                </h1>
-                {canEdit && (
-                    <Button onClick={openModal}>
-                        <Plus className="w-4 h-4" />
-                        {t("fin_report.create")}
-                    </Button>
-                )}
-            </div>
+            <h1 className="sr-only">{t("fin_report.title")}</h1>
+            <ParamTabs
+                paramName="fin_tab"
+                dontCleanOthers={false}
+                options={[
+                    { value: "reports", label: t("fin_report.tab_reports") },
+                    { value: "balans", label: t("balans.title") },
+                ]}
+                right={
+                    tab === "reports" && canEdit ?
+                        <Button onClick={openModal}>
+                            <Plus className="w-4 h-4" />
+                            {t("fin_report.create")}
+                        </Button>
+                    :   undefined
+                }
+            />
+            {tab === "balans" ?
+                <BalancePage />
+            :   <>
             <Card>
                 <CardContent className="p-4">
                     <DataTable
@@ -191,6 +205,8 @@ const FinanceReportsPage = () => {
                     />
                 </CardContent>
             </Card>
+                </>
+            }
             <Modal
                 title={t("fin_report.create")}
                 modalKey={REPORT_CREATE}
