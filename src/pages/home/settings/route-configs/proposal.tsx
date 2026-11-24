@@ -2,7 +2,6 @@ import { FormDatePicker } from "@/components/form/date-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import Modal from "@/components/custom/modal"
 import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { COMMON_DIRECTIONS } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { formatMoney } from "@/lib/format-money"
@@ -11,7 +10,7 @@ import { useModal } from "@/hooks/useModal"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { Check, Pencil, X } from "lucide-react"
+import { Check, SquarePen, X } from "lucide-react"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -81,61 +80,39 @@ export const ProposalBadge = ({
     const when = proposal.created ? format(new Date(proposal.created), "dd/MM/yyyy HH:mm") : ""
 
     return (
-        <div className="mt-1 flex flex-col gap-1">
-            {canControl && (
-                <div className="flex items-center gap-1">
-                    <TooltipProvider delayDuration={200}>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-6 gap-1 px-2 text-xs text-emerald-700"
-                                    disabled={busy}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        approve(directionId, {})
-                                    }}
-                                >
-                                    <Check className="size-3" /> {t("form.dm_proposal_approve")}
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                                {t("form.dm_proposal_hint", { when })}
-                                {proposal.valid_from ? ` ${t("form.dm_proposal_from", { date: format(new Date(proposal.valid_from), "dd/MM/yyyy") })}` : ""}
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                    <Button
-                        size="icon"
-                        variant="outline"
-                        className="size-6"
-                        title={t("form.dm_proposal_edit")}
-                        disabled={busy}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            setData(STORE_KEY, { directionId, proposal, currentPrice })
-                            openModal()
-                        }}
-                    >
-                        <Pencil className="size-3" />
-                    </Button>
-                    <Button
-                        size="icon"
-                        variant="outline"
-                        className="size-6 text-destructive"
-                        title={t("form.dm_proposal_reject")}
-                        disabled={busy}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            if (window.confirm(t("form.dm_proposal_reject_confirm"))) reject(directionId)
-                        }}
-                    >
-                        <X className="size-3" />
-                    </Button>
-                </div>
-            )}
-        </div>
+        canControl ? (
+            <div className="mt-1 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                <Button
+                    variant="ghost"
+                    className="h-3 p-0"
+                    disabled={busy}
+                    title={`${t("form.dm_proposal_approve")}. ${t("form.dm_proposal_hint", { when })}${proposal.valid_from ? ` ${t("form.dm_proposal_from", { date: format(new Date(proposal.valid_from), "dd/MM/yyyy") })}` : ""}`}
+                    icon={<Check className="text-green-500" size={16} />}
+                    onClick={() => approve(directionId, {})}
+                />
+                <Button
+                    variant="ghost"
+                    className="h-3 p-0"
+                    disabled={busy}
+                    title={t("form.dm_proposal_edit")}
+                    icon={<SquarePen className="text-primary" size={16} />}
+                    onClick={() => {
+                        setData(STORE_KEY, { directionId, proposal, currentPrice })
+                        openModal()
+                    }}
+                />
+                <Button
+                    variant="ghost"
+                    className="h-3 p-0"
+                    disabled={busy}
+                    title={t("form.dm_proposal_reject")}
+                    icon={<X className="text-destructive" size={16} />}
+                    onClick={() => {
+                        if (window.confirm(t("form.dm_proposal_reject_confirm"))) reject(directionId)
+                    }}
+                />
+            </div>
+        ) : null
     )
 }
 
