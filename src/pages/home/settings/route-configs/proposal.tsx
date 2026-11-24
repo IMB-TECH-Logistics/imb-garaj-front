@@ -47,7 +47,8 @@ const useProposalActions = () => {
     const refresh = () => qc.invalidateQueries({ predicate: (q) => q.queryKey[0] === COMMON_DIRECTIONS })
     const approve = usePost({
         onSuccess: (data: { orders_updated?: number }) => {
-            toast.success(t("form.dm_proposal_approved", { count: data?.orders_updated ?? 0 }))
+            const n = data?.orders_updated ?? 0
+            toast.success(n > 0 ? t("form.dm_proposal_approved_n", { count: n }) : t("form.dm_proposal_approved"))
             refresh()
         },
         onError: (e) => toast.error(errText(e, t("messages.error"))),
@@ -85,7 +86,7 @@ export const ProposalBadge = ({
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <span className="inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-md border border-amber-400 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-                            {t("form.dm_proposal_badge")}: {formatMoney(Number(proposal.price))}
+                            {t("form.dm_proposal_badge")}
                         </span>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
@@ -130,7 +131,7 @@ export const ProposalBadge = ({
                         disabled={busy}
                         onClick={(e) => {
                             e.stopPropagation()
-                            reject(directionId)
+                            if (window.confirm(t("form.dm_proposal_reject_confirm"))) reject(directionId)
                         }}
                     >
                         <X className="size-3" />
@@ -173,7 +174,6 @@ const EditForm = () => {
             <p className="text-sm text-muted-foreground">
                 {t("form.dm_proposal_edit_hint", {
                     incoming: formatMoney(Number(target.proposal.price)),
-                    current: target.currentPrice != null ? formatMoney(Number(target.currentPrice)) : t("form.no_price"),
                 })}
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
