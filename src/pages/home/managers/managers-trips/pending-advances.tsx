@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation, Trans } from "react-i18next"
 import i18n from "@/i18n/i18n"
 import { toast } from "sonner"
+import LogisticsAdvanceRow from "./logistics-advance-row"
 
 const REQUESTS = "checkout/kassa-v2/requests"
 const PENDING = 10
@@ -35,6 +36,8 @@ type AdvanceRequest = {
     rejected_comment: string | null
     created: string
     advance_source?: { id: string; name: string | null } | null
+    external_source?: string | null
+    image?: string | null
 }
 
 const errorText = (e: any) => {
@@ -87,6 +90,8 @@ export default function PendingAdvances({ tripId }: { tripId?: number }) {
     return (
         <div className="flex flex-col gap-2 mb-3">
             {rows.map((r) => {
+                if (r.external_source === "logistics")
+                    return <LogisticsAdvanceRow key={r.id} row={r} onDone={refresh} errorText={errorText} />
                 const rejected = r.status === REJECTED
                 return (
                     <div

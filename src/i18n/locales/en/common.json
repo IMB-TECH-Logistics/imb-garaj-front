@@ -2934,7 +2934,17 @@
             "resend": "Resend",
             "cancel_request": "Cancel request",
             "cancel_text": "The {{kind}} request for <b>{{amount}} UZS</b> will be cancelled. It will not go to the cashier.",
-            "cancelled": "Request cancelled"
+            "cancelled": "Request cancelled",
+            "logistics_from": "Logistics · Muhammadjon account",
+            "awaiting_manager": "Awaiting manager approval",
+            "approve": "Approve",
+            "reject": "Reject",
+            "approved": "Advance approved",
+            "rejected_done": "Advance rejected",
+            "reject_title": "Reject logistics advance",
+            "check_photo": "Receipt photo",
+            "approve_text": "An advance of <b>{{amount}} UZS</b> will be credited to the driver. The money comes from the Logistics (Muhammadjon account) counterparty, not from the cash desk.",
+            "approve_title": "Approve advance"
         },
         "finish": {
             "closed": "Turnover closed",

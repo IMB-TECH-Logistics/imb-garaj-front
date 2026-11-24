@@ -2931,7 +2931,17 @@
             "resend": "Qayta yuborish",
             "cancel_request": "So'rovni bekor qilish",
             "cancel_text": "<b>{{amount}} so'm</b> {{kind}} so'rovi bekor qilinadi. Kassirga bormaydi.",
-            "cancelled": "So'rov bekor qilindi"
+            "cancelled": "So'rov bekor qilindi",
+            "logistics_from": "Logistika · Muhammadjon hisobi",
+            "awaiting_manager": "Menejer tasdig'i kutilmoqda",
+            "approve": "Tasdiqlash",
+            "reject": "Rad etish",
+            "approved": "Avans tasdiqlandi",
+            "rejected_done": "Avans rad etildi",
+            "reject_title": "Logistika avansini rad etish",
+            "check_photo": "Chek rasmi",
+            "approve_text": "<b>{{amount}} so'm</b> avans haydovchi hisobiga yoziladi. Pul Logistika (Muhammadjon hisobi) kontragentidan keladi, kassadan chiqmaydi.",
+            "approve_title": "Avansni tasdiqlash"
         },
         "finish": {
             "closed": "Aylanma yopildi",

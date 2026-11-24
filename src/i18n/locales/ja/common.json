@@ -2934,7 +2934,17 @@
             "resend": "再送信",
             "cancel_request": "リクエストをキャンセル",
             "cancel_text": "<b>{{amount}} スム</b>の「{{kind}}」リクエストをキャンセルします。レジ担当には送信されません。",
-            "cancelled": "リクエストをキャンセルしました"
+            "cancelled": "リクエストをキャンセルしました",
+            "logistics_from": "物流・ムハンマドジョン口座",
+            "awaiting_manager": "マネージャーの承認待ち",
+            "approve": "承認",
+            "reject": "却下",
+            "approved": "前払いを承認しました",
+            "rejected_done": "前払いを却下しました",
+            "reject_title": "物流の前払いを却下",
+            "check_photo": "領収書の写真",
+            "approve_text": "<b>{{amount}} スム</b>の前払いが運転手に記録されます。資金は取引先「物流（ムハンマドジョン口座）」からで、現金出納からは出ません。",
+            "approve_title": "前払いを承認"
         },
         "finish": {
             "closed": "ターンを閉じました",
