@@ -82,33 +82,30 @@ export const ProposalBadge = ({
 
     return (
         <div className="mt-1 flex flex-col gap-1">
-            <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <span className="inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-md border border-amber-400 bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-                            {t("form.dm_proposal_badge")}
-                        </span>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                        {t("form.dm_proposal_hint", { when })}
-                        {proposal.valid_from ? ` ${t("form.dm_proposal_from", { date: format(new Date(proposal.valid_from), "dd/MM/yyyy") })}` : ""}
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
             {canControl && (
                 <div className="flex items-center gap-1">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-6 gap-1 px-2 text-xs text-emerald-700"
-                        disabled={busy}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            approve(directionId, {})
-                        }}
-                    >
-                        <Check className="size-3" /> {t("form.dm_proposal_approve")}
-                    </Button>
+                    <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-6 gap-1 px-2 text-xs text-emerald-700"
+                                    disabled={busy}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        approve(directionId, {})
+                                    }}
+                                >
+                                    <Check className="size-3" /> {t("form.dm_proposal_approve")}
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                                {t("form.dm_proposal_hint", { when })}
+                                {proposal.valid_from ? ` ${t("form.dm_proposal_from", { date: format(new Date(proposal.valid_from), "dd/MM/yyyy") })}` : ""}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     <Button
                         size="icon"
                         variant="outline"
