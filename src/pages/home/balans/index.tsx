@@ -35,7 +35,8 @@ type Sheet = {
     until: string
     aktiv: Section
     majburiyat: Section
-    kapital: Totals
+    kapital: Totals & { nominal: Money }
+    bank_to_cash: Money
     expected_equity: Money
     difference: Money
 }
@@ -89,7 +90,7 @@ const ManualCell = ({
                 [row.key]: {
                     bank: field === "bank" ? value || 0 : row.bank || 0,
                     naqd: field === "naqd" ? value || 0 : row.naqd || 0,
-                    other: field === "other" ? value || 0 : other,
+                    other: field === "other" ? value || 0 : 0,
                     note: row.note,
                 },
             },
@@ -172,9 +173,7 @@ const SectionTable = ({
                                                 <td className="px-1.5 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
                                                     <ManualCell row={r} field="naqd" date={date} canEdit={canEdit} />
                                                 </td>
-                                                <td className="px-1.5 py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
-                                                    <ManualCell row={r} field="other" date={date} canEdit={canEdit} />
-                                                </td>
+                                                <td className="px-3 py-2 text-right"><M v={r.total} strong /></td>
                                             </>
                                         ) : (
                                             <>
@@ -257,6 +256,7 @@ export default function BalancePage() {
                         <Card className={cn(diff !== null && num(diff) !== 0 && "border-destructive")}><CardContent className="p-4">
                             <div className="text-xs text-muted-foreground">{t("balans.kapital_formula")}</div>
                             <div className="text-lg"><M v={data.kapital.total} strong /></div>
+                            <div className="text-xs text-muted-foreground">{t("balans.kapital_cash", { rate: num(data.bank_to_cash) * 100 })}</div>
                         </CardContent></Card>
                     </div>
 
@@ -270,7 +270,10 @@ export default function BalancePage() {
                             <table className="w-full text-sm">
                                 <tbody>
                                     <tr className="border-b font-semibold">
-                                        <td className="px-3 py-2">{t("balans.kapital_formula")}</td>
+                                        <td className="px-3 py-2">
+                                            <div>{t("balans.kapital_formula")}</div>
+                                            <div className="text-xs font-normal text-muted-foreground">{t("balans.kapital_cash", { rate: num(data.bank_to_cash) * 100 })}</div>
+                                        </td>
                                         <td className="p-3 text-right w-40"><M v={data.kapital.bank} strong /></td>
                                         <td className="p-3 text-right w-40"><M v={data.kapital.naqd} strong /></td>
                                         <td className="p-3 text-right w-44"><M v={data.kapital.total} strong /></td>

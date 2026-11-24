@@ -3876,6 +3876,7 @@
         "aktiv_long": "Aktiv — bizda nima bor",
         "majburiyat_long": "Majburiyat — kimga qarzmiz",
         "kapital_formula": "Kapital = Aktiv − Majburiyat",
+        "kapital_cash": "Jami = Naqd + Bank × {{rate}}% (bankdagi 100 so'm = naqd {{rate}} so'm)",
         "expected": "Kutilgan kapital",
         "expected_hint": "Korxonada qoldirilgan (taqsimlanmagan) foyda. Foyda to'liq taqsimlangan bo'lsa 0",
         "difference": "Farq (topilmagan yozuvlar)",
