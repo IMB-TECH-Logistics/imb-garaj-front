@@ -3540,6 +3540,8 @@
             "type": "種類",
             "phone": "電話",
             "inn": "納税者番号 (INN)",
+            "trip_collector": "運賃の受取窓口",
+            "trip_collector_hint": "顧客はこの会社に運賃を支払い、当社へ送金されます(例: Vodiy Star)。貸借対照表では運賃収入と相殺されます。",
             "comment": "コメント",
             "balance": "残高",
             "tx_count": "件数",

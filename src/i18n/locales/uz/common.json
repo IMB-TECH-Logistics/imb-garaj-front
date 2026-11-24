@@ -3544,6 +3544,8 @@
             "type": "Turi",
             "phone": "Telefon",
             "inn": "INN",
+            "trip_collector": "Reys pulini yig'uvchi",
+            "trip_collector_hint": "Mijozlar reys pulini shu firmaga to'laydi, u bizga o'tkazadi (masalan Vodiy Star). Balansda reys tushumidan u bergan pul ayriladi.",
             "comment": "Izoh",
             "balance": "Balans",
             "tx_count": "Yozuvlar",

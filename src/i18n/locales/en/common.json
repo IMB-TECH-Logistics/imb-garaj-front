@@ -3547,6 +3547,8 @@
             "type": "Type",
             "phone": "Phone",
             "inn": "TIN (INN)",
+            "trip_collector": "Collects trip payments",
+            "trip_collector_hint": "Clients pay for trips to this company, which then pays us (e.g. Vodiy Star). The balance sheet nets its payments against trip revenue.",
             "comment": "Comment",
             "balance": "Balance",
             "tx_count": "Entries",

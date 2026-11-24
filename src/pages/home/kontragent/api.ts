@@ -19,6 +19,7 @@ export type Kontragent = {
     type: ContragentType
     comment: string
     dividend_share?: string
+    trip_collector?: boolean
     balance: string
     taken: string
     given: string

@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { FormCheckbox } from "@/components/form/checkbox"
 import { FormCombobox } from "@/components/form/combobox"
 import PaymentMethodToggle, { type PaymentMethod, useBankEnabled } from "@/components/custom/payment-method"
 import { FormDatePicker } from "@/components/form/date-picker"
@@ -42,10 +43,10 @@ export const AddContragentForm = ({
     const { t } = useTranslation()
     const { closeModal } = useModal(modalKey)
     const refresh = useRefreshFinance()
-    const form = useForm<{ name: string; phone: string; inn: string; type: ContragentType | ""; comment: string }>({
+    const form = useForm<{ name: string; phone: string; inn: string; type: ContragentType | ""; comment: string; trip_collector: boolean }>({
         defaultValues: initial ?
-            { name: initial.name, phone: initial.phone, inn: initial.inn ?? "", type: initial.type, comment: initial.comment }
-        :   { name: "", phone: "", inn: "", type: fixedType ?? "", comment: "" },
+            { name: initial.name, phone: initial.phone, inn: initial.inn ?? "", type: initial.type, comment: initial.comment, trip_collector: !!initial.trip_collector }
+        :   { name: "", phone: "", inn: "", type: fixedType ?? "", comment: "", trip_collector: false },
     })
     const { mutate: update, isPending: updating } = usePatch({
         onSuccess: () => {
@@ -70,7 +71,7 @@ export const AddContragentForm = ({
         <form
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) => {
-                const payload = { name: v.name.trim(), phone: v.phone.trim(), inn: v.inn.replace(/\s/g, ""), type: fixedType ?? v.type, comment: v.comment.trim() }
+                const payload = { name: v.name.trim(), phone: v.phone.trim(), inn: v.inn.replace(/\s/g, ""), type: fixedType ?? v.type, comment: v.comment.trim(), trip_collector: v.trip_collector }
                 if (initial) update(kontragentUrl(initial.id), payload)
                 else mutate(KONTRAGENT, payload)
             })}
@@ -94,6 +95,10 @@ export const AddContragentForm = ({
                 <FormInput name="inn" label={t("contragent.fields.inn")} placeholder="123456789" inputMode="numeric" maxLength={14} methods={form} />
             </div>
             <FormTextarea name="comment" label={t("contragent.fields.comment")} methods={form} rows={3} />
+            <div className="flex flex-col gap-1">
+                <FormCheckbox control={form.control} name="trip_collector" label={t("contragent.fields.trip_collector")} />
+                <p className="text-xs text-muted-foreground pl-6">{t("contragent.fields.trip_collector_hint")}</p>
+            </div>
             <div className="flex justify-end">
                 <Button className="min-w-32" type="submit" loading={isPending || updating}>{t("actions.save")}</Button>
             </div>
