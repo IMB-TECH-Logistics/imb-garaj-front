@@ -81,36 +81,42 @@ export const ProposalBadge = ({
 
     return (
         canControl ? (
-            <div className="mt-1 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                <Button
-                    variant="ghost"
-                    className="h-3 p-0"
+            <div
+                className="inline-flex items-center gap-0.5 rounded-md border border-border/70 bg-muted/40 p-0.5"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button
+                    type="button"
                     disabled={busy}
                     title={`${t("form.dm_proposal_approve")}. ${t("form.dm_proposal_hint", { when })}${proposal.valid_from ? ` ${t("form.dm_proposal_from", { date: format(new Date(proposal.valid_from), "dd/MM/yyyy") })}` : ""}`}
-                    icon={<Check className="text-green-500" size={16} />}
+                    className="inline-flex size-6 items-center justify-center rounded text-green-600 transition-colors hover:bg-green-500/15 disabled:opacity-50"
                     onClick={() => approve(directionId, {})}
-                />
-                <Button
-                    variant="ghost"
-                    className="h-3 p-0"
+                >
+                    <Check size={15} strokeWidth={2.5} />
+                </button>
+                <button
+                    type="button"
                     disabled={busy}
                     title={t("form.dm_proposal_edit")}
-                    icon={<SquarePen className="text-primary" size={16} />}
+                    className="inline-flex size-6 items-center justify-center rounded text-primary transition-colors hover:bg-primary/15 disabled:opacity-50"
                     onClick={() => {
                         setData(STORE_KEY, { directionId, proposal, currentPrice })
                         openModal()
                     }}
-                />
-                <Button
-                    variant="ghost"
-                    className="h-3 p-0"
+                >
+                    <SquarePen size={14} />
+                </button>
+                <button
+                    type="button"
                     disabled={busy}
                     title={t("form.dm_proposal_reject")}
-                    icon={<X className="text-destructive" size={16} />}
+                    className="inline-flex size-6 items-center justify-center rounded text-destructive transition-colors hover:bg-destructive/15 disabled:opacity-50"
                     onClick={() => {
                         if (window.confirm(t("form.dm_proposal_reject_confirm"))) reject(directionId)
                     }}
-                />
+                >
+                    <X size={15} strokeWidth={2.5} />
+                </button>
             </div>
         ) : null
     )
