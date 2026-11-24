@@ -82,7 +82,7 @@ export const ProposalBadge = ({
     return (
         canControl ? (
             <div
-                className="inline-flex items-center gap-0.5 rounded-md border border-border/70 bg-muted/40 p-0.5"
+                className="ml-auto inline-flex shrink-0 items-center gap-0.5 rounded-md border border-amber-400/60 bg-amber-500/10 p-0.5"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button

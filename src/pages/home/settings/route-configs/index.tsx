@@ -160,7 +160,7 @@ const RouteConfigsPage = () => {
                 data={enriched}
                 onDelete={hasControl ? handleDelete : undefined}
                 onEdit={hasControl ? handleEdit : undefined}
-                rowColor={(row: DirectionRow) => row.pending_proposal ? "!bg-amber-500/10 hover:!bg-amber-500/15 [&>td]:before:!bg-amber-500/10 hover:[&>td]:before:!bg-amber-500/15" : (row.no_price ? "!bg-destructive/10 hover:!bg-destructive/15 [&>td]:before:!bg-destructive/10 hover:[&>td]:before:!bg-destructive/15" : "")}
+                rowColor={(row: DirectionRow) => (row.no_price && !row.pending_proposal ? "!bg-destructive/10 hover:!bg-destructive/15 [&>td]:before:!bg-destructive/10 hover:[&>td]:before:!bg-destructive/15" : "")}
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,

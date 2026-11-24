@@ -97,7 +97,7 @@ export const useDirectionColumns = () => {
                 header: t("form.amount"),
                 enableSorting: true,
                 cell: ({ row }) => (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-3">
                         {row.original.no_price ||
                         row.original.current_price?.price == null ? (
                             <span className="whitespace-nowrap font-medium text-destructive">
