@@ -18,6 +18,7 @@ import TableHeader from "../table-header"
 import AddRouteConfigModal from "./add-route"
 import { ImportDirectionsButton } from "./import-directions"
 import { type DirectionPrice, type DirectionRow, useDirectionColumns } from "./cols"
+import { type PendingProposal, ProposalEditModal } from "./proposal"
 
 const DEFAULT_ORDERING = "-price_amount"
 
@@ -41,6 +42,7 @@ type Direction = {
     payment_type: number
     current_price: DirectionPrice | null
     no_price?: boolean
+    pending_proposal?: PendingProposal | null
     prices?: DirectionPrice[]
     created?: string
     updated?: string
@@ -61,6 +63,7 @@ const RouteConfigsPage = () => {
     const navigate = useNavigate()
     const ordering = search.ordering ?? DEFAULT_ORDERING
     const onlyNoPrice = search.no_price === "true"
+    const onlyPending = search.pending_price === "true"
 
     useEffect(() => {
         if (!search.ordering) {
@@ -83,6 +86,7 @@ const RouteConfigsPage = () => {
                 page: search.page,
                 page_size: search.page_size,
                 no_price: onlyNoPrice ? true : undefined,
+                pending_price: onlyPending ? true : undefined,
                 ordering,
             },
         },
@@ -127,6 +131,7 @@ const RouteConfigsPage = () => {
                     paymentMap[d.payment_type] ?? String(d.payment_type),
                 current_price: d.current_price,
                 no_price: d.no_price,
+                pending_proposal: d.pending_proposal,
                 prices: d.prices,
             })),
         [data, paymentMap],
@@ -155,7 +160,7 @@ const RouteConfigsPage = () => {
                 data={enriched}
                 onDelete={hasControl ? handleDelete : undefined}
                 onEdit={hasControl ? handleEdit : undefined}
-                rowColor={(row: DirectionRow) => (row.no_price ? "!bg-destructive/10 hover:!bg-destructive/15 [&>td]:before:!bg-destructive/10 hover:[&>td]:before:!bg-destructive/15" : "")}
+                rowColor={(row: DirectionRow) => row.pending_proposal ? "!bg-amber-500/10 hover:!bg-amber-500/15 [&>td]:before:!bg-amber-500/10 hover:[&>td]:before:!bg-amber-500/15" : (row.no_price ? "!bg-destructive/10 hover:!bg-destructive/15 [&>td]:before:!bg-destructive/10 hover:[&>td]:before:!bg-destructive/15" : "")}
                 numeration
                 paginationProps={{
                     totalPages: data?.total_pages,
@@ -200,6 +205,23 @@ const RouteConfigsPage = () => {
                                 <Label htmlFor="route-configs-no-price" className="cursor-pointer whitespace-nowrap">
                                     {t("form.dm_no_price_filter")}
                                 </Label>
+                                <Switch
+                                    id="route-configs-pending"
+                                    className="ml-3"
+                                    checked={onlyPending}
+                                    onCheckedChange={(checked) =>
+                                        navigate({
+                                            search: (prev: Record<string, unknown>) => ({
+                                                ...prev,
+                                                pending_price: checked ? "true" : undefined,
+                                                page: undefined,
+                                            }),
+                                        } as any)
+                                    }
+                                />
+                                <Label htmlFor="route-configs-pending" className="cursor-pointer whitespace-nowrap">
+                                    {t("form.dm_proposal_filter")}
+                                </Label>
                             </div>
                         }
                     />
@@ -221,6 +243,7 @@ const RouteConfigsPage = () => {
             >
                 <AddRouteConfigModal />
             </Modal>
+            <ProposalEditModal />
         </>
     )
 }

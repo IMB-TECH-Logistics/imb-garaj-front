@@ -3,6 +3,7 @@ import { formatMoney } from "@/lib/format-money"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { type PendingProposal, ProposalBadge } from "./proposal"
 
 export type SelectableItem = { id: number; name: string }
 
@@ -40,6 +41,7 @@ export type DirectionRow = {
     payment_type_name: string
     current_price: DirectionPrice | null
     no_price?: boolean
+    pending_proposal?: PendingProposal | null
     prices?: DirectionPrice[]
     driver_salary_amount?: string | null
     driver_salary_valid_from?: string | null
@@ -94,19 +96,29 @@ export const useDirectionColumns = () => {
                 accessorKey: "current_price",
                 header: t("form.amount"),
                 enableSorting: true,
-                cell: ({ row }) =>
-                    row.original.no_price ||
-                    row.original.current_price?.price == null ? (
-                        <span className="whitespace-nowrap font-medium text-destructive">
-                            {t("form.no_price")}
-                        </span>
-                    ) : (
-                        <span className="whitespace-nowrap">
-                            {formatMoney(
-                                Number(row.original.current_price.price),
-                            )}
-                        </span>
-                    ),
+                cell: ({ row }) => (
+                    <div>
+                        {row.original.no_price ||
+                        row.original.current_price?.price == null ? (
+                            <span className="whitespace-nowrap font-medium text-destructive">
+                                {t("form.no_price")}
+                            </span>
+                        ) : (
+                            <span className="whitespace-nowrap">
+                                {formatMoney(
+                                    Number(row.original.current_price.price),
+                                )}
+                            </span>
+                        )}
+                        {row.original.pending_proposal && (
+                            <ProposalBadge
+                                directionId={row.original.id}
+                                proposal={row.original.pending_proposal}
+                                currentPrice={row.original.no_price ? null : row.original.current_price?.price}
+                            />
+                        )}
+                    </div>
+                ),
             },
         ],
         [t],
