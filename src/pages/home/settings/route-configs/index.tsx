@@ -18,7 +18,7 @@ import TableHeader from "../table-header"
 import AddRouteConfigModal from "./add-route"
 import { ImportDirectionsButton } from "./import-directions"
 import { type DirectionPrice, type DirectionRow, useDirectionColumns } from "./cols"
-import { type PendingProposal, ProposalEditModal } from "./proposal"
+import { type PendingProposal, ProposalEditModal, ProposalHistoryModal } from "./proposal"
 
 const DEFAULT_ORDERING = "-price_amount"
 
@@ -43,6 +43,7 @@ type Direction = {
     current_price: DirectionPrice | null
     no_price?: boolean
     pending_proposal?: PendingProposal | null
+    pending_proposals?: PendingProposal[]
     prices?: DirectionPrice[]
     created?: string
     updated?: string
@@ -132,6 +133,7 @@ const RouteConfigsPage = () => {
                 current_price: d.current_price,
                 no_price: d.no_price,
                 pending_proposal: d.pending_proposal,
+                pending_proposals: d.pending_proposals,
                 prices: d.prices,
             })),
         [data, paymentMap],
@@ -244,6 +246,7 @@ const RouteConfigsPage = () => {
                 <AddRouteConfigModal />
             </Modal>
             <ProposalEditModal />
+            <ProposalHistoryModal />
         </>
     )
 }

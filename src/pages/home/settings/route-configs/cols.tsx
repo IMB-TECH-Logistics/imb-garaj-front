@@ -42,6 +42,7 @@ export type DirectionRow = {
     current_price: DirectionPrice | null
     no_price?: boolean
     pending_proposal?: PendingProposal | null
+    pending_proposals?: PendingProposal[]
     prices?: DirectionPrice[]
     driver_salary_amount?: string | null
     driver_salary_valid_from?: string | null
@@ -114,6 +115,7 @@ export const useDirectionColumns = () => {
                             <ProposalBadge
                                 directionId={row.original.id}
                                 proposal={row.original.pending_proposal}
+                                count={row.original.pending_proposals?.length ?? 1}
                                 currentPrice={row.original.no_price ? null : row.original.current_price?.price}
                             />
                         )}
