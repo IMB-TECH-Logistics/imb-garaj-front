@@ -190,6 +190,25 @@ function MapLibreRouteMap({
         }, LONG_PRESS_MS)
     }
     useEffect(() => cancelPress, [])
+    // Tanlangan nuqta oynasi: oynadan tashqariga bosilganda yoki Esc da yopiladi.
+    // Listener oyna ochilgandan keyin qo'shiladi, shu sabab uni ochgan bosish yopib yubormaydi.
+    useEffect(() => {
+        if (!picked) return
+        const onDown = (e: PointerEvent) => {
+            const target = e.target as Element | null
+            if (target?.closest?.(".maplibregl-popup")) return
+            setPicked(null)
+        }
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setPicked(null)
+        }
+        document.addEventListener("pointerdown", onDown, true)
+        document.addEventListener("keydown", onKey)
+        return () => {
+            document.removeEventListener("pointerdown", onDown, true)
+            document.removeEventListener("keydown", onKey)
+        }
+    }, [picked])
     const pickedText = picked ? `${picked.lat.toFixed(6)}, ${picked.lng.toFixed(6)}` : ""
     const copyPicked = () => {
         const done = () => toast.success(t("mon.coords_copied"))
