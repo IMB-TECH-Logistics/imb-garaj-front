@@ -205,11 +205,20 @@ const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () 
     const { t } = useTranslation()
     const qc = useQueryClient()
     const { closeModal } = useModal(RENT_PRICE)
-    const form = useForm<{ price_usd: number | ""; price_rate: number | "" }>({
-        defaultValues: { price_usd: "", price_rate: "" },
+    const form = useForm<{
+        monthly_usd: number | ""
+        vat_percent: number | ""
+        since: string
+        price_usd: number | ""
+        price_rate: number | ""
+    }>({
+        defaultValues: { monthly_usd: "", vat_percent: 12, since: "", price_usd: "", price_rate: "" },
     })
     useEffect(() => {
         form.reset({
+            monthly_usd: rent ? num(rent.monthly_usd) : "",
+            vat_percent: rent ? num(rent.vat_percent) : 12,
+            since: rent?.since ? rent.since.slice(0, 7) : "",
             price_usd: rent && num(rent.price_usd) ? num(rent.price_usd) : "",
             price_rate: rent?.price_rate ? num(rent.price_rate) : "",
         })
@@ -229,11 +238,40 @@ const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () 
             className="flex flex-col gap-3"
             onSubmit={form.handleSubmit((v) =>
                 save(`${VEHICLE_RENTS}/${rent.id}`, {
+                    monthly_usd: num(v.monthly_usd),
+                    vat_percent: num(v.vat_percent),
+                    since: v.since ? `${v.since}-01` : null,
                     price_usd: num(v.price_usd),
                     price_rate: v.price_rate === "" ? null : num(v.price_rate),
                 }),
             )}
         >
+            <FormNumberInput
+                required
+                control={form.control}
+                name="monthly_usd"
+                label={t("fin_report.rent_card.monthly_usd")}
+                thousandSeparator=" "
+                decimalScale={0}
+                allowNegative={false}
+                registerOptions={{
+                    validate: (v: unknown) =>
+                        Number(v) > 0 || t("investors.errors.gt_zero"),
+                }}
+            />
+            <div className="grid grid-cols-2 gap-3">
+                <FormNumberInput
+                    control={form.control}
+                    name="vat_percent"
+                    label={t("fin_report.rent_card.vat_percent")}
+                    decimalScale={2}
+                    allowNegative={false}
+                />
+                <label className="flex flex-col gap-1.5 text-sm font-medium">
+                    {t("fin_report.rent_card.since")}
+                    <Input type="month" {...form.register("since")} />
+                </label>
+            </div>
             <PriceFields control={form.control} />
             <p className="text-xs text-muted-foreground">{t("fin_report.rent_card.price_hint")}</p>
             <div className="flex justify-end gap-2 pt-1">
@@ -376,8 +414,8 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                                         variant="ghost"
                                         size="icon"
                                         className="h-7 w-7"
-                                        aria-label={t("fin_report.rent_card.price_usd")}
-                                        title={t("fin_report.rent_card.price_usd")}
+                                        aria-label={t("actions.edit")}
+                                        title={t("actions.edit")}
                                         onClick={() => {
                                             setPriceRent(r)
                                             openPrice()
