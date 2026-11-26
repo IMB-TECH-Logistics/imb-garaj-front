@@ -278,6 +278,8 @@ export const useItems = () => {
     const investorsV1 = me?.investor_version === 1 || import.meta.env.VITE_INVESTORS_V1 === "1"
     const kontragentOn = investorsV1 || !!me?.kontragent_enabled
     const bankOn = !!me?.bank_enabled
+    // Moliyaviy hisobot bo'limi faqat kontragent yoqilgan firmada (hozir Izumi); VST'da yopiq
+    const finReportOn = !!me?.kontragent_enabled
     return useMemo<MenuItem[]>(
         () => [
             {
@@ -338,12 +340,16 @@ export const useItems = () => {
                 extraPaths: ["/truck-detail"],
                 allowKey: "financial_result_view",
             },
-            {
-                label: t("nav.fin_report"),
-                icon: <FileSpreadsheet width={18} />,
-                path: "/moliyaviy-hisobot",
-                allowKeys: ["fin_report_view", "fin_report_control"],
-            },
+            ...(finReportOn ?
+                [
+                    {
+                        label: t("nav.fin_report"),
+                        icon: <FileSpreadsheet width={18} />,
+                        path: "/moliyaviy-hisobot",
+                        allowKeys: ["fin_report_view", "fin_report_control"],
+                    },
+                ]
+            :   []),
             {
                 label: t("nav.investor_dashboard"),
                 icon: <BarChart3 width={18} />,
@@ -530,6 +536,6 @@ export const useItems = () => {
                 ],
             },
         ],
-        [t, kassaV2, investorsV1, kontragentOn, bankOn],
+        [t, kassaV2, investorsV1, kontragentOn, bankOn, finReportOn],
     )
 }
