@@ -1,6 +1,7 @@
 import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { FormCombobox } from "@/components/form/combobox"
+import { FormDatePicker } from "@/components/form/date-picker"
 import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -114,7 +115,7 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                     kontragent: kontragentId,
                     monthly_usd: num(v.monthly_usd),
                     vat_percent: num(v.vat_percent),
-                    since: v.since ? `${v.since}-01` : null,
+                    since: v.since || null,
                     price_usd: num(v.price_usd),
                     price_rate: v.price_rate === "" ? null : num(v.price_rate),
                 }),
@@ -168,10 +169,11 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                     decimalScale={2}
                     allowNegative={false}
                 />
-                <label className="flex flex-col gap-1.5 text-sm font-medium">
-                    {t("fin_report.rent_card.since")}
-                    <Input type="month" {...form.register("since")} />
-                </label>
+                <FormDatePicker
+                    control={form.control}
+                    name="since"
+                    label={t("fin_report.rent_card.since")}
+                />
             </div>
             <PriceFields control={form.control} />
             <div className="flex justify-end gap-2 pt-1">
@@ -216,11 +218,12 @@ const PriceFields = ({ control }: { control: any }) => {
     )
 }
 
-const monthLabel = (d: string) => d.slice(0, 7).split("-").reverse().join(".")
+const dayLabel = (d: string) => d.slice(0, 10).split("-").reverse().join(".")
 
-const prevMonth = (d: string) => {
-    const [y, m] = d.slice(0, 7).split("-").map(Number)
-    return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`
+const prevDay = (d: string) => {
+    const x = new Date(`${d.slice(0, 10)}T12:00:00`)
+    x.setDate(x.getDate() - 1)
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`
 }
 
 const InfoHint = ({ text }: { text: string }) => (
@@ -307,7 +310,7 @@ const RentEditForm = ({
             price_rate: rent.price_rate ? num(rent.price_rate) : "",
             monthly_usd: num(current.monthly_usd),
             vat_percent: num(current.vat_percent),
-            since: current.since ? current.since.slice(0, 7) : "",
+            since: current.since ?? "",
         })
     }, [rent?.id, rent?.periods?.length])
     const done = () => {
@@ -343,12 +346,12 @@ const RentEditForm = ({
                 num(v.vat_percent) !== num(current.vat_percent)
             const sameMonth =
                 (v.since || "") ===
-                (current.since ? current.since.slice(0, 7) : "")
+                (current.since ?? "")
             if (changed && (sameMonth || !v.since)) {
                 // Shu davrning o'zidagi xatoni tuzatish
                 if (current.periodId) {
                     await postAsync(`${VEHICLE_RENTS}/${rent.id}/periods`, {
-                        since: `${current.since!.slice(0, 7)}-01`,
+                        since: current.since,
                         monthly_usd: num(v.monthly_usd),
                         vat_percent: num(v.vat_percent),
                     })
@@ -358,11 +361,11 @@ const RentEditForm = ({
                 }
             } else if (!sameMonth && v.since) {
                 if (!current.periodId && !rent.since && !changed) {
-                    body.since = `${v.since}-01`
+                    body.since = v.since
                 } else {
                     // Yangi oydan boshqa summa — eski oylar eski summada qoladi
                     await postAsync(`${VEHICLE_RENTS}/${rent.id}/periods`, {
-                        since: `${v.since}-01`,
+                        since: v.since,
                         monthly_usd: num(v.monthly_usd),
                         vat_percent: num(v.vat_percent),
                     })
@@ -414,10 +417,11 @@ const RentEditForm = ({
                     allowNegative={false}
                 />
             </div>
-            <label className="flex flex-col gap-1.5 text-sm font-medium">
-                {t("fin_report.rent_card.since")}
-                <Input type="month" {...form.register("since")} />
-            </label>
+            <FormDatePicker
+                control={form.control}
+                name="since"
+                label={t("fin_report.rent_card.since")}
+            />
 
             <div className="flex flex-col gap-1 pt-1">
                 <div className="text-sm font-medium">
@@ -428,11 +432,11 @@ const RentEditForm = ({
                         const next = history[i + 1]
                         const from =
                             h.since ?
-                                monthLabel(h.since)
+                                dayLabel(h.since)
                             :   t("fin_report.rent_card.from_start")
                         const to =
                             next?.since ?
-                                monthLabel(`${prevMonth(next.since)}-01`)
+                                dayLabel(prevDay(next.since))
                             :   t("fin_report.rent_card.until_now")
                         return (
                             <div
@@ -610,11 +614,7 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                                             {t(
                                                 "fin_report.rent_card.since_label",
                                                 {
-                                                    date: r.since
-                                                        .slice(0, 7)
-                                                        .split("-")
-                                                        .reverse()
-                                                        .join("."),
+                                                    date: dayLabel(r.since),
                                                 },
                                             )}
                                         </span>

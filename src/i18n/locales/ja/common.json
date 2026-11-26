@@ -3703,7 +3703,7 @@
             "add": "割り当て",
             "add_title": "{{name}}: 車両の割り当て",
             "monthly_usd": "月額賃料、$",
-            "since": "開始月",
+            "since": "開始日",
             "vat_percent": "VAT, %",
             "since_label": "{{date}} から",
             "price_usd": "価格, $",

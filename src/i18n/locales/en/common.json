@@ -3710,7 +3710,7 @@
             "add": "Assign",
             "add_title": "{{name}}: assign vehicle",
             "monthly_usd": "Monthly rent, $",
-            "since": "From month",
+            "since": "From date",
             "vat_percent": "VAT, %",
             "since_label": "from {{date}}",
             "price_usd": "Price, $",

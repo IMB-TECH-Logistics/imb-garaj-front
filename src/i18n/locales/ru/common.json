@@ -3716,7 +3716,7 @@
             "add": "Привязать",
             "add_title": "{{name}}: привязать машину",
             "monthly_usd": "Аренда в месяц, $",
-            "since": "С какого месяца",
+            "since": "С какой даты",
             "vat_percent": "НДС, %",
             "since_label": "с {{date}}",
             "price_usd": "Цена, $",
