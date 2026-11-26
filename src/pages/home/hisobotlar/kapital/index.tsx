@@ -1,172 +1,98 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useGet } from "@/hooks/useGet"
 import { cn } from "@/lib/utils"
 import { amountText, num } from "@/pages/home/kontragent/api"
+import { useNavigate } from "@tanstack/react-router"
 import { addMonths, format, startOfMonth } from "date-fns"
-import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
+import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import { Fragment, useMemo, useState } from "react"
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 // ---------- types ----------
-type Amt = { bank: number; naqd: number }
-type Detail = { label: string; bank: number; naqd: number }
-type Step = {
+type Money = string | number | null | undefined
+type Triple = { bank: Money; naqd: Money; total: Money }
+type Kapital = { bank: Money; naqd: Money; total: Money; weighted: Money }
+type BridgeDetail = { label: string; bank: Money; naqd: Money; total: Money }
+type BridgeRow = {
     key: string
     label: string
-    sign: "" | "+" | "−" | "±"
-    hint?: string
-    link?: string
-    bank: number
-    naqd: number
-    details: Detail[]
+    sign: string
+    bank: Money
+    naqd: Money
+    total: Money
+    note: string
+    source: string
+    details: BridgeDetail[]
+}
+type SourceDetail = { id: number | null; label: string; effect: Triple }
+type Source = {
+    key: string
+    label: string
+    section: "aktiv" | "majburiyat"
+    source: string
+    effect: Triple
+    start: Triple
+    end: Triple
+    details: SourceDetail[]
+}
+type EquityData = {
+    month: string
+    start: { date: string; kapital: Kapital }
+    end: { date: string; kapital: Kapital }
+    change: { bank: Money; naqd: Money; total: Money; weighted: Money }
+    bridge: BridgeRow[]
+    unexplained: { total: Money; note: string }
+    sources: Source[]
+    report: { id: number; status: string; net: Money; dividends: Money } | null
 }
 
-const total = (a: Amt) => a.bank + a.naqd
 const MLN = 1_000_000
-
-// ---------- mock data (computed so everything reconciles) ----------
-const split = (label: string, bank: number, naqd: number): Detail => ({ label, bank, naqd })
-
-const buildMock = (monthStart: Date, hasGap: boolean) => {
-    // month-dependent multiplier so ‹ › visibly changes numbers
-    const seed = monthStart.getMonth() + 1
-    const k = 0.9 + (seed % 5) * 0.05
-    const r = (v: number) => Math.round((v * k) / 1000) * 1000
-    const ym = format(monthStart, "yyyy-MM")
-    const d = (day: number) => `${String(day).padStart(2, "0")}.${format(monthStart, "MM.yyyy")}`
-
-    const open: Amt = { bank: r(1820 * MLN), naqd: r(640 * MLN) }
-
-    const profitDetails: Detail[] = [
-        split("Reyslardan tushum", r(690 * MLN), r(120 * MLN)),
-        split("Yoqilg'i va yo'l xarajatlari", -r(215 * MLN), -r(18 * MLN)),
-        split("Ta'mirlash va ehtiyot qismlar", -r(95 * MLN), -r(4 * MLN)),
-        split("Ish haqi va boshqa xarajatlar", -r(70 * MLN), -r(3 * MLN)),
-    ]
-    const profit: Amt = {
-        bank: profitDetails.reduce((s, x) => s + x.bank, 0),
-        naqd: profitDetails.reduce((s, x) => s + x.naqd, 0),
-    }
-
-    const investDetails: Detail[] = [
-        split(`${d(4)} · Izumi Invest — qo'shimcha mablag'`, r(150 * MLN), 0),
-        split(`${d(18)} · Vodiy Star — yangi mashina uchun`, r(50 * MLN), 0),
-    ]
-    const invest: Amt = {
-        bank: investDetails.reduce((s, x) => s + x.bank, 0),
-        naqd: 0,
-    }
-
-    const divDetails: Detail[] = [
-        split(`${d(10)} · Izumi Invest — dividend`, -r(70 * MLN), -r(20 * MLN)),
-        split(`${d(10)} · Vodiy Star — dividend`, -r(50 * MLN), -r(25 * MLN)),
-        split(`${d(10)} · Firma ulushi`, -r(30 * MLN), -r(15 * MLN)),
-    ]
-    const dividend: Amt = {
-        bank: divDetails.reduce((s, x) => s + x.bank, 0),
-        naqd: divDetails.reduce((s, x) => s + x.naqd, 0),
-    }
-
-    const revalDetails: Detail[] = [
-        split("Mashinalar qiymati (eskirish va qayta baholash)", r(36 * MLN), 0),
-        split("Valyuta kursi farqi (USD)", r(6 * MLN), -r(3 * MLN)),
-    ]
-    const reval: Amt = {
-        bank: revalDetails.reduce((s, x) => s + x.bank, 0),
-        naqd: revalDetails.reduce((s, x) => s + x.naqd, 0),
-    }
-
-    const manualDetails: Detail[] = [
-        split(`${d(22)} · O'tgan oy xatosi: ikki marta yozilgan chiqim`, r(5 * MLN), 0),
-        split(`${d(27)} · Qo'lda tuzatish: kassa qoldig'i`, -r(13 * MLN), r(5 * MLN)),
-    ]
-    const manual: Amt = {
-        bank: manualDetails.reduce((s, x) => s + x.bank, 0),
-        naqd: manualDetails.reduce((s, x) => s + x.naqd, 0),
-    }
-
-    const steps: Step[] = [
-        { key: "open", label: "Davr boshidagi kapital", sign: "", ...open, details: [] },
-        { key: "profit", label: "Davr sof foydasi", sign: "+", link: "Foyda va zarar hisobotidan", ...profit, details: profitDetails },
-        { key: "invest", label: "Investorlar kiritgan kapital", sign: "+", ...invest, details: investDetails },
-        { key: "dividend", label: "Investorlarga taqsimlangan foyda (dividend)", sign: "−", ...dividend, details: divDetails },
-        { key: "reval", label: "Qayta baholash (mashina qiymati, kurs farqi)", sign: "±", ...reval, details: revalDetails },
-        { key: "manual", label: "Qo'lda tuzatishlar / o'tgan davr xatolari", sign: "±", ...manual, details: manualDetails },
-    ]
-    const close: Amt = {
-        bank: steps.reduce((s, x) => s + x.bank, 0),
-        naqd: steps.reduce((s, x) => s + x.naqd, 0),
-    }
-    // balance-sheet capital; with gap there is an unexplained difference
-    const gap: Amt = hasGap ? { bank: r(41 * MLN), naqd: -r(2 * MLN) } : { bank: 0, naqd: 0 }
-    const balance: Amt = { bank: close.bank + gap.bank, naqd: close.naqd + gap.naqd }
-
-    // investors
-    const share = [
-        { name: "Izumi Invest", open: 0.46, profit: 0.4, inv: 150 * MLN, div: [70, 20] },
-        { name: "Vodiy Star", open: 0.34, profit: 0.35, inv: 50 * MLN, div: [50, 25] },
-        { name: "Firma ulushi", open: 0.2, profit: 0.25, inv: 0, div: [30, 15] },
-    ]
-    const openT = total(open)
-    const profitT = total(profit)
-    const otherT = total(reval) + total(manual)
-    const rows = share.map((s, i) => {
-        const last = i === share.length - 1
-        return {
-            name: s.name,
-            open: last ? 0 : Math.round(openT * s.open),
-            profit: last ? 0 : Math.round(profitT * s.profit),
-            other: last ? 0 : Math.round(otherT * s.profit),
-            invested: s.inv === 0 ? 0 : r(s.inv),
-            taken: -r((s.div[0] + s.div[1]) * MLN),
-        }
-    })
-    const lastRow = rows[rows.length - 1]
-    const rest = (f: "open" | "profit" | "other", t: number) => t - rows.slice(0, -1).reduce((s, x) => s + x[f], 0)
-    lastRow.open = rest("open", openT)
-    lastRow.profit = rest("profit", profitT)
-    lastRow.other = rest("other", otherT)
-    const investors = rows.map((x) => ({ ...x, end: x.open + x.profit + x.other + x.invested + x.taken }))
-
-    return { ym, open, steps, close, gap, balance, investors }
-}
+const TOLERANCE = 1000
 
 // ---------- small UI ----------
-const M = ({ v, strong, className }: { v: number; strong?: boolean; className?: string }) => (
-    <span className={cn("tabular-nums whitespace-nowrap", strong && "font-semibold", v < 0 && "text-destructive", className)}>
-        {v < 0 ? "−" : ""}
-        {amountText(Math.abs(num(v)))}
-    </span>
-)
-
-const Mln = (v: number) => `${v < 0 ? "−" : ""}${(Math.abs(v) / MLN).toFixed(1)} mln`
+const M = ({ v, strong, className }: { v: Money; strong?: boolean; className?: string }) => {
+    if (v === null || v === undefined) return <span className="text-muted-foreground">—</span>
+    const n = num(v)
+    return (
+        <span className={cn("tabular-nums whitespace-nowrap", strong && "font-semibold", n < 0 && "text-destructive", className)}>
+            {n < 0 ? "−" : ""}
+            {amountText(Math.abs(n))}
+        </span>
+    )
+}
 
 const thisMonth = () => startOfMonth(new Date())
 
 // ---------- waterfall ----------
 type Bar_ = { name: string; base: number; value: number; delta: number; kind: "total" | "up" | "down" }
 
-const Waterfall = ({ steps, close }: { steps: Step[]; close: Amt }) => {
+const SHORT: Record<string, string> = {
+    open: "Boshida",
+    profit: "Foyda",
+    dividend: "Dividend",
+    unexplained: "Farq",
+    close: "Oxirida",
+}
+
+const Waterfall = ({ bridge }: { bridge: BridgeRow[] }) => {
     const data = useMemo(() => {
         const out: Bar_[] = []
         let run = 0
-        const short = ["Boshida", "Foyda", "Kiritilgan", "Dividend", "Qayta baholash", "Tuzatish"]
-        steps.forEach((s, i) => {
-            const v = total(s)
-            if (i === 0) {
-                out.push({ name: short[i], base: 0, value: v, delta: v, kind: "total" })
+        bridge.forEach((s) => {
+            const v = num(s.total)
+            const name = SHORT[s.key] ?? s.label
+            if (s.key === "open" || s.key === "close") {
+                out.push({ name, base: 0, value: v, delta: v, kind: "total" })
                 run = v
             } else {
                 const next = run + v
-                out.push({ name: short[i], base: Math.min(run, next), value: Math.abs(v), delta: v, kind: v >= 0 ? "up" : "down" })
+                out.push({ name, base: Math.min(run, next), value: Math.abs(v), delta: v, kind: v >= 0 ? "up" : "down" })
                 run = next
             }
         })
-        out.push({ name: "Oxirida", base: 0, value: total(close), delta: total(close), kind: "total" })
         return out
-    }, [steps, close])
-    const min = Math.min(...data.map((x) => (x.kind === "total" ? x.value : x.base)))
-    const floor = Math.floor((min * 0.85) / (100 * MLN)) * 100 * MLN
+    }, [bridge])
     const color = { total: "#64748b", up: "#16a34a", down: "#dc2626" }
     return (
         <Card>
@@ -177,13 +103,7 @@ const Waterfall = ({ steps, close }: { steps: Step[]; close: Amt }) => {
                         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} />
-                            <YAxis
-                                domain={[floor, "auto"]}
-                                allowDataOverflow
-                                tick={{ fontSize: 11 }}
-                                width={52}
-                                tickFormatter={(v: number) => `${Math.round(v / MLN)}`}
-                            />
+                            <YAxis tick={{ fontSize: 11 }} width={52} tickFormatter={(v: number) => `${Math.round(v / MLN)}`} />
                             <Tooltip
                                 cursor={{ fill: "hsl(var(--muted))", opacity: 0.5 }}
                                 contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--popover-foreground))", fontSize: 12 }}
@@ -199,9 +119,7 @@ const Waterfall = ({ steps, close }: { steps: Step[]; close: Amt }) => {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                    Summalar mln so'mda. Vertikal o'q qisqartirilgan (o'zgarishlar ko'rinishi uchun).
-                </div>
+                <div className="mt-1 text-xs text-muted-foreground">Summalar mln so'mda (nominal kapital).</div>
             </CardContent>
         </Card>
     )
@@ -209,38 +127,27 @@ const Waterfall = ({ steps, close }: { steps: Step[]; close: Amt }) => {
 
 // ---------- page ----------
 export default function KapitalPage() {
+    const navigate = useNavigate()
     const [month, setMonth] = useState(thisMonth)
-    const [hasGap, setHasGap] = useState(false)
     const [open, setOpen] = useState<Record<string, boolean>>({})
-    const data = useMemo(() => buildMock(month, hasGap), [month, hasGap])
-    const { steps, close, gap, balance, investors } = data
-    const gapTotal = total(gap)
+    const ym = format(month, "yyyy-MM")
+    const { data, isLoading, isError } = useGet<EquityData>("kontragent/reports/equity", { params: { month: ym } })
     const shift = (n: number) => setMonth((m) => addMonths(m, n))
     const monthLabel = format(month, "MM.yyyy")
+    const toggle = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }))
 
-    const invTotals = investors.reduce(
-        (a, x) => ({
-            open: a.open + x.open,
-            profit: a.profit + x.profit,
-            other: a.other + x.other,
-            invested: a.invested + x.invested,
-            taken: a.taken + x.taken,
-            end: a.end + x.end,
-        }),
-        { open: 0, profit: 0, other: 0, invested: 0, taken: 0, end: 0 },
-    )
+    const startK = data?.start.kapital
+    const endK = data?.end.kapital
+    const change = data ? num(data.change.total) : 0
+    const diff = data ? num(data.unexplained.total) : 0
+    const balanced = Math.abs(diff) < TOLERANCE
 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-end justify-between gap-3">
-                <div className="flex flex-col gap-1">
-                    <p className="text-sm text-muted-foreground">
-                        Xususiy kapital to'g'risida hisobot (Shakl №5): davr boshidan oxirigacha kapital nima sababdan o'zgargani.
-                    </p>
-                    <span className="w-fit rounded-full border bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-                        Namuna ma'lumot (backend hali yo'q)
-                    </span>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                    Xususiy kapital to'g'risida hisobot (Shakl №5): davr boshidan oxirigacha kapital nima sababdan o'zgargani.
+                </p>
                 <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center rounded-md border">
                         <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => shift(-1)} title="Oldingi oy">
@@ -254,178 +161,230 @@ export default function KapitalPage() {
                     <Button size="sm" variant="outline" className="h-9" onClick={() => setMonth(thisMonth())}>
                         Shu oy
                     </Button>
-                    <label className="flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm">
-                        <input type="checkbox" checked={hasGap} onChange={(e) => setHasGap(e.target.checked)} />
-                        Farq bor holat
-                    </label>
                 </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-                <Card><CardContent className="p-4">
-                    <div className="text-xs text-muted-foreground">Davr boshidagi kapital</div>
-                    <div className="text-lg"><M v={total(data.open)} strong /></div>
-                </CardContent></Card>
-                <Card><CardContent className="p-4">
-                    <div className="text-xs text-muted-foreground">O'zgarish</div>
-                    <div className="text-lg">
-                        <M v={total(close) - total(data.open)} strong className={total(close) - total(data.open) > 0 ? "text-green-600" : undefined} />
+            {isLoading && <div className="py-10 text-center text-sm text-muted-foreground">Yuklanmoqda...</div>}
+            {isError && <div className="py-10 text-center text-sm text-destructive">Ma'lumotni yuklab bo'lmadi.</div>}
+            {!isLoading && !isError && !data && (
+                <div className="py-10 text-center text-sm text-muted-foreground">Ma'lumot yo'q.</div>
+            )}
+
+            {data && startK && endK && (
+                <>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        <Card><CardContent className="p-4">
+                            <div className="text-xs text-muted-foreground">Davr boshidagi kapital ({format(new Date(data.start.date), "dd.MM.yyyy")})</div>
+                            <div className="text-lg"><M v={startK.total} strong /></div>
+                            <div className="text-xs text-muted-foreground">×0.88: <M v={startK.weighted} /></div>
+                        </CardContent></Card>
+                        <Card><CardContent className="p-4">
+                            <div className="text-xs text-muted-foreground">O'zgarish</div>
+                            <div className="text-lg"><M v={data.change.total} strong className={change > 0 ? "text-green-600" : undefined} /></div>
+                            <div className="text-xs text-muted-foreground">×0.88: <M v={data.change.weighted} /></div>
+                        </CardContent></Card>
+                        <Card><CardContent className="p-4">
+                            <div className="text-xs text-muted-foreground">Davr oxiridagi kapital ({format(new Date(data.end.date), "dd.MM.yyyy")})</div>
+                            <div className="text-lg"><M v={endK.total} strong /></div>
+                            <div className="text-xs text-muted-foreground">×0.88: <M v={endK.weighted} /></div>
+                        </CardContent></Card>
                     </div>
-                </CardContent></Card>
-                <Card><CardContent className="p-4">
-                    <div className="text-xs text-muted-foreground">Davr oxiridagi kapital</div>
-                    <div className="text-lg"><M v={total(close)} strong /></div>
-                </CardContent></Card>
-            </div>
 
-            <Card>
-                <CardContent className="p-0 overflow-x-auto">
-                    <table className="w-full min-w-[620px] table-fixed text-sm">
-                        <colgroup>
-                            <col />
-                            <col className="w-[19%]" />
-                            <col className="w-[19%]" />
-                            <col className="w-[21%]" />
-                        </colgroup>
-                        <thead>
-                            <tr className="border-b bg-muted/40 text-muted-foreground">
-                                <th className="px-3 py-2 text-left font-medium">Kapital o'zgarishi ko'prigi</th>
-                                <th className="px-3 py-2 text-right font-medium">Bank</th>
-                                <th className="px-3 py-2 text-right font-medium">Naqd</th>
-                                <th className="px-3 py-2 text-right font-medium">Jami</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {steps.map((s) => {
-                                const has = s.details.length > 0
-                                const isOpen = open[s.key]
-                                return (
-                                    <Fragment key={s.key}>
-                                        <tr
-                                            className={cn("border-b", has && "cursor-pointer hover:bg-muted/30", s.key === "open" && "font-semibold")}
-                                            onClick={() => has && setOpen((o) => ({ ...o, [s.key]: !o[s.key] }))}
-                                        >
-                                            <td className="px-3 py-2">
-                                                <div className="flex items-center gap-1.5 min-w-0">
-                                                    {has ? (
-                                                        isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />
-                                                    ) : (
-                                                        <span className="w-[15px]" />
-                                                    )}
-                                                    <div className="min-w-0">
-                                                        <div className="leading-snug">
-                                                            {s.sign && <span className="mr-1.5 text-muted-foreground">{s.sign}</span>}
-                                                            {s.label}
-                                                        </div>
-                                                        {s.link && (
-                                                            <span className="text-xs text-primary underline underline-offset-2">{s.link}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-2 text-right"><M v={s.bank} /></td>
-                                            <td className="px-3 py-2 text-right"><M v={s.naqd} /></td>
-                                            <td className="px-3 py-2 text-right"><M v={total(s)} strong /></td>
-                                        </tr>
-                                        {isOpen &&
-                                            s.details.map((x, i) => (
-                                                <tr key={i} className="border-b bg-muted/20 text-xs">
-                                                    <td className="py-1.5 pl-9 pr-3">{x.label}</td>
-                                                    <td className="px-3 py-1.5 text-right"><M v={x.bank} /></td>
-                                                    <td className="px-3 py-1.5 text-right"><M v={x.naqd} /></td>
-                                                    <td className="px-3 py-1.5 text-right"><M v={x.bank + x.naqd} /></td>
+                    <Card>
+                        <CardContent className="p-0 overflow-x-auto">
+                            <table className="w-full min-w-[620px] table-fixed text-sm">
+                                <colgroup>
+                                    <col />
+                                    <col className="w-[19%]" />
+                                    <col className="w-[19%]" />
+                                    <col className="w-[21%]" />
+                                </colgroup>
+                                <thead>
+                                    <tr className="border-b bg-muted/40 text-muted-foreground">
+                                        <th className="px-3 py-2 text-left font-medium">Kapital o'zgarishi ko'prigi</th>
+                                        <th className="px-3 py-2 text-right font-medium">Bank</th>
+                                        <th className="px-3 py-2 text-right font-medium">Naqd</th>
+                                        <th className="px-3 py-2 text-right font-medium">Jami</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.bridge.map((s) => {
+                                        if (s.key === "unexplained") {
+                                            return balanced ? (
+                                                <tr key={s.key} className="border-b font-semibold text-green-600">
+                                                    <td className="px-3 py-2">
+                                                        <span className="inline-flex items-center gap-1.5">
+                                                            <span className="text-muted-foreground">±</span> Tushuntirilmagan farq: 0 <Check size={16} />
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right" />
+                                                    <td className="px-3 py-2 text-right" />
+                                                    <td className="px-3 py-2 text-right">0 ✓</td>
                                                 </tr>
-                                            ))}
-                                    </Fragment>
-                                )
-                            })}
-                            <tr className="border-b bg-muted/40 font-semibold">
-                                <td className="px-3 py-2"><span className="mr-1.5 text-muted-foreground">=</span>Davr oxiridagi kapital</td>
-                                <td className="px-3 py-2 text-right"><M v={close.bank} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={close.naqd} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={total(close)} strong /></td>
-                            </tr>
-                            <tr className="border-b text-muted-foreground">
-                                <td className="px-3 py-2">Balansdagi kapital</td>
-                                <td className="px-3 py-2 text-right"><M v={balance.bank} /></td>
-                                <td className="px-3 py-2 text-right"><M v={balance.naqd} /></td>
-                                <td className="px-3 py-2 text-right"><M v={total(balance)} /></td>
-                            </tr>
-                            {gapTotal === 0 ? (
-                                <tr className="font-semibold text-green-600">
-                                    <td className="px-3 py-2">
-                                        <span className="inline-flex items-center gap-1.5">
-                                            Balansdagi kapital bilan farq: 0 <Check size={16} />
-                                        </span>
-                                    </td>
-                                    <td className="px-3 py-2 text-right">0</td>
-                                    <td className="px-3 py-2 text-right">0</td>
-                                    <td className="px-3 py-2 text-right">0</td>
-                                </tr>
-                            ) : (
-                                <tr className="bg-amber-50 font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
-                                    <td className="px-3 py-2">
-                                        <div className="inline-flex items-center gap-1.5">
-                                            <AlertTriangle size={16} /> Tushuntirilmagan farq
-                                        </div>
-                                        <div className="text-xs font-normal">
-                                            Bu farq kiritilmagan yoki noto'g'ri yozilgan operatsiya borligini bildiradi.
-                                        </div>
-                                    </td>
-                                    <td className="px-3 py-2 text-right"><M v={gap.bank} className="text-amber-700 dark:text-amber-400" /></td>
-                                    <td className="px-3 py-2 text-right"><M v={gap.naqd} className="text-amber-700 dark:text-amber-400" /></td>
-                                    <td className="px-3 py-2 text-right"><M v={gapTotal} className="text-amber-700 dark:text-amber-400" /></td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </CardContent>
-            </Card>
+                                            ) : (
+                                                <tr key={s.key} className="border-b bg-amber-50 font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+                                                    <td className="px-3 py-2">
+                                                        <div className="inline-flex items-center gap-1.5">
+                                                            <AlertTriangle size={16} /> Tushuntirilmagan farq
+                                                        </div>
+                                                        <div className="text-xs font-normal">
+                                                            kiritilmagan yoki noto'g'ri yozilgan operatsiya bor — pastdagi o'zgarish manbalariga qarang
+                                                        </div>
+                                                        {data.unexplained.note && (
+                                                            <div className="text-xs font-normal">{data.unexplained.note}</div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right" />
+                                                    <td className="px-3 py-2 text-right" />
+                                                    <td className="px-3 py-2 text-right">
+                                                        <M v={s.total} className="text-amber-700 dark:text-amber-400" />
+                                                    </td>
+                                                </tr>
+                                            )
+                                        }
+                                        const has = s.details.length > 0
+                                        const isOpen = open[`b:${s.key}`]
+                                        const strong = s.key === "open" || s.key === "close"
+                                        return (
+                                            <Fragment key={s.key}>
+                                                <tr
+                                                    className={cn(
+                                                        "border-b",
+                                                        has && "cursor-pointer hover:bg-muted/30",
+                                                        strong && "font-semibold",
+                                                        s.key === "close" && "bg-muted/40",
+                                                    )}
+                                                    onClick={() => has && toggle(`b:${s.key}`)}
+                                                >
+                                                    <td className="px-3 py-2">
+                                                        <div className="flex min-w-0 items-center gap-1.5">
+                                                            {has ? (
+                                                                isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />
+                                                            ) : (
+                                                                <span className="w-[15px]" />
+                                                            )}
+                                                            <div className="min-w-0">
+                                                                <div className="leading-snug">
+                                                                    {s.sign && <span className="mr-1.5 text-muted-foreground">{s.sign}</span>}
+                                                                    {s.label}
+                                                                </div>
+                                                                {s.key === "profit" && data.report && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="link"
+                                                                        className="h-auto gap-1 p-0 text-xs"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation()
+                                                                            navigate({ to: "/moliyaviy-hisobot/$id", params: { id: String(data.report!.id) } })
+                                                                        }}
+                                                                    >
+                                                                        Oylik hisobotni ochish <ExternalLink size={12} />
+                                                                    </Button>
+                                                                )}
+                                                                {s.note && <div className="text-xs font-normal text-muted-foreground">{s.note}</div>}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right"><M v={s.bank} /></td>
+                                                    <td className="px-3 py-2 text-right"><M v={s.naqd} /></td>
+                                                    <td className="px-3 py-2 text-right"><M v={s.total} strong /></td>
+                                                </tr>
+                                                {isOpen &&
+                                                    s.details.map((x, i) => (
+                                                        <tr key={i} className="border-b bg-muted/20 text-xs">
+                                                            <td className="py-1.5 pl-9 pr-3">{x.label}</td>
+                                                            <td className="px-3 py-1.5 text-right"><M v={x.bank} /></td>
+                                                            <td className="px-3 py-1.5 text-right"><M v={x.naqd} /></td>
+                                                            <td className="px-3 py-1.5 text-right"><M v={x.total} /></td>
+                                                        </tr>
+                                                    ))}
+                                            </Fragment>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </CardContent>
+                    </Card>
 
-            <Waterfall steps={steps} close={close} />
+                    <Waterfall bridge={data.bridge} />
 
-            <Card>
-                <CardContent className="p-0 overflow-x-auto">
-                    <table className="w-full min-w-[720px] text-sm">
-                        <thead>
-                            <tr className="border-b bg-muted/40 text-muted-foreground">
-                                <th className="px-3 py-2 text-left font-medium">Investorlar kesimida</th>
-                                <th className="px-3 py-2 text-right font-medium">Boshidagi ulush</th>
-                                <th className="px-3 py-2 text-right font-medium">Foydadagi ulushi</th>
-                                <th className="px-3 py-2 text-right font-medium">Kiritgan</th>
-                                <th className="px-3 py-2 text-right font-medium">Olgan</th>
-                                <th className="px-3 py-2 text-right font-medium" title="Qayta baholash va tuzatishlardagi ulushi">Boshqa</th>
-                                <th className="px-3 py-2 text-right font-medium">Oxiridagi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {investors.map((x) => (
-                                <tr key={x.name} className="border-b">
-                                    <td className="px-3 py-2">{x.name}</td>
-                                    <td className="px-3 py-2 text-right"><M v={x.open} /></td>
-                                    <td className="px-3 py-2 text-right"><M v={x.profit} /></td>
-                                    <td className="px-3 py-2 text-right"><M v={x.invested} /></td>
-                                    <td className="px-3 py-2 text-right"><M v={x.taken} /></td>
-                                    <td className="px-3 py-2 text-right"><M v={x.other} /></td>
-                                    <td className="px-3 py-2 text-right"><M v={x.end} strong /></td>
-                                </tr>
-                            ))}
-                            <tr className="bg-muted/40 font-semibold">
-                                <td className="px-3 py-2">Jami</td>
-                                <td className="px-3 py-2 text-right"><M v={invTotals.open} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={invTotals.profit} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={invTotals.invested} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={invTotals.taken} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={invTotals.other} strong /></td>
-                                <td className="px-3 py-2 text-right"><M v={invTotals.end} strong /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </CardContent>
-            </Card>
-            <p className="text-xs text-muted-foreground">
-                Investorlar jami = davr oxiridagi kapital ({Mln(total(close))} so'm). Jami qator yuqoridagi ko'prik bilan mos keladi.
-            </p>
+                    <Card>
+                        <CardContent className="p-0 overflow-x-auto">
+                            <table className="w-full min-w-[720px] table-fixed text-sm">
+                                <colgroup>
+                                    <col />
+                                    <col className="w-[16%]" />
+                                    <col className="w-[16%]" />
+                                    <col className="w-[18%]" />
+                                </colgroup>
+                                <thead>
+                                    <tr className="border-b bg-muted/40 text-muted-foreground">
+                                        <th className="px-3 py-2 text-left font-medium">O'zgarish manbalari (kapitalga ta'siri)</th>
+                                        <th className="px-3 py-2 text-right font-medium">Bank</th>
+                                        <th className="px-3 py-2 text-right font-medium">Naqd</th>
+                                        <th className="px-3 py-2 text-right font-medium">Jami</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.sources.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="px-3 py-6 text-center text-muted-foreground">
+                                                Bu davrda balans qatorlari o'zgarmagan.
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {data.sources.map((s) => {
+                                        const k = `s:${s.section}:${s.key}`
+                                        const has = s.details.length > 0
+                                        const isOpen = open[k]
+                                        return (
+                                            <Fragment key={k}>
+                                                <tr
+                                                    className={cn("border-b", has && "cursor-pointer hover:bg-muted/30")}
+                                                    onClick={() => has && toggle(k)}
+                                                >
+                                                    <td className="px-3 py-2">
+                                                        <div className="flex min-w-0 items-center gap-1.5">
+                                                            {has ? (
+                                                                isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />
+                                                            ) : (
+                                                                <span className="w-[15px]" />
+                                                            )}
+                                                            <div className="min-w-0">
+                                                                <div className="leading-snug">{s.label}</div>
+                                                                <div className="text-xs text-muted-foreground">
+                                                                    {s.section === "aktiv" ? "Aktiv" : "Majburiyat"}
+                                                                    {" · "}
+                                                                    <M v={s.start.total} /> → <M v={s.end.total} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right"><M v={s.effect.bank} /></td>
+                                                    <td className="px-3 py-2 text-right"><M v={s.effect.naqd} /></td>
+                                                    <td className="px-3 py-2 text-right"><M v={s.effect.total} strong /></td>
+                                                </tr>
+                                                {isOpen &&
+                                                    s.details.map((x, i) => (
+                                                        <tr key={i} className="border-b bg-muted/20 text-xs">
+                                                            <td className="py-1.5 pl-9 pr-3">{x.label}</td>
+                                                            <td className="px-3 py-1.5 text-right"><M v={x.effect.bank} /></td>
+                                                            <td className="px-3 py-1.5 text-right"><M v={x.effect.naqd} /></td>
+                                                            <td className="px-3 py-1.5 text-right"><M v={x.effect.total} /></td>
+                                                        </tr>
+                                                    ))}
+                                            </Fragment>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </CardContent>
+                    </Card>
+                    <p className="text-xs text-muted-foreground">
+                        Majburiyat oshishi kapitalni kamaytiradi, shuning uchun «Jami» ustuni kapitalga sof ta'sirni ko'rsatadi. Manbalar yig'indisi = kapital o'zgarishi.
+                    </p>
+                </>
+            )}
         </div>
     )
 }
