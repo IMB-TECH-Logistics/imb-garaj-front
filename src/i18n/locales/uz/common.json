@@ -3713,7 +3713,10 @@
             "price_usd": "Narxi, $",
             "price_rate": "Dollar kursi",
             "price_hint": "Egasi bu qismni necha pulga olgan. Balansda mashina narxi aktivda, shu summa egasining mulki bo'lib majburiyatda ko'rinadi — Izumi kapitali o'zgarmaydi.",
-            "price_label": "narxi {{price}}"
+            "price_label": "narxi {{price}}",
+            "periods_title": "Summa o'zgarishi",
+            "periods_hint": "Ijara summasi biror oydan o'zgarsa, shu yerga qo'shing: o'sha oydan boshlab yangi summa hisoblanadi, oldingi oylar eski summada qoladi. Xato kiritilgan summani tuzatish uchun esa yuqoridagi «Oylik ijara» maydonini o'zgartiring.",
+            "from_start": "Boshidan"
         },
         "owners": {
             "title": "Mashina egalari bo'yicha",

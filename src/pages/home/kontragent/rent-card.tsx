@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { useDelete } from "@/hooks/useDelete"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
@@ -35,7 +36,10 @@ type VehicleRent = {
     since: string | null
     price_usd: string
     price_rate: string | null
+    periods?: RentPeriod[]
 }
+
+type RentPeriod = { id: number; since: string; monthly_usd: string; vat_percent: string }
 
 type VehicleOption = { id: number; truck_number: string }
 
@@ -201,6 +205,94 @@ const PriceFields = ({ control }: { control: any }) => {
     )
 }
 
+const monthLabel = (d: string) => d.slice(0, 7).split("-").reverse().join(".")
+
+// Ijara summasi o'zgarishi: «shu oydan boshlab yangi summa» — eski oylar eski summada qoladi
+const RentPeriods = ({ rent }: { rent: VehicleRent }) => {
+    const { t } = useTranslation()
+    const qc = useQueryClient()
+    const [since, setSince] = useState("")
+    const [amount, setAmount] = useState("")
+    const [vat, setVat] = useState(String(num(rent.vat_percent)))
+    const [periods, setPeriods] = useState<RentPeriod[]>(rent.periods ?? [])
+    useEffect(() => setPeriods(rent.periods ?? []), [rent.id, rent.periods])
+    const { mutate: add, isPending } = usePost({
+        onSuccess: (p: RentPeriod) => {
+            setPeriods((xs) => [...xs.filter((x) => x.since !== p.since), p].sort((a, b) => a.since.localeCompare(b.since)))
+            setSince("")
+            setAmount("")
+            refreshKontragent(qc)
+        },
+        onError: onApiError(t("messages.error")),
+    })
+    const { mutate: remove } = useDelete({
+        onSuccess: () => refreshKontragent(qc),
+        onError: onApiError(t("messages.error")),
+    })
+    return (
+        <div className="flex flex-col gap-2 rounded-md border p-3">
+            <div className="text-sm font-medium">{t("fin_report.rent_card.periods_title")}</div>
+            <p className="text-xs text-muted-foreground">{t("fin_report.rent_card.periods_hint")}</p>
+            <div className="flex flex-col divide-y rounded border text-sm">
+                <div className="flex justify-between px-2 py-1.5 text-muted-foreground">
+                    <span>{rent.since ? t("fin_report.rent_card.since_label", { date: monthLabel(rent.since) }) : t("fin_report.rent_card.from_start")}</span>
+                    <span className="tabular-nums">{usd(rent.monthly_usd)}{num(rent.vat_percent) ? ` + ${num(rent.vat_percent)}%` : ""}</span>
+                </div>
+                {periods.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between gap-2 px-2 py-1.5">
+                        <span>{t("fin_report.rent_card.since_label", { date: monthLabel(p.since) })}</span>
+                        <span className="flex items-center gap-2 tabular-nums">
+                            {usd(p.monthly_usd)}{num(p.vat_percent) ? ` + ${num(p.vat_percent)}%` : ""}
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-destructive"
+                                aria-label={t("actions.delete")}
+                                onClick={() => {
+                                    remove(`${VEHICLE_RENTS}/${rent.id}/periods/${p.id}`)
+                                    setPeriods((xs) => xs.filter((x) => x.id !== p.id))
+                                }}
+                            >
+                                <Trash2 className="w-3 h-3" />
+                            </Button>
+                        </span>
+                    </div>
+                ))}
+            </div>
+            <div className="grid grid-cols-[1fr_1fr_80px_auto] items-end gap-2">
+                <label className="flex flex-col gap-1 text-xs">
+                    {t("fin_report.rent_card.since")}
+                    <Input type="month" value={since} onChange={(e) => setSince(e.target.value)} />
+                </label>
+                <label className="flex flex-col gap-1 text-xs">
+                    {t("fin_report.rent_card.monthly_usd")}
+                    <Input type="number" min={0} value={amount} onChange={(e) => setAmount(e.target.value)} />
+                </label>
+                <label className="flex flex-col gap-1 text-xs">
+                    {t("fin_report.rent_card.vat_percent")}
+                    <Input type="number" min={0} value={vat} onChange={(e) => setVat(e.target.value)} />
+                </label>
+                <Button
+                    type="button"
+                    size="sm"
+                    loading={isPending}
+                    disabled={!since || !(Number(amount) > 0)}
+                    onClick={() =>
+                        add(`${VEHICLE_RENTS}/${rent.id}/periods`, {
+                            since: `${since}-01`,
+                            monthly_usd: num(amount),
+                            vat_percent: num(vat),
+                        })
+                    }
+                >
+                    <Plus className="w-4 h-4" />
+                </Button>
+            </div>
+        </div>
+    )
+}
+
 const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () => void }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
@@ -274,6 +366,7 @@ const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () 
             </div>
             <PriceFields control={form.control} />
             <p className="text-xs text-muted-foreground">{t("fin_report.rent_card.price_hint")}</p>
+            <RentPeriods rent={rent} />
             <div className="flex justify-end gap-2 pt-1">
                 <Button type="button" variant="outline" className="min-w-28" onClick={closeModal}>
                     {t("actions.cancel")}
