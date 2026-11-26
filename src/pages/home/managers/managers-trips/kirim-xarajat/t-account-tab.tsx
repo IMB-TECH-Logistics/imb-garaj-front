@@ -67,7 +67,7 @@ const sectionOfRow = (row: FinanceRow): Section => {
 
 
 const sortByDate = <T extends { created: string; id: number }>(rows: T[]) =>
-    [...rows].sort((x, y) => String(x.created).localeCompare(String(y.created)) || x.id - y.id)
+    [...rows].sort((x, y) => String(y.created).localeCompare(String(x.created)) || y.id - x.id)
 
 export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number; hideToggle?: boolean }) {
     const { t } = useTranslation()
@@ -454,8 +454,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
             {hideToggle ? (() => {
                 if (!access[filter].view) return null
                 const control = access[filter].control
-                // Hamma ro'yxatlar yozuv qilingan sana bo'yicha (eskisi tepada), Excel tartibidek
-                const byDate = (rows: FinanceRow[]) => [...rows].sort((x, y) => String(x.created).localeCompare(String(y.created)) || x.id - y.id)
+                // Hamma ro'yxatlar yozuv qilingan sana bo'yicha: yangisi tepada, eskisi pastda
+                const byDate = (rows: FinanceRow[]) => [...rows].sort((x, y) => String(y.created).localeCompare(String(x.created)) || y.id - x.id)
                 const isTransferFuel = (r: FinanceRow) => r.category_code === "fuel" && /o.?tkaz/i.test(r.payment_type_name ?? "")
                 if (filter === "avans") {
                     const advances = byDate(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
