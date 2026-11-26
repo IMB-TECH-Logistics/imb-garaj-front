@@ -188,12 +188,14 @@ export const useMonitoringData = ({ historical, dimension, filters, mode, truckS
             mapBounds
                 ? cargoItems.filter(
                       (g) =>
-                          g.lat != null &&
-                          g.lng != null &&
-                          g.lat <= mapBounds.north &&
+                          // Koordinatasiz (tracker hech qachon signal bermagan) mashina xaritada yo'q,
+                          // lekin ro'yxatda «offline» bo'lib turishi kerak.
+                          g.lat == null ||
+                          g.lng == null ||
+                          (g.lat <= mapBounds.north &&
                           g.lat >= mapBounds.south &&
                           g.lng <= mapBounds.east &&
-                          g.lng >= mapBounds.west,
+                          g.lng >= mapBounds.west),
                   )
                 : cargoItems,
         [cargoItems, mapBounds],
