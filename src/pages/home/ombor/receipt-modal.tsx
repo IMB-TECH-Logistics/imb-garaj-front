@@ -37,6 +37,7 @@ export const RECEIPT_EDIT_MODAL_KEY = "wh-receipt-edit"
 type LineValues = {
     lot?: number
     used?: boolean
+    orig_price?: string
     product: number | ""
     quantity: string
     unit_price: string
@@ -46,6 +47,7 @@ type LineValues = {
 type FormValues = {
     date: string
     comment: string
+    price_fix_reason?: string
     lines: LineValues[]
     supplier?: number | ""
     paid_now?: number | ""
@@ -183,7 +185,6 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
                     decimalScale={2}
                     thousandSeparator=" "
                     isAllowed={({ floatValue }) => floatValue === undefined || floatValue <= MAX_PRICE}
-                    disabled={used}
                 />
                 <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap">
                     {formatMoneyText(sum)}
@@ -204,6 +205,7 @@ const ReceiptLineCard = ({ index, form, products, onRemove }: CardProps) => {
 const lotToLine = (lot: ReceiptLot): LineValues => ({
     lot: lot.id,
     used: lot.is_used,
+    orig_price: String(toNumber(lot.unit_price)),
     product: lot.product,
     quantity: String(toNumber(lot.qty_in)),
     unit_price: String(toNumber(lot.unit_price)),
@@ -236,7 +238,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
     })
 
     const form = useForm<FormValues>({
-        defaultValues: { date: todayISO(), comment: "", lines: [], supplier: "", paid_now: "" },
+        defaultValues: { date: todayISO(), comment: "", price_fix_reason: "", lines: [], supplier: "", paid_now: "" },
     })
     const { control, handleSubmit } = form
     const { fields, append, remove } = useFieldArray({ control, name: "lines" })
@@ -250,11 +252,17 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         form.reset({
             date: detail.date,
             comment: detail.comment ?? "",
+            price_fix_reason: "",
             lines: detail.lots.map(lotToLine),
         })
     }, [detail])
 
     const lines = useWatch({ control, name: "lines" })
+    const priceFixReason = useWatch({ control, name: "price_fix_reason" }) ?? ""
+    // Ishlatilgan (olingan) mahsulot narxi o'zgartirilsa — sabab majburiy
+    const usedPriceChanged = lines.some(
+        (l) => l.used && l.orig_price !== undefined && toNumber(l.unit_price) !== toNumber(l.orig_price),
+    )
 
     const total = centsToNumber(
         lines.reduce(
@@ -285,6 +293,9 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         }
         if (lines.some((l) => l.unit_price === "")) {
             return t("wh.receipt.err_price")
+        }
+        if (usedPriceChanged && !priceFixReason.trim()) {
+            return t("wh.receipt.err_price_fix_reason")
         }
         return ""
     })()
@@ -334,6 +345,7 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
         const payload = {
             date: values.date,
             comment: values.comment.trim() || (receiptId ? null : undefined),
+            ...(receiptId && usedPriceChanged ? { price_fix_reason: (values.price_fix_reason ?? "").trim() } : {}),
             lines: values.lines.map((line) => ({
                 ...(line.lot && { lot: line.lot }),
                 product: Number(line.product),
@@ -441,6 +453,16 @@ const ReceiptForm = ({ receiptId }: { receiptId?: number }) => {
                         label={t("form.comment")}
                         methods={form}
                     />
+                    {usedPriceChanged && (
+                        <div className="flex flex-col gap-1">
+                            <FormTextarea
+                                name="price_fix_reason"
+                                label={t("wh.receipt.price_fix_reason")}
+                                methods={form}
+                            />
+                            <span className="text-xs text-muted-foreground">{t("wh.receipt.price_fix_reason_hint")}</span>
+                        </div>
+                    )}
                 </div>
             </section>
 

@@ -65,6 +65,10 @@ const sectionOfRow = (row: FinanceRow): Section => {
     return "xarajat"
 }
 
+
+const sortByDate = <T extends { created: string; id: number }>(rows: T[]) =>
+    [...rows].sort((x, y) => String(x.created).localeCompare(String(y.created)) || x.id - y.id)
+
 export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "aylanma" | "haydovchi"; onToggle: (m: "aylanma" | "haydovchi") => void; tripId?: number; hideToggle?: boolean }) {
     const { t } = useTranslation()
     const locked = useTripCashClosed(tripId)
@@ -450,7 +454,8 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
             {hideToggle ? (() => {
                 if (!access[filter].view) return null
                 const control = access[filter].control
-                const byDate = (rows: FinanceRow[]) => [...rows].sort((x, y) => String(y.created).localeCompare(String(x.created)))
+                // Hamma ro'yxatlar yozuv qilingan sana bo'yicha (eskisi tepada), Excel tartibidek
+                const byDate = (rows: FinanceRow[]) => [...rows].sort((x, y) => String(x.created).localeCompare(String(y.created)) || x.id - y.id)
                 const isTransferFuel = (r: FinanceRow) => r.category_code === "fuel" && /o.?tkaz/i.test(r.payment_type_name ?? "")
                 if (filter === "avans") {
                     const advances = byDate(incomeRows.filter((r) => r.action === ADVANCE_ACTION))
@@ -560,10 +565,10 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                     )
                 }
                 const rows =
-                    filter === "tushum" ? incomeRows.filter((r) => r.action === 1)
-                    : filter === "zapravka" ? allExpenses.filter(isTransferFuel)
+                    filter === "tushum" ? byDate(incomeRows.filter((r) => r.action === 1))
+                    : filter === "zapravka" ? byDate(allExpenses.filter(isTransferFuel))
                     : filter === "xarajat" ? byDate(allExpenses.filter(isCashExpense))
-                    : allExpenses.filter((r) => r.category_code === "salary")
+                    : byDate(allExpenses.filter((r) => r.category_code === "salary"))
                 const title = { tushum: t("trips.kclose.cash_trip_money"), avans: t("trips.kirim.advance_and_expenses"), xarajat: t("trips.kirim.cash_expense"), zapravka: t("trips.kirim.fuel_transfer"), oylik: t("trips.kclose.salary") }[filter]
                 const actions =
                     !control ? null
@@ -639,7 +644,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 <div className="overflow-y-auto min-h-0">
                     <DataTable
                         columns={incomeCols}
-                        data={incomeRows}
+                        data={sortByDate(incomeRows)}
                         numeration
                         viewAll
                         onDelete={({ original }) => {
@@ -671,7 +676,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 <div className="overflow-y-auto min-h-0">
                     <DataTable
                         columns={expenseCols}
-                        data={expenseRows}
+                        data={sortByDate(expenseRows)}
                         rowColor={noReceiptRow}
                         numeration
                         viewAll
