@@ -278,8 +278,9 @@ export const useItems = () => {
     const investorsV1 = me?.investor_version === 1 || import.meta.env.VITE_INVESTORS_V1 === "1"
     const kontragentOn = investorsV1 || !!me?.kontragent_enabled
     const bankOn = !!me?.bank_enabled
-    // Moliyaviy hisobot bo'limi faqat kontragent yoqilgan firmada (hozir Izumi); VST'da yopiq
-    const finReportOn = !!me?.kontragent_enabled
+    // Moliyaviy hisobot bo'limi faqat yangi moliya rejimidagi firmada (hozir Izumi).
+    // VST (investor_version=1) da backend kontragent_enabled=true qaytaradi — shuning uchun alohida yopamiz.
+    const finReportOn = !investorsV1 && !!me?.kontragent_enabled
     return useMemo<MenuItem[]>(
         () => [
             {
