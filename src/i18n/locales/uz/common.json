@@ -3709,7 +3709,11 @@
             "monthly_usd": "Oylik ijara, $",
             "since": "Qaysi oydan",
             "vat_percent": "QQS, %",
-            "since_label": "{{date}} dan"
+            "since_label": "{{date}} dan",
+            "price_usd": "Narxi, $",
+            "price_rate": "Dollar kursi",
+            "price_hint": "Egasi bu qismni necha pulga olgan. Balansda mashina narxi aktivda, shu summa egasining mulki bo'lib majburiyatda ko'rinadi — Izumi kapitali o'zgarmaydi.",
+            "price_label": "narxi {{price}}"
         },
         "owners": {
             "title": "Mashina egalari bo'yicha",

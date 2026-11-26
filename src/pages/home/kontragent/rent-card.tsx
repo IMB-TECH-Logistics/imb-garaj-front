@@ -11,7 +11,7 @@ import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
-import { Plus, Trash2 } from "lucide-react"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -21,6 +21,7 @@ import { Kontragent, kontragentUrl, num, onApiError } from "./api"
 export const VEHICLE_RENTS = "kontragent/vehicle-rents"
 const RENT_ADD = "vehicle-rent-add"
 const RENT_DELETE = "vehicle-rent-delete"
+const RENT_PRICE = "vehicle-rent-price"
 
 type VehicleRent = {
     id: number
@@ -32,6 +33,8 @@ type VehicleRent = {
     monthly_usd: string
     vat_percent: string
     since: string | null
+    price_usd: string
+    price_rate: string | null
 }
 
 type VehicleOption = { id: number; truck_number: string }
@@ -64,6 +67,8 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
         monthly_usd: number | ""
         vat_percent: number | ""
         since: string
+        price_usd: number | ""
+        price_rate: number | ""
     }>({
         defaultValues: {
             vehicle: "",
@@ -71,6 +76,8 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
             monthly_usd: "",
             vat_percent: 12,
             since: "",
+            price_usd: "",
+            price_rate: "",
         },
     })
     const { mutate: add, isPending } = usePost({
@@ -93,6 +100,8 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                     monthly_usd: num(v.monthly_usd),
                     vat_percent: num(v.vat_percent),
                     since: v.since ? `${v.since}-01` : null,
+                    price_usd: num(v.price_usd),
+                    price_rate: v.price_rate === "" ? null : num(v.price_rate),
                 }),
             )}
         >
@@ -149,6 +158,7 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                     <Input type="month" {...form.register("since")} />
                 </label>
             </div>
+            <PriceFields control={form.control} />
             <div className="flex justify-end gap-2 pt-1">
                 <Button
                     type="button"
@@ -156,6 +166,78 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                     className="min-w-28"
                     onClick={closeModal}
                 >
+                    {t("actions.cancel")}
+                </Button>
+                <Button type="submit" className="min-w-32" loading={isPending}>
+                    {t("actions.save")}
+                </Button>
+            </div>
+        </form>
+    )
+}
+
+// Egasi bu qismni necha pulga olgan: balansda «egasining mulki» bo'lib ko'rinadi
+const PriceFields = ({ control }: { control: any }) => {
+    const { t } = useTranslation()
+    return (
+        <div className="grid grid-cols-2 gap-3">
+            <FormNumberInput
+                control={control}
+                name="price_usd"
+                label={t("fin_report.rent_card.price_usd")}
+                thousandSeparator=" "
+                decimalScale={0}
+                allowNegative={false}
+            />
+            <FormNumberInput
+                control={control}
+                name="price_rate"
+                label={t("fin_report.rent_card.price_rate")}
+                thousandSeparator=" "
+                decimalScale={2}
+                allowNegative={false}
+            />
+        </div>
+    )
+}
+
+const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () => void }) => {
+    const { t } = useTranslation()
+    const qc = useQueryClient()
+    const { closeModal } = useModal(RENT_PRICE)
+    const form = useForm<{ price_usd: number | ""; price_rate: number | "" }>({
+        defaultValues: { price_usd: "", price_rate: "" },
+    })
+    useEffect(() => {
+        form.reset({
+            price_usd: rent && num(rent.price_usd) ? num(rent.price_usd) : "",
+            price_rate: rent?.price_rate ? num(rent.price_rate) : "",
+        })
+    }, [rent?.id])
+    const { mutate: save, isPending } = usePatch({
+        onSuccess: () => {
+            toast.success(t("messages.success_edit"))
+            closeModal()
+            onDone()
+            refreshKontragent(qc)
+        },
+        onError: onApiError(t("messages.error")),
+    })
+    if (!rent) return null
+    return (
+        <form
+            className="flex flex-col gap-3"
+            onSubmit={form.handleSubmit((v) =>
+                save(`${VEHICLE_RENTS}/${rent.id}`, {
+                    price_usd: num(v.price_usd),
+                    price_rate: v.price_rate === "" ? null : num(v.price_rate),
+                }),
+            )}
+        >
+            <PriceFields control={form.control} />
+            <p className="text-xs text-muted-foreground">{t("fin_report.rent_card.price_hint")}</p>
+            <div className="flex justify-end gap-2 pt-1">
+                <Button type="button" variant="outline" className="min-w-28" onClick={closeModal}>
                     {t("actions.cancel")}
                 </Button>
                 <Button type="submit" className="min-w-32" loading={isPending}>
@@ -179,6 +261,8 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
         [row.dividend_share],
     )
     const [toDelete, setToDelete] = useState<VehicleRent | null>(null)
+    const [priceRent, setPriceRent] = useState<VehicleRent | null>(null)
+    const { openModal: openPrice } = useModal(RENT_PRICE)
     const { openModal: openAdd } = useModal(RENT_ADD)
     const { openModal: openDelete } = useModal(RENT_DELETE)
 
@@ -281,7 +365,27 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                                             )}
                                         </span>
                                     )}
+                                    {num(r.price_usd) > 0 && (
+                                        <span className="text-muted-foreground">
+                                            {" "}· {t("fin_report.rent_card.price_label", { price: usd(r.price_usd) })}
+                                        </span>
+                                    )}
                                 </span>
+                                {canEdit && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        aria-label={t("fin_report.rent_card.price_usd")}
+                                        title={t("fin_report.rent_card.price_usd")}
+                                        onClick={() => {
+                                            setPriceRent(r)
+                                            openPrice()
+                                        }}
+                                    >
+                                        <Pencil className="w-3.5 h-3.5" />
+                                    </Button>
+                                )}
                                 {canEdit && (
                                     <Button
                                         variant="ghost"
@@ -318,6 +422,13 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                     size="max-w-sm"
                 >
                     <AddRentForm kontragentId={row.id} />
+                </Modal>
+                <Modal
+                    title={priceRent ? `${priceRent.plate} · ${partLabel(priceRent.part)}` : ""}
+                    modalKey={RENT_PRICE}
+                    size="max-w-sm"
+                >
+                    <RentPriceForm rent={priceRent} onDone={() => setPriceRent(null)} />
                 </Modal>
                 <DeleteModal
                     path={VEHICLE_RENTS}

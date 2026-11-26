@@ -3705,7 +3705,11 @@
             "monthly_usd": "月額賃料、$",
             "since": "開始月",
             "vat_percent": "VAT, %",
-            "since_label": "{{date}} から"
+            "since_label": "{{date}} から",
+            "price_usd": "価格, $",
+            "price_rate": "ドルレート",
+            "price_hint": "所有者がこの部分を購入した価格。貸借対照表では資産に計上され、同額が所有者の財産として負債に表示されます（資本は変わりません）。",
+            "price_label": "価格 {{price}}"
         },
         "owners": {
             "title": "車両オーナー別",
