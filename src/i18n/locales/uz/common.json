@@ -3715,7 +3715,11 @@
             "price_hint": "Egasi bu qismni necha pulga olgan. Balansda mashina narxi aktivda, shu summa egasining mulki bo'lib majburiyatda ko'rinadi — Izumi kapitali o'zgarmaydi.",
             "price_label": "narxi {{price}}",
             "periods_title": "Summa o'zgarishi",
-            "periods_hint": "Ijara summasi biror oydan o'zgarsa, shu yerga qo'shing: o'sha oydan boshlab yangi summa hisoblanadi, oldingi oylar eski summada qoladi. Xato kiritilgan summani tuzatish uchun esa yuqoridagi «Oylik ijara» maydonini o'zgartiring.",
+            "periods_hint": "Summa o'zgarsa, yangi summani va «Qaysi oydan»ni kiriting: o'sha oydan yangi summa hisoblanadi, oldingi oylar eski summada qoladi. Oy o'zgarmasa — joriy summa tuzatiladi.",
+            "price_title": "Mashina narxi",
+            "rent_title": "Ijara",
+            "history_title": "Tarix",
+            "until_now": "hozirgacha",
             "from_start": "Boshidan"
         },
         "owners": {

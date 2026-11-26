@@ -3718,7 +3718,11 @@
             "price_hint": "What the owner paid for this part. In the balance sheet the price is an asset and the same amount is a liability (owner's property), so equity does not change.",
             "price_label": "price {{price}}",
             "periods_title": "Amount changes",
-            "periods_hint": "If the rent changes from some month, add it here: the new amount applies from that month, earlier months keep the old amount.",
+            "periods_hint": "If the rent changes, enter the new amount and the month: it applies from that month, earlier months keep the old amount.",
+            "price_title": "Vehicle price",
+            "rent_title": "Rent",
+            "history_title": "History",
+            "until_now": "now",
             "from_start": "From start"
         },
         "owners": {

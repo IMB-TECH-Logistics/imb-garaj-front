@@ -5,14 +5,20 @@ import { FormNumberInput } from "@/components/form/number-input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useHasAction } from "@/constants/useUser"
+import { useDelete } from "@/hooks/useDelete"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
-import { useDelete } from "@/hooks/useDelete"
 import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { useQueryClient } from "@tanstack/react-query"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Info, Pencil, Plus, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -39,7 +45,12 @@ type VehicleRent = {
     periods?: RentPeriod[]
 }
 
-type RentPeriod = { id: number; since: string; monthly_usd: string; vat_percent: string }
+type RentPeriod = {
+    id: number
+    since: string
+    monthly_usd: string
+    vat_percent: string
+}
 
 type VehicleOption = { id: number; truck_number: string }
 
@@ -149,7 +160,7 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
                         Number(v) > 0 || t("investors.errors.gt_zero"),
                 }}
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-3">
                 <FormNumberInput
                     control={form.control}
                     name="vat_percent"
@@ -184,7 +195,7 @@ const AddRentForm = ({ kontragentId }: { kontragentId: number }) => {
 const PriceFields = ({ control }: { control: any }) => {
     const { t } = useTranslation()
     return (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-3">
             <FormNumberInput
                 control={control}
                 name="price_usd"
@@ -207,151 +218,194 @@ const PriceFields = ({ control }: { control: any }) => {
 
 const monthLabel = (d: string) => d.slice(0, 7).split("-").reverse().join(".")
 
-// Ijara summasi o'zgarishi: «shu oydan boshlab yangi summa» — eski oylar eski summada qoladi
-const RentPeriods = ({ rent }: { rent: VehicleRent }) => {
-    const { t } = useTranslation()
-    const qc = useQueryClient()
-    const [since, setSince] = useState("")
-    const [amount, setAmount] = useState("")
-    const [vat, setVat] = useState(String(num(rent.vat_percent)))
-    const [periods, setPeriods] = useState<RentPeriod[]>(rent.periods ?? [])
-    useEffect(() => setPeriods(rent.periods ?? []), [rent.id, rent.periods])
-    const { mutate: add, isPending } = usePost({
-        onSuccess: (p: RentPeriod) => {
-            setPeriods((xs) => [...xs.filter((x) => x.since !== p.since), p].sort((a, b) => a.since.localeCompare(b.since)))
-            setSince("")
-            setAmount("")
-            refreshKontragent(qc)
-        },
-        onError: onApiError(t("messages.error")),
-    })
-    const { mutate: remove } = useDelete({
-        onSuccess: () => refreshKontragent(qc),
-        onError: onApiError(t("messages.error")),
-    })
-    return (
-        <div className="flex flex-col gap-2 rounded-md border p-3">
-            <div className="text-sm font-medium">{t("fin_report.rent_card.periods_title")}</div>
-            <p className="text-xs text-muted-foreground">{t("fin_report.rent_card.periods_hint")}</p>
-            <div className="flex flex-col divide-y rounded border text-sm">
-                <div className="flex justify-between px-2 py-1.5 text-muted-foreground">
-                    <span>{rent.since ? t("fin_report.rent_card.since_label", { date: monthLabel(rent.since) }) : t("fin_report.rent_card.from_start")}</span>
-                    <span className="tabular-nums">{usd(rent.monthly_usd)}{num(rent.vat_percent) ? ` + ${num(rent.vat_percent)}%` : ""}</span>
-                </div>
-                {periods.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between gap-2 px-2 py-1.5">
-                        <span>{t("fin_report.rent_card.since_label", { date: monthLabel(p.since) })}</span>
-                        <span className="flex items-center gap-2 tabular-nums">
-                            {usd(p.monthly_usd)}{num(p.vat_percent) ? ` + ${num(p.vat_percent)}%` : ""}
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 text-destructive"
-                                aria-label={t("actions.delete")}
-                                onClick={() => {
-                                    remove(`${VEHICLE_RENTS}/${rent.id}/periods/${p.id}`)
-                                    setPeriods((xs) => xs.filter((x) => x.id !== p.id))
-                                }}
-                            >
-                                <Trash2 className="w-3 h-3" />
-                            </Button>
-                        </span>
-                    </div>
-                ))}
-            </div>
-            <div className="grid grid-cols-[1fr_1fr_80px_auto] items-end gap-2">
-                <label className="flex flex-col gap-1 text-xs">
-                    {t("fin_report.rent_card.since")}
-                    <Input type="month" value={since} onChange={(e) => setSince(e.target.value)} />
-                </label>
-                <label className="flex flex-col gap-1 text-xs">
-                    {t("fin_report.rent_card.monthly_usd")}
-                    <Input type="number" min={0} value={amount} onChange={(e) => setAmount(e.target.value)} />
-                </label>
-                <label className="flex flex-col gap-1 text-xs">
-                    {t("fin_report.rent_card.vat_percent")}
-                    <Input type="number" min={0} value={vat} onChange={(e) => setVat(e.target.value)} />
-                </label>
-                <Button
-                    type="button"
-                    size="sm"
-                    loading={isPending}
-                    disabled={!since || !(Number(amount) > 0)}
-                    onClick={() =>
-                        add(`${VEHICLE_RENTS}/${rent.id}/periods`, {
-                            since: `${since}-01`,
-                            monthly_usd: num(amount),
-                            vat_percent: num(vat),
-                        })
-                    }
-                >
-                    <Plus className="w-4 h-4" />
-                </Button>
-            </div>
-        </div>
-    )
+const prevMonth = (d: string) => {
+    const [y, m] = d.slice(0, 7).split("-").map(Number)
+    return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`
 }
 
-const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () => void }) => {
+const InfoHint = ({ text }: { text: string }) => (
+    <TooltipProvider delayDuration={100}>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <button
+                    type="button"
+                    tabIndex={-1}
+                    className="text-muted-foreground hover:text-foreground"
+                >
+                    <Info className="w-3.5 h-3.5" />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent
+                side="bottom"
+                align="start"
+                className="max-w-72 font-normal"
+            >
+                {text}
+            </TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
+)
+
+type HistoryRow = {
+    key: string
+    periodId?: number
+    since: string | null
+    monthly_usd: string
+    vat_percent: string
+}
+
+// Ijara tarixi: asosiy summa + «shu oydan» o'zgarishlar, har biri keyingisigacha amal qiladi
+const rentHistory = (rent: VehicleRent): HistoryRow[] => [
+    {
+        key: "base",
+        since: rent.since,
+        monthly_usd: rent.monthly_usd,
+        vat_percent: rent.vat_percent,
+    },
+    ...[...(rent.periods ?? [])]
+        .sort((a, b) => a.since.localeCompare(b.since))
+        .map((p) => ({
+            key: `p${p.id}`,
+            periodId: p.id,
+            since: p.since,
+            monthly_usd: p.monthly_usd,
+            vat_percent: p.vat_percent,
+        })),
+]
+
+const RentEditForm = ({
+    rent,
+    onDone,
+}: {
+    rent: VehicleRent | null
+    onDone: () => void
+}) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
     const { closeModal } = useModal(RENT_PRICE)
+    const history = useMemo(() => (rent ? rentHistory(rent) : []), [rent])
+    const current = history[history.length - 1]
     const form = useForm<{
+        price_usd: number | ""
+        price_rate: number | ""
         monthly_usd: number | ""
         vat_percent: number | ""
         since: string
-        price_usd: number | ""
-        price_rate: number | ""
     }>({
-        defaultValues: { monthly_usd: "", vat_percent: 12, since: "", price_usd: "", price_rate: "" },
+        defaultValues: {
+            price_usd: "",
+            price_rate: "",
+            monthly_usd: "",
+            vat_percent: 12,
+            since: "",
+        },
     })
     useEffect(() => {
+        if (!rent || !current) return
         form.reset({
-            monthly_usd: rent ? num(rent.monthly_usd) : "",
-            vat_percent: rent ? num(rent.vat_percent) : 12,
-            since: rent?.since ? rent.since.slice(0, 7) : "",
-            price_usd: rent && num(rent.price_usd) ? num(rent.price_usd) : "",
-            price_rate: rent?.price_rate ? num(rent.price_rate) : "",
+            price_usd: num(rent.price_usd) ? num(rent.price_usd) : "",
+            price_rate: rent.price_rate ? num(rent.price_rate) : "",
+            monthly_usd: num(current.monthly_usd),
+            vat_percent: num(current.vat_percent),
+            since: current.since ? current.since.slice(0, 7) : "",
         })
-    }, [rent?.id])
-    const { mutate: save, isPending } = usePatch({
-        onSuccess: () => {
-            toast.success(t("messages.success_edit"))
-            closeModal()
-            onDone()
-            refreshKontragent(qc)
-        },
+    }, [rent?.id, rent?.periods?.length])
+    const done = () => {
+        toast.success(t("messages.success_edit"))
+        refreshKontragent(qc)
+    }
+    const { mutateAsync: patchAsync, isPending: patching } = usePatch({
         onError: onApiError(t("messages.error")),
     })
-    if (!rent) return null
+    const { mutateAsync: postAsync, isPending: posting } = usePost({
+        onError: onApiError(t("messages.error")),
+    })
+    const { mutate: removePeriod } = useDelete({
+        onSuccess: () => refreshKontragent(qc),
+        onError: onApiError(t("messages.error")),
+    })
+    if (!rent || !current) return null
+
+    const onSubmit = async (v: {
+        price_usd: number | ""
+        price_rate: number | ""
+        monthly_usd: number | ""
+        vat_percent: number | ""
+        since: string
+    }) => {
+        try {
+            const body: Record<string, unknown> = {
+                price_usd: num(v.price_usd),
+                price_rate: v.price_rate === "" ? null : num(v.price_rate),
+            }
+            const changed =
+                num(v.monthly_usd) !== num(current.monthly_usd) ||
+                num(v.vat_percent) !== num(current.vat_percent)
+            const sameMonth =
+                (v.since || "") ===
+                (current.since ? current.since.slice(0, 7) : "")
+            if (changed && (sameMonth || !v.since)) {
+                // Shu davrning o'zidagi xatoni tuzatish
+                if (current.periodId) {
+                    await postAsync(`${VEHICLE_RENTS}/${rent.id}/periods`, {
+                        since: `${current.since!.slice(0, 7)}-01`,
+                        monthly_usd: num(v.monthly_usd),
+                        vat_percent: num(v.vat_percent),
+                    })
+                } else {
+                    body.monthly_usd = num(v.monthly_usd)
+                    body.vat_percent = num(v.vat_percent)
+                }
+            } else if (!sameMonth && v.since) {
+                if (!current.periodId && !rent.since && !changed) {
+                    body.since = `${v.since}-01`
+                } else {
+                    // Yangi oydan boshqa summa — eski oylar eski summada qoladi
+                    await postAsync(`${VEHICLE_RENTS}/${rent.id}/periods`, {
+                        since: `${v.since}-01`,
+                        monthly_usd: num(v.monthly_usd),
+                        vat_percent: num(v.vat_percent),
+                    })
+                }
+            }
+            await patchAsync(`${VEHICLE_RENTS}/${rent.id}`, body)
+            done()
+            closeModal()
+            onDone()
+        } catch {
+            // xato toast'i onError'da ko'rsatiladi
+        }
+    }
+
     return (
         <form
             className="flex flex-col gap-3"
-            onSubmit={form.handleSubmit((v) =>
-                save(`${VEHICLE_RENTS}/${rent.id}`, {
-                    monthly_usd: num(v.monthly_usd),
-                    vat_percent: num(v.vat_percent),
-                    since: v.since ? `${v.since}-01` : null,
-                    price_usd: num(v.price_usd),
-                    price_rate: v.price_rate === "" ? null : num(v.price_rate),
-                }),
-            )}
+            onSubmit={form.handleSubmit(onSubmit)}
         >
-            <FormNumberInput
-                required
-                control={form.control}
-                name="monthly_usd"
-                label={t("fin_report.rent_card.monthly_usd")}
-                thousandSeparator=" "
-                decimalScale={0}
-                allowNegative={false}
-                registerOptions={{
-                    validate: (v: unknown) =>
-                        Number(v) > 0 || t("investors.errors.gt_zero"),
-                }}
-            />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-1.5 text-sm font-medium">
+                {t("fin_report.rent_card.price_title")}
+                <InfoHint text={t("fin_report.rent_card.price_hint")} />
+            </div>
+            <PriceFields control={form.control} />
+
+            <div className="flex items-center gap-1.5 text-sm font-medium pt-1">
+                {t("fin_report.rent_card.rent_title")}
+                <InfoHint text={t("fin_report.rent_card.periods_hint")} />
+            </div>
+            <div className="flex flex-col gap-3">
+                <FormNumberInput
+                    required
+                    control={form.control}
+                    name="monthly_usd"
+                    label={t("fin_report.rent_card.monthly_usd")}
+                    thousandSeparator=" "
+                    decimalScale={0}
+                    allowNegative={false}
+                    registerOptions={{
+                        validate: (v: unknown) =>
+                            Number(v) > 0 || t("investors.errors.gt_zero"),
+                    }}
+                />
                 <FormNumberInput
                     control={form.control}
                     name="vat_percent"
@@ -359,19 +413,84 @@ const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () 
                     decimalScale={2}
                     allowNegative={false}
                 />
-                <label className="flex flex-col gap-1.5 text-sm font-medium">
-                    {t("fin_report.rent_card.since")}
-                    <Input type="month" {...form.register("since")} />
-                </label>
             </div>
-            <PriceFields control={form.control} />
-            <p className="text-xs text-muted-foreground">{t("fin_report.rent_card.price_hint")}</p>
-            <RentPeriods rent={rent} />
+            <label className="flex flex-col gap-1.5 text-sm font-medium">
+                {t("fin_report.rent_card.since")}
+                <Input type="month" {...form.register("since")} />
+            </label>
+
+            <div className="flex flex-col gap-1 pt-1">
+                <div className="text-sm font-medium">
+                    {t("fin_report.rent_card.history_title")}
+                </div>
+                <div className="flex flex-col divide-y rounded-md border text-sm">
+                    {history.map((h, i) => {
+                        const next = history[i + 1]
+                        const from =
+                            h.since ?
+                                monthLabel(h.since)
+                            :   t("fin_report.rent_card.from_start")
+                        const to =
+                            next?.since ?
+                                monthLabel(`${prevMonth(next.since)}-01`)
+                            :   t("fin_report.rent_card.until_now")
+                        return (
+                            <div
+                                key={h.key}
+                                className="flex items-center justify-between gap-2 px-2 py-1.5"
+                            >
+                                <span
+                                    className={
+                                        next ? "text-muted-foreground" : ""
+                                    }
+                                >
+                                    {from} – {to}
+                                </span>
+                                <span className="flex items-center gap-1.5 tabular-nums">
+                                    {usd(h.monthly_usd)}
+                                    {num(h.vat_percent) ?
+                                        <span className="text-muted-foreground">
+                                            {" "}
+                                            + {num(h.vat_percent)}%
+                                        </span>
+                                    :   null}
+                                    {h.periodId ?
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 text-destructive"
+                                            aria-label={t("actions.delete")}
+                                            onClick={() =>
+                                                removePeriod(
+                                                    `${VEHICLE_RENTS}/${rent.id}/periods/${h.periodId}`,
+                                                )
+                                            }
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                    :   <span className="w-6" />}
+                                </span>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+
             <div className="flex justify-end gap-2 pt-1">
-                <Button type="button" variant="outline" className="min-w-28" onClick={closeModal}>
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="min-w-28"
+                    onClick={closeModal}
+                >
                     {t("actions.cancel")}
                 </Button>
-                <Button type="submit" className="min-w-32" loading={isPending}>
+                <Button
+                    type="submit"
+                    className="min-w-32"
+                    loading={patching || posting}
+                >
                     {t("actions.save")}
                 </Button>
             </div>
@@ -382,7 +501,11 @@ const RentPriceForm = ({ rent, onDone }: { rent: VehicleRent | null; onDone: () 
 export const RentCard = ({ row }: { row: Kontragent }) => {
     const { t } = useTranslation()
     const qc = useQueryClient()
-    const canEdit = useHasAction(["kontragent_control", "investor_control", "fin_report_control"])
+    const canEdit = useHasAction([
+        "kontragent_control",
+        "investor_control",
+        "fin_report_control",
+    ])
     const { data: rents = [] } = useGet<VehicleRent[]>(VEHICLE_RENTS, {
         params: { kontragent: row.id },
     })
@@ -498,7 +621,12 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                                     )}
                                     {num(r.price_usd) > 0 && (
                                         <span className="text-muted-foreground">
-                                            {" "}· {t("fin_report.rent_card.price_label", { price: usd(r.price_usd) })}
+                                            {" "}
+                                            ·{" "}
+                                            {t(
+                                                "fin_report.rent_card.price_label",
+                                                { price: usd(r.price_usd) },
+                                            )}
                                         </span>
                                     )}
                                 </span>
@@ -555,11 +683,18 @@ export const RentCard = ({ row }: { row: Kontragent }) => {
                     <AddRentForm kontragentId={row.id} />
                 </Modal>
                 <Modal
-                    title={priceRent ? `${priceRent.plate} · ${partLabel(priceRent.part)}` : ""}
+                    title={
+                        priceRent ?
+                            `${priceRent.plate} · ${partLabel(priceRent.part)}`
+                        :   ""
+                    }
                     modalKey={RENT_PRICE}
                     size="max-w-sm"
                 >
-                    <RentPriceForm rent={priceRent} onDone={() => setPriceRent(null)} />
+                    <RentEditForm
+                        rent={priceRent}
+                        onDone={() => setPriceRent(null)}
+                    />
                 </Modal>
                 <DeleteModal
                     path={VEHICLE_RENTS}
