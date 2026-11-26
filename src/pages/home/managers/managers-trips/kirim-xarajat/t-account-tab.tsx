@@ -80,6 +80,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
     const { openModal: openRowEdit } = useModal("t-hisob-edit")
     const [advRow, setAdvRow] = useState<FinanceRow | null>(null)
     const [editRow, setEditRow] = useState<FinanceRow | null>(null)
+    const [salaryEditRow, setSalaryEditRow] = useState<FinanceRow | null>(null)
     const [addType, setAddType] = useState<"tushum" | "xarajat">("tushum")
     const [addPreset, setAddPreset] = useState<{ category?: string; method?: number; advance?: number }>({})
     const [selectedAdvance, setSelectedAdvance] = useState<number | null>(null)
@@ -161,6 +162,12 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
         if (row.action === ADVANCE_ACTION) {
             setAdvRow(row)
             openAdvEdit()
+            return
+        }
+        // Qo'shimcha oylik (buyurtmasiz, to'lov turisiz) — qo'shilgan oynaning o'zida tahrirlanadi
+        if (row.category_code === "salary" && !row.order && !row.payment_type) {
+            setSalaryEditRow(row)
+            openSalaryRequest()
             return
         }
         setData(MANAGERS_EXPENSES, row)
@@ -566,7 +573,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                         <Button size="sm" className="gap-1" onClick={() => startAdd("xarajat", { category: "fuel", method: 3 })}><Plus size={16} />{t("trips.kirim.fuel_up")}</Button>
                     : filter === "xarajat" ?
                         <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => startAdd("xarajat", { advance: latestAdvanceId })}><Plus size={16} />{t("page.add_expense")}</Button>
-                    :   <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => openSalaryRequest()}><Plus size={16} />{t("trips.row.extra_salary")}</Button>
+                    :   <Button size="sm" className="gap-1" disabled={locked} title={lockedTitle} onClick={() => { setSalaryEditRow(null); openSalaryRequest() }}><Plus size={16} />{t("trips.row.extra_salary")}</Button>
                 return (
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <DataTable
@@ -691,7 +698,7 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
             <Modal modalKey="t-hisob-add" title={addType === "xarajat" ? (addPreset.category === "fuel" ? t("trips.kirim.fuel_up") : t("page.add_expense")) : t("page.add_income")} size="max-w-md">
                 <AddFromTAccount type={addType} tripId={tripId} presetCategoryCode={addPreset.category} defaultPaymentMethod={addPreset.method} advanceId={addPreset.advance} />
             </Modal>
-            <SalaryRequestModal tripId={tripId} driverId={moliyaTrip?.driver} />
+            <SalaryRequestModal tripId={tripId} driverId={moliyaTrip?.driver} editRow={salaryEditRow} onDone={() => setSalaryEditRow(null)} />
             <Modal
                 modalKey="t-hisob-edit"
                 title={editRow?.action === -1 ? t("trips.kclose.edit_expense") : t("trips.kirim.edit_income")}

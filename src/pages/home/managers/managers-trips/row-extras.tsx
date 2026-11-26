@@ -11,6 +11,7 @@ import { useKontragents } from "@/pages/home/kontragent/api"
 import { format } from "date-fns"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
+import { usePatch } from "@/hooks/usePatch"
 import { usePost } from "@/hooks/usePost"
 import { formatDateTime } from "@/lib/format-date"
 import { formatMoney, formatMoneyText } from "@/lib/format-money"
@@ -292,26 +293,42 @@ export function AdvanceChangeModals({ row }: { row: RowExtras | null }) {
 
 export const SALARY_REQUEST_MODAL = "salary-request"
 
-export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driverId?: number }) {
+export type ExtraSalaryEditRow = { id: number; amount: number | string; comment: string | null; created: string }
+
+export function SalaryRequestModal({ tripId, driverId, editRow, onDone }: { tripId?: number; driverId?: number; editRow?: ExtraSalaryEditRow | null; onDone?: () => void }) {
     const { t } = useTranslation()
     const modal = useModal(SALARY_REQUEST_MODAL)
     const refresh = useRefreshFinance()
     const { mutate, isPending } = usePost({ meta: { skipGlobalError: true } })
+    const { mutate: patch, isPending: isPatching } = usePatch({ meta: { skipGlobalError: true } })
     const form = useForm<{ amount: number | ""; comment: string; date: string }>({ defaultValues: { amount: "", comment: "", date: "" } })
     useEffect(() => {
-        if (modal.isOpen) form.reset({ amount: "", comment: "", date: "" })
-    }, [modal.isOpen])
+        if (!modal.isOpen) return
+        form.reset(editRow
+            ? { amount: Number(editRow.amount), comment: editRow.comment ?? "", date: dayOf(editRow.created) }
+            : { amount: "", comment: "", date: "" })
+    }, [modal.isOpen, editRow?.id])
+    const done = (msg: string) => {
+        toast.success(msg)
+        refresh()
+        modal.closeModal()
+        onDone?.()
+    }
     return (
         <Modal modalKey={SALARY_REQUEST_MODAL} title={t("trips.row.extra_salary")} size="max-w-md">
             <form
                 className="flex flex-col gap-3"
                 onSubmit={form.handleSubmit((v) => {
-                    mutate(`checkout/kassa-v2/trips/${tripId}/extra-salary`, { amount: Number(v.amount), comment: v.comment || null, ...(v.date ? { date: v.date } : {}) }, {
-                        onSuccess: () => {
-                            toast.success(t("trips.row.extra_salary_saved"))
-                            refresh()
-                            modal.closeModal()
-                        },
+                    const body = { amount: Number(v.amount), comment: v.comment || null, ...(v.date ? { date: v.date } : {}) }
+                    if (editRow) {
+                        patch(`checkout/kassa-v2/trips/${tripId}/extra-salary/${editRow.id}`, body, {
+                            onSuccess: () => done(t("messages.success_edit")),
+                            onError: (e: unknown) => toast.error(errorText(e)),
+                        })
+                        return
+                    }
+                    mutate(`checkout/kassa-v2/trips/${tripId}/extra-salary`, body, {
+                        onSuccess: () => done(t("trips.row.extra_salary_saved")),
                         onError: (e: unknown) => toast.error(errorText(e)),
                     })
                 })}
@@ -335,7 +352,7 @@ export function SalaryRequestModal({ tripId, driverId }: { tripId?: number; driv
                 <FormTextarea label={t("form.comment")} name="comment" methods={form} />
                 <p className="text-xs text-muted-foreground">{t("trips.row.extra_salary_hint")}</p>
                 <div className="flex justify-end">
-                    <Button type="submit" className="min-w-32" loading={isPending}>{t("actions.save")}</Button>
+                    <Button type="submit" className="min-w-32" loading={isPending || isPatching}>{t("actions.save")}</Button>
                 </div>
             </form>
         </Modal>
