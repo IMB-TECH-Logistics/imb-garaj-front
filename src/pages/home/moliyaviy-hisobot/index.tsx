@@ -1,22 +1,21 @@
 import ParamTabs from "@/components/as-params/tabs"
 import Modal from "@/components/custom/modal"
 import BalancePage from "@/pages/home/balans"
-import { Badge } from "@/components/ui/badge"
+import { PnlMatrix } from "@/pages/home/hisobotlar/natijalar/matrix"
+import PulOqimiPage from "@/pages/home/hisobotlar/pul-oqimi"
+import KapitalPage from "@/pages/home/hisobotlar/kapital"
+import QarzlarPage from "@/pages/home/hisobotlar/qarzlar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { DataTable } from "@/components/ui/datatable"
 import { useHasAction } from "@/constants/useUser"
-import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePost } from "@/hooks/usePost"
 import { cn } from "@/lib/utils"
 import { amountText, num, onApiError } from "@/pages/home/kontragent/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { ColumnDef } from "@tanstack/react-table"
 import { format, subMonths } from "date-fns"
 import { Plus } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { MONTHLY_REPORTS, MonthlyReport, REPORT_CREATE } from "./api"
 
@@ -101,72 +100,8 @@ const FinanceReportsPage = () => {
     const navigate = useNavigate()
     const canEdit = useHasAction("fin_report_control")
     const { openModal } = useModal(REPORT_CREATE)
-    const { data = [], isLoading } = useGet<MonthlyReport[]>(MONTHLY_REPORTS)
     const open = (id: number) =>
         navigate({ to: "/moliyaviy-hisobot/$id", params: { id: String(id) } })
-
-    const columns = useMemo<ColumnDef<MonthlyReport>[]>(
-        () => [
-            {
-                accessorKey: "month_label",
-                header: t("fin_report.month"),
-                cell: ({ row }) => (
-                    <div className="flex items-center gap-2">
-                        <span className="font-medium">
-                            {row.original.month_label}
-                        </span>
-                        {row.original.unpriced_count > 0 && (
-                            <Badge
-                                variant="outline"
-                                className="border-amber-500/40 text-amber-600"
-                            >
-                                {t("fin_report.unpriced_short", {
-                                    count: row.original.unpriced_count,
-                                })}
-                            </Badge>
-                        )}
-                    </div>
-                ),
-            },
-            {
-                accessorKey: "income",
-                header: t("fin_report.lines.income"),
-                cell: ({ row }) => <Money value={row.original.income} />,
-            },
-            {
-                accessorKey: "profit",
-                header: t("fin_report.lines.profit"),
-                cell: ({ row }) => <Money value={row.original.profit} />,
-            },
-            {
-                accessorKey: "overhead",
-                header: t("fin_report.lines.overhead"),
-                cell: ({ row }) => (
-                    <Money value={-num(row.original.overhead)} />
-                ),
-            },
-            {
-                accessorKey: "net",
-                header: t("fin_report.lines.net"),
-                cell: ({ row }) => <Money value={row.original.net} strong />,
-            },
-            {
-                accessorKey: "computed_at",
-                header: t("fin_report.computed_at"),
-                cell: ({ row }) => (
-                    <span className="text-muted-foreground whitespace-nowrap">
-                        {row.original.computed_at ?
-                            format(
-                                new Date(row.original.computed_at),
-                                "dd.MM.yyyy HH:mm",
-                            )
-                        :   "—"}
-                    </span>
-                ),
-            },
-        ],
-        [t],
-    )
 
     const search = useSearch({ from: "/_main" }) as Record<string, string | undefined>
     const tab = search.fin_tab || "reports"
@@ -180,6 +115,9 @@ const FinanceReportsPage = () => {
                 options={[
                     { value: "reports", label: t("fin_report.tab_reports") },
                     { value: "balans", label: t("balans.title") },
+                    { value: "pul_oqimi", label: "Pul oqimi" },
+                    { value: "kapital", label: "Kapital o'zgarishi" },
+                    { value: "qarzlar", label: "Debitor / Kreditor" },
                 ]}
                 right={
                     tab === "reports" && canEdit ?
@@ -192,20 +130,13 @@ const FinanceReportsPage = () => {
             />
             {tab === "balans" ?
                 <BalancePage />
-            :   <>
-            <Card>
-                <CardContent className="p-4">
-                    <DataTable
-                        columns={columns}
-                        data={data}
-                        loading={isLoading}
-                        numeration
-                        wrapperClassName="p-0"
-                        onRowClick={(r) => open(r.id)}
-                    />
-                </CardContent>
-            </Card>
-                </>
+            : tab === "pul_oqimi" ?
+                <PulOqimiPage />
+            : tab === "kapital" ?
+                <KapitalPage />
+            : tab === "qarzlar" ?
+                <QarzlarPage />
+            :   <PnlMatrix onOpen={open} />
             }
             <Modal
                 title={t("fin_report.create")}
