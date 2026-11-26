@@ -305,6 +305,21 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
         .sort((x, y) => String(y.created).localeCompare(String(x.created)))[0]?.id
     const expenseRows = expenseData?.results ?? []
 
+    const moliyaTrip = useGlobalStore.getState().getData(`${MANAGERS_TRIPS}-moliya`) as any
+    const fuelKind = String(moliyaTrip?.fuel_type ?? moliyaTrip?.vehicle_fuel ?? "").toLowerCase()
+    const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : t("trips.units.liter")
+    const { data: stationsData } = useGet<ListResponse<{ id: number; fuel_type?: string | null }>>(
+        SETTINGS_PETROL_STATIONS,
+        { params: { page_size: 1000 } },
+    )
+    const stationUnit = useMemo(() => {
+        const m = new Map<number, string>()
+        for (const st of stationsData?.results ?? []) {
+            if (st.fuel_type === "methane") m.set(st.id, "m³")
+            else if (st.fuel_type === "diesel") m.set(st.id, t("trips.units.liter"))
+        }
+        return m
+    }, [stationsData, t])
     const incomeCols = useIncomeCols({ withCategory: true })
     const mixedCols = useMemo<ColumnDef<FinanceRow>[]>(
         () => [
@@ -323,7 +338,16 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
             {
                 header: t("trips.kclose.what_for"),
                 accessorKey: "category_name",
-                cell: ({ row }) => row.original.category_name || (row.original.action === ADVANCE_ACTION ? (row.original.comment?.toLowerCase().includes("qo'shimcha") ? t("trips.kirim.extra_money") : t("trips.kclose.advance")) : "—"),
+                cell: ({ row }) => {
+                    const r = row.original
+                    const name = r.category_name || (r.action === ADVANCE_ACTION ? (r.comment?.toLowerCase().includes("qo'shimcha") ? t("trips.kirim.extra_money") : t("trips.kclose.advance")) : "—")
+                    // Yoqilg'ida miqdor ham ko'rinsin: «Yoqilg'i (211 m³)»
+                    if (r.category_code === "fuel" && r.quantity && Number(r.quantity) > 0) {
+                        const unit = (r.petrol_station != null && stationUnit.get(r.petrol_station)) || fuelUnit
+                        return `${name} (${formatQuantity(r.quantity, unit)})`
+                    }
+                    return name
+                },
             },
             {
                 header: t("trips.kclose.trip"),
@@ -353,25 +377,10 @@ export function TAccountTab({ mode, onToggle, tripId, hideToggle }: { mode: "ayl
                 ),
             },
         ],
-        [t, isKassaV2, tripId, closePreview],
+        [t, isKassaV2, tripId, closePreview, stationUnit, fuelUnit],
     )
     const expenseCols = useExpenseCols({ withCategory: true })
 
-    const moliyaTrip = useGlobalStore.getState().getData(`${MANAGERS_TRIPS}-moliya`) as any
-    const fuelKind = String(moliyaTrip?.fuel_type ?? moliyaTrip?.vehicle_fuel ?? "").toLowerCase()
-    const fuelUnit = fuelKind.includes("methane") || fuelKind.includes("metan") ? "m³" : t("trips.units.liter")
-    const { data: stationsData } = useGet<ListResponse<{ id: number; fuel_type?: string | null }>>(
-        SETTINGS_PETROL_STATIONS,
-        { params: { page_size: 1000 } },
-    )
-    const stationUnit = useMemo(() => {
-        const m = new Map<number, string>()
-        for (const st of stationsData?.results ?? []) {
-            if (st.fuel_type === "methane") m.set(st.id, "m³")
-            else if (st.fuel_type === "diesel") m.set(st.id, t("trips.units.liter"))
-        }
-        return m
-    }, [stationsData, t])
     const zapravkaCols = useMemo<ColumnDef<FinanceRow>[]>(
         () => [
             mixedCols[0],
