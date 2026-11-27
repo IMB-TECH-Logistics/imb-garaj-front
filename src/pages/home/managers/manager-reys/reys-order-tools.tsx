@@ -205,7 +205,7 @@ export function GpsSequenceModal({ tripId }: { tripId?: string }) {
     )
 }
 
-type ImportResult = { created: boolean; order: number; trip: number | null; vehicle: string | null; route: string; date: string | null }
+type ImportResult = { created: boolean; other_vehicle?: boolean; order: number; trip: number | null; vehicle: string | null; route: string; date: string | null }
 
 export function LogisticsImportModal({ tripId }: { tripId?: string }) {
     const { t } = useTranslation()
@@ -230,7 +230,7 @@ export function LogisticsImportModal({ tripId }: { tripId?: string }) {
         setResult(null)
         mutate(
             `${MANAGERS_ORDERS}/import-logistics`,
-            { code: code.trim().toUpperCase() },
+            { code: code.trim().toUpperCase(), trip: tripId ? Number(tripId) : null },
             {
                 onSuccess: (data: ImportResult) => {
                     setResult(data)
@@ -268,6 +268,11 @@ export function LogisticsImportModal({ tripId }: { tripId?: string }) {
                         <p>
                             {result.vehicle} · {result.route} · {result.date}
                         </p>
+                        {result.other_vehicle && (
+                            <p className="font-medium text-destructive">
+                                {t("reys_order.import_other_vehicle", { vehicle: result.vehicle })}
+                            </p>
+                        )}
                         {result.trip && String(result.trip) !== String(tripId) && (
                             <Link
                                 to="/manager-trips/manager-reys/$id"

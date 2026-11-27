@@ -3820,6 +3820,7 @@
         "impossible_leg": "{{from}} → {{to}} ~{{km}} km in {{time}} (needs at least {{need}}) — physically impossible",
         "swap_worse_hint": "Swap anyway?",
         "hm": "{{h}} h {{m}} min",
-        "m": "{{m}} min"
+        "m": "{{m}} min",
+        "import_other_vehicle": "Warning: this trip is on another vehicle ({{vehicle}}), not this turnover's vehicle"
     }
 }

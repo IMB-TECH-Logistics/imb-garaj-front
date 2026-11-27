@@ -3961,6 +3961,7 @@
         "impossible_leg": "{{from}} → {{to}} ~{{km}} km, vaqt {{time}} (kamida {{need}} kerak) — jismonan imkonsiz",
         "swap_worse_hint": "Baribir almashtirish kerakmi?",
         "hm": "{{h}} soat {{m}} daq",
-        "m": "{{m}} daq"
+        "m": "{{m}} daq",
+        "import_other_vehicle": "Diqqat: bu reys boshqa mashinada ({{vehicle}}), shu aylanmaning mashinasida emas"
     }
 }
