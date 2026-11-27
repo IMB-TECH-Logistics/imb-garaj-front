@@ -1,10 +1,10 @@
-import { formatMoney } from "@/lib/format-money"
 import { cn } from "@/lib/utils"
 import { ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import i18n from "@/i18n/i18n"
 import type { ExpenseItem, InspectionServiceRow } from "./types"
+import { ExpenseBreakdown } from "./expense-breakdown"
 
 export type VehicleExpenseRow = {
     id: number
@@ -75,13 +75,9 @@ export const useExpenseCols = () => {
             {
                 header: t("form.amount"),
                 accessorKey: "amount",
-                size: 130,
+                size: 190,
                 enableSorting: true,
-                cell: ({ row }) => {
-                    const v =
-                        (Number(row.original.services_total ?? row.original.amount) || 0) + (Number(row.original.warehouse_total) || 0)
-                    return <span className="font-medium text-red-600">{formatMoney(v)}</span>
-                },
+                cell: ({ row }) => <ExpenseBreakdown row={row.original} />,
             },
             {
                 header: t("form.date"),

@@ -21,6 +21,7 @@ import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { fmtDate, toNumber } from "../ombor/utils"
 import type { VehicleExpenseRow } from "./cols"
+import { ExpenseBreakdown, expenseParts } from "./expense-breakdown"
 import { TECH_INSPECTION_CODE } from "./types"
 
 type Props = {
@@ -83,7 +84,7 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit, onDelete }: Props) => {
         <Sheet open={!!row} onOpenChange={(open) => !open && onClose()}>
             <SheetContent
                 side="right"
-                className="w-full sm:max-w-2xl overflow-y-auto"
+                className="w-full sm:max-w-4xl overflow-y-auto"
             >
                 {row && (
                     <>
@@ -157,6 +158,12 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit, onDelete }: Props) => {
                                             <TableHead>
                                                 {t("form.quantity")}
                                             </TableHead>
+                                            <TableHead className="text-right">
+                                                {t("texnik.breakdown.price")}
+                                            </TableHead>
+                                            <TableHead className="text-right">
+                                                {t("form.amount")}
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -196,10 +203,26 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit, onDelete }: Props) => {
                                                     {toNumber(item.quantity)}{" "}
                                                     {item.unit_name}
                                                 </TableCell>
+                                                <TableCell className="text-right tabular-nums whitespace-nowrap">
+                                                    {formatMoney(Number(item.unit_price) || 0)}
+                                                </TableCell>
+                                                <TableCell className="text-right tabular-nums whitespace-nowrap font-medium">
+                                                    {formatMoney(Number(item.total) || 0)}
+                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
                                 </Table>
+                                {!!items.length && (
+                                    <div className="rounded-lg bg-muted/60 p-3 mt-3">
+                                        <div className="text-xs text-muted-foreground">
+                                            {t("texnik.breakdown.products_total")}
+                                        </div>
+                                        <div className="text-base font-semibold tabular-nums text-red-600">
+                                            {formatMoney(expenseParts(row).products)} {t("page.som")}
+                                        </div>
+                                    </div>
+                                )}
                                 {!!services.length && (
                                     <>
                                         <h3 className="font-medium mt-5 mb-2 flex items-center gap-2">
@@ -244,6 +267,17 @@ const ExpenseDetailSheet = ({ row, onClose, onEdit, onDelete }: Props) => {
                                             </div>
                                         </div>
                                     </>
+                                )}
+                                {!!items.length && !!services.length && (
+                                    <div className="rounded-lg border-2 border-red-200 p-3 mt-4">
+                                        <div className="text-xs text-muted-foreground mb-1">
+                                            {t("texnik.breakdown.grand_total")}
+                                        </div>
+                                        <ExpenseBreakdown row={row} size="lg" />
+                                        <div className="text-xs text-muted-foreground mt-2">
+                                            {t("texnik.breakdown.kassa_hint")}
+                                        </div>
+                                    </div>
                                 )}
                             </>
                         :   <div className="rounded-lg bg-muted/60 p-3 mt-5">

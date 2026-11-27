@@ -42,6 +42,7 @@ import ItemDetailSheet from "../ombor/items/detail-sheet"
 import { fmtDate, toNumber } from "../ombor/utils"
 import AddExpenseModal from "./add-expense"
 import { expenseNote, lifespanHint, type VehicleExpenseRow } from "./cols"
+import { ExpenseBreakdown } from "./expense-breakdown"
 import ExpenseDetailSheet from "./detail-sheet"
 import { TexnikTabs } from "./spend-tab"
 
@@ -204,8 +205,8 @@ const VehicleExpenses = ({
                                 {expenseNote(r) || "—"}
                             </span>
                         </TableCell>
-                        <TableCell className="text-right whitespace-nowrap font-medium text-red-600">
-                            {formatMoney((Number(r.services_total ?? r.amount) || 0) + (Number(r.warehouse_total) || 0))}
+                        <TableCell className="text-right min-w-44">
+                            <ExpenseBreakdown row={r} />
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                             {r.lifespan ? fmtDate(r.lifespan) : "—"}
@@ -233,7 +234,7 @@ const VehicleItemsSheet = ({
     const { t } = useTranslation()
     return (
         <Sheet open={!!row} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+            <SheetContent side="right" className="w-full sm:max-w-4xl overflow-y-auto">
                 <SheetHeader>
                     <SheetTitle>
                         {row?.truck_number}

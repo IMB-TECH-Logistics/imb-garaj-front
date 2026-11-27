@@ -1362,6 +1362,15 @@
             "state_choose": "Tanlang",
             "state_on_reys": "Reysda",
             "state_changed": "Holat o'zgartirildi"
+        },
+        "breakdown": {
+            "products": "Ombordan mahsulot",
+            "services": "Usta xizmati",
+            "total": "Jami",
+            "price": "Narxi",
+            "products_total": "Mahsulotlar jami (ombordan)",
+            "grand_total": "Texnik ko'rik jami",
+            "kassa_hint": "Kassaga faqat usta xizmati so'raladi — mahsulot ombordan olingan, kassadan pul chiqmaydi."
         }
     },
     "route_norms": {

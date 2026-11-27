@@ -1365,6 +1365,15 @@
             "state_choose": "Choose",
             "state_on_reys": "On trip",
             "state_changed": "State changed"
+        },
+        "breakdown": {
+            "products": "Warehouse products",
+            "services": "Mechanic service",
+            "total": "Total",
+            "price": "Price",
+            "products_total": "Products total (from warehouse)",
+            "grand_total": "Inspection total",
+            "kassa_hint": "Only the mechanic service is requested from the cash desk — products come from the warehouse."
         }
     },
     "route_norms": {
