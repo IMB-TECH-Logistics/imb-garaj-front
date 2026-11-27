@@ -3815,6 +3815,11 @@
         "import_done": "Trip added from logistics",
         "import_exists": "This trip already exists in the garage",
         "import_error": "Could not get it from logistics",
-        "open_trip": "Open turnover #{{id}}"
+        "open_trip": "Open turnover #{{id}}",
+        "swap_worse_title": "Warning: this swap makes the order worse",
+        "impossible_leg": "{{from}} → {{to}} ~{{km}} km in {{time}} (needs at least {{need}}) — physically impossible",
+        "swap_worse_hint": "Swap anyway?",
+        "hm": "{{h}} h {{m}} min",
+        "m": "{{m}} min"
     }
 }

@@ -293,22 +293,63 @@ export function LogisticsImportModal({ tripId }: { tripId?: string }) {
     )
 }
 
-/** ↑ / ↓ — qo'shni tugagan reys bilan o'rin (holat vaqtlari) almashtirish. */
+type SwapPreview = {
+    breaks_before: number
+    breaks_after: number
+    worse: boolean
+    impossible: { from_place: string; to_place: string; km: number; minutes: number; need_minutes: number }[]
+}
+
+const hm = (t: (k: string, o?: any) => string, minutes: number) =>
+    minutes >= 60 ? t("reys_order.hm", { h: Math.floor(minutes / 60), m: minutes % 60 }) : t("reys_order.m", { m: minutes })
+
+/** ↑ / ↓ — qo'shni tugagan reys bilan o'rin (holat vaqtlari) almashtirish.
+ *  Avval oldindan ko'rish: zanjir uzilishi va imkonsiz bo'sh yurishlar ogohlantiriladi,
+ *  qarorni menejer qiladi. */
 export function useSwapOrders(tripId?: string) {
     const { t } = useTranslation()
     const refresh = useRefreshTrip()
     const confirm = useConfirm()
-    const { mutate, isPending } = usePost({})
+    const { mutate, mutateAsync, isPending } = usePost({})
 
     const swap = async (current: ManagerOrders, other?: ManagerOrders) => {
         if (!tripId || !other) return
+        const url = `${MANAGERS_TRIPS}/${tripId}/swap-orders`
+        let preview: SwapPreview
+        try {
+            preview = await mutateAsync(url, { first: current.id, second: other.id, preview: true })
+        } catch (e: any) {
+            toast.error(errorText(e, t("reys_order.swap_error")))
+            return
+        }
         const ok = await confirm({
-            title: t("reys_order.swap_title"),
-            description: `${current.loading_name} → ${current.unloading_name}  ⇄  ${other.loading_name} → ${other.unloading_name}`,
+            title: preview.worse ? t("reys_order.swap_worse_title") : t("reys_order.swap_title"),
+            description: (
+                <span className="flex flex-col gap-2 text-left">
+                    <span>
+                        {current.loading_name} → {current.unloading_name} ⇄ {other.loading_name} → {other.unloading_name}
+                    </span>
+                    <span className={preview.breaks_after > preview.breaks_before ? "font-medium text-destructive" : preview.breaks_after < preview.breaks_before ? "font-medium text-green-600" : ""}>
+                        {t("reys_order.breaks", { before: preview.breaks_before, after: preview.breaks_after })}
+                    </span>
+                    {preview.impossible.map((row) => (
+                        <span key={`${row.from_place}-${row.to_place}-${row.minutes}`} className="font-medium text-destructive">
+                            ⚠ {t("reys_order.impossible_leg", {
+                                from: row.from_place,
+                                to: row.to_place,
+                                km: Math.round(row.km),
+                                time: hm(t, row.minutes),
+                                need: hm(t, row.need_minutes),
+                            })}
+                        </span>
+                    ))}
+                    {preview.worse && <span>{t("reys_order.swap_worse_hint")}</span>}
+                </span>
+            ),
         })
         if (!ok) return
         mutate(
-            `${MANAGERS_TRIPS}/${tripId}/swap-orders`,
+            url,
             { first: current.id, second: other.id },
             {
                 onSuccess: () => {

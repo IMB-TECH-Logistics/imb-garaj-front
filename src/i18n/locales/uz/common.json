@@ -3956,6 +3956,11 @@
         "import_done": "Reys logistikadan qo'shildi",
         "import_exists": "Bu reys garajda allaqachon bor",
         "import_error": "Logistikadan olib bo'lmadi",
-        "open_trip": "Aylanma #{{id}} ni ochish"
+        "open_trip": "Aylanma #{{id}} ni ochish",
+        "swap_worse_title": "Diqqat: bu almashtirish tartibni yomonlashtiradi",
+        "impossible_leg": "{{from}} → {{to}} ~{{km}} km, vaqt {{time}} (kamida {{need}} kerak) — jismonan imkonsiz",
+        "swap_worse_hint": "Baribir almashtirish kerakmi?",
+        "hm": "{{h}} soat {{m}} daq",
+        "m": "{{m}} daq"
     }
 }
