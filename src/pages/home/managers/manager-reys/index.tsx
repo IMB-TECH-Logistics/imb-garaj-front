@@ -19,7 +19,7 @@ import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
 import { useParams, useSearch } from "@tanstack/react-router"
-import { ArrowRightLeft, Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react"
+import { ArrowRightLeft, Check, ChevronLeft, ChevronRight, Download, Plus, Route, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useColumnsManagersOrders } from "./cols"
@@ -31,6 +31,15 @@ import AdvanceBadge from "../managers-trips/advance-badge"
 import TripFuelSummary, { type TripFuel } from "./trip-fuel-summary"
 import EmptyLegPayModal, { EMPTY_LEG_PAY_MODAL_KEY, type EmptyLeg } from "./empty-leg-pay-modal"
 import ExtraPayModal, { EXTRA_PAY_MODAL_KEY, type ExtraPayTarget } from "./extra-pay-modal"
+import {
+    GPS_SEQUENCE_MODAL_KEY,
+    GpsSequenceModal,
+    isSwappable,
+    LOGISTICS_IMPORT_MODAL_KEY,
+    LogisticsImportModal,
+    SwapArrows,
+    useSwapOrders,
+} from "./reys-order-tools"
 
 export default function ManagerReys() {
     const { t } = useTranslation()
@@ -97,6 +106,10 @@ export default function ManagerReys() {
     const { openModal: openApproveModal } = useModal(APPROVE_TRIP_MODAL_KEY)
     const [moveOrder, setMoveOrder] = useState<ManagerOrders | null>(null)
     const { openModal: openMoveModal } = useModal(MOVE_TRIP_MODAL_KEY)
+    const canReorder = useHasAction("manager_flights_control")
+    const { openModal: openGpsSequence } = useModal(GPS_SEQUENCE_MODAL_KEY)
+    const { openModal: openLogisticsImport } = useModal(LOGISTICS_IMPORT_MODAL_KEY)
+    const { swap, isPending: swapping } = useSwapOrders(tripId)
 
     const [previewImages, setPreviewImages] = useState<{ id: number; image: string }[]>([])
     const [previewIndex, setPreviewIndex] = useState<number | null>(null)
@@ -253,6 +266,24 @@ export default function ManagerReys() {
         if (desc) out.push(...beforeTripLegs.map(legRowOf))
         return garage(out, desc)
     }, [data, legs, backLegs, garageVisits, search, kind, t])
+    const neighbours = useMemo(() => {
+        const list = rows.filter(isSwappable)
+        const map = new Map<number, { up?: ManagerOrders; down?: ManagerOrders }>()
+        list.forEach((r, i) => map.set(r.id, { up: list[i - 1], down: list[i + 1] }))
+        return map
+    }, [rows])
+    const swapCell = (order: ManagerOrders) => {
+        const near = canReorder && tripId && !kind ? neighbours.get(order.id) : undefined
+        if (!near) return null
+        return (
+            <SwapArrows
+                disabled={locked || swapping}
+                title={lockedTitle}
+                onUp={near.up ? () => swap(order, near.up) : undefined}
+                onDown={near.down ? () => swap(order, near.down) : undefined}
+            />
+        )
+    }
     const handleAdd = () => {
         clearKey(MANAGERS_ORDERS)
         openTripModal()
@@ -278,9 +309,10 @@ export default function ManagerReys() {
                 onEdit={canEditOrder ? (row) => handleEdit(row.original) : undefined}
                 rowEditDisabledTitle={(row) => (row.is_integration ? t("trips.reys_cols.logistics_locked") : undefined)}
                 rowAction={
-                    hasControl
+                    hasControl || canReorder
                         ? (order) =>
                               isVirtualRow(order) ? null
+                              : !hasControl ? swapCell(order)
                               : order.trip_confirmed === false ? (
                                   <Button
                                       size="sm"
@@ -296,6 +328,7 @@ export default function ManagerReys() {
                                       }}
                                   />
                               ) : (
+                                  <span className="inline-flex items-center gap-2">
                                   <Button
                                       size="sm"
                                       variant="ghost"
@@ -309,6 +342,8 @@ export default function ManagerReys() {
                                           openMoveModal()
                                       }}
                                   />
+                                  {swapCell(order)}
+                                  </span>
                               )
                         : undefined
                 }
@@ -322,10 +357,24 @@ export default function ManagerReys() {
                             <ReysFilters
                                 trailing={
                                     hasControl && tripId ? (
-                                        <Button disabled={locked} title={lockedTitle} onClick={handleAdd}>
-                                            <Plus size={16} />
-                                            {t("actions.add")}
-                                        </Button>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            {canReorder && (
+                                                <Button variant="outline" disabled={locked} title={lockedTitle ?? t("reys_order.gps_title")} onClick={openGpsSequence}>
+                                                    <Route size={16} />
+                                                    {t("reys_order.gps_button")}
+                                                </Button>
+                                            )}
+                                            {canReorder && (
+                                                <Button variant="outline" title={t("reys_order.import_title")} onClick={openLogisticsImport}>
+                                                    <Download size={16} />
+                                                    {t("reys_order.import_button")}
+                                                </Button>
+                                            )}
+                                            <Button disabled={locked} title={lockedTitle} onClick={handleAdd}>
+                                                <Plus size={16} />
+                                                {t("actions.add")}
+                                            </Button>
+                                        </div>
                                     ) : null
                                 }
                             />
@@ -352,6 +401,8 @@ export default function ManagerReys() {
             <ApproveTripModal order={approveOrder} />
             <MoveTripModal order={moveOrder} vehicle={trip?.vehicle} />
 
+            <GpsSequenceModal tripId={tripId} />
+            <LogisticsImportModal tripId={tripId} />
             <EmptyLegPayModal leg={payLeg} />
             <ExtraPayModal target={extraPay} />
 
