@@ -1,10 +1,12 @@
 import { formatMoney } from "@/lib/format-money"
 import { todayIso } from "@/lib/today-iso"
 import type { ColumnDef } from "@tanstack/react-table"
+import { Badge } from "@/components/ui/badge"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 export const VILOYAT_TARIFFS = "driver-salaries/viloyat-tariffs"
+export const SEPARATE_CITIES = "driver-salaries/viloyat-tariffs/cities"
 
 export type TariffHistoryItem = { amount: string; valid_from: string }
 
@@ -18,6 +20,10 @@ export type ViloyatTariff = {
     valid_from: string | null
     history: TariffHistoryItem[]
     upcoming: TariffHistoryItem | null
+    from_is_city?: boolean
+    to_is_city?: boolean
+    orders_count?: number
+    unpriced_count?: number
 }
 
 export type ViloyatTariffRow = ViloyatTariff & { id: string }
@@ -25,6 +31,8 @@ export type ViloyatTariffRow = ViloyatTariff & { id: string }
 export type ViloyatTariffsResponse = {
     results: ViloyatTariff[]
     viloyats: { id: number; name: string }[]
+    cities?: { id: number; name: string; viloyat: number; viloyat_name: string }[]
+    recent_days?: number
     prastoy_daily_amount?: string | null
     prastoy_valid_from?: string | null
 }
@@ -69,6 +77,26 @@ export const useSalaryColumns = () => {
                     ) : (
                         formatMoney(row.original.amount)
                     ),
+            },
+            {
+                id: "orders",
+                header: t("page.vt_orders"),
+                enableSorting: false,
+                cell: ({ row }) => {
+                    const total = row.original.orders_count ?? 0
+                    const missing = row.original.unpriced_count ?? 0
+                    if (!total) return <span className="text-muted-foreground">—</span>
+                    return (
+                        <span className="flex items-center gap-2">
+                            {total}
+                            {missing > 0 && (
+                                <Badge variant="destructive" className="text-xs">
+                                    {t("page.vt_unpriced", { count: missing })}
+                                </Badge>
+                            )}
+                        </span>
+                    )
+                },
             },
             {
                 id: "valid_from",

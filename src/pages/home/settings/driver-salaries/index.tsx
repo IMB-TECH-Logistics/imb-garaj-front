@@ -8,7 +8,8 @@ import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { Wallet } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { MapPin, Wallet } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
@@ -20,6 +21,7 @@ import {
     type ViloyatTariffRow,
     type ViloyatTariffsResponse,
 } from "./cols"
+import CitiesModal from "./cities-modal"
 import EditSalaryModal from "./edit-salary-modal"
 import PrastoyCard from "./prastoy-card"
 
@@ -31,6 +33,8 @@ const DriverSalariesPage = () => {
 
     const { openModal: openBulkModal } = useModal("bulk-salary")
     const { openModal: openEditModal } = useModal("edit-salary")
+    const { openModal: openCitiesModal } = useModal("separate-cities")
+    const onlyUnpriced = String(search.sf_unpriced ?? "") === "1"
     const [editingRow, setEditingRow] = useState<ViloyatTariffRow | null>(null)
     const [selectedRows, setSelectedRows] = useState<ViloyatTariffRow[]>([])
     const [clearSelectionTick, setClearSelectionTick] = useState(0)
@@ -47,7 +51,19 @@ const DriverSalariesPage = () => {
     const internalLabel = (name: string) => t("page.vt_internal", { name })
 
     const order = useMemo(
-        () => new Map((data?.viloyats ?? []).map((v, idx) => [v.id, idx])),
+        () =>
+            new Map(
+                [...(data?.viloyats ?? []), ...(data?.cities ?? [])].map((v, idx) => [v.id, idx]),
+            ),
+        [data],
+    )
+    // shahar → uning viloyati (viloyat filtri shaharlarni ham ko'rsatsin)
+    const cityParent = useMemo(
+        () => new Map((data?.cities ?? []).map((c) => [c.id, c.viloyat])),
+        [data],
+    )
+    const unpricedTotal = useMemo(
+        () => (data?.results ?? []).filter((r) => (r.unpriced_count ?? 0) > 0).length,
         [data],
     )
     const rows = useMemo<ViloyatTariffRow[]>(
@@ -68,11 +84,14 @@ const DriverSalariesPage = () => {
                               },
                           ],
                 )
+                .filter((r) => !onlyUnpriced || (r.unpriced_count ?? 0) > 0)
                 .filter(
                     (r) =>
                         !viloyat ||
                         String(r.from_region) === viloyat ||
-                        String(r.to_region) === viloyat,
+                        String(r.to_region) === viloyat ||
+                        String(cityParent.get(r.from_region)) === viloyat ||
+                        String(cityParent.get(r.to_region)) === viloyat,
                 )
                 .filter(
                     (r) =>
@@ -84,13 +103,14 @@ const DriverSalariesPage = () => {
                 .map((r, index) => ({ r, index }))
                 .sort(
                     (a, b) =>
+                        Number((b.r.unpriced_count ?? 0) > 0) - Number((a.r.unpriced_count ?? 0) > 0) ||
                         Number(a.r.amount == null) - Number(b.r.amount == null) ||
                         (order.get(a.r.from_region) ?? 0) - (order.get(b.r.from_region) ?? 0) ||
                         (order.get(a.r.to_region) ?? 0) - (order.get(b.r.to_region) ?? 0) ||
                         a.index - b.index,
                 )
                 .map(({ r }) => r),
-        [data, viloyat, query, order],
+        [data, viloyat, query, order, onlyUnpriced, cityParent],
     )
 
     const columns = useSalaryColumns()
@@ -100,6 +120,16 @@ const DriverSalariesPage = () => {
             search: ((prev: Record<string, unknown>) => ({
                 ...prev,
                 sf_viloyat: val ? String(val) : undefined,
+                page: undefined,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            })) as any,
+        })
+
+    const setOnlyUnpriced = (val: boolean) =>
+        navigate({
+            search: ((prev: Record<string, unknown>) => ({
+                ...prev,
+                sf_unpriced: val ? "1" : undefined,
                 page: undefined,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             })) as any,
@@ -151,6 +181,28 @@ const DriverSalariesPage = () => {
                         }
                         extraRight={
                             <>
+                                <label className="flex items-center gap-2 text-sm whitespace-nowrap">
+                                    <Switch checked={onlyUnpriced} onCheckedChange={setOnlyUnpriced} />
+                                    {t("page.vt_only_unpriced")}
+                                    {unpricedTotal > 0 && (
+                                        <Badge variant="destructive" className="text-xs">
+                                            {unpricedTotal}
+                                        </Badge>
+                                    )}
+                                </label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={openCitiesModal}
+                                    icon={<MapPin size={16} />}
+                                >
+                                    {t("page.vt_cities_btn")}
+                                    {(data?.cities?.length ?? 0) > 0 && (
+                                        <Badge variant="secondary" className="ml-1 text-xs">
+                                            {data?.cities?.length}
+                                        </Badge>
+                                    )}
+                                </Button>
                                 <div className="w-52">
                                     <Combobox
                                         className="h-10 text-sm"
@@ -194,6 +246,13 @@ const DriverSalariesPage = () => {
                         title={routeLabel(editingRow, internalLabel)}
                     />
                 )}
+            </Modal>
+            <Modal
+                title={t("page.vt_cities_title")}
+                modalKey="separate-cities"
+                size="max-w-lg"
+            >
+                <CitiesModal canEdit={hasControl} />
             </Modal>
             <Modal
                 title={t("actions.give_salary_btn")}
