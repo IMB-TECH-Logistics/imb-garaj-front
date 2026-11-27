@@ -50,7 +50,16 @@ const PERIODS = [
     { v: 0, l: "Hammasi" },
 ]
 
-type Col = MonthlyReport & { _n?: number }
+type Col = MonthlyReport & { _n?: number; _dist?: Record<string, number> }
+
+// Sof foyda taqsimoti — hisobot ichidagi «Sof foyda taqsimoti» bilan bir xil (backend saqlagan qiymatlar)
+const distOf = (r: MonthlyReport): Record<string, number> => {
+    const d: Record<string, number> = { firm: num(r.firm_amount), investors: num(r.dividends) }
+    ;(r.owners ?? []).forEach((o) => {
+        if (num(o.dividend)) d[`inv_${o.kontragent}`] = num(o.dividend)
+    })
+    return d
+}
 
 const NUM_FIELDS = [
     "income", "trip_expense", "trip_fuel", "trip_salary", "trip_other", "other_expense",
@@ -71,6 +80,10 @@ const groupCols = (rows: Col[], g: "m" | "q" | "y"): Col[] => {
     return [...map.entries()].map(([key, items], i) => {
         const sum: Record<string, string> = {}
         NUM_FIELDS.forEach((f) => (sum[f] = String(items.reduce((a, r) => a + num(r[f] as string), 0))))
+        const dist: Record<string, number> = {}
+        items.forEach((r) =>
+            Object.entries(r._dist ?? {}).forEach(([k, v]) => (dist[k] = (dist[k] ?? 0) + v)),
+        )
         const label = g === "y" ? `${key} yil` : `${key.slice(0, 4)} · ${key.slice(-1)}-chorak`
         return {
             ...sum,
@@ -79,6 +92,7 @@ const groupCols = (rows: Col[], g: "m" | "q" | "y"): Col[] => {
             month_label: label,
             status: items.every((r) => r.status === "approved") ? "approved" : "draft",
             _n: items.length,
+            _dist: dist,
         } as unknown as Col
     })
 }
@@ -100,7 +114,7 @@ export function PnlMatrix({ onOpen, actions }: { onOpen: (id: number) => void; a
 
     // eski → yangi (chapdan o'ngga), oxirida «Jami»
     const months = useMemo(() => {
-        const src: Col[] = list
+        const src: Col[] = list.map((r) => ({ ...r, _dist: distOf(r) }))
         const s = [...src].sort((a, b) => a.month.localeCompare(b.month))
         return groupCols(period ? s.slice(-period) : s, group)
     }, [list, period, group])
@@ -111,6 +125,16 @@ export function PnlMatrix({ onOpen, actions }: { onOpen: (id: number) => void; a
         const el = scrollRef.current
         if (el) el.scrollLeft = el.scrollWidth
     }, [months])
+
+    const investors = useMemo(() => {
+        const names = new Map<number, string>()
+        list.forEach((r) => {
+            ;(r.owners ?? []).forEach((o) => num(o.dividend) && names.set(o.kontragent, o.name))
+            ;(r.shares ?? []).forEach((sh) => !names.has(sh.kontragent) && names.set(sh.kontragent, sh.name))
+        })
+        return [...names.entries()]
+    }, [list])
+    const dist = (k: string) => (r: MonthlyReport) => (r as Col)._dist?.[k] ?? 0
 
     const neg = (f: (r: MonthlyReport) => number) => (r: MonthlyReport) => -f(r)
     const lines: Line[] = [
@@ -164,6 +188,20 @@ export function PnlMatrix({ onOpen, actions }: { onOpen: (id: number) => void; a
             hide: (rs) => rs.every((r) => !num(r.leasing_total)),
         },
         { key: "net", label: t("fin_report.lines.net"), get: (r) => num(r.net), kind: "total", margin: true },
+        { key: "d_firm", label: t("fin_report.dist.firm"), get: dist("firm"), kind: "indent" },
+        {
+            key: "d_inv",
+            label: t("fin_report.dist.investors"),
+            get: dist("investors"),
+            kind: "indent",
+            hide: (rs) => rs.every((r) => !dist("investors")(r)) && !investors.length,
+            children: investors.map(([id, name]) => ({
+                key: `d_inv_${id}`,
+                label: name,
+                get: dist(`inv_${id}`),
+                hide: (rs: MonthlyReport[]) => rs.every((r) => !dist(`inv_${id}`)(r)),
+            })),
+        },
     ]
 
     if (isLoading) return <p className="text-sm text-muted-foreground">{t("fin_report.loading")}</p>
