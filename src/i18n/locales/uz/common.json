@@ -2752,7 +2752,9 @@
             "add_trailer": "Tirkama qo'shish",
             "edit_trailer": "Tirkamani tahrirlash",
             "remove_trailer_question": "Tirkamani olib tashlamoqchimisiz?",
-            "remove_trailer_hint": "Avtomobil ({{truck}}) o'chirilmaydi, faqat tirkama ma'lumotlari tozalanadi."
+            "remove_trailer_hint": "Avtomobil ({{truck}}) o'chirilmaydi, faqat tirkama ma'lumotlari tozalanadi.",
+            "trailer_vehicle_optional_hint": "Avtomobilni tanlamasangiz, tirkama mashinasiz saqlanadi — keyin Texnik bazada mashinaga biriktirasiz.",
+            "free_trailers": "Mashinaga biriktirilmagan tirkamalar"
         },
         "documents": {
             "section_document": "Hujjat",

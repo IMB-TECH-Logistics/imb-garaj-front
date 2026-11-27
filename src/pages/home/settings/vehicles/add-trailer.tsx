@@ -2,10 +2,12 @@ import FormInput from "@/components/form/input"
 import { FormNumberInput } from "@/components/form/number-input"
 import { FormCombobox } from "@/components/form/combobox"
 import { Button } from "@/components/ui/button"
-import { VEHICLES, SETTINGS_VEHICLE_TYPE } from "@/constants/api-endpoints"
+import { VEHICLES, SETTINGS_VEHICLE_TYPE, TECH_BASE } from "@/constants/api-endpoints"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { usePatch } from "@/hooks/usePatch"
+import { usePost } from "@/hooks/usePost"
+import { handleFormError } from "@/lib/show-form-errors"
 import { useGlobalStore } from "@/store/global-store"
 import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -61,7 +63,31 @@ const AddTrailerModal = () => {
         },
     })
 
+    // Mashina tanlanmasa — mustaqil tirkama (Texnik baza), keyin mashinaga biriktiriladi
+    const { mutate: createStandalone, isPending: isCreating } = usePost({
+        onSuccess: () => {
+            toast.success(t("messages.success_add"))
+            reset()
+            clearKey(VEHICLES)
+            closeModal()
+            queryClient.refetchQueries({ queryKey: [VEHICLES] })
+            queryClient.invalidateQueries({ queryKey: [TECH_BASE] })
+        },
+        onError: (e: unknown) => handleFormError(e),
+    })
+
     const onSubmit = (values: TrailerForm) => {
+        if (!current?.id && !values.vehicle) {
+            createStandalone(`${TECH_BASE}/trailers`, {
+                plate: values.trailer_number.trim(),
+                type_id: values.trailer_type ?? undefined,
+                capacity_tons:
+                    values.trailer_capacity_tons === "" ?
+                        undefined
+                    :   String(values.trailer_capacity_tons).replace(",", "."),
+            })
+            return
+        }
         mutate(`${VEHICLES}/${values.vehicle}`, {
             trailer_number: values.trailer_number,
             trailer_type: values.trailer_type,
@@ -82,7 +108,6 @@ const AddTrailerModal = () => {
                             <span className="font-medium">{current.truck_number}</span>
                         </div>
                     :   <FormCombobox
-                            required
                             name="vehicle"
                             label={t("form.vehicle")}
                             options={vehicleOptions}
@@ -92,6 +117,11 @@ const AddTrailerModal = () => {
                             wrapperClassName="md:col-span-2"
                         />
                     }
+                    {!current?.id && (
+                        <p className="md:col-span-2 -mt-2 text-xs text-muted-foreground">
+                            {t("settings.vehicles.trailer_vehicle_optional_hint")}
+                        </p>
+                    )}
 
                     <FormInput
                         required
@@ -122,7 +152,7 @@ const AddTrailerModal = () => {
             </section>
 
             <div className="flex items-center justify-end gap-2 md:col-span-2">
-                <Button className="min-w-36 w-full md:w-max" type="submit" loading={isPending}>
+                <Button className="min-w-36 w-full md:w-max" type="submit" loading={isPending || isCreating}>
                     {t("actions.save")}
                 </Button>
             </div>

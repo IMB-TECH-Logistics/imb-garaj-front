@@ -2747,7 +2747,9 @@
             "add_trailer": "トレーラーを追加",
             "edit_trailer": "トレーラーを編集",
             "remove_trailer_question": "トレーラーを外しますか？",
-            "remove_trailer_hint": "車両 ({{truck}}) は削除されず、トレーラー情報のみ消去されます。"
+            "remove_trailer_hint": "車両 ({{truck}}) は削除されず、トレーラー情報のみ消去されます。",
+            "trailer_vehicle_optional_hint": "車両を選択しない場合、トレーラーは単独で保存されます。後で技術ベースで連結できます。",
+            "free_trailers": "車両に連結されていないトレーラー"
         },
         "documents": {
             "section_document": "書類",

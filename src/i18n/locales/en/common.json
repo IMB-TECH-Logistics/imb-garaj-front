@@ -2755,7 +2755,9 @@
             "add_trailer": "Add trailer",
             "edit_trailer": "Edit trailer",
             "remove_trailer_question": "Remove the trailer?",
-            "remove_trailer_hint": "The vehicle ({{truck}}) is kept; only the trailer data is cleared."
+            "remove_trailer_hint": "The vehicle ({{truck}}) is kept; only the trailer data is cleared.",
+            "trailer_vehicle_optional_hint": "If no vehicle is selected, the trailer is saved on its own — couple it later in Tech base.",
+            "free_trailers": "Trailers not attached to a vehicle"
         },
         "documents": {
             "section_document": "Document",

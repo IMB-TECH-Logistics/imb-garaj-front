@@ -3,13 +3,13 @@ import DeleteModal from "@/components/custom/delete-modal"
 import Modal from "@/components/custom/modal"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/ui/datatable"
-import { VEHICLES } from "@/constants/api-endpoints"
+import { TECH_BASE, VEHICLES } from "@/constants/api-endpoints"
 import { useHasAction } from "@/constants/useUser"
 import { useGet } from "@/hooks/useGet"
 import { useModal } from "@/hooks/useModal"
 import { formatMoney } from "@/lib/format-money"
 import { useGlobalStore } from "@/store/global-store"
-import { useSearch } from "@tanstack/react-router"
+import { Link, useSearch } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import TableHeader from "../table-header"
 import AddTrailerModal from "./add-trailer"
@@ -44,6 +44,14 @@ const VehiclesPage = () => {
     const { data: trailersCount } = useGet<ListResponse<VehicleDetailType>>(VEHICLES, {
         params: { ...countParams, has_trailer: true },
     })
+    // Mashinaga biriktirilmagan (mustaqil) tirkamalar — Texnik bazadan
+    const { data: techTrailers } = useGet<
+        ListResponse<{ id: number; plate: string; type_name: string | null; capacity_tons: number | null; coupled: unknown }>
+    >(TECH_BASE, {
+        params: { kind: "trailer", page_size: 1000 },
+        enabled: isTrailers,
+    })
+    const freeTrailers = (techTrailers?.results ?? []).filter((r) => !r.coupled)
     const tabLabel = (label: string, count?: number) => (
         <span className="flex items-center gap-2">
             {label}
@@ -113,6 +121,33 @@ const VehiclesPage = () => {
                     />
                 }
             />
+            {isTrailers && freeTrailers.length > 0 && (
+                <div className="mt-4 rounded-lg border p-4">
+                    <div className="mb-3 flex items-center gap-2 font-medium">
+                        {t("settings.vehicles.free_trailers")}
+                        <Badge className="text-xs">{freeTrailers.length}</Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {freeTrailers.map((r) => (
+                            <Link
+                                key={r.id}
+                                to="/texnik-baza/$id"
+                                params={{ id: String(r.id) }}
+                                className="rounded-md border bg-muted/30 px-3 py-2 text-sm hover:bg-muted"
+                            >
+                                <span className="font-medium">{r.plate}</span>
+                                {(r.type_name || r.capacity_tons != null) && (
+                                    <span className="ml-2 text-muted-foreground">
+                                        {[r.type_name, r.capacity_tons != null ? `${r.capacity_tons} t` : null]
+                                            .filter(Boolean)
+                                            .join(" · ")}
+                                    </span>
+                                )}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
             {isTrailers ?
                 <RemoveTrailerModal item={item} />
             :   <DeleteModal path={VEHICLES} id={item?.id} />}
