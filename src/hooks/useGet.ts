@@ -5,11 +5,16 @@ import { AxiosRequestConfig } from "axios"
 
 const DEFAULT_STALE_TIME = 1000 * 5*60
 
+// Kalitda parametr NOMI ham bo'lishi shart: faqat qiymatlar olinsa
+// {no_price: true} va {pending_price: true} bir xil kalit [url, true] bo'lib,
+// filtr almashganda keshdagi boshqa filtr ma'lumoti qaytib qolardi.
 export const buildQueryKey = (url: string, params?: Record<string, any>) => {
-    const paramValues = Object.values(params || {}).filter(
-        (v) => v !== undefined && v !== null && v !== "",
+    const cleanParams = Object.fromEntries(
+        Object.entries(params || {}).filter(
+            ([, v]) => v !== undefined && v !== null && v !== "",
+        ),
     )
-    return paramValues.length > 0 ? [url, ...paramValues] : [url]
+    return Object.keys(cleanParams).length > 0 ? [url, cleanParams] : [url]
 }
 
 export type UseGetArgs<TData = any, TQueryFnData = unknown, TError = any> = {
