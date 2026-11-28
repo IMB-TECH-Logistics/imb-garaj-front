@@ -2962,6 +2962,17 @@
             "nothing_changed": "Nothing was changed",
             "amount_needs_kassa": "To change the amount of a counterparty advance, choose Cash desk in «From»"
         },
+        "driver_change": {
+            "title": "Driver is changing",
+            "description": "Did this trip start with this driver, or is the driver changing now?",
+            "fix": "This driver from the start (fix a mistake)",
+            "fix_hint": "The driver is assigned to the whole trip; the start date stays.",
+            "handover": "Driver is changing now",
+            "handover_hint": "Close this trip first, then open a new trip with the new driver.",
+            "handover_title": "Close the trip first",
+            "handover_text": "If the driver is changing, close this trip with its end date and mileage. Then open a new trip with the new driver.",
+            "ok": "OK"
+        },
         "create_trip": {
             "driver_and_advance": "Driver and advance",
             "example_advance": "Example: 5 000 000",

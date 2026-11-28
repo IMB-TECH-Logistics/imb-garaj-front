@@ -2959,6 +2959,17 @@
             "nothing_changed": "Hech narsa o'zgartirilmadi",
             "amount_needs_kassa": "Kontragent bergan avans summasini o'zgartirish uchun «Kimdan» da Kassani tanlang"
         },
+        "driver_change": {
+            "title": "Haydovchi o'zgaryapti",
+            "description": "Bu aylanma shu haydovchi bilan boshlanganmi yoki haydovchi hozir almashyaptimi?",
+            "fix": "Boshidan shu haydovchi (xatoni tuzatish)",
+            "fix_hint": "Haydovchi aylanmaga boshidan biriktiriladi, boshlanish sanasi o'zgarmaydi.",
+            "handover": "Haydovchi hozir almashyapti",
+            "handover_hint": "Avval shu aylanma yopiladi, keyin yangi haydovchi bilan yangi aylanma ochiladi.",
+            "handover_title": "Avval aylanmani yoping",
+            "handover_text": "Haydovchi almashayotgan bo'lsa, shu aylanmani tugash sanasi va probeg bilan yoping. Keyin yangi haydovchi bilan yangi aylanma oching.",
+            "ok": "Tushunarli"
+        },
         "create_trip": {
             "driver_and_advance": "Haydovchi va avans",
             "example_advance": "Misol: 5 000 000",

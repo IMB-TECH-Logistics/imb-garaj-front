@@ -14,12 +14,22 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useParams } from "@tanstack/react-router"
 import { startOfDay } from "date-fns"
 import { X } from "lucide-react"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { todayIso } from "@/lib/today-iso"
 import { handleFormError } from "@/lib/show-form-errors"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 // Trip.start_fuel / end_fuel: DecimalField(max_digits=10, decimal_places=2)
 const MAX_FUEL_LITERS = 99_999_999.99
@@ -42,6 +52,9 @@ export default function CreateManagerTrips() {
     })
 
     const { handleSubmit, reset, control, watch, setValue } = form
+    // Ochiq aylanmada haydovchi o'zgarsa: xato tuzatishmi yoki almashuvmi — so'raladi
+    const [driverAsk, setDriverAsk] = useState<FormData | null>(null)
+    const [handoverInfo, setHandoverInfo] = useState(false)
 
     const { data: startData } = useGet(MANAGERS_TRIPS_START_DATA, {
         params: { vehicle_id: id },
@@ -141,6 +154,11 @@ export default function CreateManagerTrips() {
         }
 
         if (values?.id) {
+            const driverChanged = item?.driver != null && String(values.driver) !== String(item.driver)
+            if (driverChanged) {
+                setDriverAsk(formData)
+                return
+            }
             editTrip(`${MANAGERS_TRIPS}/${values.id}`, formData)
         } else {
             createTrip(MANAGERS_TRIPS, formData)
@@ -148,6 +166,20 @@ export default function CreateManagerTrips() {
     }
 
     const isPending = isCreating || isEditing
+
+    function confirmDriverFix() {
+        if (!driverAsk || !item?.id) return
+        driverAsk.set("driver_change", "fix")
+        driverAsk.set("start", String(item.start))
+        editTrip(`${MANAGERS_TRIPS}/${item.id}`, driverAsk)
+        setDriverAsk(null)
+    }
+
+    function chooseHandover() {
+        setDriverAsk(null)
+        setValue("driver", item?.driver)
+        setHandoverInfo(true)
+    }
 
     return (
         <div className="max-h-[80vh] overflow-y-auto pr-2 pl-2 no-scrollbar-x">
@@ -302,6 +334,38 @@ export default function CreateManagerTrips() {
                     <Button loading={isPending}>{t("actions.save")}</Button>
                 </div>
             </form>
+            <AlertDialog open={!!driverAsk} onOpenChange={(open) => !open && setDriverAsk(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t("trips.driver_change.title")}</AlertDialogTitle>
+                        <AlertDialogDescription>{t("trips.driver_change.description")}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="space-y-2">
+                        <Button type="button" variant="outline" className="h-auto w-full flex-col items-start whitespace-normal py-2 text-left" onClick={confirmDriverFix}>
+                            <span className="font-medium">{t("trips.driver_change.fix")}</span>
+                            <span className="text-xs text-muted-foreground">{t("trips.driver_change.fix_hint")}</span>
+                        </Button>
+                        <Button type="button" variant="outline" className="h-auto w-full flex-col items-start whitespace-normal py-2 text-left" onClick={chooseHandover}>
+                            <span className="font-medium">{t("trips.driver_change.handover")}</span>
+                            <span className="text-xs text-muted-foreground">{t("trips.driver_change.handover_hint")}</span>
+                        </Button>
+                    </div>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={handoverInfo} onOpenChange={setHandoverInfo}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t("trips.driver_change.handover_title")}</AlertDialogTitle>
+                        <AlertDialogDescription>{t("trips.driver_change.handover_text")}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction onClick={() => setHandoverInfo(false)}>{t("trips.driver_change.ok")}</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
