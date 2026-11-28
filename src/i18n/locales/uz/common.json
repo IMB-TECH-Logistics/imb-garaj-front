@@ -3983,6 +3983,7 @@
         "import_button": "Logistikadan",
         "import_title": "Logistikadan reys qo'shish",
         "import_hint": "Logistikadan kelmay qolgan buyurtmaning kodini kiriting (masalan 600CRI)",
+        "import_unarchive": "Arxivdan chiqarish va yuklash",
         "import_submit": "Qidirish va qo'shish",
         "import_done": "Reys logistikadan qo'shildi",
         "import_exists": "Bu reys garajda allaqachon bor",

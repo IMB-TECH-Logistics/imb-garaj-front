@@ -3842,6 +3842,7 @@
         "import_button": "From logistics",
         "import_title": "Add trip from logistics",
         "import_hint": "Enter the code of the order that did not arrive from logistics (e.g. 600CRI)",
+        "import_unarchive": "Restore from archive and import",
         "import_submit": "Find and add",
         "import_done": "Trip added from logistics",
         "import_exists": "This trip already exists in the garage",

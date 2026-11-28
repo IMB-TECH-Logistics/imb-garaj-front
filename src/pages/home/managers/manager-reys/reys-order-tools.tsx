@@ -215,22 +215,25 @@ export function LogisticsImportModal({ tripId }: { tripId?: string }) {
     const [code, setCode] = useState("")
     const [result, setResult] = useState<ImportResult | null>(null)
     const [error, setError] = useState<string | null>(null)
+    // Reys garajda arxivlangan bo'lsa: kim/qachon o'chirgani va «Arxivdan chiqarish» tugmasi
+    const [archived, setArchived] = useState<{ order: number; detail: string } | null>(null)
     const valid = /^[0-9A-Za-z]{4,10}$/.test(code.trim())
 
     const reset = () => {
         setCode("")
         setResult(null)
         setError(null)
+        setArchived(null)
     }
 
-    const submit = (e: React.FormEvent) => {
-        e.preventDefault()
+    const send = (restore: boolean) => {
         if (!valid) return
         setError(null)
         setResult(null)
+        setArchived(null)
         mutate(
             `${MANAGERS_ORDERS}/import-logistics`,
-            { code: code.trim().toUpperCase(), trip: tripId ? Number(tripId) : null },
+            { code: code.trim().toUpperCase(), trip: tripId ? Number(tripId) : null, restore },
             {
                 onSuccess: (data: ImportResult) => {
                     setResult(data)
@@ -239,9 +242,21 @@ export function LogisticsImportModal({ tripId }: { tripId?: string }) {
                         refresh()
                     }
                 },
-                onError: (err: any) => setError(errorText(err, t("reys_order.import_error"))),
+                onError: (err: any) => {
+                    const data = err?.response?.data
+                    if (data?.archived) {
+                        setArchived({ order: data.order, detail: data.detail })
+                        return
+                    }
+                    setError(errorText(err, t("reys_order.import_error")))
+                },
             },
         )
+    }
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault()
+        send(false)
     }
 
     return (
@@ -260,6 +275,14 @@ export function LogisticsImportModal({ tripId }: { tripId?: string }) {
                     onChange={(e) => setCode(e.target.value.replace(/\s/g, ""))}
                 />
                 {error && <p className="text-sm text-destructive">{error}</p>}
+                {archived && (
+                    <div className="space-y-2 rounded border border-amber-300 bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
+                        <p>{archived.detail}</p>
+                        <Button type="button" size="sm" loading={isPending} disabled={isPending} onClick={() => send(true)}>
+                            {t("reys_order.import_unarchive")}
+                        </Button>
+                    </div>
+                )}
                 {result && (
                     <div className="rounded border p-3 text-sm">
                         <p className="font-medium">
